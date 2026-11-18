@@ -78,8 +78,11 @@ func preview_slot() -> Slot:
 	return Slot.TAP
 
 
-## 반환: 이 터치를 스킬 손가락으로 받았으면 true.
+## 스킬 버튼 누름. 반환: 이 터치를 스킬 손가락으로 받았으면 true.
 func on_press(index: int, time: float) -> bool:
+	# 버튼이 우선: 아직 판정 전인 제스처 누름은 버린다.
+	if input.is_from(SkillInput.Source.GESTURE) and input.state == SkillInput.State.PRESSED:
+		input.reset()
 	if player == null or kit == null or player.is_dead() or not input.press(index, time):
 		return false
 	if _dash_link() and is_ready(Slot.DASH):
@@ -110,6 +113,47 @@ func cancel_input() -> void:
 	input.reset()
 
 
+# --- 한 손 제스처 (이동 손가락) ---
+#   제자리 짧게 탭            → tap (대시 직후면 dash 기술)
+#   제자리 꾹 누르기 → 충전   → 그대로 드래그해 이동 가능 → 떼면 charge
+#   tap_slop 이상 움직이면 그 누름은 이동이므로 스킬 없음
+
+var _gesture_origin: Vector2 = Vector2.ZERO
+
+
+func gesture_down(index: int, pos: Vector2, time: float) -> bool:
+	if player == null or kit == null or player.is_dead():
+		return false
+	if not input.press(index, time, SkillInput.Source.GESTURE, kit.gesture_hold_threshold):
+		return false
+	_gesture_origin = pos
+	return true
+
+
+func gesture_move(index: int, pos: Vector2, time: float) -> void:
+	if not input.is_from(SkillInput.Source.GESTURE) or input.index != index:
+		return
+	input.update(time)
+	if input.state == SkillInput.State.PRESSED and pos.distance_to(_gesture_origin) > kit.gesture_tap_slop:
+		input.reset()
+
+
+func gesture_up(index: int, time: float) -> Slot:
+	if not input.is_from(SkillInput.Source.GESTURE) or input.index != index:
+		return Slot.NONE
+	return on_release(index, time)
+
+
+## 플릭(대시) 등으로 이 제스처를 스킬 없이 끝낸다.
+func gesture_cancel(index: int) -> void:
+	if input.is_from(SkillInput.Source.GESTURE) and input.index == index:
+		input.reset()
+
+
+func is_gesture_charging() -> bool:
+	return input.is_from(SkillInput.Source.GESTURE) and input.state == SkillInput.State.CHARGING
+
+
 ## 쿨타임을 걸고 기술을 발동한다. 반환: 진행 상태.
 func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
 	var d := def_of(slot)
@@ -128,7 +172,8 @@ func tick(delta: float, time: float) -> void:
 	for k in _cd.keys():
 		_cd[k] = maxf(float(_cd[k]) - delta, 0.0)
 	# 선입력: 버튼을 누른 채(탭 판정 전) 대시가 시작되면 dash 기술로 바꾼다.
-	if input.state == SkillInput.State.PRESSED and player and player.is_dashing() and is_ready(Slot.DASH):
+	if input.is_from(SkillInput.Source.BUTTON) and input.state == SkillInput.State.PRESSED \
+			and player and player.is_dashing() and is_ready(Slot.DASH):
 		input.consume()
 		cast(Slot.DASH)
 	input.update(time)

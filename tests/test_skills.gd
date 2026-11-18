@@ -238,6 +238,7 @@ func _controller() -> TouchController:
 	var c: TouchController = auto_free(TouchController.new())
 	c.player = player
 	c.skill_caster = caster
+	c.skill_button_enabled = true  # 버튼 모드 테스트 (기본은 꺼짐)
 	return c
 
 
