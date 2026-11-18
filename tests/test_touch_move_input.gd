@@ -330,3 +330,14 @@ func test_direction_reversal_while_moving_is_not_a_dash() -> void:
 	if input.touch_up(0, pos, t + 1.0 / 60.0) != Vector2.ZERO:
 		flicks += 1
 	assert_int(flicks).is_equal(0)
+
+
+
+func test_turned_chain_flick_needs_only_short_quick_move() -> void:
+	# 대시 직후 꺾어 튕기기는 40px·500/s 만으로 다음 대시 (사이에 걷기 최소화)
+	input.touch_down(0, Vector2(360, 900), 0.0)
+	input.touch_up(0, Vector2(460, 900), 0.06)  # 첫 플릭 (오른쪽)
+	input.touch_down(0, Vector2(460, 900), 0.12)
+	input.touch_move(0, Vector2(460, 880), 0.14)
+	var d := input.touch_move(0, Vector2(460, 855), 0.18)  # 위로 45px, 약 750/s
+	assert_float(d.dot(Vector2.UP)).is_greater(0.9)

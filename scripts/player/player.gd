@@ -36,6 +36,12 @@ var _hurt_cd: float = 0.0
 ## 회피 성공 등으로 얻은 추가 무적 남은 시간(초).
 var _skill_invuln: float = 0.0
 var _dash_dir: Vector2 = Vector2.ZERO
+## 대시 끝 미끄러짐: 대시가 끝날 때 속도를 이어받아 이 시간(초) 동안 감속 (대시 사이를 매끄럽게).
+@export var dash_glide_time: float = 0.1
+## 미끄러짐 시작 속도 = 대시 속도 × 이 값.
+@export var dash_glide_ratio: float = 0.4
+var _glide_vel: Vector2 = Vector2.ZERO
+var _glide_left: float = 0.0
 var _dash_time_left: float = 0.0
 ## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력 판정용.
 var _since_dash_end: float = INF
@@ -171,6 +177,7 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 		return false
 	_dash_dir = dir.normalized()
 	_dash_time_left = dash_duration
+	_glide_left = 0.0
 	_since_dash_start = 0.0
 	_dash_start_pos = global_position
 	facing = _dash_dir
@@ -185,13 +192,20 @@ func compute_velocity(delta: float) -> Vector2:
 	_skill_invuln = maxf(_skill_invuln - delta, 0.0)
 	if not is_dashing():
 		_since_dash_end += delta
-		return move_input * move_speed
+		var v_move := move_input * move_speed
+		if _glide_left > 0.0:
+			v_move += _glide_vel * (_glide_left / dash_glide_time)
+			_glide_left = maxf(_glide_left - delta, 0.0)
+		return v_move
 	var step := minf(delta, _dash_time_left)
 	_dash_time_left -= delta
 	var v := _dash_dir * (dash_distance / dash_duration) * (step / delta if delta > 0.0 else 0.0)
 	if _dash_time_left <= 0.0:
 		_dash_time_left = 0.0
 		_since_dash_end = 0.0
+		if dash_glide_time > 0.0:
+			_glide_vel = _dash_dir * (dash_distance / dash_duration) * dash_glide_ratio
+			_glide_left = dash_glide_time
 		dash_ended.emit()
 	return v
 

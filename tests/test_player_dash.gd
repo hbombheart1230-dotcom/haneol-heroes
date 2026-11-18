@@ -30,6 +30,7 @@ func test_input_is_clamped_to_unit_length() -> void:
 
 
 func test_dash_travels_dash_distance_in_dash_duration() -> void:
+	player.dash_glide_time = 0.0  # 미끄러짐 제외하고 대시 거리만
 	assert_bool(player.request_dash(Vector2.UP)).is_true()
 	assert_bool(player.is_dashing()).is_true()
 	var moved := _run(player.dash_duration + DT * 3)
@@ -157,6 +158,7 @@ func test_controller_canceled_touch_resets_without_dash() -> void:
 
 
 func test_flick_during_dash_dashes_immediately() -> void:
+	player.dash_glide_time = 0.0
 	# 연속 대시: 대시 중 새 요청은 기다리지 않고 즉시 새 방향으로
 	assert_bool(player.request_dash(Vector2.RIGHT)).is_true()
 	player.compute_velocity(DT)
@@ -173,3 +175,23 @@ func test_flick_during_dash_without_charge_is_ignored() -> void:
 	player.request_dash(Vector2.UP)  # 2회째 (즉시)
 	assert_bool(player.request_dash(Vector2.LEFT)).is_false()  # 충전 없음
 	assert_vector(player.get_dash_direction()).is_equal_approx(Vector2.UP, Vector2(0.001, 0.001))
+
+
+
+func test_dash_end_glides_then_settles() -> void:
+	# 대시가 끝나면 뚝 멈추지 않고 짧게 미끄러지며 감속
+	player.request_dash(Vector2.RIGHT)
+	_run(player.dash_duration)
+	var v1 := player.compute_velocity(DT)
+	assert_float(v1.x).is_greater(0.0)
+	assert_float(v1.x).is_less(player.dash_distance / player.dash_duration)
+	_run(player.dash_glide_time + DT)
+	assert_vector(player.compute_velocity(DT)).is_equal(Vector2.ZERO)
+
+
+func test_new_dash_cancels_glide() -> void:
+	player.request_dash(Vector2.RIGHT)
+	_run(player.dash_duration + DT)
+	player.request_dash(Vector2.LEFT)
+	var v := player.compute_velocity(DT)
+	assert_float(v.x).is_less(0.0)

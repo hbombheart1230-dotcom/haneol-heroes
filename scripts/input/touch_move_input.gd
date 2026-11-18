@@ -28,9 +28,12 @@ var move_min_distance: float = 110.0
 var move_min_speed: float = 1300.0
 ## 급가속: 플릭 구간 속도가 직전 구간(실제 경로 길이 기준) 속도의 이 배수 이상.
 var flick_burst_ratio: float = 1.6
-## 연속 대시: 직전 플릭 후 이 시간(초) 안에 방향을 크게 꺾은(코사인 < chain_max_dot) 플릭은 쉬운 기준.
+## 연속 대시: 직전 플릭 후 이 시간(초) 안에 방향을 크게 꺾은(코사인 < chain_max_dot) 플릭은
+## 더 쉬운 기준 (사이에 걷기가 끼지 않게, 실기기 피드백).
 var chain_window: float = 0.4
 var chain_max_dot: float = 0.5
+var chain_min_distance: float = 40.0
+var chain_min_speed: float = 500.0
 ## 손가락이 움직이는 동안 터치 이벤트 간격의 상한(초). 이보다 긴 공백은 "정지"로 본다.
 ## Android 터치 샘플링은 보통 60~240Hz(4~17ms).
 var max_event_gap: float = 0.05
@@ -157,6 +160,9 @@ func _detect_flick(time: float, releasing: bool = false) -> Vector2:
 	var easy := prev_speed < rest_speed or chained
 	var need_dist := rest_min_distance if easy else move_min_distance
 	var need_speed := rest_min_speed if easy else move_min_speed
+	if chained:
+		need_dist = chain_min_distance
+		need_speed = chain_min_speed
 	var check := {"dist": dist, "speed": speed, "need": need_speed, "prev": prev_speed, "result": ""}
 	var reason := ""
 	if dist < need_dist:
