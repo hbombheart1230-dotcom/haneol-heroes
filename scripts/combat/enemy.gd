@@ -1,12 +1,14 @@
 class_name Enemy
 extends CharacterBody2D
-## 추적형 적 (P0-B 1종). 플레이어를 향해 직선 추적, 주변 적과 간단히 분리.
-## 체력·피격은 health_hitbox_hurtbox 애드온의 Health / HurtBox2D를 쓴다.
+## 추적형 적. 플레이어를 향해 직선 추적, 주변 적과 간단히 분리.
+## 종류별 수치는 data(EnemyData)에서 읽는다. 체력·피격은 health_hitbox_hurtbox 애드온.
 
 signal killed(enemy: Enemy)
 
 const GROUP := "enemies"
 
+## 지정하면 _ready에서 아래 수치와 체력을 이 데이터로 덮어쓴다.
+@export var data: EnemyData
 @export var move_speed: float = 120.0
 ## 플레이어 접촉 시 피해량.
 @export var contact_damage: int = 10
@@ -30,6 +32,12 @@ func apply_knockback(impulse: Vector2) -> void:
 
 
 func _ready() -> void:
+	if data:
+		move_speed = data.move_speed
+		contact_damage = data.contact_damage
+		body_radius = data.body_radius
+		health.max = data.max_hp
+		health.current = data.max_hp
 	add_to_group(GROUP)
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
@@ -77,5 +85,6 @@ func _draw() -> void:
 	draw_set_transform(Vector2(0, body_radius * 0.7), 0.0, Vector2(1.0, 0.45))
 	draw_circle(Vector2.ZERO, body_radius, Color(0, 0, 0, 0.3))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	var c := Color(1, 1, 1) if _flash > 0.0 else Color(0.75, 0.2, 0.25)
+	var base := data.color if data else Color(0.75, 0.2, 0.25)
+	var c := Color(1, 1, 1) if _flash > 0.0 else base
 	draw_circle(Vector2(0, -body_radius * 0.3), body_radius, c)

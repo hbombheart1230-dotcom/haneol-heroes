@@ -1,32 +1,38 @@
 class_name AutoAttack
 extends Node2D
-## 이순신 자동 공격 (P0-B).
-## - 근접: 사거리 안에 적이 있으면 바라보는(또는 가장 가까운 적) 방향 부채꼴 베기.
-## - 원거리: 근접 사거리 밖, 원거리 사거리 안의 가장 가까운 적에게 검기 발사.
-## 이동 중에도 계속 발동한다. 수치는 실험 값.
+## 자동 기본 공격 (영웅 공통). 수치는 BasicAttackData(영웅 데이터)에서 읽는다.
+## - 근접: 사거리 안에 적이 있으면 가장 가까운 적 방향 부채꼴 베기.
+## - 원거리: 근접 사거리 밖, 원거리 사거리 안의 가장 가까운 적에게 투사체 발사.
+## 이동 중에도 계속 발동한다.
 
 signal melee_swung(direction: Vector2, hits: int)
 signal projectile_fired(projectile: Projectile)
 
 @export var player: Player
+## 비어 있으면 player.hero.attack, 그것도 없으면 기본값.
+@export var data: BasicAttackData
 @export var projectile_scene: PackedScene
 ## 투사체를 붙일 노드 (월드). 비어 있으면 플레이어의 부모.
 @export var projectile_parent: Node
-
-@export_group("Melee")
-@export var melee_interval: float = 0.55
-@export var melee_range: float = 110.0
-@export var melee_arc_degrees: float = 140.0
-@export var melee_damage: int = 12
-
-@export_group("Ranged")
-@export var ranged_interval: float = 0.8
-@export var ranged_range: float = 480.0
 
 var _melee_cd: float = 0.0
 var _ranged_cd: float = 0.0
 var _swing_dir: Vector2 = Vector2.DOWN
 var _swing_time: float = 0.0
+
+
+func _ready() -> void:
+	if data == null and player and player.hero:
+		data = player.hero.attack
+	if data == null:
+		data = BasicAttackData.new()
+
+
+## 사용 중인 수치 (테스트 등에서 _ready 전에 호출돼도 기본값을 준다).
+func stats() -> BasicAttackData:
+	if data == null:
+		data = BasicAttackData.new()
+	return data
 
 
 func enemies() -> Array:
@@ -41,11 +47,11 @@ func tick(delta: float, enemy_list: Array) -> void:
 	if player == null:
 		return
 	var from := player.global_position
-	var nearest := Targeting.nearest(enemy_list, from, ranged_range)
+	var nearest := Targeting.nearest(enemy_list, from, stats().ranged_range)
 	if nearest == null:
 		return
 	var to_nearest := nearest.global_position - from
-	if to_nearest.length() <= melee_range:
+	if to_nearest.length() <= stats().melee_range:
 		if _melee_cd <= 0.0:
 			_melee(from, to_nearest, enemy_list)
 	elif _ranged_cd <= 0.0:
@@ -53,24 +59,29 @@ func tick(delta: float, enemy_list: Array) -> void:
 
 
 func _melee(from: Vector2, toward: Vector2, enemy_list: Array) -> void:
-	_melee_cd = melee_interval
+	var d := stats()
+	_melee_cd = d.melee_interval
 	_swing_dir = toward.normalized() if toward.length_squared() > 0.0001 else player.facing
 	_swing_time = 0.12
-	var hits := Targeting.in_arc(enemy_list, from, _swing_dir, melee_range, melee_arc_degrees)
+	var hits := Targeting.in_arc(enemy_list, from, _swing_dir, d.melee_range, d.melee_arc_degrees)
 	for e in hits:
 		var h := e.get_node_or_null("Health") as Health
 		if h:
-			h.damage(melee_damage)
+			h.damage(d.melee_damage)
 	melee_swung.emit(_swing_dir, hits.size())
 	queue_redraw()
 
 
 func _fire(from: Vector2, dir: Vector2) -> void:
-	_ranged_cd = ranged_interval
+	var d := stats()
+	_ranged_cd = d.ranged_interval
 	if projectile_scene == null:
 		return
 	var p := projectile_scene.instantiate() as Projectile
 	p.direction = dir
+	p.damage = d.ranged_damage
+	p.speed = d.ranged_speed
+	p.lifetime = d.ranged_lifetime
 	p.global_position = from
 	var parent := projectile_parent if projectile_parent else player.get_parent()
 	parent.add_child(p)
@@ -86,6 +97,6 @@ func _draw() -> void:
 	if _swing_time <= 0.0:
 		return
 	var a := _swing_dir.angle()
-	var half := deg_to_rad(melee_arc_degrees * 0.5)
+	var half := deg_to_rad(stats().melee_arc_degrees * 0.5)
 	var alpha := _swing_time / 0.12
-	draw_arc(Vector2.ZERO, melee_range * 0.85, a - half, a + half, 20, Color(0.55, 0.85, 1.0, 0.8 * alpha), 10.0)
+	draw_arc(Vector2.ZERO, stats().melee_range * 0.85, a - half, a + half, 20, Color(0.55, 0.85, 1.0, 0.8 * alpha), 10.0)

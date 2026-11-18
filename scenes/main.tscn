@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/main.gd" id="0_main"]
 [ext_resource type="Script" path="res://scripts/world/arena.gd" id="1_arena"]
@@ -12,6 +12,8 @@
 [ext_resource type="PackedScene" path="res://scenes/projectile.tscn" id="9_proj"]
 [ext_resource type="Script" path="res://scripts/skills/skill_caster.gd" id="10_skill"]
 [ext_resource type="Script" path="res://scripts/fx/fx_layer.gd" id="11_fx"]
+[ext_resource type="Resource" path="res://data/heroes/yi_sun_sin.tres" id="12_hero"]
+[ext_resource type="Script" path="res://scripts/player/player_view.gd" id="13_view"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 22.0
@@ -43,8 +45,12 @@ arena_rect = Rect2(-870, -1370, 1740, 2740)
 collision_mask = 0
 motion_mode = 1
 script = ExtResource("2_player")
+hero = ExtResource("12_hero")
 arena_rect = Rect2(-870, -1370, 1740, 2740)
 contact_sensor = NodePath("ContactSensor")
+
+[node name="PlayerView" type="Node2D" parent="Player"]
+script = ExtResource("13_view")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 shape = SubResource("CircleShape2D_body")

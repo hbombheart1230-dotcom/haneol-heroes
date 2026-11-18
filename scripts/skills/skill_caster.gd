@@ -1,126 +1,213 @@
 class_name SkillCaster
 extends Node2D
-## 이순신 상황 반응형 단일 스킬 버튼 (무공 연계, P0-C).
-##   대시 중 / 대시 직후 누름 → 파도격 (누르는 즉시 발동)
-##   짧게 눌렀다 뗌            → 해룡참
-##   길게 눌러 충전 후 뗌      → 해일검기 (이동하며 충전 가능)
-## 수치는 모두 실험 값.
+## 상황 반응형 단일 스킬 버튼 (무공 연계) — 영웅 공통.
+## 어떤 기술을 쓸지는 플레이어 상태로 정하고, 기술 내용은 SkillKit(영웅 데이터)이 정한다.
+##   대시 중 / 대시 직후 누름  → kit.dash   (누르는 즉시)
+##   짧게 눌렀다 뗌            → kit.tap
+##   길게 눌러 충전 후 뗌      → kit.charge (이동하며 충전 가능)
 
-signal skill_cast(skill: Skill, hits: int)
+signal skill_cast(slot: Slot, hits: int)
 
-enum Skill { NONE, HAERYONG, PADO, HAEIL }
-
-const NAMES := {Skill.NONE: "", Skill.HAERYONG: "해룡참", Skill.PADO: "파도격", Skill.HAEIL: "해일검기"}
+enum Slot { NONE, TAP, DASH, CHARGE }
 
 @export var player: Player
+## 비어 있으면 player.hero.kit을 쓴다.
+@export var kit: SkillKit
 @export var projectile_scene: PackedScene
 ## 투사체·이펙트를 붙일 월드 노드. 비어 있으면 플레이어의 부모.
 @export var world: Node
 @export var fx: FxLayer
 
-@export_group("해룡참")
-@export var haeryong_cooldown: float = 4.0
-@export var haeryong_radius: float = 170.0
-@export var haeryong_damage: int = 25
-@export var haeryong_knockback: float = 420.0
-
-@export_group("파도격")
-@export var pado_cooldown: float = 3.0
-## 대시가 끝난 뒤에도 파도격으로 인정하는 시간(초). 실기기 피드백으로 0.25 → 0.45.
-@export var pado_link_window: float = 0.45
-@export var pado_length: float = 320.0
-@export var pado_width: float = 90.0
-@export var pado_hits: int = 3
-@export var pado_damage_per_hit: int = 10
-@export var pado_hit_interval: float = 0.07
-
-@export_group("해일검기")
-@export var haeil_cooldown: float = 5.0
-@export var haeil_min_damage: int = 20
-@export var haeil_max_damage: int = 60
-@export var haeil_min_scale: float = 1.6
-@export var haeil_max_scale: float = 3.2
-@export var haeil_speed: float = 650.0
-@export var haeil_lifetime: float = 1.1
-
 var input := SkillInput.new()
 ## 적 목록 공급자. 테스트에서 교체할 수 있다.
 var enemy_source: Callable = func() -> Array: return get_tree().get_nodes_in_group(Enemy.GROUP)
 
-var _cd := {Skill.HAERYONG: 0.0, Skill.PADO: 0.0, Skill.HAEIL: 0.0}
-var _cd_max := {}
-## 진행 중인 파도격 연타: {"left": 남은 타수, "timer": 다음 타까지, "a": 시작점, "b": 끝점}
-var _pado: Dictionary = {}
+var _cd := {Slot.TAP: 0.0, Slot.DASH: 0.0, Slot.CHARGE: 0.0}
+## 진행 중인 기술: [[slot, SkillRun], ...]
+var _runs: Array = []
 
 
 func _ready() -> void:
-	_cd_max = {Skill.HAERYONG: haeryong_cooldown, Skill.PADO: pado_cooldown, Skill.HAEIL: haeil_cooldown}
+	if kit == null and player and player.hero:
+		kit = player.hero.kit
+	if kit:
+		input.hold_threshold = kit.hold_threshold
+		input.full_charge_time = kit.full_charge_time
 
 
-func is_ready(skill: Skill) -> bool:
-	return float(_cd[skill]) <= 0.0
+func def_of(slot: Slot) -> SkillDef:
+	if kit == null:
+		return null
+	match slot:
+		Slot.TAP:
+			return kit.tap
+		Slot.DASH:
+			return kit.dash
+		Slot.CHARGE:
+			return kit.charge
+	return null
+
+
+func display_name(slot: Slot) -> String:
+	var d := def_of(slot)
+	return d.display_name if d else ""
+
+
+func is_ready(slot: Slot) -> bool:
+	return def_of(slot) != null and float(_cd[slot]) <= 0.0
 
 
 ## 0~1, 남은 쿨타임 비율.
-func cooldown_ratio(skill: Skill) -> float:
-	var m := float(_cd_max.get(skill, 1.0))
-	return clampf(float(_cd[skill]) / maxf(m, 0.001), 0.0, 1.0)
+func cooldown_ratio(slot: Slot) -> float:
+	var d := def_of(slot)
+	if d == null:
+		return 0.0
+	return clampf(float(_cd[slot]) / maxf(d.cooldown, 0.001), 0.0, 1.0)
+
+
+func _dash_link() -> bool:
+	return player != null and kit != null and player.in_dash_link(kit.dash_link_window)
 
 
 ## 지금 버튼을 누르거나 떼면 발동할 기술 (버튼 표시용).
-func preview_skill() -> Skill:
+func preview_slot() -> Slot:
 	if input.state == SkillInput.State.CHARGING:
-		return Skill.HAEIL
-	if player and player.in_dash_link(pado_link_window) and is_ready(Skill.PADO):
-		return Skill.PADO
-	return Skill.HAERYONG
+		return Slot.CHARGE
+	if _dash_link() and is_ready(Slot.DASH):
+		return Slot.DASH
+	return Slot.TAP
 
 
-## 반환: 이 터치를 스킬 손가락으로 받았으면 true.
+## 스킬 버튼 누름. 반환: 이 터치를 스킬 손가락으로 받았으면 true.
 func on_press(index: int, time: float) -> bool:
-	if player == null or player.is_dead() or not input.press(index, time):
+	# 버튼이 우선: 아직 판정 전인 제스처 누름은 버린다.
+	if input.is_from(SkillInput.Source.GESTURE) and input.state == SkillInput.State.PRESSED:
+		input.reset()
+	if player == null or kit == null or player.is_dead() or not input.press(index, time):
 		return false
-	if player.in_dash_link(pado_link_window) and is_ready(Skill.PADO):
+	if _dash_link() and is_ready(Slot.DASH):
 		input.consume()
-		cast_pado()
+		cast(Slot.DASH)
 	return true
 
 
-func on_release(index: int, time: float) -> Skill:
+func on_release(index: int, time: float) -> Slot:
+	# 죽은 뒤에는 누르고 있던 입력을 떼도 발동하지 않는다 (Codex edeb579 지적).
+	if player == null or player.is_dead():
+		input.reset()
+		return Slot.NONE
 	var r := input.release(index, time)
 	match r["kind"]:
 		"tap":
-			# 누른 뒤 탭 판정 전에 대시가 나갔다면 파도격 (선입력).
-			if player.in_dash_link(pado_link_window) and is_ready(Skill.PADO):
-				cast_pado()
-				return Skill.PADO
-			if is_ready(Skill.HAERYONG):
-				cast_haeryong()
-				return Skill.HAERYONG
+			# 누른 뒤 탭 판정 전에 대시가 나갔다면 dash 기술 (선입력).
+			if _dash_link() and is_ready(Slot.DASH):
+				cast(Slot.DASH)
+				return Slot.DASH
+			if is_ready(Slot.TAP):
+				cast(Slot.TAP)
+				return Slot.TAP
 		"charge":
-			if is_ready(Skill.HAEIL):
-				cast_haeil(float(r["charge"]))
-				return Skill.HAEIL
-	return Skill.NONE
+			if is_ready(Slot.CHARGE):
+				cast(Slot.CHARGE, float(r["charge"]))
+				return Slot.CHARGE
+	return Slot.NONE
 
 
 func cancel_input() -> void:
 	input.reset()
 
 
+# --- 한 손 제스처 (이동 손가락) ---
+#   제자리 짧게 탭            → tap (대시 직후면 dash 기술)
+#   제자리 꾹 누르기 → 충전   → 그대로 드래그해 이동 가능 → 떼면 charge
+#   tap_slop 이상 움직이면 그 누름은 이동이므로 스킬 없음
+
+var _gesture_origin: Vector2 = Vector2.ZERO
+
+
+func gesture_down(index: int, pos: Vector2, time: float) -> bool:
+	if player == null or kit == null or player.is_dead():
+		return false
+	if not input.press(index, time, SkillInput.Source.GESTURE, kit.gesture_hold_threshold):
+		return false
+	_gesture_origin = pos
+	return true
+
+
+func gesture_move(index: int, pos: Vector2, time: float) -> void:
+	if not input.is_from(SkillInput.Source.GESTURE) or input.index != index:
+		return
+	input.update(time)
+	if input.state == SkillInput.State.PRESSED and pos.distance_to(_gesture_origin) > kit.gesture_tap_slop:
+		input.reset()
+
+
+func gesture_up(index: int, time: float) -> Slot:
+	if not input.is_from(SkillInput.Source.GESTURE) or input.index != index:
+		return Slot.NONE
+	return on_release(index, time)
+
+
+## 이동 손가락을 뗄 때 대시 중·직후면 dash 기술 (실기기 피드백: 튕기고 탭은 너무 안 나옴).
+## 반환: 발동했으면 true.
+func try_dash_release() -> bool:
+	if player == null or player.is_dead() or not _dash_link() or not is_ready(Slot.DASH):
+		return false
+	cast(Slot.DASH)
+	# 판정 전인 버튼 누름은 이 파도격에 합쳐진다 (손 뗄 때 해룡참 추가 발동 방지, Codex dc73e07 지적).
+	if input.is_from(SkillInput.Source.BUTTON) and input.state == SkillInput.State.PRESSED:
+		input.consume()
+	return true
+
+
+## 플릭(대시) 등으로 이 제스처를 스킬 없이 끝낸다.
+func gesture_cancel(index: int) -> void:
+	if input.is_from(SkillInput.Source.GESTURE) and input.index == index:
+		input.reset()
+
+
+func is_gesture_charging() -> bool:
+	return input.is_from(SkillInput.Source.GESTURE) and input.state == SkillInput.State.CHARGING
+
+
+## 쿨타임을 걸고 기술을 발동한다. 반환: 진행 상태.
+func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
+	var d := def_of(slot)
+	if d == null or player == null or player.is_dead():
+		return null
+	_cd[slot] = d.cooldown
+	var run := d.cast(_context(), charge)
+	if run.finished:
+		skill_cast.emit(slot, run.hits)
+	else:
+		_runs.append([slot, run])
+	return run
+
+
 func tick(delta: float, time: float) -> void:
 	for k in _cd.keys():
 		_cd[k] = maxf(float(_cd[k]) - delta, 0.0)
-	# 선입력: 버튼을 누른 채(아직 탭 판정 전) 대시가 시작되면 파도격으로 바꾼다.
-	# "버튼 먼저, 플릭 나중" 순서로 눌러도 연계가 된다.
-	if input.state == SkillInput.State.PRESSED and player and player.is_dashing() and is_ready(Skill.PADO):
+	# 선입력: 버튼을 누른 채(탭 판정 전) 대시가 시작되면 dash 기술로 바꾼다.
+	if input.is_from(SkillInput.Source.BUTTON) and input.state == SkillInput.State.PRESSED \
+			and player and player.is_dashing() and is_ready(Slot.DASH):
 		input.consume()
-		cast_pado()
+		cast(Slot.DASH)
 	input.update(time)
-	if not _pado.is_empty():
-		_pado["timer"] = float(_pado["timer"]) - delta
-		while not _pado.is_empty() and float(_pado["timer"]) <= 0.0:
-			_pado_hit()
+	for entry in _runs.duplicate():
+		var run: SkillRun = entry[1]
+		if run.tick(delta):
+			_runs.erase(entry)
+			skill_cast.emit(entry[0], run.hits)
+
+
+func _context() -> SkillContext:
+	var ctx := SkillContext.new()
+	ctx.player = player
+	ctx.world = world
+	ctx.fx = fx
+	ctx.projectile_scene = projectile_scene
+	ctx.enemy_source = enemy_source
+	return ctx
 
 
 func _physics_process(delta: float) -> void:
@@ -128,95 +215,8 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 
-# --- 기술 ---
-
-func cast_haeryong() -> int:
-	_cd[Skill.HAERYONG] = haeryong_cooldown
-	var center := player.global_position
-	var hits := 0
-	for e in enemy_source.call():
-		var en := e as Enemy
-		if en == null or not is_instance_valid(en):
-			continue
-		var off := en.global_position - center
-		if off.length() > haeryong_radius:
-			continue
-		var dir := off.normalized() if off.length_squared() > 0.01 else Vector2.RIGHT
-		en.apply_knockback(dir * haeryong_knockback)
-		_hit(en, haeryong_damage)
-		hits += 1
-	if fx:
-		fx.add_ring(center, haeryong_radius, 0.35, Color(0.35, 0.75, 1.0))
-	skill_cast.emit(Skill.HAERYONG, hits)
-	return hits
-
-
-func cast_pado() -> void:
-	_cd[Skill.PADO] = pado_cooldown
-	var dir := player.get_dash_direction()
-	if dir.length_squared() < 0.0001:
-		dir = player.facing
-	var a := player.global_position - dir * 30.0
-	var b := player.global_position + dir * pado_length
-	_pado = {"left": pado_hits, "timer": 0.0, "a": a, "b": b, "total": 0}
-	if fx:
-		fx.add_slash(a, b, pado_width * 0.5, 0.3, Color(0.4, 0.9, 1.0))
-	_pado_hit()
-
-
-func _pado_hit() -> void:
-	var a: Vector2 = _pado["a"]
-	var b: Vector2 = _pado["b"]
-	var hits := 0
-	for e in enemy_source.call():
-		var en := e as Enemy
-		if en == null or not is_instance_valid(en):
-			continue
-		var p := Geometry2D.get_closest_point_to_segment(en.global_position, a, b)
-		if p.distance_to(en.global_position) <= pado_width * 0.5:
-			_hit(en, pado_damage_per_hit)
-			hits += 1
-	_pado["total"] = int(_pado["total"]) + hits
-	_pado["left"] = int(_pado["left"]) - 1
-	_pado["timer"] = float(_pado["timer"]) + pado_hit_interval
-	if fx and int(_pado["left"]) >= 0:
-		var side := (b - a).orthogonal().normalized() * (12.0 * (int(_pado["left"]) - 1))
-		fx.add_slash(a + side, b + side, 10.0, 0.18, Color(0.7, 0.95, 1.0))
-	if int(_pado["left"]) <= 0:
-		skill_cast.emit(Skill.PADO, int(_pado["total"]))
-		_pado = {}
-
-
-func cast_haeil(charge: float) -> Projectile:
-	_cd[Skill.HAEIL] = haeil_cooldown
-	if projectile_scene == null:
-		return null
-	var c := clampf(charge, 0.0, 1.0)
-	var p := projectile_scene.instantiate() as Projectile
-	p.direction = player.facing
-	p.speed = haeil_speed
-	p.lifetime = haeil_lifetime
-	p.pierce = true
-	p.wave_style = true
-	p.damage = roundi(lerpf(haeil_min_damage, haeil_max_damage, c))
-	p.size_scale = lerpf(haeil_min_scale, haeil_max_scale, c)
-	p.global_position = player.global_position
-	var parent := world if world else player.get_parent()
-	parent.add_child(p)
-	skill_cast.emit(Skill.HAEIL, 0)
-	return p
-
-
-func _hit(en: Enemy, dmg: int) -> void:
-	var h := en.get_node_or_null("Health") as Health
-	if h and h.is_alive():
-		h.damage(dmg)
-		if fx:
-			fx.add_spark(en.global_position)
-
-
 func _draw() -> void:
-	# 충전 중 표시: 플레이어 발밑 물결 고리
+	# 충전 중 표시: 플레이어 발밑 고리
 	if input.state != SkillInput.State.CHARGING:
 		return
 	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0)

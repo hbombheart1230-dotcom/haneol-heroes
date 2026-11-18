@@ -1,8 +1,9 @@
 extends GdUnitTestSuite
-## P0-C 상황 반응형 단일 스킬 버튼: 입력 상태 머신, 해룡참·파도격·해일검기, 버튼 라우팅.
+## 상황 반응형 단일 스킬 버튼 (이순신 기술 데이터 사용): 입력 상태 머신, 해룡참(tap)·파도격(dash)·해일검기(charge), 버튼 라우팅.
 
 const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
 const PROJECTILE_SCENE := preload("res://scenes/projectile.tscn")
+const HERO := preload("res://data/heroes/yi_sun_sin.tres")
 const DT := 1.0 / 60.0
 
 var player: Player
@@ -20,6 +21,7 @@ func before_test() -> void:
 	player.global_position = Vector2.ZERO
 	caster = auto_free(SkillCaster.new())
 	caster.player = player
+	caster.kit = HERO.kit
 	caster.projectile_scene = PROJECTILE_SCENE
 	caster.world = self
 	caster.enemy_source = func() -> Array: return enemies
@@ -76,8 +78,8 @@ func test_tap_casts_haeryong_damage_and_knockback_in_radius() -> void:
 	var near := _enemy_at(Vector2(100, 0))
 	var far := _enemy_at(Vector2(400, 0))
 	caster.on_press(0, 0.0)
-	assert_int(caster.on_release(0, 0.1)).is_equal(SkillCaster.Skill.HAERYONG)
-	assert_int(near.health.current).is_equal(near.health.max - caster.haeryong_damage)
+	assert_int(caster.on_release(0, 0.1)).is_equal(SkillCaster.Slot.TAP)
+	assert_int(near.health.current).is_equal(near.health.max - caster.kit.tap.damage)
 	assert_float(near.knockback.x).is_greater(0.0)
 	assert_int(far.health.current).is_equal(far.health.max)
 
@@ -89,11 +91,11 @@ func test_haeryong_cooldown_4s() -> void:
 	caster.on_press(0, 0.0)
 	caster.on_release(0, 0.05)
 	caster.on_press(0, 0.1)
-	assert_int(caster.on_release(0, 0.15)).is_equal(SkillCaster.Skill.NONE)
-	caster.tick(caster.haeryong_cooldown, 4.5)
+	assert_int(caster.on_release(0, 0.15)).is_equal(SkillCaster.Slot.NONE)
+	caster.tick(caster.kit.tap.cooldown, 4.5)
 	caster.on_press(0, 4.5)
-	assert_int(caster.on_release(0, 4.55)).is_equal(SkillCaster.Skill.HAERYONG)
-	assert_int(e.health.current).is_equal(1000 - 2 * caster.haeryong_damage)
+	assert_int(caster.on_release(0, 4.55)).is_equal(SkillCaster.Slot.TAP)
+	assert_int(e.health.current).is_equal(1000 - 2 * caster.kit.tap.damage)
 
 
 # --- 파도격 ---
@@ -105,15 +107,15 @@ func test_press_during_dash_casts_pado_multi_hit_along_path() -> void:
 	on_path.health.current = 1000
 	player.request_dash(Vector2.RIGHT)
 	var casts: Array = []
-	caster.skill_cast.connect(func(s: SkillCaster.Skill, hits: int) -> void: casts.append([s, hits]))
+	caster.skill_cast.connect(func(s: SkillCaster.Slot, hits: int) -> void: casts.append([s, hits]))
 	caster.on_press(0, 0.0)
 	for i in 30:
 		caster.tick(DT, 0.0 + DT * i)
-	assert_int(on_path.health.current).is_equal(1000 - caster.pado_hits * caster.pado_damage_per_hit)
+	assert_int(on_path.health.current).is_equal(1000 - caster.kit.dash.hit_count * caster.kit.dash.damage_per_hit)
 	assert_int(off_path.health.current).is_equal(off_path.health.max)
-	assert_array(casts).is_equal([[SkillCaster.Skill.PADO, caster.pado_hits]])
+	assert_array(casts).is_equal([[SkillCaster.Slot.DASH, caster.kit.dash.hit_count]])
 	# 같은 누름은 손을 떼도 해룡참을 추가로 쓰지 않는다
-	assert_int(caster.on_release(0, 0.6)).is_equal(SkillCaster.Skill.NONE)
+	assert_int(caster.on_release(0, 0.6)).is_equal(SkillCaster.Slot.NONE)
 
 
 func test_press_right_after_dash_still_pado() -> void:
@@ -121,13 +123,13 @@ func test_press_right_after_dash_still_pado() -> void:
 	for i in 12:  # 대시(0.16초) 종료 후 약 0.04초
 		player.compute_velocity(DT)
 	assert_bool(player.is_dashing()).is_false()
-	assert_int(caster.preview_skill()).is_equal(SkillCaster.Skill.PADO)
+	assert_int(caster.preview_slot()).is_equal(SkillCaster.Slot.DASH)
 	for i in 20:  # 대시 종료 후 약 0.37초: 아직 연계 시간(0.45초) 안
 		player.compute_velocity(DT)
-	assert_int(caster.preview_skill()).is_equal(SkillCaster.Skill.PADO)
+	assert_int(caster.preview_slot()).is_equal(SkillCaster.Slot.DASH)
 	for i in 10:  # 약 0.54초: 연계 시간 지나면 해룡참
 		player.compute_velocity(DT)
-	assert_int(caster.preview_skill()).is_equal(SkillCaster.Skill.HAERYONG)
+	assert_int(caster.preview_slot()).is_equal(SkillCaster.Slot.TAP)
 
 
 func test_button_first_then_dash_before_release_is_pado() -> void:
@@ -135,21 +137,21 @@ func test_button_first_then_dash_before_release_is_pado() -> void:
 	var e := _enemy_at(Vector2(150, 0))
 	caster.on_press(0, 0.0)
 	caster.tick(DT, DT)
-	assert_bool(caster.is_ready(SkillCaster.Skill.PADO)).is_true()
+	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_true()
 	player.request_dash(Vector2.RIGHT)
 	caster.tick(DT, DT * 2)
-	assert_bool(caster.is_ready(SkillCaster.Skill.PADO)).is_false()
+	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_false()
 	assert_int(e.health.current).is_less(e.health.max)
-	assert_int(caster.on_release(0, 0.1)).is_equal(SkillCaster.Skill.NONE)
-	assert_bool(caster.is_ready(SkillCaster.Skill.HAERYONG)).is_true()
+	assert_int(caster.on_release(0, 0.1)).is_equal(SkillCaster.Slot.NONE)
+	assert_bool(caster.is_ready(SkillCaster.Slot.TAP)).is_true()
 
 
 func test_tap_released_after_dash_started_is_pado() -> void:
 	# 같은 프레임 안에 누름 → 대시 → 뗌 (틱 없이)
 	caster.on_press(0, 0.0)
 	player.request_dash(Vector2.RIGHT)
-	assert_int(caster.on_release(0, 0.05)).is_equal(SkillCaster.Skill.PADO)
-	assert_bool(caster.is_ready(SkillCaster.Skill.HAERYONG)).is_true()
+	assert_int(caster.on_release(0, 0.05)).is_equal(SkillCaster.Slot.DASH)
+	assert_bool(caster.is_ready(SkillCaster.Slot.TAP)).is_true()
 
 
 func test_holding_into_charge_then_dash_stays_charge() -> void:
@@ -159,7 +161,7 @@ func test_holding_into_charge_then_dash_stays_charge() -> void:
 	assert_int(caster.input.state).is_equal(SkillInput.State.CHARGING)
 	player.request_dash(Vector2.RIGHT)
 	caster.tick(DT, 0.3 + DT)
-	assert_bool(caster.is_ready(SkillCaster.Skill.PADO)).is_true()
+	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_true()
 	assert_int(caster.input.state).is_equal(SkillInput.State.CHARGING)
 	caster.cancel_input()
 
@@ -169,9 +171,9 @@ func test_pado_on_cooldown_falls_back_to_normal_press() -> void:
 	caster.on_press(0, 0.0)
 	caster.on_release(0, 0.05)
 	player.compute_velocity(DT)
-	assert_int(caster.preview_skill()).is_equal(SkillCaster.Skill.HAERYONG)
+	assert_int(caster.preview_slot()).is_equal(SkillCaster.Slot.TAP)
 	caster.on_press(1, 0.1)
-	assert_int(caster.on_release(1, 0.15)).is_equal(SkillCaster.Skill.HAERYONG)
+	assert_int(caster.on_release(1, 0.15)).is_equal(SkillCaster.Slot.TAP)
 
 
 # --- 해일검기 ---
@@ -180,26 +182,26 @@ func test_hold_release_fires_haeil_scaled_by_charge() -> void:
 	caster.on_press(0, 0.0)
 	var t := caster.input.hold_threshold + caster.input.full_charge_time  # 최대 충전
 	caster.tick(t, t)
-	assert_int(caster.preview_skill()).is_equal(SkillCaster.Skill.HAEIL)
+	assert_int(caster.preview_slot()).is_equal(SkillCaster.Slot.CHARGE)
 	var fired: Array = []
-	caster.skill_cast.connect(func(s: SkillCaster.Skill, _h: int) -> void: fired.append(s))
-	assert_int(caster.on_release(0, t)).is_equal(SkillCaster.Skill.HAEIL)
+	caster.skill_cast.connect(func(s: SkillCaster.Slot, _h: int) -> void: fired.append(s))
+	assert_int(caster.on_release(0, t)).is_equal(SkillCaster.Slot.CHARGE)
 	var proj: Projectile = null
 	for c in get_children():
 		if c is Projectile:
 			proj = c
 	assert_object(proj).is_not_null()
 	assert_bool(proj.pierce).is_true()
-	assert_int(proj.damage).is_equal(caster.haeil_max_damage)
-	assert_float(proj.size_scale).is_equal_approx(caster.haeil_max_scale, 0.001)
+	assert_int(proj.damage).is_equal(caster.kit.charge.max_damage)
+	assert_float(proj.size_scale).is_equal_approx(caster.kit.charge.max_scale, 0.001)
 	proj.queue_free()
 
 
 func test_haeil_min_charge_damage() -> void:
 	caster.on_press(0, 0.0)
 	var t := caster.input.hold_threshold + 0.001
-	var p := caster.cast_haeil(0.0)
-	assert_int(p.damage).is_equal(caster.haeil_min_damage)
+	var p := (caster.cast(SkillCaster.Slot.CHARGE, 0.0).get_meta(&"projectile") as Projectile)
+	assert_int(p.damage).is_equal(caster.kit.charge.min_damage)
 	p.queue_free()
 	caster.cancel_input()
 
@@ -220,7 +222,7 @@ func test_haeil_pierces_multiple_enemies() -> void:
 	var b := _enemy_at(Vector2(220, 0))
 	var c := _enemy_at(Vector2(320, 0))
 	player.facing = Vector2.RIGHT
-	var p := caster.cast_haeil(1.0)
+	var p := (caster.cast(SkillCaster.Slot.CHARGE, 1.0).get_meta(&"projectile") as Projectile)
 	for i in 40:
 		await get_tree().physics_frame
 	for e in [a, b, c]:
@@ -236,6 +238,7 @@ func _controller() -> TouchController:
 	var c: TouchController = auto_free(TouchController.new())
 	c.player = player
 	c.skill_caster = caster
+	c.skill_button_enabled = true  # 버튼 모드 테스트 (기본은 꺼짐)
 	return c
 
 
@@ -254,7 +257,7 @@ func test_touch_on_button_is_skill_not_move() -> void:
 	assert_bool(c.touch_input.is_active()).is_false()
 	assert_bool(caster.input.is_down()).is_true()
 	c.handle_event(_touch(0, btn, false), 0.05)
-	assert_bool(caster.is_ready(SkillCaster.Skill.HAERYONG)).is_false()
+	assert_bool(caster.is_ready(SkillCaster.Slot.TAP)).is_false()
 
 
 func test_move_finger_and_skill_finger_together() -> void:
@@ -282,5 +285,5 @@ func test_flick_dash_then_button_press_is_pado() -> void:
 	c.handle_event(_touch(0, Vector2(330, 900), false), 0.05)  # 오른쪽 플릭
 	assert_bool(player.is_dashing()).is_true()
 	c.handle_event(_touch(1, c.skill_button_center(), true), 0.08)
-	assert_bool(caster.is_ready(SkillCaster.Skill.PADO)).is_false()
+	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_false()
 	assert_int(e.health.current).is_less(e.health.max)
