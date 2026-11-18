@@ -8,6 +8,16 @@ var world: Node
 var fx: FxLayer
 var projectile_scene: PackedScene
 var enemy_source: Callable
+var hit_stop_enabled: bool = true
+
+
+## 히트스톱: 아주 짧게 게임 시간을 거의 멈춘다 (엔진 기본 time_scale + 실시간 타이머).
+func hit_stop(duration: float, scale: float = 0.05) -> void:
+	if not hit_stop_enabled or duration <= 0.0 or player == null or not player.is_inside_tree():
+		return
+	Engine.time_scale = scale
+	var timer := player.get_tree().create_timer(duration, true, false, true)
+	timer.timeout.connect(func() -> void: Engine.time_scale = 1.0)
 
 
 func enemies() -> Array:

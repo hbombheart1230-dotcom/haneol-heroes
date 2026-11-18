@@ -8,11 +8,30 @@ extends RefCounted
 
 static func draw(canvas: CanvasItem, controller: TouchController, font: Font) -> void:
 	var sc := controller.skill_caster
+	_draw_counter_prompt(canvas, controller, sc, font)
 	if controller.skill_button_enabled:
 		_draw_button(canvas, controller, sc, font)
 	else:
 		_draw_status(canvas, controller, sc, font)
 	_draw_toggle(canvas, controller, font)
+
+
+## 회피 성공 후 반격 가능 시간: 화면 가장자리 강조 + "반격!" + 남은 시간 막대.
+static func _draw_counter_prompt(canvas: CanvasItem, controller: TouchController, sc: SkillCaster, font: Font) -> void:
+	var left := sc.counter_time_left()
+	if left <= 0.0 or sc.kit == null or sc.kit.counter == null:
+		return
+	var size := controller.viewport_size()
+	var k := clampf(left / maxf(sc.kit.counter_window, 0.001), 0.0, 1.0)
+	var c: Color = sc.kit.counter.color
+	var w := 18.0
+	for r in [Rect2(0, 0, size.x, w), Rect2(0, size.y - w, size.x, w), Rect2(0, 0, w, size.y), Rect2(size.x - w, 0, w, size.y)]:
+		canvas.draw_rect(r, Color(c, 0.35 + 0.3 * k))
+	var y := size.y * 0.72
+	canvas.draw_string(font, Vector2(0, y), sc.kit.counter.display_name + "!", HORIZONTAL_ALIGNMENT_CENTER, size.x, 44, Color(c, 0.95))
+	var bar := Rect2(size.x * 0.3, y + 16, size.x * 0.4, 10)
+	canvas.draw_rect(bar, Color(0, 0, 0, 0.5))
+	canvas.draw_rect(Rect2(bar.position, Vector2(bar.size.x * k, bar.size.y)), Color(c, 0.9))
 
 
 static func _draw_button(canvas: CanvasItem, controller: TouchController, sc: SkillCaster, font: Font) -> void:

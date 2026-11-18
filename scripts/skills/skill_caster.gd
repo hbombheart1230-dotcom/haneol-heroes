@@ -5,10 +5,11 @@ extends Node2D
 ##   대시 중 / 대시 직후 누름  → kit.dash   (누르는 즉시)
 ##   짧게 눌렀다 뗌            → kit.tap
 ##   길게 눌러 충전 후 뗌      → kit.charge (이동하며 충전 가능)
+##   회피 성공 후 counter_window 안 누름 → kit.counter (최우선, 기획서 §6.3)
 
 signal skill_cast(slot: Slot, hits: int)
 
-enum Slot { NONE, TAP, DASH, CHARGE }
+enum Slot { NONE, TAP, DASH, CHARGE, COUNTER }
 
 @export var player: Player
 ## 비어 있으면 player.hero.kit을 쓴다.
@@ -17,12 +18,16 @@ enum Slot { NONE, TAP, DASH, CHARGE }
 ## 투사체·이펙트를 붙일 월드 노드. 비어 있으면 플레이어의 부모.
 @export var world: Node
 @export var fx: FxLayer
+## 반격 등 강한 타격의 짧은 멈춤(히트스톱). 테스트에서 끌 수 있다.
+@export var hit_stop_enabled: bool = true
 
 var input := SkillInput.new()
 ## 적 목록 공급자. 테스트에서 교체할 수 있다.
 var enemy_source: Callable = func() -> Array: return get_tree().get_nodes_in_group(Enemy.GROUP)
 
-var _cd := {Slot.TAP: 0.0, Slot.DASH: 0.0, Slot.CHARGE: 0.0}
+var _cd := {Slot.TAP: 0.0, Slot.DASH: 0.0, Slot.CHARGE: 0.0, Slot.COUNTER: 0.0}
+## 회피 성공 후 남은 반격 가능 시간(초).
+var _counter_left: float = 0.0
 ## 진행 중인 기술: [[slot, SkillRun], ...]
 var _runs: Array = []
 
@@ -33,6 +38,31 @@ func _ready() -> void:
 	if kit:
 		input.hold_threshold = kit.hold_threshold
 		input.full_charge_time = kit.full_charge_time
+	if player and not player.evaded.is_connected(on_evade):
+		player.evaded.connect(on_evade)
+
+
+## 회피 성공 (Player.evaded). 반격 시간을 연다.
+func on_evade() -> void:
+	if kit and kit.counter:
+		_counter_left = kit.counter_window
+
+
+func counter_time_left() -> float:
+	return _counter_left
+
+
+func is_counter_open() -> bool:
+	return _counter_left > 0.0 and is_ready(Slot.COUNTER)
+
+
+## 누르는 즉시 나가는 상황 기술: 반격 > 대시 연계. 없으면 NONE.
+func _instant_slot() -> Slot:
+	if is_counter_open():
+		return Slot.COUNTER
+	if _dash_link() and is_ready(Slot.DASH):
+		return Slot.DASH
+	return Slot.NONE
 
 
 func def_of(slot: Slot) -> SkillDef:
@@ -45,6 +75,8 @@ func def_of(slot: Slot) -> SkillDef:
 			return kit.dash
 		Slot.CHARGE:
 			return kit.charge
+		Slot.COUNTER:
+			return kit.counter
 	return null
 
 
@@ -73,9 +105,8 @@ func _dash_link() -> bool:
 func preview_slot() -> Slot:
 	if input.state == SkillInput.State.CHARGING:
 		return Slot.CHARGE
-	if _dash_link() and is_ready(Slot.DASH):
-		return Slot.DASH
-	return Slot.TAP
+	var instant := _instant_slot()
+	return instant if instant != Slot.NONE else Slot.TAP
 
 
 ## 스킬 버튼 누름. 반환: 이 터치를 스킬 손가락으로 받았으면 true.
@@ -85,9 +116,10 @@ func on_press(index: int, time: float) -> bool:
 		input.reset()
 	if player == null or kit == null or player.is_dead() or not input.press(index, time):
 		return false
-	if _dash_link() and is_ready(Slot.DASH):
+	var instant := _instant_slot()
+	if instant != Slot.NONE:
 		input.consume()
-		cast(Slot.DASH)
+		cast(instant)
 	return true
 
 
@@ -99,10 +131,11 @@ func on_release(index: int, time: float) -> Slot:
 	var r := input.release(index, time)
 	match r["kind"]:
 		"tap":
-			# 누른 뒤 탭 판정 전에 대시가 나갔다면 dash 기술 (선입력).
-			if _dash_link() and is_ready(Slot.DASH):
-				cast(Slot.DASH)
-				return Slot.DASH
+			# 반격 시간이거나, 누른 뒤 탭 판정 전에 대시가 나갔다면 그 기술 (선입력).
+			var instant := _instant_slot()
+			if instant != Slot.NONE:
+				cast(instant)
+				return instant
 			if is_ready(Slot.TAP):
 				cast(Slot.TAP)
 				return Slot.TAP
@@ -148,12 +181,17 @@ func gesture_up(index: int, time: float) -> Slot:
 	return on_release(index, time)
 
 
-## 이동 손가락을 뗄 때 대시 중·직후면 dash 기술 (실기기 피드백: 튕기고 탭은 너무 안 나옴).
-## 반환: 발동했으면 true.
+## 이동 손가락을 뗄 때 대시 중·직후면 dash 기술, 반격 시간이면 반격
+## (실기기 피드백: 튕기고 탭은 너무 안 나옴). 반환: 발동했으면 true.
 func try_dash_release() -> bool:
-	if player == null or player.is_dead() or not _dash_link() or not is_ready(Slot.DASH):
+	if player == null or player.is_dead():
 		return false
-	cast(Slot.DASH)
+	var slot := Slot.COUNTER if is_counter_open() and _dash_link() else Slot.NONE
+	if slot == Slot.NONE and _dash_link() and is_ready(Slot.DASH):
+		slot = Slot.DASH
+	if slot == Slot.NONE:
+		return false
+	cast(slot)
 	# 판정 전인 버튼 누름은 이 파도격에 합쳐진다 (손 뗄 때 해룡참 추가 발동 방지, Codex dc73e07 지적).
 	if input.is_from(SkillInput.Source.BUTTON) and input.state == SkillInput.State.PRESSED:
 		input.consume()
@@ -176,6 +214,8 @@ func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
 	if d == null or player == null or player.is_dead():
 		return null
 	_cd[slot] = d.cooldown
+	if slot == Slot.COUNTER:
+		_counter_left = 0.0
 	var run := d.cast(_context(), charge)
 	if run.finished:
 		skill_cast.emit(slot, run.hits)
@@ -187,6 +227,7 @@ func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
 func tick(delta: float, time: float) -> void:
 	for k in _cd.keys():
 		_cd[k] = maxf(float(_cd[k]) - delta, 0.0)
+	_counter_left = maxf(_counter_left - delta, 0.0)
 	# 선입력: 버튼을 누른 채(탭 판정 전) 대시가 시작되면 dash 기술로 바꾼다.
 	if input.is_from(SkillInput.Source.BUTTON) and input.state == SkillInput.State.PRESSED \
 			and player and player.is_dashing() and is_ready(Slot.DASH):
@@ -207,6 +248,7 @@ func _context() -> SkillContext:
 	ctx.fx = fx
 	ctx.projectile_scene = projectile_scene
 	ctx.enemy_source = enemy_source
+	ctx.hit_stop_enabled = hit_stop_enabled
 	return ctx
 
 

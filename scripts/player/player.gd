@@ -5,6 +5,8 @@ extends CharacterBody2D
 
 signal dash_started(direction: Vector2)
 signal dash_ended
+## 적 공격을 대시로 피했을 때 (회피 반격의 시작점).
+signal evaded
 
 ## 지정하면 _ready에서 아래 수치를 이 데이터로 덮어쓴다.
 @export var hero: HeroData
@@ -33,6 +35,9 @@ var _dash_dir: Vector2 = Vector2.ZERO
 var _dash_time_left: float = 0.0
 ## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력 판정용.
 var _since_dash_end: float = INF
+## 마지막 대시 시작 후 지난 시간(초)과 시작 위치 (회피 판정용).
+var _since_dash_start: float = INF
+var _dash_start_pos: Vector2 = Vector2.ZERO
 
 
 func _init() -> void:
@@ -88,6 +93,24 @@ func apply_contact_damage(delta: float, amount: int) -> bool:
 	return true
 
 
+## 적 공격 타격. 무적이면 무시. 반환: 실제로 피해를 받았으면 true.
+func apply_hit(amount: int) -> bool:
+	if amount <= 0 or health == null or is_dead() or is_invulnerable():
+		return false
+	health.damage(amount)
+	_hurt_cd = hurt_invuln_time
+	return true
+
+
+## within초 안에 시작한 대시가 원(center, radius) 안에서 출발했으면 true (원 밖으로 빠져나간 회피).
+func dashed_out_of(center: Vector2, radius: float, within: float) -> bool:
+	return _since_dash_start <= within and _dash_start_pos.distance_to(center) <= radius
+
+
+func register_evade() -> void:
+	evaded.emit()
+
+
 func _touching_damage() -> int:
 	if contact_sensor == null:
 		return 0
@@ -125,6 +148,8 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 		return false
 	_dash_dir = dir.normalized()
 	_dash_time_left = dash_duration
+	_since_dash_start = 0.0
+	_dash_start_pos = global_position
 	facing = _dash_dir
 	dash_started.emit(_dash_dir)
 	return true
@@ -133,6 +158,7 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 ## 이번 물리 프레임의 속도를 계산하고 대시·충전 타이머를 진행한다.
 func compute_velocity(delta: float) -> Vector2:
 	dash.update(delta)
+	_since_dash_start += delta
 	if not is_dashing():
 		_since_dash_end += delta
 		return move_input * move_speed

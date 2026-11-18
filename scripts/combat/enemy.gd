@@ -21,6 +21,8 @@ var target: Node2D
 @onready var health: Health = $Health
 
 var _flash: float = 0.0
+## 예고 공격 (data.attack이 있을 때만).
+var attack: EnemyAttack
 ## 넉백 속도 (매 프레임 감쇠).
 var knockback: Vector2 = Vector2.ZERO
 ## 넉백 감쇠율(초당). 클수록 빨리 멈춘다.
@@ -38,6 +40,9 @@ func _ready() -> void:
 		body_radius = data.body_radius
 		health.max = data.max_hp
 		health.current = data.max_hp
+		if data.attack:
+			# 첫 공격 시점을 흩어 놓아 한꺼번에 예고하지 않게 한다.
+			attack = EnemyAttack.new(data.attack, randf_range(0.3, 1.5))
 	add_to_group(GROUP)
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
@@ -62,7 +67,14 @@ func compute_velocity(neighbors: Array) -> Vector2:
 
 
 func _physics_process(delta: float) -> void:
-	velocity = compute_velocity(get_tree().get_nodes_in_group(GROUP)) + knockback
+	var busy := false
+	if attack:
+		attack.tick(delta, global_position, target as Player)
+		busy = attack.is_busy()
+		if busy:
+			queue_redraw()
+	var chase := Vector2.ZERO if busy else compute_velocity(get_tree().get_nodes_in_group(GROUP))
+	velocity = chase + knockback
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
 	move_and_slide()
 	if _flash > 0.0:
@@ -75,16 +87,38 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 	queue_redraw()
 
 
+func _exit_tree() -> void:
+	if attack:
+		attack.cancel()
+
+
 func _on_died(_entity: Node) -> void:
+	if attack:
+		attack.cancel()
 	remove_from_group(GROUP)
 	killed.emit(self)
 	queue_free()
 
 
 func _draw() -> void:
+	_draw_telegraph()
 	draw_set_transform(Vector2(0, body_radius * 0.7), 0.0, Vector2(1.0, 0.45))
 	draw_circle(Vector2.ZERO, body_radius, Color(0, 0, 0, 0.3))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	var base := data.color if data else Color(0.75, 0.2, 0.25)
 	var c := Color(1, 1, 1) if _flash > 0.0 else base
 	draw_circle(Vector2(0, -body_radius * 0.3), body_radius, c)
+
+
+## 예고 원: 바닥에 붉은 원이 차오르고, 타격 직전에 밝아진다.
+func _draw_telegraph() -> void:
+	if attack == null or attack.state != EnemyAttack.State.WINDUP:
+		return
+	var p := to_local(attack.target_point)
+	var r := attack.data.radius
+	var k := attack.windup_ratio()
+	draw_set_transform(p, 0.0, Vector2(1.0, 0.6))
+	draw_circle(Vector2.ZERO, r, Color(1, 0.2, 0.15, 0.12))
+	draw_circle(Vector2.ZERO, r * k, Color(1, 0.25, 0.15, 0.25 + 0.25 * k))
+	draw_arc(Vector2.ZERO, r, 0, TAU, 40, Color(1, 0.35, 0.25, 0.8), 3.0)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

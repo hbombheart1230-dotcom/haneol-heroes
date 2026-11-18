@@ -8,6 +8,10 @@ extends Resource
 @export var tap: SkillDef
 @export var dash: SkillDef
 @export var charge: SkillDef
+## 회피 성공 직후 반격 기술 (기획서 §6.3 우선순위 1).
+@export var counter: SkillDef
+## 회피 성공 후 반격을 쓸 수 있는 시간(초).
+@export var counter_window: float = 1.0
 ## 대시가 끝난 뒤에도 dash 기술로 인정하는 시간(초).
 @export var dash_link_window: float = 0.45
 ## 이 시간 이상 누르면 충전으로 본다(초).
