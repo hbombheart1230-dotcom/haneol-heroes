@@ -100,9 +100,9 @@ func _draw_result() -> void:
 func _draw_touch_debug() -> void:
 	var t := controller.touch_input
 	if t.is_active():
-		draw_arc(t.get_anchor(), t.full_speed_radius, 0, TAU, 32, Color(1, 1, 1, 0.12), 2.0)
-		draw_circle(t.get_anchor(), 6, Color(1, 1, 1, 0.25))
-		draw_circle(t.get_current(), 10, Color(1, 1, 1, 0.3))
+		draw_arc(t.get_anchor(), t.full_speed_radius, 0, TAU, 32, Color(Ink.INK, 0.12), 2.0)
+		draw_circle(t.get_anchor(), 6, Color(Ink.INK, 0.25))
+		draw_circle(t.get_current(), 10, Color(Ink.INK, 0.3))
 	var font := get_theme_default_font()
 	var enemies := get_tree().get_nodes_in_group(Enemy.GROUP).size()
 	var info := "FPS %d  적 %d" % [Engine.get_frames_per_second(), enemies]
@@ -111,7 +111,7 @@ func _draw_touch_debug() -> void:
 	_ink_text(font, Vector2(16, size.y - 110), info, HORIZONTAL_ALIGNMENT_LEFT, -1, 22)
 
 
-## 전장 바닥 위 글자: 흰 글씨 + 어두운 테두리.
+## 한지 바탕 위 글자: 먹색 + 종이색 테두리.
 func _ink_text(font: Font, pos: Vector2, text: String, align: HorizontalAlignment, width: float, size_px: int) -> void:
-	draw_string_outline(font, pos, text, align, width, size_px, 5, Color(0, 0, 0, 0.7))
-	draw_string(font, pos, text, align, width, size_px, Color(1, 1, 1, 0.95))
+	draw_string_outline(font, pos, text, align, width, size_px, 5, Color(Ink.PAPER, 0.9))
+	draw_string(font, pos, text, align, width, size_px, Color(Ink.INK, 0.9))

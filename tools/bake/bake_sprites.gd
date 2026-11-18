@@ -60,6 +60,8 @@ const JOBS := [
 ## 명령줄 인자 --only=<name>이면 그 하나만 굽는다.
 var _vp: SubViewport
 var _pivot: Node3D
+## "style": "ink"이면 3D 렌더를 수묵 후처리 셰이더로 한 번 더 그린 화면 (없으면 null).
+var _post: SubViewport
 
 
 func _initialize() -> void:
@@ -166,7 +168,26 @@ func _setup(job: Dictionary) -> AnimationPlayer:
 	world.add_child(_pivot)
 	var model: Node3D = (load(job["model"]) as PackedScene).instantiate()
 	_pivot.add_child(model)
+	_post = _make_post(job) if job.get("style", "") == "ink" else null
 	return model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+
+
+func _make_post(job: Dictionary) -> SubViewport:
+	var vp := SubViewport.new()
+	vp.size = _vp.size
+	vp.transparent_bg = true
+	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(vp)
+	var rect := TextureRect.new()
+	rect.texture = _vp.get_texture()
+	rect.size = Vector2(_vp.size)
+	var mat := ShaderMaterial.new()
+	mat.shader = load("res://tools/bake/ink_post.gdshader")
+	for key in job.get("ink", {}):
+		mat.set_shader_parameter(key, job["ink"][key])
+	rect.material = mat
+	vp.add_child(rect)
+	return vp
 
 
 func _bake(job: Dictionary) -> void:
@@ -197,7 +218,9 @@ func _bake(job: Dictionary) -> void:
 				ap.pause()
 				await RenderingServer.frame_post_draw
 				await RenderingServer.frame_post_draw
-				var img := _vp.get_texture().get_image()
+				if _post:
+					await RenderingServer.frame_post_draw
+				var img := (_post if _post else _vp).get_texture().get_image()
 				img.convert(Image.FORMAT_RGBA8)
 				sheet.blit_rect(img, Rect2i(0, 0, FRAME, FRAME), Vector2i(f * FRAME, d * FRAME))
 		var png := "%s/%s.png" % [out_dir, anim["key"]]
@@ -206,6 +229,8 @@ func _bake(job: Dictionary) -> void:
 		print("baked ", png)
 	_write_set(job["name"], out_dir, meta, FRAME)
 	_vp.queue_free()
+	if _post:
+		_post.queue_free()
 
 
 ## SpriteSheetSet .tres를 텍스트로 쓴다 (PNG는 다음 import 때 텍스처가 된다).
