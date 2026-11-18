@@ -23,11 +23,11 @@ var rest_speed: float = 250.0
 ## 멈춰 있다가 튕길 때 (처음 터치, 잠깐 멈춤): 쉽게, 급가속 조건 없음.
 var rest_min_distance: float = 70.0
 var rest_min_speed: float = 700.0
-## 이동 중에 튕길 때: 엄격하게 + 급가속 조건 (방향 전환은 대시가 아님).
-var move_min_distance: float = 110.0
-var move_min_speed: float = 1300.0
+## 이동 중에 튕길 때: 엄격하게 + 급가속 조건 (방향 전환은 대시가 아님). 실기기 피드백으로 110/1300/1.6 → 140/1600/1.8.
+var move_min_distance: float = 140.0
+var move_min_speed: float = 1600.0
 ## 급가속: 플릭 구간 속도가 직전 구간(실제 경로 길이 기준) 속도의 이 배수 이상.
-var flick_burst_ratio: float = 1.6
+var flick_burst_ratio: float = 1.8
 ## 연속 대시: 직전 플릭 후 이 시간(초) 안에 방향을 크게 꺾은(코사인 < chain_max_dot) 플릭은
 ## 더 쉬운 기준 (사이에 걷기가 끼지 않게, 실기기 피드백).
 var chain_window: float = 0.4
