@@ -16,6 +16,18 @@ godot --headless --path . -s -d res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res
 
 종료 코드 0 = 전체 통과. 결과는 `reports/`에 생성된다.
 
+## Android APK
+
+필요: Godot 4.7.2 내보내기 템플릿, JDK 17, Android SDK(platform-tools, build-tools 35.0.1, platforms;android-35).
+Godot 편집기 설정 `export/android/java_sdk_path`, `export/android/android_sdk_path`를 지정한다.
+
+```
+godot --headless --path . --export-debug "Android" build/android/haneol-heroes.apk
+```
+
+디버그 서명 APK(arm64-v8a, 세로 고정)가 `build/android/`에 생성된다. 빌드 산출물은 git에 올리지 않는다.
+패키지 ID `com.haneol.heroes`는 임시값이다.
+
 ## 구조
 
 | 경로 | 내용 |
