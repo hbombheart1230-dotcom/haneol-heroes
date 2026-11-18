@@ -51,7 +51,7 @@ func _draw() -> void:
 		var a := 1.0 - _age / lifetime * 0.5
 		for i in 3:
 			var r := 22.0 - i * 6.0
-			draw_arc(Vector2(-i * 10.0, 0), r, -PI * 0.55, PI * 0.55, 16, Color(0.4, 0.8, 1.0, a * (1.0 - i * 0.25)), 6.0 - i)
+			draw_arc(Vector2(-i * 10.0, 0), r, -PI * 0.55, PI * 0.55, 16, Color(Ink.WATER.darkened(0.2 * i), a * (1.0 - i * 0.25)), 7.0 - i)
 		return
-	draw_line(Vector2(-18, 0), Vector2(18, 0), Color(0.6, 0.9, 1.0), 6.0)
-	draw_line(Vector2(-10, 0), Vector2(14, 0), Color(1, 1, 1), 2.0)
+	Ink.stroke(self, Vector2(-20, 0), Vector2(18, 0), 8.0, Ink.INDIGO)
+	draw_line(Vector2(-8, 0), Vector2(14, 0), Ink.WATER, 2.0)

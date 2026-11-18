@@ -51,5 +51,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _draw() -> void:
-	draw_line(Vector2(-16, 0), Vector2(14, 0), Color(1, 0.8, 0.5), 4.0)
-	draw_colored_polygon(PackedVector2Array([Vector2(18, 0), Vector2(8, -6), Vector2(8, 6)]), Color(1, 0.9, 0.6))
+	draw_line(Vector2(-16, 0), Vector2(14, 0), Color(0.35, 0.25, 0.15), 3.0)
+	draw_colored_polygon(PackedVector2Array([Vector2(20, 0), Vector2(8, -6), Vector2(8, 6)]), Ink.INK)
+	draw_line(Vector2(-18, -4), Vector2(-12, 0), Ink.SEAL, 2.0)
+	draw_line(Vector2(-18, 4), Vector2(-12, 0), Ink.SEAL, 2.0)

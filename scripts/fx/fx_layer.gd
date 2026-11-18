@@ -15,7 +15,7 @@ func add_slash(from: Vector2, to: Vector2, width: float, duration: float, color:
 
 
 func add_spark(pos: Vector2, color: Color = Color(1, 1, 1)) -> void:
-	_fx.append({"kind": "spark", "pos": pos, "t": 0.0, "dur": 0.15, "color": color})
+	_fx.append({"kind": "spark", "pos": pos, "t": 0.0, "dur": 0.22, "color": color, "seed": randf() * 10.0})
 
 
 ## 데미지 숫자: 위로 떠오르며 사라진다. strong이면 크고 노랗게.
@@ -41,21 +41,20 @@ func _draw() -> void:
 		var k := float(f["t"]) / float(f["dur"])
 		var c: Color = f["color"]
 		match f["kind"]:
-			"ring":
+			"ring":  # 물결 먹선 (해룡참·반격)
 				var r := float(f["r"]) * (0.35 + 0.65 * k)
-				draw_arc(f["pos"], r, 0, TAU, 48, Color(c, (1.0 - k) * 0.9), 14.0 * (1.0 - k) + 2.0)
-				draw_arc(f["pos"], r * 0.8, 0, TAU, 48, Color(c, (1.0 - k) * 0.4), 6.0)
-			"slash":
-				draw_line(f["a"], f["b"], Color(c, (1.0 - k)), float(f["w"]) * (1.0 - k * 0.7))
-				draw_line(f["a"], f["b"], Color(1, 1, 1, (1.0 - k) * 0.8), float(f["w"]) * 0.25)
+				Ink.ring(self, f["pos"], r, 16.0 * (1.0 - k) + 3.0, Color(c.darkened(0.35), (1.0 - k) * 0.85))
+				Ink.ring(self, f["pos"], r * 0.8, 6.0, Color(Ink.INK, (1.0 - k) * 0.35), 0.6, 2.0)
+			"slash":  # 붓 획 검기
+				Ink.stroke(self, f["a"], f["b"], float(f["w"]) * (1.0 - k * 0.6), Color(c.darkened(0.3), 1.0 - k))
+				Ink.stroke(self, f["a"], f["b"], float(f["w"]) * 0.3, Color(Ink.INK, (1.0 - k) * 0.7))
 			"number":
 				var font := ThemeDB.fallback_font
 				var size := 48 if f["strong"] else 34
 				var p: Vector2 = f["pos"] + Vector2(-60, -50.0 * k - 30.0)
-				draw_string_outline(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, 6, Color(0, 0, 0, 1.0 - k))
-				draw_string(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, Color(c, 1.0 - k))
-			"spark":
+				var ink_col := Ink.SEAL if f["strong"] else Ink.INK
+				draw_string_outline(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, 6, Color(Ink.PAPER, 1.0 - k))
+				draw_string(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, Color(ink_col, 1.0 - k))
+			"spark":  # 먹물 튀김
 				var p: Vector2 = f["pos"]
-				var s := 14.0 * (1.0 - k) + 4.0
-				draw_line(p - Vector2(s, 0), p + Vector2(s, 0), Color(c, 1.0 - k), 3.0)
-				draw_line(p - Vector2(0, s), p + Vector2(0, s), Color(c, 1.0 - k), 3.0)
+				Ink.splash(self, p, 10.0 + 14.0 * k, Color(Ink.INK, (1.0 - k) * 0.8), float(f.get("seed", 0.0)))
