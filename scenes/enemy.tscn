@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/combat/enemy.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://addons/health_hitbox_hurtbox/health/health.gd" id="2_health"]
 [ext_resource type="Script" path="res://addons/health_hitbox_hurtbox/2d/hurt_box_2d/hurt_box_2d.gd" id="3_hurt"]
+[ext_resource type="Resource" path="res://data/enemies/chaser.tres" id="4_data"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 16.0
@@ -15,6 +16,7 @@ collision_layer = 2
 collision_mask = 2
 motion_mode = 1
 script = ExtResource("1_enemy")
+data = ExtResource("4_data")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_body")

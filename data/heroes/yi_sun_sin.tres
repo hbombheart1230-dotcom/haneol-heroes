@@ -1,0 +1,79 @@
+[gd_resource type="Resource" script_class="HeroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Script" path="res://scripts/data/basic_attack_data.gd" id="2_attack"]
+[ext_resource type="Script" path="res://scripts/skills/skill_kit.gd" id="3_kit"]
+[ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/haeryong_skill.gd" id="4_haeryong"]
+[ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/pado_skill.gd" id="5_pado"]
+[ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/haeil_skill.gd" id="6_haeil"]
+
+[sub_resource type="Resource" id="Attack_yi"]
+script = ExtResource("2_attack")
+melee_interval = 0.55
+melee_range = 110.0
+melee_arc_degrees = 140.0
+melee_damage = 12
+ranged_interval = 0.8
+ranged_range = 480.0
+ranged_damage = 10
+ranged_speed = 700.0
+ranged_lifetime = 0.8
+
+[sub_resource type="Resource" id="Skill_haeryong"]
+script = ExtResource("4_haeryong")
+id = &"haeryong"
+display_name = "해룡참"
+cooldown = 4.0
+color = Color(0.2, 0.5, 0.9, 1)
+radius = 170.0
+damage = 25
+knockback = 420.0
+
+[sub_resource type="Resource" id="Skill_pado"]
+script = ExtResource("5_pado")
+id = &"pado"
+display_name = "파도격"
+cooldown = 3.0
+color = Color(0.2, 0.85, 0.95, 1)
+length = 320.0
+width = 90.0
+hit_count = 3
+damage_per_hit = 10
+hit_interval = 0.07
+
+[sub_resource type="Resource" id="Skill_haeil"]
+script = ExtResource("6_haeil")
+id = &"haeil"
+display_name = "해일검기"
+cooldown = 5.0
+color = Color(0.35, 0.65, 1, 1)
+min_damage = 20
+max_damage = 60
+min_scale = 1.6
+max_scale = 3.2
+speed = 650.0
+lifetime = 1.1
+
+[sub_resource type="Resource" id="Kit_yi"]
+script = ExtResource("3_kit")
+tap = SubResource("Skill_haeryong")
+dash = SubResource("Skill_pado")
+charge = SubResource("Skill_haeil")
+dash_link_window = 0.45
+hold_threshold = 0.2
+full_charge_time = 1.0
+
+[resource]
+script = ExtResource("1_hero")
+id = &"yi_sun_sin"
+display_name = "이순신"
+body_color = Color(0.15, 0.4, 0.8, 1)
+max_hp = 100
+move_speed = 340.0
+hurt_invuln_time = 0.6
+dash_distance = 260.0
+dash_duration = 0.16
+max_dash_charges = 2
+dash_recharge_time = 1.2
+attack = SubResource("Attack_yi")
+kit = SubResource("Kit_yi")

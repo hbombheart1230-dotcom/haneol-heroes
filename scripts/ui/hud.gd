@@ -25,7 +25,7 @@ func _draw() -> void:
 		_draw_health()
 		_draw_dash_pips()
 	if controller and controller.skill_caster:
-		_draw_skill_button()
+		SkillButtonDrawer.draw(self, controller, get_theme_default_font())
 	if state:
 		_draw_status()
 	if show_touch_debug and controller:
@@ -62,37 +62,6 @@ func _draw_dash_pips() -> void:
 			draw_circle(c, 16, Color(0.4, 0.8, 1.0))
 		elif i == d.charges:
 			draw_arc(c, 16, -PI / 2, -PI / 2 + TAU * d.get_recharge_ratio(), 24, Color(0.4, 0.8, 1.0, 0.8), 4.0)
-
-
-## 단일 스킬 버튼: 지금 발동할 기술을 색·이름으로, 쿨타임은 어두운 부채꼴로, 충전량은 고리로 표시.
-func _draw_skill_button() -> void:
-	var sc := controller.skill_caster
-	var center := controller.skill_button_center()
-	var r := controller.skill_button_radius
-	var skill := sc.preview_skill()
-	var colors := {
-		SkillCaster.Skill.HAERYONG: Color(0.2, 0.5, 0.9),
-		SkillCaster.Skill.PADO: Color(0.2, 0.85, 0.95),
-		SkillCaster.Skill.HAEIL: Color(0.35, 0.65, 1.0),
-	}
-	var base: Color = colors.get(skill, Color(0.3, 0.3, 0.3))
-	var can_use := sc.is_ready(skill)
-	draw_circle(center, r, Color(0, 0, 0, 0.35))
-	draw_circle(center, r * 0.86, Color(base, 0.85 if can_use else 0.35))
-	var cd := sc.cooldown_ratio(skill)
-	if cd > 0.0:
-		var pts := PackedVector2Array([center])
-		var steps := 24
-		for i in steps + 1:
-			pts.append(center + Vector2.from_angle(-PI / 2 + TAU * cd * float(i) / steps) * r * 0.86)
-		draw_colored_polygon(pts, Color(0, 0, 0, 0.45))
-	if sc.input.state == SkillInput.State.CHARGING:
-		var c := sc.input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0)
-		draw_arc(center, r * 0.95, -PI / 2, -PI / 2 + TAU * maxf(c, 0.02), 40, Color(1, 1, 1, 0.95), 8.0)
-	elif sc.input.is_down():
-		draw_arc(center, r * 0.95, 0, TAU, 40, Color(1, 1, 1, 0.5), 4.0)
-	var font := get_theme_default_font()
-	draw_string(font, center + Vector2(-r, 10), SkillCaster.NAMES[skill], HORIZONTAL_ALIGNMENT_CENTER, r * 2, 28, Color(1, 1, 1, 0.95 if can_use else 0.5))
 
 
 func _draw_result() -> void:

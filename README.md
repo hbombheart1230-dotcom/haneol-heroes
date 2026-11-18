@@ -84,25 +84,22 @@ APK는 git에 올리지 않는다. 패키지 ID `com.haneol.heroes`는 임시값
 
 | 경로 | 내용 |
 |---|---|
-| `scenes/main.tscn` | 메인 씬 (바닥, 플레이어, 입력, HUD) |
-| `scripts/input/touch_move_input.gd` | 터치 ID별 자유 영역 이동·플릭 판정 (순수 로직) |
-| `scripts/input/touch_controller.gd` | InputEvent → 입력 로직 → 플레이어 연결 |
-| `scripts/player/dash_charges.gd` | 대시 충전 (2회, 순차 회복) |
-| `scripts/player/player.gd` | 이순신 이동·대시 |
-| `scripts/combat/enemy.gd` | 추적형 적 (분리 이동, 피격 점멸, 사망) |
-| `scripts/combat/enemy_spawner.gd` | 화면 밖 고리 영역 생성, 동시 최대 30 |
-| `scripts/combat/auto_attack.gd` | 자동 근접·원거리 공격 |
-| `scripts/combat/projectile.gd` | 검기 투사체 (HitBox2D) |
-| `scripts/combat/targeting.gd` | 최근접·부채꼴 대상 선택 |
-| `scripts/skills/skill_input.gd` | 스킬 버튼 누름 상태 (탭 / 충전) |
-| `scripts/skills/skill_caster.gd` | 상황 반응형 스킬 선택과 해룡참·파도격·해일검기 |
-| `scripts/fx/fx_layer.gd` | 임시 전투 이펙트 (물결 고리, 검기 잔상, 타격) |
-| `scripts/game/game_state.gd` | 60초 생존, 처치 수, 게임오버·생존 성공 |
-| `scripts/game/main.gd` | 씬 연결, 일시정지, 탭하여 재시작 |
-| `scripts/ui/hud.gd` | 체력·시간·처치·대시 표시, 결과 화면, 터치 디버그 표시 |
-| `scripts/world/arena.gd` | 임시 쿼터뷰 바닥 |
+| `data/heroes/*.tres` | 영웅 데이터 (능력치, 대시, 기본 공격, 단일 버튼 기술 구성) |
+| `data/enemies/*.tres` | 적 데이터 |
+| `scripts/data/` | 데이터 클래스: `HeroData`, `BasicAttackData`, `EnemyData` |
+| `scripts/skills/` | 공통 기술 시스템: 입력 상태(`SkillInput`), 상황 판단(`SkillCaster`), 기술 기반(`SkillDef`, `SkillRun`, `SkillContext`, `SkillKit`) |
+| `scripts/heroes/<영웅>/` | 영웅 전용 기술 (이순신: 해룡참, 파도격, 해일검기) |
+| `scripts/input/` | 터치 ID별 이동·플릭 판정, 스킬 버튼 라우팅 |
+| `scripts/player/` | 플레이어 이동·대시·피격, 대시 충전, 임시 그래픽(`PlayerView`) |
+| `scripts/combat/` | 적, 생성기(최대 30), 자동 공격, 투사체, 대상 선택 |
+| `scripts/game/` | 60초 생존·처치·결과, 성능 기록, 씬 연결·재시작 |
+| `scripts/ui/` | HUD, 스킬 버튼 표시 |
+| `scripts/fx/` | 임시 전투 이펙트 |
 | `tests/` | gdUnit4 테스트 |
 | `docs/scenario.md` | 세계관·영웅 기준 문서 |
+
+**새 영웅 추가:** `scripts/heroes/<영웅>/`에 `SkillDef`를 상속한 기술 3개를 만들고, `data/heroes/<영웅>.tres`에 능력치·기본 공격·기술 구성을 적는다. 공통 코드는 바꾸지 않는다.
+**새 적 추가:** `data/enemies/<적>.tres` (행동이 다르면 전용 스크립트).
 
 ## 개발·검증 방식
 

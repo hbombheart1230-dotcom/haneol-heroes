@@ -148,8 +148,8 @@ func test_melee_hits_enemies_in_front_arc() -> void:
 	var front2 := _enemy_at(Vector2(70, 30))
 	var back := _enemy_at(Vector2(-80, 0))
 	a.tick(0.016, [front, front2, back])
-	assert_int(front.health.current).is_equal(front.health.max - a.melee_damage)
-	assert_int(front2.health.current).is_equal(front2.health.max - a.melee_damage)
+	assert_int(front.health.current).is_equal(front.health.max - a.stats().melee_damage)
+	assert_int(front2.health.current).is_equal(front2.health.max - a.stats().melee_damage)
 	assert_int(back.health.current).is_equal(back.health.max)
 
 
@@ -159,9 +159,9 @@ func test_melee_respects_interval() -> void:
 	var e := _enemy_at(Vector2(50, 0))
 	a.tick(0.016, [e])
 	a.tick(0.016, [e])
-	assert_int(e.health.current).is_equal(e.health.max - a.melee_damage)
-	a.tick(a.melee_interval, [e])
-	assert_int(e.health.current).is_equal(e.health.max - 2 * a.melee_damage)
+	assert_int(e.health.current).is_equal(e.health.max - a.stats().melee_damage)
+	a.tick(a.stats().melee_interval, [e])
+	assert_int(e.health.current).is_equal(e.health.max - 2 * a.stats().melee_damage)
 
 
 func test_ranged_fires_at_nearest_out_of_melee_range() -> void:
