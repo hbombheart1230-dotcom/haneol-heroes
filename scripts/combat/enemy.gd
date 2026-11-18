@@ -6,6 +6,7 @@ extends CharacterBody2D
 signal killed(enemy: Enemy)
 
 const GROUP := "enemies"
+const BOSS_GROUP := "boss"
 
 ## 지정하면 _ready에서 아래 수치와 체력을 이 데이터로 덮어쓴다.
 @export var data: EnemyData
@@ -40,9 +41,14 @@ func _ready() -> void:
 		body_radius = data.body_radius
 		health.max = data.max_hp
 		health.current = data.max_hp
-		if data.attack:
+		if not data.patterns.is_empty():
+			attack = EnemyAttack.new(data.patterns[0], 1.0)
+			attack.set_patterns(data.patterns)
+		elif data.attack:
 			# 첫 공격 시점을 흩어 놓아 한꺼번에 예고하지 않게 한다.
 			attack = EnemyAttack.new(data.attack, randf_range(0.3, 1.5))
+		if data.is_boss:
+			add_to_group(BOSS_GROUP)
 	add_to_group(GROUP)
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
@@ -76,8 +82,11 @@ func compute_velocity(neighbors: Array) -> Vector2:
 func _physics_process(delta: float) -> void:
 	var busy := false
 	if attack:
-		if attack.tick(delta, global_position, target as Player) == EnemyAttack.Result.FIRED:
+		var r := attack.tick(delta, global_position, target as Player)
+		if r == EnemyAttack.Result.FIRED:
 			_fire_arrow()
+		elif r != EnemyAttack.Result.NONE and attack.data.kind == EnemyAttackData.Kind.CHARGE:
+			_charge_to(attack.charge_end())
 		busy = attack.is_busy()
 		if busy:
 			queue_redraw()
@@ -96,6 +105,12 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 	queue_redraw()
 
 
+## 돌진: 예고한 직사각형 끝까지 빠르게 이동 (엔진 기본 Tween).
+func _charge_to(end: Vector2) -> void:
+	var tw := create_tween()
+	tw.tween_property(self, "global_position", end, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
 func _fire_arrow() -> void:
 	var a := EnemyArrow.new()
 	a.direction = attack.aim_dir
@@ -112,6 +127,7 @@ func _on_died(_entity: Node) -> void:
 	if attack:
 		attack.cancel()
 	remove_from_group(GROUP)
+	remove_from_group(BOSS_GROUP)
 	Feedback.enemy_died(global_position)
 	killed.emit(self)
 	queue_free()
@@ -125,7 +141,10 @@ func _draw() -> void:
 	var base := data.color if data else Color(0.75, 0.2, 0.25)
 	var c := Color(1, 1, 1) if _flash > 0.0 else base
 	draw_circle(Vector2(0, -body_radius * 0.3), body_radius, c)
-	if data and data.knockback_scale < 1.0:  # 중장병: 갑옷 테두리
+	if data and data.is_boss:  # 보스: 금색 갑옷 이중 테두리
+		draw_arc(Vector2(0, -body_radius * 0.3), body_radius, 0, TAU, 32, Color(1, 0.85, 0.3), 6.0)
+		draw_arc(Vector2(0, -body_radius * 0.3), body_radius * 0.7, 0, TAU, 32, Color(1, 0.9, 0.5, 0.7), 3.0)
+	elif data and data.knockback_scale < 1.0:  # 중장병: 갑옷 테두리
 		draw_arc(Vector2(0, -body_radius * 0.3), body_radius, 0, TAU, 24, Color(0.85, 0.85, 0.9), 4.0)
 
 
@@ -133,11 +152,41 @@ func _draw() -> void:
 func _draw_telegraph() -> void:
 	if attack == null or attack.state != EnemyAttack.State.WINDUP:
 		return
-	if attack.is_shoot():  # 조준선: 점점 굵고 밝아진다
-		var k0 := attack.windup_ratio()
-		var end := attack.aim_dir * attack.data.projectile_range
-		draw_line(Vector2.ZERO, end, Color(1, 0.3, 0.2, 0.15 + 0.35 * k0), 2.0 + 6.0 * k0)
-		return
+	var k0 := attack.windup_ratio()
+	var fill := Color(1, 0.25, 0.15, 0.2 + 0.3 * k0)
+	var edge := Color(1, 0.35, 0.25, 0.8)
+	var origin := to_local(attack.aim_origin)
+	match attack.data.kind:
+		EnemyAttackData.Kind.SHOOT:  # 조준선: 점점 굵고 밝아진다
+			var end := attack.aim_dir * attack.data.projectile_range
+			draw_line(Vector2.ZERO, end, Color(1, 0.3, 0.2, 0.15 + 0.35 * k0), 2.0 + 6.0 * k0)
+			return
+		EnemyAttackData.Kind.CONE:
+			var half := deg_to_rad(attack.data.angle_degrees * 0.5)
+			var a0 := attack.aim_dir.angle()
+			var pts := PackedVector2Array([origin])
+			for i in 17:
+				pts.append(origin + Vector2.from_angle(a0 - half + 2.0 * half * i / 16.0) * attack.data.radius)
+			draw_colored_polygon(pts, fill)
+			pts.append(origin)
+			draw_polyline(pts, edge, 3.0)
+			return
+		EnemyAttackData.Kind.CHARGE:
+			var d := attack.aim_dir
+			var n := d.orthogonal() * attack.data.width * 0.5
+			var back := origin - d * attack.data.width * 0.5
+			var front := origin + d * attack.data.length
+			var rect := PackedVector2Array([back + n, front + n, front - n, back - n])
+			draw_colored_polygon(rect, fill)
+			rect.append(back + n)
+			draw_polyline(rect, edge, 3.0)
+			return
+		EnemyAttackData.Kind.SHOCKWAVE:
+			draw_set_transform(origin, 0.0, Vector2(1.0, 0.6))
+			draw_circle(Vector2.ZERO, attack.data.radius * k0, fill)
+			draw_arc(Vector2.ZERO, attack.data.radius, 0, TAU, 48, edge, 3.0)
+			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+			return
 	var p := to_local(attack.target_point)
 	var r := attack.data.radius
 	var k := attack.windup_ratio()

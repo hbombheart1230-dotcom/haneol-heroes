@@ -15,3 +15,8 @@ extends Resource
 @export var preferred_range: float = 0.0
 ## 넉백을 받는 정도 (중장병은 작게).
 @export var knockback_scale: float = 1.0
+## 여러 공격 패턴을 차례로 쓴다 (보스). 있으면 attack 대신 사용.
+@export var patterns: Array[EnemyAttackData] = []
+## 보스: 처치하면 승리, 화면 위 체력 막대 표시.
+@export var is_boss: bool = false
+@export var display_name: String = ""

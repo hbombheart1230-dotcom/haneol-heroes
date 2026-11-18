@@ -129,6 +129,15 @@ func dashed_out_of(center: Vector2, radius: float, within: float) -> bool:
 	return _since_dash_start <= within and _dash_start_pos.distance_to(center) <= radius
 
 
+## 마지막 대시 시작 위치와, 그 대시가 within초 안에 시작됐는지 (모양이 다른 예고 영역의 회피 판정용).
+func dash_start_position() -> Vector2:
+	return _dash_start_pos
+
+
+func dashed_within(within: float) -> bool:
+	return _since_dash_start <= within
+
+
 ## 회피 성공: 즉시 무적 + evaded 신호 (반격 시간 시작).
 func register_evade() -> void:
 	grant_invulnerability(evade_invuln_time)

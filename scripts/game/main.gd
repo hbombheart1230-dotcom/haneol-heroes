@@ -29,7 +29,7 @@ func _ready() -> void:
 	if player and player.health:
 		player.health.died.connect(func(_e: Node) -> void: state.player_died())
 	if spawner:
-		spawner.enemy_killed.connect(func(_e: Enemy) -> void: state.add_kill())
+		spawner.enemy_killed.connect(_on_enemy_killed)
 	if hud:
 		hud.state = state
 		hud.perf = perf
@@ -67,3 +67,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func restart() -> void:
 	get_tree().paused = false
 	get_tree().reload_current_scene()
+
+
+func _on_enemy_killed(e: Enemy) -> void:
+	state.add_kill()
+	if e.data and e.data.is_boss:
+		state.boss_defeated()

@@ -9,6 +9,7 @@ enum Result { PLAYING, DEFEAT, VICTORY }
 var survive_time: float = 60.0
 var elapsed: float = 0.0
 var kills: int = 0
+var boss_killed: bool = false
 var result: Result = Result.PLAYING
 
 
@@ -35,6 +36,12 @@ func tick(delta: float) -> void:
 func add_kill() -> void:
 	if is_playing():
 		kills += 1
+
+
+func boss_defeated() -> void:
+	if is_playing():
+		boss_killed = true
+		_end(Result.VICTORY)
 
 
 func player_died() -> void:
