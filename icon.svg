@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- 임시 아이콘 (P0). 정식 아트 아님. -->
+  <rect width="256" height="256" rx="48" fill="#13202e"/>
+  <path d="M40 170 Q90 120 128 150 T216 130" fill="none" stroke="#4ab3ff" stroke-width="14" stroke-linecap="round"/>
+  <path d="M60 205 Q110 160 150 185 T220 170" fill="none" stroke="#2a78c8" stroke-width="10" stroke-linecap="round"/>
+  <path d="M128 36 L140 120 L128 132 L116 120 Z" fill="#dff1ff"/>
+  <rect x="104" y="118" width="48" height="8" rx="4" fill="#9fc9ea"/>
+</svg>

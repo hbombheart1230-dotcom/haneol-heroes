@@ -1,0 +1,121 @@
+# 한얼: 영웅 (HANEOL: HEROES)
+
+> 역사가 전설이 된다.
+
+한국 역사 속 위인들을 초월적인 판타지 영웅으로 재해석한 **핵앤슬래시 액션 RPG**.
+수십 마리의 적을 대시와 상황 반응형 스킬로 쓸어버리는 능동적인 모바일 액션을 지향한다.
+
+| 항목 | 내용 |
+|---|---|
+| 약칭 | HH |
+| 장르 | 한국 역사 판타지 핵앤슬래시 액션 RPG |
+| 플랫폼 | Android 우선 |
+| 화면 | 세로 9:16 |
+| 시점 | 2.5D 쿼터뷰 |
+| 엔진 | Godot 4.7.2 + GDScript |
+| 현재 단계 | P0-A 조작 프로토타입 |
+
+세계관과 영웅 설정: [docs/scenario.md](docs/scenario.md)
+
+## 영웅
+
+| 영웅 | 칭호 | 역할 | 상태 |
+|---|---|---|---|
+| 이순신 | 푸른 해류의 검 | 근접·원거리 복합형 검사 | P0 플레이어블 |
+| 광개토대왕 | 천둥의 정복자 | 중량급 돌진형 전사 | 기획 |
+| 세종대왕 | 천문의 지배자 | 원거리 마법형 | 기획 |
+| 신사임당 | 수묵의 술사 | 자연·소환·광역 마법형 | 기획 |
+
+## 조작
+
+버튼은 적지만, 액션의 깊이는 깊다.
+
+| 입력 | 동작 | 상태 |
+|---|---|---|
+| 화면 아무 곳이나 터치·드래그 | 이동 (터치 시작점 기준, 고정 조이스틱 없음) | 구현 |
+| 빠른 플릭 | 대시 — 무영보 (2회 충전, 대시 중 무적) | 구현 |
+| 자동 | 기본 공격 | P0-B |
+| 스킬 버튼 1개 | 상황에 따라 해룡참 / 파도격 / 해일검기 | P0-C |
+
+데스크톱에서는 마우스가 터치로 에뮬레이션된다.
+
+## 개발 단계
+
+| 단계 | 내용 | 상태 |
+|---|---|---|
+| P0-A | 조작 프로토타입: 터치 이동, 플릭 대시, 2회 충전, 터치 ID별 입력, Android APK | 구현 · Codex PASS WITH NOTES · 실기기 확인 |
+| P0-B | 기본 전투: 적 30마리, 추적 AI, 자동 공격, 체력·피해, 게임오버·재시작 | 예정 |
+| P0-C | 상황별 스킬: 해룡참, 파도격, 해일검기, 스킬 입력 상태 머신, 이펙트 | 예정 |
+| P0-D | 실기기 검증: 조작·스킬·60초 생존·성능·플레이 평가 | 예정 |
+
+P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서버, 광고·결제, 멀티플레이, 정식 그래픽.
+
+## 시작하기
+
+### 요구 사항
+
+- Godot 4.7.2 (표준판)
+- APK 빌드 시: Godot 4.7.2 내보내기 템플릿, JDK 17, Android SDK (platform-tools, build-tools 35.0.1, platforms;android-35)
+  - Godot 편집기 설정 `export/android/java_sdk_path`, `export/android/android_sdk_path` 지정
+
+### 실행
+
+Godot 4.7.2로 `project.godot`을 열고 F5.
+
+### 테스트 (gdUnit4)
+
+```
+godot --headless --path . --import
+godot --headless --path . -s -d res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests --ignoreHeadlessMode -c
+```
+
+종료 코드 0이면 전체 통과. 결과는 `reports/`에 생성된다.
+
+### Android APK
+
+```
+godot --headless --path . --export-debug "Android" build/android/haneol-heroes.apk
+```
+
+디버그 서명 APK(arm64-v8a, minSdk 24, targetSdk 36, 세로 고정)가 생성된다.
+APK는 git에 올리지 않는다. 패키지 ID `com.haneol.heroes`는 임시값이다.
+
+## 구조
+
+| 경로 | 내용 |
+|---|---|
+| `scenes/main.tscn` | 메인 씬 (바닥, 플레이어, 입력, HUD) |
+| `scripts/input/touch_move_input.gd` | 터치 ID별 자유 영역 이동·플릭 판정 (순수 로직) |
+| `scripts/input/touch_controller.gd` | InputEvent → 입력 로직 → 플레이어 연결 |
+| `scripts/player/dash_charges.gd` | 대시 충전 (2회, 순차 회복) |
+| `scripts/player/player.gd` | 이순신 이동·대시 |
+| `scripts/ui/hud.gd` | 대시 충전 표시, 터치 디버그 표시 |
+| `scripts/world/arena.gd` | 임시 쿼터뷰 바닥 |
+| `tests/` | gdUnit4 테스트 |
+| `docs/scenario.md` | 세계관·영웅 기준 문서 |
+
+## 개발·검증 방식
+
+| 역할 | 담당 |
+|---|---|
+| 메인 개발·통합 | Claude |
+| 독립 코드 검증·테스트 | Codex |
+| 설계·기술 판정 | GPT |
+| 제품 책임·최종 승인 | 사용자 |
+
+1. 새 기능은 저장소 → 플러그인·스킬 → Asset Library·오픈소스 순으로 재사용 가능성을 먼저 조사하고, 부족한 부분만 최소 구현한다.
+2. Claude가 구현·테스트 후 커밋한다.
+3. Codex가 해당 커밋 SHA를 별도 클론에서 독립 검증한다 (코드 검토, 테스트 실행, 결함 재현).
+4. 결함은 Claude가 수정하고 새 SHA로 재검증한다.
+5. Codex PASS 전에는 완료로 표시하지 않는다.
+
+Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-agent-skills` (`.claude/settings.json`).
+
+## 외부 자산
+
+| 자산 | 버전 | 라이선스 | 출처 |
+|---|---|---|---|
+| gdUnit4 | 6.2.3 | MIT (`addons/gdUnit4/LICENSE`) | https://github.com/godot-gdunit-labs/gdUnit4 |
+| awesome-gamedev-agent-skills (`godot` 플러그인, 개발용) | — | Apache-2.0 | https://github.com/gamedev-skills/awesome-gamedev-agent-skills |
+
+게임 코드에 외부 코드를 가져올 때는 이 표에 출처와 라이선스를 기록한다.
