@@ -16,13 +16,13 @@ var full_speed_radius: float = 90.0
 ## 앵커가 손가락에서 이 거리 이상 멀어지면 손가락 쪽으로 끌려온다 (방향 전환을 빠르게).
 var anchor_follow_radius: float = 140.0
 ## 플릭 판정: 최근 flick_window 초 안에 flick_min_distance(px) 이상, flick_min_speed(px/s) 이상 이동.
-## 실기기 피드백(이동 중 오발동 대시)으로 80px/800 → 120px/1400 상향.
-var flick_min_speed: float = 1400.0
-var flick_min_distance: float = 120.0
+## 실기기 피드백: 오발동 대시로 80px/800 → 120px/1400 상향 후, "살짝 더 민감하게" 100px/1200.
+var flick_min_speed: float = 1200.0
+var flick_min_distance: float = 100.0
 var flick_window: float = 0.10
 ## 급가속 조건: 플릭 구간 속도가 바로 앞 구간(같은 길이) 속도의 이 배수 이상이어야 한다.
 ## 꾸준히 빠른 드래그나 빠른 방향 전환은 대시가 아니다. 0 이하면 끔.
-var flick_burst_ratio: float = 1.8
+var flick_burst_ratio: float = 1.6
 ## 손가락이 움직이는 동안 터치 이벤트 간격의 상한(초). 이보다 긴 공백은 "정지"로 본다.
 ## Android 터치 샘플링은 보통 60~240Hz(4~17ms).
 var max_event_gap: float = 0.05
