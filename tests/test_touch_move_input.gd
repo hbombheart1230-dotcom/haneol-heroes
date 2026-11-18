@@ -128,8 +128,8 @@ func test_fast_swipe_during_drag_is_a_flick() -> void:
 func test_first_move_event_after_holding_still_can_flick() -> void:
 	input.touch_down(0, Vector2(300, 600), 0.0)
 	# 1초간 정지(이벤트 없음) 후 한 프레임에 크게 이동
-	var dir := input.touch_move(0, Vector2(300, 480), 1.0)
-	dir = dir if dir != Vector2.ZERO else input.touch_move(0, Vector2(300, 440), 1.016)
+	var dir := input.touch_move(0, Vector2(300, 470), 1.0)
+	dir = dir if dir != Vector2.ZERO else input.touch_move(0, Vector2(300, 420), 1.016)
 	assert_vector(dir).is_equal_approx(Vector2.UP, Vector2(0.01, 0.01))
 
 
@@ -151,13 +151,13 @@ func test_continuous_move_just_below_flick_speed_is_not_a_flick() -> void:
 ## 움직이는 손가락은 반드시 중간 이벤트를 만들기 때문. 따라서 정지 후 마지막 순간의 빠른 이동은 플릭이다.
 func test_sparse_events_mean_finger_was_resting_then_flicked() -> void:
 	input.touch_down(0, Vector2.ZERO, 0.0)
-	assert_vector(input.touch_up(0, Vector2(80, 0), 0.11)).is_equal_approx(Vector2.RIGHT, Vector2(0.01, 0.01))
+	assert_vector(input.touch_up(0, Vector2(140, 0), 0.11)).is_equal_approx(Vector2.RIGHT, Vector2(0.01, 0.01))
 
 
 func test_quick_flick_and_release_dashes_on_release() -> void:
 	input.touch_down(0, Vector2(300, 600), 0.0)
-	input.touch_move(0, Vector2(340, 600), 0.03)
-	var dir := input.touch_up(0, Vector2(400, 600), 0.06)
+	input.touch_move(0, Vector2(360, 600), 0.03)
+	var dir := input.touch_up(0, Vector2(450, 600), 0.06)
 	assert_vector(dir).is_equal_approx(Vector2.RIGHT, Vector2(0.01, 0.01))
 
 
@@ -185,7 +185,7 @@ func test_flicked_signal_emitted() -> void:
 	var got: Array = []
 	input.flicked.connect(func(d: Vector2) -> void: got.append(d))
 	input.touch_down(0, Vector2(300, 600), 0.0)
-	input.touch_up(0, Vector2(300, 700), 0.05)
+	input.touch_up(0, Vector2(300, 750), 0.05)
 	assert_int(got.size()).is_equal(1)
 
 
@@ -194,3 +194,72 @@ func test_reset_clears_state() -> void:
 	input.reset()
 	assert_bool(input.is_active()).is_false()
 	assert_int(input.get_move_index()).is_equal(-1)
+
+
+
+# --- 이동 중 오발동 대시 방지 (실기기 피드백) ---
+
+## 60Hz로 일정 속도 드래그. from_t 이후의 플릭 수를 센다.
+func _steady_drag(dir: Vector2, speed: float, seconds: float, count_after: float) -> int:
+	input.touch_down(0, Vector2(360, 640), 0.0)
+	var t := 0.0
+	var pos := Vector2(360, 640)
+	var flicks := 0
+	while t < seconds:
+		t += 1.0 / 60.0
+		pos += dir * speed / 60.0
+		if input.touch_move(0, pos, t) != Vector2.ZERO and t > count_after:
+			flicks += 1
+	return flicks
+
+
+func test_steady_brisk_drag_never_dashes() -> void:
+	assert_int(_steady_drag(Vector2.RIGHT, 1000.0, 1.0, 0.0)).is_equal(0)
+
+
+func test_steady_very_fast_drag_does_not_dash_after_start() -> void:
+	# 이미 빠르게 움직이는 중에는 같은 속도가 이어져도 대시가 아니다
+	assert_int(_steady_drag(Vector2.DOWN, 1600.0, 0.6, 0.25)).is_equal(0)
+
+
+func test_fast_direction_change_does_not_dash() -> void:
+	input.touch_down(0, Vector2(100, 640), 0.0)
+	var t := 0.0
+	var pos := Vector2(100, 640)
+	var flicks := 0
+	for i in 30:  # 오른쪽 1500px/s
+		t += 1.0 / 60.0
+		pos += Vector2.RIGHT * 25.0
+		var d := input.touch_move(0, pos, t)
+		if d != Vector2.ZERO and t > 0.25:
+			flicks += 1
+	for i in 20:  # 급하게 위로 꺾기, 같은 속도
+		t += 1.0 / 60.0
+		pos += Vector2.UP * 25.0
+		if input.touch_move(0, pos, t) != Vector2.ZERO:
+			flicks += 1
+	assert_int(flicks).is_equal(0)
+
+
+func test_release_while_moving_fast_is_not_a_flick() -> void:
+	_steady_drag(Vector2.RIGHT, 1000.0, 0.8, 0.0)
+	var last := input.get_current()
+	assert_vector(input.touch_up(0, last + Vector2(16, 0), 0.8 + 1.0 / 60.0)).is_equal(Vector2.ZERO)
+
+
+func test_sudden_flick_while_moving_still_dashes() -> void:
+	input.touch_down(0, Vector2(300, 900), 0.0)
+	var t := 0.0
+	var pos := Vector2(300, 900)
+	for i in 30:  # 300px/s로 이동 중
+		t += 1.0 / 60.0
+		pos += Vector2(5, 0)
+		input.touch_move(0, pos, t)
+	var dir := Vector2.ZERO
+	for i in 6:  # 갑자기 위로 2400px/s
+		t += 1.0 / 60.0
+		pos += Vector2(0, -40)
+		var d := input.touch_move(0, pos, t)
+		if d != Vector2.ZERO:
+			dir = d
+	assert_float(dir.dot(Vector2.UP)).is_greater(0.9)

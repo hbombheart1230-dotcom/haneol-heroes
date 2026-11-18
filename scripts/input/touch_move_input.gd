@@ -16,10 +16,13 @@ var full_speed_radius: float = 90.0
 ## 앵커가 손가락에서 이 거리 이상 멀어지면 손가락 쪽으로 끌려온다 (방향 전환을 빠르게).
 var anchor_follow_radius: float = 140.0
 ## 플릭 판정: 최근 flick_window 초 안에 flick_min_distance(px) 이상, flick_min_speed(px/s) 이상 이동.
-## 실험 초기값. P0-D 실기기 테스트에서 조정한다.
-var flick_min_speed: float = 800.0
-var flick_min_distance: float = 80.0
+## 실기기 피드백(이동 중 오발동 대시)으로 80px/800 → 120px/1400 상향.
+var flick_min_speed: float = 1400.0
+var flick_min_distance: float = 120.0
 var flick_window: float = 0.10
+## 급가속 조건: 플릭 구간 속도가 바로 앞 구간(같은 길이) 속도의 이 배수 이상이어야 한다.
+## 꾸준히 빠른 드래그나 빠른 방향 전환은 대시가 아니다. 0 이하면 끔.
+var flick_burst_ratio: float = 1.8
 ## 손가락이 움직이는 동안 터치 이벤트 간격의 상한(초). 이보다 긴 공백은 "정지"로 본다.
 ## Android 터치 샘플링은 보통 60~240Hz(4~17ms).
 var max_event_gap: float = 0.05
@@ -112,11 +115,11 @@ func reset() -> void:
 	_current = Vector2.ZERO
 
 
-## 시간 창 시작 시점 이전의 마지막 샘플 1개를 기준점으로 남긴다.
+## 판정 구간 2개(현재 + 직전) 분량의 샘플과, 그 이전 기준점 1개를 남긴다.
 ## 터치 이벤트는 손가락이 움직일 때만 오므로, 정지 후 첫 이동 이벤트도 기준점과 비교할 수 있어야 한다.
 func _push_sample(time: float, pos: Vector2) -> void:
 	_samples.append([time, pos])
-	while _samples.size() >= 2 and float(_samples[1][0]) <= time - flick_window:
+	while _samples.size() >= 2 and float(_samples[1][0]) <= time - flick_window * 2.0:
 		_samples.pop_front()
 
 
@@ -125,35 +128,48 @@ func _detect_flick(time: float) -> Vector2:
 		return Vector2.ZERO
 	if _samples.size() < 2:
 		return Vector2.ZERO
-	var base := _baseline(time)
+	var base := _point_at(time - flick_window)
 	var dt := time - float(base[0])
 	if dt <= 0.0:
 		return Vector2.ZERO
 	var delta: Vector2 = _current - (base[1] as Vector2)
 	var dist := delta.length()
-	if dist < flick_min_distance or dist / dt < flick_min_speed:
+	var speed := dist / dt
+	if dist < flick_min_distance or speed < flick_min_speed:
 		return Vector2.ZERO
+	# 급가속 조건: 직전 구간보다 충분히 빨라졌을 때만 플릭.
+	if flick_burst_ratio > 0.0:
+		var prev := _point_at(float(base[0]) - flick_window)
+		var prev_dt := float(base[0]) - float(prev[0])
+		if prev_dt > 0.0:
+			var prev_speed := ((base[1] as Vector2) - (prev[1] as Vector2)).length() / prev_dt
+			if speed < prev_speed * flick_burst_ratio:
+				return Vector2.ZERO
 	_last_flick_time = time
 	var dir := delta / dist
 	flicked.emit(dir)
 	return dir
 
 
-## 플릭 판정 기준점 [시간, 위치]를 추정한다.
-## - 가장 오래된 샘플이 시간 창 안이면 그대로 사용.
-## - 창 시작 전후 샘플 간격이 max_event_gap 이하이면 손가락이 계속 움직이던 중이므로
-##   창 시작 시점의 위치를 선형 보간한다 (연속 이동의 속도를 부풀리지 않음).
+## 시각 t의 손가락 [시간, 위치]를 샘플에서 추정한다. (시간은 추정에 쓴 유효 시각)
+## - t가 첫 샘플보다 이르면 첫 샘플 그대로.
+## - t 전후 샘플 간격이 max_event_gap 이하이면 손가락이 계속 움직이던 중이므로 선형 보간
+##   (연속 이동의 속도를 부풀리지 않음).
 ## - 간격이 그보다 크면 그 사이에 이벤트가 없었다 = 손가락이 정지해 있었다.
 ##   다음 샘플 직전 max_event_gap 동안만 움직였다고 본다 (정지 후 첫 플릭을 놓치지 않음).
-func _baseline(time: float) -> Array:
-	var s0: Array = _samples[0]
-	var s1: Array = _samples[1]
-	var t0 := float(s0[0])
-	var t1 := float(s1[0])
-	var window_start := time - flick_window
-	if t0 >= window_start:
-		return s0
-	if t1 - t0 <= max_event_gap:
-		var w := clampf((window_start - t0) / maxf(t1 - t0, 0.000001), 0.0, 1.0)
-		return [window_start, (s0[1] as Vector2).lerp(s1[1] as Vector2, w)]
-	return [maxf(window_start, t1 - max_event_gap), s0[1]]
+func _point_at(t: float) -> Array:
+	var first: Array = _samples[0]
+	if t <= float(first[0]):
+		return first
+	for i in range(_samples.size() - 2, -1, -1):
+		var s0: Array = _samples[i]
+		var t0 := float(s0[0])
+		if t0 > t:
+			continue
+		var s1: Array = _samples[i + 1]
+		var t1 := float(s1[0])
+		if t1 - t0 <= max_event_gap:
+			var w := clampf((t - t0) / maxf(t1 - t0, 0.000001), 0.0, 1.0)
+			return [t, (s0[1] as Vector2).lerp(s1[1] as Vector2, w)]
+		return [maxf(t, t1 - max_event_gap), s0[1]]
+	return _samples[_samples.size() - 1]
