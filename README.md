@@ -115,6 +115,7 @@ APK는 git에 올리지 않는다. 패키지 ID `com.haneol.heroes`는 임시값
 | `docs/scenario.md` | 세계관·영웅 기준 문서 |
 
 **새 영웅 추가:** `scripts/heroes/<영웅>/`에 `SkillDef`를 상속한 기술 3개를 만들고, `data/heroes/<영웅>.tres`에 능력치·기본 공격·기술 구성을 적는다. 공통 코드는 바꾸지 않는다.
+**3D → 2D 스프라이트 굽기:** `godot --path . -s res://tools/bake/bake_sprites.gd` (창 모드). `.glb` 모델을 쿼터뷰 8방향 시트(`assets/sprites/<이름>/`)와 `SpriteSheetSet`으로 굽는다. 영웅 데이터의 `sprite_sheet`에 지정하면 그 스프라이트로, 비우면 수묵풍 코드 그림으로 그린다.
 **새 적 추가:** `data/enemies/<적>.tres` (행동이 다르면 전용 스크립트).
 
 ## 개발·검증 방식
@@ -140,6 +141,7 @@ Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-ag
 |---|---|---|---|
 | gdUnit4 | 6.2.3 | MIT (`addons/gdUnit4/LICENSE`) | https://github.com/godot-gdunit-labs/gdUnit4 |
 | (임시 효과음) | — | 자체 합성 (`scripts/fx/sfx_synth.gd`) | 엔진 AudioStreamWAV. 정식 효과음은 아트·사운드 단계에서 교체 |
+| KayKit Character Pack: Adventurers (Knight, 시험용 임시 캐릭터) | 1.0 | CC0 (`assets/models/kaykit/LICENSE.txt`) | https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0 (Kay Lousberg) |
 | Health, HitBoxes, HurtBoxes and HitScans | 5.0.4 + HH 패치 | MIT (`addons/health_hitbox_hurtbox/LICENSE`) | https://github.com/cluttered-code/godot-health-hitbox-hurtbox |
 
 HH 패치: `health/health.gd`의 피격 로그를 `verbose_debug`(기본 꺼짐)일 때만 출력하도록 변경. 원본은 매 피격마다 출력해 적 30마리 전투에서 성능 부담이 있다.

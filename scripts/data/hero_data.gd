@@ -6,6 +6,11 @@ extends Resource
 @export var id: StringName = &""
 @export var display_name: String = ""
 @export var body_color: Color = Color(0.15, 0.4, 0.8)
+## 구워진 8방향 스프라이트 (tools/bake). 비어 있으면 수묵풍 코드 그림.
+@export var sprite_sheet: SpriteSheetSet
+## 스프라이트 표시 배율과 발 위치 보정(px).
+@export var sprite_scale: float = 0.75
+@export var sprite_offset: Vector2 = Vector2(0, -30)
 
 @export_group("능력치")
 @export var max_hp: int = 100
