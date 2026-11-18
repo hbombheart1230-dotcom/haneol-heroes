@@ -17,7 +17,7 @@ extends Resource
 
 @export_group("대시")
 @export var dash_distance: float = 260.0
-@export var dash_duration: float = 0.16
+@export var dash_duration: float = 0.12
 @export var max_dash_charges: int = 2
 @export var dash_recharge_time: float = 1.2
 
