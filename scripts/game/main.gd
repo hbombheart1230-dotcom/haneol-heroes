@@ -9,6 +9,7 @@ extends Node2D
 @export var restart_delay: float = 0.6
 
 var state: GameState
+var perf := PerfStats.new()
 var _end_time: float = 0.0
 
 
@@ -28,6 +29,13 @@ func _ready() -> void:
 		spawner.enemy_killed.connect(func(_e: Enemy) -> void: state.add_kill())
 	if hud:
 		hud.state = state
+		hud.perf = perf
+
+
+## 렌더 프레임 기준 성능 기록 (플레이 중에만).
+func _process(delta: float) -> void:
+	if state.is_playing():
+		perf.sample(delta, spawner.alive_count() if spawner else 0)
 
 
 func _physics_process(delta: float) -> void:
@@ -39,6 +47,8 @@ func _physics_process(delta: float) -> void:
 
 func _on_ended(_result: GameState.Result) -> void:
 	_end_time = 0.0
+	# adb logcat으로도 확인할 수 있게 남긴다.
+	print("[HH perf] %s · %.1fs" % [perf.summary(), state.elapsed])
 	if spawner:
 		spawner.active = false
 	get_tree().paused = true

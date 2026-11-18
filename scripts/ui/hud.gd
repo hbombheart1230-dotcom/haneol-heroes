@@ -8,6 +8,8 @@ extends Control
 @export var show_touch_debug: bool = true
 
 var state: GameState
+## P0-D 성능 기록. 결과 화면에 요약을 보여준다.
+var perf: PerfStats
 
 
 func _ready() -> void:
@@ -104,6 +106,8 @@ func _draw_result() -> void:
 	draw_string(font, Vector2(0, cy + 70), "처치 %d  ·  %d초" % [state.kills, floori(state.elapsed)],
 		HORIZONTAL_ALIGNMENT_CENTER, size.x, 32, Color(1, 1, 1, 0.9))
 	draw_string(font, Vector2(0, cy + 140), "화면을 터치하면 다시 시작", HORIZONTAL_ALIGNMENT_CENTER, size.x, 28, Color(1, 1, 1, 0.7))
+	if perf and show_touch_debug:
+		draw_string(font, Vector2(0, cy + 210), perf.summary(), HORIZONTAL_ALIGNMENT_CENTER, size.x, 22, Color(1, 1, 0.6, 0.85))
 
 
 func _draw_touch_debug() -> void:
