@@ -152,3 +152,30 @@ func test_controller_canceled_touch_resets_without_dash() -> void:
 	c.handle_event(up, 0.05)
 	assert_bool(player.is_dashing()).is_false()
 	assert_bool(c.touch_input.is_active()).is_false()
+
+
+func test_dash_requested_during_dash_runs_right_after() -> void:
+	assert_bool(player.request_dash(Vector2.RIGHT)).is_true()
+	player.compute_velocity(DT)
+	assert_bool(player.request_dash(Vector2.UP)).is_false()  # 지금은 대시 중 → 예약
+	_run(player.dash_duration)
+	assert_bool(player.is_dashing()).is_true()
+	assert_vector(player.get_dash_direction()).is_equal_approx(Vector2.UP, Vector2(0.001, 0.001))
+	assert_int(player.dash.charges).is_equal(0)
+
+
+func test_no_queue_without_charges() -> void:
+	player.request_dash(Vector2.RIGHT)
+	_run(player.dash_duration + DT)
+	player.request_dash(Vector2.RIGHT)  # 2회째
+	player.request_dash(Vector2.LEFT)  # 충전 없음 → 예약 안 함
+	_run(player.dash_duration + DT)
+	assert_bool(player.is_dashing()).is_false()
+
+
+func test_stale_queued_dash_expires() -> void:
+	player.dash_duration = 1.0  # 긴 대시 동안 예약이 만료되는지
+	player.request_dash(Vector2.RIGHT)
+	player.request_dash(Vector2.UP)
+	_run(1.0 + DT)
+	assert_bool(player.is_dashing()).is_false()

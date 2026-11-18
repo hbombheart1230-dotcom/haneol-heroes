@@ -16,18 +16,27 @@ var full_speed_radius: float = 90.0
 ## 앵커가 손가락에서 이 거리 이상 멀어지면 손가락 쪽으로 끌려온다 (방향 전환을 빠르게).
 var anchor_follow_radius: float = 140.0
 ## 플릭 판정: 최근 flick_window 초 안에 flick_min_distance(px) 이상, flick_min_speed(px/s) 이상 이동.
-## 실기기 피드백: 오발동 대시로 80px/800 → 120px/1400 상향 후, "살짝 더 민감하게" 100px/1200.
-var flick_min_speed: float = 1200.0
-var flick_min_distance: float = 100.0
+## 실기기 피드백 이력: 80/800 → (오발동) 120/1400 → 100/1200 → (감도·연속 대시) 처음 값 80/800 복원.
+## 오발동은 급가속 조건으로 막는다.
+var flick_min_speed: float = 800.0
+var flick_min_distance: float = 80.0
 var flick_window: float = 0.10
 ## 급가속 조건: 플릭 구간 속도가 바로 앞 구간(같은 길이) 속도의 이 배수 이상이어야 한다.
 ## 꾸준히 빠른 드래그나 빠른 방향 전환은 대시가 아니다. 0 이하면 끔.
-var flick_burst_ratio: float = 1.6
+var flick_burst_ratio: float = 1.4
+## 직전 플릭 후 이 시간(초) 안에, 방향을 크게 꺾은(코사인 < chain_max_dot) 플릭은
+## 급가속 조건 없이 인정 (연속 대시). 같은 방향 연속은 면제하지 않는다 (빠른 드래그 연쇄 오발동 방지).
+var chain_window: float = 0.4
+var chain_max_dot: float = 0.5
+## 손가락을 댄 직후 이 시간(초) 동안의 "드래그 도중" 플릭은 속도 기준을 start_guard_scale배로.
+## 빠르게 드래그를 시작하는 것을 대시로 오인하지 않기 위함. 손 떼며 튕기기는 예외.
+var start_guard_time: float = 0.12
+var start_guard_scale: float = 1.5
 ## 손가락이 움직이는 동안 터치 이벤트 간격의 상한(초). 이보다 긴 공백은 "정지"로 본다.
 ## Android 터치 샘플링은 보통 60~240Hz(4~17ms).
 var max_event_gap: float = 0.05
 ## 한 손가락에서 연속 플릭 사이 최소 간격(초).
-var flick_cooldown: float = 0.20
+var flick_cooldown: float = 0.12
 ## 플릭 직후 앵커를 손가락 위치로 재설정해 대시 후 이동이 튀지 않게 한다.
 var reanchor_after_flick: bool = true
 
@@ -35,6 +44,8 @@ var _move_index: int = -1
 var _anchor: Vector2 = Vector2.ZERO
 var _current: Vector2 = Vector2.ZERO
 var _last_flick_time: float = -INF
+var _last_flick_dir: Vector2 = Vector2.ZERO
+var _touch_start_time: float = 0.0
 ## 최근 샘플 [time, position] 목록 (flick_window 동안만 유지).
 var _samples: Array = []
 
@@ -72,6 +83,7 @@ func touch_down(index: int, pos: Vector2, time: float) -> bool:
 	if _move_index != -1:
 		return false
 	_move_index = index
+	_touch_start_time = time
 	_anchor = pos
 	_current = pos
 	_samples.clear()
@@ -102,7 +114,7 @@ func touch_up(index: int, pos: Vector2, time: float) -> Vector2:
 		return Vector2.ZERO
 	_current = pos
 	_push_sample(time, pos)
-	var dir := _detect_flick(time)
+	var dir := _detect_flick(time, true)
 	reset()
 	return dir
 
@@ -123,7 +135,7 @@ func _push_sample(time: float, pos: Vector2) -> void:
 		_samples.pop_front()
 
 
-func _detect_flick(time: float) -> Vector2:
+func _detect_flick(time: float, releasing: bool = false) -> Vector2:
 	if time - _last_flick_time < flick_cooldown:
 		return Vector2.ZERO
 	if _samples.size() < 2:
@@ -135,18 +147,24 @@ func _detect_flick(time: float) -> Vector2:
 	var delta: Vector2 = _current - (base[1] as Vector2)
 	var dist := delta.length()
 	var speed := dist / dt
-	if dist < flick_min_distance or speed < flick_min_speed:
+	var min_speed := flick_min_speed
+	if not releasing and time - _touch_start_time < start_guard_time:
+		min_speed *= start_guard_scale
+	if dist < flick_min_distance or speed < min_speed:
 		return Vector2.ZERO
-	# 급가속 조건: 직전 구간보다 충분히 빨라졌을 때만 플릭.
-	if flick_burst_ratio > 0.0:
+	# 급가속 조건: 직전 구간보다 충분히 빨라졌을 때만 플릭. 직전 플릭 직후 방향을 꺾은 연속 플릭은 예외.
+	var chained := time - _last_flick_time <= chain_window and (delta / dist).dot(_last_flick_dir) < chain_max_dot
+	if flick_burst_ratio > 0.0 and not chained:
 		var prev := _point_at(float(base[0]) - flick_window)
 		var prev_dt := float(base[0]) - float(prev[0])
 		if prev_dt > 0.0:
-			var prev_speed := ((base[1] as Vector2) - (prev[1] as Vector2)).length() / prev_dt
+			# 직전 구간은 실제 이동 경로 길이로 (방향을 꺾으면 직선 변위가 작아져 급가속으로 오인되므로).
+			var prev_speed := _path_length(prev, base) / prev_dt
 			if speed < prev_speed * flick_burst_ratio:
 				return Vector2.ZERO
 	_last_flick_time = time
 	var dir := delta / dist
+	_last_flick_dir = dir
 	flicked.emit(dir)
 	return dir
 
@@ -173,3 +191,17 @@ func _point_at(t: float) -> Array:
 			return [t, (s0[1] as Vector2).lerp(s1[1] as Vector2, w)]
 		return [maxf(t, t1 - max_event_gap), s0[1]]
 	return _samples[_samples.size() - 1]
+
+
+## 두 추정점 [시간, 위치] 사이 손가락이 실제로 지나간 경로 길이.
+func _path_length(from: Array, to: Array) -> float:
+	var t0 := float(from[0])
+	var t1 := float(to[0])
+	var last: Vector2 = from[1]
+	var total := 0.0
+	for smp in _samples:
+		var t := float(smp[0])
+		if t > t0 and t < t1:
+			total += last.distance_to(smp[1] as Vector2)
+			last = smp[1]
+	return total + last.distance_to(to[1] as Vector2)

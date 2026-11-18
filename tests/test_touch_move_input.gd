@@ -263,3 +263,37 @@ func test_sudden_flick_while_moving_still_dashes() -> void:
 		if d != Vector2.ZERO:
 			dir = d
 	assert_float(dir.dot(Vector2.UP)).is_greater(0.9)
+
+
+# --- 감도 복원 + 연속 대시 (실기기 피드백) ---
+
+func test_original_sensitivity_quick_release_flick() -> void:
+	input.touch_down(0, Vector2(300, 600), 0.0)
+	input.touch_move(0, Vector2(340, 600), 0.04)
+	assert_vector(input.touch_up(0, Vector2(385, 600), 0.08)).is_equal_approx(Vector2.RIGHT, Vector2(0.01, 0.01))
+
+
+func test_back_to_back_flicks_in_one_drag() -> void:
+	input.touch_down(0, Vector2(360, 640), 0.0)
+	var t := 0.0
+	var pos := Vector2(360, 640)
+	var dirs: Array = []
+	for i in 6:  # 오른쪽으로 빠르게
+		t += 1.0 / 60.0
+		pos += Vector2(30, 0)
+		var d := input.touch_move(0, pos, t)
+		if d != Vector2.ZERO:
+			dirs.append(d)
+	for i in 8:  # 곧바로 왼쪽으로 빠르게 (급가속 조건 예외)
+		t += 1.0 / 60.0
+		pos += Vector2(-30, 0)
+		var d := input.touch_move(0, pos, t)
+		if d != Vector2.ZERO:
+			dirs.append(d)
+	assert_int(dirs.size()).is_equal(2)
+	assert_float((dirs[1] as Vector2).x).is_less(0.0)
+
+
+func test_brisk_drag_start_is_not_a_dash() -> void:
+	# 손가락을 대자마자 초속 1000px로 드래그 시작: 시작 보호로 대시 아님
+	assert_int(_steady_drag(Vector2.RIGHT, 1000.0, 0.6, 0.0)).is_equal(0)

@@ -36,6 +36,11 @@ var _hurt_cd: float = 0.0
 ## 회피 성공 등으로 얻은 추가 무적 남은 시간(초).
 var _skill_invuln: float = 0.0
 var _dash_dir: Vector2 = Vector2.ZERO
+## 대시 중에 들어온 다음 대시 요청 (끝나는 즉시 이어서 실행). 남은 유효 시간(초).
+var _queued_dash: Vector2 = Vector2.ZERO
+var _queued_dash_time: float = 0.0
+## 대시 중 들어온 요청을 기억하는 시간(초).
+@export var dash_buffer_time: float = 0.25
 var _dash_time_left: float = 0.0
 ## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력 판정용.
 var _since_dash_end: float = INF
@@ -158,6 +163,10 @@ func set_move_input(v: Vector2) -> void:
 ## 반환: 대시가 시작되면 true.
 func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 	if is_dashing():
+		# 연속 대시: 충전이 남아 있으면 기억해 뒀다가 지금 대시가 끝나면 바로 실행.
+		if dash.can_consume():
+			_queued_dash = direction if direction.length_squared() > 0.0001 else _dash_dir
+			_queued_dash_time = dash_buffer_time
 		return false
 	var dir := direction
 	if dir.length_squared() < 0.0001:
@@ -188,6 +197,11 @@ func compute_velocity(delta: float) -> Vector2:
 		_dash_time_left = 0.0
 		_since_dash_end = 0.0
 		dash_ended.emit()
+		if _queued_dash_time > 0.0:
+			var q := _queued_dash
+			_queued_dash_time = 0.0
+			request_dash(q)
+	_queued_dash_time = maxf(_queued_dash_time - delta, 0.0)
 	return v
 
 
