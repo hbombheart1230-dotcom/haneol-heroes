@@ -1,0 +1,14 @@
+# Godot
+.godot/
+*.import.tmp
+export_presets.cfg.bak
+
+# 빌드 산출물
+build/
+*.apk
+*.aab
+*.keystore
+
+# gdUnit4 실행 결과
+reports/
+addons/gdUnit4/GdUnitRunner.cfg
