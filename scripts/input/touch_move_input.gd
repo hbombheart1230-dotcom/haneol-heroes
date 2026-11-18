@@ -20,6 +20,9 @@ var anchor_follow_radius: float = 140.0
 var flick_min_speed: float = 800.0
 var flick_min_distance: float = 80.0
 var flick_window: float = 0.10
+## 손가락이 움직이는 동안 터치 이벤트 간격의 상한(초). 이보다 긴 공백은 "정지"로 본다.
+## Android 터치 샘플링은 보통 60~240Hz(4~17ms).
+var max_event_gap: float = 0.05
 ## 한 손가락에서 연속 플릭 사이 최소 간격(초).
 var flick_cooldown: float = 0.20
 ## 플릭 직후 앵커를 손가락 위치로 재설정해 대시 후 이동이 튀지 않게 한다.
@@ -122,12 +125,11 @@ func _detect_flick(time: float) -> Vector2:
 		return Vector2.ZERO
 	if _samples.size() < 2:
 		return Vector2.ZERO
-	var first: Array = _samples[0]
-	# 기준점은 정지 상태였을 수 있으므로 시간은 창 시작 시점으로 보정한다.
-	var dt := time - maxf(float(first[0]), time - flick_window)
+	var base := _baseline(time)
+	var dt := time - float(base[0])
 	if dt <= 0.0:
 		return Vector2.ZERO
-	var delta: Vector2 = _current - (first[1] as Vector2)
+	var delta: Vector2 = _current - (base[1] as Vector2)
 	var dist := delta.length()
 	if dist < flick_min_distance or dist / dt < flick_min_speed:
 		return Vector2.ZERO
@@ -135,3 +137,23 @@ func _detect_flick(time: float) -> Vector2:
 	var dir := delta / dist
 	flicked.emit(dir)
 	return dir
+
+
+## 플릭 판정 기준점 [시간, 위치]를 추정한다.
+## - 가장 오래된 샘플이 시간 창 안이면 그대로 사용.
+## - 창 시작 전후 샘플 간격이 max_event_gap 이하이면 손가락이 계속 움직이던 중이므로
+##   창 시작 시점의 위치를 선형 보간한다 (연속 이동의 속도를 부풀리지 않음).
+## - 간격이 그보다 크면 그 사이에 이벤트가 없었다 = 손가락이 정지해 있었다.
+##   다음 샘플 직전 max_event_gap 동안만 움직였다고 본다 (정지 후 첫 플릭을 놓치지 않음).
+func _baseline(time: float) -> Array:
+	var s0: Array = _samples[0]
+	var s1: Array = _samples[1]
+	var t0 := float(s0[0])
+	var t1 := float(s1[0])
+	var window_start := time - flick_window
+	if t0 >= window_start:
+		return s0
+	if t1 - t0 <= max_event_gap:
+		var w := clampf((window_start - t0) / maxf(t1 - t0, 0.000001), 0.0, 1.0)
+		return [window_start, (s0[1] as Vector2).lerp(s1[1] as Vector2, w)]
+	return [maxf(window_start, t1 - max_event_gap), s0[1]]

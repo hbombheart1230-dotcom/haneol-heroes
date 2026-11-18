@@ -133,6 +133,27 @@ func test_first_move_event_after_holding_still_can_flick() -> void:
 	assert_vector(dir).is_equal_approx(Vector2.UP, Vector2(0.01, 0.01))
 
 
+func test_continuous_move_just_below_flick_speed_is_not_a_flick() -> void:
+	# 실제 기기처럼 60Hz로 이벤트가 오는 연속 이동: 110ms 동안 80px (~727px/s < 800px/s)
+	input.touch_down(0, Vector2.ZERO, 0.0)
+	var flicks := 0
+	var t := 0.0
+	while t + 1.0 / 60.0 < 0.11:
+		t += 1.0 / 60.0
+		if input.touch_move(0, Vector2(80.0 * t / 0.11, 0), t) != Vector2.ZERO:
+			flicks += 1
+	if input.touch_up(0, Vector2(80, 0), 0.11) != Vector2.ZERO:
+		flicks += 1
+	assert_int(flicks).is_equal(0)
+
+
+## 설계 결정: 두 이벤트 사이 공백(> max_event_gap)은 손가락이 정지해 있었다는 뜻이다.
+## 움직이는 손가락은 반드시 중간 이벤트를 만들기 때문. 따라서 정지 후 마지막 순간의 빠른 이동은 플릭이다.
+func test_sparse_events_mean_finger_was_resting_then_flicked() -> void:
+	input.touch_down(0, Vector2.ZERO, 0.0)
+	assert_vector(input.touch_up(0, Vector2(80, 0), 0.11)).is_equal_approx(Vector2.RIGHT, Vector2(0.01, 0.01))
+
+
 func test_quick_flick_and_release_dashes_on_release() -> void:
 	input.touch_down(0, Vector2(300, 600), 0.0)
 	input.touch_move(0, Vector2(340, 600), 0.03)
