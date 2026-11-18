@@ -88,4 +88,6 @@ func _draw_touch_debug() -> void:
 	var font := get_theme_default_font()
 	var enemies := get_tree().get_nodes_in_group(Enemy.GROUP).size()
 	var info := "FPS %d  적 %d" % [Engine.get_frames_per_second(), enemies]
+	if controller.dash_note != "":
+		draw_string(font, Vector2(16, size.y - 140), controller.dash_note, HORIZONTAL_ALIGNMENT_LEFT, size.x - 32, 20, Color(1, 1, 0.6, 0.85))
 	draw_string(font, Vector2(16, size.y - 110), info, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(1, 1, 1, 0.6))

@@ -44,6 +44,9 @@ var _move_index: int = -1
 var _anchor: Vector2 = Vector2.ZERO
 var _current: Vector2 = Vector2.ZERO
 var _last_flick_time: float = -INF
+## 진단용: 마지막으로 의미 있는 움직임(거리 40px 이상 또는 손 뗌)의 판정 결과.
+## {"dist", "speed", "need", "prev", "result"} — 실기기에서 대시가 왜 안 나갔는지 보여주기 위함.
+var last_check: Dictionary = {}
 var _last_flick_dir: Vector2 = Vector2.ZERO
 var _touch_start_time: float = 0.0
 ## 최근 샘플 [time, position] 목록 (flick_window 동안만 유지).
@@ -150,7 +153,11 @@ func _detect_flick(time: float, releasing: bool = false) -> Vector2:
 	var min_speed := flick_min_speed
 	if not releasing and time - _touch_start_time < start_guard_time:
 		min_speed *= start_guard_scale
+	var check := {"dist": dist, "speed": speed, "need": min_speed, "prev": 0.0, "result": ""}
 	if dist < flick_min_distance or speed < min_speed:
+		if dist >= flick_min_distance * 0.5 or (releasing and dist >= 20.0):
+			check["result"] = "거리 부족" if dist < flick_min_distance else ("시작 보호" if min_speed > flick_min_speed else "속도 부족")
+			last_check = check
 		return Vector2.ZERO
 	# 급가속 조건: 직전 구간보다 충분히 빨라졌을 때만 플릭. 직전 플릭 직후 방향을 꺾은 연속 플릭은 예외.
 	var chained := time - _last_flick_time <= chain_window and (delta / dist).dot(_last_flick_dir) < chain_max_dot
@@ -160,11 +167,16 @@ func _detect_flick(time: float, releasing: bool = false) -> Vector2:
 		if prev_dt > 0.0:
 			# 직전 구간은 실제 이동 경로 길이로 (방향을 꺾으면 직선 변위가 작아져 급가속으로 오인되므로).
 			var prev_speed := _path_length(prev, base) / prev_dt
+			check["prev"] = prev_speed
 			if speed < prev_speed * flick_burst_ratio:
+				check["result"] = "급가속 부족"
+				last_check = check
 				return Vector2.ZERO
 	_last_flick_time = time
 	var dir := delta / dist
 	_last_flick_dir = dir
+	check["result"] = "플릭"
+	last_check = check
 	flicked.emit(dir)
 	return dir
 
