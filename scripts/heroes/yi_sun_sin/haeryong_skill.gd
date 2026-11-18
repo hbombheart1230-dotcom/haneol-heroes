@@ -14,8 +14,8 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		var off := en.global_position - center
 		var dir := off.normalized() if off.length_squared() > 0.01 else Vector2.RIGHT
 		en.apply_knockback(dir * knockback)
-		if ctx.hit(en, damage):
-			hits += 1
+		ctx.hit(en, damage)
+		hits += 1  # 범위 안 대상 수 (리팩터링 전과 동일한 집계)
 	if ctx.fx:
-		ctx.fx.add_ring(center, radius, 0.35, color)
+		ctx.fx.add_ring(center, radius, 0.35, fx_color)
 	return SkillRun.instant(hits)

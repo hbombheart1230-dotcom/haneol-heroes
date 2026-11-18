@@ -85,3 +85,36 @@ func test_new_hero_needs_only_data() -> void:
 	assert_int(c.on_release(0, 0.05)).is_equal(SkillCaster.Slot.TAP)
 	assert_bool(c.is_ready(SkillCaster.Slot.DASH)).is_false()  # 정의 없음
 	assert_str(c.display_name(SkillCaster.Slot.DASH)).is_equal("")
+
+
+# --- 리팩터링 동작 보존 회귀 (Codex 43f08b5 지적) ---
+
+func test_pado_aggregate_hits_count_every_strike_in_range() -> void:
+	var p: Player = auto_free(Player.new())
+	add_child(p)
+	var e: Enemy = ENEMY_SCENE.instantiate()
+	add_child(auto_free(e))
+	e.set_physics_process(false)
+	e.global_position = Vector2(150, 0)
+	e.health.max = 10
+	e.health.current = 10
+	var c: SkillCaster = auto_free(SkillCaster.new())
+	c.player = p
+	c.kit = HERO.kit
+	c.enemy_source = func() -> Array: return [e]
+	add_child(c)
+	c.set_physics_process(false)
+	var casts: Array = []
+	c.skill_cast.connect(func(s: SkillCaster.Slot, hits: int) -> void: casts.append([s, hits]))
+	p.request_dash(Vector2.RIGHT)
+	c.on_press(0, 0.0)
+	for i in 30:
+		c.tick(1.0 / 60.0, i / 60.0)
+	assert_array(casts).is_equal([[SkillCaster.Slot.DASH, 3]])
+
+
+func test_skill_fx_colors_match_pre_refactor() -> void:
+	assert_object(HERO.kit.tap.fx_color).is_equal(Color(0.35, 0.75, 1.0))
+	assert_object(HERO.kit.dash.fx_color).is_equal(Color(0.4, 0.9, 1.0))
+	assert_object(HERO.kit.tap.color).is_equal(Color(0.2, 0.5, 0.9))
+	assert_object(HERO.kit.dash.color).is_equal(Color(0.2, 0.85, 0.95))

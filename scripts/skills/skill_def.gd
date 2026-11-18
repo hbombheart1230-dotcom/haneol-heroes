@@ -8,6 +8,8 @@ extends Resource
 @export var cooldown: float = 4.0
 ## 스킬 버튼에 표시할 색.
 @export var color: Color = Color(0.2, 0.5, 0.9)
+## 전투 이펙트 색 (버튼 색과 별개).
+@export var fx_color: Color = Color(0.4, 0.8, 1.0)
 
 
 ## 발동. charge는 0~1 (충전 기술에만 의미).

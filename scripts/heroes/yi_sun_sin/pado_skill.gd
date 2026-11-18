@@ -16,7 +16,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	var a := ctx.player.global_position - dir * 30.0
 	var b := ctx.player.global_position + dir * length
 	if ctx.fx:
-		ctx.fx.add_slash(a, b, width * 0.5, 0.3, color)
+		ctx.fx.add_slash(a, b, width * 0.5, 0.3, fx_color)
 	var run := PadoRun.new(self, ctx, a, b)
 	run.strike()
 	return run
@@ -40,8 +40,8 @@ class PadoRun extends SkillRun:
 
 	func strike() -> void:
 		for en in ctx.enemies_near_segment(a, b, skill.width * 0.5):
-			if ctx.hit(en, skill.damage_per_hit):
-				hits += 1
+			ctx.hit(en, skill.damage_per_hit)
+			hits += 1  # 타격마다 경로 위 대상 수 (리팩터링 전과 동일한 집계)
 		left -= 1
 		timer += skill.hit_interval
 		if ctx.fx and left >= 0:
