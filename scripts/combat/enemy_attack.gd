@@ -75,9 +75,10 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 				_evaded = false
 				_was_inside = contains(player.global_position)
 		State.WINDUP:
-			if is_shoot():
+			# 사격·충격파는 예고 중에도 자기 위치를 따라간다 (밀려나도 원이 몸을 따라감, Codex c1b3e34 지적).
+			if is_shoot() or data.kind == EnemyAttackData.Kind.SHOCKWAVE:
 				aim_origin = self_pos
-			else:
+			if not is_shoot():
 				_check_escape(player)
 			_timer -= delta
 			if _timer <= 0.0:

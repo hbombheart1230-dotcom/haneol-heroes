@@ -176,3 +176,12 @@ func test_main_scene_boss_kill_ends_with_victory() -> void:
 	assert_bool(main.state.boss_killed).is_true()
 	get_tree().paused = false
 	main.queue_free()
+
+
+func test_shockwave_follows_boss_during_telegraph() -> void:
+	# Codex c1b3e34 회귀: 예고 중 보스가 밀려나면 충격파 원도 따라간다
+	var a := _attack_from(EnemyAttackData.Kind.SHOCKWAVE, Vector2(100, 0))
+	a.tick(DT, Vector2(400, 0), player)  # 보스가 오른쪽으로 밀려남
+	assert_vector(a.aim_origin).is_equal(Vector2(400, 0))
+	assert_bool(a.contains(Vector2(400, 200))).is_true()
+	assert_bool(a.contains(Vector2(100, -200))).is_false()
