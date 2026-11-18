@@ -37,8 +37,8 @@ var chain_min_speed: float = 500.0
 ## 손 떼고 다시 튕기기: 직전 플릭 후 이 시간(초) 안에 새로 댄 손가락의 첫 플릭은 방향과 상관없이 연속 기준.
 var retouch_chain_window: float = 0.5
 ## 그 첫 플릭의 기준 (다시 잡고 이동하려는 손짓과 구분되도록 꺾기 연속보다는 조금 높게).
-var retouch_min_distance: float = 50.0
-var retouch_min_speed: float = 650.0
+var retouch_min_distance: float = 45.0
+var retouch_min_speed: float = 600.0
 ## 손가락이 움직이는 동안 터치 이벤트 간격의 상한(초). 이보다 긴 공백은 "정지"로 본다.
 ## Android 터치 샘플링은 보통 60~240Hz(4~17ms).
 var max_event_gap: float = 0.05
