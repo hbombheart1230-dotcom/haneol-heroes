@@ -10,7 +10,8 @@ func before_test() -> void:
 
 ## 이동만 검증하는 테스트에서 드문 샘플이 플릭으로 오인되지 않게 한다.
 func _disable_flick() -> void:
-	input.flick_min_distance = INF
+	input.rest_min_distance = INF
+	input.move_min_distance = INF
 
 
 func test_no_touch_means_no_movement() -> void:
@@ -134,15 +135,15 @@ func test_first_move_event_after_holding_still_can_flick() -> void:
 
 
 func test_continuous_move_just_below_flick_speed_is_not_a_flick() -> void:
-	# 실제 기기처럼 60Hz로 이벤트가 오는 연속 이동: 110ms 동안 80px (~727px/s < 800px/s)
+	# 실제 기기처럼 60Hz로 이벤트가 오는 연속 이동: 110ms 동안 50px (~455px/s, 쉬운 기준 700 미만)
 	input.touch_down(0, Vector2.ZERO, 0.0)
 	var flicks := 0
 	var t := 0.0
 	while t + 1.0 / 60.0 < 0.11:
 		t += 1.0 / 60.0
-		if input.touch_move(0, Vector2(80.0 * t / 0.11, 0), t) != Vector2.ZERO:
+		if input.touch_move(0, Vector2(50.0 * t / 0.11, 0), t) != Vector2.ZERO:
 			flicks += 1
-	if input.touch_up(0, Vector2(80, 0), 0.11) != Vector2.ZERO:
+	if input.touch_up(0, Vector2(50, 0), 0.11) != Vector2.ZERO:
 		flicks += 1
 	assert_int(flicks).is_equal(0)
 
@@ -213,8 +214,9 @@ func _steady_drag(dir: Vector2, speed: float, seconds: float, count_after: float
 	return flicks
 
 
-func test_steady_brisk_drag_never_dashes() -> void:
-	assert_int(_steady_drag(Vector2.RIGHT, 1000.0, 1.0, 0.0)).is_equal(0)
+func test_steady_brisk_drag_never_dashes_once_moving() -> void:
+	# 시작 순간(멈춤 → 빠름)은 튕기기와 구분 불가. 이미 움직이는 중에는 대시 없음.
+	assert_int(_steady_drag(Vector2.RIGHT, 1000.0, 1.0, 0.25)).is_equal(0)
 
 
 func test_steady_very_fast_drag_does_not_dash_after_start() -> void:
@@ -294,6 +296,37 @@ func test_back_to_back_flicks_in_one_drag() -> void:
 	assert_float((dirs[1] as Vector2).x).is_less(0.0)
 
 
-func test_brisk_drag_start_is_not_a_dash() -> void:
-	# 손가락을 대자마자 초속 1000px로 드래그 시작: 시작 보호로 대시 아님
-	assert_int(_steady_drag(Vector2.RIGHT, 1000.0, 0.6, 0.0)).is_equal(0)
+func test_touch_then_flick_from_rest_is_easy() -> void:
+	# 처음 터치 후 잠깐 있다가 튕기기 (드래그 도중): 쉬운 기준 70px·700/s
+	input.touch_down(0, Vector2(360, 900), 0.0)
+	var t := 0.05
+	var dir := Vector2.ZERO
+	var pos := Vector2(360, 900)
+	for i in 6:
+		t += 1.0 / 60.0
+		pos += Vector2(0, -16)
+		var d := input.touch_move(0, pos, t)
+		if d != Vector2.ZERO:
+			dir = d
+	assert_float(dir.dot(Vector2.UP)).is_greater(0.9)
+
+
+func test_direction_reversal_while_moving_is_not_a_dash() -> void:
+	# 이동 중 방향 전환은 대시가 아니다 (실기기 피드백: 너무 예민하게 대시됨)
+	input.touch_down(0, Vector2(200, 900), 0.0)
+	var t := 0.0
+	var pos := Vector2(200, 900)
+	var flicks := 0
+	for i in 24:  # 오른쪽 600px/s
+		t += 1.0 / 60.0
+		pos += Vector2(10, 0)
+		if input.touch_move(0, pos, t) != Vector2.ZERO and t > 0.25:
+			flicks += 1
+	for i in 18:  # 왼쪽으로 꺾어 900px/s
+		t += 1.0 / 60.0
+		pos += Vector2(-15, 0)
+		if input.touch_move(0, pos, t) != Vector2.ZERO:
+			flicks += 1
+	if input.touch_up(0, pos, t + 1.0 / 60.0) != Vector2.ZERO:
+		flicks += 1
+	assert_int(flicks).is_equal(0)

@@ -114,7 +114,8 @@ func _controller() -> TouchController:
 
 func test_controller_drag_moves_player() -> void:
 	var c := _controller()
-	c.touch_input.flick_min_distance = INF  # 드문 샘플이 플릭으로 오인되지 않게
+	c.touch_input.rest_min_distance = INF  # 드문 샘플이 플릭으로 오인되지 않게
+	c.touch_input.move_min_distance = INF
 	c.handle_event(_touch(0, Vector2(360, 900), true), 0.0)
 	c.handle_event(_drag(0, Vector2(360, 1000)), 0.5)
 	c._physics_process(DT)

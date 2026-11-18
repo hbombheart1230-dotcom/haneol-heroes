@@ -266,7 +266,8 @@ func test_move_finger_and_skill_finger_together() -> void:
 	var drag := InputEventScreenDrag.new()
 	drag.index = 0
 	drag.position = Vector2(200, 990)
-	c.touch_input.flick_min_distance = INF
+	c.touch_input.rest_min_distance = INF
+	c.touch_input.move_min_distance = INF
 	c.handle_event(drag, 0.5)
 	c.handle_event(_touch(1, c.skill_button_center(), true), 0.6)
 	c._physics_process(DT)
