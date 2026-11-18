@@ -12,6 +12,21 @@ extends Resource
 @export var loops: Array[bool] = []
 
 
+## 같은 시트는 SpriteFrames를 한 번만 만든다 (적 30마리가 공유).
+static var _cache: Dictionary = {}
+
+
+func shared_sprite_frames() -> SpriteFrames:
+	var key := resource_path if resource_path != "" else str(get_instance_id())
+	if not _cache.has(key):
+		_cache[key] = build_sprite_frames()
+	return _cache[key]
+
+
+func has_anim(anim: String) -> bool:
+	return anim_names.has(anim)
+
+
 ## "<anim>_<dir>" 이름의 애니메이션들을 가진 SpriteFrames를 만든다.
 func build_sprite_frames() -> SpriteFrames:
 	var sf := SpriteFrames.new()

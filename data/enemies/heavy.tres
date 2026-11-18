@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+[ext_resource type="Resource" path="res://assets/sprites/skeleton_warrior/skeleton_warrior.tres" id="3_sheet"]
 
 [sub_resource type="Resource" id="Attack_heavy_slam"]
 script = ExtResource("2_attack")
@@ -24,3 +25,6 @@ color = Color(0.45, 0.28, 0.6, 1)
 attack = SubResource("Attack_heavy_slam")
 preferred_range = 0.0
 knockback_scale = 0.3
+sprite_sheet = ExtResource("3_sheet")
+sprite_scale = 1.0
+sprite_offset = Vector2(0, -30)

@@ -10,6 +10,8 @@ static func draw(e: Enemy) -> void:
 	var id: StringName = e.data.id if e.data else &"chaser"
 	var seed := float(e.get_instance_id() % 97)
 	Ink.shadow(e, Vector2(0, r * 0.7), r * 1.05)
+	if e.sprite:
+		return  # 몸은 구워진 스프라이트가 그린다
 	var body := Color(1, 1, 1) if e.flash_left() > 0.0 else Ink.INK
 	var to_target := Vector2.DOWN
 	if e.target and is_instance_valid(e.target):

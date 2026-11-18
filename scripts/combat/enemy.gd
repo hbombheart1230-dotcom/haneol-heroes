@@ -22,6 +22,8 @@ var target: Node2D
 @onready var health: Health = $Health
 
 var _flash: float = 0.0
+## 구워진 스프라이트 (data.sprite_sheet가 있을 때).
+var sprite: AnimatedSprite2D
 ## 예고 공격 (data.attack이 있을 때만).
 var attack: EnemyAttack
 ## 넉백 속도 (매 프레임 감쇠).
@@ -49,6 +51,8 @@ func _ready() -> void:
 			attack = EnemyAttack.new(data.attack, randf_range(0.3, 1.5))
 		if data.is_boss:
 			add_to_group(BOSS_GROUP)
+		if data.sprite_sheet:
+			_setup_sprite()
 	add_to_group(GROUP)
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
@@ -92,6 +96,8 @@ func _physics_process(delta: float) -> void:
 			queue_redraw()
 	var chase := Vector2.ZERO if busy else compute_velocity(get_tree().get_nodes_in_group(GROUP))
 	velocity = chase + knockback
+	if sprite:
+		_update_sprite(busy)
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
 	move_and_slide()
 	if _flash > 0.0:
@@ -106,6 +112,36 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 
 
 ## 돌진: 예고한 직사각형 끝까지 빠르게 이동 (엔진 기본 Tween).
+func _setup_sprite() -> void:
+	sprite = AnimatedSprite2D.new()
+	sprite.sprite_frames = data.sprite_sheet.shared_sprite_frames()
+	sprite.scale = Vector2.ONE * data.sprite_scale
+	sprite.position = data.sprite_offset
+	sprite.modulate = data.sprite_tint
+	add_child(sprite)
+
+
+## 상태 → 애니메이션 (피격 > 공격 중 > 이동 > 대기), 방향은 대상 쪽.
+func _update_sprite(busy: bool) -> void:
+	var sheet := data.sprite_sheet
+	var anim := "idle"
+	if _flash > 0.0 and sheet.has_anim("hit"):
+		anim = "hit"
+	elif busy and sheet.has_anim("attack"):
+		anim = "attack"
+	elif velocity.length() > 10.0:
+		anim = "run"
+	var face := Vector2.DOWN
+	if busy and attack:
+		face = attack.aim_dir
+	elif target and is_instance_valid(target):
+		face = target.global_position - global_position
+	var name_dir := StringName("%s_%d" % [anim, sheet.dir_index(face)])
+	if sprite.animation != name_dir:
+		sprite.play(name_dir)
+	sprite.modulate = Color(1.8, 1.8, 1.8) if _flash > 0.0 else data.sprite_tint
+
+
 func _charge_to(end: Vector2) -> void:
 	var tw := create_tween()
 	tw.tween_property(self, "global_position", end, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+[ext_resource type="Resource" path="res://assets/sprites/skeleton_rogue/skeleton_rogue.tres" id="3_sheet"]
 
 [sub_resource type="Resource" id="Attack_shoot"]
 script = ExtResource("2_attack")
@@ -26,3 +27,6 @@ color = Color(0.35, 0.75, 0.4, 1)
 attack = SubResource("Attack_shoot")
 preferred_range = 320.0
 knockback_scale = 1.0
+sprite_sheet = ExtResource("3_sheet")
+sprite_scale = 0.85
+sprite_offset = Vector2(0, -22)
