@@ -90,6 +90,7 @@ func apply_contact_damage(delta: float, amount: int) -> bool:
 		return false
 	health.damage(amount)
 	_hurt_cd = hurt_invuln_time
+	Feedback.player_hurt()
 	return true
 
 
@@ -99,6 +100,7 @@ func apply_hit(amount: int) -> bool:
 		return false
 	health.damage(amount)
 	_hurt_cd = hurt_invuln_time
+	Feedback.player_hurt()
 	return true
 
 

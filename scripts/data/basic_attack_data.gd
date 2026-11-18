@@ -7,6 +7,8 @@ extends Resource
 @export var melee_range: float = 110.0
 @export var melee_arc_degrees: float = 140.0
 @export var melee_damage: int = 12
+## 근접 적중 시 적을 밀어내는 힘 (피격 반응).
+@export var melee_knockback: float = 140.0
 
 @export_group("원거리")
 @export var ranged_interval: float = 0.8

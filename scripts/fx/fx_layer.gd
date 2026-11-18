@@ -18,6 +18,13 @@ func add_spark(pos: Vector2, color: Color = Color(1, 1, 1)) -> void:
 	_fx.append({"kind": "spark", "pos": pos, "t": 0.0, "dur": 0.15, "color": color})
 
 
+## 데미지 숫자: 위로 떠오르며 사라진다. strong이면 크고 노랗게.
+func add_number(pos: Vector2, amount: int, strong: bool = false) -> void:
+	var jitter := Vector2(randf_range(-10, 10), 0)
+	_fx.append({"kind": "number", "pos": pos + jitter, "n": amount, "strong": strong, "t": 0.0, "dur": 0.6,
+		"color": Color(1, 0.85, 0.3) if strong else Color(1, 1, 1)})
+
+
 func count() -> int:
 	return _fx.size()
 
@@ -41,6 +48,12 @@ func _draw() -> void:
 			"slash":
 				draw_line(f["a"], f["b"], Color(c, (1.0 - k)), float(f["w"]) * (1.0 - k * 0.7))
 				draw_line(f["a"], f["b"], Color(1, 1, 1, (1.0 - k) * 0.8), float(f["w"]) * 0.25)
+			"number":
+				var font := ThemeDB.fallback_font
+				var size := 48 if f["strong"] else 34
+				var p: Vector2 = f["pos"] + Vector2(-60, -50.0 * k - 30.0)
+				draw_string_outline(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, 6, Color(0, 0, 0, 1.0 - k))
+				draw_string(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, Color(c, 1.0 - k))
 			"spark":
 				var p: Vector2 = f["pos"]
 				var s := 14.0 * (1.0 - k) + 4.0

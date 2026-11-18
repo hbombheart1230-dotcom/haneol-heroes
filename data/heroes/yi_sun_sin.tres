@@ -14,6 +14,7 @@ melee_interval = 0.55
 melee_range = 110.0
 melee_arc_degrees = 140.0
 melee_damage = 12
+melee_knockback = 140.0
 ranged_interval = 0.8
 ranged_range = 480.0
 ranged_damage = 10

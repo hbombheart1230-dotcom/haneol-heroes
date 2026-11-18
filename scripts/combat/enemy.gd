@@ -82,8 +82,9 @@ func _physics_process(delta: float) -> void:
 		queue_redraw()
 
 
-func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc: int, _mul: float, _applied: int) -> void:
+func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc: int, _mul: float, applied: int) -> void:
 	_flash = 0.1
+	Feedback.enemy_hit(global_position, applied)
 	queue_redraw()
 
 
@@ -96,6 +97,7 @@ func _on_died(_entity: Node) -> void:
 	if attack:
 		attack.cancel()
 	remove_from_group(GROUP)
+	Feedback.enemy_died(global_position)
 	killed.emit(self)
 	queue_free()
 

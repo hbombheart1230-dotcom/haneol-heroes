@@ -61,7 +61,7 @@ P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서�
 - 플릭 vs 더블탭 비교 옵션 (오발동 대시는 기준 상향·급가속 조건으로 1차 조정함)
 - 스킬 버튼 위치·크기, 파도격 연계 시간 재조정
 - 정식 패키지 ID, Android 13+ 테마 아이콘
-- 전투 이펙트 에셋(Stylized 2D VFX Lite 등) 검토, 데미지 숫자 표시
+- 전투 이펙트 에셋(Stylized 2D VFX Lite 등) 검토, 정식 효과음(Kenney CC0 등 — 자동 다운로드 차단돼 수동 확보 필요)
 - 터치 이벤트 합쳐짐·프레임 끊김 시 플릭 판정 확인 (Codex 메모)
 - 단독 pck에 남는 `addons/gdUnit4/plugin.cfg` 정리 (APK에는 없음)
 - GitHub Actions 자동 테스트(setup-godot), 저장소 공개 범위
@@ -139,6 +139,7 @@ Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-ag
 | 자산 | 버전 | 라이선스 | 출처 |
 |---|---|---|---|
 | gdUnit4 | 6.2.3 | MIT (`addons/gdUnit4/LICENSE`) | https://github.com/godot-gdunit-labs/gdUnit4 |
+| (임시 효과음) | — | 자체 합성 (`scripts/fx/sfx_synth.gd`) | 엔진 AudioStreamWAV. 정식 효과음은 아트·사운드 단계에서 교체 |
 | Health, HitBoxes, HurtBoxes and HitScans | 5.0.4 + HH 패치 | MIT (`addons/health_hitbox_hurtbox/LICENSE`) | https://github.com/cluttered-code/godot-health-hitbox-hurtbox |
 
 HH 패치: `health/health.gd`의 피격 로그를 `verbose_debug`(기본 꺼짐)일 때만 출력하도록 변경. 원본은 매 피격마다 출력해 적 30마리 전투에서 성능 부담이 있다.
