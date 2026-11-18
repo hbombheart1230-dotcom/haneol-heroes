@@ -31,6 +31,8 @@ var _hurt_cd: float = 0.0
 
 var _dash_dir: Vector2 = Vector2.ZERO
 var _dash_time_left: float = 0.0
+## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력(파도격) 판정용.
+var _since_dash_end: float = INF
 ## 대시 잔상용 최근 위치 (월드 좌표).
 var _trail: PackedVector2Array = PackedVector2Array()
 
@@ -83,6 +85,16 @@ func get_dash_direction() -> Vector2:
 	return _dash_dir
 
 
+## 대시 중이거나, 대시가 끝난 지 window초 이내면 true.
+func in_dash_link(window: float) -> bool:
+	return is_dashing() or _since_dash_end <= window
+
+
+## 남은 대시 이동 거리(px).
+func dash_distance_left() -> float:
+	return dash_distance * (_dash_time_left / dash_duration) if is_dashing() else 0.0
+
+
 func set_move_input(v: Vector2) -> void:
 	move_input = v.limit_length(1.0)
 	if move_input.length_squared() > 0.0001 and not is_dashing():
@@ -110,12 +122,14 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 func compute_velocity(delta: float) -> Vector2:
 	dash.update(delta)
 	if not is_dashing():
+		_since_dash_end += delta
 		return move_input * move_speed
 	var step := minf(delta, _dash_time_left)
 	_dash_time_left -= delta
 	var v := _dash_dir * (dash_distance / dash_duration) * (step / delta if delta > 0.0 else 0.0)
 	if _dash_time_left <= 0.0:
 		_dash_time_left = 0.0
+		_since_dash_end = 0.0
 		dash_ended.emit()
 	return v
 

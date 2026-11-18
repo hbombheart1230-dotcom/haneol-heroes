@@ -19,6 +19,14 @@ var target: Node2D
 @onready var health: Health = $Health
 
 var _flash: float = 0.0
+## 넉백 속도 (매 프레임 감쇠).
+var knockback: Vector2 = Vector2.ZERO
+## 넉백 감쇠율(초당). 클수록 빨리 멈춘다.
+@export var knockback_damping: float = 8.0
+
+
+func apply_knockback(impulse: Vector2) -> void:
+	knockback += impulse
 
 
 func _ready() -> void:
@@ -46,7 +54,8 @@ func compute_velocity(neighbors: Array) -> Vector2:
 
 
 func _physics_process(delta: float) -> void:
-	velocity = compute_velocity(get_tree().get_nodes_in_group(GROUP))
+	velocity = compute_velocity(get_tree().get_nodes_in_group(GROUP)) + knockback
+	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
 	move_and_slide()
 	if _flash > 0.0:
 		_flash = maxf(_flash - delta, 0.0)

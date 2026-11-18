@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/main.gd" id="0_main"]
 [ext_resource type="Script" path="res://scripts/world/arena.gd" id="1_arena"]
@@ -10,6 +10,8 @@
 [ext_resource type="Script" path="res://scripts/combat/enemy_spawner.gd" id="7_spawner"]
 [ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="8_enemy"]
 [ext_resource type="PackedScene" path="res://scenes/projectile.tscn" id="9_proj"]
+[ext_resource type="Script" path="res://scripts/skills/skill_caster.gd" id="10_skill"]
+[ext_resource type="Script" path="res://scripts/fx/fx_layer.gd" id="11_fx"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 22.0
@@ -26,6 +28,10 @@ hud = NodePath("HUD/HudView")
 [node name="Arena" type="Node2D" parent="."]
 script = ExtResource("1_arena")
 rect = Rect2(-900, -1400, 1800, 2800)
+
+[node name="FxLayer" type="Node2D" parent="."]
+z_index = 5
+script = ExtResource("11_fx")
 
 [node name="EnemySpawner" type="Node2D" parent="." node_paths=PackedStringArray("target")]
 script = ExtResource("7_spawner")
@@ -60,13 +66,21 @@ player = NodePath("..")
 projectile_scene = ExtResource("9_proj")
 projectile_parent = NodePath("../..")
 
+[node name="SkillCaster" type="Node2D" parent="Player" node_paths=PackedStringArray("player", "world", "fx")]
+script = ExtResource("10_skill")
+player = NodePath("..")
+projectile_scene = ExtResource("9_proj")
+world = NodePath("../..")
+fx = NodePath("../../FxLayer")
+
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
 
-[node name="TouchController" type="Node" parent="." node_paths=PackedStringArray("player")]
+[node name="TouchController" type="Node" parent="." node_paths=PackedStringArray("player", "skill_caster")]
 script = ExtResource("3_touch")
 player = NodePath("../Player")
+skill_caster = NodePath("../Player/SkillCaster")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
