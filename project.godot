@@ -23,7 +23,14 @@ window/handheld/orientation=1
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
+enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg", "res://addons/health_hitbox_hurtbox/plugin.cfg")
+
+[layer_names]
+
+2d_physics/layer_1="player"
+2d_physics/layer_2="enemy_body"
+2d_physics/layer_3="player_hurt"
+2d_physics/layer_4="enemy_hurt"
 
 [input_devices]
 

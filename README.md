@@ -34,7 +34,7 @@
 |---|---|---|
 | 화면 아무 곳이나 터치·드래그 | 이동 (터치 시작점 기준, 고정 조이스틱 없음) | 구현 |
 | 빠른 플릭 | 대시 — 무영보 (2회 충전, 대시 중 무적) | 구현 |
-| 자동 | 기본 공격 | P0-B |
+| 자동 | 기본 공격: 근접 부채꼴 베기 + 원거리 검기 (이동 중에도 유지) | 구현 |
 | 스킬 버튼 1개 | 상황에 따라 해룡참 / 파도격 / 해일검기 | P0-C |
 
 데스크톱에서는 마우스가 터치로 에뮬레이션된다.
@@ -44,7 +44,7 @@
 | 단계 | 내용 | 상태 |
 |---|---|---|
 | P0-A | 조작 프로토타입: 터치 이동, 플릭 대시, 2회 충전, 터치 ID별 입력, Android APK | 구현 · Codex PASS WITH NOTES · 실기기 확인 |
-| P0-B | 기본 전투: 적 30마리, 추적 AI, 자동 공격, 체력·피해, 게임오버·재시작 | 예정 |
+| P0-B | 기본 전투: 적 30마리, 추적 AI, 자동 공격, 체력·피해, 게임오버·재시작 | 구현 · 검증 중 |
 | P0-C | 상황별 스킬: 해룡참, 파도격, 해일검기, 스킬 입력 상태 머신, 이펙트 | 예정 |
 | P0-D | 실기기 검증: 조작·스킬·60초 생존·성능·플레이 평가 | 예정 |
 
@@ -66,7 +66,7 @@ Godot 4.7.2로 `project.godot`을 열고 F5.
 
 ```
 godot --headless --path . --import
-godot --headless --path . -s -d res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests --ignoreHeadlessMode -c
+godot --headless --path . -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gdUnit4/bin/GdUnitCmdTool.gd -a res://tests --ignoreHeadlessMode -c
 ```
 
 종료 코드 0이면 전체 통과. 결과는 `reports/`에 생성된다.
@@ -89,7 +89,14 @@ APK는 git에 올리지 않는다. 패키지 ID `com.haneol.heroes`는 임시값
 | `scripts/input/touch_controller.gd` | InputEvent → 입력 로직 → 플레이어 연결 |
 | `scripts/player/dash_charges.gd` | 대시 충전 (2회, 순차 회복) |
 | `scripts/player/player.gd` | 이순신 이동·대시 |
-| `scripts/ui/hud.gd` | 대시 충전 표시, 터치 디버그 표시 |
+| `scripts/combat/enemy.gd` | 추적형 적 (분리 이동, 피격 점멸, 사망) |
+| `scripts/combat/enemy_spawner.gd` | 화면 밖 고리 영역 생성, 동시 최대 30 |
+| `scripts/combat/auto_attack.gd` | 자동 근접·원거리 공격 |
+| `scripts/combat/projectile.gd` | 검기 투사체 (HitBox2D) |
+| `scripts/combat/targeting.gd` | 최근접·부채꼴 대상 선택 |
+| `scripts/game/game_state.gd` | 60초 생존, 처치 수, 게임오버·생존 성공 |
+| `scripts/game/main.gd` | 씬 연결, 일시정지, 탭하여 재시작 |
+| `scripts/ui/hud.gd` | 체력·시간·처치·대시 표시, 결과 화면, 터치 디버그 표시 |
 | `scripts/world/arena.gd` | 임시 쿼터뷰 바닥 |
 | `tests/` | gdUnit4 테스트 |
 | `docs/scenario.md` | 세계관·영웅 기준 문서 |
@@ -116,6 +123,9 @@ Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-ag
 | 자산 | 버전 | 라이선스 | 출처 |
 |---|---|---|---|
 | gdUnit4 | 6.2.3 | MIT (`addons/gdUnit4/LICENSE`) | https://github.com/godot-gdunit-labs/gdUnit4 |
+| Health, HitBoxes, HurtBoxes and HitScans | 5.0.4 + HH 패치 | MIT (`addons/health_hitbox_hurtbox/LICENSE`) | https://github.com/cluttered-code/godot-health-hitbox-hurtbox |
+
+HH 패치: `health/health.gd`의 피격 로그를 `verbose_debug`(기본 꺼짐)일 때만 출력하도록 변경. 원본은 매 피격마다 출력해 적 30마리 전투에서 성능 부담이 있다.
 | awesome-gamedev-agent-skills (`godot` 플러그인, 개발용) | — | Apache-2.0 | https://github.com/gamedev-skills/awesome-gamedev-agent-skills |
 
 게임 코드에 외부 코드를 가져올 때는 이 표에 출처와 라이선스를 기록한다.
