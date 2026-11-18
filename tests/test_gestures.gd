@@ -207,7 +207,8 @@ func test_button_press_overrides_pending_gesture() -> void:
 
 
 func test_settings_save_and_load() -> void:
-	var path := "user://test_settings_%d.cfg" % Time.get_ticks_usec()
+	# user://는 샌드박스에서 쓰기 불가일 수 있어 프로젝트 캐시 폴더를 쓴다.
+	var path := "res://.godot/hh_test_settings_%d.cfg" % Time.get_ticks_usec()
 	GameSettings.skill_button_enabled = true
 	assert_int(GameSettings.save_settings(path)).is_equal(OK)
 	GameSettings.skill_button_enabled = false
@@ -215,3 +216,35 @@ func test_settings_save_and_load() -> void:
 	assert_bool(GameSettings.skill_button_enabled).is_true()
 	GameSettings.skill_button_enabled = false
 	DirAccess.remove_absolute(path)
+
+
+# --- Codex edeb579 회귀 ---
+
+func test_dead_player_releasing_pending_gesture_never_casts() -> void:
+	_down(0, Vector2(300, 900), 0.0)
+	player.health.damage(player.health.max)
+	assert_bool(player.is_dead()).is_true()
+	_up(0, Vector2(300, 900), 0.1)
+	assert_array(casts).is_empty()
+
+
+func test_dead_player_charge_release_never_casts() -> void:
+	_down(0, Vector2(300, 900), 0.0)
+	caster.tick(0.35, 0.35)
+	assert_bool(caster.is_gesture_charging()).is_true()
+	player.health.damage(player.health.max)
+	_up(0, Vector2(300, 900), 0.5)
+	assert_array(casts).is_empty()
+	assert_bool(caster.input.is_down()).is_false()
+
+
+func test_second_finger_on_toggle_does_not_toggle_back() -> void:
+	var p := ctrl.toggle_rect().get_center()
+	_down(0, p, 0.0)
+	_down(1, p, 0.01)
+	assert_bool(ctrl.skill_button_enabled).is_true()
+	_up(1, p, 0.05)
+	_up(0, p, 0.06)
+	_down(2, p, 0.3)  # 손을 다 뗀 뒤 다시 누르면 정상 전환
+	assert_bool(ctrl.skill_button_enabled).is_false()
+	GameSettings.skill_button_enabled = false

@@ -25,6 +25,8 @@ var touch_input := TouchMoveInput.new()
 ## 디버그 HUD용 마지막 플릭 방향과 시각.
 var last_flick_dir: Vector2 = Vector2.ZERO
 var last_flick_time: float = -INF
+## 토글을 누르고 있는 손가락 (-1 = 없음). 누르는 동안 다른 손가락은 토글하지 못한다.
+var _toggle_index: int = -1
 
 
 func _ready() -> void:
@@ -52,7 +54,10 @@ func handle_event(event: InputEvent, time: float) -> bool:
 
 func _on_down(index: int, pos: Vector2, time: float) -> bool:
 	if is_on_toggle(pos):
-		set_skill_button_enabled(not skill_button_enabled)
+		# 동시에 여러 손가락이 닿아도 한 번만 바뀐다 (Codex edeb579 지적).
+		if _toggle_index == -1:
+			_toggle_index = index
+			set_skill_button_enabled(not skill_button_enabled)
 		return true
 	# 버튼 위에서 시작한 터치는 (스킬이 받지 않더라도) 이동 손가락이 되지 않는다.
 	if is_on_skill_button(pos):
@@ -66,7 +71,7 @@ func _on_down(index: int, pos: Vector2, time: float) -> bool:
 
 
 func _on_drag(index: int, pos: Vector2, time: float) -> bool:
-	if _is_button_finger(index):
+	if index == _toggle_index or _is_button_finger(index):
 		return true
 	if index != touch_input.get_move_index():
 		return false
@@ -79,6 +84,9 @@ func _on_drag(index: int, pos: Vector2, time: float) -> bool:
 
 
 func _on_up(index: int, pos: Vector2, time: float, canceled: bool) -> bool:
+	if index == _toggle_index:
+		_toggle_index = -1
+		return true
 	if _is_button_finger(index):
 		if canceled:
 			skill_caster.cancel_input()
@@ -158,5 +166,6 @@ func _physics_process(_delta: float) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_APPLICATION_PAUSED:
 		touch_input.reset()
+		_toggle_index = -1
 		if skill_caster:
 			skill_caster.cancel_input()

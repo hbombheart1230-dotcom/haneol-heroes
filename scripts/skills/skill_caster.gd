@@ -92,6 +92,10 @@ func on_press(index: int, time: float) -> bool:
 
 
 func on_release(index: int, time: float) -> Slot:
+	# 죽은 뒤에는 누르고 있던 입력을 떼도 발동하지 않는다 (Codex edeb579 지적).
+	if player == null or player.is_dead():
+		input.reset()
+		return Slot.NONE
 	var r := input.release(index, time)
 	match r["kind"]:
 		"tap":
@@ -157,7 +161,7 @@ func is_gesture_charging() -> bool:
 ## 쿨타임을 걸고 기술을 발동한다. 반환: 진행 상태.
 func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
 	var d := def_of(slot)
-	if d == null:
+	if d == null or player == null or player.is_dead():
 		return null
 	_cd[slot] = d.cooldown
 	var run := d.cast(_context(), charge)
