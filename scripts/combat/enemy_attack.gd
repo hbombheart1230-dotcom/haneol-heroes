@@ -1,7 +1,9 @@
 class_name EnemyAttack
 extends RefCounted
 ## 적의 예고 공격 상태 머신 (순수 로직). 대기 → 예고 → 타격 → 경직 → 대기.
-## 타격 순간 플레이어가 대시로 피했으면 "회피 성공"을 알린다 (회피 반격의 시작점).
+## 회피 성공(회피 반격의 시작점):
+## - 예고 중 대시로 원 밖으로 나가는 그 순간 즉시 (무적·반격이 바로 시작, 실기기 피드백)
+## - 또는 타격 순간 대시 무적으로 원 안에서 버텼을 때
 
 enum State { READY, WINDUP, RECOVER }
 enum Result { NONE, HIT, EVADED, MISSED }
@@ -17,6 +19,9 @@ var state: State = State.READY
 var target_point: Vector2 = Vector2.ZERO
 var _timer: float = 0.0
 var _cooldown: float = 0.0
+## 이번 예고에서 이미 회피 처리됐는지 (타격 때 다시 처리하지 않음).
+var _evaded: bool = false
+var _was_inside: bool = false
 
 
 func _init(p_data: EnemyAttackData, initial_cooldown: float = 0.0) -> void:
@@ -45,7 +50,10 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 				active_windups += 1
 				_timer = data.windup
 				target_point = player.global_position
+				_evaded = false
+				_was_inside = true
 		State.WINDUP:
+			_check_escape(player)
 			_timer -= delta
 			if _timer <= 0.0:
 				var r := strike(player)
@@ -61,10 +69,23 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 	return Result.NONE
 
 
-## 타격 판정. 대시 무적으로 원 안에서 버텼거나, 직전에 원 안에서 대시로 빠져나갔으면 회피.
+## 예고 중 원 밖으로 대시해 나가는 순간 바로 회피 처리.
+func _check_escape(player: Player) -> void:
+	if _evaded or player == null or player.is_dead():
+		return
+	var inside := player.global_position.distance_to(target_point) <= data.radius
+	if _was_inside and not inside and (player.is_dashing() or player.dashed_out_of(target_point, data.radius, escape_window)):
+		_evaded = true
+		player.register_evade()
+	_was_inside = inside
+
+
+## 타격 판정. 이미 대시로 빠져나갔거나, 대시 무적으로 원 안에서 버텼으면 회피.
 func strike(player: Player) -> Result:
 	if player == null or player.is_dead():
 		return Result.MISSED
+	if _evaded:
+		return Result.EVADED
 	var inside := player.global_position.distance_to(target_point) <= data.radius
 	if inside and player.is_dashing():
 		player.register_evade()

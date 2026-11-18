@@ -187,15 +187,44 @@ func test_hero_data_has_counter() -> void:
 func test_dash_out_of_circle_grants_invulnerability_immediately() -> void:
 	var a := _attack()
 	a.tick(DT, Vector2(60, 0), player)
-	_run_attack(a, Vector2(60, 0), CHASER.attack.windup - 0.3)
+	_run_attack(a, Vector2(60, 0), 0.1)  # 예고 시작 직후 (타격까지 약 0.5초 남음)
 	player.request_dash(Vector2.LEFT)
-	player.global_position = Vector2(-260, 0)
-	var results := _run_attack(a, Vector2(60, 0), 0.4)
-	assert_array(results).is_equal([EnemyAttack.Result.EVADED])
+	player.global_position = Vector2(-260, 0)  # 대시로 원 밖으로
+	a.tick(DT, Vector2(60, 0), player)  # 다음 프레임: 타격 전인데도 바로 회피 처리
+	assert_int(a.state).is_equal(EnemyAttack.State.WINDUP)
 	assert_float(player.skill_invuln_left()).is_greater(0.0)
+	assert_bool(caster.is_counter_open()).is_true()
+	for i in 12:  # 대시가 끝나도 무적
+		player.compute_velocity(DT)
 	assert_bool(player.is_dashing()).is_false()
-	assert_bool(player.apply_hit(10)).is_false()  # 대시가 끝났어도 무적
+	assert_bool(player.apply_hit(10)).is_false()
 	assert_bool(player.apply_contact_damage(DT, 10)).is_false()
+	var results := _run_attack(a, Vector2(60, 0), 0.6)
+	assert_array(results).is_equal([EnemyAttack.Result.EVADED])  # 타격 때 중복 처리 없음
+
+
+func test_walking_out_then_nothing_until_strike() -> void:
+	var a := _attack()
+	a.tick(DT, Vector2(60, 0), player)
+	player.global_position = Vector2(-300, 0)  # 대시 없이 걸어서 나감
+	a.tick(DT, Vector2(60, 0), player)
+	assert_float(player.skill_invuln_left()).is_equal(0.0)
+	assert_bool(caster.is_counter_open()).is_false()
+
+
+func test_only_one_evade_per_attack() -> void:
+	var a := _attack()
+	var evades := [0]
+	player.evaded.connect(func() -> void: evades[0] += 1)
+	a.tick(DT, Vector2(60, 0), player)
+	player.request_dash(Vector2.LEFT)
+	player.global_position = Vector2(-200, 0)
+	a.tick(DT, Vector2(60, 0), player)
+	player.global_position = Vector2(0, 0)  # 다시 들어왔다가
+	a.tick(DT, Vector2(60, 0), player)
+	player.global_position = Vector2(-200, 0)  # 또 나감
+	_run_attack(a, Vector2(60, 0), 0.7)
+	assert_int(evades[0]).is_equal(1)
 
 
 func test_evade_invulnerability_lasts_about_one_second() -> void:
