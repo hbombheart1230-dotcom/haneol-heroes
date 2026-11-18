@@ -20,6 +20,15 @@ var move_input: Vector2 = Vector2.ZERO
 var facing: Vector2 = Vector2.DOWN
 var dash: DashCharges
 
+## 피격 후 무적 시간(초). 실험 값.
+@export var hurt_invuln_time: float = 0.6
+## 접촉 판정용 Area2D (적 몸체 레이어를 감지). 없으면 접촉 피해 없음.
+@export var contact_sensor: Area2D
+
+## P0-B: health_hitbox_hurtbox 애드온의 Health. 씬에서 자식 "Health"로 둔다.
+var health: Health
+var _hurt_cd: float = 0.0
+
 var _dash_dir: Vector2 = Vector2.ZERO
 var _dash_time_left: float = 0.0
 ## 대시 잔상용 최근 위치 (월드 좌표).
@@ -33,15 +42,41 @@ func _init() -> void:
 func _ready() -> void:
 	# 인스펙터 값이 _init 이후에 적용되므로 다시 생성한다.
 	dash = DashCharges.new(max_dash_charges, dash_recharge_time)
+	health = get_node_or_null("Health") as Health
 
 
 func is_dashing() -> bool:
 	return _dash_time_left > 0.0
 
 
-## P0-B 피격 판정에서 사용. 현재는 대시 중 무적.
+## 대시 중이거나 피격 직후면 피해를 받지 않는다.
 func is_invulnerable() -> bool:
-	return is_dashing()
+	return is_dashing() or _hurt_cd > 0.0
+
+
+func is_dead() -> bool:
+	return health != null and health.is_dead()
+
+
+## 접촉 피해 처리. amount는 이번 프레임 닿아 있는 적들 중 최대 피해량(없으면 0).
+## 반환: 실제로 피해를 받았으면 true.
+func apply_contact_damage(delta: float, amount: int) -> bool:
+	_hurt_cd = maxf(_hurt_cd - delta, 0.0)
+	if amount <= 0 or health == null or is_dead() or is_invulnerable():
+		return false
+	health.damage(amount)
+	_hurt_cd = hurt_invuln_time
+	return true
+
+
+func _touching_damage() -> int:
+	if contact_sensor == null:
+		return 0
+	var best := 0
+	for b in contact_sensor.get_overlapping_bodies():
+		if b is Enemy:
+			best = maxi(best, (b as Enemy).contact_damage)
+	return best
 
 
 func get_dash_direction() -> Vector2:
@@ -86,8 +121,12 @@ func compute_velocity(delta: float) -> Vector2:
 
 
 func _physics_process(delta: float) -> void:
+	if is_dead():
+		velocity = Vector2.ZERO
+		return
 	var was_dashing := is_dashing()
 	velocity = compute_velocity(delta)
+	apply_contact_damage(delta, _touching_damage())
 	move_and_slide()
 	if arena_rect.has_area():
 		global_position = global_position.clamp(arena_rect.position, arena_rect.end)
@@ -115,6 +154,8 @@ func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	# 몸체
 	var body_color := Color(0.55, 0.85, 1.0) if is_dashing() else Color(0.15, 0.4, 0.8)
+	if _hurt_cd > 0.0 and not is_dashing() and int(_hurt_cd * 20.0) % 2 == 0:
+		body_color = Color(1.0, 0.5, 0.5)
 	draw_circle(Vector2(0, -body_radius * 0.4), body_radius, body_color)
 	# 바라보는 방향 (검)
 	var tip := Vector2(0, -body_radius * 0.4) + facing * body_radius * 1.6

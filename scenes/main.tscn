@@ -1,26 +1,64 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=13 format=3]
 
+[ext_resource type="Script" path="res://scripts/game/main.gd" id="0_main"]
 [ext_resource type="Script" path="res://scripts/world/arena.gd" id="1_arena"]
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="2_player"]
 [ext_resource type="Script" path="res://scripts/input/touch_controller.gd" id="3_touch"]
 [ext_resource type="Script" path="res://scripts/ui/hud.gd" id="4_hud"]
+[ext_resource type="Script" path="res://addons/health_hitbox_hurtbox/health/health.gd" id="5_health"]
+[ext_resource type="Script" path="res://scripts/combat/auto_attack.gd" id="6_attack"]
+[ext_resource type="Script" path="res://scripts/combat/enemy_spawner.gd" id="7_spawner"]
+[ext_resource type="PackedScene" path="res://scenes/enemy.tscn" id="8_enemy"]
+[ext_resource type="PackedScene" path="res://scenes/projectile.tscn" id="9_proj"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 22.0
 
-[node name="Main" type="Node2D"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
+radius = 30.0
+
+[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud")]
+script = ExtResource("0_main")
+player = NodePath("Player")
+spawner = NodePath("EnemySpawner")
+hud = NodePath("HUD/HudView")
 
 [node name="Arena" type="Node2D" parent="."]
 script = ExtResource("1_arena")
 rect = Rect2(-900, -1400, 1800, 2800)
 
-[node name="Player" type="CharacterBody2D" parent="."]
+[node name="EnemySpawner" type="Node2D" parent="." node_paths=PackedStringArray("target")]
+script = ExtResource("7_spawner")
+enemy_scene = ExtResource("8_enemy")
+target = NodePath("../Player")
+arena_rect = Rect2(-870, -1370, 1740, 2740)
+
+[node name="Player" type="CharacterBody2D" parent="." node_paths=PackedStringArray("contact_sensor")]
+collision_mask = 0
 motion_mode = 1
 script = ExtResource("2_player")
 arena_rect = Rect2(-870, -1370, 1740, 2740)
+contact_sensor = NodePath("ContactSensor")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
 shape = SubResource("CircleShape2D_body")
+
+[node name="Health" type="Node" parent="Player"]
+script = ExtResource("5_health")
+
+[node name="ContactSensor" type="Area2D" parent="Player"]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/ContactSensor"]
+shape = SubResource("CircleShape2D_contact")
+
+[node name="AutoAttack" type="Node2D" parent="Player" node_paths=PackedStringArray("player", "projectile_parent")]
+script = ExtResource("6_attack")
+player = NodePath("..")
+projectile_scene = ExtResource("9_proj")
+projectile_parent = NodePath("../..")
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position_smoothing_enabled = true

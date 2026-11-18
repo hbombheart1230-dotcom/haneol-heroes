@@ -1,0 +1,35 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/combat/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://addons/health_hitbox_hurtbox/health/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://addons/health_hitbox_hurtbox/2d/hurt_box_2d/hurt_box_2d.gd" id="3_hurt"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 16.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurt"]
+radius = 22.0
+
+[node name="Enemy" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 2
+motion_mode = 1
+script = ExtResource("1_enemy")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_health")
+current = 30
+max = 30
+
+[node name="HurtBox2D" type="Area2D" parent="." node_paths=PackedStringArray("health")]
+collision_layer = 8
+collision_mask = 0
+monitoring = false
+script = ExtResource("3_hurt")
+health = NodePath("../Health")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox2D"]
+shape = SubResource("CircleShape2D_hurt")
