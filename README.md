@@ -101,7 +101,7 @@ APK는 git에 올리지 않는다. 패키지 ID `com.haneol.heroes`는 임시값
 | 경로 | 내용 |
 |---|---|
 | `data/heroes/*.tres` | 영웅 데이터 (능력치, 대시, 기본 공격, 단일 버튼 기술 구성) |
-| `data/enemies/*.tres` | 적 데이터 |
+| `data/enemies/*.tres` | 적 데이터: 잡병(chaser), 궁수(archer, 거리 유지·화살), 중장병(heavy, 느림·단단함·큰 내려찍기) |
 | `scripts/data/` | 데이터 클래스: `HeroData`, `BasicAttackData`, `EnemyData` |
 | `scripts/skills/` | 공통 기술 시스템: 입력 상태(`SkillInput`), 상황 판단(`SkillCaster`), 기술 기반(`SkillDef`, `SkillRun`, `SkillContext`, `SkillKit`) |
 | `scripts/heroes/<영웅>/` | 영웅 전용 기술 (이순신: 해룡참, 파도격, 해일검기) |

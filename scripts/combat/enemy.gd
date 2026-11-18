@@ -30,7 +30,7 @@ var knockback: Vector2 = Vector2.ZERO
 
 
 func apply_knockback(impulse: Vector2) -> void:
-	knockback += impulse
+	knockback += impulse * (data.knockback_scale if data else 1.0)
 
 
 func _ready() -> void:
@@ -54,6 +54,13 @@ func compute_velocity(neighbors: Array) -> Vector2:
 		return Vector2.ZERO
 	var to_target := target.global_position - global_position
 	var dir := to_target.normalized() if to_target.length_squared() > 1.0 else Vector2.ZERO
+	# 거리 유지형(궁수): 너무 가까우면 물러나고, 적당하면 멈춘다.
+	if data and data.preferred_range > 0.0:
+		var d := to_target.length()
+		if d < data.preferred_range - 40.0:
+			dir = -dir
+		elif d <= data.preferred_range + 40.0:
+			dir = Vector2.ZERO
 	var push := Vector2.ZERO
 	for n in neighbors:
 		var other := n as Node2D
@@ -69,7 +76,8 @@ func compute_velocity(neighbors: Array) -> Vector2:
 func _physics_process(delta: float) -> void:
 	var busy := false
 	if attack:
-		attack.tick(delta, global_position, target as Player)
+		if attack.tick(delta, global_position, target as Player) == EnemyAttack.Result.FIRED:
+			_fire_arrow()
 		busy = attack.is_busy()
 		if busy:
 			queue_redraw()
@@ -86,6 +94,13 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 	_flash = 0.1
 	Feedback.enemy_hit(global_position, applied)
 	queue_redraw()
+
+
+func _fire_arrow() -> void:
+	var a := EnemyArrow.new()
+	a.direction = attack.aim_dir
+	a.setup(target as Player, global_position, attack.data)
+	get_parent().add_child(a)
 
 
 func _exit_tree() -> void:
@@ -110,11 +125,18 @@ func _draw() -> void:
 	var base := data.color if data else Color(0.75, 0.2, 0.25)
 	var c := Color(1, 1, 1) if _flash > 0.0 else base
 	draw_circle(Vector2(0, -body_radius * 0.3), body_radius, c)
+	if data and data.knockback_scale < 1.0:  # 중장병: 갑옷 테두리
+		draw_arc(Vector2(0, -body_radius * 0.3), body_radius, 0, TAU, 24, Color(0.85, 0.85, 0.9), 4.0)
 
 
 ## 예고 원: 바닥에 붉은 원이 차오르고, 타격 직전에 밝아진다.
 func _draw_telegraph() -> void:
 	if attack == null or attack.state != EnemyAttack.State.WINDUP:
+		return
+	if attack.is_shoot():  # 조준선: 점점 굵고 밝아진다
+		var k0 := attack.windup_ratio()
+		var end := attack.aim_dir * attack.data.projectile_range
+		draw_line(Vector2.ZERO, end, Color(1, 0.3, 0.2, 0.15 + 0.35 * k0), 2.0 + 6.0 * k0)
 		return
 	var p := to_local(attack.target_point)
 	var r := attack.data.radius

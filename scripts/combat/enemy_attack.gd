@@ -6,7 +6,7 @@ extends RefCounted
 ## - 또는 타격 순간 대시 무적으로 원 안에서 버텼을 때
 
 enum State { READY, WINDUP, RECOVER }
-enum Result { NONE, HIT, EVADED, MISSED }
+enum Result { NONE, HIT, EVADED, MISSED, FIRED }
 
 ## 동시에 예고 중인 공격 수 제한 (적 30마리가 한꺼번에 예고하지 않게).
 static var active_windups: int = 0
@@ -17,6 +17,9 @@ static var escape_window: float = 0.3
 var data: EnemyAttackData
 var state: State = State.READY
 var target_point: Vector2 = Vector2.ZERO
+## 사격(SHOOT) 조준 방향과 출발점.
+var aim_dir: Vector2 = Vector2.RIGHT
+var aim_origin: Vector2 = Vector2.ZERO
 var _timer: float = 0.0
 var _cooldown: float = 0.0
 ## 이번 예고에서 이미 회피 처리됐는지 (타격 때 다시 처리하지 않음).
@@ -27,6 +30,10 @@ var _was_inside: bool = false
 func _init(p_data: EnemyAttackData, initial_cooldown: float = 0.0) -> void:
 	data = p_data
 	_cooldown = initial_cooldown
+
+
+func is_shoot() -> bool:
+	return data.kind == EnemyAttackData.Kind.SHOOT
 
 
 func is_busy() -> bool:
@@ -50,13 +57,19 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 				active_windups += 1
 				_timer = data.windup
 				target_point = player.global_position
+				aim_origin = self_pos
+				var to_p := player.global_position - self_pos
+				aim_dir = to_p.normalized() if to_p.length_squared() > 0.01 else Vector2.DOWN
 				_evaded = false
 				_was_inside = true
 		State.WINDUP:
-			_check_escape(player)
+			if is_shoot():
+				aim_origin = self_pos
+			else:
+				_check_escape(player)
 			_timer -= delta
 			if _timer <= 0.0:
-				var r := strike(player)
+				var r := Result.FIRED if is_shoot() else strike(player)
 				_end_windup()
 				state = State.RECOVER
 				_timer = data.recovery

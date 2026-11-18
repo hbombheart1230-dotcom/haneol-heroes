@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+
+[sub_resource type="Resource" id="Attack_shoot"]
+script = ExtResource("2_attack")
+kind = 1
+trigger_range = 420.0
+windup = 0.7
+damage = 12
+cooldown = 2.2
+recovery = 0.3
+projectile_speed = 520.0
+projectile_range = 650.0
+projectile_radius = 14.0
+
+[resource]
+script = ExtResource("1_enemy")
+id = &"archer"
+max_hp = 20
+move_speed = 100.0
+contact_damage = 5
+body_radius = 18.0
+color = Color(0.35, 0.75, 0.4, 1)
+attack = SubResource("Attack_shoot")
+preferred_range = 320.0
+knockback_scale = 1.0
