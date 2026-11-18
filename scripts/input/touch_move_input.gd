@@ -34,6 +34,11 @@ var chain_window: float = 0.4
 var chain_max_dot: float = 0.5
 var chain_min_distance: float = 40.0
 var chain_min_speed: float = 500.0
+## 손 떼고 다시 튕기기: 직전 플릭 후 이 시간(초) 안에 새로 댄 손가락의 첫 플릭은 방향과 상관없이 연속 기준.
+var retouch_chain_window: float = 0.5
+## 그 첫 플릭의 기준 (다시 잡고 이동하려는 손짓과 구분되도록 꺾기 연속보다는 조금 높게).
+var retouch_min_distance: float = 50.0
+var retouch_min_speed: float = 650.0
 ## 손가락이 움직이는 동안 터치 이벤트 간격의 상한(초). 이보다 긴 공백은 "정지"로 본다.
 ## Android 터치 샘플링은 보통 60~240Hz(4~17ms).
 var max_event_gap: float = 0.05
@@ -46,6 +51,10 @@ var _move_index: int = -1
 var _anchor: Vector2 = Vector2.ZERO
 var _current: Vector2 = Vector2.ZERO
 var _last_flick_time: float = -INF
+## 이번 손가락(스트로크)에서 마지막 플릭 시각. 플릭 간격 제한은 같은 손가락 안에서만.
+var _stroke_flick_time: float = -INF
+## 이번 손가락이 직전 플릭 직후에 새로 댄 것인지 (손 떼고 다시 튕기기).
+var _retouch_chain: bool = false
 ## 진단용: 마지막으로 의미 있는 움직임(거리 40px 이상 또는 손 뗌)의 판정 결과.
 ## {"dist", "speed", "need", "prev", "result"} — 실기기에서 대시가 왜 안 나갔는지 보여주기 위함.
 var last_check: Dictionary = {}
@@ -86,6 +95,8 @@ func get_move_vector() -> Vector2:
 func touch_down(index: int, pos: Vector2, time: float) -> bool:
 	if _move_index != -1:
 		return false
+	_stroke_flick_time = -INF
+	_retouch_chain = time - _last_flick_time <= retouch_chain_window
 	_move_index = index
 	_anchor = pos
 	_current = pos
@@ -139,7 +150,7 @@ func _push_sample(time: float, pos: Vector2) -> void:
 
 
 func _detect_flick(time: float, releasing: bool = false) -> Vector2:
-	if time - _last_flick_time < flick_cooldown:
+	if time - _stroke_flick_time < flick_cooldown:
 		return Vector2.ZERO
 	if _samples.size() < 2:
 		return Vector2.ZERO
@@ -156,11 +167,16 @@ func _detect_flick(time: float, releasing: bool = false) -> Vector2:
 	var prev := _point_at(float(base[0]) - flick_window)
 	var prev_dt := float(base[0]) - float(prev[0])
 	var prev_speed := _path_length(prev, base) / prev_dt if prev_dt > 0.0 else 0.0
-	var chained := time - _last_flick_time <= chain_window and (delta / dist).dot(_last_flick_dir) < chain_max_dot
+	var turned := time - _last_flick_time <= chain_window and (delta / dist).dot(_last_flick_dir) < chain_max_dot
+	var retouch := _retouch_chain and time - _last_flick_time <= retouch_chain_window + 0.3
+	var chained := turned or retouch
 	var easy := prev_speed < rest_speed or chained
 	var need_dist := rest_min_distance if easy else move_min_distance
 	var need_speed := rest_min_speed if easy else move_min_speed
-	if chained:
+	if retouch and not turned:
+		need_dist = retouch_min_distance
+		need_speed = retouch_min_speed
+	elif chained:
 		need_dist = chain_min_distance
 		need_speed = chain_min_speed
 	var check := {"dist": dist, "speed": speed, "need": need_speed, "prev": prev_speed, "result": ""}
@@ -177,6 +193,8 @@ func _detect_flick(time: float, releasing: bool = false) -> Vector2:
 			last_check = check
 		return Vector2.ZERO
 	_last_flick_time = time
+	_stroke_flick_time = time
+	_retouch_chain = false
 	var dir := delta / dist
 	_last_flick_dir = dir
 	check["result"] = "플릭"

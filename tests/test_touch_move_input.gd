@@ -341,3 +341,44 @@ func test_turned_chain_flick_needs_only_short_quick_move() -> void:
 	input.touch_move(0, Vector2(460, 880), 0.14)
 	var d := input.touch_move(0, Vector2(460, 855), 0.18)  # 위로 45px, 약 750/s
 	assert_float(d.dot(Vector2.UP)).is_greater(0.9)
+
+
+
+# --- 손 떼고 다시 튕기기 (연속 대시) ---
+
+func _quick_flick(start: Vector2, delta: Vector2, t0: float, dur: float) -> Vector2:
+	input.touch_down(0, start, t0)
+	var mid := input.touch_move(0, start + delta * 0.5, t0 + dur * 0.5)
+	var up := input.touch_up(0, start + delta, t0 + dur)
+	return mid if mid != Vector2.ZERO else up  # 드래그 도중 또는 손 뗄 때 인식
+
+
+func test_lift_and_reflick_same_direction_short_swipe() -> void:
+	assert_vector(_quick_flick(Vector2(300, 900), Vector2(120, 0), 0.0, 0.06)).is_not_equal(Vector2.ZERO)
+	# 0.15초 뒤 다시 대고 짧게(55px) 같은 방향으로 튕기기 → 연속 대시
+	var d := _quick_flick(Vector2(300, 900), Vector2(55, 0), 0.21, 0.06)
+	assert_float(d.dot(Vector2.RIGHT)).is_greater(0.9)
+
+
+func test_same_short_swipe_without_previous_flick_is_not_a_dash() -> void:
+	assert_vector(_quick_flick(Vector2(300, 900), Vector2(55, 0), 0.0, 0.06)).is_equal(Vector2.ZERO)
+
+
+func test_reflick_right_after_previous_is_not_blocked_by_cooldown() -> void:
+	_quick_flick(Vector2(300, 900), Vector2(120, 0), 0.0, 0.05)
+	var d := _quick_flick(Vector2(300, 900), Vector2(0, -90), 0.07, 0.05)  # 0.07초 만에 다시
+	assert_vector(d).is_not_equal(Vector2.ZERO)
+
+
+func test_regrip_to_walk_after_dash_is_not_a_dash() -> void:
+	_quick_flick(Vector2(300, 900), Vector2(120, 0), 0.0, 0.06)
+	input.touch_down(0, Vector2(300, 900), 0.3)  # 다시 잡고 천천히(400px/s) 걷기
+	var t := 0.3
+	var pos := Vector2(300, 900)
+	var flicks := 0
+	for i in 30:
+		t += 1.0 / 60.0
+		pos += Vector2(0, 400.0 / 60.0)
+		if input.touch_move(0, pos, t) != Vector2.ZERO:
+			flicks += 1
+	assert_int(flicks).is_equal(0)
