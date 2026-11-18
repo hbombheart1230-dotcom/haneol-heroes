@@ -228,11 +228,13 @@ func tick(delta: float, time: float) -> void:
 	for k in _cd.keys():
 		_cd[k] = maxf(float(_cd[k]) - delta, 0.0)
 	_counter_left = maxf(_counter_left - delta, 0.0)
-	# 선입력: 버튼을 누른 채(탭 판정 전) 대시가 시작되면 dash 기술로 바꾼다.
+	# 선입력: 버튼을 누른 채(탭 판정 전) 대시가 시작되거나 반격 시간이 열리면 그 기술로 (반격 우선, Codex e593772 지적).
 	if input.is_from(SkillInput.Source.BUTTON) and input.state == SkillInput.State.PRESSED \
-			and player and player.is_dashing() and is_ready(Slot.DASH):
-		input.consume()
-		cast(Slot.DASH)
+			and player and (player.is_dashing() or is_counter_open()):
+		var instant := _instant_slot()
+		if instant != Slot.NONE:
+			input.consume()
+			cast(instant)
 	input.update(time)
 	for entry in _runs.duplicate():
 		var run: SkillRun = entry[1]

@@ -255,3 +255,25 @@ func test_hero_data_sets_evade_invulnerability() -> void:
 	p.hero = HERO
 	add_child(p)
 	assert_float(p.evade_invuln_time).is_equal(HERO.evade_invuln_time)
+
+
+# --- Codex e593772 회귀 ---
+
+func test_overlapping_hit_stops_restore_only_after_the_last() -> void:
+	var ctx := SkillContext.new()
+	ctx.player = player
+	ctx.hit_stop(0.05)
+	ctx.hit_stop(0.25)
+	await get_tree().create_timer(0.12, true, false, true).timeout
+	assert_float(Engine.time_scale).is_less(0.5)  # 첫 번째가 끝나도 두 번째 진행 중
+	await get_tree().create_timer(0.25, true, false, true).timeout
+	assert_float(Engine.time_scale).is_equal(1.0)
+
+
+func test_held_button_during_evade_casts_counter_not_dash_skill() -> void:
+	caster.on_press(0, 0.0)  # 버튼을 먼저 누르고 있음 (탭 판정 전)
+	player.request_dash(Vector2.RIGHT)
+	player.register_evade()
+	caster.tick(DT, DT)
+	assert_array(casts).is_equal([SkillCaster.Slot.COUNTER])
+	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_true()
