@@ -10,6 +10,8 @@ extends Resource
 @export var color: Color = Color(0.2, 0.5, 0.9)
 ## 전투 이펙트 색 (버튼 색과 별개).
 @export var fx_color: Color = Color(0.4, 0.8, 1.0)
+## 스킬 아이콘 (없으면 색 원으로 표시).
+@export var icon: Texture2D
 
 
 ## 발동. charge는 0~1 (충전 기술에만 의미).

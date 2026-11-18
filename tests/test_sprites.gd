@@ -70,3 +70,9 @@ func test_enemy_uses_sprite_and_faces_target() -> void:
 	assert_object(e.sprite).is_not_null()
 	e._physics_process(1.0 / 60.0)
 	assert_str(String(e.sprite.animation)).is_equal("run_4")  # 왼쪽으로 달림
+
+
+func test_every_hero_skill_has_an_icon() -> void:
+	var kit: SkillKit = HERO.kit
+	for def in [kit.tap, kit.dash, kit.charge, kit.counter]:
+		assert_object((def as SkillDef).icon).is_not_null()

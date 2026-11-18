@@ -8,6 +8,10 @@
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/haeil_skill.gd" id="6_haeil"]
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/counter_skill.gd" id="7_counter"]
 [ext_resource type="Resource" path="res://assets/sprites/knight/knight.tres" id="8_sheet"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/haeryong.png" id="i_haeryong"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/pado.png" id="i_pado"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/haeil.png" id="i_haeil"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/counter.png" id="i_counter"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -26,6 +30,7 @@ ranged_lifetime = 0.8
 script = ExtResource("4_haeryong")
 id = &"haeryong"
 display_name = "해룡참"
+icon = ExtResource("i_haeryong")
 cooldown = 4.0
 color = Color(0.2, 0.5, 0.9, 1)
 fx_color = Color(0.35, 0.75, 1, 1)
@@ -37,6 +42,7 @@ knockback = 420.0
 script = ExtResource("5_pado")
 id = &"pado"
 display_name = "파도격"
+icon = ExtResource("i_pado")
 cooldown = 3.0
 color = Color(0.2, 0.85, 0.95, 1)
 fx_color = Color(0.4, 0.9, 1, 1)
@@ -50,6 +56,7 @@ hit_interval = 0.07
 script = ExtResource("6_haeil")
 id = &"haeil"
 display_name = "해일검기"
+icon = ExtResource("i_haeil")
 cooldown = 5.0
 color = Color(0.35, 0.65, 1, 1)
 min_damage = 20
@@ -63,6 +70,7 @@ lifetime = 1.1
 script = ExtResource("7_counter")
 id = &"counter"
 display_name = "강화 반격"
+icon = ExtResource("i_counter")
 cooldown = 0.0
 color = Color(1, 0.85, 0.35, 1)
 fx_color = Color(1, 0.9, 0.5, 1)
