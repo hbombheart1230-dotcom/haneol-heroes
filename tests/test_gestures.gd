@@ -276,3 +276,17 @@ func test_second_finger_on_toggle_does_not_toggle_back() -> void:
 	_down(2, p, 0.3)  # 손을 다 뗀 뒤 다시 누르면 정상 전환
 	assert_bool(ctrl.skill_button_enabled).is_false()
 	GameSettings.skill_button_enabled = false
+
+
+func test_button_held_then_release_flick_casts_only_dash_skill() -> void:
+	# Codex dc73e07 회귀: 버튼을 누른 채 이동 손가락으로 튕겨 떼면 파도격만, 버튼을 떼도 해룡참 없음
+	ctrl.skill_button_enabled = true
+	_down(1, ctrl.skill_button_center(), 0.0)
+	_down(0, Vector2(300, 900), 0.01)
+	_up(0, Vector2(430, 900), 0.06)
+	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_false()
+	_up(1, ctrl.skill_button_center(), 0.1)
+	for i in 20:
+		caster.tick(DT, 0.1 + DT * i)
+	assert_array(casts).is_equal([SkillCaster.Slot.DASH])
+	assert_bool(caster.is_ready(SkillCaster.Slot.TAP)).is_true()

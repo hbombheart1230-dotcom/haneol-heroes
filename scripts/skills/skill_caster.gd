@@ -154,6 +154,9 @@ func try_dash_release() -> bool:
 	if player == null or player.is_dead() or not _dash_link() or not is_ready(Slot.DASH):
 		return false
 	cast(Slot.DASH)
+	# 판정 전인 버튼 누름은 이 파도격에 합쳐진다 (손 뗄 때 해룡참 추가 발동 방지, Codex dc73e07 지적).
+	if input.is_from(SkillInput.Source.BUTTON) and input.state == SkillInput.State.PRESSED:
+		input.consume()
 	return true
 
 
