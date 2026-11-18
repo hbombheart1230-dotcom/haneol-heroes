@@ -26,8 +26,8 @@ const NAMES := {Skill.NONE: "", Skill.HAERYONG: "해룡참", Skill.PADO: "파도
 
 @export_group("파도격")
 @export var pado_cooldown: float = 3.0
-## 대시가 끝난 뒤에도 파도격으로 인정하는 시간(초).
-@export var pado_link_window: float = 0.25
+## 대시가 끝난 뒤에도 파도격으로 인정하는 시간(초). 실기기 피드백으로 0.25 → 0.45.
+@export var pado_link_window: float = 0.45
 @export var pado_length: float = 320.0
 @export var pado_width: float = 90.0
 @export var pado_hits: int = 3
@@ -90,6 +90,10 @@ func on_release(index: int, time: float) -> Skill:
 	var r := input.release(index, time)
 	match r["kind"]:
 		"tap":
+			# 누른 뒤 탭 판정 전에 대시가 나갔다면 파도격 (선입력).
+			if player.in_dash_link(pado_link_window) and is_ready(Skill.PADO):
+				cast_pado()
+				return Skill.PADO
 			if is_ready(Skill.HAERYONG):
 				cast_haeryong()
 				return Skill.HAERYONG
@@ -107,6 +111,11 @@ func cancel_input() -> void:
 func tick(delta: float, time: float) -> void:
 	for k in _cd.keys():
 		_cd[k] = maxf(float(_cd[k]) - delta, 0.0)
+	# 선입력: 버튼을 누른 채(아직 탭 판정 전) 대시가 시작되면 파도격으로 바꾼다.
+	# "버튼 먼저, 플릭 나중" 순서로 눌러도 연계가 된다.
+	if input.state == SkillInput.State.PRESSED and player and player.is_dashing() and is_ready(Skill.PADO):
+		input.consume()
+		cast_pado()
 	input.update(time)
 	if not _pado.is_empty():
 		_pado["timer"] = float(_pado["timer"]) - delta

@@ -122,9 +122,46 @@ func test_press_right_after_dash_still_pado() -> void:
 		player.compute_velocity(DT)
 	assert_bool(player.is_dashing()).is_false()
 	assert_int(caster.preview_skill()).is_equal(SkillCaster.Skill.PADO)
-	for i in 20:  # 연계 시간(0.25초) 지나면 해룡참
+	for i in 20:  # 대시 종료 후 약 0.37초: 아직 연계 시간(0.45초) 안
+		player.compute_velocity(DT)
+	assert_int(caster.preview_skill()).is_equal(SkillCaster.Skill.PADO)
+	for i in 10:  # 약 0.54초: 연계 시간 지나면 해룡참
 		player.compute_velocity(DT)
 	assert_int(caster.preview_skill()).is_equal(SkillCaster.Skill.HAERYONG)
+
+
+func test_button_first_then_dash_before_release_is_pado() -> void:
+	# 버튼을 먼저 누르고(탭 판정 전) 플릭 대시 → 다음 틱에 파도격
+	var e := _enemy_at(Vector2(150, 0))
+	caster.on_press(0, 0.0)
+	caster.tick(DT, DT)
+	assert_bool(caster.is_ready(SkillCaster.Skill.PADO)).is_true()
+	player.request_dash(Vector2.RIGHT)
+	caster.tick(DT, DT * 2)
+	assert_bool(caster.is_ready(SkillCaster.Skill.PADO)).is_false()
+	assert_int(e.health.current).is_less(e.health.max)
+	assert_int(caster.on_release(0, 0.1)).is_equal(SkillCaster.Skill.NONE)
+	assert_bool(caster.is_ready(SkillCaster.Skill.HAERYONG)).is_true()
+
+
+func test_tap_released_after_dash_started_is_pado() -> void:
+	# 같은 프레임 안에 누름 → 대시 → 뗌 (틱 없이)
+	caster.on_press(0, 0.0)
+	player.request_dash(Vector2.RIGHT)
+	assert_int(caster.on_release(0, 0.05)).is_equal(SkillCaster.Skill.PADO)
+	assert_bool(caster.is_ready(SkillCaster.Skill.HAERYONG)).is_true()
+
+
+func test_holding_into_charge_then_dash_stays_charge() -> void:
+	# 충전 의도(임계 이후)였다면 대시해도 파도격으로 바꾸지 않는다
+	caster.on_press(0, 0.0)
+	caster.tick(0.3, 0.3)
+	assert_int(caster.input.state).is_equal(SkillInput.State.CHARGING)
+	player.request_dash(Vector2.RIGHT)
+	caster.tick(DT, 0.3 + DT)
+	assert_bool(caster.is_ready(SkillCaster.Skill.PADO)).is_true()
+	assert_int(caster.input.state).is_equal(SkillInput.State.CHARGING)
+	caster.cancel_input()
 
 
 func test_pado_on_cooldown_falls_back_to_normal_press() -> void:
