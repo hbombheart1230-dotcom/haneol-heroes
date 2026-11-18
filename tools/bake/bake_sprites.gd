@@ -90,15 +90,40 @@ func _all_jobs() -> Array:
 	return jobs
 
 
-## 애니메이션 이름 찾기: 정확히 같은 이름 → 대소문자 무시 포함 (가져오기 때 이름이 조금 바뀌는 경우).
-static func find_anim(ap: AnimationPlayer, src: String) -> String:
-	if ap.has_animation(src):
-		return src
-	for anim_name in ap.get_animation_list():
-		if String(anim_name).to_lower().contains(src.to_lower()):
-			return anim_name
-	push_error("animation not found: %s (have %s)" % [src, ap.get_animation_list()])
+## 애니메이션 이름 찾기. src는 "a|b|c" 후보 목록일 수 있다 (앞 후보 우선).
+## 후보마다 정확히 같은 이름 → 대소문자 무시 포함 순으로 찾는다 (가져오기 때 이름이 조금 바뀌는 경우).
+static func find_anim(ap: AnimationPlayer, src: String, quiet: bool = false) -> String:
+	for cand in src.split("|", false):
+		if ap.has_animation(cand):
+			return cand
+		for anim_name in ap.get_animation_list():
+			if String(anim_name).to_lower().contains(cand.to_lower()):
+				return anim_name
+	if not quiet:
+		push_error("animation not found: %s (have %s)" % [src, ap.get_animation_list()])
 	return ""
+
+
+## 동작이 다른 .glb에 따로 있으면 (웹에서 동작별로 받은 파일) 같은 뼈대로 보고 가져와 붙인다.
+static func import_anim(ap: AnimationPlayer, from_path: String, src: String, key: String) -> String:
+	var other: Node = (load(from_path) as PackedScene).instantiate()
+	var oap := other.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	var found := ""
+	if oap:
+		found = find_anim(oap, src, true)
+		var clips := Array(oap.get_animation_list()).filter(func(n: StringName) -> bool: return n != &"RESET")
+		if found == "" and clips.size() == 1:
+			found = clips[0]  # 동작 하나만 든 파일이면 이름과 상관없이 그것
+		if found == "":
+			push_error("animation not found in %s: %s (have %s)" % [from_path, src, clips])
+	var result := ""
+	if found != "":
+		if not ap.has_animation_library(&"ext"):
+			ap.add_animation_library(&"ext", AnimationLibrary.new())
+		ap.get_animation_library(&"ext").add_animation(key, oap.get_animation(found).duplicate(true))
+		result = "ext/" + key
+	other.free()
+	return result
 
 
 func _setup(job: Dictionary) -> AnimationPlayer:
@@ -143,7 +168,11 @@ func _bake(job: Dictionary) -> void:
 	for anim in job["anims"]:
 		var frames: int = int(anim["frames"])
 		var sheet := Image.create(FRAME * frames, FRAME * DIRS, false, Image.FORMAT_RGBA8)
-		var src := find_anim(ap, anim["src"])
+		var src := ""
+		if anim.has("from"):
+			src = import_anim(ap, anim["from"], anim["src"], anim["key"])
+		else:
+			src = find_anim(ap, anim["src"])
 		if src == "":
 			continue
 		var a: Animation = ap.get_animation(src)

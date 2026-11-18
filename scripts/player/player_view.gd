@@ -58,10 +58,19 @@ func current_anim() -> String:
 	return "idle"
 
 
+## 시트에 없는 동작은 비슷한 것으로 대신한다 (AI 3D 모델은 동작이 일부 빠질 수 있다).
+func available_anim(anim: String) -> String:
+	if _sheet == null or _sheet.has_anim(anim):
+		return anim
+	if anim == "dash" and _sheet.has_anim("run"):
+		return "run"
+	return "idle" if _sheet.has_anim("idle") else _sheet.anim_names[0]
+
+
 func _update_sprite(delta: float) -> void:
 	_oneshot_left = maxf(_oneshot_left - delta, 0.0)
 	var dir := _sheet.dir_index(player.facing)
-	var anim_name := StringName("%s_%d" % [current_anim(), dir])
+	var anim_name := StringName("%s_%d" % [available_anim(current_anim()), dir])
 	if _sprite.animation != anim_name:
 		var frame := _sprite.frame
 		var same_anim := String(_sprite.animation).get_slice("_", 0) == String(anim_name).get_slice("_", 0)

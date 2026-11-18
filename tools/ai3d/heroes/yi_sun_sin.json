@@ -14,11 +14,11 @@
   "hero_data": "data/heroes/yi_sun_sin.tres",
   "bake": {"ortho_size": 3.4, "frame": 192},
   "anims": [
-    {"key": "idle", "search": "idle", "frames": 8, "fps": 8.0, "loop": true},
-    {"key": "run", "search": "run", "frames": 8, "fps": 14.0, "loop": true},
-    {"key": "dash", "search": "dodge", "frames": 6, "fps": 20.0, "loop": false},
-    {"key": "attack", "action_id": 4, "frames": 6, "fps": 16.0, "loop": false},
-    {"key": "hit", "search": "hit", "frames": 4, "fps": 12.0, "loop": false},
-    {"key": "death", "search": "death", "frames": 6, "fps": 10.0, "loop": false}
+    {"key": "idle", "match": "idle", "search": "idle", "frames": 8, "fps": 8.0, "loop": true},
+    {"key": "run", "match": "run", "search": "run", "frames": 8, "fps": 14.0, "loop": true},
+    {"key": "dash", "match": "dodge|roll|dash|run", "search": "dodge", "frames": 6, "fps": 20.0, "loop": false},
+    {"key": "attack", "match": "attack|slash|punch", "action_id": 4, "frames": 6, "fps": 16.0, "loop": false},
+    {"key": "hit", "match": "hit|hurt|damage", "search": "hit", "frames": 4, "fps": 12.0, "loop": false},
+    {"key": "death", "match": "death|dead|dying|die", "search": "death", "frames": 6, "fps": 10.0, "loop": false}
   ]
 }

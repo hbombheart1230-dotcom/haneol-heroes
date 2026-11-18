@@ -129,6 +129,36 @@ class PipelineTest(unittest.TestCase):
         self.assertIn('path="res://assets/sprites/hero_t/hero_t.tres" id="8_sheet"', text)
         self.assertNotIn("knight", text)
 
+    def _glb(self, name):
+        path = os.path.join(self.tmp, name)
+        with open(path, "wb") as f:
+            f.write(b"glTF")
+        return path
+
+    def test_import_single_file_uses_match_lists(self):
+        mp.import_files(self.cfg, [self._glb("Meshy Model (1).glb")])
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        self.assertEqual(job["model"], "res://assets/models/meshy/hero_t/Meshy_Model__1_.glb")
+        self.assertEqual(len(job["anims"]), 6)
+        self.assertTrue(all("from" not in a for a in job["anims"]))
+        self.assertEqual(job["anims"][2]["src"], "dodge|roll|dash|run")
+
+    def test_import_per_animation_files(self):
+        files = [self._glb(n) for n in ("hero_Idle.glb", "hero_Running.glb", "hero_Attack.glb")]
+        mp.import_files(self.cfg, files)
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        by_key = {a["key"]: a for a in job["anims"]}
+        self.assertTrue(job["model"].endswith("hero_Idle.glb"))
+        self.assertNotIn("from", by_key["idle"])
+        self.assertTrue(by_key["run"]["from"].endswith("hero_Running.glb"))
+        self.assertTrue(by_key["dash"]["from"].endswith("hero_Running.glb"))  # 회피 없으면 달리기
+        self.assertTrue(by_key["attack"]["from"].endswith("hero_Attack.glb"))
+        self.assertNotIn("hit", by_key)  # 파일 없는 동작은 건너뜀 (게임은 대기로 대신)
+
+    def test_import_rejects_non_glb(self):
+        with self.assertRaises(SystemExit):
+            mp.import_files(self.cfg, [self._glb("model.fbx")])
+
     def test_missing_key_message(self):
         with mock.patch.dict(os.environ, {"MESHY_API_KEY": ""}):
             with self.assertRaises(api.MeshyError):

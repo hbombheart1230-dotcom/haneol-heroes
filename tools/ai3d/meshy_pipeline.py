@@ -4,6 +4,8 @@
   python tools/ai3d/meshy_pipeline.py actions [검색어]          # 동작 라이브러리 조회 (무료)
   python tools/ai3d/meshy_pipeline.py plan tools/ai3d/heroes/yi_sun_sin.json   # 할 일·예상 크레딧만 표시
   python tools/ai3d/meshy_pipeline.py run  tools/ai3d/heroes/yi_sun_sin.json --yes
+  python tools/ai3d/meshy_pipeline.py import tools/ai3d/heroes/yi_sun_sin.json 받은파일.glb [더.glb ...]
+      # 무료 플랜: meshy.ai 웹에서 만든 뼈대·동작 .glb를 받아 굽기·적용만 한다 (API 키 불필요)
 
 - 진행 상태는 assets/models/meshy/<name>/state.json에 남겨 중간에 끊겨도 이어서 한다
   (이미 성공한 유료 작업은 다시 요청하지 않는다). 처음부터 다시: --restart <단계>(model|rig|anim).
@@ -15,6 +17,7 @@ import glob
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -116,6 +119,48 @@ def write_bake_job(cfg: dict, state: dict) -> str:
     return path
 
 
+def import_files(cfg: dict, files: list) -> str:
+    """웹에서 받은 .glb들을 모델 폴더로 복사하고 굽기 설정을 쓴다.
+    파일 하나 = 모든 동작이 든 파일. 여러 개 = 동작별 파일 (파일 이름에 match 후보가 들어 있으면 그 동작)."""
+    name = cfg["name"]
+    out_dir = rel(f"assets/models/meshy/{name}")
+    os.makedirs(out_dir, exist_ok=True)
+    res = []
+    for src in files:
+        if not src.lower().endswith(".glb"):
+            raise SystemExit(f".glb 파일만 받습니다: {src}")
+        base = re.sub(r"[^A-Za-z0-9_.-]", "_", os.path.basename(src))
+        shutil.copyfile(src, os.path.join(out_dir, base))
+        res.append(f"res://assets/models/meshy/{name}/{base}")
+
+    def file_for(match: str) -> str:
+        for cand in match.lower().split("|"):
+            for r in res:
+                if cand in os.path.basename(r).lower():
+                    return r
+        return ""
+
+    model = file_for(cfg["anims"][0]["match"]) or res[0]
+    anims = []
+    for a in cfg["anims"]:
+        entry = {"key": a["key"], "src": a["match"], "frames": a["frames"], "fps": a["fps"], "loop": a["loop"]}
+        if len(res) > 1:
+            src_file = file_for(a["match"])
+            if not src_file:
+                print(f"  경고: '{a['key']}' 동작 파일을 찾지 못해 건너뜁니다 (파일 이름에 {a['match']} 중 하나 필요)")
+                continue
+            if src_file != model:
+                entry["from"] = src_file
+        anims.append(entry)
+    job = {"name": name, "model": model, "ortho_size": cfg["bake"]["ortho_size"],
+           "frame": cfg["bake"]["frame"], "anims": anims}
+    path = rel(f"tools/bake/jobs/{name}.json")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(job, f, ensure_ascii=False, indent=2)
+    return path
+
+
 def find_godot(arg: str) -> str:
     if arg:
         return arg
@@ -185,8 +230,9 @@ def run(cfg: dict, args: argparse.Namespace) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("command", choices=("actions", "plan", "run"))
-    p.add_argument("target", nargs="?", default="", help="설정 JSON (plan/run) 또는 검색어 (actions)")
+    p.add_argument("command", choices=("actions", "plan", "run", "import"))
+    p.add_argument("target", nargs="?", default="", help="설정 JSON (plan/run/import) 또는 검색어 (actions)")
+    p.add_argument("files", nargs="*", help="import: 웹에서 받은 .glb 파일들")
     p.add_argument("--yes", action="store_true", help="유료 작업 진행 확인")
     p.add_argument("--restart", choices=STAGES, help="이 단계부터 다시 요청")
     p.add_argument("--no-bake", action="store_true", help="다운로드까지만")
@@ -199,7 +245,15 @@ def main() -> None:
             return
         with open(args.target, encoding="utf-8") as f:
             cfg = json.load(f)
-        if args.command == "plan":
+        if args.command == "import":
+            if not args.files:
+                raise SystemExit("가져올 .glb 파일을 주세요.")
+            print("굽기 설정:", import_files(cfg, args.files))
+            if not args.no_bake:
+                bake(find_godot(args.godot), cfg["name"])
+                apply_to_hero(cfg)
+            print("완료")
+        elif args.command == "plan":
             plan(cfg, load_state(rel(f"assets/models/meshy/{cfg['name']}")))
         else:
             run(cfg, args)

@@ -76,3 +76,14 @@ func test_every_hero_skill_has_an_icon() -> void:
 	var kit: SkillKit = HERO.kit
 	for def in [kit.tap, kit.dash, kit.charge, kit.counter]:
 		assert_object((def as SkillDef).icon).is_not_null()
+
+
+func test_missing_animation_falls_back() -> void:
+	var sheet := SpriteSheetSet.new()
+	sheet.anim_names = PackedStringArray(["idle", "run"])
+	var v: PlayerView = auto_free(PlayerView.new())
+	v._sheet = sheet
+	assert_str(v.available_anim("run")).is_equal("run")
+	assert_str(v.available_anim("dash")).is_equal("run")
+	assert_str(v.available_anim("attack")).is_equal("idle")
+	assert_str(v.available_anim("death")).is_equal("idle")
