@@ -1,0 +1,24 @@
+{
+  "name": "yi_sun_sin",
+  "image": "assets/concept/yi_sun_sin/front.png",
+  "image_to_3d": {
+    "ai_model": "latest",
+    "should_texture": true,
+    "pose_mode": "a-pose",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 20000,
+    "target_formats": ["glb"]
+  },
+  "height_meters": 1.8,
+  "hero_data": "data/heroes/yi_sun_sin.tres",
+  "bake": {"ortho_size": 3.4, "frame": 192},
+  "anims": [
+    {"key": "idle", "search": "idle", "frames": 8, "fps": 8.0, "loop": true},
+    {"key": "run", "search": "run", "frames": 8, "fps": 14.0, "loop": true},
+    {"key": "dash", "search": "dodge", "frames": 6, "fps": 20.0, "loop": false},
+    {"key": "attack", "action_id": 4, "frames": 6, "fps": 16.0, "loop": false},
+    {"key": "hit", "search": "hit", "frames": 4, "fps": 12.0, "loop": false},
+    {"key": "death", "search": "death", "frames": 6, "fps": 10.0, "loop": false}
+  ]
+}

@@ -71,16 +71,39 @@ func _bake_all() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--only="):
 			only = arg.substr(7)
-	for job in JOBS:
+	for job in _all_jobs():
 		if only == "" or job["name"] == only:
 			await _bake(job)
 	print("BAKE DONE")
 	quit()
 
 
+## JOBS + tools/bake/jobs/*.json (AI 3D 도구 tools/ai3d가 만든 굽기 설정).
+func _all_jobs() -> Array:
+	var jobs: Array = JOBS.duplicate()
+	var dir := "res://tools/bake/jobs"
+	for file in DirAccess.get_files_at(dir):
+		if file.ends_with(".json"):
+			var job: Variant = JSON.parse_string(FileAccess.get_file_as_string("%s/%s" % [dir, file]))
+			if job is Dictionary:
+				jobs.append(job)
+	return jobs
+
+
+## 애니메이션 이름 찾기: 정확히 같은 이름 → 대소문자 무시 포함 (가져오기 때 이름이 조금 바뀌는 경우).
+static func find_anim(ap: AnimationPlayer, src: String) -> String:
+	if ap.has_animation(src):
+		return src
+	for anim_name in ap.get_animation_list():
+		if String(anim_name).to_lower().contains(src.to_lower()):
+			return anim_name
+	push_error("animation not found: %s (have %s)" % [src, ap.get_animation_list()])
+	return ""
+
+
 func _setup(job: Dictionary) -> AnimationPlayer:
 	_vp = SubViewport.new()
-	_vp.size = Vector2i(job["frame"], job["frame"])
+	_vp.size = Vector2i(int(job["frame"]), int(job["frame"]))
 	_vp.transparent_bg = true
 	_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(_vp)
@@ -113,20 +136,23 @@ func _setup(job: Dictionary) -> AnimationPlayer:
 
 func _bake(job: Dictionary) -> void:
 	var ap := _setup(job)
-	var FRAME: int = job["frame"]
+	var FRAME: int = int(job["frame"])
 	var out_dir := "res://assets/sprites/%s" % job["name"]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	var meta: Array = []
 	for anim in job["anims"]:
-		var frames: int = anim["frames"]
+		var frames: int = int(anim["frames"])
 		var sheet := Image.create(FRAME * frames, FRAME * DIRS, false, Image.FORMAT_RGBA8)
-		var a: Animation = ap.get_animation(anim["src"])
+		var src := find_anim(ap, anim["src"])
+		if src == "":
+			continue
+		var a: Animation = ap.get_animation(src)
 		for d in DIRS:
 			# 방향 d: 화면 오른쪽(0)부터 시계 방향 45도씩 (화면 y는 아래)
 			var sd := Vector2.from_angle(d * TAU / DIRS)
 			_pivot.rotation.y = atan2(sd.x, sd.y)
 			for f in frames:
-				ap.play(anim["src"])
+				ap.play(src)
 				var t := a.length * f / float(frames if anim["loop"] else maxi(frames - 1, 1))
 				ap.seek(minf(t, a.length), true)
 				ap.pause()
@@ -137,7 +163,7 @@ func _bake(job: Dictionary) -> void:
 				sheet.blit_rect(img, Rect2i(0, 0, FRAME, FRAME), Vector2i(f * FRAME, d * FRAME))
 		var png := "%s/%s.png" % [out_dir, anim["key"]]
 		sheet.save_png(ProjectSettings.globalize_path(png))
-		meta.append({"key": anim["key"], "png": png, "frames": frames, "fps": anim["fps"], "loop": anim["loop"]})
+		meta.append({"key": anim["key"], "png": png, "frames": frames, "fps": float(anim["fps"]), "loop": anim["loop"]})
 		print("baked ", png)
 	_write_set(job["name"], out_dir, meta, FRAME)
 	_vp.queue_free()
