@@ -97,11 +97,21 @@ static func find_anim(ap: AnimationPlayer, src: String, quiet: bool = false) -> 
 		if ap.has_animation(cand):
 			return cand
 		for anim_name in ap.get_animation_list():
-			if String(anim_name).to_lower().contains(cand.to_lower()):
+			if name_matches(anim_name, cand):
 				return anim_name
 	if not quiet:
 		push_error("animation not found: %s (have %s)" % [src, ap.get_animation_list()])
 	return ""
+
+
+## 후보가 이름 속 어떤 단어의 앞부분이면 일치 (Running_A ← run, Soldier_Idle ← die 아님).
+## 단어 = 영문자 덩어리, 낙타 표기도 나눈다 (HitReaction → hit, reaction). tools/ai3d의 name_matches와 같다.
+static func name_matches(anim_name: String, cand: String) -> bool:
+	var re := RegEx.create_from_string("[A-Z]?[a-z]+|[A-Z]+(?![a-z])")
+	for m in re.search_all(anim_name):
+		if m.get_string().to_lower().begins_with(cand.to_lower()):
+			return true
+	return false
 
 
 ## 동작이 다른 .glb에 따로 있으면 (웹에서 동작별로 받은 파일) 같은 뼈대로 보고 가져와 붙인다.

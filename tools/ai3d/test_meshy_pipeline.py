@@ -155,6 +155,18 @@ class PipelineTest(unittest.TestCase):
         self.assertTrue(by_key["attack"]["from"].endswith("hero_Attack.glb"))
         self.assertNotIn("hit", by_key)  # 파일 없는 동작은 건너뜀 (게임은 대기로 대신)
 
+    def test_name_matching_is_word_based(self):
+        self.assertTrue(mp.name_matches("hero_Running", "run"))
+        self.assertTrue(mp.name_matches("HitReaction", "hit"))
+        for text, cand in (("soldier", "die"), ("prerunner", "run"), ("white", "hit")):
+            self.assertFalse(mp.name_matches(text, cand), (text, cand))
+
+    def test_import_sanitised_name_collision_keeps_both(self):
+        files = [self._glb("a b.glb"), self._glb("a?b.glb") if os.name != "nt" else self._glb("a#b.glb")]
+        mp.import_files(self.cfg, files)
+        out = sorted(os.listdir(os.path.join(self.tmp, "assets/models/meshy/hero_t")))
+        self.assertEqual(out, ["a_b.glb", "a_b_2.glb"])
+
     def test_import_rejects_non_glb(self):
         with self.assertRaises(SystemExit):
             mp.import_files(self.cfg, [self._glb("model.fbx")])

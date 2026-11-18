@@ -119,6 +119,17 @@ def write_bake_job(cfg: dict, state: dict) -> str:
     return path
 
 
+def name_words(text: str) -> list:
+    """이름을 단어로 나눈다: 기호·숫자 경계와 낙타 표기 (HitReaction → hit, reaction)."""
+    spaced = re.sub(r"([a-z])([A-Z])", r"\1 \2", text)
+    return [w for w in re.split(r"[^A-Za-z]+", spaced.lower()) if w]
+
+
+def name_matches(text: str, cand: str) -> bool:
+    """후보가 어떤 단어의 앞부분이면 일치 (run → Running, soldier는 die와 불일치)."""
+    return any(w.startswith(cand.lower()) for w in name_words(text))
+
+
 def import_files(cfg: dict, files: list) -> str:
     """웹에서 받은 .glb들을 모델 폴더로 복사하고 굽기 설정을 쓴다.
     파일 하나 = 모든 동작이 든 파일. 여러 개 = 동작별 파일 (파일 이름에 match 후보가 들어 있으면 그 동작)."""
@@ -130,13 +141,17 @@ def import_files(cfg: dict, files: list) -> str:
         if not src.lower().endswith(".glb"):
             raise SystemExit(f".glb 파일만 받습니다: {src}")
         base = re.sub(r"[^A-Za-z0-9_.-]", "_", os.path.basename(src))
+        stem, n = base[:-4], 2
+        while f"res://assets/models/meshy/{name}/{base}" in res:  # 이름 정리 후 겹치면 번호를 붙인다
+            base = f"{stem}_{n}.glb"
+            n += 1
         shutil.copyfile(src, os.path.join(out_dir, base))
         res.append(f"res://assets/models/meshy/{name}/{base}")
 
     def file_for(match: str) -> str:
         for cand in match.lower().split("|"):
             for r in res:
-                if cand in os.path.basename(r).lower():
+                if name_matches(os.path.basename(r)[:-4], cand):
                     return r
         return ""
 
