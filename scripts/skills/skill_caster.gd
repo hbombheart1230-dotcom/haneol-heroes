@@ -148,6 +148,15 @@ func gesture_up(index: int, time: float) -> Slot:
 	return on_release(index, time)
 
 
+## 이동 손가락을 뗄 때 대시 중·직후면 dash 기술 (실기기 피드백: 튕기고 탭은 너무 안 나옴).
+## 반환: 발동했으면 true.
+func try_dash_release() -> bool:
+	if player == null or player.is_dead() or not _dash_link() or not is_ready(Slot.DASH):
+		return false
+	cast(Slot.DASH)
+	return true
+
+
 ## 플릭(대시) 등으로 이 제스처를 스킬 없이 끝낸다.
 func gesture_cancel(index: int) -> void:
 	if input.is_from(SkillInput.Source.GESTURE) and input.index == index:

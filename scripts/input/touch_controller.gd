@@ -102,13 +102,17 @@ func _on_up(index: int, pos: Vector2, time: float, canceled: bool) -> bool:
 		return true
 	var charging := _is_charging()
 	var flick := touch_input.touch_up(index, pos, time)
+	if not charging:
+		_on_flick(flick, time)  # 대시를 먼저 시작해야 아래에서 대시 연계로 판정된다
 	if skill_caster:
-		if flick != Vector2.ZERO and not charging:
+		if charging:
+			skill_caster.gesture_up(index, time)
+		elif gestures_enabled and skill_caster.try_dash_release():
+			skill_caster.gesture_cancel(index)  # 대시 중·직후 손 떼기 = 파도격
+		elif flick != Vector2.ZERO:
 			skill_caster.gesture_cancel(index)
 		else:
 			skill_caster.gesture_up(index, time)
-	if not charging:
-		_on_flick(flick, time)
 	return true
 
 

@@ -89,18 +89,59 @@ func test_drag_is_move_not_skill() -> void:
 	assert_array(casts).is_empty()
 
 
-func test_flick_then_tap_is_dash_skill() -> void:
+func test_flick_release_fires_dash_and_dash_skill() -> void:
 	_down(0, Vector2(300, 900), 0.0)
-	_up(0, Vector2(420, 900), 0.06)  # 오른쪽 플릭
+	_up(0, Vector2(420, 900), 0.06)  # 오른쪽으로 튕기며 손 떼기
 	assert_bool(player.is_dashing()).is_true()
-	assert_array(casts).is_empty()  # 플릭 자체는 스킬 아님
-	_step(0.07)
-	_down(0, Vector2(430, 900), 0.15)
-	_up(0, Vector2(431, 900), 0.22)
-	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_false()  # 즉시 발동
+	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_false()  # 파도격 즉시 발동
 	for i in 20:  # 연타가 끝나면 발동 완료 신호
-		caster.tick(DT, 0.22 + DT * i)
+		caster.tick(DT, 0.06 + DT * i)
 	assert_array(casts).is_equal([SkillCaster.Slot.DASH])
+
+
+func test_release_within_link_after_mid_drag_flick_fires_dash_skill() -> void:
+	_down(0, Vector2(300, 900), 0.0)
+	var t := 0.0
+	var x := 300.0
+	for i in 5:  # 드래그 도중 플릭
+		t += DT
+		x += 30.0
+		_drag(0, Vector2(x, 900), t)
+	assert_bool(player.is_dashing()).is_true()
+	for i in 15:  # 손을 댄 채 0.25초 (대시 0.16 + 연계 0.45 안)
+		t += DT
+		_step(t)
+	_up(0, Vector2(x, 900), t)
+	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_false()
+
+
+func test_release_after_link_window_no_dash_skill() -> void:
+	_down(0, Vector2(300, 900), 0.0)
+	var t := 0.0
+	var x := 300.0
+	for i in 5:
+		t += DT
+		x += 30.0
+		_drag(0, Vector2(x, 900), t)
+	for i in 50:  # 약 0.83초 유지 후 떼기: 연계 시간 지남
+		t += DT
+		_step(t)
+	_up(0, Vector2(x, 900), t)
+	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_true()
+	assert_array(casts).is_empty()
+
+
+func test_dash_skill_on_cooldown_second_flick_just_dashes() -> void:
+	_down(0, Vector2(300, 900), 0.0)
+	_up(0, Vector2(420, 900), 0.06)
+	var t := 0.06
+	for i in 20:
+		t += DT
+		_step(t)
+	_down(0, Vector2(420, 900), t)
+	_up(0, Vector2(300, 900), t + 0.05)  # 두 번째 플릭 (대시 2회 충전)
+	assert_bool(player.is_dashing()).is_true()
+	assert_array(casts).is_equal([SkillCaster.Slot.DASH])  # 파도격은 쿨타임이라 한 번만
 
 
 func test_tap_after_link_window_is_tap_skill() -> void:
@@ -112,7 +153,7 @@ func test_tap_after_link_window_is_tap_skill() -> void:
 		_step(t)
 	_down(0, Vector2(430, 900), t)
 	_up(0, Vector2(430, 900), t + 0.08)
-	assert_array(casts).is_equal([SkillCaster.Slot.TAP])
+	assert_array(casts).is_equal([SkillCaster.Slot.DASH, SkillCaster.Slot.TAP])
 
 
 func test_hold_in_place_charges_then_move_and_release_fires_charge() -> void:
@@ -144,19 +185,6 @@ func test_fast_release_while_charging_does_not_dash() -> void:
 	assert_bool(player.is_dashing()).is_false()
 	assert_array(casts).is_equal([SkillCaster.Slot.CHARGE])
 	_cleanup_projectiles()
-
-
-func test_mid_drag_flick_still_dashes_and_no_skill() -> void:
-	_down(0, Vector2(300, 900), 0.0)
-	var t := 0.0
-	var x := 300.0
-	for i in 5:
-		t += DT
-		x += 30.0
-		_drag(0, Vector2(x, 900), t)
-	assert_bool(player.is_dashing()).is_true()
-	_up(0, Vector2(x, 900), t + DT)
-	assert_array(casts).is_empty()
 
 
 func test_gestures_disabled_tap_does_nothing() -> void:
