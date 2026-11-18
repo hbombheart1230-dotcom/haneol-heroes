@@ -180,3 +180,49 @@ func test_counter_hit_stop_restores_time_scale() -> void:
 func test_hero_data_has_counter() -> void:
 	assert_object(HERO.kit.counter).is_instanceof(CounterSlashSkill)
 	assert_float(HERO.kit.counter_window).is_equal(1.0)
+
+
+# --- 회피 성공 즉시 무적 (파고들어 반격) ---
+
+func test_dash_out_of_circle_grants_invulnerability_immediately() -> void:
+	var a := _attack()
+	a.tick(DT, Vector2(60, 0), player)
+	_run_attack(a, Vector2(60, 0), CHASER.attack.windup - 0.3)
+	player.request_dash(Vector2.LEFT)
+	player.global_position = Vector2(-260, 0)
+	var results := _run_attack(a, Vector2(60, 0), 0.4)
+	assert_array(results).is_equal([EnemyAttack.Result.EVADED])
+	assert_float(player.skill_invuln_left()).is_greater(0.0)
+	assert_bool(player.is_dashing()).is_false()
+	assert_bool(player.apply_hit(10)).is_false()  # 대시가 끝났어도 무적
+	assert_bool(player.apply_contact_damage(DT, 10)).is_false()
+
+
+func test_evade_invulnerability_lasts_about_one_second() -> void:
+	player.register_evade()
+	assert_float(player.skill_invuln_left()).is_equal(player.evade_invuln_time)
+	for i in int(ceil(player.evade_invuln_time / DT)) + 1:
+		player.compute_velocity(DT)
+	assert_bool(player.apply_hit(10)).is_true()
+
+
+func test_invulnerable_inside_next_circle_is_not_another_evade() -> void:
+	# 무적으로 원 안에 서 있으면 피해는 없지만 회피(반격 기회)를 또 주지 않는다 (무한 반복 방지)
+	player.register_evade()
+	var a := _attack()
+	var evades := [0]
+	player.evaded.connect(func() -> void: evades[0] += 1)
+	a.tick(DT, Vector2(60, 0), player)
+	var results := _run_attack(a, Vector2(60, 0), 0.5)  # 0.6초 예고보다 짧게 → 아직 타격 전
+	assert_array(results).is_empty()
+	results = _run_attack(a, Vector2(60, 0), 0.15)
+	assert_array(results).is_equal([EnemyAttack.Result.MISSED])
+	assert_int(evades[0]).is_equal(0)
+	assert_int(player.health.current).is_equal(player.health.max)
+
+
+func test_hero_data_sets_evade_invulnerability() -> void:
+	var p: Player = auto_free(Player.new())
+	p.hero = HERO
+	add_child(p)
+	assert_float(p.evade_invuln_time).is_equal(HERO.evade_invuln_time)

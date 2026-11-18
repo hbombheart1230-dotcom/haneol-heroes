@@ -89,6 +89,7 @@ body_color = Color(0.15, 0.4, 0.8, 1)
 max_hp = 100
 move_speed = 340.0
 hurt_invuln_time = 0.6
+evade_invuln_time = 1.0
 dash_distance = 260.0
 dash_duration = 0.16
 max_dash_charges = 2

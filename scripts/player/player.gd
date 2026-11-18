@@ -18,6 +18,8 @@ signal evaded
 @export var dash_recharge_time: float = 1.2
 ## 피격 후 무적 시간(초).
 @export var hurt_invuln_time: float = 0.6
+## 적 공격을 대시로 피한(예고 원을 벗어난) 순간부터 무적 시간(초). 파고들어 반격하기 위함.
+@export var evade_invuln_time: float = 1.0
 ## 플레이어가 벗어날 수 없는 영역 (월드 좌표). 크기가 0이면 제한 없음.
 @export var arena_rect: Rect2 = Rect2()
 @export var body_radius: float = 26.0
@@ -31,6 +33,8 @@ var dash: DashCharges
 var health: Health
 
 var _hurt_cd: float = 0.0
+## 회피 성공 등으로 얻은 추가 무적 남은 시간(초).
+var _skill_invuln: float = 0.0
 var _dash_dir: Vector2 = Vector2.ZERO
 var _dash_time_left: float = 0.0
 ## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력 판정용.
@@ -60,6 +64,7 @@ func apply_hero(h: HeroData) -> void:
 	max_dash_charges = h.max_dash_charges
 	dash_recharge_time = h.dash_recharge_time
 	hurt_invuln_time = h.hurt_invuln_time
+	evade_invuln_time = h.evade_invuln_time
 	if health:
 		health.max = h.max_hp
 		health.current = h.max_hp
@@ -69,9 +74,18 @@ func is_dashing() -> bool:
 	return _dash_time_left > 0.0
 
 
-## 대시 중이거나 피격 직후면 피해를 받지 않는다.
+## 대시 중, 피격 직후, 회피 무적 중이면 피해를 받지 않는다.
 func is_invulnerable() -> bool:
-	return is_dashing() or _hurt_cd > 0.0
+	return is_dashing() or _hurt_cd > 0.0 or _skill_invuln > 0.0
+
+
+## 추가 무적 부여 (더 긴 쪽 유지).
+func grant_invulnerability(seconds: float) -> void:
+	_skill_invuln = maxf(_skill_invuln, seconds)
+
+
+func skill_invuln_left() -> float:
+	return _skill_invuln
 
 
 func hurt_time_left() -> float:
@@ -109,7 +123,9 @@ func dashed_out_of(center: Vector2, radius: float, within: float) -> bool:
 	return _since_dash_start <= within and _dash_start_pos.distance_to(center) <= radius
 
 
+## 회피 성공: 즉시 무적 + evaded 신호 (반격 시간 시작).
 func register_evade() -> void:
+	grant_invulnerability(evade_invuln_time)
 	evaded.emit()
 
 
@@ -161,6 +177,7 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 func compute_velocity(delta: float) -> Vector2:
 	dash.update(delta)
 	_since_dash_start += delta
+	_skill_invuln = maxf(_skill_invuln - delta, 0.0)
 	if not is_dashing():
 		_since_dash_end += delta
 		return move_input * move_speed
