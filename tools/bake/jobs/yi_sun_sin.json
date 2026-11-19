@@ -1,14 +1,14 @@
 {
   "name": "yi_sun_sin",
   "model": "res://assets/models/meshy/yi_sun_sin/animated.glb",
-  "ortho_size": 2.3,
-  "frame": 160,
+  "ortho_size": 2.0,
+  "frame": 256,
   "style": "ink",
   "ink": {
-    "inner_line": 0.2,
+    "inner_line": 0.0,
     "line_px": 1.6,
-    "color_keep": 0.85,
-    "grain": 0.15
+    "wash_amount": 0.25,
+    "grain": 0.0
   },
   "anims": [
     {
@@ -53,5 +53,6 @@
       "fps": 10.0,
       "loop": false
     }
-  ]
+  ],
+  "lossy_quality": 0.58
 }
