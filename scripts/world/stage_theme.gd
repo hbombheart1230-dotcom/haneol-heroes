@@ -8,6 +8,8 @@ extends Resource
 @export var year_label: String = ""
 @export var title: String = ""
 @export_multiline var subtitle: String = ""
+## 무대 배경 음악 (반복).
+@export var music: AudioStream
 
 @export_group("바닥")
 @export var floor_base: Color = Color(0.92, 0.88, 0.79)
@@ -19,6 +21,15 @@ extends Resource
 @export var rock_per_mpx: float = 1.6
 @export var grass_color: Color = Color(0.25, 0.27, 0.16, 0.55)
 @export var rock_color: Color = Color(0.2, 0.19, 0.17, 0.6)
+@export_group("소품 (그림)")
+## 사용자 그림에서 잘라 낸 소품 (바위·수레·깃발 등). 바닥에 흩뿌린다.
+@export var prop_textures: Array[Texture2D] = []
+## 바닥 1000×1000px당 그림 소품 수.
+@export var picture_props_per_mpx: float = 3.0
+## 그림 소품 표시 배율 범위.
+@export var prop_scale_min: float = 0.55
+@export var prop_scale_max: float = 0.8
+
 ## 시작 위치 주변은 비워 둔다 (px).
 @export var clear_radius: float = 260.0
 @export var seed: int = 395

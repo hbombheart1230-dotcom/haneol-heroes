@@ -85,6 +85,8 @@ func _start_flow() -> void:
 		_begin_build()
 		waiting_pick = false
 		get_tree().paused = false
+		if Feedback.instance and run_config and run_config.stage:
+			Feedback.instance.play_music(run_config.stage.music)
 
 
 func _hold() -> void:
@@ -93,6 +95,7 @@ func _hold() -> void:
 
 
 func _on_title_entered() -> void:
+	Feedback.ui()
 	GameSettings.title_seen = true
 	_start_flow()
 
@@ -119,6 +122,7 @@ func _begin_build() -> void:
 
 
 func _on_hero_picked(h: HeroData) -> void:
+	Feedback.ui()
 	GameSettings.hero_id = h.id
 	GameSettings.hero_picked = true
 	GameSettings.save_settings()
@@ -213,6 +217,7 @@ func _offer_next() -> void:
 
 
 func _on_upgrade_chosen(u: UpgradeDef, major: bool) -> void:
+	Feedback.ui()
 	build.apply(u)
 	if major:
 		major_pending = maxi(major_pending - 1, 0)

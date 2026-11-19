@@ -5,7 +5,7 @@ extends Node2D
 
 var theme: StageTheme
 var rect: Rect2
-## [위치, 종류(0 풀, 1 바위), 크기, 모양 씨앗]
+## [위치, 종류(0 풀, 1 바위, 2 그림), 크기(그림이면 배율), 모양 씨앗(그림이면 그림 번호)]
 var items: Array = []
 
 
@@ -30,6 +30,25 @@ static func scatter(t: StageTheme, r: Rect2) -> Array:
 				continue
 			var size := rng.randf_range(24.0, 42.0) if kind == 0 else rng.randf_range(22.0, 48.0)
 			out.append([p, kind, size, rng.randf() * 100.0])
+	if not t.prop_textures.is_empty():
+		var n := roundi(area_m * t.picture_props_per_mpx)
+		var placed: Array[Vector2] = []
+		for i in n * 3:  # 서로 너무 붙지 않게 몇 번 다시 뽑는다
+			if placed.size() >= n:
+				break
+			var idx := rng.randi() % t.prop_textures.size()
+			var sc := rng.randf_range(t.prop_scale_min, t.prop_scale_max)
+			var size := t.prop_textures[idx].get_size() * sc
+			# 그림 전체가 경기장 안에 들어가게 (아래 가운데 기준), 시작 지점 빈 원과도 겹치지 않게 (Codex 25dc72d)
+			var p := Vector2(rng.randf_range(r.position.x + size.x * 0.5, r.end.x - size.x * 0.5),
+				rng.randf_range(r.position.y + size.y * 0.92, r.end.y - size.y * 0.08))
+			var box := picture_rect(p, size)
+			var crowded := placed.any(func(q: Vector2) -> bool: return q.distance_to(p) < 220.0)
+			if not r.encloses(box) or _rect_distance_to_origin(box) < t.clear_radius or crowded:
+				continue
+			placed.append(p)
+			out.append([p, 2, sc, idx])
+	out.sort_custom(func(x: Array, y: Array) -> bool: return (x[0] as Vector2).y < (y[0] as Vector2).y)  # 위에서 아래로
 	return out
 
 
@@ -40,10 +59,30 @@ func _draw() -> void:
 		var p: Vector2 = it[0]
 		var s: float = it[2]
 		var sd: float = it[3]
-		if it[1] == 0:
-			_grass(p, s, sd)
-		else:
-			_rock(p, s, sd)
+		match it[1]:
+			0:
+				_grass(p, s, sd)
+			1:
+				_rock(p, s, sd)
+			_:
+				_picture(p, s, int(sd))
+
+
+## 그림 소품이 그려지는 영역 (아래 가운데 = p).
+static func picture_rect(p: Vector2, size: Vector2) -> Rect2:
+	return Rect2(p - Vector2(size.x * 0.5, size.y * 0.92), size)
+
+
+static func _rect_distance_to_origin(box: Rect2) -> float:
+	return Vector2.ZERO.clamp(box.position, box.end).length()
+
+
+## 그림 소품: 아래 가운데를 바닥 위치에 맞추고 옅은 그림자를 깐다.
+func _picture(p: Vector2, scale: float, index: int) -> void:
+	var tex := theme.prop_textures[index]
+	var size := tex.get_size() * scale
+	Ink.shadow(self, p + Vector2(0, -4), size.x * 0.42)
+	draw_texture_rect(tex, picture_rect(p, size), false)
 
 
 func _grass(p: Vector2, s: float, sd: float) -> void:

@@ -3,6 +3,10 @@
 [ext_resource type="Script" path="res://scripts/run/upgrade_pool.gd" id="1_pool"]
 [ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="2_up"]
 [ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="3_mod"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/constellation.png" id="i_constellation"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/jeongeum.png" id="i_jeongeum"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/meteor.png" id="i_meteor"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/sundial.png" id="i_sundial"]
 
 [sub_resource type="Resource" id="Mod_jeong_dmg_0"]
 script = ExtResource("3_mod")
@@ -14,6 +18,7 @@ value = 1.4
 [sub_resource type="Resource" id="Up_jeong_dmg"]
 script = ExtResource("2_up")
 id = &"jeong_dmg"
+icon = ExtResource("i_jeongeum")
 title = "정음진 · 굳센 획"
 description = "글자 피해 +40%"
 color = Color(0.86, 0.68, 0.32, 1)
@@ -31,6 +36,7 @@ value = 1.2
 [sub_resource type="Resource" id="Up_jeong_wide"]
 script = ExtResource("2_up")
 id = &"jeong_wide"
+icon = ExtResource("i_jeongeum")
 title = "정음진 · 넓은 고리"
 description = "고리 반경 +20%"
 color = Color(0.86, 0.68, 0.32, 1)
@@ -48,6 +54,7 @@ value = 1.5
 [sub_resource type="Resource" id="Up_jeong_long"]
 script = ExtResource("2_up")
 id = &"jeong_long"
+icon = ExtResource("i_jeongeum")
 title = "정음진 · 긴 울림"
 description = "지속 +1.5초"
 color = Color(0.86, 0.68, 0.32, 1)
@@ -65,6 +72,7 @@ value = 0.8
 [sub_resource type="Resource" id="Up_jeong_quick"]
 script = ExtResource("2_up")
 id = &"jeong_quick"
+icon = ExtResource("i_jeongeum")
 title = "정음진 · 빠른 붓"
 description = "재사용 대기 -20%"
 color = Color(0.86, 0.68, 0.32, 1)
@@ -82,6 +90,7 @@ value = 1.4
 [sub_resource type="Resource" id="Up_meteor_dmg"]
 script = ExtResource("2_up")
 id = &"meteor_dmg"
+icon = ExtResource("i_meteor")
 title = "유성 · 무거운 별"
 description = "피해 +40%"
 color = Color(0.3, 0.45, 0.8, 1)
@@ -99,6 +108,7 @@ value = 1.25
 [sub_resource type="Resource" id="Up_meteor_wide"]
 script = ExtResource("2_up")
 id = &"meteor_wide"
+icon = ExtResource("i_meteor")
 title = "유성 · 큰 별"
 description = "범위 +25%"
 color = Color(0.3, 0.45, 0.8, 1)
@@ -116,6 +126,7 @@ value = 1.0
 [sub_resource type="Resource" id="Up_star_more"]
 script = ExtResource("2_up")
 id = &"star_more"
+icon = ExtResource("i_constellation")
 title = "성좌진 · 많은 별"
 description = "최대 별 +1"
 color = Color(0.86, 0.68, 0.32, 1)
@@ -133,6 +144,7 @@ value = 1.35
 [sub_resource type="Resource" id="Up_star_dmg"]
 script = ExtResource("2_up")
 id = &"star_dmg"
+icon = ExtResource("i_constellation")
 title = "성좌진 · 밝은 별"
 description = "피해 +35%"
 color = Color(0.86, 0.68, 0.32, 1)
@@ -150,6 +162,7 @@ value = 0.75
 [sub_resource type="Resource" id="Up_star_fast"]
 script = ExtResource("2_up")
 id = &"star_fast"
+icon = ExtResource("i_constellation")
 title = "성좌진 · 빠른 관측"
 description = "충전 시간 -25%"
 color = Color(0.86, 0.68, 0.32, 1)
@@ -167,6 +180,7 @@ value = 0.5
 [sub_resource type="Resource" id="Up_sundial_long"]
 script = ExtResource("2_up")
 id = &"sundial_long"
+icon = ExtResource("i_sundial")
 title = "해시계 · 긴 그림자"
 description = "느려짐 +0.5초"
 color = Color(0.72, 0.15, 0.12, 1)
@@ -184,6 +198,7 @@ value = 1.5
 [sub_resource type="Resource" id="Up_sundial_dmg"]
 script = ExtResource("2_up")
 id = &"sundial_dmg"
+icon = ExtResource("i_sundial")
 title = "해시계 · 정오"
 description = "반격 피해 +50%"
 color = Color(0.72, 0.15, 0.12, 1)

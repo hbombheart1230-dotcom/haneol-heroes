@@ -11,6 +11,10 @@
 [ext_resource type="Script" path="res://scripts/heroes/shin_saimdang/ink_bleed_skill.gd" id="s1"]
 [ext_resource type="Script" path="res://scripts/heroes/shin_saimdang/canvas_skill.gd" id="s2"]
 [ext_resource type="Script" path="res://scripts/heroes/shin_saimdang/plum_skill.gd" id="s3"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/critters.png" id="i_critters"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/ink_bleed.png" id="i_ink_bleed"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/canvas.png" id="i_canvas"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/plum.png" id="i_plum"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -27,6 +31,8 @@ ranged_lifetime = 0.75
 
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
+sfx = &"magic"
+icon = ExtResource("i_critters")
 id = &"critters"
 display_name = "풀벌레 부르기"
 cooldown = 9.0
@@ -35,6 +41,8 @@ fx_color = Color(0.9, 0.5, 0.65, 1)
 
 [sub_resource type="Resource" id="Skill_dash"]
 script = ExtResource("s1")
+sfx = &"magic"
+icon = ExtResource("i_ink_bleed")
 id = &"ink_bleed"
 display_name = "발묵"
 cooldown = 3.5
@@ -43,6 +51,8 @@ fx_color = Color(0.25, 0.22, 0.3, 1)
 
 [sub_resource type="Resource" id="Skill_charge"]
 script = ExtResource("s2")
+sfx = &"magic"
+icon = ExtResource("i_canvas")
 id = &"canvas"
 display_name = "화폭 펼치기"
 cooldown = 6.0
@@ -51,6 +61,7 @@ fx_color = Color(0.7, 0.5, 0.8, 1)
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("s3")
+icon = ExtResource("i_plum")
 id = &"plum"
 display_name = "매화 만개"
 cooldown = 0.0
