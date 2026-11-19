@@ -11,6 +11,18 @@ extends Resource
 ## 무대 배경 음악 (반복).
 @export var music: AudioStream
 
+@export_group("적 (망령 군대)")
+## 비어 있으면 장면(EnemySpawner)에 정해 둔 적을 그대로 쓴다.
+@export var spawn_table: Array[EnemyData] = []
+@export var spawn_weights: PackedFloat32Array = PackedFloat32Array()
+@export var unlock_times: PackedFloat32Array = PackedFloat32Array()
+@export var elite: EnemyData
+@export var boss: EnemyData
+## 고르기 화면 카드 그림 (없으면 첫 소품).
+@export var card_art: Texture2D
+## 이 무대의 주인공 (고르기 화면 표시용).
+@export var hero_hint: String = ""
+
 @export_group("바닥")
 @export var floor_base: Color = Color(0.92, 0.88, 0.79)
 @export var floor_stain: Color = Color(0.09, 0.09, 0.11)

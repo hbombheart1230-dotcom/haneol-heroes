@@ -14,6 +14,9 @@ extends Node2D
 @export var hero_select: HeroSelect
 ## 인트로(입장 단추). 앱을 켠 뒤 한 번만.
 @export var title_screen: TitleScreen
+## 고를 수 있는 무대 (역사 연표 순). 둘 이상이면 영웅 다음에 고르기 화면.
+@export var stages: Array[StageTheme] = []
+@export var stage_select: StageSelect
 ## 결과 화면에서 재시작 입력을 받기까지 대기(초). 연타로 바로 넘어가는 것을 막는다.
 @export var restart_delay: float = 0.6
 
@@ -51,9 +54,7 @@ func _ready() -> void:
 		player.change_hero(saved)
 	if spawner and run_config:
 		spawner.elite_times = run_config.elite_times
-	var arena := get_node_or_null("Arena") as Arena
-	if arena and run_config and run_config.stage:
-		arena.apply_theme(run_config.stage)
+	_apply_stage(run_config.stage if run_config else null)
 	if seal_choice:
 		seal_choice.chosen.connect(_on_upgrade_chosen)
 	state = GameState.new(survive_time)
@@ -81,7 +82,12 @@ func _start_flow() -> void:
 		_hold()
 		hero_select.picked.connect(_on_hero_picked, CONNECT_ONE_SHOT)
 		hero_select.open(heroes)
+	elif stages.size() > 1 and not GameSettings.stage_picked and stage_select:
+		_hold()
+		stage_select.picked.connect(_on_stage_picked, CONNECT_ONE_SHOT)
+		stage_select.open(stages)
 	else:
+		_apply_stage(stage_by_id(GameSettings.stage_id))
 		_begin_build()
 		waiting_pick = false
 		get_tree().paused = false
@@ -106,6 +112,42 @@ func playable_heroes() -> Array[HeroData]:
 		if h and h.playable:
 			out.append(h)
 	return out
+
+
+## 무대 바꾸기: 바닥·소품, 적 구성. 고르기 화면과 시작 때 부른다.
+func _apply_stage(st: StageTheme) -> void:
+	if st == null:
+		return
+	if run_config:
+		run_config.stage = st
+	var arena := get_node_or_null("Arena") as Arena
+	if arena:
+		arena.apply_theme(st)
+	if spawner and not st.spawn_table.is_empty():
+		spawner.spawn_table = st.spawn_table
+		spawner.spawn_weights = st.spawn_weights
+		spawner.unlock_times = st.unlock_times
+	if spawner and st.elite:
+		spawner.elite_data = st.elite
+	if spawner and st.boss:
+		spawner.boss_data = st.boss
+	if hud:
+		hud.stage = st
+
+
+func stage_by_id(id: StringName) -> StageTheme:
+	for st in stages:
+		if st and st.id == id:
+			return st
+	return run_config.stage if run_config else null
+
+
+func _on_stage_picked(st: StageTheme) -> void:
+	Feedback.ui()
+	GameSettings.stage_id = st.id
+	GameSettings.stage_picked = true
+	GameSettings.save_settings()
+	_start_flow()
 
 
 func hero_by_id(id: StringName) -> HeroData:
@@ -165,7 +207,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
 		if is_change_hero_area((event as InputEventScreenTouch).position):
-			GameSettings.hero_picked = false  # 다음 판 전에 고르기 화면
+			GameSettings.hero_picked = false  # 다음 판 전에 고르기 화면 (영웅 → 전장)
+			GameSettings.stage_picked = false
 		restart()
 
 

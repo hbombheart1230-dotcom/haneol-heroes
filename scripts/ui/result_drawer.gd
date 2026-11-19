@@ -32,4 +32,4 @@ static func draw(hud: Hud) -> void:
 	if hud.can_change_hero:
 		var band := Rect2(0, s.y - Hud.CHANGE_HERO_BAND, s.x, Hud.CHANGE_HERO_BAND)
 		var b := Rect2(band.get_center() - Vector2(170, 42), Vector2(340, 84))
-		UiStyle.button(hud, b, "영웅 바꾸기", 40)
+		UiStyle.button(hud, b, "영웅·전장 바꾸기", 36)

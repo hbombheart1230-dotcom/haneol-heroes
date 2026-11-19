@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+[ext_resource type="Resource" path="res://assets/sprites/waegun_gunner/waegun_gunner.tres" id="3_sheet"]
+
+[sub_resource type="Resource" id="Attack_shoot"]
+script = ExtResource("2_attack")
+kind = 1
+trigger_range = 420.0
+windup = 0.7
+damage = 12
+cooldown = 2.2
+recovery = 0.3
+projectile_speed = 520.0
+projectile_range = 650.0
+projectile_radius = 14.0
+
+[resource]
+script = ExtResource("1_enemy")
+id = &"waegun_gunner"
+display_name = "왜군 망령 철포병"
+max_hp = 20
+xp = 2
+move_speed = 100.0
+contact_damage = 5
+body_radius = 18.0
+color = Color(0.35, 0.75, 0.4, 1)
+attack = SubResource("Attack_shoot")
+preferred_range = 320.0
+knockback_scale = 1.0
+sprite_sheet = ExtResource("3_sheet")
+sprite_tint = Color(0.82, 0.9, 1, 1)
+sprite_scale = 1.33
+sprite_offset = Vector2(0, -65)

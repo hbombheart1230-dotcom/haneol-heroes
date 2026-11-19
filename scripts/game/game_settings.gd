@@ -15,6 +15,9 @@ static var hero_id: StringName = &""
 static var hero_picked: bool = false
 ## 이번 실행에서 인트로를 지나갔는지.
 static var title_seen: bool = false
+## 마지막으로 고른 무대 id, 이번 실행에서 무대를 골랐는지.
+static var stage_id: StringName = &""
+static var stage_picked: bool = false
 
 
 static func load_settings(path: String = "") -> void:
@@ -25,6 +28,7 @@ static func load_settings(path: String = "") -> void:
 		return
 	skill_button_enabled = bool(cfg.get_value(SECTION, "skill_button_enabled", skill_button_enabled))
 	hero_id = StringName(cfg.get_value("game", "hero_id", String(hero_id)))
+	stage_id = StringName(cfg.get_value("game", "stage_id", String(stage_id)))
 
 
 static func save_settings(path: String = "") -> Error:
@@ -34,4 +38,5 @@ static func save_settings(path: String = "") -> Error:
 	cfg.load(path)  # 다른 항목 보존 (없으면 무시)
 	cfg.set_value(SECTION, "skill_button_enabled", skill_button_enabled)
 	cfg.set_value("game", "hero_id", String(hero_id))
+	cfg.set_value("game", "stage_id", String(stage_id))
 	return cfg.save(path)
