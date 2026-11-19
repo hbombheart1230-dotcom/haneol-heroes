@@ -62,6 +62,7 @@ var _vp: SubViewport
 var _pivot: Node3D
 ## "style": "ink"이면 3D 렌더를 수묵 후처리 셰이더로 한 번 더 그린 화면 (없으면 null).
 var _post: SubViewport
+var _skel: Skeleton3D
 
 
 func _initialize() -> void:
@@ -182,7 +183,25 @@ func _setup(job: Dictionary) -> AnimationPlayer:
 	var model: Node3D = (load(job["model"]) as PackedScene).instantiate()
 	_pivot.add_child(model)
 	_post = _make_post(job) if job.get("style", "") == "ink" else null
+	_skel = _find_skeleton(model)
 	return model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+
+
+static func _find_skeleton(n: Node) -> Skeleton3D:
+	var found := n.find_children("*", "Skeleton3D", true, false)
+	return found[0] as Skeleton3D if not found.is_empty() else null
+
+
+## 동작이 몸을 앞으로 옮기는 경우(루트 모션) 뿌리 뼈의 수평 이동을 지워 칸 가운데에 둔다.
+## 작업 설정 "lock_root": false로 끈다.
+func _lock_root(job: Dictionary) -> void:
+	if _skel == null or not job.get("lock_root", true):
+		return
+	for b in _skel.get_bone_count():
+		if _skel.get_bone_parent(b) == -1:
+			var rest := _skel.get_bone_rest(b).origin
+			var pose := _skel.get_bone_pose_position(b)
+			_skel.set_bone_pose_position(b, Vector3(rest.x, pose.y, rest.z))
 
 
 func _make_post(job: Dictionary) -> SubViewport:
@@ -229,6 +248,7 @@ func _bake(job: Dictionary) -> void:
 				var t := a.length * f / float(frames if anim["loop"] else maxi(frames - 1, 1))
 				ap.seek(minf(t, a.length), true)
 				ap.pause()
+				_lock_root(job)
 				await RenderingServer.frame_post_draw
 				await RenderingServer.frame_post_draw
 				if _post:
