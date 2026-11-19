@@ -173,6 +173,48 @@ class PipelineTest(unittest.TestCase):
         out = sorted(os.listdir(os.path.join(self.tmp, "assets/models/meshy/hero_t")))
         self.assertEqual(out, ["a_b.glb", "a_b_2.glb"])
 
+    def _ran_once(self):
+        fake = FakeMeshy()
+        with mock.patch.object(api, "create", fake.create), mock.patch.object(api, "wait", fake.wait),                 mock.patch.object(api, "download"):
+            mp.run(self.cfg, self.args())
+        self.cfg["anims"].append({"key": "kick", "search": "kick", "frames": 4, "fps": 12.0, "loop": False})
+        LIB.append({"action_id": 77, "name": "Kick", "key": "kick"})
+        self.addCleanup(LIB.pop)
+
+    def _add(self, rig_status: dict, **kw):
+        fake = FakeMeshy()
+        os.makedirs(os.path.join(self.tmp, "assets/models/meshy/hero_t"), exist_ok=True)
+        with open(os.path.join(self.tmp, "assets/models/meshy/hero_t/model.glb"), "wb") as f:
+            f.write(b"glTF")
+        get = mock.Mock(return_value=rig_status) if not isinstance(rig_status, Exception)             else mock.Mock(side_effect=rig_status)
+        with mock.patch.object(api, "create", fake.create), mock.patch.object(api, "wait", fake.wait),                 mock.patch.object(api, "get", get), mock.patch.object(api, "download"):
+            mp.add_anims(self.cfg, self.args(**kw))
+        return fake
+
+    def test_add_anims_requests_only_new_actions_with_live_rig(self):
+        self._ran_once()
+        fake = self._add({"status": "SUCCEEDED", "expires_at": 0})
+        self.assertEqual([k for k, _ in fake.created], ["animations"])
+        self.assertEqual(fake.created[0][1]["action_ids"], [77])
+        self.assertEqual(fake.created[0][1]["rig_task_id"], "rigging-task")
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        kick = [a for a in job["anims"] if a["key"] == "kick"][0]
+        self.assertTrue(kick["from"].endswith("animated_extra1.glb"))
+        self.assertNotIn("from", job["anims"][0])
+        again = self._add({"status": "SUCCEEDED", "expires_at": 0})  # 두 번째엔 새 동작 없음
+        self.assertEqual(again.created, [])
+
+    def test_add_anims_rerigs_from_saved_model_after_expiry(self):
+        self._ran_once()
+        fake = self._add(api.MeshyError("404"))
+        self.assertEqual([k for k, _ in fake.created], ["rigging", "animations"])
+        self.assertTrue(fake.created[0][1]["model_url"].startswith("data:model/gltf-binary;base64,"))
+
+    def test_add_anims_needs_yes(self):
+        self._ran_once()
+        with self.assertRaises(SystemExit):
+            self._add({"status": "SUCCEEDED", "expires_at": 0}, yes=False)
+
     def test_apply_skips_hero_without_data(self):
         self.cfg["hero_data"] = "data/heroes/not_yet.tres"
         mp.apply_to_hero(self.cfg)  # 예외 없이 건너뜀

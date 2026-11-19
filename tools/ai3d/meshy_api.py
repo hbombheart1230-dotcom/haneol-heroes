@@ -61,8 +61,8 @@ def _request(method: str, path: str, body: dict | None = None) -> object:
         raise MeshyError(f"{method} {path} -> HTTP {e.code}: {detail}") from None
 
 
-def data_uri(path: str) -> str:
-    mime = mimetypes.guess_type(path)[0] or "image/png"
+def data_uri(path: str, mime: str = "") -> str:
+    mime = mime or mimetypes.guess_type(path)[0] or "image/png"
     with open(path, "rb") as f:
         return f"data:{mime};base64," + base64.b64encode(f.read()).decode()
 
