@@ -169,6 +169,16 @@ func test_lightning_bolts_scale_with_charge_and_chain() -> void:
 	assert_int(c.health.current).is_less(c.health.max)
 
 
+func test_lightning_skips_dead_enemies() -> void:
+	# Codex f7fa7cd 회귀: 죽어서 지워지기 전인 적에게 벼락을 쓰지 않는다
+	var s: LightningSkill = GW.kit.charge.duplicate()
+	var dead := _enemy_at(Vector2(50, 0))
+	dead.health.kill()
+	var live := _enemy_at(Vector2(200, 0))
+	s.cast(ctx, 0.0)  # 벼락 1개
+	assert_int(live.health.current).is_less(live.health.max)
+
+
 func test_conqueror_wide_stun_and_field() -> void:
 	var s: ConquerorSkill = GW.kit.counter.duplicate()
 	var e := _enemy_at(Vector2(250, 0))

@@ -21,7 +21,11 @@ func bolt_count(charge: float) -> int:
 
 func cast(ctx: SkillContext, charge: float) -> SkillRun:
 	var center := ctx.player.global_position
-	var targets := ctx.enemies_in_radius(center, search_radius)
+	# 죽어서 지워지기 전인 적은 빼고 고른다 (벼락이 헛되이 쓰이지 않게, Codex f7fa7cd).
+	var targets: Array[Enemy] = []
+	for en in ctx.enemies_in_radius(center, search_radius):
+		if en.health.is_alive():
+			targets.append(en)
 	targets.sort_custom(func(x: Enemy, y: Enemy) -> bool:
 		return x.global_position.distance_squared_to(center) < y.global_position.distance_squared_to(center))
 	var hits := 0
