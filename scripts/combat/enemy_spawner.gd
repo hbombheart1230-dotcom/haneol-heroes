@@ -27,6 +27,11 @@ signal boss_spawned(boss: Enemy)
 @export var boss_time: float = 40.0
 
 var boss_spawned_once: bool = false
+## 정예와 등장 시각(초, 오름차순). 시각마다 한 마리.
+@export var elite_data: EnemyData
+@export var elite_times: PackedFloat32Array = PackedFloat32Array()
+var _elites_spawned: int = 0
+signal elite_spawned(elite: Enemy)
 
 var elapsed: float = 0.0
 var rng := RandomNumberGenerator.new()
@@ -94,16 +99,32 @@ func spawn_one() -> Enemy:
 
 
 func spawn_boss() -> Enemy:
-	if boss_data == null or enemy_scene == null or target == null or boss_spawned_once:
+	if boss_data == null or boss_spawned_once:
 		return null
-	boss_spawned_once = true
+	var e := _spawn_special(boss_data)
+	if e:
+		boss_spawned_once = true
+		boss_spawned.emit(e)
+	return e
+
+
+## 정예 한 마리 (동시 최대 수와 상관없이 나온다).
+func spawn_elite() -> Enemy:
+	var e := _spawn_special(elite_data) if elite_data else null
+	if e:
+		elite_spawned.emit(e)
+	return e
+
+
+func _spawn_special(d: EnemyData) -> Enemy:
+	if enemy_scene == null or target == null:
+		return null
 	var e := enemy_scene.instantiate() as Enemy
-	e.data = boss_data
+	e.data = d
 	e.target = target
 	e.position = pick_spawn_position(target.global_position) - global_position
 	e.killed.connect(func(en: Enemy) -> void: enemy_killed.emit(en))
 	add_child(e)
-	boss_spawned.emit(e)
 	return e
 
 
@@ -113,6 +134,9 @@ func tick(delta: float) -> void:
 	elapsed += delta
 	if boss_data and not boss_spawned_once and elapsed >= boss_time:
 		spawn_boss()
+	while _elites_spawned < elite_times.size() and elapsed >= elite_times[_elites_spawned]:
+		_elites_spawned += 1
+		spawn_elite()
 	_cooldown -= delta
 	while _cooldown <= 0.0:
 		_cooldown += current_interval()

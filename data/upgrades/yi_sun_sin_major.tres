@@ -1,0 +1,87 @@
+[gd_resource type="Resource" script_class="UpgradePool" format=3]
+
+[ext_resource type="Script" path="res://scripts/run/upgrade_pool.gd" id="1_pool"]
+[ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="2_up"]
+[ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="3_mod"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/haeryong.png" id="i_haeryong"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/pado.png" id="i_pado"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/haeil.png" id="i_haeil"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/counter.png" id="i_counter"]
+
+[sub_resource type="Resource" id="Mod_major_whirl_0"]
+script = ExtResource("3_mod")
+target = &"tap"
+property = &"whirl_time"
+op = 0
+value = 2.0
+
+[sub_resource type="Resource" id="Up_major_whirl"]
+script = ExtResource("2_up")
+id = &"major_whirl"
+title = "해룡참 · 소용돌이"
+description = "베고 난 자리에 2초간
+적을 끌어당기는 소용돌이"
+icon = ExtResource("i_haeryong")
+color = Color(0.2, 0.5, 0.9, 1)
+max_stacks = 1
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_major_whirl_0")])
+
+[sub_resource type="Resource" id="Mod_major_burst_0"]
+script = ExtResource("3_mod")
+target = &"dash"
+property = &"end_burst_radius"
+op = 0
+value = 150.0
+
+[sub_resource type="Resource" id="Up_major_burst"]
+script = ExtResource("2_up")
+id = &"major_burst"
+title = "파도격 · 물보라"
+description = "물길 끝에서 크게 터진다"
+icon = ExtResource("i_pado")
+color = Color(0.2, 0.85, 0.95, 1)
+max_stacks = 1
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_major_burst_0")])
+
+[sub_resource type="Resource" id="Mod_major_triple_0"]
+script = ExtResource("3_mod")
+target = &"charge"
+property = &"extra_waves"
+op = 0
+value = 2.0
+
+[sub_resource type="Resource" id="Up_major_triple"]
+script = ExtResource("2_up")
+id = &"major_triple"
+title = "해일검기 · 세 갈래"
+description = "물결이 세 갈래로 퍼진다"
+icon = ExtResource("i_haeil")
+color = Color(0.3, 0.6, 1, 1)
+max_stacks = 1
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_major_triple_0")])
+
+[sub_resource type="Resource" id="Mod_major_radial_0"]
+script = ExtResource("3_mod")
+target = &"counter"
+property = &"radial_blades"
+op = 0
+value = 8.0
+
+[sub_resource type="Resource" id="Up_major_radial"]
+script = ExtResource("2_up")
+id = &"major_radial"
+title = "반격 · 사방 검기"
+description = "반격 때 여덟 방향으로
+관통 검기"
+icon = ExtResource("i_counter")
+color = Color(0.95, 0.75, 0.3, 1)
+max_stacks = 1
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_major_radial_0")])
+
+[resource]
+script = ExtResource("1_pool")
+upgrades = Array[ExtResource("2_up")]([SubResource("Up_major_whirl"), SubResource("Up_major_burst"), SubResource("Up_major_triple"), SubResource("Up_major_radial")])

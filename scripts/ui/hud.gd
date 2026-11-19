@@ -10,6 +10,8 @@ extends Control
 var state: GameState
 ## P0-D 성능 기록. 결과 화면에 요약을 보여준다.
 var perf: PerfStats
+## 런 성장 진행 (경험치 막대·레벨 표시). 없으면 그리지 않는다.
+var progress: RunProgress
 
 
 func _ready() -> void:
@@ -49,8 +51,16 @@ func _draw_health() -> void:
 func _draw_status() -> void:
 	var font := get_theme_default_font()
 	var t := "%d" % ceili(state.time_left())
+	if state.survive_time <= 0.0:  # 런: 지난 시간 (분:초)
+		t = "%d:%02d" % [floori(state.elapsed / 60.0), floori(state.elapsed) % 60]
+	if progress:
+		var r := Rect2(16, 40, size.x - 32, 8)
+		draw_rect(r, Color(Ink.INK, 0.35))
+		draw_rect(Rect2(r.position, Vector2(r.size.x * progress.xp_ratio(), r.size.y)), Ink.GOLD)
+		_ink_text(font, Vector2(16, 70), "Lv %d · 처치 %d" % [progress.level, state.kills], HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
+	else:
+		_ink_text(font, Vector2(16, 70), "처치 %d" % state.kills, HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
 	_ink_text(font, Vector2(0, 92), t, HORIZONTAL_ALIGNMENT_CENTER, size.x, 52)
-	_ink_text(font, Vector2(16, 70), "처치 %d" % state.kills, HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
 
 
 ## 보스 체력 막대 (보스가 살아 있을 때 화면 위).

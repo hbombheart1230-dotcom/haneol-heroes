@@ -76,6 +76,27 @@ func apply_hero(h: HeroData) -> void:
 		health.current = h.max_hp
 
 
+## 성장으로 hero 수치가 바뀐 뒤 다시 읽는다 (체력은 늘어난 만큼 회복, 대시 충전은 늘어난 만큼 채움).
+func refresh_stats(old_max_hp: int) -> void:
+	if hero == null:
+		return
+	move_speed = hero.move_speed
+	dash_distance = hero.dash_distance
+	dash_duration = hero.dash_duration
+	hurt_invuln_time = hero.hurt_invuln_time
+	evade_invuln_time = hero.evade_invuln_time
+	dash_recharge_time = hero.dash_recharge_time
+	dash.recharge_time = maxf(hero.dash_recharge_time, 0.01)
+	if hero.max_dash_charges != max_dash_charges:
+		var diff := hero.max_dash_charges - max_dash_charges
+		max_dash_charges = maxi(hero.max_dash_charges, 1)
+		dash.max_charges = max_dash_charges
+		dash.charges = clampi(dash.charges + maxi(diff, 0), 0, max_dash_charges)
+	if health and hero.max_hp != old_max_hp:
+		health.max = hero.max_hp
+		health.current = clampi(health.current + maxi(hero.max_hp - old_max_hp, 0), 1, health.max)
+
+
 func is_dashing() -> bool:
 	return _dash_time_left > 0.0
 

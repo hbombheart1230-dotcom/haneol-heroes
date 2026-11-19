@@ -1,6 +1,7 @@
 class_name GameState
 extends RefCounted
-## 한 판의 진행 상태 (순수 로직): 60초 생존, 처치 수, 게임오버/생존 성공.
+## 한 판의 진행 상태 (순수 로직): 시간, 처치 수, 게임오버/승리.
+## survive_time > 0이면 그 시간을 버티면 승리, 0이면 보스 처치만 승리 (런 루프).
 
 signal ended(result: Result)
 
@@ -29,7 +30,7 @@ func tick(delta: float) -> void:
 	if not is_playing():
 		return
 	elapsed += delta
-	if elapsed >= survive_time:
+	if survive_time > 0.0 and elapsed >= survive_time:
 		_end(Result.VICTORY)
 
 

@@ -8,6 +8,8 @@ extends Resource
 ## 플레이어 접촉 시 피해량.
 @export var contact_damage: int = 10
 @export var body_radius: float = 20.0
+## 처치 시 얻는 경험치.
+@export var xp: int = 1
 @export var color: Color = Color(0.75, 0.2, 0.25)
 ## 예고 공격 (없으면 접촉 피해만).
 @export var attack: EnemyAttackData
@@ -19,6 +21,8 @@ extends Resource
 @export var patterns: Array[EnemyAttackData] = []
 ## 보스: 처치하면 승리, 화면 위 체력 막대 표시.
 @export var is_boss: bool = false
+## 정예: 정해진 시각에 나오고, 처치하면 큰 변형 보상.
+@export var is_elite: bool = false
 @export var display_name: String = ""
 ## 구워진 8방향 스프라이트 (tools/bake). 비어 있으면 코드 그림.
 @export var sprite_sheet: SpriteSheetSet

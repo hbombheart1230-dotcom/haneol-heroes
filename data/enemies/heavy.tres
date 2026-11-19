@@ -18,6 +18,7 @@ recovery = 0.6
 script = ExtResource("1_enemy")
 id = &"heavy"
 max_hp = 140
+xp = 4
 move_speed = 65.0
 contact_damage = 20
 body_radius = 30.0

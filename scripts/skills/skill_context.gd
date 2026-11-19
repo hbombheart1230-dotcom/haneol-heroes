@@ -23,7 +23,7 @@ func hit_stop(duration: float, scale: float = 0.05) -> void:
 	var timer := player.get_tree().create_timer(duration, true, false, true)
 	timer.timeout.connect(func() -> void:
 		if token == _hit_stop_token:
-			Engine.time_scale = 1.0)
+			Engine.time_scale = GameTime.base)
 
 
 func enemies() -> Array:
@@ -60,6 +60,13 @@ func hit(en: Enemy, dmg: int) -> bool:
 	if fx:
 		fx.add_spark(en.global_position)
 	return true
+
+
+## 기술이 남기는 노드(소용돌이 등)를 월드에 붙인다.
+func add_to_world(node: Node2D, at: Vector2) -> void:
+	var parent := world if world else player.get_parent()
+	parent.add_child(node)
+	node.global_position = at
 
 
 ## 투사체 생성. configure는 트리에 들어가기 전(_ready 전)에 호출된다.
