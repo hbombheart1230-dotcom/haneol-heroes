@@ -17,6 +17,8 @@ extends Node2D
 ## 고를 수 있는 무대 (역사 연표 순). 둘 이상이면 영웅 다음에 고르기 화면.
 @export var stages: Array[StageTheme] = []
 @export var stage_select: StageSelect
+## 깨면 탕약이 나오는 물건들 (무대마다 다름).
+@export var breakables: BreakableField
 ## 결과 화면에서 재시작 입력을 받기까지 대기(초). 연타로 바로 넘어가는 것을 막는다.
 @export var restart_delay: float = 0.6
 
@@ -124,6 +126,8 @@ func _apply_stage(st: StageTheme) -> void:
 	if arena:
 		arena.apply_theme(st)
 		arena.clamp_camera(get_node_or_null("Player/Camera2D") as Camera2D)
+		if breakables:
+			breakables.setup(st.breakable, arena.rect.grow(-maxf(st.prop_inset, 160.0)), st.seed)
 	if spawner and not st.spawn_table.is_empty():
 		spawner.spawn_table = st.spawn_table
 		spawner.spawn_weights = st.spawn_weights

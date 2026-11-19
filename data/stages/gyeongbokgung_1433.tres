@@ -8,7 +8,6 @@
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/banner_yellow.png" id="p_banner_yellow"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/drum.png" id="p_drum"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/haetae.png" id="p_haetae"]
-[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/onggi_jars.png" id="p_onggi_jars"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/palace_gate.png" id="p_palace_gate"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/pillar.png" id="p_pillar"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/pillar_broken.png" id="p_pillar_broken"]
@@ -22,6 +21,7 @@
 [ext_resource type="Resource" path="res://data/enemies/jurchen_heavy.tres" id="e_jurchen_heavy"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_elite.tres" id="e_jurchen_elite"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_chieftain.tres" id="e_jurchen_chieftain"]
+[ext_resource type="Resource" path="res://data/breakables/gyeongbokgung_1433.tres" id="b_gyeongbokgung_1433"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 
 [resource]
@@ -32,6 +32,7 @@ title = "경복궁"
 subtitle = "세종 15년, 최윤덕이 파저강의 여진을 토벌한 해"
 music = ExtResource("2_music")
 hero_hint = "세종"
+breakable = ExtResource("b_gyeongbokgung_1433")
 spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_heavy")])
 spawn_weights = PackedFloat32Array(6, 2, 1)
 unlock_times = PackedFloat32Array(0, 10, 20)
@@ -46,7 +47,7 @@ rock_per_mpx = 0.0
 rock_color = Color(0.5, 0.49, 0.47, 0.6)
 clear_radius = 260.0
 seed = 11872
-prop_textures = Array[Texture2D]([ExtResource("p_arrows_a"), ExtResource("p_arrows_b"), ExtResource("p_banner_blue"), ExtResource("p_banner_yellow"), ExtResource("p_drum"), ExtResource("p_haetae"), ExtResource("p_onggi_jars"), ExtResource("p_palace_gate"), ExtResource("p_pillar"), ExtResource("p_pillar_broken"), ExtResource("p_pine_stone_bed"), ExtResource("p_railing_broken"), ExtResource("p_rank_stones"), ExtResource("p_roof_tiles"), ExtResource("p_stone_lantern")])
+prop_textures = Array[Texture2D]([ExtResource("p_arrows_a"), ExtResource("p_arrows_b"), ExtResource("p_banner_blue"), ExtResource("p_banner_yellow"), ExtResource("p_drum"), ExtResource("p_haetae"), ExtResource("p_palace_gate"), ExtResource("p_pillar"), ExtResource("p_pillar_broken"), ExtResource("p_pine_stone_bed"), ExtResource("p_railing_broken"), ExtResource("p_rank_stones"), ExtResource("p_roof_tiles"), ExtResource("p_stone_lantern")])
 picture_props_per_mpx = 1.5
 background_path = "res://assets/backgrounds/gyeongbokgung_1433.png"
 background_rect = Rect2(-1310, -2248, 2630, 3946)

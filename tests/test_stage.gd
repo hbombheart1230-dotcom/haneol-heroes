@@ -48,7 +48,7 @@ func test_picture_props_scattered_apart_and_sorted() -> void:
 	var r := Rect2(-900, -1400, 1800, 2800)
 	var items := StageProps.scatter(STAGE, r)
 	var pics := items.filter(func(i: Array) -> bool: return i[1] == 2)
-	assert_int(STAGE.prop_textures.size()).is_equal(13)
+	assert_int(STAGE.prop_textures.size()).is_equal(12)  # 술통은 부서지는 물건으로
 	assert_int(pics.size()).is_greater(3)
 	for i in pics.size():
 		assert_int(pics[i][3]).is_less(STAGE.prop_textures.size())

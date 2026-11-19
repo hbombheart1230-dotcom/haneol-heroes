@@ -2,6 +2,7 @@
 
   python tools/stages/make_stages.py
 아직 없는 적(굽지 않은 시트)은 빼고 만든다 → 그 칸은 장면 기본값(거란)을 쓴다. 다 구운 뒤 다시 실행한다.
+배경 지도는 다음에 tools/art/make_backgrounds.py가 덧붙인다 (이 스크립트를 다시 돌리면 그것도 다시).
 """
 import glob
 import os
@@ -12,14 +13,14 @@ STAGES = {
     "gyeongbokgung_1433": {
         "year": "1433년", "title": "경복궁", "hero": "세종",
         "subtitle": "세종 15년, 최윤덕이 파저강의 여진을 토벌한 해",
-        "props": "gyeongbokgung", "card": "palace_gate", "floor": ("Color(0.78, 0.76, 0.72, 1)", "Color(0.35, 0.34, 0.33, 1)"),
+        "props": "gyeongbokgung", "card": "palace_gate", "skip_props": ["onggi_jars"], "floor": ("Color(0.78, 0.76, 0.72, 1)", "Color(0.35, 0.34, 0.33, 1)"),
         "grass": ("Color(0.32, 0.36, 0.22, 0.55)", 2.0), "rock": ("Color(0.5, 0.49, 0.47, 0.6)", 1.0),
         "army": ["jurchen_soldier", "jurchen_archer", "jurchen_heavy"], "elite": "jurchen_elite", "boss": "jurchen_chieftain",
     },
     "chochungdo": {
         "year": "그림 속", "title": "초충도", "hero": "사임당",
         "subtitle": "신사임당이 그린 풀과 벌레의 그림",
-        "props": "chochungdo", "card": "watermelon", "floor": ("Color(0.95, 0.93, 0.86, 1)", "Color(0.55, 0.5, 0.42, 1)"),
+        "props": "chochungdo", "card": "watermelon", "skip_props": ["watermelon"], "floor": ("Color(0.95, 0.93, 0.86, 1)", "Color(0.55, 0.5, 0.42, 1)"),
         "grass": ("Color(0.36, 0.45, 0.25, 0.6)", 6.0), "rock": ("Color(0.45, 0.42, 0.36, 0.5)", 0.8),
         "army": ["cc_mouse", "cc_grasshopper", "cc_beetle"], "elite": "cc_mantis", "boss": "cc_frog",
     },
@@ -29,7 +30,7 @@ STAGES = {
         "props": "hansan", "card": "geobukseon", "floor": ("Color(0.6, 0.48, 0.34, 1)", "Color(0.25, 0.18, 0.12, 1)"),
         "grass": ("Color(0.2, 0.16, 0.12, 0.0)", 0.0), "rock": ("Color(0.3, 0.26, 0.22, 0.5)", 0.6),
         "army": ["waegun_soldier", "waegun_gunner", "waegun_heavy"], "elite": "waegun_elite", "boss": "waegun_commander",
-        "skip_props": ["geobukseon"],
+        "skip_props": ["geobukseon", "barrels_jars", "wreck_burning", "wreck_sinking", "wreck_banner", "sea_rocks"],
     },
 }
 
@@ -47,9 +48,10 @@ def make(sid: str, s: dict) -> str:
     army = [e for e in s["army"] if exists(e)]
     ext += [f'[ext_resource type="Resource" path="res://data/enemies/{e}.tres" id="e_{e}"]'
             for e in army + [x for x in (s["elite"], s["boss"]) if exists(x)]]
+    ext.append(f'[ext_resource type="Resource" path="res://data/breakables/{sid}.tres" id="b_{sid}"]')
     body = ["[resource]", 'script = ExtResource("1_theme")', f'id = &"{sid}"', f'year_label = "{s["year"]}"',
             f'title = "{s["title"]}"', f'subtitle = "{s["subtitle"]}"', 'music = ExtResource("2_music")',
-            f'hero_hint = "{s["hero"]}"']
+            f'hero_hint = "{s["hero"]}"', f'breakable = ExtResource("b_{sid}")']
     if army:
         body += ["spawn_table = Array[ExtResource(\"3_enemy\")]([" + ", ".join(f'ExtResource("e_{e}")' for e in army) + "])",
                  "spawn_weights = PackedFloat32Array(" + ", ".join(["6", "2", "1"][: len(army)]) + ")",

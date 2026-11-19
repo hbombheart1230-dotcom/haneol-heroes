@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/ui/hero_select.gd" id="33_select"]
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="36_title"]
 [ext_resource type="Script" path="res://scripts/ui/stage_select.gd" id="40_stage_sel"]
+[ext_resource type="Script" path="res://scripts/world/breakable_field.gd" id="46_breakables"]
 [ext_resource type="Resource" path="res://data/stages/manchuria_395.tres" id="41_st1"]
 [ext_resource type="Resource" path="res://data/stages/gyeongbokgung_1433.tres" id="42_st2"]
 [ext_resource type="Resource" path="res://data/stages/chochungdo.tres" id="43_st3"]
@@ -43,7 +44,7 @@ radius = 22.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
 radius = 30.0
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select", "title_screen", "stage_select")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select", "title_screen", "stage_select", "breakables")]
 script = ExtResource("0_main")
 player = NodePath("Player")
 spawner = NodePath("EnemySpawner")
@@ -55,10 +56,17 @@ hero_select = NodePath("HUD/HeroSelect")
 title_screen = NodePath("HUD/TitleScreen")
 stages = Array[ExtResource("45_stage_theme")]([ExtResource("41_st1"), ExtResource("42_st2"), ExtResource("43_st3"), ExtResource("44_st4")])
 stage_select = NodePath("HUD/StageSelect")
+breakables = NodePath("Breakables")
 
 [node name="Arena" type="Node2D" parent="."]
 script = ExtResource("1_arena")
 rect = Rect2(-900, -1400, 1800, 2800)
+
+[node name="Breakables" type="Node2D" parent="." node_paths=PackedStringArray("player", "fx", "auto_attack")]
+script = ExtResource("46_breakables")
+player = NodePath("../Player")
+fx = NodePath("../FxLayer")
+auto_attack = NodePath("../Player/AutoAttack")
 
 [node name="FxLayer" type="Node2D" parent="."]
 z_index = 5

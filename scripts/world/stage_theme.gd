@@ -20,6 +20,10 @@ extends Resource
 ## 흩뿌리는 소품을 전장 가장자리에서 이만큼 띄운다 (지도 가장자리 그림과 겹치지 않게).
 @export var prop_inset: float = 0.0
 
+@export_group("부서지는 물건")
+## 깨면 탕약(체력 회복)이 나오는 물건. 비우면 없음.
+@export var breakable: BreakableData
+
 @export_group("적 (망령 군대)")
 ## 비어 있으면 장면(EnemySpawner)에 정해 둔 적을 그대로 쓴다.
 @export var spawn_table: Array[EnemyData] = []

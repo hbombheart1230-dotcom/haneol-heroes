@@ -18,14 +18,15 @@
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/rock_b.png" id="p_rock_b"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/rock_grass.png" id="p_rock_grass"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/scroll.png" id="p_scroll"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/watermelon.png" id="p_watermelon"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/wild_sage.png" id="p_wild_sage"]
 [ext_resource type="Resource" path="res://data/enemies/cc_mouse.tres" id="e_cc_mouse"]
 [ext_resource type="Resource" path="res://data/enemies/cc_grasshopper.tres" id="e_cc_grasshopper"]
 [ext_resource type="Resource" path="res://data/enemies/cc_beetle.tres" id="e_cc_beetle"]
 [ext_resource type="Resource" path="res://data/enemies/cc_mantis.tres" id="e_cc_mantis"]
 [ext_resource type="Resource" path="res://data/enemies/cc_frog.tres" id="e_cc_frog"]
+[ext_resource type="Resource" path="res://data/breakables/chochungdo.tres" id="b_chochungdo"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/watermelon.png" id="p_watermelon"]
 
 [resource]
 script = ExtResource("1_theme")
@@ -35,6 +36,7 @@ title = "초충도"
 subtitle = "신사임당이 그린 풀과 벌레의 그림"
 music = ExtResource("2_music")
 hero_hint = "사임당"
+breakable = ExtResource("b_chochungdo")
 spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_beetle")])
 spawn_weights = PackedFloat32Array(6, 2, 1)
 unlock_times = PackedFloat32Array(0, 10, 20)
@@ -49,7 +51,7 @@ rock_per_mpx = 0.0
 rock_color = Color(0.45, 0.42, 0.36, 0.5)
 clear_radius = 260.0
 seed = 7406
-prop_textures = Array[Texture2D]([ExtResource("p_brush"), ExtResource("p_cockscomb"), ExtResource("p_cucumber_trellis"), ExtResource("p_daylily"), ExtResource("p_eggplant"), ExtResource("p_ink_puddle"), ExtResource("p_inkstone"), ExtResource("p_leaf_a"), ExtResource("p_leaf_b"), ExtResource("p_leaf_c"), ExtResource("p_maple_leaf"), ExtResource("p_poppy"), ExtResource("p_rock_a"), ExtResource("p_rock_b"), ExtResource("p_rock_grass"), ExtResource("p_scroll"), ExtResource("p_watermelon"), ExtResource("p_wild_sage")])
+prop_textures = Array[Texture2D]([ExtResource("p_brush"), ExtResource("p_cockscomb"), ExtResource("p_cucumber_trellis"), ExtResource("p_daylily"), ExtResource("p_eggplant"), ExtResource("p_ink_puddle"), ExtResource("p_inkstone"), ExtResource("p_leaf_a"), ExtResource("p_leaf_b"), ExtResource("p_leaf_c"), ExtResource("p_maple_leaf"), ExtResource("p_poppy"), ExtResource("p_rock_a"), ExtResource("p_rock_b"), ExtResource("p_rock_grass"), ExtResource("p_scroll"), ExtResource("p_wild_sage")])
 picture_props_per_mpx = 2.0
 background_path = "res://assets/backgrounds/chochungdo.png"
 background_rect = Rect2(-933, -1400, 1867, 2800)
