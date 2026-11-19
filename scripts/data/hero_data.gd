@@ -33,3 +33,5 @@ extends Resource
 @export_group("성장")
 ## 레벨업 때 나오는 성장 선택지.
 @export var upgrade_pool: UpgradePool
+## 정예 처치 보상: 기술 행동을 바꾸는 큰 변형.
+@export var major_pool: UpgradePool

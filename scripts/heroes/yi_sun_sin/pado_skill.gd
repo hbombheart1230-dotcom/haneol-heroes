@@ -7,6 +7,10 @@ extends SkillDef
 @export var hit_count: int = 3
 @export var damage_per_hit: int = 10
 @export var hit_interval: float = 0.07
+@export_group("큰 변형 · 물보라")
+## 0보다 크면 마지막 타격 때 물길 끝에서 이 반경으로 터진다.
+@export var end_burst_radius: float = 0.0
+@export var end_burst_damage: int = 30
 
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
@@ -49,6 +53,12 @@ class PadoRun extends SkillRun:
 			ctx.fx.add_slash(a + side, b + side, 10.0, 0.18, Color(0.7, 0.95, 1.0))
 		if left <= 0:
 			finished = true
+			if skill.end_burst_radius > 0.0:
+				for en in ctx.enemies_in_radius(b, skill.end_burst_radius):
+					ctx.hit(en, skill.end_burst_damage)
+					hits += 1
+				if ctx.fx:
+					ctx.fx.add_ring(b, skill.end_burst_radius, 0.4, skill.fx_color)
 
 	func tick(delta: float) -> bool:
 		timer -= delta

@@ -147,50 +147,121 @@ func test_every_yi_upgrade_targets_a_real_property() -> void:
 	assert_object(HERO.upgrade_pool).is_same(POOL)
 
 
-# --- 선택 화면 ---
+# --- 전장 인장 고르기 ---
 
-func test_panel_needs_a_fresh_tap_on_one_card() -> void:
-	var panel: LevelUpPanel = auto_free(LevelUpPanel.new())
-	panel.size = Vector2(720, 1280)
-	add_child(panel)
+func _seal(p: Player) -> SealChoice:
+	var sc: SealChoice = auto_free(SealChoice.new())
+	sc.player = p
+	add_child(sc)
+	return sc
+
+
+func test_seal_opens_slow_time_and_picks_by_touching() -> void:
+	var parts := _player_with_build()
+	var p: Player = parts[0]
+	p.global_position = Vector2.ZERO
+	var sc := _seal(p)
 	var picked: Array = []
-	panel.chosen.connect(func(u: UpgradeDef) -> void: picked.append(u))
+	sc.chosen.connect(func(u: UpgradeDef, major: bool) -> void: picked.append([u, major]))
 	var ups: Array[UpgradeDef] = [_up(&"a", []), _up(&"b", []), _up(&"c", [])]
-	panel.open(ups, 2, {})
-	var c1 := panel.card_rect(1).get_center()
-	assert_bool(panel.handle_touch(0, c1, false)).is_false()  # 열리자마자 떼기는 무시
-	panel._process(0.5)
-	panel.handle_touch(0, c1, true)
-	assert_bool(panel.handle_touch(0, panel.card_rect(2).get_center(), false)).is_false()  # 다른 카드에서 뗌
-	assert_bool(panel.is_open()).is_true()
-	panel.handle_touch(1, c1, true)
-	assert_bool(panel.handle_touch(1, c1, false)).is_true()
-	assert_array(picked).is_equal([ups[1]])
-	assert_bool(panel.is_open()).is_false()
-	# 카드는 화면 아래쪽 절반 안 (오른엄지)
-	assert_float(panel.card_rect(0).position.y).is_greater(1280.0 * 0.45)
-
-
-func test_panel_accepts_mouse_click_and_never_picks_twice() -> void:
-	var panel: LevelUpPanel = auto_free(LevelUpPanel.new())
-	panel.size = Vector2(720, 1280)
-	add_child(panel)
-	var picked: Array = []
-	panel.chosen.connect(func(u: UpgradeDef) -> void: picked.append(u))
-	panel.open([_up(&"a", []), _up(&"b", []), _up(&"c", [])] as Array[UpgradeDef], 2, {})
-	panel._process(0.5)
-	var c := panel.card_rect(0).get_center()
-	var down := InputEventMouseButton.new()
-	down.button_index = MOUSE_BUTTON_LEFT
-	down.pressed = true
-	down.position = c
-	var up := down.duplicate() as InputEventMouseButton
-	up.pressed = false
-	panel._input(down)
-	panel.handle_touch(0, c, true)  # 같은 클릭이 터치로도 들어옴
-	panel._input(up)
-	panel.handle_touch(0, c, false)
+	sc.open(ups, p.global_position, false, {})
+	assert_bool(sc.is_open()).is_true()
+	assert_float(Engine.time_scale).is_equal(sc.slow_scale)
+	assert_int(sc.positions.size()).is_equal(3)
+	for q in sc.positions:
+		assert_float(q.distance_to(Vector2.ZERO)).is_equal_approx(sc.spread, 0.01)
+	sc.step(0.1)
+	assert_bool(sc.is_open()).is_true()  # 아무것도 안 닿음
+	p.global_position = sc.positions[2]
+	sc.step(0.016)
 	assert_int(picked.size()).is_equal(1)
+	assert_object(picked[0][0]).is_same(ups[2])
+	assert_bool(picked[0][1]).is_false()
+	assert_bool(sc.is_open()).is_false()
+	assert_float(Engine.time_scale).is_equal(1.0)
+
+
+func test_seal_timeout_picks_nearest() -> void:
+	var parts := _player_with_build()
+	var p: Player = parts[0]
+	p.global_position = Vector2.ZERO
+	var sc := _seal(p)
+	var picked: Array = []
+	sc.chosen.connect(func(u: UpgradeDef, _m: bool) -> void: picked.append(u))
+	var ups: Array[UpgradeDef] = [_up(&"a", []), _up(&"b", []), _up(&"c", [])]
+	sc.open(ups, Vector2.ZERO, true, {})
+	p.global_position = sc.positions[1] * 0.4  # 1번 쪽으로 조금 이동
+	sc.step(sc.timeout + 0.01)
+	assert_object(picked[0]).is_same(ups[1])
+
+
+func test_hit_stop_returns_to_slow_time_not_full_speed() -> void:
+	var parts := _player_with_build()
+	var p: Player = parts[0]
+	GameTime.set_base(0.35)
+	var ctx := SkillContext.new()
+	ctx.player = p
+	ctx.hit_stop(0.05)
+	assert_float(Engine.time_scale).is_less(0.1)
+	await get_tree().create_timer(0.15, true, false, true).timeout
+	assert_float(Engine.time_scale).is_equal(0.35)
+	GameTime.reset()
+
+
+func test_seals_stay_inside_arena() -> void:
+	var parts := _player_with_build()
+	var sc := _seal(parts[0])
+	sc.arena_rect = Rect2(-200, -200, 400, 400)
+	sc.open([_up(&"a", []), _up(&"b", []), _up(&"c", [])] as Array[UpgradeDef], Vector2(190, 190), false, {})
+	for q in sc.positions:
+		assert_bool(sc.arena_rect.grow(-sc.seal_radius + 0.01).has_point(q)).is_true()
+	sc.close()
+
+
+# --- 큰 변형 (정예 보상) ---
+
+const MAJOR := preload("res://data/upgrades/yi_sun_sin_major.tres")
+const ELITE := preload("res://data/enemies/elite_warrior.tres")
+
+
+func test_major_pool_targets_and_changes_behaviour_flags() -> void:
+	var parts := _player_with_build()
+	var b: RunBuild = parts[1]
+	var p: Player = parts[0]
+	assert_object(HERO.major_pool).is_same(MAJOR)
+	assert_int(MAJOR.upgrades.size()).is_equal(4)
+	for u in MAJOR.upgrades:
+		assert_int(u.max_stacks).is_equal(1)
+		assert_bool(b.apply(u)).is_true()
+	assert_float(p.hero.kit.tap.whirl_time).is_greater(0.0)
+	assert_float(p.hero.kit.dash.end_burst_radius).is_greater(0.0)
+	assert_int(p.hero.kit.charge.extra_waves).is_equal(2)
+	assert_int(p.hero.kit.counter.radial_blades).is_equal(8)
+	assert_float(HERO.kit.tap.whirl_time).is_equal(0.0)  # 원본은 그대로
+
+
+func test_elite_data_and_spawner_schedule() -> void:
+	assert_bool(ELITE.is_elite).is_true()
+	assert_bool(ELITE.is_boss).is_false()
+	var target: Node2D = auto_free(Node2D.new())
+	add_child(target)
+	var s: EnemySpawner = auto_free(EnemySpawner.new())
+	s.enemy_scene = preload("res://scenes/enemy.tscn")
+	s.target = target
+	s.max_alive = 0
+	s.elite_data = ELITE
+	s.elite_times = PackedFloat32Array([1.0, 2.0])
+	add_child(s)
+	var got: Array = []
+	s.elite_spawned.connect(func(e: Enemy) -> void: got.append(e))
+	s.tick(0.5)
+	assert_int(got.size()).is_equal(0)
+	s.tick(0.6)
+	assert_int(got.size()).is_equal(1)
+	s.tick(5.0)
+	assert_int(got.size()).is_equal(2)
+	s.tick(5.0)
+	assert_int(got.size()).is_equal(2)
 
 
 # --- 판 규칙 ---
@@ -203,31 +274,42 @@ func test_run_has_no_time_victory() -> void:
 	assert_int(g.result).is_equal(GameState.Result.VICTORY)
 
 
-func test_main_scene_level_up_pauses_and_applies_choice() -> void:
+func test_main_scene_level_up_drops_seals_without_pausing() -> void:
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	await get_tree().physics_frame
 	assert_float(main.state.survive_time).is_equal(0.0)
-	assert_float((main.get_node("EnemySpawner") as EnemySpawner).boss_time).is_equal(RUN.boss_time)
-	var enemy: Enemy = (main.get_node("EnemySpawner") as EnemySpawner).spawn_one()
+	var spawner := main.get_node("EnemySpawner") as EnemySpawner
+	assert_float(spawner.boss_time).is_equal(RUN.boss_time)
+	assert_object(spawner.elite_data).is_same(ELITE)
+	var enemy: Enemy = spawner.spawn_one()
 	main.progress.add_xp(main.progress.xp_to_next() - enemy.data.xp)
 	enemy.health.kill()
-	await get_tree().process_frame
-	var panel: LevelUpPanel = main.level_up_panel
-	assert_bool(panel.is_open()).is_true()
-	assert_bool(get_tree().paused).is_true()
-	var t: float = main.state.elapsed
-	for i in 5:
-		await get_tree().physics_frame
-	assert_float(main.state.elapsed).is_equal(t)  # 고르는 동안 시간 멈춤
-	var player: Player = main.get_node("Player")
-	var u: UpgradeDef = panel.choices[0]
-	panel._process(1.0)
-	var c := panel.card_rect(0).get_center()
-	panel.handle_touch(0, c, true)
-	panel.handle_touch(0, c, false)
+	await get_tree().physics_frame
+	var sc: SealChoice = main.seal_choice
+	assert_bool(sc.is_open()).is_true()
+	assert_bool(sc.major).is_false()
 	assert_bool(get_tree().paused).is_false()
+	assert_float(Engine.time_scale).is_equal(sc.slow_scale)
+	var t: float = main.state.elapsed
+	await get_tree().physics_frame
+	assert_float(main.state.elapsed).is_greater(t)  # 멈추지 않는다 (느리게 흐름)
+	var player: Player = main.get_node("Player")
+	var u: UpgradeDef = sc.choices[0]
+	player.global_position = sc.positions[0]
+	sc.step(0.016)
+	assert_bool(sc.is_open()).is_false()
 	assert_int(main.progress.stacks.get(u.id, 0)).is_equal(1)
-	assert_object(player.hero).is_not_same(HERO)
+	assert_float(Engine.time_scale).is_equal(1.0)
+	# 정예 처치 → 금빛 큰 변형 인장
+	var elite: Enemy = spawner.spawn_elite()
+	elite.health.kill()
+	await get_tree().physics_frame
+	assert_bool(sc.is_open()).is_true()
+	assert_bool(sc.major).is_true()
+	main.state.player_died()
+	await get_tree().physics_frame
+	assert_bool(sc.is_open()).is_false()
+	assert_float(Engine.time_scale).is_equal(1.0)
 	get_tree().paused = false
 	main.queue_free()

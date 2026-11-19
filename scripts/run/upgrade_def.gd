@@ -5,7 +5,7 @@ extends Resource
 @export var id: StringName = &""
 @export var title: String = ""
 @export_multiline var description: String = ""
-## 카드에 그릴 아이콘 (없으면 color 원).
+## 인장에 그릴 아이콘 (없으면 color 원 + 제목 첫 글자).
 @export var icon: Texture2D
 @export var color: Color = Color(0.3, 0.5, 0.8)
 ## 한 판에 최대 몇 번까지 고를 수 있는지.

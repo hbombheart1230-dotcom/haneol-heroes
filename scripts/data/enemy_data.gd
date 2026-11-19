@@ -21,6 +21,8 @@ extends Resource
 @export var patterns: Array[EnemyAttackData] = []
 ## 보스: 처치하면 승리, 화면 위 체력 막대 표시.
 @export var is_boss: bool = false
+## 정예: 정해진 시각에 나오고, 처치하면 큰 변형 보상.
+@export var is_elite: bool = false
 @export var display_name: String = ""
 ## 구워진 8방향 스프라이트 (tools/bake). 비어 있으면 코드 그림.
 @export var sprite_sheet: SpriteSheetSet

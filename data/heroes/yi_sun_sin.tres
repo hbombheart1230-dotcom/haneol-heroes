@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/counter_skill.gd" id="7_counter"]
 [ext_resource type="Resource" path="res://assets/sprites/knight_ink/knight_ink.tres" id="8_sheet"]
 [ext_resource type="Resource" path="res://data/upgrades/yi_sun_sin.tres" id="9_upgrades"]
+[ext_resource type="Resource" path="res://data/upgrades/yi_sun_sin_major.tres" id="10_major"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/haeryong.png" id="i_haeryong"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/pado.png" id="i_pado"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/haeil.png" id="i_haeil"]
@@ -110,3 +111,4 @@ dash_recharge_time = 0.9
 attack = SubResource("Attack_yi")
 kit = SubResource("Kit_yi")
 upgrade_pool = ExtResource("9_upgrades")
+major_pool = ExtResource("10_major")

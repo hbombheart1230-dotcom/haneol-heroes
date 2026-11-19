@@ -8,6 +8,10 @@ extends SkillDef
 @export var knockback: float = 520.0
 ## 히트스톱 길이(실시간 초).
 @export var hit_stop: float = 0.08
+@export_group("큰 변형 · 사방 검기")
+## 반격과 함께 사방으로 날리는 관통 검기 수 (0이면 없음).
+@export var radial_blades: int = 0
+@export var blade_damage: int = 25
 
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
@@ -25,6 +29,15 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		for i in 4:
 			var d := Vector2.from_angle(TAU * i / 4.0 + PI / 4.0) * radius * 0.9
 			ctx.fx.add_slash(center - d, center + d, 16.0, 0.25, fx_color)
+	for i in radial_blades:
+		var dir := Vector2.from_angle(TAU * i / float(radial_blades))
+		ctx.spawn_projectile_configured(func(pr: Projectile) -> void:
+			pr.direction = dir
+			pr.speed = 760.0
+			pr.lifetime = 0.6
+			pr.pierce = true
+			pr.damage = blade_damage
+			pr.size_scale = 1.3)
 	if hits > 0:
 		ctx.hit_stop(hit_stop)
 	return SkillRun.instant(hits)

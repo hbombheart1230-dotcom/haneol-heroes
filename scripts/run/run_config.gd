@@ -12,5 +12,5 @@ extends Resource
 @export var ramp_time: float = 120.0
 ## 0보다 크면 이 시간을 버티면 승리 (P0 방식). 0이면 보스 처치만 승리.
 @export var survive_time: float = 0.0
-## 레벨업 선택 화면이 뜬 직후 입력을 막는 시간(초). 이동 중 손가락으로 잘못 고르는 것 방지.
-@export var choice_input_delay: float = 0.35
+## 정예 등장 시각(초). 처치하면 큰 변형(금빛 인장)을 고른다.
+@export var elite_times: PackedFloat32Array = PackedFloat32Array([60.0, 110.0])

@@ -53,7 +53,7 @@
 | P0-D | 실기기 검증: 조작·스킬·60초 생존·성능·플레이 평가 | 예정 |
 | 2단계 | 전투 손맛: 적 3종·예고 공격, 대시 회피 → 1초 강화 반격, 보스 1종(3패턴), 히트스톱·효과음 | 구현 · Codex PASS (PR #5) |
 | 아트 | 3D 모델을 쿼터뷰 스프라이트로 굽기 + 수묵 후처리, 한지 바닥 (임시 캐릭터) | 구현 · Codex PASS WITH NOTES (PR #7–#9) |
-| 3단계 | 런 루프: 처치 경험치 → 레벨업 때 성장 3개 중 1개 선택(기술 변형·능력치, 데이터), 2:30 보스 → 처치 시 승리 | 구현 · 검증 중 |
+| 3단계 | 런 루프: 처치 경험치 → 레벨업 때 시간이 느려지고 주변에 먹 인장 3개, 대시로 낚아채 성장(3초 지나면 가장 가까운 것). 1:00·1:50 정예 처치 → 금빛 인장 큰 변형(소용돌이·물보라·세 갈래·사방 검기). 2:30 보스 처치 시 승리 | 구현 · 검증 중 |
 
 P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서버, 광고·결제, 멀티플레이, 정식 그래픽. (성장은 사용자 결정으로 3단계에서 런 안 성장만 추가)
 
@@ -68,7 +68,7 @@ P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서�
 - 터치 이벤트 합쳐짐·프레임 끊김 시 플릭 판정 확인 (Codex 메모)
 - 단독 pck에 남는 `addons/gdUnit4/plugin.cfg` 정리 (APK에는 없음)
 - GitHub Actions 자동 테스트(setup-godot), 저장소 공개 범위
-- 레벨업 선택 방식 대안 (지금은 익숙한 카드 3택 1 유지): 대시로 인장 낚아채기(느린 시간), 롤식 스킬 포인트 "+", 쓰는 만큼 숙련 진화, 정예·보스 큰 변형
+- 레벨업 방식 다른 대안 (지금은 인장 낚아채기 + 정예 큰 변형): 롤식 스킬 포인트 "+", 쓰는 만큼 숙련 진화
 
 ## 시작하기
 
@@ -123,7 +123,7 @@ APK는 git에 올리지 않는다. 패키지 ID `com.haneol.heroes`는 임시값
 **AI 3D 영웅 (Meshy):** 기준 그림(`assets/concept/<영웅>/`) → 3D 생성 → 자동 뼈대 → 동작 → 굽기 → 영웅 데이터 교체를 한 번에 한다. 유료 Meshy 플랜의 API 키를 `setx MESHY_API_KEY "키"`로 등록한 뒤:
 `python tools/ai3d/meshy_pipeline.py plan tools/ai3d/heroes/yi_sun_sin.json` (예상 크레딧 확인) → `... run ... --yes`. 진행 상태는 `assets/models/meshy/<영웅>/state.json`에 남아 끊겨도 이어 한다. **무료 플랜(API 없음)**은 meshy.ai 웹에서 기준 그림으로 생성 → 뼈대(Rig) → 동작을 붙여 .glb로 받은 뒤 `... import <설정> 받은.glb [동작별.glb ...]`로 굽기·적용한다 (파일 이름에 idle/run/attack 등이 들어 있으면 동작별 파일로 인식). 무료 플랜 산출물은 CC BY 4.0이라 크레딧에 "Meshy" 표기가 필요하다. 동작 목록은 `... actions <검색어>`, 오프라인 테스트는 `python -m unittest tools/ai3d/test_meshy_pipeline.py`.
 **새 적 추가:** `data/enemies/<적>.tres` (행동이 다르면 전용 스크립트, 처치 경험치 `xp`).
-**성장 선택지:** `data/upgrades/<영웅>.tres` (`UpgradePool` → `UpgradeDef` → `StatMod`: 대상 hero/attack/kit/tap/dash/charge/counter의 속성을 더하기·곱하기). 런 규칙(경험치 곡선, 보스 시각)은 `data/runs/default_run.tres`.
+**성장 선택지:** `data/upgrades/<영웅>.tres` (`UpgradePool` → `UpgradeDef` → `StatMod`: 대상 hero/attack/kit/tap/dash/charge/counter의 속성을 더하기·곱하기). 큰 변형은 `data/upgrades/<영웅>_major.tres` (기술 스크립트의 변형 값을 켠다). 런 규칙(경험치 곡선, 정예·보스 시각)은 `data/runs/default_run.tres`.
 
 ## 개발·검증 방식
 

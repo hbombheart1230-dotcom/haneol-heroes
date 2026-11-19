@@ -10,4 +10,4 @@ choice_count = 3
 boss_time = 150.0
 ramp_time = 120.0
 survive_time = 0.0
-choice_input_delay = 0.35
+elite_times = PackedFloat32Array(60, 110)
