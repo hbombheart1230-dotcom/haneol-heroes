@@ -164,6 +164,7 @@ func test_boss_defeat_is_victory() -> void:
 
 
 func test_main_scene_boss_kill_ends_with_victory() -> void:
+	_skip_hero_select()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	await get_tree().physics_frame
@@ -185,3 +186,11 @@ func test_shockwave_follows_boss_during_telegraph() -> void:
 	assert_vector(a.aim_origin).is_equal(Vector2(400, 0))
 	assert_bool(a.contains(Vector2(400, 200))).is_true()
 	assert_bool(a.contains(Vector2(100, -200))).is_false()
+
+
+## 메인 씬 테스트: 영웅 고르기 화면 없이 이순신으로, 실제 설정 파일은 건드리지 않는다.
+func _skip_hero_select() -> void:
+	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.hero_picked = true
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.save_settings()

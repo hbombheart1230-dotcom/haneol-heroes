@@ -28,12 +28,28 @@ var sprite: AnimatedSprite2D
 var attack: EnemyAttack
 ## 넉백 속도 (매 프레임 감쇠).
 var knockback: Vector2 = Vector2.ZERO
+var _stun_left: float = 0.0
 ## 넉백 감쇠율(초당). 클수록 빨리 멈춘다.
 @export var knockback_damping: float = 8.0
 
 
 func apply_knockback(impulse: Vector2) -> void:
 	knockback += impulse * (data.knockback_scale if data else 1.0)
+
+
+## 기절: 그동안 움직이지도 공격하지도 않는다. 기절에 약한 적(stun_scale 1 이상)은 예고 공격이 끊긴다.
+func stun(seconds: float) -> void:
+	var scale := data.stun_scale if data else 1.0
+	if seconds * scale <= 0.0:
+		return
+	_stun_left = maxf(_stun_left, seconds * scale)
+	if attack and scale >= 1.0 and attack.is_busy():
+		attack.cancel()
+	queue_redraw()
+
+
+func is_stunned() -> bool:
+	return _stun_left > 0.0
 
 
 func _ready() -> void:
@@ -85,6 +101,14 @@ func compute_velocity(neighbors: Array) -> Vector2:
 
 func _physics_process(delta: float) -> void:
 	var busy := false
+	if _stun_left > 0.0:
+		_stun_left = maxf(_stun_left - delta, 0.0)
+		velocity = knockback
+		knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
+		move_and_slide()
+		_flash = maxf(_flash - delta, 0.0)
+		queue_redraw()
+		return
 	if attack:
 		var r := attack.tick(delta, global_position, target as Player)
 		if r == EnemyAttack.Result.FIRED:
@@ -171,6 +195,10 @@ func _on_died(_entity: Node) -> void:
 
 func _draw() -> void:
 	EnemyArt.draw(self)
+	if _stun_left > 0.0:  # 기절: 머리 위 번개 고리
+		var top := Vector2(0, -body_radius * 2.2)
+		var spin := Time.get_ticks_msec() * 0.008
+		draw_arc(top, body_radius * 0.6, spin, spin + PI * 1.3, 12, Color(1.0, 0.9, 0.3, 0.9), 3.0)
 
 
 func flash_left() -> float:

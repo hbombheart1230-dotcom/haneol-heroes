@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dwhdm4x6rptf5"
-path="res://.godot/imported/run.png-807bb7cd36ad1875f5da699f3ae0f791.ctex"
+uid="uid://uitn4rpuq6yq"
+path="res://.godot/imported/idle.png-2b2e5884767dfdf1a86aad6dc0c3b7cf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/barbarian_boss_ink/run.png"
-dest_files=["res://.godot/imported/run.png-807bb7cd36ad1875f5da699f3ae0f791.ctex"]
+source_file="res://assets/sprites/barbarian_ink/idle.png"
+dest_files=["res://.godot/imported/idle.png-2b2e5884767dfdf1a86aad6dc0c3b7cf.ctex"]
 
 [params]
 

@@ -26,6 +26,7 @@ color = Color(0.45, 0.28, 0.6, 1)
 attack = SubResource("Attack_heavy_slam")
 preferred_range = 0.0
 knockback_scale = 0.3
+stun_scale = 0.8
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.0
 sprite_offset = Vector2(0, -30)

@@ -48,6 +48,8 @@ var _since_dash_end: float = INF
 ## 마지막 대시 시작 후 지난 시간(초)과 시작 위치 (회피 판정용).
 var _since_dash_start: float = INF
 var _dash_start_pos: Vector2 = Vector2.ZERO
+## 이번 대시에 이미 밀쳐 낸 적 (한 번씩만).
+var _shoved: Dictionary = {}
 
 
 func _init() -> void:
@@ -62,6 +64,15 @@ func _ready() -> void:
 	dash = DashCharges.new(max_dash_charges, dash_recharge_time)
 
 
+## 판 시작 전 영웅 바꾸기 (고르기 화면). 대시 충전도 새로 만든다.
+func change_hero(h: HeroData) -> void:
+	apply_hero(h)
+	dash = DashCharges.new(max_dash_charges, dash_recharge_time)
+	var view := get_node_or_null("PlayerView") as PlayerView
+	if view:
+		view.refresh()
+
+
 func apply_hero(h: HeroData) -> void:
 	hero = h
 	move_speed = h.move_speed
@@ -74,6 +85,25 @@ func apply_hero(h: HeroData) -> void:
 	if health:
 		health.max = h.max_hp
 		health.current = h.max_hp
+
+
+## 대시 돌격: 경로 옆 적을 대시 방향의 옆으로 밀쳐 낸다. 밀친 적 수를 돌려준다.
+func shove_enemies(list: Array) -> int:
+	var n := 0
+	for e in list:
+		var en := e as Enemy
+		if en == null or not is_instance_valid(en) or _shoved.has(en.get_instance_id()):
+			continue
+		var off := en.global_position - global_position
+		if off.length() > hero.dash_shove_radius + en.body_radius:
+			continue
+		_shoved[en.get_instance_id()] = true
+		var side := _dash_dir.orthogonal()
+		if off.dot(side) < 0.0:
+			side = -side
+		en.apply_knockback((side * 0.8 + _dash_dir * 0.4).normalized() * hero.dash_shove)
+		n += 1
+	return n
 
 
 ## 성장으로 hero 수치가 바뀐 뒤 다시 읽는다 (체력은 늘어난 만큼 회복, 대시 충전은 늘어난 만큼 채움).
@@ -210,6 +240,7 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 	_glide_left = 0.0
 	_since_dash_start = 0.0
 	_dash_start_pos = global_position
+	_shoved.clear()
 	facing = _dash_dir
 	dash_started.emit(_dash_dir)
 	return true
@@ -245,6 +276,8 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		return
 	velocity = compute_velocity(delta)
+	if is_dashing() and hero and hero.dash_shove > 0.0:
+		shove_enemies(get_tree().get_nodes_in_group(Enemy.GROUP))
 	apply_contact_damage(delta, _touching_damage())
 	move_and_slide()
 	if arena_rect.has_area():

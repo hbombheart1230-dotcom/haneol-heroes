@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("1_set")
-frame_size = 192
+frame_size = 160
 directions = 8
 anim_names = PackedStringArray("idle", "run", "dash", "attack", "hit", "death")
 textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3"), ExtResource("t4"), ExtResource("t5")])
