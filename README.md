@@ -21,10 +21,10 @@
 
 | 영웅 | 칭호 | 역할 | 상태 |
 |---|---|---|---|
-| 이순신 | 푸른 해류의 검 | 근접·원거리 복합형 검사 | P0 플레이어블 |
-| 광개토대왕 | 천둥의 정복자 | 중량급 돌진형 전사 | 기획 |
-| 세종대왕 | 천문의 지배자 | 원거리 마법형 | 기획 |
-| 신사임당 | 수묵의 술사 | 자연·소환·광역 마법형 | 기획 |
+| 순신 (이순신) | 푸른 해류의 검 | 근접·원거리 복합형 검사 | P0 플레이어블 |
+| 광개토 (광개토대왕) | 천둥의 정복자 | 중량급 돌진형 전사 | 플레이어블 (임시 모델) |
+| 세종 (세종대왕) | 천문의 지배자 | 원거리 마법형 | 기획 |
+| 사임당 (신사임당) | 수묵의 술사 | 자연·소환·광역 마법형 | 기획 |
 
 ## 조작
 
@@ -69,6 +69,7 @@ P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서�
 - 터치 이벤트 합쳐짐·프레임 끊김 시 플릭 판정 확인 (Codex 메모)
 - 단독 pck에 남는 `addons/gdUnit4/plugin.cfg` 정리 (APK에는 없음)
 - GitHub Actions 자동 테스트(setup-godot), 저장소 공개 범위
+- 장비 (나중에): 6부위(무기·투구·상의·하의·장갑·장화) × 5등급, 공통 능력치 + 영웅별 외형, 세트 효과. 외형은 Meshy 한 덩어리 모델 한계로 몸 통째 단계 + 무기 레이어 + 등급 빛이 현실적. 지금은 영웅당 모델 하나
 - 레벨업 방식 다른 대안 (지금은 인장 낚아채기 + 정예 큰 변형): 롤식 스킬 포인트 "+", 쓰는 만큼 숙련 진화
 
 ## 시작하기
@@ -91,6 +92,13 @@ godot --headless --path . -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gd
 ```
 
 종료 코드 0이면 전체 통과. 결과는 `reports/`에 생성된다.
+
+### 플레이스토어 빌드 (AAB)
+
+1. 한 번만: `%APPDATA%\Godot\export_templates.7.2.stablendroid_source.zip`을 `android/build/`에 풀고, `android/.build_version`에 `4.7.2.stable`을 적고, `android/build/.gdignore`를 만든다 (`android/`는 용량이 커서 깃에서 제외).
+2. 업로드 서명 키는 저장소 밖 `%USERPROFILE%\.haneol-keys\`(`upload.jks`, `upload-key.txt`)에만 둔다. **따로 백업한다.**
+3. `powershell -ExecutionPolicy Bypass -File tools/build/export_aab.ps1` → `build/android/haneol-heroes.aab` (내보내기 설정 "Android Play (AAB)", arm64 + armeabi-v7a).
+4. 스토어 대표 그래픽: `assets/store/feature_graphic_1024x500.png` (APK 제외).
 
 ### Android APK
 

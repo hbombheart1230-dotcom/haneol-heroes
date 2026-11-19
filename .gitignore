@@ -4,7 +4,7 @@
 export_presets.cfg.bak
 
 # 빌드 산출물
-build/
+/build/
 *.apk
 *.aab
 *.keystore
@@ -15,3 +15,6 @@ addons/gdUnit4/GdUnitRunner.cfg
 
 # 파이썬
 __pycache__/
+
+# Android 빌드 템플릿 (export_templates/<버전>/android_source.zip에서 풀어 쓴다, 용량 큼)
+android/

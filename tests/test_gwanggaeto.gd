@@ -52,7 +52,7 @@ func _enemy_at(pos: Vector2, data: EnemyData = HEAVY) -> Enemy:
 # --- 데이터 ---
 
 func test_hero_data_is_complete_and_distinct() -> void:
-	assert_str(GW.display_name).is_equal("광개토대왕")
+	assert_str(GW.display_name).is_equal("광개토")
 	assert_int(GW.max_hp).is_greater(YI.max_hp)
 	assert_float(GW.move_speed).is_less(YI.move_speed)
 	assert_float(GW.dash_shove).is_greater(0.0)

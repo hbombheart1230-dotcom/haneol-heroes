@@ -95,7 +95,7 @@ full_charge_time = 1.0
 [resource]
 script = ExtResource("1_hero")
 id = &"yi_sun_sin"
-display_name = "이순신"
+display_name = "순신"
 tagline = "푸른 해류의 검
 빠르게 누비며 벤다"
 body_color = Color(0.13, 0.27, 0.55, 1)

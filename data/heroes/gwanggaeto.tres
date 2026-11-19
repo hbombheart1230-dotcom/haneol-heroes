@@ -83,7 +83,7 @@ full_charge_time = 1.1
 [resource]
 script = ExtResource("1_hero")
 id = &"gwanggaeto"
-display_name = "광개토대왕"
+display_name = "광개토"
 tagline = "천둥의 정복자
 들어가서 터뜨린다"
 body_color = Color(0.55, 0.25, 0.15, 1)
