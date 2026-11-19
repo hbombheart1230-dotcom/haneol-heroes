@@ -1,9 +1,12 @@
-# 플레이스토어용 릴리스 AAB 빌드 (내보내기 설정 "Android Play (AAB)", gradle 빌드).
+# 릴리스 빌드: 플레이스토어용 AAB (기본, 내보내기 설정 "Android Play (AAB)", gradle) 또는 -Apk.
 # 업로드 서명 키는 저장소 밖 %USERPROFILE%\.haneol-keys\ 에만 둔다 (upload.jks + upload-key.txt).
 # 키 정보는 환경 변수로만 Godot에 넘긴다 (export_presets.cfg·로그에 남기지 않는다).
 # 처음 한 번: android/build 템플릿을 export_templates\<버전>\android_source.zip에서 풀어 둔다 (README 참고).
 #   powershell -ExecutionPolicy Bypass -File tools/build/export_aab.ps1
-param([string]$Out = "build/android/haneol-heroes.aab")
+#   -Apk : 원격 전달용 릴리스 APK (내보내기 설정 "Android", 디버그 기능을 빼서 엔진이 약 1.8 MB 작다)
+param([string]$Out = "", [switch]$Apk)
+$preset = if ($Apk) { "Android" } else { "Android Play (AAB)" }
+if (-not $Out) { $Out = if ($Apk) { "build/android/haneol-heroes-release.apk" } else { "build/android/haneol-heroes.aab" } }
 $ErrorActionPreference = "Stop"
 try {
     $keyFile = Join-Path $env:USERPROFILE ".haneol-keys\upload-key.txt"
@@ -22,7 +25,7 @@ try {
     }
     if (-not $godot) { throw "Godot 콘솔 실행 파일을 찾지 못했습니다 (GODOT_BIN으로 지정)" }
     New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
-    & $godot --headless --path . --export-release "Android Play (AAB)" $Out
+    & $godot --headless --path . --export-release $preset $Out
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path $Out)) { throw "AAB 빌드 실패 (exit $LASTEXITCODE)" }
 }
 finally {
