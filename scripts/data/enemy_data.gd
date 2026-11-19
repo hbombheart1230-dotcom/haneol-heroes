@@ -20,3 +20,9 @@ extends Resource
 ## 보스: 처치하면 승리, 화면 위 체력 막대 표시.
 @export var is_boss: bool = false
 @export var display_name: String = ""
+## 구워진 8방향 스프라이트 (tools/bake). 비어 있으면 코드 그림.
+@export var sprite_sheet: SpriteSheetSet
+@export var sprite_scale: float = 1.0
+@export var sprite_offset: Vector2 = Vector2(0, -24)
+## 스프라이트 색 보정 (보스 금빛 등).
+@export var sprite_tint: Color = Color(1, 1, 1)

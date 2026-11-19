@@ -28,6 +28,7 @@ static func _draw_counter_prompt(canvas: CanvasItem, controller: TouchController
 	for r in [Rect2(0, 0, size.x, w), Rect2(0, size.y - w, size.x, w), Rect2(0, 0, w, size.y), Rect2(size.x - w, 0, w, size.y)]:
 		canvas.draw_rect(r, Color(c, 0.35 + 0.3 * k))
 	var y := size.y * 0.72
+	canvas.draw_string_outline(font, Vector2(0, y), sc.kit.counter.display_name + "!", HORIZONTAL_ALIGNMENT_CENTER, size.x, 44, 8, Color(Ink.INK, 0.9))
 	canvas.draw_string(font, Vector2(0, y), sc.kit.counter.display_name + "!", HORIZONTAL_ALIGNMENT_CENTER, size.x, 44, Color(c, 0.95))
 	var bar := Rect2(size.x * 0.3, y + 16, size.x * 0.4, 10)
 	canvas.draw_rect(bar, Color(0, 0, 0, 0.5))
@@ -67,8 +68,8 @@ static func _draw_status(canvas: CanvasItem, controller: TouchController, sc: Sk
 		var c := Vector2(size.x - 60 - (slots.size() - 1 - i) * 78, size.y - 70)
 		canvas.draw_circle(c, r, Color(def.color, 0.85 if sc.is_ready(slot) else 0.3))
 		_draw_cooldown(canvas, c, r, sc.cooldown_ratio(slot))
-		canvas.draw_string(font, c + Vector2(-40, -r - 8), def.display_name, HORIZONTAL_ALIGNMENT_CENTER, 80, 16, Color(1, 1, 1, 0.8))
-		canvas.draw_string(font, c + Vector2(-40, r + 18), hints[i], HORIZONTAL_ALIGNMENT_CENTER, 80, 14, Color(1, 1, 1, 0.55))
+		canvas.draw_string(font, c + Vector2(-40, -r - 8), def.display_name, HORIZONTAL_ALIGNMENT_CENTER, 80, 16, Color(1, 1, 1, 0.85))
+		canvas.draw_string(font, c + Vector2(-40, r + 18), hints[i], HORIZONTAL_ALIGNMENT_CENTER, 80, 14, Color(1, 1, 1, 0.6))
 
 
 static func _draw_toggle(canvas: CanvasItem, controller: TouchController, font: Font) -> void:

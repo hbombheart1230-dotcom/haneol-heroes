@@ -49,8 +49,8 @@ func _draw_health() -> void:
 func _draw_status() -> void:
 	var font := get_theme_default_font()
 	var t := "%d" % ceili(state.time_left())
-	draw_string(font, Vector2(0, 92), t, HORIZONTAL_ALIGNMENT_CENTER, size.x, 52, Color(1, 1, 1, 0.9))
-	draw_string(font, Vector2(16, 70), "처치 %d" % state.kills, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, Color(1, 1, 1, 0.85))
+	_ink_text(font, Vector2(0, 92), t, HORIZONTAL_ALIGNMENT_CENTER, size.x, 52)
+	_ink_text(font, Vector2(16, 70), "처치 %d" % state.kills, HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
 
 
 ## 보스 체력 막대 (보스가 살아 있을 때 화면 위).
@@ -67,7 +67,7 @@ func _draw_boss_bar() -> void:
 	draw_rect(r, Color(1, 0.9, 0.6, 0.6), false, 2.0)
 	var font := get_theme_default_font()
 	var name_text := b.data.display_name if b.data.display_name != "" else "보스"
-	draw_string(font, Vector2(0, r.position.y - 4), name_text, HORIZONTAL_ALIGNMENT_CENTER, size.x, 22, Color(1, 0.9, 0.6))
+	_ink_text(font, Vector2(0, r.position.y - 4), name_text, HORIZONTAL_ALIGNMENT_CENTER, size.x, 22)
 
 
 func _draw_dash_pips() -> void:
@@ -107,5 +107,11 @@ func _draw_touch_debug() -> void:
 	var enemies := get_tree().get_nodes_in_group(Enemy.GROUP).size()
 	var info := "FPS %d  적 %d" % [Engine.get_frames_per_second(), enemies]
 	if controller.dash_note != "":
-		draw_string(font, Vector2(16, size.y - 140), controller.dash_note, HORIZONTAL_ALIGNMENT_LEFT, size.x - 32, 20, Color(1, 1, 0.6, 0.85))
-	draw_string(font, Vector2(16, size.y - 110), info, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(1, 1, 1, 0.6))
+		_ink_text(font, Vector2(16, size.y - 140), controller.dash_note, HORIZONTAL_ALIGNMENT_LEFT, size.x - 32, 20)
+	_ink_text(font, Vector2(16, size.y - 110), info, HORIZONTAL_ALIGNMENT_LEFT, -1, 22)
+
+
+## 전장 바닥 위 글자: 흰 글씨 + 어두운 테두리.
+func _ink_text(font: Font, pos: Vector2, text: String, align: HorizontalAlignment, width: float, size_px: int) -> void:
+	draw_string_outline(font, pos, text, align, width, size_px, 5, Color(0, 0, 0, 0.7))
+	draw_string(font, pos, text, align, width, size_px, Color(1, 1, 1, 0.95))

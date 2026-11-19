@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+[ext_resource type="Resource" path="res://assets/sprites/barbarian_boss/barbarian_boss.tres" id="3_sheet"]
 
 [sub_resource type="Resource" id="Boss_cone"]
 script = ExtResource("2_attack")
@@ -50,3 +51,7 @@ color = Color(0.7, 0.55, 0.2, 1)
 knockback_scale = 0.1
 patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge"), SubResource("Boss_shockwave")])
 is_boss = true
+sprite_sheet = ExtResource("3_sheet")
+sprite_scale = 1.25
+sprite_offset = Vector2(0, -62)
+sprite_tint = Color(1, 0.92, 0.75, 1)
