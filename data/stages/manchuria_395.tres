@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
 
 [resource]
 script = ExtResource("1_theme")
@@ -16,3 +17,4 @@ grass_color = Color(0.3, 0.31, 0.17, 0.75)
 rock_color = Color(0.22, 0.2, 0.17, 0.6)
 clear_radius = 260.0
 seed = 395
+music = ExtResource("2_music")

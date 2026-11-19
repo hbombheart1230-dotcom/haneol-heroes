@@ -32,6 +32,7 @@ ranged_glyphs = "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ"
 
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
+sfx = &"magic"
 icon = ExtResource("i_jeongeum")
 id = &"jeongeum"
 display_name = "정음진"
@@ -41,6 +42,7 @@ fx_color = Color(1, 0.85, 0.45, 1)
 
 [sub_resource type="Resource" id="Skill_dash"]
 script = ExtResource("s1")
+sfx = &"magic"
 icon = ExtResource("i_meteor")
 id = &"meteor"
 display_name = "유성"
@@ -50,6 +52,7 @@ fx_color = Color(0.75, 0.85, 1, 1)
 
 [sub_resource type="Resource" id="Skill_charge"]
 script = ExtResource("s2")
+sfx = &"magic"
 icon = ExtResource("i_constellation")
 id = &"constellation"
 display_name = "성좌진"

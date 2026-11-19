@@ -1,0 +1,39 @@
+extends GdUnitTestSuite
+## 효과음·음악: CC0 녹음 묶음, 기술별 소리, 무대 음악.
+
+const BANK := preload("res://data/audio/sfx_bank.tres")
+const STAGE := preload("res://data/stages/manchuria_395.tres")
+
+
+func test_bank_covers_every_synth_kind_plus_magic_and_ui() -> void:
+	for kind in SfxSynth.DURATIONS.keys():
+		assert_bool(BANK.has(kind)).override_failure_message(String(kind)).is_true()
+	assert_bool(BANK.has(&"magic")).is_true()
+	assert_bool(BANK.has(&"ui")).is_true()
+	var rng := RandomNumberGenerator.new()
+	for k in BANK.sounds.keys():
+		assert_object(BANK.pick(k, rng)).is_not_null()
+
+
+func test_stage_music_loops() -> void:
+	assert_object(STAGE.music).is_not_null()
+	assert_bool((STAGE.music as AudioStreamOggVorbis).loop).is_true()
+
+
+func test_mage_heroes_cast_with_magic_sound() -> void:
+	for path in ["sejong", "shin_saimdang"]:
+		var kit: SkillKit = (load("res://data/heroes/%s.tres" % path) as HeroData).kit
+		assert_str(String(kit.tap.sfx)).is_equal("magic")
+		assert_str(String(kit.counter.sfx)).is_equal("")  # 반격은 기본 반격 소리
+
+
+func test_feedback_plays_bank_sound_and_music() -> void:
+	var fb: Feedback = auto_free(Feedback.new())
+	fb.bank = BANK
+	add_child(fb)
+	fb.play(&"slash", 0.0)
+	assert_bool(BANK.sounds[&"slash"].has(fb._players[0].stream)).is_true()
+	fb.play_music(STAGE.music)
+	assert_bool(fb.music_playing()).is_true()
+	fb.play(&"ui", 0.0)
+	assert_object(fb._players[1].stream).is_same(BANK.sounds[&"ui"][0])
