@@ -12,10 +12,12 @@ extends Resource
 @export var move_speed: float = 340.0
 ## 피격 후 무적 시간(초).
 @export var hurt_invuln_time: float = 0.6
+## 회피 성공(예고 원을 대시로 벗어남) 즉시 무적 시간(초).
+@export var evade_invuln_time: float = 1.0
 
 @export_group("대시")
 @export var dash_distance: float = 260.0
-@export var dash_duration: float = 0.16
+@export var dash_duration: float = 0.12
 @export var max_dash_charges: int = 2
 @export var dash_recharge_time: float = 1.2
 

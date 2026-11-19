@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/haeryong_skill.gd" id="4_haeryong"]
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/pado_skill.gd" id="5_pado"]
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/haeil_skill.gd" id="6_haeil"]
+[ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/counter_skill.gd" id="7_counter"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -13,6 +14,7 @@ melee_interval = 0.55
 melee_range = 110.0
 melee_arc_degrees = 140.0
 melee_damage = 12
+melee_knockback = 140.0
 ranged_interval = 0.8
 ranged_range = 480.0
 ranged_damage = 10
@@ -56,11 +58,25 @@ max_scale = 3.2
 speed = 650.0
 lifetime = 1.1
 
+[sub_resource type="Resource" id="Skill_counter"]
+script = ExtResource("7_counter")
+id = &"counter"
+display_name = "강화 반격"
+cooldown = 0.0
+color = Color(1, 0.85, 0.35, 1)
+fx_color = Color(1, 0.9, 0.5, 1)
+radius = 230.0
+damage = 60
+knockback = 520.0
+hit_stop = 0.08
+
 [sub_resource type="Resource" id="Kit_yi"]
 script = ExtResource("3_kit")
 tap = SubResource("Skill_haeryong")
 dash = SubResource("Skill_pado")
 charge = SubResource("Skill_haeil")
+counter = SubResource("Skill_counter")
+counter_window = 1.0
 dash_link_window = 0.45
 hold_threshold = 0.2
 full_charge_time = 1.0
@@ -73,9 +89,10 @@ body_color = Color(0.15, 0.4, 0.8, 1)
 max_hp = 100
 move_speed = 340.0
 hurt_invuln_time = 0.6
+evade_invuln_time = 1.0
 dash_distance = 260.0
-dash_duration = 0.16
-max_dash_charges = 2
-dash_recharge_time = 1.2
+dash_duration = 0.12
+max_dash_charges = 4
+dash_recharge_time = 0.9
 attack = SubResource("Attack_yi")
 kit = SubResource("Kit_yi")

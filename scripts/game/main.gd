@@ -17,6 +17,9 @@ func _ready() -> void:
 	# 결과 화면에서 재시작 입력을 받으려면 Main은 일시정지 중에도 돌아야 한다.
 	# 게임 오브젝트는 일시정지되도록 명시한다 (INHERIT면 Main의 ALWAYS를 물려받음).
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# 이전 판의 히트스톱·예고 공격 슬롯이 남지 않게 초기화.
+	Engine.time_scale = 1.0
+	EnemyAttack.active_windups = 0
 	for c in get_children():
 		if not (c is CanvasLayer):
 			c.process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -26,7 +29,7 @@ func _ready() -> void:
 	if player and player.health:
 		player.health.died.connect(func(_e: Node) -> void: state.player_died())
 	if spawner:
-		spawner.enemy_killed.connect(func(_e: Enemy) -> void: state.add_kill())
+		spawner.enemy_killed.connect(_on_enemy_killed)
 	if hud:
 		hud.state = state
 		hud.perf = perf
@@ -64,3 +67,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func restart() -> void:
 	get_tree().paused = false
 	get_tree().reload_current_scene()
+
+
+func _on_enemy_killed(e: Enemy) -> void:
+	state.add_kill()
+	if e.data and e.data.is_boss:
+		state.boss_defeated()

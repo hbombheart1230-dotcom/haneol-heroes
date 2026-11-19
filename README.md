@@ -39,6 +39,7 @@
 | 대시 중·직후 손 떼기 (튕기며 떼면 대시+파도격) | 파도격: 대시 방향 관통 3연격 | 구현 |
 | 제자리 꾹 누르기 → 이동 → 떼기 (한 손) | 해일검기: 충전 관통 물결, 이동하며 충전 | 구현 |
 | 스킬 버튼 (선택, 오른쪽 위 토글로 켜기·끄기, 기본 끔) | 짧게 = 해룡참, 대시 중·직후 = 파도격, 길게 = 해일검기 | 구현 |
+| 적 예고 공격을 대시로 피한 뒤 1초 안에 탭 / 대시 후 떼기 / 버튼 | 강화 반격: 넓은 범위 큰 피해·넉백·히트스톱 (최우선) | 구현 |
 
 데스크톱에서는 마우스가 터치로 에뮬레이션된다.
 
@@ -60,7 +61,7 @@ P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서�
 - 플릭 vs 더블탭 비교 옵션 (오발동 대시는 기준 상향·급가속 조건으로 1차 조정함)
 - 스킬 버튼 위치·크기, 파도격 연계 시간 재조정
 - 정식 패키지 ID, Android 13+ 테마 아이콘
-- 전투 이펙트 에셋(Stylized 2D VFX Lite 등) 검토, 데미지 숫자 표시
+- 전투 이펙트 에셋(Stylized 2D VFX Lite 등) 검토, 정식 효과음(Kenney CC0 등 — 자동 다운로드 차단돼 수동 확보 필요)
 - 터치 이벤트 합쳐짐·프레임 끊김 시 플릭 판정 확인 (Codex 메모)
 - 단독 pck에 남는 `addons/gdUnit4/plugin.cfg` 정리 (APK에는 없음)
 - GitHub Actions 자동 테스트(setup-godot), 저장소 공개 범위
@@ -100,7 +101,7 @@ APK는 git에 올리지 않는다. 패키지 ID `com.haneol.heroes`는 임시값
 | 경로 | 내용 |
 |---|---|
 | `data/heroes/*.tres` | 영웅 데이터 (능력치, 대시, 기본 공격, 단일 버튼 기술 구성) |
-| `data/enemies/*.tres` | 적 데이터 |
+| `data/enemies/*.tres` | 적 데이터: 잡병(chaser), 궁수(archer, 거리 유지·화살), 중장병(heavy, 느림·단단함·큰 내려찍기), 보스(boss_general: 40초 등장, 부채꼴·돌진·충격파 순환, 처치 시 승리) |
 | `scripts/data/` | 데이터 클래스: `HeroData`, `BasicAttackData`, `EnemyData` |
 | `scripts/skills/` | 공통 기술 시스템: 입력 상태(`SkillInput`), 상황 판단(`SkillCaster`), 기술 기반(`SkillDef`, `SkillRun`, `SkillContext`, `SkillKit`) |
 | `scripts/heroes/<영웅>/` | 영웅 전용 기술 (이순신: 해룡참, 파도격, 해일검기) |
@@ -138,6 +139,7 @@ Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-ag
 | 자산 | 버전 | 라이선스 | 출처 |
 |---|---|---|---|
 | gdUnit4 | 6.2.3 | MIT (`addons/gdUnit4/LICENSE`) | https://github.com/godot-gdunit-labs/gdUnit4 |
+| (임시 효과음) | — | 자체 합성 (`scripts/fx/sfx_synth.gd`) | 엔진 AudioStreamWAV. 정식 효과음은 아트·사운드 단계에서 교체 |
 | Health, HitBoxes, HurtBoxes and HitScans | 5.0.4 + HH 패치 | MIT (`addons/health_hitbox_hurtbox/LICENSE`) | https://github.com/cluttered-code/godot-health-hitbox-hurtbox |
 
 HH 패치: `health/health.gd`의 피격 로그를 `verbose_debug`(기본 꺼짐)일 때만 출력하도록 변경. 원본은 매 피격마다 출력해 적 30마리 전투에서 성능 부담이 있다.

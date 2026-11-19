@@ -25,6 +25,8 @@ var touch_input := TouchMoveInput.new()
 ## 디버그 HUD용 마지막 플릭 방향과 시각.
 var last_flick_dir: Vector2 = Vector2.ZERO
 var last_flick_time: float = -INF
+## 진단용 한 줄: 마지막 대시 판정 결과 (HUD 디버그 표시).
+var dash_note: String = ""
 ## 토글을 누르고 있는 손가락 (-1 = 없음). 누르는 동안 다른 손가락은 토글하지 못한다.
 var _toggle_index: int = -1
 
@@ -80,6 +82,8 @@ func _on_drag(index: int, pos: Vector2, time: float) -> bool:
 	var flick := touch_input.touch_move(index, pos, time)
 	if not _is_charging():  # 충전 중 대시 연계는 P0 범위 밖
 		_on_flick(flick, time)
+	elif flick != Vector2.ZERO:
+		dash_note = "대시 막힘: 해일검기 충전 중"
 	return true
 
 
@@ -104,6 +108,10 @@ func _on_up(index: int, pos: Vector2, time: float, canceled: bool) -> bool:
 	var flick := touch_input.touch_up(index, pos, time)
 	if not charging:
 		_on_flick(flick, time)  # 대시를 먼저 시작해야 아래에서 대시 연계로 판정된다
+	elif flick != Vector2.ZERO:
+		dash_note = "대시 막힘: 해일검기 충전 중"
+	if flick == Vector2.ZERO:
+		_note_check()
 	if skill_caster:
 		if charging:
 			skill_caster.gesture_up(index, time)
@@ -159,7 +167,18 @@ func _on_flick(dir: Vector2, time: float) -> void:
 	last_flick_dir = dir
 	last_flick_time = time
 	if player:
-		player.request_dash(dir)
+		var ok := player.request_dash(dir)
+		dash_note = "대시 %s (%dpx·%d/s)" % ["성공" if ok else "막힘: 충전 없음",
+			roundi(float(touch_input.last_check.get("dist", 0))), roundi(float(touch_input.last_check.get("speed", 0)))]
+
+
+## 마지막 판정 결과를 진단 문구로.
+func _note_check() -> void:
+	var c := touch_input.last_check
+	if c.is_empty() or c.get("result", "") == "플릭":
+		return
+	dash_note = "대시 아님: %s (%dpx·%d/s, 필요 %d/s, 직전 %d/s)" % [c["result"], roundi(c["dist"]),
+		roundi(c["speed"]), roundi(c["need"]), roundi(c["prev"])]
 
 
 func _physics_process(_delta: float) -> void:

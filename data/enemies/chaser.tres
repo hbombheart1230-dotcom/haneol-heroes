@@ -1,6 +1,16 @@
 [gd_resource type="Resource" script_class="EnemyData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+
+[sub_resource type="Resource" id="Attack_slam"]
+script = ExtResource("2_attack")
+trigger_range = 130.0
+windup = 0.6
+radius = 80.0
+damage = 20
+cooldown = 2.5
+recovery = 0.3
 
 [resource]
 script = ExtResource("1_enemy")
@@ -10,3 +20,4 @@ move_speed = 120.0
 contact_damage = 10
 body_radius = 20.0
 color = Color(0.75, 0.2, 0.25, 1)
+attack = SubResource("Attack_slam")

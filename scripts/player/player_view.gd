@@ -40,6 +40,8 @@ func _draw() -> void:
 	# 몸체
 	var base := player.hero.body_color if player.hero else Color(0.15, 0.4, 0.8)
 	var body_color := Color(0.55, 0.85, 1.0) if player.is_dashing() else base
+	if player.skill_invuln_left() > 0.0 and not player.is_dashing():
+		body_color = Color(1.0, 0.85, 0.4)  # 회피 무적: 금색
 	var hurt := player.hurt_time_left()
 	if hurt > 0.0 and not player.is_dashing() and int(hurt * 20.0) % 2 == 0:
 		body_color = Color(1.0, 0.5, 0.5)

@@ -30,6 +30,7 @@ func test_input_is_clamped_to_unit_length() -> void:
 
 
 func test_dash_travels_dash_distance_in_dash_duration() -> void:
+	player.dash_glide_time = 0.0  # 미끄러짐 제외하고 대시 거리만
 	assert_bool(player.request_dash(Vector2.UP)).is_true()
 	assert_bool(player.is_dashing()).is_true()
 	var moved := _run(player.dash_duration + DT * 3)
@@ -63,10 +64,11 @@ func test_two_charges_then_blocked_until_recharge() -> void:
 	assert_bool(player.request_dash(Vector2.RIGHT)).is_true()
 
 
-func test_dash_request_while_dashing_is_rejected_without_spending_charge() -> void:
+func test_dash_request_while_dashing_without_charge_is_rejected() -> void:
 	player.request_dash(Vector2.RIGHT)
+	player.request_dash(Vector2.RIGHT)
+	assert_int(player.dash.charges).is_equal(0)
 	assert_bool(player.request_dash(Vector2.LEFT)).is_false()
-	assert_int(player.dash.charges).is_equal(player.max_dash_charges - 1)
 
 
 func test_zero_direction_dash_uses_move_then_facing() -> void:
@@ -113,7 +115,8 @@ func _controller() -> TouchController:
 
 func test_controller_drag_moves_player() -> void:
 	var c := _controller()
-	c.touch_input.flick_min_distance = INF  # 드문 샘플이 플릭으로 오인되지 않게
+	c.touch_input.rest_min_distance = INF  # 드문 샘플이 플릭으로 오인되지 않게
+	c.touch_input.move_min_distance = INF
 	c.handle_event(_touch(0, Vector2(360, 900), true), 0.0)
 	c.handle_event(_drag(0, Vector2(360, 1000)), 0.5)
 	c._physics_process(DT)
@@ -152,3 +155,43 @@ func test_controller_canceled_touch_resets_without_dash() -> void:
 	c.handle_event(up, 0.05)
 	assert_bool(player.is_dashing()).is_false()
 	assert_bool(c.touch_input.is_active()).is_false()
+
+
+func test_flick_during_dash_dashes_immediately() -> void:
+	player.dash_glide_time = 0.0
+	# 연속 대시: 대시 중 새 요청은 기다리지 않고 즉시 새 방향으로
+	assert_bool(player.request_dash(Vector2.RIGHT)).is_true()
+	player.compute_velocity(DT)
+	assert_bool(player.request_dash(Vector2.UP)).is_true()
+	assert_bool(player.is_dashing()).is_true()
+	assert_vector(player.get_dash_direction()).is_equal_approx(Vector2.UP, Vector2(0.001, 0.001))
+	assert_int(player.dash.charges).is_equal(0)
+	var moved := _run(player.dash_duration + DT)
+	assert_float(moved.y).is_equal_approx(-player.dash_distance, 1.0)
+
+
+func test_flick_during_dash_without_charge_is_ignored() -> void:
+	player.request_dash(Vector2.RIGHT)
+	player.request_dash(Vector2.UP)  # 2회째 (즉시)
+	assert_bool(player.request_dash(Vector2.LEFT)).is_false()  # 충전 없음
+	assert_vector(player.get_dash_direction()).is_equal_approx(Vector2.UP, Vector2(0.001, 0.001))
+
+
+
+func test_dash_end_glides_then_settles() -> void:
+	# 대시가 끝나면 뚝 멈추지 않고 짧게 미끄러지며 감속
+	player.request_dash(Vector2.RIGHT)
+	_run(player.dash_duration)
+	var v1 := player.compute_velocity(DT)
+	assert_float(v1.x).is_greater(0.0)
+	assert_float(v1.x).is_less(player.dash_distance / player.dash_duration)
+	_run(player.dash_glide_time + DT)
+	assert_vector(player.compute_velocity(DT)).is_equal(Vector2.ZERO)
+
+
+func test_new_dash_cancels_glide() -> void:
+	player.request_dash(Vector2.RIGHT)
+	_run(player.dash_duration + DT)
+	player.request_dash(Vector2.LEFT)
+	var v := player.compute_velocity(DT)
+	assert_float(v.x).is_less(0.0)

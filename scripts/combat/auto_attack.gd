@@ -68,6 +68,8 @@ func _melee(from: Vector2, toward: Vector2, enemy_list: Array) -> void:
 		var h := e.get_node_or_null("Health") as Health
 		if h:
 			h.damage(d.melee_damage)
+		if e is Enemy:  # 피격 반응: 살짝 밀려남
+			(e as Enemy).apply_knockback((e.global_position - from).normalized() * d.melee_knockback)
 	melee_swung.emit(_swing_dir, hits.size())
 	queue_redraw()
 

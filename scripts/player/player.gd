@@ -5,17 +5,21 @@ extends CharacterBody2D
 
 signal dash_started(direction: Vector2)
 signal dash_ended
+## 적 공격을 대시로 피했을 때 (회피 반격의 시작점).
+signal evaded
 
 ## 지정하면 _ready에서 아래 수치를 이 데이터로 덮어쓴다.
 @export var hero: HeroData
 @export var move_speed: float = 340.0
 ## 대시 1회 이동 거리(px)와 지속 시간(초).
 @export var dash_distance: float = 260.0
-@export var dash_duration: float = 0.16
+@export var dash_duration: float = 0.12
 @export var max_dash_charges: int = 2
 @export var dash_recharge_time: float = 1.2
 ## 피격 후 무적 시간(초).
 @export var hurt_invuln_time: float = 0.6
+## 적 공격을 대시로 피한(예고 원을 벗어난) 순간부터 무적 시간(초). 파고들어 반격하기 위함.
+@export var evade_invuln_time: float = 1.0
 ## 플레이어가 벗어날 수 없는 영역 (월드 좌표). 크기가 0이면 제한 없음.
 @export var arena_rect: Rect2 = Rect2()
 @export var body_radius: float = 26.0
@@ -29,10 +33,21 @@ var dash: DashCharges
 var health: Health
 
 var _hurt_cd: float = 0.0
+## 회피 성공 등으로 얻은 추가 무적 남은 시간(초).
+var _skill_invuln: float = 0.0
 var _dash_dir: Vector2 = Vector2.ZERO
+## 대시 끝 미끄러짐: 대시가 끝날 때 속도를 이어받아 이 시간(초) 동안 감속 (대시 사이를 매끄럽게).
+@export var dash_glide_time: float = 0.1
+## 미끄러짐 시작 속도 = 대시 속도 × 이 값.
+@export var dash_glide_ratio: float = 0.4
+var _glide_vel: Vector2 = Vector2.ZERO
+var _glide_left: float = 0.0
 var _dash_time_left: float = 0.0
 ## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력 판정용.
 var _since_dash_end: float = INF
+## 마지막 대시 시작 후 지난 시간(초)과 시작 위치 (회피 판정용).
+var _since_dash_start: float = INF
+var _dash_start_pos: Vector2 = Vector2.ZERO
 
 
 func _init() -> void:
@@ -55,6 +70,7 @@ func apply_hero(h: HeroData) -> void:
 	max_dash_charges = h.max_dash_charges
 	dash_recharge_time = h.dash_recharge_time
 	hurt_invuln_time = h.hurt_invuln_time
+	evade_invuln_time = h.evade_invuln_time
 	if health:
 		health.max = h.max_hp
 		health.current = h.max_hp
@@ -64,9 +80,18 @@ func is_dashing() -> bool:
 	return _dash_time_left > 0.0
 
 
-## 대시 중이거나 피격 직후면 피해를 받지 않는다.
+## 대시 중, 피격 직후, 회피 무적 중이면 피해를 받지 않는다.
 func is_invulnerable() -> bool:
-	return is_dashing() or _hurt_cd > 0.0
+	return is_dashing() or _hurt_cd > 0.0 or _skill_invuln > 0.0
+
+
+## 추가 무적 부여 (더 긴 쪽 유지).
+func grant_invulnerability(seconds: float) -> void:
+	_skill_invuln = maxf(_skill_invuln, seconds)
+
+
+func skill_invuln_left() -> float:
+	return _skill_invuln
 
 
 func hurt_time_left() -> float:
@@ -85,7 +110,38 @@ func apply_contact_damage(delta: float, amount: int) -> bool:
 		return false
 	health.damage(amount)
 	_hurt_cd = hurt_invuln_time
+	Feedback.player_hurt()
 	return true
+
+
+## 적 공격 타격. 무적이면 무시. 반환: 실제로 피해를 받았으면 true.
+func apply_hit(amount: int) -> bool:
+	if amount <= 0 or health == null or is_dead() or is_invulnerable():
+		return false
+	health.damage(amount)
+	_hurt_cd = hurt_invuln_time
+	Feedback.player_hurt()
+	return true
+
+
+## within초 안에 시작한 대시가 원(center, radius) 안에서 출발했으면 true (원 밖으로 빠져나간 회피).
+func dashed_out_of(center: Vector2, radius: float, within: float) -> bool:
+	return _since_dash_start <= within and _dash_start_pos.distance_to(center) <= radius
+
+
+## 마지막 대시 시작 위치와, 그 대시가 within초 안에 시작됐는지 (모양이 다른 예고 영역의 회피 판정용).
+func dash_start_position() -> Vector2:
+	return _dash_start_pos
+
+
+func dashed_within(within: float) -> bool:
+	return _since_dash_start <= within
+
+
+## 회피 성공: 즉시 무적 + evaded 신호 (반격 시간 시작).
+func register_evade() -> void:
+	grant_invulnerability(evade_invuln_time)
+	evaded.emit()
 
 
 func _touching_damage() -> int:
@@ -117,7 +173,12 @@ func set_move_input(v: Vector2) -> void:
 ## 반환: 대시가 시작되면 true.
 func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 	if is_dashing():
-		return false
+		# 연속 대시: 충전이 남아 있으면 지금 대시를 끊고 즉시 새 방향으로 (기다리지 않음, 실기기 피드백).
+		if not dash.can_consume():
+			return false
+		_dash_time_left = 0.0
+		_since_dash_end = 0.0
+		dash_ended.emit()
 	var dir := direction
 	if dir.length_squared() < 0.0001:
 		dir = move_input if move_input.length_squared() > 0.0001 else facing
@@ -125,6 +186,9 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 		return false
 	_dash_dir = dir.normalized()
 	_dash_time_left = dash_duration
+	_glide_left = 0.0
+	_since_dash_start = 0.0
+	_dash_start_pos = global_position
 	facing = _dash_dir
 	dash_started.emit(_dash_dir)
 	return true
@@ -133,15 +197,24 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 ## 이번 물리 프레임의 속도를 계산하고 대시·충전 타이머를 진행한다.
 func compute_velocity(delta: float) -> Vector2:
 	dash.update(delta)
+	_since_dash_start += delta
+	_skill_invuln = maxf(_skill_invuln - delta, 0.0)
 	if not is_dashing():
 		_since_dash_end += delta
-		return move_input * move_speed
+		var v_move := move_input * move_speed
+		if _glide_left > 0.0:
+			v_move += _glide_vel * (_glide_left / dash_glide_time)
+			_glide_left = maxf(_glide_left - delta, 0.0)
+		return v_move
 	var step := minf(delta, _dash_time_left)
 	_dash_time_left -= delta
 	var v := _dash_dir * (dash_distance / dash_duration) * (step / delta if delta > 0.0 else 0.0)
 	if _dash_time_left <= 0.0:
 		_dash_time_left = 0.0
 		_since_dash_end = 0.0
+		if dash_glide_time > 0.0:
+			_glide_vel = _dash_dir * (dash_distance / dash_duration) * dash_glide_ratio
+			_glide_left = dash_glide_time
 		dash_ended.emit()
 	return v
 

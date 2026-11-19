@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/main.gd" id="0_main"]
 [ext_resource type="Script" path="res://scripts/world/arena.gd" id="1_arena"]
@@ -14,6 +14,12 @@
 [ext_resource type="Script" path="res://scripts/fx/fx_layer.gd" id="11_fx"]
 [ext_resource type="Resource" path="res://data/heroes/yi_sun_sin.tres" id="12_hero"]
 [ext_resource type="Script" path="res://scripts/player/player_view.gd" id="13_view"]
+[ext_resource type="Script" path="res://scripts/fx/feedback.gd" id="14_feedback"]
+[ext_resource type="Resource" path="res://data/enemies/chaser.tres" id="15_chaser"]
+[ext_resource type="Resource" path="res://data/enemies/archer.tres" id="16_archer"]
+[ext_resource type="Resource" path="res://data/enemies/heavy.tres" id="17_heavy"]
+[ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="18_enemy_data"]
+[ext_resource type="Resource" path="res://data/enemies/boss_general.tres" id="19_boss"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 22.0
@@ -40,6 +46,11 @@ script = ExtResource("7_spawner")
 enemy_scene = ExtResource("8_enemy")
 target = NodePath("../Player")
 arena_rect = Rect2(-870, -1370, 1740, 2740)
+spawn_table = Array[ExtResource("18_enemy_data")]([ExtResource("15_chaser"), ExtResource("16_archer"), ExtResource("17_heavy")])
+spawn_weights = PackedFloat32Array(6, 2, 1)
+unlock_times = PackedFloat32Array(0, 10, 20)
+boss_data = ExtResource("19_boss")
+boss_time = 40.0
 
 [node name="Player" type="CharacterBody2D" parent="." node_paths=PackedStringArray("contact_sensor")]
 collision_mask = 0
@@ -82,6 +93,13 @@ fx = NodePath("../../FxLayer")
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
+
+[node name="Feedback" type="Node" parent="." node_paths=PackedStringArray("camera", "fx", "player", "skill_caster")]
+script = ExtResource("14_feedback")
+camera = NodePath("../Player/Camera2D")
+fx = NodePath("../FxLayer")
+player = NodePath("../Player")
+skill_caster = NodePath("../Player/SkillCaster")
 
 [node name="TouchController" type="Node" parent="." node_paths=PackedStringArray("player", "skill_caster")]
 script = ExtResource("3_touch")

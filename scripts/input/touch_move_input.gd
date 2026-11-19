@@ -15,19 +15,35 @@ var dead_zone: float = 12.0
 var full_speed_radius: float = 90.0
 ## 앵커가 손가락에서 이 거리 이상 멀어지면 손가락 쪽으로 끌려온다 (방향 전환을 빠르게).
 var anchor_follow_radius: float = 140.0
-## 플릭 판정: 최근 flick_window 초 안에 flick_min_distance(px) 이상, flick_min_speed(px/s) 이상 이동.
-## 실기기 피드백: 오발동 대시로 80px/800 → 120px/1400 상향 후, "살짝 더 민감하게" 100px/1200.
-var flick_min_speed: float = 1200.0
-var flick_min_distance: float = 100.0
+## 플릭 판정: 최근 flick_window 초 안의 이동 거리·속도. 손가락 상태에 따라 기준이 다르다
+## (실기기 피드백: "처음 터치 후 튕기기는 잘 안 되고, 이동 중 방향 전환은 너무 쉽게 대시된다").
 var flick_window: float = 0.10
-## 급가속 조건: 플릭 구간 속도가 바로 앞 구간(같은 길이) 속도의 이 배수 이상이어야 한다.
-## 꾸준히 빠른 드래그나 빠른 방향 전환은 대시가 아니다. 0 이하면 끔.
-var flick_burst_ratio: float = 1.6
+## 직전 구간 속도가 이보다 느리면 "멈춰 있다가 튕김" → 쉬운 기준.
+var rest_speed: float = 250.0
+## 멈춰 있다가 튕길 때 (처음 터치, 잠깐 멈춤): 쉽게, 급가속 조건 없음.
+var rest_min_distance: float = 70.0
+var rest_min_speed: float = 700.0
+## 이동 중에 튕길 때: 엄격하게 + 급가속 조건 (방향 전환은 대시가 아님). 실기기 피드백으로 110/1300/1.6 → 140/1600/1.8.
+var move_min_distance: float = 140.0
+var move_min_speed: float = 1600.0
+## 급가속: 플릭 구간 속도가 직전 구간(실제 경로 길이 기준) 속도의 이 배수 이상.
+var flick_burst_ratio: float = 1.8
+## 연속 대시: 직전 플릭 후 이 시간(초) 안에 방향을 크게 꺾은(코사인 < chain_max_dot) 플릭은
+## 더 쉬운 기준 (사이에 걷기가 끼지 않게, 실기기 피드백).
+var chain_window: float = 0.4
+var chain_max_dot: float = 0.5
+var chain_min_distance: float = 40.0
+var chain_min_speed: float = 500.0
+## 손 떼고 다시 튕기기: 직전 플릭 후 이 시간(초) 안에 새로 댄 손가락의 첫 플릭은 방향과 상관없이 연속 기준.
+var retouch_chain_window: float = 0.5
+## 그 첫 플릭의 기준 (다시 잡고 이동하려는 손짓과 구분되도록 꺾기 연속보다는 조금 높게).
+var retouch_min_distance: float = 45.0
+var retouch_min_speed: float = 600.0
 ## 손가락이 움직이는 동안 터치 이벤트 간격의 상한(초). 이보다 긴 공백은 "정지"로 본다.
 ## Android 터치 샘플링은 보통 60~240Hz(4~17ms).
 var max_event_gap: float = 0.05
 ## 한 손가락에서 연속 플릭 사이 최소 간격(초).
-var flick_cooldown: float = 0.20
+var flick_cooldown: float = 0.12
 ## 플릭 직후 앵커를 손가락 위치로 재설정해 대시 후 이동이 튀지 않게 한다.
 var reanchor_after_flick: bool = true
 
@@ -35,6 +51,14 @@ var _move_index: int = -1
 var _anchor: Vector2 = Vector2.ZERO
 var _current: Vector2 = Vector2.ZERO
 var _last_flick_time: float = -INF
+## 이번 손가락(스트로크)에서 마지막 플릭 시각. 플릭 간격 제한은 같은 손가락 안에서만.
+var _stroke_flick_time: float = -INF
+## 이번 손가락이 직전 플릭 직후에 새로 댄 것인지 (손 떼고 다시 튕기기).
+var _retouch_chain: bool = false
+## 진단용: 마지막으로 의미 있는 움직임(거리 40px 이상 또는 손 뗌)의 판정 결과.
+## {"dist", "speed", "need", "prev", "result"} — 실기기에서 대시가 왜 안 나갔는지 보여주기 위함.
+var last_check: Dictionary = {}
+var _last_flick_dir: Vector2 = Vector2.ZERO
 ## 최근 샘플 [time, position] 목록 (flick_window 동안만 유지).
 var _samples: Array = []
 
@@ -71,6 +95,8 @@ func get_move_vector() -> Vector2:
 func touch_down(index: int, pos: Vector2, time: float) -> bool:
 	if _move_index != -1:
 		return false
+	_stroke_flick_time = -INF
+	_retouch_chain = time - _last_flick_time <= retouch_chain_window
 	_move_index = index
 	_anchor = pos
 	_current = pos
@@ -102,7 +128,7 @@ func touch_up(index: int, pos: Vector2, time: float) -> Vector2:
 		return Vector2.ZERO
 	_current = pos
 	_push_sample(time, pos)
-	var dir := _detect_flick(time)
+	var dir := _detect_flick(time, true)
 	reset()
 	return dir
 
@@ -123,8 +149,8 @@ func _push_sample(time: float, pos: Vector2) -> void:
 		_samples.pop_front()
 
 
-func _detect_flick(time: float) -> Vector2:
-	if time - _last_flick_time < flick_cooldown:
+func _detect_flick(time: float, releasing: bool = false) -> Vector2:
+	if time - _stroke_flick_time < flick_cooldown:
 		return Vector2.ZERO
 	if _samples.size() < 2:
 		return Vector2.ZERO
@@ -134,19 +160,45 @@ func _detect_flick(time: float) -> Vector2:
 		return Vector2.ZERO
 	var delta: Vector2 = _current - (base[1] as Vector2)
 	var dist := delta.length()
-	var speed := dist / dt
-	if dist < flick_min_distance or speed < flick_min_speed:
+	if dist < 1.0:
 		return Vector2.ZERO
-	# 급가속 조건: 직전 구간보다 충분히 빨라졌을 때만 플릭.
-	if flick_burst_ratio > 0.0:
-		var prev := _point_at(float(base[0]) - flick_window)
-		var prev_dt := float(base[0]) - float(prev[0])
-		if prev_dt > 0.0:
-			var prev_speed := ((base[1] as Vector2) - (prev[1] as Vector2)).length() / prev_dt
-			if speed < prev_speed * flick_burst_ratio:
-				return Vector2.ZERO
+	var speed := dist / dt
+	# 직전 구간 속도 (실제 이동 경로 길이 기준: 방향을 꺾어도 작아지지 않음).
+	var prev := _point_at(float(base[0]) - flick_window)
+	var prev_dt := float(base[0]) - float(prev[0])
+	var prev_speed := _path_length(prev, base) / prev_dt if prev_dt > 0.0 else 0.0
+	var turned := time - _last_flick_time <= chain_window and (delta / dist).dot(_last_flick_dir) < chain_max_dot
+	var retouch := _retouch_chain and time - _last_flick_time <= retouch_chain_window + 0.3
+	var chained := turned or retouch
+	var easy := prev_speed < rest_speed or chained
+	var need_dist := rest_min_distance if easy else move_min_distance
+	var need_speed := rest_min_speed if easy else move_min_speed
+	if retouch and not turned:
+		need_dist = retouch_min_distance
+		need_speed = retouch_min_speed
+	elif chained:
+		need_dist = chain_min_distance
+		need_speed = chain_min_speed
+	var check := {"dist": dist, "speed": speed, "need": need_speed, "prev": prev_speed, "result": ""}
+	var reason := ""
+	if dist < need_dist:
+		reason = "거리 부족"
+	elif speed < need_speed:
+		reason = "속도 부족"
+	elif not easy and flick_burst_ratio > 0.0 and speed < prev_speed * flick_burst_ratio:
+		reason = "급가속 부족"
+	if reason != "":
+		if dist >= need_dist * 0.5 or (releasing and dist >= 20.0):
+			check["result"] = reason + ("" if easy else " (이동 중)")
+			last_check = check
+		return Vector2.ZERO
 	_last_flick_time = time
+	_stroke_flick_time = time
+	_retouch_chain = false
 	var dir := delta / dist
+	_last_flick_dir = dir
+	check["result"] = "플릭"
+	last_check = check
 	flicked.emit(dir)
 	return dir
 
@@ -173,3 +225,17 @@ func _point_at(t: float) -> Array:
 			return [t, (s0[1] as Vector2).lerp(s1[1] as Vector2, w)]
 		return [maxf(t, t1 - max_event_gap), s0[1]]
 	return _samples[_samples.size() - 1]
+
+
+## 두 추정점 [시간, 위치] 사이 손가락이 실제로 지나간 경로 길이.
+func _path_length(from: Array, to: Array) -> float:
+	var t0 := float(from[0])
+	var t1 := float(to[0])
+	var last: Vector2 = from[1]
+	var total := 0.0
+	for smp in _samples:
+		var t := float(smp[0])
+		if t > t0 and t < t1:
+			total += last.distance_to(smp[1] as Vector2)
+			last = smp[1]
+	return total + last.distance_to(to[1] as Vector2)

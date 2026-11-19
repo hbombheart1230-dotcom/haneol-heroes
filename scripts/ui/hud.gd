@@ -28,6 +28,7 @@ func _draw() -> void:
 		SkillButtonDrawer.draw(self, controller, get_theme_default_font())
 	if state:
 		_draw_status()
+		_draw_boss_bar()
 	if show_touch_debug and controller:
 		_draw_touch_debug()
 	if state and not state.is_playing():
@@ -52,6 +53,23 @@ func _draw_status() -> void:
 	draw_string(font, Vector2(16, 70), "처치 %d" % state.kills, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, Color(1, 1, 1, 0.85))
 
 
+## 보스 체력 막대 (보스가 살아 있을 때 화면 위).
+func _draw_boss_bar() -> void:
+	var bosses := get_tree().get_nodes_in_group(Enemy.BOSS_GROUP)
+	if bosses.is_empty():
+		return
+	var b := bosses[0] as Enemy
+	if b == null or not is_instance_valid(b) or b.health.is_dead():
+		return
+	var r := Rect2(60, 146, size.x - 120, 16)
+	draw_rect(r, Color(0, 0, 0, 0.55))
+	draw_rect(Rect2(r.position, Vector2(r.size.x * b.health.percent(), r.size.y)), Color(1, 0.75, 0.25))
+	draw_rect(r, Color(1, 0.9, 0.6, 0.6), false, 2.0)
+	var font := get_theme_default_font()
+	var name_text := b.data.display_name if b.data.display_name != "" else "보스"
+	draw_string(font, Vector2(0, r.position.y - 4), name_text, HORIZONTAL_ALIGNMENT_CENTER, size.x, 22, Color(1, 0.9, 0.6))
+
+
 func _draw_dash_pips() -> void:
 	var d := player.dash
 	var origin := Vector2(48, size.y - 64)
@@ -68,7 +86,7 @@ func _draw_result() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.6))
 	var font := get_theme_default_font()
 	var victory := state.result == GameState.Result.VICTORY
-	var title := "생존 성공" if victory else "게임 오버"
+	var title := ("보스 격파" if state.boss_killed else "생존 성공") if victory else "게임 오버"
 	var color := Color(0.5, 0.85, 1.0) if victory else Color(1.0, 0.45, 0.45)
 	var cy := size.y * 0.42
 	draw_string(font, Vector2(0, cy), title, HORIZONTAL_ALIGNMENT_CENTER, size.x, 72, color)
@@ -88,4 +106,6 @@ func _draw_touch_debug() -> void:
 	var font := get_theme_default_font()
 	var enemies := get_tree().get_nodes_in_group(Enemy.GROUP).size()
 	var info := "FPS %d  적 %d" % [Engine.get_frames_per_second(), enemies]
+	if controller.dash_note != "":
+		draw_string(font, Vector2(16, size.y - 140), controller.dash_note, HORIZONTAL_ALIGNMENT_LEFT, size.x - 32, 20, Color(1, 1, 0.6, 0.85))
 	draw_string(font, Vector2(16, size.y - 110), info, HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(1, 1, 1, 0.6))
