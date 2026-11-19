@@ -151,6 +151,8 @@ func _update_sprite(busy: bool) -> void:
 	var anim := "idle"
 	if _flash > 0.0 and sheet.has_anim("hit"):
 		anim = "hit"
+	elif busy and attack and sheet.has_anim(String(attack.data.anim)):
+		anim = String(attack.data.anim)
 	elif busy and sheet.has_anim("attack"):
 		anim = "attack"
 	elif velocity.length() > 10.0:

@@ -16,6 +16,9 @@ var state: GameState
 var perf: PerfStats
 ## 런 성장 진행 (경험치 막대·레벨 표시). 없으면 그리지 않는다.
 var progress: RunProgress
+## 판 시작 때 띄우는 무대 이름 (연도 · 전장).
+var stage: StageTheme
+const STAGE_TITLE_TIME := 3.2
 
 
 func _ready() -> void:
@@ -35,10 +38,32 @@ func _draw() -> void:
 	if state:
 		_draw_status()
 		_draw_boss_bar()
+		_draw_stage_title()
 	if show_touch_debug and controller:
 		_draw_touch_debug()
 	if state and not state.is_playing():
 		_draw_result()
+
+
+## 무대 시작 문구: 연도 · 전장 이름 · 한 줄 설명. 처음 STAGE_TITLE_TIME초, 끝 1초 동안 흐려진다.
+func stage_title_alpha() -> float:
+	if stage == null or state == null or not state.is_playing():
+		return 0.0
+	return clampf(STAGE_TITLE_TIME - state.elapsed, 0.0, 1.0)
+
+
+func _draw_stage_title() -> void:
+	var a := stage_title_alpha()
+	if a <= 0.0:
+		return
+	var font := get_theme_default_font()
+	var y := size.y * 0.3
+	draw_rect(Rect2(0, y - 70, size.x, 150), Color(Ink.PAPER, 0.55 * a))
+	for line in [[stage.year_label, -30, 30, Ink.SEAL], [stage.title, 30, 58, Ink.INK], [stage.subtitle, 66, 22, Ink.INK]]:
+		var col: Color = line[3]
+		draw_string_outline(font, Vector2(0, y + line[1]), line[0], HORIZONTAL_ALIGNMENT_CENTER, size.x, line[2], 6,
+			Color(Ink.PAPER, 0.9 * a))
+		draw_string(font, Vector2(0, y + line[1]), line[0], HORIZONTAL_ALIGNMENT_CENTER, size.x, line[2], Color(col, a))
 
 
 func _draw_health() -> void:
