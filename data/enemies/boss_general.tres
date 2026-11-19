@@ -44,6 +44,7 @@ script = ExtResource("1_enemy")
 id = &"boss_general"
 display_name = "갑옷 장수"
 max_hp = 600
+xp = 0
 move_speed = 85.0
 contact_damage = 25
 body_radius = 46.0

@@ -188,7 +188,14 @@ func _physics_process(_delta: float) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_APPLICATION_PAUSED:
-		touch_input.reset()
-		_toggle_index = -1
-		if skill_caster:
-			skill_caster.cancel_input()
+		cancel_all()
+
+
+## 진행 중인 터치를 모두 잊는다 (앱 전환, 레벨업 선택 화면처럼 손가락 떼기를 놓치는 경우).
+func cancel_all() -> void:
+	touch_input.reset()
+	_toggle_index = -1
+	if skill_caster:
+		skill_caster.cancel_input()
+	if player:
+		player.set_move_input(Vector2.ZERO)

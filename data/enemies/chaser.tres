@@ -17,6 +17,7 @@ recovery = 0.3
 script = ExtResource("1_enemy")
 id = &"chaser"
 max_hp = 30
+xp = 1
 move_speed = 120.0
 contact_damage = 10
 body_radius = 20.0

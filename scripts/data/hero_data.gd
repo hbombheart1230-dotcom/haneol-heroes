@@ -29,3 +29,7 @@ extends Resource
 @export_group("전투")
 @export var attack: BasicAttackData
 @export var kit: SkillKit
+
+@export_group("성장")
+## 레벨업 때 나오는 성장 선택지.
+@export var upgrade_pool: UpgradePool

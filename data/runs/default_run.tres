@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RunConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/run/run_config.gd" id="1_run"]
+
+[resource]
+script = ExtResource("1_run")
+xp_base = 5
+xp_growth = 4
+choice_count = 3
+boss_time = 150.0
+ramp_time = 120.0
+survive_time = 0.0
+choice_input_delay = 0.35
