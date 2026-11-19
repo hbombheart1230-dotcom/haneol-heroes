@@ -7,6 +7,10 @@ extends Resource
 @export var display_name: String = ""
 ## 영웅 고르기 화면의 짧은 소개 (줄바꿈 가능).
 @export_multiline var tagline: String = ""
+## 영웅 고르기 화면 일러스트 (전신).
+@export var card_art: Texture2D
+## false면 고르기 화면에 "준비 중"으로만 보인다 (아직 기술·모델이 없는 영웅).
+@export var playable: bool = true
 @export var body_color: Color = Color(0.15, 0.4, 0.8)
 ## 구워진 8방향 스프라이트 (tools/bake). 비어 있으면 수묵풍 코드 그림.
 @export var sprite_sheet: SpriteSheetSet

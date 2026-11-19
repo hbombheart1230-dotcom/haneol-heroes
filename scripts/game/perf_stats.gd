@@ -38,5 +38,5 @@ func low_1pct_fps() -> float:
 
 
 func summary() -> String:
-	return "평균 %d FPS · 하위1%% %d · 최악 %d ms · 최대 적 %d" % [
+	return "평균 초당 %d장 · 하위 1%% %d장 · 최악 %d밀리초 · 최대 적 %d" % [
 		roundi(avg_fps()), roundi(low_1pct_fps()), roundi(worst_frame * 1000.0), max_enemies]

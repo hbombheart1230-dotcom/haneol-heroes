@@ -13,6 +13,8 @@ static var skill_button_enabled: bool = false
 static var hero_id: StringName = &""
 ## 이번 실행에서 영웅을 이미 골랐는지 (앱을 새로 켜면 고르기 화면부터).
 static var hero_picked: bool = false
+## 이번 실행에서 인트로를 지나갔는지.
+static var title_seen: bool = false
 
 
 static func load_settings(path: String = "") -> void:

@@ -104,3 +104,15 @@ func test_bake_name_matching_is_word_based() -> void:
 	assert_bool(bake.name_matches("Soldier_Idle", "die")).is_false()
 	assert_bool(bake.name_matches("Prerunner", "run")).is_false()
 	assert_bool(bake.name_matches("White_Pose", "hit")).is_false()
+
+
+func test_bake_name_normalisation_matches_import_renames() -> void:
+	var bake := preload("res://tools/bake/bake_sprites.gd")
+	assert_str(bake.normalize_name("Run_02")).is_equal(bake.normalize_name("Run 2"))
+	assert_str(bake.normalize_name("Left_Slash")).is_equal(bake.normalize_name("Left Slash"))
+	assert_str(bake.normalize_name("Hit_Reaction")).is_not_equal(bake.normalize_name("Hit Reaction 1"))
+
+
+func test_bake_root_lock_returns_to_rest_horizontally_keeps_height() -> void:
+	var bake := preload("res://tools/bake/bake_sprites.gd")
+	assert_vector(bake.locked_root_position(Vector3(3, 0, 4), Vector3(9, 5, 7))).is_equal(Vector3(3, 5, 4))

@@ -16,6 +16,9 @@ var state: GameState
 var perf: PerfStats
 ## 런 성장 진행 (경험치 막대·레벨 표시). 없으면 그리지 않는다.
 var progress: RunProgress
+## 판 시작 때 띄우는 무대 이름 (연도 · 전장).
+var stage: StageTheme
+const STAGE_TITLE_TIME := 3.2
 
 
 func _ready() -> void:
@@ -35,21 +38,46 @@ func _draw() -> void:
 	if state:
 		_draw_status()
 		_draw_boss_bar()
+		_draw_stage_title()
 	if show_touch_debug and controller:
 		_draw_touch_debug()
 	if state and not state.is_playing():
 		_draw_result()
 
 
+## 무대 시작 문구: 연도 · 전장 이름 · 한 줄 설명. 처음 STAGE_TITLE_TIME초, 끝 1초 동안 흐려진다.
+func stage_title_alpha() -> float:
+	if stage == null or state == null or not state.is_playing():
+		return 0.0
+	return clampf(STAGE_TITLE_TIME - state.elapsed, 0.0, 1.0)
+
+
+func _draw_stage_title() -> void:
+	var a := stage_title_alpha()
+	if a <= 0.0:
+		return
+	var y := size.y * 0.3
+	var band := Rect2(0, y - 92, size.x, 190)
+	draw_rect(band, Color(UiStyle.LACQUER, 0.8 * a))
+	draw_line(band.position, Vector2(band.end.x, band.position.y), Color(UiStyle.GOLD, a), 2.0)
+	draw_line(Vector2(0, band.end.y), band.end, Color(UiStyle.GOLD, a), 2.0)
+	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, y - 46), stage.year_label, 30, Color(UiStyle.PAPER, a), size.x)
+	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, y + 30), stage.title, 84, Color(UiStyle.GOLD, a), size.x)
+	UiStyle.gold_rule(self, Vector2(size.x * 0.5, y + 50), size.x * 0.22, a)
+	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, y + 82), stage.subtitle, 22, Color(UiStyle.PAPER, 0.9 * a), size.x,
+		Color(0, 0, 0, 0.6 * a), 4)
+
+
 func _draw_health() -> void:
 	if player.health == null:
 		return
-	var r := Rect2(16, 16, size.x - 32, 18)
-	draw_rect(r, Color(0, 0, 0, 0.5))
+	var r := Rect2(16, 16, size.x - 32, 20)
+	draw_rect(r.grow(3.0), UiStyle.LACQUER)
 	var fill := r
 	fill.size.x *= player.health.percent()
-	draw_rect(fill, Color(0.85, 0.25, 0.3))
-	draw_rect(r, Color(1, 1, 1, 0.4), false, 2.0)
+	draw_rect(fill, Color(0.72, 0.13, 0.12))
+	draw_rect(Rect2(fill.position, Vector2(fill.size.x, 5)), Color(1, 0.55, 0.45, 0.45))  # 윗빛
+	draw_rect(r.grow(3.0), UiStyle.GOLD, false, 2.0)
 
 
 func _draw_status() -> void:
@@ -58,13 +86,14 @@ func _draw_status() -> void:
 	if state.survive_time <= 0.0:  # 런: 지난 시간 (분:초)
 		t = "%d:%02d" % [floori(state.elapsed / 60.0), floori(state.elapsed) % 60]
 	if progress:
-		var r := Rect2(16, 40, size.x - 32, 8)
-		draw_rect(r, Color(Ink.INK, 0.35))
-		draw_rect(Rect2(r.position, Vector2(r.size.x * progress.xp_ratio(), r.size.y)), Ink.GOLD)
-		_ink_text(font, Vector2(16, 70), "Lv %d · 처치 %d" % [progress.level, state.kills], HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
+		var r := Rect2(16, 44, size.x - 32, 7)
+		draw_rect(r.grow(2.0), UiStyle.LACQUER)
+		draw_rect(Rect2(r.position, Vector2(r.size.x * progress.xp_ratio(), r.size.y)), UiStyle.GOLD)
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(16, 82), "단계 %d · 처치 %d" % [progress.level, state.kills], 26,
+			UiStyle.PAPER, -1, Color(0, 0, 0, 0.7), 5)
 	else:
 		_ink_text(font, Vector2(16, 70), "처치 %d" % state.kills, HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
-	_ink_text(font, Vector2(0, 92), t, HORIZONTAL_ALIGNMENT_CENTER, size.x, 52)
+	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, 112), t, 54, UiStyle.PAPER, size.x, Color(0, 0, 0, 0.85), 9)
 
 
 ## 보스 체력 막대 (보스가 살아 있을 때 화면 위).
@@ -75,13 +104,12 @@ func _draw_boss_bar() -> void:
 	var b := bosses[0] as Enemy
 	if b == null or not is_instance_valid(b) or b.health.is_dead():
 		return
-	var r := Rect2(60, 146, size.x - 120, 16)
-	draw_rect(r, Color(0, 0, 0, 0.55))
-	draw_rect(Rect2(r.position, Vector2(r.size.x * b.health.percent(), r.size.y)), Color(1, 0.75, 0.25))
-	draw_rect(r, Color(1, 0.9, 0.6, 0.6), false, 2.0)
-	var font := get_theme_default_font()
+	var r := Rect2(70, 176, size.x - 140, 18)
+	UiStyle.panel(self, r.grow(8.0), UiStyle.LACQUER, UiStyle.GOLD)
+	draw_rect(Rect2(r.position, Vector2(r.size.x * b.health.percent(), r.size.y)), Color(0.78, 0.16, 0.12))
+	draw_rect(Rect2(r.position, Vector2(r.size.x * b.health.percent(), 4)), Color(1, 0.6, 0.45, 0.5))
 	var name_text := b.data.display_name if b.data.display_name != "" else "보스"
-	_ink_text(font, Vector2(0, r.position.y - 4), name_text, HORIZONTAL_ALIGNMENT_CENTER, size.x, 22)
+	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, r.position.y - 14), name_text, 40, UiStyle.GOLD, size.x)
 
 
 func _draw_dash_pips() -> void:
@@ -97,22 +125,7 @@ func _draw_dash_pips() -> void:
 
 
 func _draw_result() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.6))
-	var font := get_theme_default_font()
-	var victory := state.result == GameState.Result.VICTORY
-	var title := ("보스 격파" if state.boss_killed else "생존 성공") if victory else "게임 오버"
-	var color := Color(0.5, 0.85, 1.0) if victory else Color(1.0, 0.45, 0.45)
-	var cy := size.y * 0.42
-	draw_string(font, Vector2(0, cy), title, HORIZONTAL_ALIGNMENT_CENTER, size.x, 72, color)
-	draw_string(font, Vector2(0, cy + 70), "처치 %d  ·  %d초" % [state.kills, floori(state.elapsed)],
-		HORIZONTAL_ALIGNMENT_CENTER, size.x, 32, Color(1, 1, 1, 0.9))
-	draw_string(font, Vector2(0, cy + 140), "화면을 터치하면 다시 시작", HORIZONTAL_ALIGNMENT_CENTER, size.x, 28, Color(1, 1, 1, 0.7))
-	if perf and show_touch_debug:
-		draw_string(font, Vector2(0, cy + 210), perf.summary(), HORIZONTAL_ALIGNMENT_CENTER, size.x, 22, Color(1, 1, 0.6, 0.85))
-	if can_change_hero:
-		var band := Rect2(0, size.y - CHANGE_HERO_BAND, size.x, CHANGE_HERO_BAND)
-		draw_rect(band, Color(Ink.PAPER, 0.9))
-		draw_string(font, Vector2(0, band.get_center().y + 14), "영웅 바꾸기", HORIZONTAL_ALIGNMENT_CENTER, size.x, 36, Ink.INK)
+	ResultDrawer.draw(self)
 
 
 func _draw_touch_debug() -> void:
@@ -123,7 +136,7 @@ func _draw_touch_debug() -> void:
 		draw_circle(t.get_current(), 10, Color(Ink.INK, 0.3))
 	var font := get_theme_default_font()
 	var enemies := get_tree().get_nodes_in_group(Enemy.GROUP).size()
-	var info := "FPS %d  적 %d" % [Engine.get_frames_per_second(), enemies]
+	var info := "초당 %d장 · 적 %d" % [Engine.get_frames_per_second(), enemies]
 	if controller.dash_note != "":
 		_ink_text(font, Vector2(16, size.y - 140), controller.dash_note, HORIZONTAL_ALIGNMENT_LEFT, size.x - 32, 20)
 	_ink_text(font, Vector2(16, size.y - 110), info, HORIZONTAL_ALIGNMENT_LEFT, -1, 22)

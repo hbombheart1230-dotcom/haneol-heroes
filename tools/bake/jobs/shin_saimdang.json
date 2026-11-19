@@ -1,0 +1,58 @@
+{
+  "name": "shin_saimdang",
+  "model": "res://assets/models/meshy/shin_saimdang/animated.glb",
+  "ortho_size": 2.3,
+  "frame": 256,
+  "style": "ink",
+  "ink": {
+    "inner_line": 0.0,
+    "line_px": 1.6,
+    "wash_amount": 0.25,
+    "grain": 0.0
+  },
+  "lossy_quality": 0.58,
+  "anims": [
+    {
+      "key": "idle",
+      "src": "Idle",
+      "frames": 8,
+      "fps": 8.0,
+      "loop": true
+    },
+    {
+      "key": "run",
+      "src": "Run 2",
+      "frames": 8,
+      "fps": 14.0,
+      "loop": true
+    },
+    {
+      "key": "dash",
+      "src": "Roll Dodge",
+      "frames": 6,
+      "fps": 20.0,
+      "loop": false
+    },
+    {
+      "key": "attack",
+      "src": "Mage Soell Cast",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false
+    },
+    {
+      "key": "hit",
+      "src": "Hit Reaction",
+      "frames": 4,
+      "fps": 12.0,
+      "loop": false
+    },
+    {
+      "key": "death",
+      "src": "Dead",
+      "frames": 6,
+      "fps": 10.0,
+      "loop": false
+    }
+  ]
+}

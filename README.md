@@ -1,4 +1,4 @@
-# 한얼: 영웅 (HANEOL: HEROES)
+# 한얼: 영웅들 (HANEOL: HEROES)
 
 > 역사가 전설이 된다.
 
@@ -21,10 +21,10 @@
 
 | 영웅 | 칭호 | 역할 | 상태 |
 |---|---|---|---|
-| 이순신 | 푸른 해류의 검 | 근접·원거리 복합형 검사 | P0 플레이어블 |
-| 광개토대왕 | 천둥의 정복자 | 중량급 돌진형 전사 | 기획 |
-| 세종대왕 | 천문의 지배자 | 원거리 마법형 | 기획 |
-| 신사임당 | 수묵의 술사 | 자연·소환·광역 마법형 | 기획 |
+| 순신 (이순신) | 푸른 해류의 검 | 근접·원거리 복합형 검사 | P0 플레이어블 |
+| 광개토 (광개토대왕) | 천둥의 정복자 | 중량급 돌진형 전사 | 플레이어블 (임시 모델) |
+| 세종 (세종대왕) | 천문의 지배자 | 원거리 마법형 | 기획 |
+| 사임당 (신사임당) | 수묵의 술사 | 자연·소환·광역 마법형 | 기획 |
 
 ## 조작
 
@@ -69,6 +69,7 @@ P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서�
 - 터치 이벤트 합쳐짐·프레임 끊김 시 플릭 판정 확인 (Codex 메모)
 - 단독 pck에 남는 `addons/gdUnit4/plugin.cfg` 정리 (APK에는 없음)
 - GitHub Actions 자동 테스트(setup-godot), 저장소 공개 범위
+- 장비 (나중에): 6부위(무기·투구·상의·하의·장갑·장화) × 5등급, 공통 능력치 + 영웅별 외형, 세트 효과. 외형은 Meshy 한 덩어리 모델 한계로 몸 통째 단계 + 무기 레이어 + 등급 빛이 현실적. 지금은 영웅당 모델 하나
 - 레벨업 방식 다른 대안 (지금은 인장 낚아채기 + 정예 큰 변형): 롤식 스킬 포인트 "+", 쓰는 만큼 숙련 진화
 
 ## 시작하기
@@ -91,6 +92,13 @@ godot --headless --path . -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gd
 ```
 
 종료 코드 0이면 전체 통과. 결과는 `reports/`에 생성된다.
+
+### 플레이스토어 빌드 (AAB)
+
+1. 한 번만: `%APPDATA%\Godot\export_templates\4.7.2.stable\android_source.zip`을 `android/build/`에 풀고, `android/.build_version`에 `4.7.2.stable`을 적고, `android/build/.gdignore`를 만든다 (`android/`는 용량이 커서 깃에서 제외).
+2. 업로드 서명 키는 저장소 밖 `%USERPROFILE%\.haneol-keys\`(`upload.jks`, `upload-key.txt`)에만 둔다. **따로 백업한다.**
+3. `powershell -ExecutionPolicy Bypass -File tools/build/export_aab.ps1` → `build/android/haneol-heroes.aab` (내보내기 설정 "Android Play (AAB)", arm64 + armeabi-v7a).
+4. 스토어 대표 그래픽: `assets/store/feature_graphic_1024x500.png` (APK 제외).
 
 ### Android APK
 
@@ -121,8 +129,9 @@ APK는 git에 올리지 않는다. 패키지 ID `com.haneol.heroes`는 임시값
 
 **새 영웅 추가:** `scripts/heroes/<영웅>/`에 `SkillDef`를 상속한 기술 4개(탭·대시·충전·반격)를 만들고, `data/heroes/<영웅>.tres`(능력치·기본 공격·기술 구성·성장 풀)와 `data/upgrades/<영웅>.tres`·`<영웅>_major.tres`를 적은 뒤 `scenes/main.tscn`의 Main `heroes` 목록에 넣는다. 공통 코드는 바꾸지 않는다 (광개토대왕으로 확인).
 **3D → 2D 스프라이트 굽기:** `godot --path . -s res://tools/bake/bake_sprites.gd` (창 모드). `.glb` 모델을 쿼터뷰 8방향 시트(`assets/sprites/<이름>/`)와 `SpriteSheetSet`으로 굽는다. 영웅 데이터의 `sprite_sheet`에 지정하면 그 스프라이트로, 비우면 수묵풍 코드 그림으로 그린다.
-**AI 3D 영웅 (Meshy):** 기준 그림(`assets/concept/<영웅>/`) → 3D 생성 → 자동 뼈대 → 동작 → 굽기 → 영웅 데이터 교체를 한 번에 한다. 유료 Meshy 플랜의 API 키를 `setx MESHY_API_KEY "키"`로 등록한 뒤:
+**AI 3D 영웅 (Meshy):** 기준 그림(`assets/concept/<영웅>/`) → 3D 생성 → 자동 뼈대 → 동작 → 굽기 → 영웅 데이터 교체를 한 번에 한다. 유료 Meshy 플랜의 API 키를 저장소 루트 `.env`에 `MESHY_API_KEY=키`로 적은 뒤 (`.env.example` 참고, `.env`는 깃 제외):
 `python tools/ai3d/meshy_pipeline.py plan tools/ai3d/heroes/yi_sun_sin.json` (예상 크레딧 확인) → `... run ... --yes`. 진행 상태는 `assets/models/meshy/<영웅>/state.json`에 남아 끊겨도 이어 한다. **무료 플랜(API 없음)**은 meshy.ai 웹에서 기준 그림으로 생성 → 뼈대(Rig) → 동작을 붙여 .glb로 받은 뒤 `... import <설정> 받은.glb [동작별.glb ...]`로 굽기·적용한다 (파일 이름에 idle/run/attack 등이 들어 있으면 동작별 파일로 인식). 무료 플랜 산출물은 CC BY 4.0이라 크레딧에 "Meshy" 표기가 필요하다. 동작 목록은 `... actions <검색어>`, 오프라인 테스트는 `python -m unittest tools/ai3d/test_meshy_pipeline.py`.
+**무대:** `data/stages/<무대>.tres` (`StageTheme`: 연도·이름·바닥 색·수묵 소품 밀도), `RunConfig.stage`로 고른다. 첫 무대는 395년 만주 벌판 (거란 망령 군대).
 **새 적 추가:** `data/enemies/<적>.tres` (행동이 다르면 전용 스크립트, 처치 경험치 `xp`).
 **성장 선택지:** `data/upgrades/<영웅>.tres` (`UpgradePool` → `UpgradeDef` → `StatMod`: 대상 hero/attack/kit/tap/dash/charge/counter의 속성을 더하기·곱하기). 큰 변형은 `data/upgrades/<영웅>_major.tres` (기술 스크립트의 변형 값을 켠다). 런 규칙(경험치 곡선, 정예·보스 시각)은 `data/runs/default_run.tres`.
 
@@ -151,6 +160,8 @@ Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-ag
 | (임시 효과음) | — | 자체 합성 (`scripts/fx/sfx_synth.gd`) | 엔진 AudioStreamWAV. 정식 효과음은 아트·사운드 단계에서 교체 |
 | KayKit Character Pack: Adventurers (Knight·Barbarian, 임시 캐릭터) | 1.0 | CC0 (`assets/models/kaykit/LICENSE.txt`) | https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0 (Kay Lousberg) |
 | KayKit Character Pack: Skeletons (Minion·Rogue·Warrior, 임시 적) | 1.0 | CC0 (`assets/models/kaykit_skeletons/LICENSE.txt`) | https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0 (Kay Lousberg) |
+| 나눔손글씨 붓 (NanumBrushScript, 제목 글꼴) | Google Fonts | OFL 1.1 (`assets/fonts/OFL_NanumBrushScript.txt`) | https://github.com/google/fonts/tree/main/ofl/nanumbrushscript — 게임에서 쓰는 글자만 남김 (`tools/fonts/subset_fonts.py`) |
+| 송명 (Song Myung, 본문 글꼴, 옛 목판 인쇄풍) | Google Fonts | OFL 1.1 (`assets/fonts/OFL_SongMyung.txt`) | https://github.com/google/fonts/tree/main/ofl/songmyung — 같은 방식으로 줄임 |
 | Health, HitBoxes, HurtBoxes and HitScans | 5.0.4 + HH 패치 | MIT (`addons/health_hitbox_hurtbox/LICENSE`) | https://github.com/cluttered-code/godot-health-hitbox-hurtbox |
 | Meshy API (AI 3D 생성 서비스, 개발 도구에서 호출) | openapi v1 | 유료 플랜 산출물 사용 조건은 Meshy 약관 | https://docs.meshy.ai/en/api |
 

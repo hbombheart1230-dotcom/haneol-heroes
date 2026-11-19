@@ -1,11 +1,14 @@
 class_name HeroSelect
 extends Control
-## 판 시작 전 영웅 고르기. 영웅마다 큰 칸(구운 스프라이트 정면 + 이름 + 한 줄 소개)을 세로로 쌓는다.
-## 칸 위에서 눌렀다 같은 칸에서 떼면 선택 (오른엄지 한 손).
+## 판 시작 전 영웅 고르기 (하데스 참고): 옻칠 판에 영웅 전신 일러스트 카드 2×2.
+## 카드 위에서 눌렀다 같은 카드에서 떼면 선택. 아직 못 쓰는 영웅(playable = false)은 "준비 중".
 
 signal picked(hero: HeroData)
 
 var heroes: Array[HeroData] = []
+## 고를 수 없는 카드를 누르면 잠깐 띄우는 안내.
+var notice: String = ""
+var _notice_left: float = 0.0
 var _press_index: int = -1
 var _press_slot: int = -1
 var _t: float = 0.0
@@ -21,6 +24,7 @@ func open(list: Array[HeroData]) -> void:
 	heroes = list
 	_press_index = -1
 	_press_slot = -1
+	notice = ""
 	show()
 	queue_redraw()
 
@@ -29,14 +33,20 @@ func is_open() -> bool:
 	return visible
 
 
+func _vp() -> Vector2:
+	return size if size.x > 0.0 else get_viewport_rect().size
+
+
+## 카드 i의 영역 (2열, 아래쪽에 모아 오른엄지가 닿게).
 func slot_rect(i: int) -> Rect2:
-	var vp := size if size.x > 0.0 else get_viewport_rect().size
-	var w := minf(vp.x - 48.0, 660.0)
-	var h := 260.0
-	var gap := 24.0
-	var bottom := vp.y - 90.0
-	var top := bottom - heroes.size() * h - (heroes.size() - 1) * gap
-	return Rect2((vp.x - w) * 0.5, top + i * (h + gap), w, h)
+	var vp := _vp()
+	var gap := 18.0
+	var w := minf((vp.x - 48.0 - gap) * 0.5, 330.0)
+	var h := w * 1.55
+	var rows := ceili(heroes.size() / 2.0)
+	var top := vp.y - 70.0 - rows * h - (rows - 1) * gap
+	var x0 := (vp.x - (w * 2 + gap)) * 0.5
+	return Rect2(x0 + (i % 2) * (w + gap), top + (i / 2) * (h + gap), w, h)
 
 
 func slot_at(pos: Vector2) -> int:
@@ -62,8 +72,13 @@ func handle_touch(index: int, pos: Vector2, pressed: bool) -> bool:
 	_press_slot = -1
 	if slot < 0 or slot != was:
 		return false
+	var h := heroes[slot]
+	if not h.playable:
+		notice = "%s · 준비 중" % h.display_name
+		_notice_left = 1.6
+		return false
 	hide()
-	picked.emit(heroes[slot])
+	picked.emit(h)
 	return true
 
 
@@ -83,51 +98,44 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if visible:
 		_t += delta
+		_notice_left = maxf(_notice_left - delta, 0.0)
 		queue_redraw()
 
 
 func _draw() -> void:
 	if not visible:
 		return
-	var vp := size if size.x > 0.0 else get_viewport_rect().size
-	draw_rect(Rect2(Vector2.ZERO, vp), Color(Ink.PAPER, 0.96))
-	var font := get_theme_default_font()
+	var vp := _vp()
+	draw_rect(Rect2(Vector2.ZERO, vp), Color(0.05, 0.04, 0.04, 0.97))
 	var top := slot_rect(0).position.y
-	draw_string(font, Vector2(0, top - 60), "영웅을 고르세요", HORIZONTAL_ALIGNMENT_CENTER, vp.x, 44, Ink.INK)
+	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, top - 78), "영웅을 고르세요", 64, UiStyle.GOLD, vp.x)
+	UiStyle.gold_rule(self, Vector2(vp.x * 0.5, top - 52), vp.x * 0.3)
 	for i in heroes.size():
-		_draw_slot(font, i)
+		_draw_card(i)
+	if _notice_left > 0.0:
+		var a := clampf(_notice_left, 0.0, 1.0)
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, vp.y - 30), notice, 26, Color(UiStyle.PAPER, a), vp.x)
 
 
-func _draw_slot(font: Font, i: int) -> void:
+func _draw_card(i: int) -> void:
 	var h := heroes[i]
 	var r := slot_rect(i)
 	var pressed := _press_slot == i
-	draw_rect(r, Color(1, 1, 1, 0.35))
-	draw_rect(Rect2(r.position, Vector2(12, r.size.y)), h.body_color)
-	draw_rect(r, Color(Ink.INK, 0.9 if pressed else 0.5), false, 5.0 if pressed else 2.0)
-	var portrait := Rect2(r.position + Vector2(24, 10), Vector2(r.size.y - 20, r.size.y - 20))
-	var tex := _portrait(h)
-	if tex:
-		draw_texture_rect(tex, portrait, false)
-	else:
-		draw_circle(portrait.get_center(), portrait.size.x * 0.35, h.body_color)
-	var tx := portrait.end.x + 16.0
-	var tw := r.end.x - tx - 16.0
-	draw_string(font, Vector2(tx, r.position.y + 90), h.display_name, HORIZONTAL_ALIGNMENT_LEFT, tw, 46, Ink.INK)
-	var lines := h.tagline.split("\n")
-	for li in mini(lines.size(), 3):
-		draw_string(font, Vector2(tx, r.position.y + 140 + li * 32), lines[li], HORIZONTAL_ALIGNMENT_LEFT, tw, 24,
-			Color(Ink.INK, 0.8))
-
-
-## 구운 대기 동작에서 정면(방향 2) 한 장을 고른다 (프레임은 시간에 따라 바뀐다).
-func _portrait(h: HeroData) -> Texture2D:
-	var sheet := h.sprite_sheet
-	if sheet == null or not sheet.has_anim("idle"):
-		return null
-	var i := sheet.anim_names.find("idle")
-	var at := AtlasTexture.new()
-	at.atlas = sheet.textures[i]
-	var frame := int(_t * sheet.fps[i]) % maxi(sheet.frame_counts[i], 1)
-	at.region = Rect2(frame * sheet.frame_size, 2 * sheet.frame_size, sheet.frame_size, sheet.frame_size)
-	return at
+	UiStyle.panel(self, r, UiStyle.LACQUER_RED if pressed else UiStyle.LACQUER, UiStyle.GOLD if h.playable else UiStyle.GOLD_DIM)
+	draw_rect(Rect2(r.position + Vector2(8, 8), Vector2(r.size.x - 16, 6)), h.body_color)
+	if h.card_art:
+		var inner := r.grow(-14.0)
+		inner.size.y -= 74.0
+		var tex_size := h.card_art.get_size()
+		var k := minf(inner.size.x / tex_size.x, inner.size.y / tex_size.y)
+		var bob := sin(_t * 1.6 + i) * 3.0 if h.playable else 0.0
+		var draw_size := tex_size * k
+		var at := Vector2(inner.get_center().x - draw_size.x * 0.5, inner.end.y - draw_size.y + bob)
+		var tint := Color(1, 1, 1) if h.playable else Color(0.35, 0.33, 0.33)
+		draw_texture_rect(h.card_art, Rect2(at, draw_size), false, tint)
+	var name_y := r.end.y - 44.0
+	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(r.position.x, name_y), h.display_name, 46,
+		UiStyle.GOLD if h.playable else UiStyle.GOLD_DIM, r.size.x)
+	var tag := h.tagline.split("\n")[0] if h.playable else "준비 중"
+	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, name_y + 30), tag, 20, Color(UiStyle.PAPER, 0.85),
+		r.size.x, Color(0, 0, 0, 0.6), 4)

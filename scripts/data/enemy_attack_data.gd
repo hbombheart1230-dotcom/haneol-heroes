@@ -10,6 +10,8 @@ extends Resource
 enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE }
 
 @export var kind: Kind = Kind.SLAM
+## 예고·공격 중 보여 줄 스프라이트 동작 (시트에 없으면 "attack"). 보스 패턴마다 다르게.
+@export var anim: StringName = &"attack"
 
 ## 플레이어가 이 거리(px) 안에 오면 공격을 시작한다.
 @export var trigger_range: float = 130.0

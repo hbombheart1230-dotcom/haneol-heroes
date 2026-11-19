@@ -21,7 +21,7 @@
   `HeroData` / `EnemyData`의 `sprite_sheet`에 지정하면 스프라이트로, 비우면 수묵풍 코드 그림으로 그린다.
 - 사용자가 GPT로 만든 이순신 기준 그림(정면 A포즈, 정면/측면/후면)은 `assets/concept/yi_sun_sin/`에 있다 (APK 제외).
 - Meshy 연동 (`tools/ai3d/meshy_pipeline.py`):
-  - 유료 플랜: API 키(`MESHY_API_KEY`)를 등록하고 `plan` → `run --yes`를 실행하면 생성 → 뼈대 → 동작 → 굽기 → 적용까지 한 번에 한다. 영웅 1명당 약 53크레딧.
+  - 유료 플랜: API 키를 저장소 루트 `.env`의 `MESHY_API_KEY=`에 적고 `plan` → `run --yes`를 실행하면 생성 → 뼈대 → 동작 → 굽기 → 적용까지 한 번에 한다. 영웅 1명당 약 53크레딧.
   - 무료 플랜: API가 없다. 웹에서 만든 GLB를 받아 `import`로 굽기·적용한다.
     - 월 100크레딧, 다운로드 10회.
     - 결과물은 CC BY 4.0이라 "Meshy" 크레딧 표기가 필요하다.

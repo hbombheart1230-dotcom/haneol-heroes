@@ -184,3 +184,11 @@ func test_spawned_enemy_gets_picked_data() -> void:
 		if e:
 			seen[e.data.id] = true
 	assert_bool(seen.has(&"archer") or seen.has(&"heavy")).is_true()
+
+
+func test_boss_patterns_pick_their_own_sprite_animation() -> void:
+	var boss_data: EnemyData = preload("res://data/enemies/boss_general.tres")
+	var anims := boss_data.patterns.map(func(p: EnemyAttackData) -> String: return String(p.anim))
+	assert_array(anims).contains_exactly(["attack2", "run", "attack"])
+	for a in anims:
+		assert_bool(boss_data.sprite_sheet.has_anim(a)).is_true()

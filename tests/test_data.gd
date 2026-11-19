@@ -8,7 +8,7 @@ const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
 
 func test_hero_data_loads_with_kit_and_attack() -> void:
 	assert_object(HERO).is_instanceof(HeroData)
-	assert_str(HERO.display_name).is_equal("이순신")
+	assert_str(HERO.display_name).is_equal("순신")
 	assert_object(HERO.attack).is_instanceof(BasicAttackData)
 	assert_object(HERO.kit.tap).is_instanceof(HaeryongSkill)
 	assert_object(HERO.kit.dash).is_instanceof(PadoSkill)

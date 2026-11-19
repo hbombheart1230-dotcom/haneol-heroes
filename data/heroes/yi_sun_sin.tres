@@ -1,13 +1,14 @@
 [gd_resource type="Resource" script_class="HeroData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Texture2D" path="res://assets/ui/heroes/yi_sun_sin.png" id="card_art"]
 [ext_resource type="Script" path="res://scripts/data/basic_attack_data.gd" id="2_attack"]
 [ext_resource type="Script" path="res://scripts/skills/skill_kit.gd" id="3_kit"]
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/haeryong_skill.gd" id="4_haeryong"]
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/pado_skill.gd" id="5_pado"]
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/haeil_skill.gd" id="6_haeil"]
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/counter_skill.gd" id="7_counter"]
-[ext_resource type="Resource" path="res://assets/sprites/knight_ink/knight_ink.tres" id="8_sheet"]
+[ext_resource type="Resource" path="res://assets/sprites/yi_sun_sin/yi_sun_sin.tres" id="8_sheet"]
 [ext_resource type="Resource" path="res://data/upgrades/yi_sun_sin.tres" id="9_upgrades"]
 [ext_resource type="Resource" path="res://data/upgrades/yi_sun_sin_major.tres" id="10_major"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/haeryong.png" id="i_haeryong"]
@@ -95,13 +96,14 @@ full_charge_time = 1.0
 [resource]
 script = ExtResource("1_hero")
 id = &"yi_sun_sin"
-display_name = "이순신"
+display_name = "순신"
+card_art = ExtResource("card_art")
 tagline = "푸른 해류의 검
 빠르게 누비며 벤다"
 body_color = Color(0.13, 0.27, 0.55, 1)
 sprite_sheet = ExtResource("8_sheet")
-sprite_scale = 0.9
-sprite_offset = Vector2(0, -30)
+sprite_scale = 0.76
+sprite_offset = Vector2(0, -61)
 max_hp = 100
 move_speed = 340.0
 hurt_invuln_time = 0.6

@@ -29,6 +29,9 @@ var attack: EnemyAttack
 ## 넉백 속도 (매 프레임 감쇠).
 var knockback: Vector2 = Vector2.ZERO
 var _stun_left: float = 0.0
+## 느려짐: 이동 속도 배율과 남은 시간 (해시계 멈춤·발묵).
+var _slow_factor: float = 1.0
+var _slow_left: float = 0.0
 ## 넉백 감쇠율(초당). 클수록 빨리 멈춘다.
 @export var knockback_damping: float = 8.0
 
@@ -50,6 +53,20 @@ func stun(seconds: float) -> void:
 
 func is_stunned() -> bool:
 	return _stun_left > 0.0
+
+
+## 느리게: factor(0~1)배 속도로 seconds초. 더 강한 느려짐이 이긴다. 보스·정예도 stun_scale만큼 짧게.
+func slow(factor: float, seconds: float) -> void:
+	var t := seconds * (data.stun_scale if data else 1.0)
+	if t <= 0.0:
+		return
+	if factor < _slow_factor or _slow_left <= 0.0:
+		_slow_factor = clampf(factor, 0.05, 1.0)
+	_slow_left = maxf(_slow_left, t)
+
+
+func speed_scale() -> float:
+	return _slow_factor if _slow_left > 0.0 else 1.0
 
 
 func _ready() -> void:
@@ -96,11 +113,12 @@ func compute_velocity(neighbors: Array) -> Vector2:
 		var d := off.length()
 		if d > 0.001 and d < separation_radius:
 			push += off / d * (1.0 - d / separation_radius)
-	return (dir + push * separation_strength).limit_length(1.0) * move_speed
+	return (dir + push * separation_strength).limit_length(1.0) * move_speed * speed_scale()
 
 
 func _physics_process(delta: float) -> void:
 	var busy := false
+	_slow_left = maxf(_slow_left - delta, 0.0)
 	if _stun_left > 0.0:
 		_stun_left = maxf(_stun_left - delta, 0.0)
 		velocity = knockback
@@ -151,6 +169,8 @@ func _update_sprite(busy: bool) -> void:
 	var anim := "idle"
 	if _flash > 0.0 and sheet.has_anim("hit"):
 		anim = "hit"
+	elif busy and attack and sheet.has_anim(String(attack.data.anim)):
+		anim = String(attack.data.anim)
 	elif busy and sheet.has_anim("attack"):
 		anim = "attack"
 	elif velocity.length() > 10.0:
@@ -195,6 +215,8 @@ func _on_died(_entity: Node) -> void:
 
 func _draw() -> void:
 	EnemyArt.draw(self)
+	if _slow_left > 0.0:  # 느려짐: 발밑 먹 고리
+		draw_arc(Vector2(0, body_radius * 0.7), body_radius * 1.1, 0.0, TAU, 20, Color(Ink.INK, 0.35), 3.0)
 	if _stun_left > 0.0:  # 기절: 머리 위 번개 고리
 		var top := Vector2(0, -body_radius * 2.2)
 		var spin := Time.get_ticks_msec() * 0.008

@@ -16,3 +16,5 @@ extends Resource
 @export var ranged_damage: int = 10
 @export var ranged_speed: float = 700.0
 @export var ranged_lifetime: float = 0.8
+## 비어 있지 않으면 원거리 투사체를 이 글자들로 차례로 그린다 (세종 문자탄).
+@export var ranged_glyphs: String = ""

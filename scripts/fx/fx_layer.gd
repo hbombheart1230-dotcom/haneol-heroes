@@ -49,7 +49,7 @@ func _draw() -> void:
 				Ink.stroke(self, f["a"], f["b"], float(f["w"]) * (1.0 - k * 0.6), Color(c.darkened(0.3), 1.0 - k))
 				Ink.stroke(self, f["a"], f["b"], float(f["w"]) * 0.3, Color(Ink.INK, (1.0 - k) * 0.7))
 			"number":
-				var font := ThemeDB.fallback_font
+				var font := UiStyle.TITLE_FONT
 				var size := 48 if f["strong"] else 34
 				var p: Vector2 = f["pos"] + Vector2(-60, -50.0 * k - 30.0)
 				var ink_col := Ink.SEAL if f["strong"] else Ink.INK
