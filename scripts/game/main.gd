@@ -17,6 +17,8 @@ extends Node2D
 ## 고를 수 있는 무대 (역사 연표 순). 둘 이상이면 영웅 다음에 고르기 화면.
 @export var stages: Array[StageTheme] = []
 @export var stage_select: StageSelect
+## 입장 뒤 이야기 인트로 (처음 한 번).
+@export var story_intro: StoryIntro
 ## 깨면 탕약이 나오는 물건들 (무대마다 다름).
 @export var breakables: BreakableField
 ## 결과 화면에서 재시작 입력을 받기까지 대기(초). 연타로 바로 넘어가는 것을 막는다.
@@ -105,6 +107,16 @@ func _hold() -> void:
 func _on_title_entered() -> void:
 	Feedback.ui()
 	GameSettings.title_seen = true
+	if story_intro and story_intro.data and not GameSettings.intro_seen:
+		story_intro.finished.connect(_on_intro_finished, CONNECT_ONE_SHOT)
+		story_intro.open()
+		return
+	_start_flow()
+
+
+func _on_intro_finished() -> void:
+	GameSettings.intro_seen = true
+	GameSettings.save_settings()
 	_start_flow()
 
 
