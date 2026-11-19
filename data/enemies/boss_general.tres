@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
-[ext_resource type="Resource" path="res://assets/sprites/barbarian_ink/barbarian_ink.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://assets/sprites/biryeo_chieftain/biryeo_chieftain.tres" id="3_sheet"]
 
 [sub_resource type="Resource" id="Boss_cone"]
 script = ExtResource("2_attack")
@@ -42,7 +42,7 @@ bypass_cap = true
 [resource]
 script = ExtResource("1_enemy")
 id = &"boss_general"
-display_name = "갑옷 장수"
+display_name = "거란 망령 부족장"
 max_hp = 600
 xp = 0
 move_speed = 85.0
@@ -54,6 +54,5 @@ stun_scale = 0.3
 patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge"), SubResource("Boss_shockwave")])
 is_boss = true
 sprite_sheet = ExtResource("3_sheet")
-sprite_scale = 1.5
-sprite_offset = Vector2(0, -62)
-sprite_tint = Color(0.82, 0.62, 0.58, 1)
+sprite_scale = 1.35
+sprite_offset = Vector2(0, -66)
