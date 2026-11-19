@@ -62,6 +62,7 @@ var _vp: SubViewport
 var _pivot: Node3D
 ## "style": "ink"이면 3D 렌더를 수묵 후처리 셰이더로 한 번 더 그린 화면 (없으면 null).
 var _post: SubViewport
+var _skel: Skeleton3D
 
 
 func _initialize() -> void:
@@ -98,12 +99,25 @@ static func find_anim(ap: AnimationPlayer, src: String, quiet: bool = false) -> 
 	for cand in src.split("|", false):
 		if ap.has_animation(cand):
 			return cand
+		for anim_name in ap.get_animation_list():  # 가져오기 때 바뀐 이름 ("Run 2" → "Run_02")
+			if normalize_name(anim_name) == normalize_name(cand):
+				return anim_name
 		for anim_name in ap.get_animation_list():
 			if name_matches(anim_name, cand):
 				return anim_name
 	if not quiet:
 		push_error("animation not found: %s (have %s)" % [src, ap.get_animation_list()])
 	return ""
+
+
+## 비교용 이름: 소문자, 영문·숫자만, 숫자 앞 0 제거 ("Run_02" = "Run 2", "Left_Slash" = "Left Slash").
+static func normalize_name(n: String) -> String:
+	var re := RegEx.create_from_string("[a-z]+|[0-9]+")
+	var out := ""
+	for m in re.search_all(n.to_lower()):
+		var part := m.get_string()
+		out += str(part.to_int()) if part.is_valid_int() else part
+	return out
 
 
 ## 후보가 이름 속 어떤 단어의 앞부분이면 일치 (Running_A ← run, Soldier_Idle ← die 아님).
@@ -169,7 +183,30 @@ func _setup(job: Dictionary) -> AnimationPlayer:
 	var model: Node3D = (load(job["model"]) as PackedScene).instantiate()
 	_pivot.add_child(model)
 	_post = _make_post(job) if job.get("style", "") == "ink" else null
+	_skel = _find_skeleton(model)
 	return model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+
+
+static func locked_root_position(rest: Vector3, pose: Vector3) -> Vector3:
+	return Vector3(rest.x, pose.y, rest.z)
+
+
+static func _find_skeleton(n: Node) -> Skeleton3D:
+	var found := n.find_children("*", "Skeleton3D", true, false)
+	return found[0] as Skeleton3D if not found.is_empty() else null
+
+
+## 동작이 몸을 앞으로 옮기는 경우(루트 모션) 뿌리 뼈의 수평 위치를 쉬는 자세(rest) 값으로 되돌려
+## 칸 가운데에 둔다. 0이 아니라 rest로 돌리는 이유: 모델마다 뿌리 뼈의 원래 위치가 원점이 아닐 수 있다.
+## 높이(Y)는 그대로 둔다 (점프·웅크림 유지).
+## 작업 설정 "lock_root": false로 끈다.
+func _lock_root(job: Dictionary) -> void:
+	if _skel == null or not job.get("lock_root", true):
+		return
+	for b in _skel.get_bone_count():
+		if _skel.get_bone_parent(b) == -1:
+			_skel.set_bone_pose_position(b, locked_root_position(_skel.get_bone_rest(b).origin,
+				_skel.get_bone_pose_position(b)))
 
 
 func _make_post(job: Dictionary) -> SubViewport:
@@ -216,6 +253,7 @@ func _bake(job: Dictionary) -> void:
 				var t := a.length * f / float(frames if anim["loop"] else maxi(frames - 1, 1))
 				ap.seek(minf(t, a.length), true)
 				ap.pause()
+				_lock_root(job)
 				await RenderingServer.frame_post_draw
 				await RenderingServer.frame_post_draw
 				if _post:
@@ -225,7 +263,7 @@ func _bake(job: Dictionary) -> void:
 				sheet.blit_rect(img, Rect2i(0, 0, FRAME, FRAME), Vector2i(f * FRAME, d * FRAME))
 		var png := "%s/%s.png" % [out_dir, anim["key"]]
 		sheet.save_png(ProjectSettings.globalize_path(png))
-		_write_import(png, 0.5 if _post else 0.75)
+		_write_import(png, float(job.get("lossy_quality", 0.5 if _post else 0.75)))
 		meta.append({"key": anim["key"], "png": png, "frames": frames, "fps": float(anim["fps"]), "loop": anim["loop"]})
 		print("baked ", png)
 	_write_set(job["name"], out_dir, meta, FRAME)

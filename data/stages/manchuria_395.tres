@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="StageTheme" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+
+[resource]
+script = ExtResource("1_theme")
+id = &"manchuria_395"
+year_label = "395년"
+title = "만주 벌판"
+subtitle = "광개토대왕릉비에 새겨진 비려 정벌의 전장"
+floor_base = Color(0.86, 0.82, 0.66, 1)
+floor_stain = Color(0.28, 0.3, 0.18, 1)
+grass_per_mpx = 10.0
+rock_per_mpx = 1.6
+grass_color = Color(0.3, 0.31, 0.17, 0.75)
+rock_color = Color(0.22, 0.2, 0.17, 0.6)
+clear_radius = 260.0
+seed = 395

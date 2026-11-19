@@ -4,6 +4,9 @@
 [ext_resource type="Resource" path="res://data/runs/default_run.tres" id="30_run"]
 [ext_resource type="Script" path="res://scripts/world/seal_choice.gd" id="31_seal"]
 [ext_resource type="Script" path="res://scripts/ui/hero_select.gd" id="33_select"]
+[ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="36_title"]
+[ext_resource type="Resource" path="res://data/heroes/sejong.tres" id="37_sejong"]
+[ext_resource type="Resource" path="res://data/heroes/shin_saimdang.tres" id="38_saimdang"]
 [ext_resource type="Resource" path="res://data/heroes/gwanggaeto.tres" id="34_gw"]
 [ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="35_herodata"]
 [ext_resource type="Resource" path="res://data/enemies/elite_warrior.tres" id="32_elite"]
@@ -33,15 +36,16 @@ radius = 22.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
 radius = 30.0
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select", "title_screen")]
 script = ExtResource("0_main")
 player = NodePath("Player")
 spawner = NodePath("EnemySpawner")
 hud = NodePath("HUD/HudView")
 run_config = ExtResource("30_run")
 seal_choice = NodePath("SealChoice")
-heroes = Array[ExtResource("35_herodata")]([ExtResource("12_hero"), ExtResource("34_gw")])
+heroes = Array[ExtResource("35_herodata")]([ExtResource("12_hero"), ExtResource("34_gw"), ExtResource("37_sejong"), ExtResource("38_saimdang")])
 hero_select = NodePath("HUD/HeroSelect")
+title_screen = NodePath("HUD/TitleScreen")
 
 [node name="Arena" type="Node2D" parent="."]
 script = ExtResource("1_arena")
@@ -146,3 +150,13 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("33_select")
+
+[node name="TitleScreen" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("36_title")

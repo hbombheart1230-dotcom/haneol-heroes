@@ -11,6 +11,8 @@ uniform float line_px = 2.6;
 uniform float inner_line = 0.9;
 uniform float color_keep = 0.55;
 uniform float grain = 0.35;
+// 0이면 원래 색 그대로 (먹선만), 1이면 3단 농담 담채 전부. 영웅처럼 무늬가 세밀한 모델은 낮춘다.
+uniform float wash_amount = 1.0;
 
 float hash(vec2 p) {
 	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -61,6 +63,7 @@ void fragment() {
 	vec3 tint = mix(vec3(lum(src.rgb)), src.rgb, 0.75);
 	vec3 body = mix(wash, wash * (tint / max(lum(tint), 0.05)), color_keep);
 	body = clamp(body, 0.0, 1.0);
+	body = mix(src.rgb, body, wash_amount);
 	vec3 col = mix(body, ink.rgb, max(edge, 0.0));
 	// 바깥 먹선은 마른 붓처럼 끝이 갈라진다
 	float dry = step(0.25, vnoise(cell * 0.35 + 7.0));

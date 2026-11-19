@@ -1,0 +1,94 @@
+[gd_resource type="Resource" script_class="HeroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Script" path="res://scripts/data/basic_attack_data.gd" id="2_attack"]
+[ext_resource type="Script" path="res://scripts/skills/skill_kit.gd" id="3_kit"]
+[ext_resource type="Texture2D" path="res://assets/ui/heroes/sejong.png" id="card_art"]
+[ext_resource type="Resource" path="res://data/upgrades/sejong.tres" id="9_upgrades"]
+[ext_resource type="Resource" path="res://data/upgrades/sejong_major.tres" id="10_major"]
+[ext_resource type="Resource" path="res://assets/sprites/sejong/sejong.tres" id="8_sheet"]
+[ext_resource type="Script" path="res://scripts/heroes/sejong/jeongeum_skill.gd" id="s0"]
+[ext_resource type="Script" path="res://scripts/heroes/sejong/meteor_skill.gd" id="s1"]
+[ext_resource type="Script" path="res://scripts/heroes/sejong/constellation_skill.gd" id="s2"]
+[ext_resource type="Script" path="res://scripts/heroes/sejong/sundial_skill.gd" id="s3"]
+
+[sub_resource type="Resource" id="Attack"]
+script = ExtResource("2_attack")
+melee_interval = 0.7
+melee_range = 90.0
+melee_arc_degrees = 120.0
+melee_damage = 8
+melee_knockback = 100.0
+ranged_interval = 0.55
+ranged_range = 600.0
+ranged_damage = 14
+ranged_speed = 760.0
+ranged_lifetime = 0.85
+ranged_glyphs = "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ"
+
+[sub_resource type="Resource" id="Skill_tap"]
+script = ExtResource("s0")
+id = &"jeongeum"
+display_name = "정음진"
+cooldown = 6.0
+color = Color(0.86, 0.68, 0.32, 1)
+fx_color = Color(1, 0.85, 0.45, 1)
+
+[sub_resource type="Resource" id="Skill_dash"]
+script = ExtResource("s1")
+id = &"meteor"
+display_name = "유성"
+cooldown = 3.0
+color = Color(0.3, 0.45, 0.8, 1)
+fx_color = Color(0.75, 0.85, 1, 1)
+
+[sub_resource type="Resource" id="Skill_charge"]
+script = ExtResource("s2")
+id = &"constellation"
+display_name = "성좌진"
+cooldown = 5.0
+color = Color(0.86, 0.68, 0.32, 1)
+fx_color = Color(1, 0.92, 0.6, 1)
+
+[sub_resource type="Resource" id="Skill_counter"]
+script = ExtResource("s3")
+id = &"sundial"
+display_name = "해시계 멈춤"
+cooldown = 0.0
+color = Color(0.72, 0.15, 0.12, 1)
+fx_color = Color(1, 0.8, 0.4, 1)
+
+[sub_resource type="Resource" id="Kit"]
+script = ExtResource("3_kit")
+tap = SubResource("Skill_tap")
+dash = SubResource("Skill_dash")
+charge = SubResource("Skill_charge")
+counter = SubResource("Skill_counter")
+counter_window = 1.0
+dash_link_window = 0.45
+hold_threshold = 0.2
+full_charge_time = 1.1
+
+[resource]
+script = ExtResource("1_hero")
+id = &"sejong"
+display_name = "세종"
+card_art = ExtResource("card_art")
+tagline = "천문의 지배자\n문자와 별의 마법"
+playable = true
+body_color = Color(0.72, 0.15, 0.12, 1)
+sprite_sheet = ExtResource("8_sheet")
+sprite_scale = 0.87
+sprite_offset = Vector2(0, -59)
+max_hp = 85
+move_speed = 330.0
+hurt_invuln_time = 0.6
+evade_invuln_time = 1.0
+dash_distance = 220.0
+dash_duration = 0.12
+max_dash_charges = 3
+dash_recharge_time = 1.0
+attack = SubResource("Attack")
+kit = SubResource("Kit")
+upgrade_pool = ExtResource("9_upgrades")
+major_pool = ExtResource("10_major")

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
-[ext_resource type="Resource" path="res://assets/sprites/skeleton_minion_ink/skeleton_minion_ink.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://assets/sprites/biryeo_soldier/biryeo_soldier.tres" id="3_sheet"]
 
 [sub_resource type="Resource" id="Attack_slam"]
 script = ExtResource("2_attack")
@@ -16,6 +16,7 @@ recovery = 0.3
 [resource]
 script = ExtResource("1_enemy")
 id = &"chaser"
+display_name = "거란 망령 졸병"
 max_hp = 30
 xp = 1
 move_speed = 120.0
@@ -24,5 +25,5 @@ body_radius = 20.0
 color = Color(0.75, 0.2, 0.25, 1)
 attack = SubResource("Attack_slam")
 sprite_sheet = ExtResource("3_sheet")
-sprite_scale = 0.85
-sprite_offset = Vector2(0, -22)
+sprite_scale = 1.33
+sprite_offset = Vector2(0, -62)

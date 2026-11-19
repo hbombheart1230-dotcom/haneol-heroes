@@ -65,6 +65,12 @@ class PipelineTest(unittest.TestCase):
         with open(os.path.join(mp.ROOT, "tools/ai3d/heroes/yi_sun_sin.json"), encoding="utf-8") as f:
             self.cfg = json.load(f)
         self.cfg.update({"name": "hero_t", "image": "assets/concept/front.png", "hero_data": "data/heroes/h.tres"})
+        # 실제 설정은 Meshy 동작 번호를 고정해 두므로, 테스트는 가짜 라이브러리(LIB)에 맞춘 동작 목록을 쓴다
+        for a, how in zip(self.cfg["anims"], [{"search": "idle"}, {"search": "run"}, {"search": "dodge"},
+                                              {"action_id": 4}, {"search": "hit"}, {"search": "death"}]):
+            a.pop("action_id", None)
+            a.pop("search", None)
+            a.update(how)
         self.root = mock.patch.object(mp, "ROOT", self.tmp)
         self.root.start()
         self.lib = mock.patch.object(api, "library", side_effect=fake_library)
@@ -167,6 +173,58 @@ class PipelineTest(unittest.TestCase):
         out = sorted(os.listdir(os.path.join(self.tmp, "assets/models/meshy/hero_t")))
         self.assertEqual(out, ["a_b.glb", "a_b_2.glb"])
 
+    def _ran_once(self):
+        fake = FakeMeshy()
+        with mock.patch.object(api, "create", fake.create), mock.patch.object(api, "wait", fake.wait),                 mock.patch.object(api, "download"):
+            mp.run(self.cfg, self.args())
+        self.cfg["anims"].append({"key": "kick", "search": "kick", "frames": 4, "fps": 12.0, "loop": False})
+        LIB.append({"action_id": 77, "name": "Kick", "key": "kick"})
+        self.addCleanup(LIB.pop)
+
+    def _add(self, rig_status: dict, **kw):
+        fake = FakeMeshy()
+        os.makedirs(os.path.join(self.tmp, "assets/models/meshy/hero_t"), exist_ok=True)
+        with open(os.path.join(self.tmp, "assets/models/meshy/hero_t/model.glb"), "wb") as f:
+            f.write(b"glTF")
+        get = mock.Mock(return_value=rig_status) if not isinstance(rig_status, Exception)             else mock.Mock(side_effect=rig_status)
+        with mock.patch.object(api, "create", fake.create), mock.patch.object(api, "wait", fake.wait),                 mock.patch.object(api, "get", get), mock.patch.object(api, "download"):
+            mp.add_anims(self.cfg, self.args(**kw))
+        return fake
+
+    def test_add_anims_requests_only_new_actions_with_live_rig(self):
+        self._ran_once()
+        fake = self._add({"status": "SUCCEEDED", "expires_at": 0})
+        self.assertEqual([k for k, _ in fake.created], ["animations"])
+        self.assertEqual(fake.created[0][1]["action_ids"], [77])
+        self.assertEqual(fake.created[0][1]["rig_task_id"], "rigging-task")
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        kick = [a for a in job["anims"] if a["key"] == "kick"][0]
+        self.assertTrue(kick["from"].endswith("animated_extra1.glb"))
+        self.assertNotIn("from", job["anims"][0])
+        again = self._add({"status": "SUCCEEDED", "expires_at": 0})  # 두 번째엔 새 동작 없음
+        self.assertEqual(again.created, [])
+
+    def test_add_anims_rerigs_from_saved_model_after_expiry(self):
+        self._ran_once()
+        fake = self._add(api.MeshyError("404"))
+        self.assertEqual([k for k, _ in fake.created], ["rigging", "animations"])
+        self.assertTrue(fake.created[0][1]["model_url"].startswith("data:model/gltf-binary;base64,"))
+
+    def test_rerig_rejects_over_limit_model_without_calling_api(self):
+        self._ran_once()
+        with mock.patch.object(mp, "DATA_URI_LIMIT", 10):  # 작은 한도로 흉내
+            with self.assertRaises(api.MeshyError):
+                self._add(api.MeshyError("404"))
+
+    def test_add_anims_needs_yes(self):
+        self._ran_once()
+        with self.assertRaises(SystemExit):
+            self._add({"status": "SUCCEEDED", "expires_at": 0}, yes=False)
+
+    def test_apply_skips_hero_without_data(self):
+        self.cfg["hero_data"] = "data/heroes/not_yet.tres"
+        mp.apply_to_hero(self.cfg)  # 예외 없이 건너뜀
+
     def test_import_rejects_non_glb(self):
         with self.assertRaises(SystemExit):
             mp.import_files(self.cfg, [self._glb("model.fbx")])
@@ -174,7 +232,21 @@ class PipelineTest(unittest.TestCase):
     def test_missing_key_message(self):
         with mock.patch.dict(os.environ, {"MESHY_API_KEY": ""}):
             with self.assertRaises(api.MeshyError):
-                api.api_key()
+                api.api_key(os.path.join(self.tmp, "no.env"))
+
+    def test_key_from_env_file_and_env_var_wins(self):
+        env = os.path.join(self.tmp, ".env")
+        with open(env, "w", encoding="utf-8") as f:
+            f.write('# 주석\n\nMESHY_API_KEY="msy_file_key"\nOTHER=1\n')
+        with mock.patch.dict(os.environ, {"MESHY_API_KEY": ""}):
+            self.assertEqual(api.api_key(env), "msy_file_key")
+        with mock.patch.dict(os.environ, {"MESHY_API_KEY": "msy_env_key"}):
+            self.assertEqual(api.api_key(env), "msy_env_key")
+
+    def test_env_file_is_gitignored(self):
+        root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+        with open(os.path.join(root, ".gitignore"), encoding="utf-8") as f:
+            self.assertIn(".env", [line.strip() for line in f])
 
 
 if __name__ == "__main__":

@@ -13,6 +13,8 @@ extends HitBox2D
 @export var size_scale: float = 1.0
 ## true면 해일검기 물결 모양으로 그린다.
 @export var wave_style: bool = false
+## 비어 있지 않으면 이 글자를 붓글씨로 그린다 (세종 문자탄).
+@export var glyph: String = ""
 
 var direction: Vector2 = Vector2.RIGHT
 var hits: int = 0
@@ -47,6 +49,10 @@ func _on_action_applied(_hurt_box: HurtBox2D) -> void:
 
 
 func _draw() -> void:
+	if glyph != "":
+		draw_set_transform(Vector2.ZERO, -rotation, Vector2.ONE)  # 글자는 똑바로
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-20, 14), glyph, 40, UiStyle.GOLD, 40.0, Color(0, 0, 0, 0.7), 5)
+		return
 	if wave_style:
 		var a := 1.0 - _age / lifetime * 0.5
 		for i in 3:

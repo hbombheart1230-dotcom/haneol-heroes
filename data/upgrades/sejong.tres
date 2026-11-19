@@ -1,0 +1,254 @@
+[gd_resource type="Resource" script_class="UpgradePool" format=3]
+
+[ext_resource type="Script" path="res://scripts/run/upgrade_pool.gd" id="1_pool"]
+[ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="2_up"]
+[ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="3_mod"]
+
+[sub_resource type="Resource" id="Mod_jeong_dmg_0"]
+script = ExtResource("3_mod")
+target = &"tap"
+property = &"damage"
+op = 1
+value = 1.4
+
+[sub_resource type="Resource" id="Up_jeong_dmg"]
+script = ExtResource("2_up")
+id = &"jeong_dmg"
+title = "정음진 · 굳센 획"
+description = "글자 피해 +40%"
+color = Color(0.86, 0.68, 0.32, 1)
+max_stacks = 3
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_jeong_dmg_0")])
+
+[sub_resource type="Resource" id="Mod_jeong_wide_0"]
+script = ExtResource("3_mod")
+target = &"tap"
+property = &"radius"
+op = 1
+value = 1.2
+
+[sub_resource type="Resource" id="Up_jeong_wide"]
+script = ExtResource("2_up")
+id = &"jeong_wide"
+title = "정음진 · 넓은 고리"
+description = "고리 반경 +20%"
+color = Color(0.86, 0.68, 0.32, 1)
+max_stacks = 2
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_jeong_wide_0")])
+
+[sub_resource type="Resource" id="Mod_jeong_long_0"]
+script = ExtResource("3_mod")
+target = &"tap"
+property = &"duration"
+op = 0
+value = 1.5
+
+[sub_resource type="Resource" id="Up_jeong_long"]
+script = ExtResource("2_up")
+id = &"jeong_long"
+title = "정음진 · 긴 울림"
+description = "지속 +1.5초"
+color = Color(0.86, 0.68, 0.32, 1)
+max_stacks = 2
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_jeong_long_0")])
+
+[sub_resource type="Resource" id="Mod_jeong_quick_0"]
+script = ExtResource("3_mod")
+target = &"tap"
+property = &"cooldown"
+op = 1
+value = 0.8
+
+[sub_resource type="Resource" id="Up_jeong_quick"]
+script = ExtResource("2_up")
+id = &"jeong_quick"
+title = "정음진 · 빠른 붓"
+description = "재사용 대기 -20%"
+color = Color(0.86, 0.68, 0.32, 1)
+max_stacks = 3
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_jeong_quick_0")])
+
+[sub_resource type="Resource" id="Mod_meteor_dmg_0"]
+script = ExtResource("3_mod")
+target = &"dash"
+property = &"damage"
+op = 1
+value = 1.4
+
+[sub_resource type="Resource" id="Up_meteor_dmg"]
+script = ExtResource("2_up")
+id = &"meteor_dmg"
+title = "유성 · 무거운 별"
+description = "피해 +40%"
+color = Color(0.3, 0.45, 0.8, 1)
+max_stacks = 3
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_meteor_dmg_0")])
+
+[sub_resource type="Resource" id="Mod_meteor_wide_0"]
+script = ExtResource("3_mod")
+target = &"dash"
+property = &"radius"
+op = 1
+value = 1.25
+
+[sub_resource type="Resource" id="Up_meteor_wide"]
+script = ExtResource("2_up")
+id = &"meteor_wide"
+title = "유성 · 큰 별"
+description = "범위 +25%"
+color = Color(0.3, 0.45, 0.8, 1)
+max_stacks = 2
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_meteor_wide_0")])
+
+[sub_resource type="Resource" id="Mod_star_more_0"]
+script = ExtResource("3_mod")
+target = &"charge"
+property = &"max_stars"
+op = 0
+value = 1.0
+
+[sub_resource type="Resource" id="Up_star_more"]
+script = ExtResource("2_up")
+id = &"star_more"
+title = "성좌진 · 많은 별"
+description = "최대 별 +1"
+color = Color(0.86, 0.68, 0.32, 1)
+max_stacks = 3
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_star_more_0")])
+
+[sub_resource type="Resource" id="Mod_star_dmg_0"]
+script = ExtResource("3_mod")
+target = &"charge"
+property = &"damage"
+op = 1
+value = 1.35
+
+[sub_resource type="Resource" id="Up_star_dmg"]
+script = ExtResource("2_up")
+id = &"star_dmg"
+title = "성좌진 · 밝은 별"
+description = "피해 +35%"
+color = Color(0.86, 0.68, 0.32, 1)
+max_stacks = 3
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_star_dmg_0")])
+
+[sub_resource type="Resource" id="Mod_star_fast_0"]
+script = ExtResource("3_mod")
+target = &"kit"
+property = &"full_charge_time"
+op = 1
+value = 0.75
+
+[sub_resource type="Resource" id="Up_star_fast"]
+script = ExtResource("2_up")
+id = &"star_fast"
+title = "성좌진 · 빠른 관측"
+description = "충전 시간 -25%"
+color = Color(0.86, 0.68, 0.32, 1)
+max_stacks = 2
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_star_fast_0")])
+
+[sub_resource type="Resource" id="Mod_sundial_long_0"]
+script = ExtResource("3_mod")
+target = &"counter"
+property = &"slow_time"
+op = 0
+value = 0.5
+
+[sub_resource type="Resource" id="Up_sundial_long"]
+script = ExtResource("2_up")
+id = &"sundial_long"
+title = "해시계 · 긴 그림자"
+description = "느려짐 +0.5초"
+color = Color(0.72, 0.15, 0.12, 1)
+max_stacks = 2
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_sundial_long_0")])
+
+[sub_resource type="Resource" id="Mod_sundial_dmg_0"]
+script = ExtResource("3_mod")
+target = &"counter"
+property = &"damage"
+op = 1
+value = 1.5
+
+[sub_resource type="Resource" id="Up_sundial_dmg"]
+script = ExtResource("2_up")
+id = &"sundial_dmg"
+title = "해시계 · 정오"
+description = "반격 피해 +50%"
+color = Color(0.72, 0.15, 0.12, 1)
+max_stacks = 3
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_sundial_dmg_0")])
+
+[sub_resource type="Resource" id="Mod_vitality_0"]
+script = ExtResource("3_mod")
+target = &"hero"
+property = &"max_hp"
+op = 0
+value = 20.0
+
+[sub_resource type="Resource" id="Up_vitality"]
+script = ExtResource("2_up")
+id = &"vitality"
+title = "강건"
+description = "최대 체력 +20 (그만큼 회복)"
+color = Color(0.72, 0.13, 0.1, 1)
+max_stacks = 3
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_vitality_0")])
+
+[sub_resource type="Resource" id="Mod_letters_0"]
+script = ExtResource("3_mod")
+target = &"attack"
+property = &"ranged_damage"
+op = 1
+value = 1.3
+
+[sub_resource type="Resource" id="Mod_letters_1"]
+script = ExtResource("3_mod")
+target = &"attack"
+property = &"melee_damage"
+op = 1
+value = 1.3
+
+[sub_resource type="Resource" id="Up_letters"]
+script = ExtResource("2_up")
+id = &"letters"
+title = "문자탄 · 또렷한 글자"
+description = "기본 공격 피해 +30%"
+color = Color(0.5, 0.5, 0.55, 1)
+max_stacks = 3
+weight = 1.0
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_letters_0"), SubResource("Mod_letters_1")])
+
+[sub_resource type="Resource" id="Mod_swift_0"]
+script = ExtResource("3_mod")
+target = &"hero"
+property = &"move_speed"
+op = 1
+value = 1.1
+
+[sub_resource type="Resource" id="Up_swift"]
+script = ExtResource("2_up")
+id = &"swift"
+title = "걸음"
+description = "이동 속도 +10%"
+color = Color(0.3, 0.7, 0.4, 1)
+max_stacks = 2
+weight = 0.8
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_swift_0")])
+
+[resource]
+script = ExtResource("1_pool")
+upgrades = Array[ExtResource("2_up")]([SubResource("Up_jeong_dmg"), SubResource("Up_jeong_wide"), SubResource("Up_jeong_long"), SubResource("Up_jeong_quick"), SubResource("Up_meteor_dmg"), SubResource("Up_meteor_wide"), SubResource("Up_star_more"), SubResource("Up_star_dmg"), SubResource("Up_star_fast"), SubResource("Up_sundial_long"), SubResource("Up_sundial_dmg"), SubResource("Up_vitality"), SubResource("Up_letters"), SubResource("Up_swift")])
