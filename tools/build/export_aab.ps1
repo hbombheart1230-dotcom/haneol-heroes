@@ -12,16 +12,23 @@ foreach ($line in Get-Content $keyFile) {
     $i = $line.IndexOf("=")
     if ($i -gt 0) { $k[$line.Substring(0, $i).Trim()] = $line.Substring($i + 1).Trim() }
 }
-$env:GODOT_ANDROID_KEYSTORE_RELEASE_PATH = $k["path"]
-$env:GODOT_ANDROID_KEYSTORE_RELEASE_USER = $k["alias"]
-$env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD = $k["password"]
-if (-not $env:JAVA_HOME) { $env:JAVA_HOME = Join-Path $env:LOCALAPPDATA "Programs\Temurin\jdk-17.0.21+9" }
-$godot = if ($env:GODOT_BIN) { $env:GODOT_BIN } else {
-    (Get-ChildItem (Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Packages\*Godot*\Godot_v4*_console.exe") | Select-Object -Last 1).FullName
+try {
+    $env:GODOT_ANDROID_KEYSTORE_RELEASE_PATH = $k["path"]
+    $env:GODOT_ANDROID_KEYSTORE_RELEASE_USER = $k["alias"]
+    $env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD = $k["password"]
+    if (-not $env:JAVA_HOME) { $env:JAVA_HOME = Join-Path $env:LOCALAPPDATA "Programs\Temurin\jdk-17.0.21+9" }
+    $godot = if ($env:GODOT_BIN) { $env:GODOT_BIN } else {
+        (Get-ChildItem (Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Packages\*Godot*\Godot_v4*_console.exe") | Select-Object -Last 1).FullName
+    }
+    if (-not $godot) { throw "Godot 콘솔 실행 파일을 찾지 못했습니다 (GODOT_BIN으로 지정)" }
+    New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
+    & $godot --headless --path . --export-release "Android Play (AAB)" $Out
+    if ($LASTEXITCODE -ne 0 -or -not (Test-Path $Out)) { throw "AAB 빌드 실패 (exit $LASTEXITCODE)" }
 }
-New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
-& $godot --headless --path . --export-release "Android Play (AAB)" $Out
-$code = $LASTEXITCODE
-Remove-Item Env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD
-if ($code -ne 0 -or -not (Test-Path $Out)) { throw "AAB 빌드 실패 (exit $code)" }
+finally {
+    # 실패해도 서명 정보가 이 PowerShell 세션에 남지 않게 지운다 (Codex 지적)
+    Remove-Item Env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD -ErrorAction SilentlyContinue
+    Remove-Item Env:GODOT_ANDROID_KEYSTORE_RELEASE_USER -ErrorAction SilentlyContinue
+    Remove-Item Env:GODOT_ANDROID_KEYSTORE_RELEASE_PATH -ErrorAction SilentlyContinue
+}
 "{0} ({1:N2} MiB)" -f $Out, ((Get-Item $Out).Length / 1MB)
