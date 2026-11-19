@@ -14,3 +14,5 @@ extends Resource
 @export var survive_time: float = 0.0
 ## 정예 등장 시각(초). 처치하면 큰 변형(금빛 인장)을 고른다.
 @export var elite_times: PackedFloat32Array = PackedFloat32Array([60.0, 110.0])
+## 무대 (바닥·소품·시작 문구). docs/scenario.md 3.2의 연표.
+@export var stage: StageTheme

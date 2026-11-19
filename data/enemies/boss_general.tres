@@ -7,6 +7,7 @@
 [sub_resource type="Resource" id="Boss_cone"]
 script = ExtResource("2_attack")
 kind = 3
+anim = &"attack2"
 trigger_range = 220.0
 windup = 0.8
 radius = 240.0
@@ -19,6 +20,7 @@ bypass_cap = true
 [sub_resource type="Resource" id="Boss_charge"]
 script = ExtResource("2_attack")
 kind = 4
+anim = &"run"
 trigger_range = 520.0
 windup = 0.9
 length = 460.0
@@ -31,6 +33,7 @@ bypass_cap = true
 [sub_resource type="Resource" id="Boss_shockwave"]
 script = ExtResource("2_attack")
 kind = 2
+anim = &"attack"
 trigger_range = 260.0
 windup = 1.0
 radius = 250.0

@@ -5,6 +5,10 @@ extends Node2D
 const HANJI := preload("res://shaders/hanji.gdshader")
 
 @export var rect: Rect2 = Rect2(-900, -1400, 1800, 2800)
+## 무대 겉모습 (바닥 색·수묵 소품). 비어 있으면 기본 한지.
+@export var theme: StageTheme
+
+var props: StageProps
 
 
 func _ready() -> void:
@@ -19,13 +23,30 @@ func _ready() -> void:
 	noise.noise.frequency = 0.02
 	mat.set_shader_parameter("noise_tex", noise)
 	material = mat
+	props = StageProps.new()
+	props.use_parent_material = false
+	add_child(props)
+	if theme:
+		apply_theme(theme)
 	var border := Border.new()
 	border.rect = rect
 	add_child(border)
 
 
+## 무대 바꾸기: 바닥 셰이더 색과 소품을 다시 정한다.
+func apply_theme(t: StageTheme) -> void:
+	theme = t
+	var mat := material as ShaderMaterial
+	if mat:
+		mat.set_shader_parameter("paper", t.floor_base)
+		mat.set_shader_parameter("ink", t.floor_stain)
+	if props:
+		props.setup(t, rect)
+	queue_redraw()
+
+
 func _draw() -> void:
-	draw_rect(rect, Ink.PAPER)
+	draw_rect(rect, theme.floor_base if theme else Ink.PAPER)
 
 
 ## 경계는 셰이더 없이 먹선으로 (자식 노드라 부모 셰이더를 물려받지 않게 use_parent_material 끔).

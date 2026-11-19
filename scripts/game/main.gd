@@ -49,6 +49,9 @@ func _ready() -> void:
 		player.change_hero(saved)
 	if spawner and run_config:
 		spawner.elite_times = run_config.elite_times
+	var arena := get_node_or_null("Arena") as Arena
+	if arena and run_config and run_config.stage:
+		arena.apply_theme(run_config.stage)
 	if seal_choice:
 		seal_choice.chosen.connect(_on_upgrade_chosen)
 	state = GameState.new(survive_time)
@@ -61,6 +64,7 @@ func _ready() -> void:
 		hud.state = state
 		hud.perf = perf
 		hud.progress = progress
+		hud.stage = run_config.stage if run_config else null
 		hud.can_change_hero = heroes.size() > 1
 	if heroes.size() > 1 and not GameSettings.hero_picked and hero_select:
 		waiting_pick = true
