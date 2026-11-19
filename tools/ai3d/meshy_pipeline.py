@@ -199,6 +199,9 @@ def bake(godot: str, name: str) -> None:
 def apply_to_hero(cfg: dict) -> None:
     """영웅 데이터의 sprite_sheet 경로를 새로 구운 시트로 바꾼다."""
     path = rel(cfg["hero_data"])
+    if not os.path.exists(path):  # 아직 게임에 없는 영웅 (세종·사임당): 굽기까지만
+        print(f"{cfg['hero_data']} 없음 → 영웅 데이터 교체는 건너뜀 (시트는 assets/sprites/{cfg['name']}/)")
+        return
     with open(path, encoding="utf-8") as f:
         text = f.read()
     new_sheet = f"res://assets/sprites/{cfg['name']}/{cfg['name']}.tres"

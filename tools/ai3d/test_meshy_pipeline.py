@@ -167,6 +167,10 @@ class PipelineTest(unittest.TestCase):
         out = sorted(os.listdir(os.path.join(self.tmp, "assets/models/meshy/hero_t")))
         self.assertEqual(out, ["a_b.glb", "a_b_2.glb"])
 
+    def test_apply_skips_hero_without_data(self):
+        self.cfg["hero_data"] = "data/heroes/not_yet.tres"
+        mp.apply_to_hero(self.cfg)  # 예외 없이 건너뜀
+
     def test_import_rejects_non_glb(self):
         with self.assertRaises(SystemExit):
             mp.import_files(self.cfg, [self._glb("model.fbx")])
