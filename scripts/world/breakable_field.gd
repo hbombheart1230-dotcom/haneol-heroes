@@ -10,6 +10,8 @@ signal potion_taken(pos: Vector2, healed: int)
 @export var fx: FxLayer
 ## 근접 공격이 물건도 깨게 (부채꼴 안).
 @export var auto_attack: AutoAttack
+## 막히는 장애물 안에는 놓지 않는다 (Main이 무대마다 Arena.obstacles를 넣어 준다).
+var obstacles: Obstacles
 
 var data: BreakableData
 var area: Rect2
@@ -41,12 +43,13 @@ func setup(d: BreakableData, r: Rect2, seed_value: int = 0) -> void:
 
 
 ## 빈자리 고르기: 영역 안, 시작 원 밖, 다른 물건·영웅과 min_gap 이상. 30번 안에 못 찾으면 가장 덜 붐비는 곳.
-static func pick_spot(r: RandomNumberGenerator, rect: Rect2, avoid: PackedVector2Array, gap: float, clear: float) -> Vector2:
+static func pick_spot(r: RandomNumberGenerator, rect: Rect2, avoid: PackedVector2Array, gap: float, clear: float,
+		blocked: Callable = Callable()) -> Vector2:
 	var best := rect.get_center()
 	var best_d := -1.0
 	for i in 30:
 		var p := Vector2(r.randf_range(rect.position.x, rect.end.x), r.randf_range(rect.position.y, rect.end.y))
-		if p.length() < clear:
+		if p.length() < clear or (blocked.is_valid() and blocked.call(p)):
 			continue
 		var d := INF
 		for q in avoid:
@@ -63,7 +66,8 @@ func _place() -> void:
 	var avoid := jars.duplicate()
 	if player:
 		avoid.append(player.global_position)
-	jars.append(pick_spot(rng, area, avoid, data.min_gap, data.clear_radius))
+	var blocked := func(p: Vector2) -> bool: return obstacles != null and obstacles.blocks(p, data.radius)
+	jars.append(pick_spot(rng, area, avoid, data.min_gap, data.clear_radius, blocked))
 
 
 func _physics_process(delta: float) -> void:

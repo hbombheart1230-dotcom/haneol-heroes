@@ -34,6 +34,7 @@ enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg", "res://addons/healt
 2d_physics/layer_2="enemy_body"
 2d_physics/layer_3="player_hurt"
 2d_physics/layer_4="enemy_hurt"
+2d_physics/layer_5="obstacle"
 
 [gui]
 

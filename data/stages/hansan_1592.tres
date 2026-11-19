@@ -54,3 +54,5 @@ picture_props_per_mpx = 2.0
 background_path = "res://assets/backgrounds/hansan_1592.png"
 background_rect = Rect2(-1130, -1841, 2258, 3386)
 prop_inset = 260.0
+map_blockers = PackedVector3Array(-21, -1268, 88, -618, -1030, 88, -491, -1168, 99, -678, -1113, 55, 513, -1179, 121, 634, -992, 99, -848, -749, 77, -947, -485, 77, -980, -154, 77, -1031, 227, 77, -1064, 607, 77, 806, -749, 77, 888, -485, 77, 969, -154, 77, 1020, 227, 77, 1053, 607, 77, -865, 915, 132, -682, 1151, 121, -486, 1301, 99, 833, 1070, 132, 623, 1268, 110)
+solid_props = PackedStringArray("brazier", "cannon", "mast_sail", "crates_arrows", "shields")

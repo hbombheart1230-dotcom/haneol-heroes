@@ -39,3 +39,5 @@ music = ExtResource("2_music")
 background_path = "res://assets/backgrounds/manchuria_395.png"
 background_rect = Rect2(-1068, -1711, 2124, 3186)
 prop_inset = 260.0
+map_blockers = PackedVector3Array(-695, -1275, 187, -363, -1400, 166, 799, -1213, 228, 457, -1134, 93, 892, -570, 124, -923, -736, 135, -1006, -435, 93, 934, 156, 145, 892, 436, 93, -881, 820, 124, -622, 913, 83, -612, 1120, 73, -944, 1276, 145, 799, 1110, 228, 342, 1276, 145, 965, 1338, 166)
+solid_props = PackedStringArray("cart", "rack", "rock_sharp", "rocks_big")

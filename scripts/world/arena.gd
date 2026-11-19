@@ -11,6 +11,7 @@ const HANJI := preload("res://shaders/hanji.gdshader")
 var props: StageProps
 var map: MapLayer
 var border: Node2D
+var obstacles: Obstacles
 ## 지도 밖 바닥 (카메라가 전장 끝에서 보는 곳)을 덮는 여유.
 const OUTSIDE := 2000.0
 
@@ -33,6 +34,8 @@ func _ready() -> void:
 	props = StageProps.new()
 	props.use_parent_material = false
 	add_child(props)
+	obstacles = Obstacles.new()
+	add_child(obstacles)
 	border = Border.new()
 	border.rect = rect
 	add_child(border)
@@ -58,6 +61,11 @@ func apply_theme(t: StageTheme) -> void:
 		border.visible = tex == null  # 지도에는 벽·난간·물가가 그려져 있다
 	if props:
 		props.setup(t, rect.grow(-t.prop_inset))
+	if obstacles:
+		var list := t.map_blockers.duplicate() if tex else PackedVector3Array()
+		if props:
+			list.append_array(Obstacles.from_props(props.items, t))
+		obstacles.build(list)
 	queue_redraw()
 
 

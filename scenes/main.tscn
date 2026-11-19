@@ -91,7 +91,7 @@ boss_time = 40.0
 elite_data = ExtResource("32_elite")
 
 [node name="Player" type="CharacterBody2D" parent="." node_paths=PackedStringArray("contact_sensor")]
-collision_mask = 0
+collision_mask = 16
 motion_mode = 1
 script = ExtResource("2_player")
 hero = ExtResource("12_hero")

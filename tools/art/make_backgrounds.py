@@ -24,6 +24,39 @@ PLAY = {
     "hansan_1592": ((60, 200, 965, 1470), 260.0, 2.0),
 }
 
+## 지도에 그려진 막히는 것 (원본 픽셀 x, y, 반지름). 걸을 영역 안쪽으로 들어온 것만. 지도를 바꾸면 다시 찍는다.
+BLOCKERS = {
+    "manchuria_395": [
+        (180, 210, 90), (340, 150, 80), (900, 240, 110), (735, 278, 45), (945, 550, 60), (70, 470, 65),
+        (30, 615, 45), (965, 900, 70), (945, 1035, 45), (90, 1220, 60), (215, 1265, 40), (220, 1365, 35),
+        (60, 1440, 70), (900, 1360, 110), (680, 1440, 70), (980, 1470, 80),
+    ],
+    "gyeongbokgung_1433": [
+        (225, 432, 22), (188, 518, 22), (150, 612, 22), (112, 712, 22), (72, 818, 22), (33, 922, 22),
+        (922, 442, 22), (922, 525, 22), (922, 622, 22), (922, 728, 22), (922, 832, 22), (920, 945, 22),
+        (255, 300, 30), (110, 1260, 80), (930, 1300, 100), (800, 1400, 55),
+    ],
+    "chochungdo": [
+        (110, 200, 110), (300, 225, 55), (880, 200, 110), (960, 350, 70), (90, 600, 90), (60, 740, 70),
+        (900, 620, 110), (960, 815, 60), (105, 1255, 105), (250, 1330, 70), (870, 1300, 80),
+        (970, 1400, 80), (860, 1480, 60), (60, 1400, 60),
+    ],
+    "hansan_1592": [
+        (503, 260, 40), (232, 368, 40), (290, 305, 45), (205, 330, 25), (745, 300, 55), (800, 385, 45),
+        (128, 495, 35), (83, 615, 35), (68, 765, 35), (45, 938, 35), (30, 1110, 35),
+        (878, 495, 35), (915, 615, 35), (952, 765, 35), (975, 938, 35), (990, 1110, 35),
+        (120, 1250, 60), (203, 1357, 55), (292, 1425, 45), (890, 1320, 60), (795, 1410, 50),
+    ],
+}
+
+## 흩뿌린 소품 중 막히는 것 (그림 파일 이름).
+SOLID = {
+    "manchuria_395": ["cart", "rack", "rock_sharp", "rocks_big"],
+    "gyeongbokgung_1433": ["drum", "haetae", "palace_gate", "pillar", "pillar_broken", "pine_stone_bed", "stone_lantern"],
+    "chochungdo": ["cockscomb", "cucumber_trellis", "eggplant", "rock_a", "rock_b", "inkstone"],
+    "hansan_1592": ["brazier", "cannon", "mast_sail", "crates_arrows", "shields"],
+}
+
 
 def place(play: tuple, size: tuple) -> tuple:
     """걸을 영역이 전장을 덮도록 (짧은 쪽에 맞춰 키움) 지도 전체의 월드 Rect2를 돌려준다."""
@@ -68,6 +101,10 @@ def make(sid: str) -> str:
     t = upsert(t, "floor_base", edge_color(src))
     t = upsert(t, "grass_per_mpx", "0.0")  # 지도에 이미 그려져 있다
     t = upsert(t, "rock_per_mpx", "0.0")
+    k = w / src.width
+    blockers = ", ".join(f"{round(x + bx * k)}, {round(y + by * k)}, {round(br * k)}" for bx, by, br in BLOCKERS[sid])
+    t = upsert(t, "map_blockers", f"PackedVector3Array({blockers})")
+    t = upsert(t, "solid_props", "PackedStringArray(" + ", ".join(f'"{n}"' for n in SOLID[sid]) + ")")
     with open(tres, "w", encoding="utf-8", newline="\n") as f:
         f.write(t)
     return f"{sid}: map Rect2({x}, {y}, {w}, {h}), x{w / src.width:.2f}"

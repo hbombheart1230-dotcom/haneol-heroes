@@ -127,6 +127,7 @@ func _apply_stage(st: StageTheme) -> void:
 		arena.apply_theme(st)
 		arena.clamp_camera(get_node_or_null("Player/Camera2D") as Camera2D)
 		if breakables:
+			breakables.obstacles = arena.obstacles
 			breakables.setup(st.breakable, arena.rect.grow(-maxf(st.prop_inset, 160.0)), st.seed)
 	if spawner and not st.spawn_table.is_empty():
 		spawner.spawn_table = st.spawn_table
