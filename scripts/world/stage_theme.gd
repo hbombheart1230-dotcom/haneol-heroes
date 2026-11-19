@@ -11,6 +11,15 @@ extends Resource
 ## 무대 배경 음악 (반복).
 @export var music: AudioStream
 
+@export_group("배경 지도")
+## 무대 전체를 덮는 큰 그림 (tools/art/make_backgrounds.py). 경로로 두고 무대를 열 때만 불러온다
+## (무대 고르기 화면이 네 무대를 다 들고 있어도 큰 그림은 메모리에 올라오지 않게).
+@export_file("*.png") var background_path: String = ""
+## 지도를 그릴 월드 영역. 걸어 다닐 부분이 전장(Arena.rect)에 맞게 만든다.
+@export var background_rect: Rect2 = Rect2()
+## 흩뿌리는 소품을 전장 가장자리에서 이만큼 띄운다 (지도 가장자리 그림과 겹치지 않게).
+@export var prop_inset: float = 0.0
+
 @export_group("적 (망령 군대)")
 ## 비어 있으면 장면(EnemySpawner)에 정해 둔 적을 그대로 쓴다.
 @export var spawn_table: Array[EnemyData] = []

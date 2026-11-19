@@ -123,6 +123,7 @@ func _apply_stage(st: StageTheme) -> void:
 	var arena := get_node_or_null("Arena") as Arena
 	if arena:
 		arena.apply_theme(st)
+		arena.clamp_camera(get_node_or_null("Player/Camera2D") as Camera2D)
 	if spawner and not st.spawn_table.is_empty():
 		spawner.spawn_table = st.spawn_table
 		spawner.spawn_weights = st.spawn_weights
