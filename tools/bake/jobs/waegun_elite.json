@@ -1,0 +1,44 @@
+{
+  "name": "waegun_elite",
+  "model": "res://assets/models/meshy/waegun_elite/animated.glb",
+  "ortho_size": 2.4,
+  "frame": 160,
+  "style": "ink",
+  "ink": {
+    "inner_line": 0.1,
+    "line_px": 1.6,
+    "wash_amount": 0.5,
+    "grain": 0.05
+  },
+  "lossy_quality": 0.5,
+  "anims": [
+    {
+      "key": "idle",
+      "src": "Idle",
+      "frames": 4,
+      "fps": 6.0,
+      "loop": true
+    },
+    {
+      "key": "run",
+      "src": "Run 2",
+      "frames": 6,
+      "fps": 10.0,
+      "loop": true
+    },
+    {
+      "key": "attack",
+      "src": "Thrust Slash",
+      "frames": 6,
+      "fps": 10.0,
+      "loop": false
+    },
+    {
+      "key": "hit",
+      "src": "Hit Reaction",
+      "frames": 3,
+      "fps": 12.0,
+      "loop": false
+    }
+  ]
+}
