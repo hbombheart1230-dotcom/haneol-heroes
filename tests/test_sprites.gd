@@ -73,9 +73,10 @@ func test_enemy_uses_sprite_and_faces_target() -> void:
 
 
 func test_every_hero_skill_has_an_icon() -> void:
-	var kit: SkillKit = HERO.kit
-	for def in [kit.tap, kit.dash, kit.charge, kit.counter]:
-		assert_object((def as SkillDef).icon).is_not_null()
+	for path in ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]:
+		var kit: SkillKit = (load("res://data/heroes/%s.tres" % path) as HeroData).kit
+		for def in [kit.tap, kit.dash, kit.charge, kit.counter]:
+			assert_object((def as SkillDef).icon).override_failure_message("%s %s" % [path, def.id]).is_not_null()
 
 
 func test_missing_animation_falls_back() -> void:

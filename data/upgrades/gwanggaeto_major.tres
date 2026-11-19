@@ -3,6 +3,10 @@
 [ext_resource type="Script" path="res://scripts/run/upgrade_pool.gd" id="1_pool"]
 [ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="2_up"]
 [ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="3_mod"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/conqueror.png" id="i_conqueror"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/lightning.png" id="i_lightning"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/quake.png" id="i_quake"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/thunder_trail.png" id="i_thunder_trail"]
 
 [sub_resource type="Resource" id="Mod_major_aftershock_0"]
 script = ExtResource("3_mod")
@@ -14,6 +18,7 @@ value = 0.5
 [sub_resource type="Resource" id="Up_major_aftershock"]
 script = ExtResource("2_up")
 id = &"major_aftershock"
+icon = ExtResource("i_quake")
 title = "뇌진격 · 여진"
 description = "0.5초 뒤 같은 자리에
 두 번째 충격파"
@@ -32,6 +37,7 @@ value = 2.5
 [sub_resource type="Resource" id="Up_major_field"]
 script = ExtResource("2_up")
 id = &"major_field"
+icon = ExtResource("i_thunder_trail")
 title = "벽력돌파 · 감전 지대"
 description = "내리친 길에 2.5초
 감전 지대"
@@ -50,6 +56,7 @@ value = 2.0
 [sub_resource type="Resource" id="Up_major_chain"]
 script = ExtResource("2_up")
 id = &"major_chain"
+icon = ExtResource("i_lightning")
 title = "낙뢰 · 연쇄"
 description = "벼락마다 근처 적
 두 명에게 튄다"
@@ -68,6 +75,7 @@ value = 3.0
 [sub_resource type="Resource" id="Up_major_reign"]
 script = ExtResource("2_up")
 id = &"major_reign"
+icon = ExtResource("i_conqueror")
 title = "정복자의 일격 · 천둥 군림"
 description = "내리찍은 자리에 3초
 천둥 지대"

@@ -11,6 +11,10 @@
 [ext_resource type="Resource" path="res://assets/sprites/gwanggaeto/gwanggaeto.tres" id="8_sheet"]
 [ext_resource type="Resource" path="res://data/upgrades/gwanggaeto.tres" id="9_upgrades"]
 [ext_resource type="Resource" path="res://data/upgrades/gwanggaeto_major.tres" id="10_major"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/quake.png" id="i_quake"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/thunder_trail.png" id="i_thunder_trail"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/lightning.png" id="i_lightning"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/conqueror.png" id="i_conqueror"]
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
@@ -27,6 +31,7 @@ ranged_lifetime = 0.45
 
 [sub_resource type="Resource" id="Skill_quake"]
 script = ExtResource("4_quake")
+icon = ExtResource("i_quake")
 id = &"quake"
 display_name = "뇌진격"
 cooldown = 4.5
@@ -39,6 +44,7 @@ knockback = 160.0
 
 [sub_resource type="Resource" id="Skill_trail"]
 script = ExtResource("5_trail")
+icon = ExtResource("i_thunder_trail")
 id = &"thunder_trail"
 display_name = "벽력돌파"
 cooldown = 3.0
@@ -50,6 +56,7 @@ damage = 35
 
 [sub_resource type="Resource" id="Skill_bolt"]
 script = ExtResource("6_bolt")
+icon = ExtResource("i_lightning")
 id = &"lightning"
 display_name = "낙뢰"
 cooldown = 5.0
@@ -61,6 +68,7 @@ damage = 40
 
 [sub_resource type="Resource" id="Skill_conq"]
 script = ExtResource("7_conq")
+icon = ExtResource("i_conqueror")
 id = &"conqueror"
 display_name = "정복자의 일격"
 cooldown = 0.0
