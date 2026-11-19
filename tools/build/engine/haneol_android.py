@@ -1,7 +1,7 @@
 # 한얼: 영웅들 — 크기 최적화 Android 릴리스 내보내기 템플릿용 SCons 프로필 (Godot 4.7.2)
 # 사용: scons platform=android target=template_release arch=arm64 profile=<이 파일>
 # 근거: 공식 문서 "Optimizing a build for size" + 프로젝트 기능 감사 (README "커스텀 내보내기 템플릿").
-# 게임이 새 엔진 기능을 쓰게 되면 (3D, 정규식, ogg 음악, 네트워크 등) 여기서 해당 모듈을 다시 켠다.
+# 게임이 새 엔진 기능을 쓰게 되면 (3D, 정규식, mp3, 네트워크 등) 여기서 해당 모듈을 다시 켠다.
 
 # 크기 최적화
 production = "yes"
@@ -55,7 +55,6 @@ module_multiplayer_enabled = "no"
 module_navigation_2d_enabled = "no"
 module_navigation_3d_enabled = "no"
 module_objectdb_profiler_enabled = "no"
-module_ogg_enabled = "no"
 module_openxr_enabled = "no"
 module_raycast_enabled = "no"
 module_regex_enabled = "no"
@@ -65,7 +64,6 @@ module_tinyexr_enabled = "no"
 module_upnp_enabled = "no"
 module_vhacd_enabled = "no"
 module_visual_shader_enabled = "no"
-module_vorbis_enabled = "no"
 module_webrtc_enabled = "no"
 module_websocket_enabled = "no"
 module_webxr_enabled = "no"
@@ -73,4 +71,5 @@ module_xatlas_unwrap_enabled = "no"
 module_zip_enabled = "no"
 
 # 남기는 모듈: gdscript, godot_physics_2d, freetype(글꼴), noise(arena.gd NoiseTexture2D),
-# webp(무손실 텍스처 .ctex 기본 형식), svg(fallback 텍스트 서버의 선택 의존성, 작다).
+# webp(무손실 텍스처 .ctex 기본 형식), svg(fallback 텍스트 서버의 선택 의존성, 작다),
+# ogg·vorbis(효과음·음악 assets/audio/*.ogg → AudioStreamOggVorbis).

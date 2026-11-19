@@ -108,7 +108,7 @@ godot --headless --path . -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gd
 - 결과물: `build/templates/` (깃 제외) — `android_release.apk`(내보내기 설정 "Android"의 `custom_template/release`), `godot-lib.template_release.aar`(AAB용, `export_aab.ps1`이 `android/build/libs/release/`에 복사)
 - 준비 (한 번, 관리자 권한 불필요): Godot 소스 `git clone --depth 1 --branch 4.7.2-stable https://github.com/godotengine/godot.git %LOCALAPPDATA%\haneol-build\godot-4.7.2` (다른 곳이면 `HANEOL_GODOT_SRC`), `python -m pip install --user scons`, PowerShell에서 `sdkmanager "ndk;29.0.14206865"` (4.7.2 `platform/android/detect.py`가 요구하는 판)
 - 다시 빌드: `powershell -ExecutionPolicy Bypass -File tools/build/build_templates.ps1` (arm64 + arm32, 이 노트북에서 오래 걸린다)
-- 게임이 3D, 정규식, ogg/mp3 음악, 네트워크, 복잡한 문자(아랍어·태국어 등) 같은 새 엔진 기능을 쓰게 되면 프로필에서 해당 모듈을 다시 켜고 템플릿을 새로 빌드한다.
+- 게임이 3D, 정규식, mp3, 네트워크, 복잡한 문자(아랍어·태국어 등) 같은 새 엔진 기능을 쓰게 되면 프로필에서 해당 모듈을 다시 켜고 템플릿을 새로 빌드한다.
 - 기본 엔진으로 되돌리기: 내보내기 설정 "Android"의 `custom_template/release`를 비우고, AAB는 `android_source.zip`의 `libs/release` aar로 덮는다.
 
 ### Android APK
