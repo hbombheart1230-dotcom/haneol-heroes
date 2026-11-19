@@ -26,6 +26,7 @@ color = Color(0.45, 0.28, 0.6, 1)
 attack = SubResource("Attack_elite_slam")
 preferred_range = 0.0
 knockback_scale = 0.15
+stun_scale = 0.5
 is_elite = true
 display_name = "정예 장수"
 sprite_sheet = ExtResource("3_sheet")

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bd8as6teb2nnw"
-path="res://.godot/imported/hit.png-6231a4a13c6e1884e109cd9d19e1146c.ctex"
+uid="uid://c67uirbr4dq48"
+path="res://.godot/imported/attack.png-7b75a0d205db415e63e7b5953162cbba.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/barbarian_boss_ink/hit.png"
-dest_files=["res://.godot/imported/hit.png-6231a4a13c6e1884e109cd9d19e1146c.ctex"]
+source_file="res://assets/sprites/barbarian_ink/attack.png"
+dest_files=["res://.godot/imported/attack.png-7b75a0d205db415e63e7b5953162cbba.ctex"]
 
 [params]
 

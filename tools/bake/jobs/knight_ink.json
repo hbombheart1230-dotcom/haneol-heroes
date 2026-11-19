@@ -1,4 +1,4 @@
-{"name": "knight_ink", "model": "res://assets/models/kaykit/Knight.glb", "ortho_size": 3.2, "frame": 192, "style": "ink",
+{"name": "knight_ink", "model": "res://assets/models/kaykit/Knight.glb", "ortho_size": 3.2, "frame": 160, "style": "ink",
  "anims": [
   {"key": "idle", "src": "Idle", "frames": 8, "fps": 8.0, "loop": true},
   {"key": "run", "src": "Running_A", "frames": 8, "fps": 14.0, "loop": true},

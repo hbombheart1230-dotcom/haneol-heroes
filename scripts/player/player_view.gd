@@ -23,6 +23,26 @@ func _ready() -> void:
 		_setup_sprite(player.hero)
 
 
+## 영웅이 바뀌면 스프라이트를 다시 만든다 (신호 연결은 처음 한 번만).
+func refresh() -> void:
+	if player == null or player.hero == null:
+		return
+	var h := player.hero
+	if h.sprite_sheet == null or h.sprite_sheet.anim_names.is_empty():
+		if _sprite:
+			_sprite.queue_free()
+			_sprite = null
+		_sheet = null
+		return
+	if _sprite == null:
+		_setup_sprite(h)
+		return
+	_sheet = h.sprite_sheet
+	_sprite.sprite_frames = _sheet.build_sprite_frames()
+	_sprite.scale = Vector2.ONE * h.sprite_scale
+	_sprite.position = h.sprite_offset
+
+
 func _setup_sprite(h: HeroData) -> void:
 	_sheet = h.sprite_sheet
 	_sprite = AnimatedSprite2D.new()

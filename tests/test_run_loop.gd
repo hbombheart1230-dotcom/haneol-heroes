@@ -208,6 +208,17 @@ func test_hit_stop_returns_to_slow_time_not_full_speed() -> void:
 	GameTime.reset()
 
 
+func test_iconless_seal_first_draw_has_no_zero_font() -> void:
+	# Codex 27e25cb 회귀: 막 열린 인장(크기 0)에서 글꼴 크기 0으로 그리지 않는다
+	var parts := _player_with_build()
+	var sc := _seal(parts[0])
+	sc.open([_up(&"a", []), _up(&"b", [])] as Array[UpgradeDef], Vector2.ZERO, false, {})
+	sc.queue_redraw()
+	await get_tree().process_frame
+	assert_bool(sc.is_open()).is_true()
+	sc.close()
+
+
 func test_seals_stay_inside_arena() -> void:
 	var parts := _player_with_build()
 	var sc := _seal(parts[0])
@@ -275,6 +286,7 @@ func test_run_has_no_time_victory() -> void:
 
 
 func test_main_scene_level_up_drops_seals_without_pausing() -> void:
+	_skip_hero_select()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	await get_tree().physics_frame
@@ -313,3 +325,11 @@ func test_main_scene_level_up_drops_seals_without_pausing() -> void:
 	assert_float(Engine.time_scale).is_equal(1.0)
 	get_tree().paused = false
 	main.queue_free()
+
+
+## 메인 씬 테스트: 영웅 고르기 화면 없이 이순신으로, 실제 설정 파일은 건드리지 않는다.
+func _skip_hero_select() -> void:
+	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.hero_picked = true
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.save_settings()

@@ -62,6 +62,11 @@ func hit(en: Enemy, dmg: int) -> bool:
 	return true
 
 
+## 화면 흔들림 (Feedback이 없으면 아무 일도 안 함).
+func shake(amount: float) -> void:
+	Feedback.shake(amount)
+
+
 ## 기술이 남기는 노드(소용돌이 등)를 월드에 붙인다.
 func add_to_world(node: Node2D, at: Vector2) -> void:
 	var parent := world if world else player.get_parent()

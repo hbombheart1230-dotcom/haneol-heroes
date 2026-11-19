@@ -5,6 +5,8 @@ extends Resource
 
 @export var id: StringName = &""
 @export var display_name: String = ""
+## 영웅 고르기 화면의 짧은 소개 (줄바꿈 가능).
+@export_multiline var tagline: String = ""
 @export var body_color: Color = Color(0.15, 0.4, 0.8)
 ## 구워진 8방향 스프라이트 (tools/bake). 비어 있으면 수묵풍 코드 그림.
 @export var sprite_sheet: SpriteSheetSet
@@ -25,6 +27,9 @@ extends Resource
 @export var dash_duration: float = 0.12
 @export var max_dash_charges: int = 2
 @export var dash_recharge_time: float = 1.2
+## 0보다 크면 대시 경로 옆의 적을 이 힘으로 밀쳐 낸다 (광개토대왕 돌격). 대시 한 번에 적마다 한 번.
+@export var dash_shove: float = 0.0
+@export var dash_shove_radius: float = 70.0
 
 @export_group("전투")
 @export var attack: BasicAttackData

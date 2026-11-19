@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ceu3el3t8n41o"
-path="res://.godot/imported/idle.png-8272a61a4e2d60828801a3aa7fdd828a.ctex"
+uid="uid://c257simd6q6jb"
+path="res://.godot/imported/death.png-c6a569da1e4467ee3714e946861966a5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/barbarian_boss_ink/idle.png"
-dest_files=["res://.godot/imported/idle.png-8272a61a4e2d60828801a3aa7fdd828a.ctex"]
+source_file="res://assets/sprites/barbarian_ink/death.png"
+dest_files=["res://.godot/imported/death.png-c6a569da1e4467ee3714e946861966a5.ctex"]
 
 [params]
 

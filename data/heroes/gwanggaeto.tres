@@ -1,0 +1,106 @@
+[gd_resource type="Resource" script_class="HeroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Script" path="res://scripts/data/basic_attack_data.gd" id="2_attack"]
+[ext_resource type="Script" path="res://scripts/skills/skill_kit.gd" id="3_kit"]
+[ext_resource type="Script" path="res://scripts/heroes/gwanggaeto/quake_skill.gd" id="4_quake"]
+[ext_resource type="Script" path="res://scripts/heroes/gwanggaeto/thunder_trail_skill.gd" id="5_trail"]
+[ext_resource type="Script" path="res://scripts/heroes/gwanggaeto/lightning_skill.gd" id="6_bolt"]
+[ext_resource type="Script" path="res://scripts/heroes/gwanggaeto/conqueror_skill.gd" id="7_conq"]
+[ext_resource type="Resource" path="res://assets/sprites/barbarian_ink/barbarian_ink.tres" id="8_sheet"]
+[ext_resource type="Resource" path="res://data/upgrades/gwanggaeto.tres" id="9_upgrades"]
+[ext_resource type="Resource" path="res://data/upgrades/gwanggaeto_major.tres" id="10_major"]
+
+[sub_resource type="Resource" id="Attack_gw"]
+script = ExtResource("2_attack")
+melee_interval = 0.8
+melee_range = 140.0
+melee_arc_degrees = 180.0
+melee_damage = 22
+melee_knockback = 220.0
+ranged_interval = 1.2
+ranged_range = 320.0
+ranged_damage = 12
+ranged_speed = 800.0
+ranged_lifetime = 0.45
+
+[sub_resource type="Resource" id="Skill_quake"]
+script = ExtResource("4_quake")
+id = &"quake"
+display_name = "뇌진격"
+cooldown = 4.5
+color = Color(0.85, 0.7, 0.2, 1)
+fx_color = Color(1, 0.88, 0.35, 1)
+radius = 180.0
+damage = 30
+stun_time = 0.5
+knockback = 160.0
+
+[sub_resource type="Resource" id="Skill_trail"]
+script = ExtResource("5_trail")
+id = &"thunder_trail"
+display_name = "벽력돌파"
+cooldown = 3.0
+color = Color(0.55, 0.45, 0.9, 1)
+fx_color = Color(0.75, 0.7, 1, 1)
+delay = 0.3
+width = 110.0
+damage = 35
+
+[sub_resource type="Resource" id="Skill_bolt"]
+script = ExtResource("6_bolt")
+id = &"lightning"
+display_name = "낙뢰"
+cooldown = 5.0
+color = Color(0.55, 0.45, 0.9, 1)
+fx_color = Color(0.85, 0.85, 1, 1)
+min_bolts = 1
+max_bolts = 6
+damage = 40
+
+[sub_resource type="Resource" id="Skill_conq"]
+script = ExtResource("7_conq")
+id = &"conqueror"
+display_name = "정복자의 일격"
+cooldown = 0.0
+color = Color(0.8, 0.3, 0.2, 1)
+fx_color = Color(1, 0.8, 0.35, 1)
+radius = 280.0
+damage = 70
+stun_time = 1.2
+
+[sub_resource type="Resource" id="Kit_gw"]
+script = ExtResource("3_kit")
+tap = SubResource("Skill_quake")
+dash = SubResource("Skill_trail")
+charge = SubResource("Skill_bolt")
+counter = SubResource("Skill_conq")
+counter_window = 1.0
+dash_link_window = 0.45
+hold_threshold = 0.2
+full_charge_time = 1.1
+
+[resource]
+script = ExtResource("1_hero")
+id = &"gwanggaeto"
+display_name = "광개토대왕"
+tagline = "천둥의 정복자
+들어가서 터뜨린다"
+body_color = Color(0.55, 0.25, 0.15, 1)
+sprite_sheet = ExtResource("8_sheet")
+sprite_scale = 0.95
+sprite_offset = Vector2(0, -32)
+max_hp = 140
+move_speed = 300.0
+hurt_invuln_time = 0.6
+evade_invuln_time = 1.0
+dash_distance = 200.0
+dash_duration = 0.14
+max_dash_charges = 2
+dash_recharge_time = 1.1
+dash_shove = 520.0
+dash_shove_radius = 80.0
+attack = SubResource("Attack_gw")
+kit = SubResource("Kit_gw")
+upgrade_pool = ExtResource("9_upgrades")
+major_pool = ExtResource("10_major")

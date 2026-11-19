@@ -9,6 +9,9 @@ extends Node2D
 @export var run_config: RunConfig
 ## 레벨업·정예 보상 고르기 (전장에 인장, 게임은 멈추지 않고 느려진다).
 @export var seal_choice: SealChoice
+## 고를 수 있는 영웅. 둘 이상이면 앱을 켠 뒤 첫 판 전에 고르기 화면.
+@export var heroes: Array[HeroData] = []
+@export var hero_select: HeroSelect
 ## 결과 화면에서 재시작 입력을 받기까지 대기(초). 연타로 바로 넘어가는 것을 막는다.
 @export var restart_delay: float = 0.6
 
@@ -20,6 +23,8 @@ var rng := RandomNumberGenerator.new()
 ## 정예 처치로 받을 큰 변형 고르기 대기 수 (레벨업보다 먼저 연다).
 var major_pending: int = 0
 var _end_time: float = 0.0
+## 영웅 고르기 화면이 떠 있어 판이 아직 시작되지 않음.
+var waiting_pick: bool = false
 
 
 func _ready() -> void:
@@ -39,9 +44,9 @@ func _ready() -> void:
 			spawner.boss_time = run_config.boss_time
 			spawner.ramp_time = run_config.ramp_time
 	progress = RunProgress.new(run_config)
-	if player:
-		build.begin(player, player.get_node_or_null("SkillCaster") as SkillCaster,
-			player.get_node_or_null("AutoAttack") as AutoAttack)
+	var saved := hero_by_id(GameSettings.hero_id)
+	if player and saved and saved != player.hero:
+		player.change_hero(saved)
 	if spawner and run_config:
 		spawner.elite_times = run_config.elite_times
 	if seal_choice:
@@ -56,15 +61,51 @@ func _ready() -> void:
 		hud.state = state
 		hud.perf = perf
 		hud.progress = progress
+		hud.can_change_hero = heroes.size() > 1
+	if heroes.size() > 1 and not GameSettings.hero_picked and hero_select:
+		waiting_pick = true
+		get_tree().paused = true
+		hero_select.picked.connect(_on_hero_picked, CONNECT_ONE_SHOT)
+		hero_select.open(heroes)
+	else:
+		_begin_build()
+
+
+func hero_by_id(id: StringName) -> HeroData:
+	for h in heroes:
+		if h and h.id == id:
+			return h
+	return null
+
+
+func _begin_build() -> void:
+	if player:
+		build.begin(player, player.get_node_or_null("SkillCaster") as SkillCaster,
+			player.get_node_or_null("AutoAttack") as AutoAttack)
+
+
+func _on_hero_picked(h: HeroData) -> void:
+	GameSettings.hero_id = h.id
+	GameSettings.hero_picked = true
+	GameSettings.save_settings()
+	if player and h != player.hero:
+		player.change_hero(h)
+	_begin_build()
+	waiting_pick = false
+	get_tree().paused = false
 
 
 ## 렌더 프레임 기준 성능 기록 (플레이 중에만).
 func _process(delta: float) -> void:
+	if waiting_pick:
+		return
 	if state.is_playing() and not is_choosing():  # 느린 시간 동안은 프레임 시간이 왜곡돼 제외
 		perf.sample(delta, spawner.alive_count() if spawner else 0)
 
 
 func _physics_process(delta: float) -> void:
+	if waiting_pick:
+		return
 	if state.is_playing():
 		state.tick(delta)
 	else:
@@ -87,7 +128,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	if state.is_playing() or _end_time < restart_delay:
 		return
 	if event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
+		if is_change_hero_area((event as InputEventScreenTouch).position):
+			GameSettings.hero_picked = false  # 다음 판 전에 고르기 화면
 		restart()
+
+
+## 결과 화면 아래 띠 ("영웅 바꾸기"). HUD가 같은 영역을 그린다.
+func is_change_hero_area(pos: Vector2) -> bool:
+	return heroes.size() > 1 and pos.y >= get_viewport().get_visible_rect().size.y - Hud.CHANGE_HERO_BAND
 
 
 func restart() -> void:

@@ -6,6 +6,10 @@ extends Control
 @export var player: Player
 @export var controller: TouchController
 @export var show_touch_debug: bool = true
+## 결과 화면 아래 "영웅 바꾸기" 띠 높이(px). Main이 같은 값으로 터치를 판정한다.
+const CHANGE_HERO_BAND := 140.0
+## 영웅이 둘 이상일 때만 띠를 그린다.
+var can_change_hero: bool = false
 
 var state: GameState
 ## P0-D 성능 기록. 결과 화면에 요약을 보여준다.
@@ -105,6 +109,10 @@ func _draw_result() -> void:
 	draw_string(font, Vector2(0, cy + 140), "화면을 터치하면 다시 시작", HORIZONTAL_ALIGNMENT_CENTER, size.x, 28, Color(1, 1, 1, 0.7))
 	if perf and show_touch_debug:
 		draw_string(font, Vector2(0, cy + 210), perf.summary(), HORIZONTAL_ALIGNMENT_CENTER, size.x, 22, Color(1, 1, 0.6, 0.85))
+	if can_change_hero:
+		var band := Rect2(0, size.y - CHANGE_HERO_BAND, size.x, CHANGE_HERO_BAND)
+		draw_rect(band, Color(Ink.PAPER, 0.9))
+		draw_string(font, Vector2(0, band.get_center().y + 14), "영웅 바꾸기", HORIZONTAL_ALIGNMENT_CENTER, size.x, 36, Ink.INK)
 
 
 func _draw_touch_debug() -> void:

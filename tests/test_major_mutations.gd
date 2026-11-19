@@ -65,6 +65,18 @@ func test_whirlpool_lingers_and_keeps_hitting() -> void:
 	assert_int(e.health.current).is_less(after_cast)  # 소용돌이가 추가 피해
 
 
+func test_zone_ignores_dead_enemies() -> void:
+	# Codex c2a822b 회귀: 소용돌이가 죽은 적을 끌어당기지 않는다
+	var dead := _enemy_at(Vector2(60, 0))
+	dead.health.kill()
+	var z := DamageZone.new()
+	z.ctx = ctx
+	z.pull = 100.0
+	add_child(z)
+	z._physics_process(1.0 / 60.0)
+	assert_vector(dead.knockback).is_equal(Vector2.ZERO)
+
+
 func test_no_whirlpool_without_mutation() -> void:
 	HERO.kit.tap.cast(ctx, 0.0)
 	assert_int(get_children().filter(func(c: Node) -> bool: return c is DamageZone).size()).is_equal(0)

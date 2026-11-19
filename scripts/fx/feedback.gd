@@ -92,6 +92,12 @@ static func enemy_hit(pos: Vector2, amount: int) -> void:
 	instance.play(&"hit")
 
 
+## 기술이 부르는 화면 흔들림 (0~1).
+static func shake(amount: float) -> void:
+	if instance:
+		instance.add_trauma(amount)
+
+
 static func enemy_died(_pos: Vector2) -> void:
 	if instance:
 		instance.play(&"die")

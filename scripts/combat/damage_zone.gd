@@ -24,6 +24,8 @@ func _physics_process(delta: float) -> void:
 		_next += interval
 		ticks += 1
 		for en in ctx.enemies_in_radius(global_position, radius):
+			if not en.health.is_alive():
+				continue  # 죽어서 지워지기 전인 적은 끌지 않는다
 			if pull > 0.0:
 				en.apply_knockback((global_position - en.global_position).normalized() * pull)
 			ctx.hit(en, damage)
