@@ -70,3 +70,37 @@ func test_enemy_uses_sprite_and_faces_target() -> void:
 	assert_object(e.sprite).is_not_null()
 	e._physics_process(1.0 / 60.0)
 	assert_str(String(e.sprite.animation)).is_equal("run_4")  # 왼쪽으로 달림
+
+
+func test_every_hero_skill_has_an_icon() -> void:
+	var kit: SkillKit = HERO.kit
+	for def in [kit.tap, kit.dash, kit.charge, kit.counter]:
+		assert_object((def as SkillDef).icon).is_not_null()
+
+
+func test_missing_animation_falls_back() -> void:
+	var sheet := SpriteSheetSet.new()
+	sheet.anim_names = PackedStringArray(["idle", "run"])
+	var v: PlayerView = auto_free(PlayerView.new())
+	v._sheet = sheet
+	assert_str(v.available_anim("run")).is_equal("run")
+	assert_str(v.available_anim("dash")).is_equal("run")
+	assert_str(v.available_anim("attack")).is_equal("idle")
+	assert_str(v.available_anim("death")).is_equal("idle")
+
+
+func test_empty_sheet_does_not_crash() -> void:
+	var v: PlayerView = auto_free(PlayerView.new())
+	v._sheet = SpriteSheetSet.new()
+	assert_str(v.available_anim("attack")).is_equal("attack")
+
+
+func test_bake_name_matching_is_word_based() -> void:
+	var bake := preload("res://tools/bake/bake_sprites.gd")
+	assert_bool(bake.name_matches("Running_A", "run")).is_true()
+	assert_bool(bake.name_matches("HitReaction", "hit")).is_true()
+	assert_bool(bake.name_matches("Armature|Dying", "dying")).is_true()
+	assert_bool(bake.name_matches("1H_Melee_Attack_Chop", "attack")).is_true()
+	assert_bool(bake.name_matches("Soldier_Idle", "die")).is_false()
+	assert_bool(bake.name_matches("Prerunner", "run")).is_false()
+	assert_bool(bake.name_matches("White_Pose", "hit")).is_false()

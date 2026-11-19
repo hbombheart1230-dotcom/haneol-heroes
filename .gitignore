@@ -12,3 +12,6 @@ build/
 # gdUnit4 실행 결과
 reports/
 addons/gdUnit4/GdUnitRunner.cfg
+
+# 파이썬
+__pycache__/

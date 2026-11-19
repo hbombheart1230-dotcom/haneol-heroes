@@ -262,6 +262,9 @@ func test_hero_data_sets_evade_invulnerability() -> void:
 func test_overlapping_hit_stops_restore_only_after_the_last() -> void:
 	var ctx := SkillContext.new()
 	ctx.player = player
+	# 준비 단계의 긴 프레임이 다음 프레임 delta에 섞여 타이머를 한꺼번에 끝내지 않게 한 프레임 비운다.
+	await get_tree().process_frame
+	await get_tree().process_frame
 	ctx.hit_stop(0.05)
 	ctx.hit_stop(0.25)
 	await get_tree().create_timer(0.12, true, false, true).timeout

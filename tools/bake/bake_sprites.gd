@@ -71,16 +71,74 @@ func _bake_all() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--only="):
 			only = arg.substr(7)
-	for job in JOBS:
+	for job in _all_jobs():
 		if only == "" or job["name"] == only:
 			await _bake(job)
 	print("BAKE DONE")
 	quit()
 
 
+## JOBS + tools/bake/jobs/*.json (AI 3D 도구 tools/ai3d가 만든 굽기 설정).
+func _all_jobs() -> Array:
+	var jobs: Array = JOBS.duplicate()
+	var dir := "res://tools/bake/jobs"
+	for file in DirAccess.get_files_at(dir):
+		if file.ends_with(".json"):
+			var job: Variant = JSON.parse_string(FileAccess.get_file_as_string("%s/%s" % [dir, file]))
+			if job is Dictionary:
+				jobs.append(job)
+	return jobs
+
+
+## 애니메이션 이름 찾기. src는 "a|b|c" 후보 목록일 수 있다 (앞 후보 우선).
+## 후보마다 정확히 같은 이름 → 대소문자 무시 포함 순으로 찾는다 (가져오기 때 이름이 조금 바뀌는 경우).
+static func find_anim(ap: AnimationPlayer, src: String, quiet: bool = false) -> String:
+	for cand in src.split("|", false):
+		if ap.has_animation(cand):
+			return cand
+		for anim_name in ap.get_animation_list():
+			if name_matches(anim_name, cand):
+				return anim_name
+	if not quiet:
+		push_error("animation not found: %s (have %s)" % [src, ap.get_animation_list()])
+	return ""
+
+
+## 후보가 이름 속 어떤 단어의 앞부분이면 일치 (Running_A ← run, Soldier_Idle ← die 아님).
+## 단어 = 영문자 덩어리, 낙타 표기도 나눈다 (HitReaction → hit, reaction). tools/ai3d의 name_matches와 같다.
+static func name_matches(anim_name: String, cand: String) -> bool:
+	var re := RegEx.create_from_string("[A-Z]?[a-z]+|[A-Z]+(?![a-z])")
+	for m in re.search_all(anim_name):
+		if m.get_string().to_lower().begins_with(cand.to_lower()):
+			return true
+	return false
+
+
+## 동작이 다른 .glb에 따로 있으면 (웹에서 동작별로 받은 파일) 같은 뼈대로 보고 가져와 붙인다.
+static func import_anim(ap: AnimationPlayer, from_path: String, src: String, key: String) -> String:
+	var other: Node = (load(from_path) as PackedScene).instantiate()
+	var oap := other.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	var found := ""
+	if oap:
+		found = find_anim(oap, src, true)
+		var clips := Array(oap.get_animation_list()).filter(func(n: StringName) -> bool: return n != &"RESET")
+		if found == "" and clips.size() == 1:
+			found = clips[0]  # 동작 하나만 든 파일이면 이름과 상관없이 그것
+		if found == "":
+			push_error("animation not found in %s: %s (have %s)" % [from_path, src, clips])
+	var result := ""
+	if found != "":
+		if not ap.has_animation_library(&"ext"):
+			ap.add_animation_library(&"ext", AnimationLibrary.new())
+		ap.get_animation_library(&"ext").add_animation(key, oap.get_animation(found).duplicate(true))
+		result = "ext/" + key
+	other.free()
+	return result
+
+
 func _setup(job: Dictionary) -> AnimationPlayer:
 	_vp = SubViewport.new()
-	_vp.size = Vector2i(job["frame"], job["frame"])
+	_vp.size = Vector2i(int(job["frame"]), int(job["frame"]))
 	_vp.transparent_bg = true
 	_vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(_vp)
@@ -113,20 +171,27 @@ func _setup(job: Dictionary) -> AnimationPlayer:
 
 func _bake(job: Dictionary) -> void:
 	var ap := _setup(job)
-	var FRAME: int = job["frame"]
+	var FRAME: int = int(job["frame"])
 	var out_dir := "res://assets/sprites/%s" % job["name"]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	var meta: Array = []
 	for anim in job["anims"]:
-		var frames: int = anim["frames"]
+		var frames: int = int(anim["frames"])
 		var sheet := Image.create(FRAME * frames, FRAME * DIRS, false, Image.FORMAT_RGBA8)
-		var a: Animation = ap.get_animation(anim["src"])
+		var src := ""
+		if anim.has("from"):
+			src = import_anim(ap, anim["from"], anim["src"], anim["key"])
+		else:
+			src = find_anim(ap, anim["src"])
+		if src == "":
+			continue
+		var a: Animation = ap.get_animation(src)
 		for d in DIRS:
 			# 방향 d: 화면 오른쪽(0)부터 시계 방향 45도씩 (화면 y는 아래)
 			var sd := Vector2.from_angle(d * TAU / DIRS)
 			_pivot.rotation.y = atan2(sd.x, sd.y)
 			for f in frames:
-				ap.play(anim["src"])
+				ap.play(src)
 				var t := a.length * f / float(frames if anim["loop"] else maxi(frames - 1, 1))
 				ap.seek(minf(t, a.length), true)
 				ap.pause()
@@ -137,7 +202,7 @@ func _bake(job: Dictionary) -> void:
 				sheet.blit_rect(img, Rect2i(0, 0, FRAME, FRAME), Vector2i(f * FRAME, d * FRAME))
 		var png := "%s/%s.png" % [out_dir, anim["key"]]
 		sheet.save_png(ProjectSettings.globalize_path(png))
-		meta.append({"key": anim["key"], "png": png, "frames": frames, "fps": anim["fps"], "loop": anim["loop"]})
+		meta.append({"key": anim["key"], "png": png, "frames": frames, "fps": float(anim["fps"]), "loop": anim["loop"]})
 		print("baked ", png)
 	_write_set(job["name"], out_dir, meta, FRAME)
 	_vp.queue_free()
