@@ -41,3 +41,17 @@ func test_stage_title_fades_after_start() -> void:
 	assert_float(hud.stage_title_alpha()).is_equal_approx(0.5, 0.01)
 	hud.state.tick(1.0)
 	assert_float(hud.stage_title_alpha()).is_equal(0.0)
+
+
+func test_picture_props_scattered_apart_and_sorted() -> void:
+	var r := Rect2(-900, -1400, 1800, 2800)
+	var items := StageProps.scatter(STAGE, r)
+	var pics := items.filter(func(i: Array) -> bool: return i[1] == 2)
+	assert_int(STAGE.prop_textures.size()).is_equal(13)
+	assert_int(pics.size()).is_greater(5)
+	for i in pics.size():
+		assert_int(pics[i][3]).is_less(STAGE.prop_textures.size())
+		for j in range(i + 1, pics.size()):
+			assert_float((pics[i][0] as Vector2).distance_to(pics[j][0])).is_greater_equal(220.0)
+	for i in items.size() - 1:
+		assert_float((items[i][0] as Vector2).y).is_less_equal((items[i + 1][0] as Vector2).y)
