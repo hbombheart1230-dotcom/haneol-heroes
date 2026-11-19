@@ -29,6 +29,7 @@ var _last_played: Dictionary = {}
 var _rng := RandomNumberGenerator.new()
 ## 음악 재생기는 장면 밖(트리 루트)에 하나만 두어, 다시 시작(장면 다시 불러오기)해도 곡이 이어진다.
 static var _music: AudioStreamPlayer
+static var _music_tween: Tween
 
 
 func _ready() -> void:
@@ -91,16 +92,36 @@ func play(kind: StringName, min_gap: float = 0.04) -> void:
 
 
 ## 무대 음악 (같은 곡이면 이어서). null이면 멈춘다.
-func play_music(stream: AudioStream) -> void:
+## fade > 0이면 지금 곡을 그만큼 줄인 뒤 새 곡을 같은 시간 동안 키운다 (보스 등장·판 끝).
+func play_music(stream: AudioStream, fade: float = 0.0) -> void:
 	if _music == null or (stream == _music.stream and _music.playing):
 		return
+	if fade > 0.0 and _music.playing and _music.is_inside_tree():
+		if _music_tween and _music_tween.is_valid():
+			_music_tween.kill()
+		_music_tween = _music.create_tween()
+		_music_tween.tween_property(_music, "volume_db", -40.0, fade)
+		_music_tween.tween_callback(_start_music.bind(stream))
+		_music_tween.tween_property(_music, "volume_db", music_volume_db, fade)
+		return
+	_start_music(stream)
+
+
+
+func _start_music(stream: AudioStream) -> void:
 	_music.stream = stream
+	_music.volume_db = music_volume_db
 	if stream == null:
 		_music.stop()
 	elif _music.is_inside_tree():
 		_music.play()
 	else:
 		_music.play.call_deferred()  # 방금 만들어 아직 트리에 붙기 전
+
+
+## 지금 틀고 있는 곡 (없으면 null).
+static func current_music() -> AudioStream:
+	return _music.stream if _music != null and is_instance_valid(_music) else null
 
 
 func music_playing() -> bool:
