@@ -34,12 +34,10 @@ try {
     $java = Join-Path $src "platform\android\java"
     # gradle 설정 단계가 PATH에서 scons 실행 파일을 찾는다 (pip --user 설치 위치를 더해 준다)
     $env:PATH = (& python -c "import sysconfig; print(sysconfig.get_path('scripts', 'nt_user'))") + ";" + $env:PATH
-    # build.gradle이 lib/libs/ 를 프로세스 작업 폴더 기준으로 찾는다. Push-Location은 그 폴더를 바꾸지 않으므로 직접 바꾼다
-    $oldCwd = [IO.Directory]::GetCurrentDirectory()
-    [IO.Directory]::SetCurrentDirectory($java)
-    try { & (Join-Path $java "gradlew.bat") generateGodotTemplates --quiet }
-    finally { [IO.Directory]::SetCurrentDirectory($oldCwd) }
-    if ($LASTEXITCODE -ne 0) { throw "gradle 템플릿 생성 실패 (exit $LASTEXITCODE)" }
+    # build.gradle이 lib/libs/ 를 작업 폴더 기준으로 찾으므로 작업 폴더를 명시해서 실행한다
+    $g = Start-Process -FilePath (Join-Path $java "gradlew.bat") -ArgumentList "generateGodotTemplates", "--quiet" `
+        -WorkingDirectory $java -NoNewWindow -Wait -PassThru
+    if ($g.ExitCode -ne 0) { throw "gradle 템플릿 생성 실패 (exit $($g.ExitCode))" }
 } finally { Pop-Location }
 
 foreach ($f in @("android_release.apk", "godot-lib.template_release.aar")) {
