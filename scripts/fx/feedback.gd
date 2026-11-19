@@ -27,7 +27,8 @@ var _next_player: int = 0
 ## 같은 소리가 한 프레임에 겹쳐 터지지 않게 (소리별 마지막 재생 시각).
 var _last_played: Dictionary = {}
 var _rng := RandomNumberGenerator.new()
-var _music: AudioStreamPlayer
+## 음악 재생기는 장면 밖(트리 루트)에 하나만 두어, 다시 시작(장면 다시 불러오기)해도 곡이 이어진다.
+static var _music: AudioStreamPlayer
 
 
 func _ready() -> void:
@@ -40,10 +41,12 @@ func _ready() -> void:
 		p.process_mode = Node.PROCESS_MODE_ALWAYS  # 인트로·영웅 고르기(일시정지 중)에도 단추 소리
 		add_child(p)
 		_players.append(p)
-	_music = AudioStreamPlayer.new()
+	if _music == null or not is_instance_valid(_music):
+		_music = AudioStreamPlayer.new()
+		_music.name = "HanulMusic"
+		_music.process_mode = Node.PROCESS_MODE_ALWAYS
+		get_tree().root.add_child.call_deferred(_music)
 	_music.volume_db = music_volume_db
-	_music.process_mode = Node.PROCESS_MODE_ALWAYS
-	add_child(_music)
 	if player:
 		player.dash_started.connect(func(_d: Vector2) -> void: play(&"dash"))
 		player.evaded.connect(func() -> void: play(&"evade"))
@@ -92,14 +95,16 @@ func play_music(stream: AudioStream) -> void:
 	if _music == null or (stream == _music.stream and _music.playing):
 		return
 	_music.stream = stream
-	if stream:
+	if stream == null:
+		_music.stop()
+	elif _music.is_inside_tree():
 		_music.play()
 	else:
-		_music.stop()
+		_music.play.call_deferred()  # 방금 만들어 아직 트리에 붙기 전
 
 
 func music_playing() -> bool:
-	return _music != null and _music.playing
+	return _music != null and is_instance_valid(_music) and (_music.playing or _music.stream != null)
 
 
 func _on_skill_cast(slot: SkillCaster.Slot, hits: int) -> void:

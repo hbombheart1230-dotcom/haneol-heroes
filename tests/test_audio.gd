@@ -34,6 +34,15 @@ func test_feedback_plays_bank_sound_and_music() -> void:
 	fb.play(&"slash", 0.0)
 	assert_bool(BANK.sounds[&"slash"].has(fb._players[0].stream)).is_true()
 	fb.play_music(STAGE.music)
+	await get_tree().process_frame
 	assert_bool(fb.music_playing()).is_true()
+	# Codex: 다시 시작(새 Feedback)해도 같은 곡은 처음부터 다시 틀지 않는다
+	var player_before: AudioStreamPlayer = Feedback._music
+	var fb2: Feedback = auto_free(Feedback.new())
+	fb2.bank = BANK
+	add_child(fb2)
+	fb2.play_music(STAGE.music)
+	assert_object(Feedback._music).is_same(player_before)
+	assert_bool(Feedback._music.get_parent() == get_tree().root).is_true()
 	fb.play(&"ui", 0.0)
 	assert_object(fb._players[1].stream).is_same(BANK.sounds[&"ui"][0])
