@@ -15,7 +15,7 @@
   "height_meters": 1.85,
   "hero_data": "data/heroes/gwanggaeto.tres",
   "bake": {
-    "ortho_size": 2.3,
+    "ortho_size": 2.6,
     "frame": 256,
     "style": "ink",
     "ink": {
