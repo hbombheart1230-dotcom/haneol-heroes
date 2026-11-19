@@ -3,6 +3,10 @@
 [ext_resource type="Script" path="res://scripts/run/upgrade_pool.gd" id="1_pool"]
 [ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="2_up"]
 [ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="3_mod"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/constellation.png" id="i_constellation"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/jeongeum.png" id="i_jeongeum"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/meteor.png" id="i_meteor"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/sundial.png" id="i_sundial"]
 
 [sub_resource type="Resource" id="Mod_major_double_0"]
 script = ExtResource("3_mod")
@@ -14,6 +18,7 @@ value = 190.0
 [sub_resource type="Resource" id="Up_major_double"]
 script = ExtResource("2_up")
 id = &"major_double"
+icon = ExtResource("i_jeongeum")
 title = "정음진 · 두 겹 고리"
 description = "바깥에 글자 고리가 하나 더\n반대로 돈다"
 color = Color(0.86, 0.68, 0.32, 1)
@@ -31,6 +36,7 @@ value = 4.0
 [sub_resource type="Resource" id="Up_major_shower"]
 script = ExtResource("2_up")
 id = &"major_shower"
+icon = ExtResource("i_meteor")
 title = "유성 · 유성우"
 description = "주변에 작은 별 넷이 더 떨어진다"
 color = Color(0.3, 0.45, 0.8, 1)
@@ -48,6 +54,7 @@ value = 70.0
 [sub_resource type="Resource" id="Up_major_big_dipper"]
 script = ExtResource("2_up")
 id = &"major_big_dipper"
+icon = ExtResource("i_constellation")
 title = "성좌진 · 북두칠성"
 description = "별마다 터진다"
 color = Color(0.86, 0.68, 0.32, 1)
@@ -65,6 +72,7 @@ value = 0.8
 [sub_resource type="Resource" id="Up_major_stopped"]
 script = ExtResource("2_up")
 id = &"major_stopped"
+icon = ExtResource("i_sundial")
 title = "해시계 · 멈춘 시간"
 description = "느려진 적이 잠시 완전히 멈춘다"
 color = Color(0.72, 0.15, 0.12, 1)

@@ -11,6 +11,10 @@
 [ext_resource type="Script" path="res://scripts/heroes/sejong/meteor_skill.gd" id="s1"]
 [ext_resource type="Script" path="res://scripts/heroes/sejong/constellation_skill.gd" id="s2"]
 [ext_resource type="Script" path="res://scripts/heroes/sejong/sundial_skill.gd" id="s3"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/jeongeum.png" id="i_jeongeum"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/meteor.png" id="i_meteor"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/constellation.png" id="i_constellation"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/sundial.png" id="i_sundial"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -28,6 +32,7 @@ ranged_glyphs = "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ"
 
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
+icon = ExtResource("i_jeongeum")
 id = &"jeongeum"
 display_name = "정음진"
 cooldown = 6.0
@@ -36,6 +41,7 @@ fx_color = Color(1, 0.85, 0.45, 1)
 
 [sub_resource type="Resource" id="Skill_dash"]
 script = ExtResource("s1")
+icon = ExtResource("i_meteor")
 id = &"meteor"
 display_name = "유성"
 cooldown = 3.0
@@ -44,6 +50,7 @@ fx_color = Color(0.75, 0.85, 1, 1)
 
 [sub_resource type="Resource" id="Skill_charge"]
 script = ExtResource("s2")
+icon = ExtResource("i_constellation")
 id = &"constellation"
 display_name = "성좌진"
 cooldown = 5.0
@@ -52,6 +59,7 @@ fx_color = Color(1, 0.92, 0.6, 1)
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("s3")
+icon = ExtResource("i_sundial")
 id = &"sundial"
 display_name = "해시계 멈춤"
 cooldown = 0.0
