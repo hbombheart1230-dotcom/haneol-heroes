@@ -179,6 +179,15 @@ func test_lightning_skips_dead_enemies() -> void:
 	assert_int(live.health.current).is_less(live.health.max)
 
 
+func test_quake_and_conqueror_ignore_dead_enemies() -> void:
+	# Codex 27e25cb 회귀
+	var dead := _enemy_at(Vector2(60, 0))
+	dead.health.kill()
+	assert_int((GW.kit.tap as QuakeSkill).cast(ctx, 0.0).hits).is_equal(0)
+	assert_int((GW.kit.counter as ConquerorSkill).cast(ctx, 0.0).hits).is_equal(0)
+	assert_vector(dead.knockback).is_equal(Vector2.ZERO)
+
+
 func test_conqueror_wide_stun_and_field() -> void:
 	var s: ConquerorSkill = GW.kit.counter.duplicate()
 	var e := _enemy_at(Vector2(250, 0))

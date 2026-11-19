@@ -26,6 +26,8 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 func strike(ctx: SkillContext, center: Vector2, dmg: int) -> int:
 	var hits := 0
 	for en in ctx.enemies_in_radius(center, radius):
+		if not en.health.is_alive():
+			continue  # 죽어서 지워지기 전인 적은 밀지도 세지도 않는다
 		var off := en.global_position - center
 		en.apply_knockback((off.normalized() if off.length_squared() > 0.01 else Vector2.RIGHT) * knockback)
 		if ctx.hit(en, dmg):

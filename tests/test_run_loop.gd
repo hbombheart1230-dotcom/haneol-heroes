@@ -208,6 +208,17 @@ func test_hit_stop_returns_to_slow_time_not_full_speed() -> void:
 	GameTime.reset()
 
 
+func test_iconless_seal_first_draw_has_no_zero_font() -> void:
+	# Codex 27e25cb 회귀: 막 열린 인장(크기 0)에서 글꼴 크기 0으로 그리지 않는다
+	var parts := _player_with_build()
+	var sc := _seal(parts[0])
+	sc.open([_up(&"a", []), _up(&"b", [])] as Array[UpgradeDef], Vector2.ZERO, false, {})
+	sc.queue_redraw()
+	await get_tree().process_frame
+	assert_bool(sc.is_open()).is_true()
+	sc.close()
+
+
 func test_seals_stay_inside_arena() -> void:
 	var parts := _player_with_build()
 	var sc := _seal(parts[0])

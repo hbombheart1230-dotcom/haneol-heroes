@@ -139,7 +139,7 @@ func _draw() -> void:
 		if u.icon:
 			var s := r * 1.4
 			draw_texture_rect(u.icon, Rect2(c - Vector2(s, s) * 0.5, Vector2(s, s)), false)
-		else:
+		elif r >= 8.0:  # 떨어지는 첫 순간(크기 0)에는 글자를 그리지 않는다 (글꼴 크기 0 오류)
 			draw_string(font, c + Vector2(-r, r * 0.35), u.title.left(1), HORIZONTAL_ALIGNMENT_CENTER, r * 2.0,
 				int(r * 0.95), u.color)
 		var label := Vector2(-120, r + 32)
