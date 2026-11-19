@@ -37,7 +37,7 @@ enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg", "res://addons/healt
 
 [gui]
 
-theme/custom_font="res://assets/fonts/batang_body.ttf"
+theme/custom_font="res://assets/fonts/jeongeum_body.ttf"
 
 [input_devices]
 

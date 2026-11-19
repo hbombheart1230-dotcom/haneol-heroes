@@ -1,10 +1,11 @@
 class_name UiStyle
 extends RefCounted
-## 화면 꾸밈 공통 (하데스 참고 → 한국풍): 붓글씨 제목, 바탕체 본문, 옻칠 판 + 금박 테두리.
+## 화면 꾸밈 공통 (하데스 참고 → 한국풍): 붓글씨 제목, 훈민정음 해례본풍 본문(송명체), 옻칠 판 + 금박 테두리.
+## 화면 글자는 모두 한글로 쓴다 (영문 표기 없음).
 ## 글꼴은 게임에서 쓰는 글자만 남긴 OFL 글꼴 (tools/fonts/subset_fonts.py).
 
 const TITLE_FONT := preload("res://assets/fonts/brush_title.ttf")
-const BODY_FONT := preload("res://assets/fonts/batang_body.ttf")
+const BODY_FONT := preload("res://assets/fonts/jeongeum_body.ttf")
 
 const LACQUER := Color(0.08, 0.06, 0.06, 0.92)
 const LACQUER_RED := Color(0.32, 0.07, 0.06, 0.95)

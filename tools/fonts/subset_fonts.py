@@ -4,7 +4,7 @@
 글자를 새로 쓰면 다시 실행한다 (tests/test_fonts.gd가 빠진 글자를 잡는다).
 
   python tools/fonts/subset_fonts.py <원본 폴더>
-원본 (OFL, Google Fonts): NanumBrushScript-Regular.ttf, GowunBatang-Regular.ttf
+원본 (OFL, Google Fonts): NanumBrushScript-Regular.ttf (제목 붓글씨), SongMyung-Regular.ttf (본문, 옛 목판 인쇄풍)
 """
 import glob
 import os
@@ -13,7 +13,7 @@ import sys
 from fontTools import subset
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-FONTS = {"NanumBrushScript-Regular.ttf": "brush_title.ttf", "GowunBatang-Regular.ttf": "batang_body.ttf"}
+FONTS = {"NanumBrushScript-Regular.ttf": "brush_title.ttf", "SongMyung-Regular.ttf": "jeongeum_body.ttf"}
 EXTRA = "0123456789%+-×·•●○◆★…~!?.,:;'\"()[]/<>「」『』"
 
 

@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://g0y7rvhbiaar"
-path="res://.godot/imported/batang_body.ttf-3d1ae9dcf310a96d103fad91dd382865.fontdata"
+uid="uid://b7tdvhhmovph0"
+path="res://.godot/imported/jeongeum_body.ttf-4c54cafbeb231bcf8d3d7002316ccec6.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/batang_body.ttf"
-dest_files=["res://.godot/imported/batang_body.ttf-3d1ae9dcf310a96d103fad91dd382865.fontdata"]
+source_file="res://assets/fonts/jeongeum_body.ttf"
+dest_files=["res://.godot/imported/jeongeum_body.ttf-4c54cafbeb231bcf8d3d7002316ccec6.fontdata"]
 
 [params]
 

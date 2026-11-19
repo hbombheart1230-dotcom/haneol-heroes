@@ -89,7 +89,7 @@ func _draw_status() -> void:
 		var r := Rect2(16, 44, size.x - 32, 7)
 		draw_rect(r.grow(2.0), UiStyle.LACQUER)
 		draw_rect(Rect2(r.position, Vector2(r.size.x * progress.xp_ratio(), r.size.y)), UiStyle.GOLD)
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(16, 82), "Lv %d · 처치 %d" % [progress.level, state.kills], 26,
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(16, 82), "단계 %d · 처치 %d" % [progress.level, state.kills], 26,
 			UiStyle.PAPER, -1, Color(0, 0, 0, 0.7), 5)
 	else:
 		_ink_text(font, Vector2(16, 70), "처치 %d" % state.kills, HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
@@ -136,7 +136,7 @@ func _draw_touch_debug() -> void:
 		draw_circle(t.get_current(), 10, Color(Ink.INK, 0.3))
 	var font := get_theme_default_font()
 	var enemies := get_tree().get_nodes_in_group(Enemy.GROUP).size()
-	var info := "FPS %d  적 %d" % [Engine.get_frames_per_second(), enemies]
+	var info := "초당 %d장 · 적 %d" % [Engine.get_frames_per_second(), enemies]
 	if controller.dash_note != "":
 		_ink_text(font, Vector2(16, size.y - 140), controller.dash_note, HORIZONTAL_ALIGNMENT_LEFT, size.x - 32, 20)
 	_ink_text(font, Vector2(16, size.y - 110), info, HORIZONTAL_ALIGNMENT_LEFT, -1, 22)

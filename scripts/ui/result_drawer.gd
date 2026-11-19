@@ -19,7 +19,7 @@ static func draw(hud: Hud) -> void:
 	UiStyle.gold_rule(hud, Vector2(panel.get_center().x, panel.position.y + 145), w * 0.34)
 	var stats := "처치 %d   ·   %d:%02d" % [state.kills, floori(state.elapsed / 60.0), floori(state.elapsed) % 60]
 	if hud.progress:
-		stats = "Lv %d   ·   " % hud.progress.level + stats
+		stats = "단계 %d   ·   " % hud.progress.level + stats
 	UiStyle.text(hud, UiStyle.BODY_FONT, Vector2(cx, panel.position.y + 205), stats, 30, UiStyle.PAPER, w)
 	if hud.stage:
 		UiStyle.text(hud, UiStyle.BODY_FONT, Vector2(cx, panel.position.y + 250),

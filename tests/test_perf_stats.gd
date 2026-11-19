@@ -24,4 +24,4 @@ func test_empty_is_zero() -> void:
 func test_summary_text() -> void:
 	var p := PerfStats.new()
 	p.sample(1.0 / 60.0, 30)
-	assert_str(p.summary()).contains("60 FPS").contains("최대 적 30")
+	assert_str(p.summary()).contains("초당 60장").contains("최대 적 30")

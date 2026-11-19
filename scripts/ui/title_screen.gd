@@ -1,6 +1,6 @@
 class_name TitleScreen
 extends Control
-## 인트로(타이틀): 사용자 키아트 + 제목 + "입장" 단추. 앱을 켠 뒤 한 번만 (GameSettings.title_seen).
+## 인트로(타이틀): 사용자 키아트(영문 로고 대신 붓글씨 한글 제목, tools/art/korean_title_art.py) + "입장" 단추. 앱을 켠 뒤 한 번만 (GameSettings.title_seen).
 
 signal entered
 
@@ -83,10 +83,7 @@ func _draw() -> void:
 	for i in 12:
 		var y := vp.y * (0.62 + i * 0.032)
 		draw_rect(Rect2(0, y, vp.x, vp.y * 0.032 + 1.0), Color(0, 0, 0, 0.06 * i))
-	var a := clampf(_t / 0.6, 0.0, 1.0)
 	var r := button_rect()
 	var pulse := 1.0 + sin(_t * 3.0) * 0.03
 	var pr := Rect2(r.get_center() - r.size * pulse * 0.5, r.size * pulse)
 	UiStyle.button(self, pr, "입장", 48, _press_index >= 0)
-	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, vp.y - 18), "한얼: 영웅들", 18, Color(UiStyle.PAPER, 0.55 * a), vp.x,
-		Color(0, 0, 0, 0.6), 3)
