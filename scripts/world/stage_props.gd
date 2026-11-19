@@ -36,11 +36,18 @@ static func scatter(t: StageTheme, r: Rect2) -> Array:
 		for i in n * 3:  # 서로 너무 붙지 않게 몇 번 다시 뽑는다
 			if placed.size() >= n:
 				break
-			var p := Vector2(rng.randf_range(r.position.x + 80, r.end.x - 80), rng.randf_range(r.position.y + 80, r.end.y - 80))
-			if p.length() < t.clear_radius or placed.any(func(q: Vector2) -> bool: return q.distance_to(p) < 220.0):
+			var idx := rng.randi() % t.prop_textures.size()
+			var sc := rng.randf_range(t.prop_scale_min, t.prop_scale_max)
+			var size := t.prop_textures[idx].get_size() * sc
+			# 그림 전체가 경기장 안에 들어가게 (아래 가운데 기준), 시작 지점 빈 원과도 겹치지 않게 (Codex 25dc72d)
+			var p := Vector2(rng.randf_range(r.position.x + size.x * 0.5, r.end.x - size.x * 0.5),
+				rng.randf_range(r.position.y + size.y * 0.92, r.end.y - size.y * 0.08))
+			var box := picture_rect(p, size)
+			var crowded := placed.any(func(q: Vector2) -> bool: return q.distance_to(p) < 220.0)
+			if not r.encloses(box) or _rect_distance_to_origin(box) < t.clear_radius or crowded:
 				continue
 			placed.append(p)
-			out.append([p, 2, rng.randf_range(t.prop_scale_min, t.prop_scale_max), rng.randi() % t.prop_textures.size()])
+			out.append([p, 2, sc, idx])
 	out.sort_custom(func(x: Array, y: Array) -> bool: return (x[0] as Vector2).y < (y[0] as Vector2).y)  # 위에서 아래로
 	return out
 
@@ -61,12 +68,21 @@ func _draw() -> void:
 				_picture(p, s, int(sd))
 
 
+## 그림 소품이 그려지는 영역 (아래 가운데 = p).
+static func picture_rect(p: Vector2, size: Vector2) -> Rect2:
+	return Rect2(p - Vector2(size.x * 0.5, size.y * 0.92), size)
+
+
+static func _rect_distance_to_origin(box: Rect2) -> float:
+	return Vector2.ZERO.clamp(box.position, box.end).length()
+
+
 ## 그림 소품: 아래 가운데를 바닥 위치에 맞추고 옅은 그림자를 깐다.
 func _picture(p: Vector2, scale: float, index: int) -> void:
 	var tex := theme.prop_textures[index]
 	var size := tex.get_size() * scale
 	Ink.shadow(self, p + Vector2(0, -4), size.x * 0.42)
-	draw_texture_rect(tex, Rect2(p - Vector2(size.x * 0.5, size.y * 0.92), size), false)
+	draw_texture_rect(tex, picture_rect(p, size), false)
 
 
 func _grass(p: Vector2, s: float, sd: float) -> void:

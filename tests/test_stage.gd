@@ -51,6 +51,10 @@ func test_picture_props_scattered_apart_and_sorted() -> void:
 	assert_int(pics.size()).is_greater(5)
 	for i in pics.size():
 		assert_int(pics[i][3]).is_less(STAGE.prop_textures.size())
+		# Codex 25dc72d 회귀: 그려지는 그림 전체가 경기장 안, 시작 빈 원 밖
+		var box := StageProps.picture_rect(pics[i][0], STAGE.prop_textures[pics[i][3]].get_size() * float(pics[i][2]))
+		assert_bool(r.encloses(box)).is_true()
+		assert_float(Vector2.ZERO.clamp(box.position, box.end).length()).is_greater_equal(STAGE.clear_radius)
 		for j in range(i + 1, pics.size()):
 			assert_float((pics[i][0] as Vector2).distance_to(pics[j][0])).is_greater_equal(220.0)
 	for i in items.size() - 1:
