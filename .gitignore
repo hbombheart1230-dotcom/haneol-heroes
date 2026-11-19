@@ -18,3 +18,9 @@ __pycache__/
 
 # Android 빌드 템플릿 (export_templates/<버전>/android_source.zip에서 풀어 쓴다, 용량 큼)
 android/
+
+# 비밀 키 (Meshy 등). 절대 커밋하지 않는다. 예시는 .env.example
+.env
+
+# Meshy 원본 모델·작업 상태 (유료 플랜 결과물, 공개 저장소에 올리지 않는다. 구운 스프라이트만 커밋)
+assets/models/meshy/

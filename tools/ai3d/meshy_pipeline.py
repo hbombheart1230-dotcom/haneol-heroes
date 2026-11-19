@@ -4,12 +4,14 @@
   python tools/ai3d/meshy_pipeline.py actions [검색어]          # 동작 라이브러리 조회 (무료)
   python tools/ai3d/meshy_pipeline.py plan tools/ai3d/heroes/yi_sun_sin.json   # 할 일·예상 크레딧만 표시
   python tools/ai3d/meshy_pipeline.py run  tools/ai3d/heroes/yi_sun_sin.json --yes
+  python tools/ai3d/meshy_pipeline.py add-anims tools/ai3d/heroes/yi_sun_sin.json --yes
+      # 설정에 새로 적은 동작만 요청 (동작당 약 3크레딧). Meshy 보관 기한이 지났으면 저장된 model.glb로 뼈대부터 다시
   python tools/ai3d/meshy_pipeline.py import tools/ai3d/heroes/yi_sun_sin.json 받은파일.glb [더.glb ...]
       # 무료 플랜: meshy.ai 웹에서 만든 뼈대·동작 .glb를 받아 굽기·적용만 한다 (API 키 불필요)
 
 - 진행 상태는 assets/models/meshy/<name>/state.json에 남겨 중간에 끊겨도 이어서 한다
   (이미 성공한 유료 작업은 다시 요청하지 않는다). 처음부터 다시: --restart <단계>(model|rig|anim).
-- 키는 MESHY_API_KEY 환경 변수에서만 읽는다.
+- 키는 환경 변수 MESHY_API_KEY 또는 저장소 루트 .env (깃 제외)에서 읽는다.
 - 굽기는 GPU가 필요해 창 모드 Godot을 잠깐 띄운다. Godot 경로: --godot 또는 GODOT_BIN.
 """
 import argparse
@@ -19,15 +21,20 @@ import os
 import re
 import shutil
 import subprocess
+import time
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import meshy_api as api  # noqa: E402
+import meshy_import  # noqa: E402
+from meshy_import import name_matches, name_words  # noqa: E402,F401
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 STAGES = ("model", "rig", "anim")
 # 크레딧 대략값 (https://docs.meshy.ai/en/api/pricing, 2026-11 기준). 실제 차감은 Meshy 대시보드가 정본.
 COST = {"model": 30, "rig": 5, "anim_each": 3}
+## Meshy rigging model_url data URI 한도 (https://docs.meshy.ai/en/api/rigging).
+DATA_URI_LIMIT = 100 * 1000 * 1000
 
 
 def rel(path: str) -> str:
@@ -94,6 +101,73 @@ def stage_anim(cfg: dict, state: dict) -> None:
     state["anim_glb_url"] = (task.get("result") or {}).get("animation_glb_url", "")
 
 
+def rig_alive(state: dict, margin_s: float = 600.0) -> bool:
+    """뼈대 작업을 Meshy가 아직 보관 중인지 (동작을 더 붙일 수 있는지)."""
+    if not state.get("rig_task"):
+        return False
+    try:
+        task = api.get("rigging", state["rig_task"])
+    except api.MeshyError:
+        return False  # 404: 보관 기한이 지나 삭제됨
+    expires = task.get("expires_at") or 0
+    return task.get("status") == "SUCCEEDED" and (not expires or expires / 1000.0 > time.time() + margin_s)
+
+
+def rerig_from_local(cfg: dict, state: dict, out_dir: str) -> None:
+    """보관 기한이 지난 뒤: 저장해 둔 model.glb로 뼈대를 다시 넣는다 (약 5크레딧)."""
+    model = os.path.join(out_dir, "model.glb")
+    if not os.path.exists(model):
+        raise api.MeshyError(f"{model}이 없어 뼈대를 다시 넣을 수 없습니다. run --restart model 이 필요합니다.")
+    uri = api.data_uri(model, "model/gltf-binary")
+    if len(uri) > DATA_URI_LIMIT:  # Meshy: data URI는 100 MB까지 (공개 URL은 400 MB)
+        raise api.MeshyError(f"model.glb가 너무 커서({len(uri) // 1_000_000} MB, data URI 한도 100 MB) "
+                             "다시 뼈대를 넣을 수 없습니다. 공개 URL로 올리거나 run --restart model 이 필요합니다.")
+    print("뼈대 다시 넣기 (저장된 model.glb)")
+    state["rig_task"] = api.create("rigging", {"model_url": uri, "height_meters": cfg.get("height_meters", 1.7)})
+    api.wait("rigging", state["rig_task"])
+
+
+def new_anims(cfg: dict, state: dict) -> list:
+    """설정에는 있지만 아직 만들지 않은 동작 (state의 actions·extras 기준)."""
+    done = {a["key"] for a in state.get("actions", [])}
+    for extra in state.get("extras", []):
+        done |= {a["key"] for a in extra["actions"]}
+    return [a for a in cfg["anims"] if a["key"] not in done]
+
+
+def add_anims(cfg: dict, args: argparse.Namespace) -> None:
+    out_dir = rel(f"assets/models/meshy/{cfg['name']}")
+    state = load_state(out_dir)
+    if not state.get("anim_done"):
+        raise SystemExit("먼저 run 으로 모델·뼈대·기본 동작을 만드세요.")
+    todo = new_anims(cfg, state)
+    if not todo:
+        print("새 동작이 없습니다.")
+        return
+    alive = rig_alive(state)
+    credits = COST["anim_each"] * len(todo) + (0 if alive else COST["rig"])
+    print(f"새 동작 {[a['key'] for a in todo]} / 뼈대 {'재사용' if alive else '다시 넣기'} / 예상 약 {credits} 크레딧")
+    if not args.yes:
+        raise SystemExit("유료 작업입니다. 확인했으면 --yes를 붙여 다시 실행하세요.")
+    if not alive:
+        rerig_from_local(cfg, state, out_dir)
+        save_state(out_dir, state)
+    picked = resolve_actions({"anims": todo})
+    task_id = api.create("animations", {
+        "rig_task_id": state["rig_task"], "action_ids": [a["action_id"] for a in picked],
+        "post_process": {"operation_type": "change_fps", "fps": 30}})
+    task = api.wait("animations", task_id)
+    n = len(state.get("extras", [])) + 1
+    file = f"animated_extra{n}.glb"
+    api.download((task.get("result") or {}).get("animation_glb_url", ""), os.path.join(out_dir, file))
+    state.setdefault("extras", []).append({"file": file, "task": task_id, "actions": picked})
+    save_state(out_dir, state)
+    print("굽기 설정:", write_bake_job(cfg, state))
+    if not args.no_bake:
+        bake(find_godot(args.godot), cfg["name"])
+    print("완료")
+
+
 def download_all(state: dict, out_dir: str) -> None:
     for key, file in (("model_glb_url", "model.glb"), ("rigged_glb_url", "rigged.glb"),
                       ("anim_glb_url", "animated.glb")):
@@ -105,12 +179,20 @@ def download_all(state: dict, out_dir: str) -> None:
 def write_bake_job(cfg: dict, state: dict) -> str:
     """tools/bake/jobs/<name>.json — bake_sprites.gd가 읽는 굽기 설정."""
     names = {a["key"]: a["name"] for a in state["actions"]}
+    extra_file = {}  # 나중에 추가한 동작은 다른 .glb에 있다 (같은 뼈대) → 굽기에서 "from"
+    for extra in state.get("extras", []):
+        for a in extra["actions"]:
+            names[a["key"]] = a["name"]
+            extra_file[a["key"]] = f"res://assets/models/meshy/{cfg['name']}/{extra['file']}"
     job = {
         "name": cfg["name"],
         "model": f"res://assets/models/meshy/{cfg['name']}/animated.glb",
         "ortho_size": cfg["bake"]["ortho_size"], "frame": cfg["bake"]["frame"],
-        "anims": [{"key": a["key"], "src": names[a["key"]], "frames": a["frames"],
-                   "fps": a["fps"], "loop": a["loop"]} for a in cfg["anims"]],
+        **{k: cfg["bake"][k] for k in ("style", "ink") if k in cfg["bake"]},  # 수묵 후처리 등
+        "anims": [dict({"key": a["key"], "src": names[a["key"]], "frames": a["frames"],
+                        "fps": a["fps"], "loop": a["loop"]}, **({"from": extra_file[a["key"]]}
+                                                                 if a["key"] in extra_file else {}))
+                  for a in cfg["anims"] if a["key"] in names],
     }
     path = rel(f"tools/bake/jobs/{cfg['name']}.json")
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -119,61 +201,8 @@ def write_bake_job(cfg: dict, state: dict) -> str:
     return path
 
 
-def name_words(text: str) -> list:
-    """이름을 단어로 나눈다: 기호·숫자 경계와 낙타 표기 (HitReaction → hit, reaction)."""
-    spaced = re.sub(r"([a-z])([A-Z])", r"\1 \2", text)
-    return [w for w in re.split(r"[^A-Za-z]+", spaced.lower()) if w]
-
-
-def name_matches(text: str, cand: str) -> bool:
-    """후보가 어떤 단어의 앞부분이면 일치 (run → Running, soldier는 die와 불일치)."""
-    return any(w.startswith(cand.lower()) for w in name_words(text))
-
-
 def import_files(cfg: dict, files: list) -> str:
-    """웹에서 받은 .glb들을 모델 폴더로 복사하고 굽기 설정을 쓴다.
-    파일 하나 = 모든 동작이 든 파일. 여러 개 = 동작별 파일 (파일 이름에 match 후보가 들어 있으면 그 동작)."""
-    name = cfg["name"]
-    out_dir = rel(f"assets/models/meshy/{name}")
-    os.makedirs(out_dir, exist_ok=True)
-    res = []
-    for src in files:
-        if not src.lower().endswith(".glb"):
-            raise SystemExit(f".glb 파일만 받습니다: {src}")
-        base = re.sub(r"[^A-Za-z0-9_.-]", "_", os.path.basename(src))
-        stem, n = base[:-4], 2
-        while f"res://assets/models/meshy/{name}/{base}" in res:  # 이름 정리 후 겹치면 번호를 붙인다
-            base = f"{stem}_{n}.glb"
-            n += 1
-        shutil.copyfile(src, os.path.join(out_dir, base))
-        res.append(f"res://assets/models/meshy/{name}/{base}")
-
-    def file_for(match: str) -> str:
-        for cand in match.lower().split("|"):
-            for r in res:
-                if name_matches(os.path.basename(r)[:-4], cand):
-                    return r
-        return ""
-
-    model = file_for(cfg["anims"][0]["match"]) or res[0]
-    anims = []
-    for a in cfg["anims"]:
-        entry = {"key": a["key"], "src": a["match"], "frames": a["frames"], "fps": a["fps"], "loop": a["loop"]}
-        if len(res) > 1:
-            src_file = file_for(a["match"])
-            if not src_file:
-                print(f"  경고: '{a['key']}' 동작 파일을 찾지 못해 건너뜁니다 (파일 이름에 {a['match']} 중 하나 필요)")
-                continue
-            if src_file != model:
-                entry["from"] = src_file
-        anims.append(entry)
-    job = {"name": name, "model": model, "ortho_size": cfg["bake"]["ortho_size"],
-           "frame": cfg["bake"]["frame"], "anims": anims}
-    path = rel(f"tools/bake/jobs/{name}.json")
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(job, f, ensure_ascii=False, indent=2)
-    return path
+    return meshy_import.import_files(cfg, files, ROOT)
 
 
 def find_godot(arg: str) -> str:
@@ -199,6 +228,9 @@ def bake(godot: str, name: str) -> None:
 def apply_to_hero(cfg: dict) -> None:
     """영웅 데이터의 sprite_sheet 경로를 새로 구운 시트로 바꾼다."""
     path = rel(cfg["hero_data"])
+    if not os.path.exists(path):  # 아직 게임에 없는 영웅 (세종·사임당): 굽기까지만
+        print(f"{cfg['hero_data']} 없음 → 영웅 데이터 교체는 건너뜀 (시트는 assets/sprites/{cfg['name']}/)")
+        return
     with open(path, encoding="utf-8") as f:
         text = f.read()
     new_sheet = f"res://assets/sprites/{cfg['name']}/{cfg['name']}.tres"
@@ -245,7 +277,7 @@ def run(cfg: dict, args: argparse.Namespace) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    p.add_argument("command", choices=("actions", "plan", "run", "import"))
+    p.add_argument("command", choices=("actions", "plan", "run", "add-anims", "import"))
     p.add_argument("target", nargs="?", default="", help="설정 JSON (plan/run/import) 또는 검색어 (actions)")
     p.add_argument("files", nargs="*", help="import: 웹에서 받은 .glb 파일들")
     p.add_argument("--yes", action="store_true", help="유료 작업 진행 확인")
@@ -260,7 +292,9 @@ def main() -> None:
             return
         with open(args.target, encoding="utf-8") as f:
             cfg = json.load(f)
-        if args.command == "import":
+        if args.command == "add-anims":
+            add_anims(cfg, args)
+        elif args.command == "import":
             if not args.files:
                 raise SystemExit("가져올 .glb 파일을 주세요.")
             print("굽기 설정:", import_files(cfg, args.files))

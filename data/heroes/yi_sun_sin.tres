@@ -7,7 +7,7 @@
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/pado_skill.gd" id="5_pado"]
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/haeil_skill.gd" id="6_haeil"]
 [ext_resource type="Script" path="res://scripts/heroes/yi_sun_sin/counter_skill.gd" id="7_counter"]
-[ext_resource type="Resource" path="res://assets/sprites/knight_ink/knight_ink.tres" id="8_sheet"]
+[ext_resource type="Resource" path="res://assets/sprites/yi_sun_sin/yi_sun_sin.tres" id="8_sheet"]
 [ext_resource type="Resource" path="res://data/upgrades/yi_sun_sin.tres" id="9_upgrades"]
 [ext_resource type="Resource" path="res://data/upgrades/yi_sun_sin_major.tres" id="10_major"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/haeryong.png" id="i_haeryong"]
@@ -100,8 +100,8 @@ tagline = "푸른 해류의 검
 빠르게 누비며 벤다"
 body_color = Color(0.13, 0.27, 0.55, 1)
 sprite_sheet = ExtResource("8_sheet")
-sprite_scale = 0.9
-sprite_offset = Vector2(0, -30)
+sprite_scale = 1.4
+sprite_offset = Vector2(0, -40)
 max_hp = 100
 move_speed = 340.0
 hurt_invuln_time = 0.6
