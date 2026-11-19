@@ -8,6 +8,8 @@ extends Resource
 @export var year_label: String = ""
 @export var title: String = ""
 @export_multiline var subtitle: String = ""
+## 무대 배경 음악 (반복).
+@export var music: AudioStream
 
 @export_group("바닥")
 @export var floor_base: Color = Color(0.92, 0.88, 0.79)

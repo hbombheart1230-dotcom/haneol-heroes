@@ -14,6 +14,10 @@ static var instance: Feedback
 @export var shake_decay: float = 2.5
 @export var sfx_enabled: bool = true
 @export var sfx_volume_db: float = -8.0
+## 녹음된 효과음 (CC0). 없는 종류는 SfxSynth 합성음.
+@export var bank: SoundBank
+## 배경 음악 음량(dB).
+@export var music_volume_db: float = -14.0
 
 ## 0~1. 흔들림 크기 = trauma^2.
 var trauma: float = 0.0
@@ -22,6 +26,9 @@ var _players: Array[AudioStreamPlayer] = []
 var _next_player: int = 0
 ## 같은 소리가 한 프레임에 겹쳐 터지지 않게 (소리별 마지막 재생 시각).
 var _last_played: Dictionary = {}
+var _rng := RandomNumberGenerator.new()
+## 음악 재생기는 장면 밖(트리 루트)에 하나만 두어, 다시 시작(장면 다시 불러오기)해도 곡이 이어진다.
+static var _music: AudioStreamPlayer
 
 
 func _ready() -> void:
@@ -31,8 +38,15 @@ func _ready() -> void:
 	for i in 8:
 		var p := AudioStreamPlayer.new()
 		p.volume_db = sfx_volume_db
+		p.process_mode = Node.PROCESS_MODE_ALWAYS  # 인트로·영웅 고르기(일시정지 중)에도 단추 소리
 		add_child(p)
 		_players.append(p)
+	if _music == null or not is_instance_valid(_music):
+		_music = AudioStreamPlayer.new()
+		_music.name = "HanulMusic"
+		_music.process_mode = Node.PROCESS_MODE_ALWAYS
+		get_tree().root.add_child.call_deferred(_music)
+	_music.volume_db = music_volume_db
 	if player:
 		player.dash_started.connect(func(_d: Vector2) -> void: play(&"dash"))
 		player.evaded.connect(func() -> void: play(&"evade"))
@@ -57,7 +71,7 @@ func add_trauma(amount: float) -> void:
 
 
 func play(kind: StringName, min_gap: float = 0.04) -> void:
-	if not sfx_enabled or not _sounds.has(kind):
+	if not sfx_enabled or not (_sounds.has(kind) or (bank and bank.has(kind))):
 		return
 	var now := Time.get_ticks_msec() / 1000.0
 	if now - float(_last_played.get(kind, -INF)) < min_gap:
@@ -65,11 +79,40 @@ func play(kind: StringName, min_gap: float = 0.04) -> void:
 	_last_played[kind] = now
 	var p := _players[_next_player]
 	_next_player = (_next_player + 1) % _players.size()
-	p.stream = _sounds[kind]
+	if bank and bank.has(kind):
+		p.stream = bank.pick(kind, _rng)
+		p.volume_db = sfx_volume_db + bank.db(kind)
+		p.pitch_scale = _rng.randf_range(0.94, 1.06)  # 같은 소리 반복이 덜 거슬리게
+	else:
+		p.stream = _sounds[kind]
+		p.volume_db = sfx_volume_db
+		p.pitch_scale = 1.0
 	p.play()
 
 
+## 무대 음악 (같은 곡이면 이어서). null이면 멈춘다.
+func play_music(stream: AudioStream) -> void:
+	if _music == null or (stream == _music.stream and _music.playing):
+		return
+	_music.stream = stream
+	if stream == null:
+		_music.stop()
+	elif _music.is_inside_tree():
+		_music.play()
+	else:
+		_music.play.call_deferred()  # 방금 만들어 아직 트리에 붙기 전
+
+
+func music_playing() -> bool:
+	return _music != null and is_instance_valid(_music) and (_music.playing or _music.stream != null)
+
+
 func _on_skill_cast(slot: SkillCaster.Slot, hits: int) -> void:
+	var def := skill_caster.def_of(slot) if skill_caster else null
+	if def and def.sfx != &"":  # 기술마다 정한 소리 (세종·사임당 = 마법)
+		play(def.sfx, 0.0)
+		add_trauma(0.7 if slot == SkillCaster.Slot.COUNTER else 0.2)
+		return
 	match slot:
 		SkillCaster.Slot.COUNTER:
 			add_trauma(0.7)
@@ -102,6 +145,12 @@ static func enemy_died(_pos: Vector2) -> void:
 	if instance:
 		instance.play(&"die")
 		instance.add_trauma(0.05)
+
+
+## 단추·인장 소리 (인트로·영웅 고르기·성장).
+static func ui() -> void:
+	if instance:
+		instance.play(&"ui", 0.0)
 
 
 static func player_hurt() -> void:

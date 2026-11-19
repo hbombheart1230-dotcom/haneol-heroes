@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SoundBank" format=3]
+
+[ext_resource type="Script" path="res://scripts/fx/sound_bank.gd" id="1_bank"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/counter_1.ogg" id="s0"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/dash_1.ogg" id="s1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/dash_2.ogg" id="s2"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/die_1.ogg" id="s3"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/die_2.ogg" id="s4"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/die_3.ogg" id="s5"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/evade_1.ogg" id="s6"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit_1.ogg" id="s7"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit_2.ogg" id="s8"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hurt_1.ogg" id="s9"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/magic_1.ogg" id="s10"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/slash_1.ogg" id="s11"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/slash_2.ogg" id="s12"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/slash_3.ogg" id="s13"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/ui_1.ogg" id="s14"]
+
+[resource]
+script = ExtResource("1_bank")
+sounds = {&"counter": [ExtResource("s0")], &"dash": [ExtResource("s1"), ExtResource("s2")], &"die": [ExtResource("s3"), ExtResource("s4"), ExtResource("s5")], &"evade": [ExtResource("s6")], &"hit": [ExtResource("s7"), ExtResource("s8")], &"hurt": [ExtResource("s9")], &"magic": [ExtResource("s10")], &"slash": [ExtResource("s11"), ExtResource("s12"), ExtResource("s13")], &"ui": [ExtResource("s14")]}
+volume_db = {&"hit": -6.0, &"die": -4.0, &"ui": -4.0}

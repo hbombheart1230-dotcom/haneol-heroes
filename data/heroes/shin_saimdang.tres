@@ -31,6 +31,7 @@ ranged_lifetime = 0.75
 
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
+sfx = &"magic"
 icon = ExtResource("i_critters")
 id = &"critters"
 display_name = "풀벌레 부르기"
@@ -40,6 +41,7 @@ fx_color = Color(0.9, 0.5, 0.65, 1)
 
 [sub_resource type="Resource" id="Skill_dash"]
 script = ExtResource("s1")
+sfx = &"magic"
 icon = ExtResource("i_ink_bleed")
 id = &"ink_bleed"
 display_name = "발묵"
@@ -49,6 +51,7 @@ fx_color = Color(0.25, 0.22, 0.3, 1)
 
 [sub_resource type="Resource" id="Skill_charge"]
 script = ExtResource("s2")
+sfx = &"magic"
 icon = ExtResource("i_canvas")
 id = &"canvas"
 display_name = "화폭 펼치기"
