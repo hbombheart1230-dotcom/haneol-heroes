@@ -1,6 +1,6 @@
 """Meshy REST API 최소 클라이언트 (파이썬 표준 라이브러리만 사용).
 
-키는 환경 변수 MESHY_API_KEY에서만 읽는다. 키를 파일·로그·명령줄에 남기지 않는다.
+키는 환경 변수 MESHY_API_KEY 또는 저장소 루트 .env(깃 제외)에서 읽는다. 로그·명령줄·상태 파일에 남기지 않는다.
 문서: https://docs.meshy.ai/en/api  (image-to-3d, rigging, animations)
 """
 import base64
@@ -19,12 +19,31 @@ class MeshyError(RuntimeError):
     pass
 
 
-def api_key() -> str:
-    key = os.environ.get("MESHY_API_KEY", "").strip()
+## 저장소 루트의 .env (깃에 올리지 않는다, .gitignore). 환경 변수가 있으면 그쪽이 우선.
+ENV_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".env")
+
+
+def read_env_file(path: str = ENV_FILE) -> dict:
+    """KEY=VALUE 줄만 읽는다 (# 주석, 빈 줄, 따옴표 허용). 파일이 없으면 빈 사전."""
+    out = {}
+    if not os.path.exists(path):
+        return out
+    with open(path, encoding="utf-8-sig") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            out[k.strip()] = v.strip().strip('"').strip("'")
+    return out
+
+
+def api_key(env_path: str = ENV_FILE) -> str:
+    key = os.environ.get("MESHY_API_KEY", "").strip() or read_env_file(env_path).get("MESHY_API_KEY", "")
     if not key:
         raise MeshyError(
-            "MESHY_API_KEY 환경 변수가 없습니다. PowerShell에서 "
-            'setx MESHY_API_KEY "발급받은_키" 실행 후 새 터미널을 여세요.')
+            "MESHY_API_KEY가 없습니다. 저장소 루트의 .env 파일에 MESHY_API_KEY=발급받은_키 를 적으세요 "
+            "(.env는 깃에 올라가지 않습니다).")
     return key
 
 

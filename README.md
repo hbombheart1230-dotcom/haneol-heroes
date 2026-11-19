@@ -121,7 +121,7 @@ APK는 git에 올리지 않는다. 패키지 ID `com.haneol.heroes`는 임시값
 
 **새 영웅 추가:** `scripts/heroes/<영웅>/`에 `SkillDef`를 상속한 기술 4개(탭·대시·충전·반격)를 만들고, `data/heroes/<영웅>.tres`(능력치·기본 공격·기술 구성·성장 풀)와 `data/upgrades/<영웅>.tres`·`<영웅>_major.tres`를 적은 뒤 `scenes/main.tscn`의 Main `heroes` 목록에 넣는다. 공통 코드는 바꾸지 않는다 (광개토대왕으로 확인).
 **3D → 2D 스프라이트 굽기:** `godot --path . -s res://tools/bake/bake_sprites.gd` (창 모드). `.glb` 모델을 쿼터뷰 8방향 시트(`assets/sprites/<이름>/`)와 `SpriteSheetSet`으로 굽는다. 영웅 데이터의 `sprite_sheet`에 지정하면 그 스프라이트로, 비우면 수묵풍 코드 그림으로 그린다.
-**AI 3D 영웅 (Meshy):** 기준 그림(`assets/concept/<영웅>/`) → 3D 생성 → 자동 뼈대 → 동작 → 굽기 → 영웅 데이터 교체를 한 번에 한다. 유료 Meshy 플랜의 API 키를 `setx MESHY_API_KEY "키"`로 등록한 뒤:
+**AI 3D 영웅 (Meshy):** 기준 그림(`assets/concept/<영웅>/`) → 3D 생성 → 자동 뼈대 → 동작 → 굽기 → 영웅 데이터 교체를 한 번에 한다. 유료 Meshy 플랜의 API 키를 저장소 루트 `.env`에 `MESHY_API_KEY=키`로 적은 뒤 (`.env.example` 참고, `.env`는 깃 제외):
 `python tools/ai3d/meshy_pipeline.py plan tools/ai3d/heroes/yi_sun_sin.json` (예상 크레딧 확인) → `... run ... --yes`. 진행 상태는 `assets/models/meshy/<영웅>/state.json`에 남아 끊겨도 이어 한다. **무료 플랜(API 없음)**은 meshy.ai 웹에서 기준 그림으로 생성 → 뼈대(Rig) → 동작을 붙여 .glb로 받은 뒤 `... import <설정> 받은.glb [동작별.glb ...]`로 굽기·적용한다 (파일 이름에 idle/run/attack 등이 들어 있으면 동작별 파일로 인식). 무료 플랜 산출물은 CC BY 4.0이라 크레딧에 "Meshy" 표기가 필요하다. 동작 목록은 `... actions <검색어>`, 오프라인 테스트는 `python -m unittest tools/ai3d/test_meshy_pipeline.py`.
 **새 적 추가:** `data/enemies/<적>.tres` (행동이 다르면 전용 스크립트, 처치 경험치 `xp`).
 **성장 선택지:** `data/upgrades/<영웅>.tres` (`UpgradePool` → `UpgradeDef` → `StatMod`: 대상 hero/attack/kit/tap/dash/charge/counter의 속성을 더하기·곱하기). 큰 변형은 `data/upgrades/<영웅>_major.tres` (기술 스크립트의 변형 값을 켠다). 런 규칙(경험치 곡선, 정예·보스 시각)은 `data/runs/default_run.tres`.

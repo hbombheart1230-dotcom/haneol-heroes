@@ -15,3 +15,6 @@ addons/gdUnit4/GdUnitRunner.cfg
 
 # 파이썬
 __pycache__/
+
+# 비밀 키 (Meshy 등). 절대 커밋하지 않는다. 예시는 .env.example
+.env

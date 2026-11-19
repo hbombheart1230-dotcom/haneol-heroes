@@ -9,7 +9,7 @@
 
 - 진행 상태는 assets/models/meshy/<name>/state.json에 남겨 중간에 끊겨도 이어서 한다
   (이미 성공한 유료 작업은 다시 요청하지 않는다). 처음부터 다시: --restart <단계>(model|rig|anim).
-- 키는 MESHY_API_KEY 환경 변수에서만 읽는다.
+- 키는 환경 변수 MESHY_API_KEY 또는 저장소 루트 .env (깃 제외)에서 읽는다.
 - 굽기는 GPU가 필요해 창 모드 Godot을 잠깐 띄운다. Godot 경로: --godot 또는 GODOT_BIN.
 """
 import argparse

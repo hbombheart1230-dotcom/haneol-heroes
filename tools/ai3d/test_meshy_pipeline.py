@@ -174,7 +174,21 @@ class PipelineTest(unittest.TestCase):
     def test_missing_key_message(self):
         with mock.patch.dict(os.environ, {"MESHY_API_KEY": ""}):
             with self.assertRaises(api.MeshyError):
-                api.api_key()
+                api.api_key(os.path.join(self.tmp, "no.env"))
+
+    def test_key_from_env_file_and_env_var_wins(self):
+        env = os.path.join(self.tmp, ".env")
+        with open(env, "w", encoding="utf-8") as f:
+            f.write('# 주석\n\nMESHY_API_KEY="msy_file_key"\nOTHER=1\n')
+        with mock.patch.dict(os.environ, {"MESHY_API_KEY": ""}):
+            self.assertEqual(api.api_key(env), "msy_file_key")
+        with mock.patch.dict(os.environ, {"MESHY_API_KEY": "msy_env_key"}):
+            self.assertEqual(api.api_key(env), "msy_env_key")
+
+    def test_env_file_is_gitignored(self):
+        root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+        with open(os.path.join(root, ".gitignore"), encoding="utf-8") as f:
+            self.assertIn(".env", [line.strip() for line in f])
 
 
 if __name__ == "__main__":
