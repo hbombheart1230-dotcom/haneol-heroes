@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
-[ext_resource type="Resource" path="res://assets/sprites/skeleton_warrior_ink/skeleton_warrior_ink.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://assets/sprites/biryeo_heavy/biryeo_heavy.tres" id="3_sheet"]
 
 [sub_resource type="Resource" id="Attack_heavy_slam"]
 script = ExtResource("2_attack")
@@ -17,6 +17,7 @@ recovery = 0.6
 [resource]
 script = ExtResource("1_enemy")
 id = &"heavy"
+display_name = "거란 망령 중장"
 max_hp = 140
 xp = 4
 move_speed = 65.0
@@ -28,5 +29,5 @@ preferred_range = 0.0
 knockback_scale = 0.3
 stun_scale = 0.8
 sprite_sheet = ExtResource("3_sheet")
-sprite_scale = 1.0
-sprite_offset = Vector2(0, -30)
+sprite_scale = 1.45
+sprite_offset = Vector2(0, -61)
