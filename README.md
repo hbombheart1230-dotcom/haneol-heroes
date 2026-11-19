@@ -95,7 +95,7 @@ godot --headless --path . -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gd
 
 ### 플레이스토어 빌드 (AAB)
 
-1. 한 번만: `%APPDATA%\Godot\export_templates.7.2.stablendroid_source.zip`을 `android/build/`에 풀고, `android/.build_version`에 `4.7.2.stable`을 적고, `android/build/.gdignore`를 만든다 (`android/`는 용량이 커서 깃에서 제외).
+1. 한 번만: `%APPDATA%\Godot\export_templates\4.7.2.stable\android_source.zip`을 `android/build/`에 풀고, `android/.build_version`에 `4.7.2.stable`을 적고, `android/build/.gdignore`를 만든다 (`android/`는 용량이 커서 깃에서 제외).
 2. 업로드 서명 키는 저장소 밖 `%USERPROFILE%\.haneol-keys\`(`upload.jks`, `upload-key.txt`)에만 둔다. **따로 백업한다.**
 3. `powershell -ExecutionPolicy Bypass -File tools/build/export_aab.ps1` → `build/android/haneol-heroes.aab` (내보내기 설정 "Android Play (AAB)", arm64 + armeabi-v7a).
 4. 스토어 대표 그래픽: `assets/store/feature_graphic_1024x500.png` (APK 제외).
