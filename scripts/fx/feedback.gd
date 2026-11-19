@@ -94,11 +94,17 @@ func play(kind: StringName, min_gap: float = 0.04) -> void:
 ## 무대 음악 (같은 곡이면 이어서). null이면 멈춘다.
 ## fade > 0이면 지금 곡을 그만큼 줄인 뒤 새 곡을 같은 시간 동안 키운다 (보스 등장·판 끝).
 func play_music(stream: AudioStream, fade: float = 0.0) -> void:
-	if _music == null or (stream == _music.stream and _music.playing):
+	if _music == null:
+		return
+	# 새 요청은 진행 중인 전환을 먼저 끊는다 (보스 전환 도중 재시작 → 무대 음악이 이겨야 한다).
+	var was_switching := _music_tween != null and _music_tween.is_valid()
+	if was_switching:
+		_music_tween.kill()
+		_music_tween = null
+	if stream == _music.stream and _music.playing:
+		_music.volume_db = music_volume_db  # 줄어들던 소리 되돌리기
 		return
 	if fade > 0.0 and _music.playing and _music.is_inside_tree():
-		if _music_tween and _music_tween.is_valid():
-			_music_tween.kill()
 		_music_tween = _music.create_tween()
 		_music_tween.tween_property(_music, "volume_db", -40.0, fade)
 		_music_tween.tween_callback(_start_music.bind(stream))
