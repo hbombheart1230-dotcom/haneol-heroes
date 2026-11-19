@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SpriteSheetSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/art/sprite_sheet_set.gd" id="1_set"]
+[ext_resource type="Texture2D" path="res://assets/sprites/knight_ink/idle.png" id="t0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/knight_ink/run.png" id="t1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/knight_ink/dash.png" id="t2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/knight_ink/attack.png" id="t3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/knight_ink/hit.png" id="t4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/knight_ink/death.png" id="t5"]
+
+[resource]
+script = ExtResource("1_set")
+frame_size = 192
+directions = 8
+anim_names = PackedStringArray("idle", "run", "dash", "attack", "hit", "death")
+textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3"), ExtResource("t4"), ExtResource("t5")])
+frame_counts = PackedInt32Array(8, 8, 6, 6, 4, 6)
+fps = PackedFloat32Array(8.0, 14.0, 20.0, 16.0, 12.0, 10.0)
+loops = Array[bool]([true, true, false, false, false, false])

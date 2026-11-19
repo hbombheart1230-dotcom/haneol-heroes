@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
-[ext_resource type="Resource" path="res://assets/sprites/skeleton_minion/skeleton_minion.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://assets/sprites/skeleton_minion_ink/skeleton_minion_ink.tres" id="3_sheet"]
 
 [sub_resource type="Resource" id="Attack_slam"]
 script = ExtResource("2_attack")

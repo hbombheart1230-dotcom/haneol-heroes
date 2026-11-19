@@ -1,0 +1,40 @@
+{
+ "name": "skeleton_rogue_ink",
+ "model": "res://assets/models/kaykit_skeletons/Skeleton_Rogue.glb",
+ "ortho_size": 3.2,
+ "frame": 128,
+ "style": "ink",
+ "ink": {
+  "line_px": 2.3333333333333335
+ },
+ "anims": [
+  {
+   "key": "idle",
+   "src": "Idle",
+   "frames": 4,
+   "fps": 6.0,
+   "loop": true
+  },
+  {
+   "key": "run",
+   "src": "Running_A",
+   "frames": 6,
+   "fps": 12.0,
+   "loop": true
+  },
+  {
+   "key": "attack",
+   "src": "1H_Ranged_Shoot",
+   "frames": 5,
+   "fps": 10.0,
+   "loop": false
+  },
+  {
+   "key": "hit",
+   "src": "Hit_A",
+   "frames": 3,
+   "fps": 12.0,
+   "loop": false
+  }
+ ]
+}

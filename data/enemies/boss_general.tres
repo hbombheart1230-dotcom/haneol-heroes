@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
-[ext_resource type="Resource" path="res://assets/sprites/barbarian_boss/barbarian_boss.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://assets/sprites/barbarian_boss_ink/barbarian_boss_ink.tres" id="3_sheet"]
 
 [sub_resource type="Resource" id="Boss_cone"]
 script = ExtResource("2_attack")
