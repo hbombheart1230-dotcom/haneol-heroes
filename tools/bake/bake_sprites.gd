@@ -187,21 +187,26 @@ func _setup(job: Dictionary) -> AnimationPlayer:
 	return model.find_child("AnimationPlayer", true, false) as AnimationPlayer
 
 
+static func locked_root_position(rest: Vector3, pose: Vector3) -> Vector3:
+	return Vector3(rest.x, pose.y, rest.z)
+
+
 static func _find_skeleton(n: Node) -> Skeleton3D:
 	var found := n.find_children("*", "Skeleton3D", true, false)
 	return found[0] as Skeleton3D if not found.is_empty() else null
 
 
-## 동작이 몸을 앞으로 옮기는 경우(루트 모션) 뿌리 뼈의 수평 이동을 지워 칸 가운데에 둔다.
+## 동작이 몸을 앞으로 옮기는 경우(루트 모션) 뿌리 뼈의 수평 위치를 쉬는 자세(rest) 값으로 되돌려
+## 칸 가운데에 둔다. 0이 아니라 rest로 돌리는 이유: 모델마다 뿌리 뼈의 원래 위치가 원점이 아닐 수 있다.
+## 높이(Y)는 그대로 둔다 (점프·웅크림 유지).
 ## 작업 설정 "lock_root": false로 끈다.
 func _lock_root(job: Dictionary) -> void:
 	if _skel == null or not job.get("lock_root", true):
 		return
 	for b in _skel.get_bone_count():
 		if _skel.get_bone_parent(b) == -1:
-			var rest := _skel.get_bone_rest(b).origin
-			var pose := _skel.get_bone_pose_position(b)
-			_skel.set_bone_pose_position(b, Vector3(rest.x, pose.y, rest.z))
+			_skel.set_bone_pose_position(b, locked_root_position(_skel.get_bone_rest(b).origin,
+				_skel.get_bone_pose_position(b)))
 
 
 func _make_post(job: Dictionary) -> SubViewport:
