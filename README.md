@@ -1,4 +1,4 @@
-# 한얼: 영웅 (HANEOL: HEROES)
+# 한얼: 영웅들 (HANEOL: HEROES)
 
 > 역사가 전설이 된다.
 

@@ -1,11 +1,11 @@
 ; Engine configuration file.
-; Godot 4.7.2 — 한얼: 영웅 (HANEOL: HEROES)
+; Godot 4.7.2 — 한얼: 영웅들 (HANEOL: HEROES)
 
 config_version=5
 
 [application]
 
-config/name="한얼: 영웅"
+config/name="한얼: 영웅들"
 config/description="HANEOL: HEROES — P0 전투 프로토타입"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
