@@ -98,12 +98,25 @@ static func find_anim(ap: AnimationPlayer, src: String, quiet: bool = false) -> 
 	for cand in src.split("|", false):
 		if ap.has_animation(cand):
 			return cand
+		for anim_name in ap.get_animation_list():  # 가져오기 때 바뀐 이름 ("Run 2" → "Run_02")
+			if normalize_name(anim_name) == normalize_name(cand):
+				return anim_name
 		for anim_name in ap.get_animation_list():
 			if name_matches(anim_name, cand):
 				return anim_name
 	if not quiet:
 		push_error("animation not found: %s (have %s)" % [src, ap.get_animation_list()])
 	return ""
+
+
+## 비교용 이름: 소문자, 영문·숫자만, 숫자 앞 0 제거 ("Run_02" = "Run 2", "Left_Slash" = "Left Slash").
+static func normalize_name(n: String) -> String:
+	var re := RegEx.create_from_string("[a-z]+|[0-9]+")
+	var out := ""
+	for m in re.search_all(n.to_lower()):
+		var part := m.get_string()
+		out += str(part.to_int()) if part.is_valid_int() else part
+	return out
 
 
 ## 후보가 이름 속 어떤 단어의 앞부분이면 일치 (Running_A ← run, Soldier_Idle ← die 아님).

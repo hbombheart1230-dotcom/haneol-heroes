@@ -15,8 +15,15 @@
   "height_meters": 1.65,
   "hero_data": "data/heroes/shin_saimdang.tres",
   "bake": {
-    "ortho_size": 3.4,
-    "frame": 192
+    "ortho_size": 2.3,
+    "frame": 160,
+    "style": "ink",
+    "ink": {
+      "inner_line": 0.2,
+      "line_px": 1.6,
+      "color_keep": 0.85,
+      "grain": 0.15
+    }
   },
   "anims": [
     {

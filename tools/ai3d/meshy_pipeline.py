@@ -183,6 +183,7 @@ def write_bake_job(cfg: dict, state: dict) -> str:
         "name": cfg["name"],
         "model": f"res://assets/models/meshy/{cfg['name']}/animated.glb",
         "ortho_size": cfg["bake"]["ortho_size"], "frame": cfg["bake"]["frame"],
+        **{k: cfg["bake"][k] for k in ("style", "ink") if k in cfg["bake"]},  # 수묵 후처리 등
         "anims": [dict({"key": a["key"], "src": names[a["key"]], "frames": a["frames"],
                         "fps": a["fps"], "loop": a["loop"]}, **({"from": extra_file[a["key"]]}
                                                                  if a["key"] in extra_file else {}))
