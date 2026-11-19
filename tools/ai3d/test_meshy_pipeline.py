@@ -65,6 +65,12 @@ class PipelineTest(unittest.TestCase):
         with open(os.path.join(mp.ROOT, "tools/ai3d/heroes/yi_sun_sin.json"), encoding="utf-8") as f:
             self.cfg = json.load(f)
         self.cfg.update({"name": "hero_t", "image": "assets/concept/front.png", "hero_data": "data/heroes/h.tres"})
+        # 실제 설정은 Meshy 동작 번호를 고정해 두므로, 테스트는 가짜 라이브러리(LIB)에 맞춘 동작 목록을 쓴다
+        for a, how in zip(self.cfg["anims"], [{"search": "idle"}, {"search": "run"}, {"search": "dodge"},
+                                              {"action_id": 4}, {"search": "hit"}, {"search": "death"}]):
+            a.pop("action_id", None)
+            a.pop("search", None)
+            a.update(how)
         self.root = mock.patch.object(mp, "ROOT", self.tmp)
         self.root.start()
         self.lib = mock.patch.object(api, "library", side_effect=fake_library)
