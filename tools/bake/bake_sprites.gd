@@ -238,7 +238,7 @@ func _bake(job: Dictionary) -> void:
 				sheet.blit_rect(img, Rect2i(0, 0, FRAME, FRAME), Vector2i(f * FRAME, d * FRAME))
 		var png := "%s/%s.png" % [out_dir, anim["key"]]
 		sheet.save_png(ProjectSettings.globalize_path(png))
-		_write_import(png, 0.5 if _post else 0.75)
+		_write_import(png, float(job.get("lossy_quality", 0.5 if _post else 0.75)))
 		meta.append({"key": anim["key"], "png": png, "frames": frames, "fps": float(anim["fps"]), "loop": anim["loop"]})
 		print("baked ", png)
 	_write_set(job["name"], out_dir, meta, FRAME)
