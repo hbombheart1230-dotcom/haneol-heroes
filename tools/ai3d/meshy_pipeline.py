@@ -33,6 +33,8 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 STAGES = ("model", "rig", "anim")
 # 크레딧 대략값 (https://docs.meshy.ai/en/api/pricing, 2026-11 기준). 실제 차감은 Meshy 대시보드가 정본.
 COST = {"model": 30, "rig": 5, "anim_each": 3}
+## Meshy rigging model_url data URI 한도 (https://docs.meshy.ai/en/api/rigging).
+DATA_URI_LIMIT = 100 * 1000 * 1000
 
 
 def rel(path: str) -> str:
@@ -116,9 +118,12 @@ def rerig_from_local(cfg: dict, state: dict, out_dir: str) -> None:
     model = os.path.join(out_dir, "model.glb")
     if not os.path.exists(model):
         raise api.MeshyError(f"{model}이 없어 뼈대를 다시 넣을 수 없습니다. run --restart model 이 필요합니다.")
+    uri = api.data_uri(model, "model/gltf-binary")
+    if len(uri) > DATA_URI_LIMIT:  # Meshy: data URI는 100 MB까지 (공개 URL은 400 MB)
+        raise api.MeshyError(f"model.glb가 너무 커서({len(uri) // 1_000_000} MB, data URI 한도 100 MB) "
+                             "다시 뼈대를 넣을 수 없습니다. 공개 URL로 올리거나 run --restart model 이 필요합니다.")
     print("뼈대 다시 넣기 (저장된 model.glb)")
-    state["rig_task"] = api.create("rigging", {
-        "model_url": api.data_uri(model, "model/gltf-binary"), "height_meters": cfg.get("height_meters", 1.7)})
+    state["rig_task"] = api.create("rigging", {"model_url": uri, "height_meters": cfg.get("height_meters", 1.7)})
     api.wait("rigging", state["rig_task"])
 
 

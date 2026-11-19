@@ -210,6 +210,12 @@ class PipelineTest(unittest.TestCase):
         self.assertEqual([k for k, _ in fake.created], ["rigging", "animations"])
         self.assertTrue(fake.created[0][1]["model_url"].startswith("data:model/gltf-binary;base64,"))
 
+    def test_rerig_rejects_over_limit_model_without_calling_api(self):
+        self._ran_once()
+        with mock.patch.object(mp, "DATA_URI_LIMIT", 10):  # 작은 한도로 흉내
+            with self.assertRaises(api.MeshyError):
+                self._add(api.MeshyError("404"))
+
     def test_add_anims_needs_yes(self):
         self._ran_once()
         with self.assertRaises(SystemExit):
