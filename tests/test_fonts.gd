@@ -15,7 +15,7 @@ func _collect(dir: String, chars: Dictionary) -> void:
 			var text := FileAccess.get_file_as_string(dir.path_join(f))
 			for i in text.length():
 				var c := text.unicode_at(i)
-				if c >= 0xAC00 and c <= 0xD7A3:  # 한글 음절만 확인 (영문·숫자는 항상 들어 있다)
+				if (c >= 0xAC00 and c <= 0xD7A3) or (c >= 0x3131 and c <= 0x318E):  # 한글 음절·자모 (영문·숫자는 항상 들어 있다)
 					chars[c] = true
 	for d in DirAccess.get_directories_at(dir):
 		_collect(dir.path_join(d), chars)

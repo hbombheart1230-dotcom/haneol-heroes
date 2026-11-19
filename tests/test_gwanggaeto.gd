@@ -227,8 +227,10 @@ func test_locked_hero_card_is_not_pickable() -> void:
 	add_child(sel)
 	var got: Array = []
 	sel.picked.connect(func(h: HeroData) -> void: got.append(h))
-	var sejong: HeroData = preload("res://data/heroes/sejong.tres")
-	sel.open([YI, GW, sejong] as Array[HeroData])
+	var locked := HeroData.new()
+	locked.display_name = "다음 영웅"
+	locked.playable = false
+	sel.open([YI, GW, locked] as Array[HeroData])
 	var c := sel.slot_rect(2).get_center()
 	sel.handle_touch(0, c, true)
 	assert_bool(sel.handle_touch(0, c, false)).is_false()

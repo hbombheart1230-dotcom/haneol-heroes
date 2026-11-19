@@ -1,14 +1,93 @@
 [gd_resource type="Resource" script_class="HeroData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Script" path="res://scripts/data/basic_attack_data.gd" id="2_attack"]
+[ext_resource type="Script" path="res://scripts/skills/skill_kit.gd" id="3_kit"]
 [ext_resource type="Texture2D" path="res://assets/ui/heroes/shin_saimdang.png" id="card_art"]
+[ext_resource type="Resource" path="res://data/upgrades/shin_saimdang.tres" id="9_upgrades"]
+[ext_resource type="Resource" path="res://data/upgrades/shin_saimdang_major.tres" id="10_major"]
+[ext_resource type="Resource" path="res://assets/sprites/shin_saimdang/shin_saimdang.tres" id="8_sheet"]
+[ext_resource type="Script" path="res://scripts/heroes/shin_saimdang/critter_skill.gd" id="s0"]
+[ext_resource type="Script" path="res://scripts/heroes/shin_saimdang/ink_bleed_skill.gd" id="s1"]
+[ext_resource type="Script" path="res://scripts/heroes/shin_saimdang/canvas_skill.gd" id="s2"]
+[ext_resource type="Script" path="res://scripts/heroes/shin_saimdang/plum_skill.gd" id="s3"]
+
+[sub_resource type="Resource" id="Attack"]
+script = ExtResource("2_attack")
+melee_interval = 0.6
+melee_range = 110.0
+melee_arc_degrees = 150.0
+melee_damage = 10
+melee_knockback = 100.0
+ranged_interval = 0.8
+ranged_range = 450.0
+ranged_damage = 10
+ranged_speed = 650.0
+ranged_lifetime = 0.75
+
+[sub_resource type="Resource" id="Skill_tap"]
+script = ExtResource("s0")
+id = &"critters"
+display_name = "풀벌레 부르기"
+cooldown = 9.0
+color = Color(0.85, 0.4, 0.55, 1)
+fx_color = Color(0.9, 0.5, 0.65, 1)
+
+[sub_resource type="Resource" id="Skill_dash"]
+script = ExtResource("s1")
+id = &"ink_bleed"
+display_name = "발묵"
+cooldown = 3.5
+color = Color(0.2, 0.2, 0.25, 1)
+fx_color = Color(0.25, 0.22, 0.3, 1)
+
+[sub_resource type="Resource" id="Skill_charge"]
+script = ExtResource("s2")
+id = &"canvas"
+display_name = "화폭 펼치기"
+cooldown = 6.0
+color = Color(0.55, 0.3, 0.62, 1)
+fx_color = Color(0.7, 0.5, 0.8, 1)
+
+[sub_resource type="Resource" id="Skill_counter"]
+script = ExtResource("s3")
+id = &"plum"
+display_name = "매화 만개"
+cooldown = 0.0
+color = Color(0.85, 0.4, 0.55, 1)
+fx_color = Color(1, 0.75, 0.85, 1)
+
+[sub_resource type="Resource" id="Kit"]
+script = ExtResource("3_kit")
+tap = SubResource("Skill_tap")
+dash = SubResource("Skill_dash")
+charge = SubResource("Skill_charge")
+counter = SubResource("Skill_counter")
+counter_window = 1.0
+dash_link_window = 0.45
+hold_threshold = 0.2
+full_charge_time = 1.0
 
 [resource]
 script = ExtResource("1_hero")
 id = &"shin_saimdang"
 display_name = "사임당"
 card_art = ExtResource("card_art")
-tagline = "수묵의 술사
-그림 속 생명을 깨운다"
-playable = false
+tagline = "수묵의 술사\n그림 속 생명을 깨운다"
+playable = true
 body_color = Color(0.5, 0.3, 0.62, 1)
+sprite_sheet = ExtResource("8_sheet")
+sprite_scale = 0.85
+sprite_offset = Vector2(0, -59)
+max_hp = 90
+move_speed = 330.0
+hurt_invuln_time = 0.6
+evade_invuln_time = 1.0
+dash_distance = 240.0
+dash_duration = 0.12
+max_dash_charges = 3
+dash_recharge_time = 1.0
+attack = SubResource("Attack")
+kit = SubResource("Kit")
+upgrade_pool = ExtResource("9_upgrades")
+major_pool = ExtResource("10_major")

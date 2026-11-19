@@ -17,6 +17,7 @@ signal projectile_fired(projectile: Projectile)
 
 var _melee_cd: float = 0.0
 var _ranged_cd: float = 0.0
+var _glyph_i: int = 0
 var _swing_dir: Vector2 = Vector2.DOWN
 var _swing_time: float = 0.0
 
@@ -84,6 +85,9 @@ func _fire(from: Vector2, dir: Vector2) -> void:
 	p.damage = d.ranged_damage
 	p.speed = d.ranged_speed
 	p.lifetime = d.ranged_lifetime
+	if d.ranged_glyphs != "":
+		p.glyph = d.ranged_glyphs[_glyph_i % d.ranged_glyphs.length()]
+		_glyph_i += 1
 	p.global_position = from
 	var parent := projectile_parent if projectile_parent else player.get_parent()
 	parent.add_child(p)

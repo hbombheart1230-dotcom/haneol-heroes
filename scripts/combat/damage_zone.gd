@@ -11,6 +11,8 @@ var damage: int = 6
 var color: Color = Color(0.35, 0.75, 1.0)
 ## 안쪽으로 끌어당기는 힘 (0이면 없음).
 var pull: float = 0.0
+## 1 미만이면 영역 안 적을 이 배율의 속도로 느리게 (발묵).
+var slow_factor: float = 1.0
 
 var ticks: int = 0
 var _age: float = 0.0
@@ -26,6 +28,8 @@ func _physics_process(delta: float) -> void:
 		for en in ctx.enemies_in_radius(global_position, radius):
 			if not en.health.is_alive():
 				continue  # 죽어서 지워지기 전인 적은 끌지 않는다
+			if slow_factor < 1.0:
+				en.slow(slow_factor, interval + 0.1)
 			if pull > 0.0:
 				en.apply_knockback((global_position - en.global_position).normalized() * pull)
 			ctx.hit(en, damage)
