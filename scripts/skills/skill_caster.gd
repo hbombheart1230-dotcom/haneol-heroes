@@ -35,11 +35,17 @@ var _runs: Array = []
 func _ready() -> void:
 	if kit == null and player and player.hero:
 		kit = player.hero.kit
+	apply_kit(kit)
+	if player and not player.evaded.is_connected(on_evade):
+		player.evaded.connect(on_evade)
+
+
+## 기술 구성을 바꾸거나 수치가 바뀐 뒤 부른다 (입력 판정 시간을 다시 읽는다. 런 성장 등).
+func apply_kit(k: SkillKit) -> void:
+	kit = k
 	if kit:
 		input.hold_threshold = kit.hold_threshold
 		input.full_charge_time = kit.full_charge_time
-	if player and not player.evaded.is_connected(on_evade):
-		player.evaded.connect(on_evade)
 
 
 ## 회피 성공 (Player.evaded). 반격 시간을 연다.

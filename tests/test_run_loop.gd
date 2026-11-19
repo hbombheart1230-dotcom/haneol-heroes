@@ -123,6 +123,14 @@ func test_hero_upgrades_refresh_player() -> void:
 	assert_float(p.move_speed).is_equal_approx(HERO.move_speed * 1.1, 0.001)
 
 
+func test_kit_upgrades_reach_cached_input_timing() -> void:
+	var parts := _player_with_build()
+	var b: RunBuild = parts[1]
+	var caster: SkillCaster = parts[2]
+	b.apply(_up(&"f", [_mod(&"kit", &"full_charge_time", StatMod.Op.MUL, 0.5)]))
+	assert_float(caster.input.full_charge_time).is_equal_approx(HERO.kit.full_charge_time * 0.5, 0.0001)
+
+
 func test_every_yi_upgrade_targets_a_real_property() -> void:
 	var parts := _player_with_build()
 	var b: RunBuild = parts[1]

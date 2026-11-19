@@ -20,7 +20,7 @@ func begin(p_player: Player, p_caster: SkillCaster, p_attack: AutoAttack) -> voi
 	hero = player.hero.duplicate_deep(Resource.DEEP_DUPLICATE_INTERNAL) as HeroData
 	player.hero = hero
 	if caster:
-		caster.kit = hero.kit
+		caster.apply_kit(hero.kit)
 	if attack:
 		attack.data = hero.attack
 
@@ -55,4 +55,6 @@ func apply(u: UpgradeDef) -> bool:
 		touches_hero = touches_hero or m.target == &"hero"
 	if touches_hero and player:
 		player.refresh_stats(old_max_hp)
+	if caster:
+		caster.apply_kit(hero.kit)  # 입력 판정 시간(충전 등)은 캐시되므로 다시 읽힌다
 	return ok
