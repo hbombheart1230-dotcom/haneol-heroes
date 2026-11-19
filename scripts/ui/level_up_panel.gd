@@ -8,6 +8,8 @@ extends Control
 signal chosen(upgrade: UpgradeDef)
 
 @export var input_delay: float = 0.35
+## 마우스 입력에 쓰는 가상 터치 번호 (실제 터치 번호와 겹치지 않게).
+const MOUSE_INDEX := 1000
 
 var choices: Array[UpgradeDef] = []
 var level: int = 1
@@ -97,7 +99,13 @@ func _input(event: InputEvent) -> void:
 		var t := event as InputEventScreenTouch
 		handle_touch(t.index, t.position, t.pressed)
 		get_viewport().set_input_as_handled()
-	elif event is InputEventScreenDrag:
+	elif event is InputEventMouseButton and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
+		# 마우스를 터치로 바꾸는 설정이 꺼져 있거나 바뀌지 않는 환경(데스크톱 도구) 대비.
+		# 둘 다 오면 마지막에 누른 쪽만 기억하므로 두 번 고르지 않는 것이다.
+		var m := event as InputEventMouseButton
+		handle_touch(MOUSE_INDEX, m.position, m.pressed)
+		get_viewport().set_input_as_handled()
+	elif event is InputEventScreenDrag or event is InputEventMouseMotion:
 		get_viewport().set_input_as_handled()
 
 

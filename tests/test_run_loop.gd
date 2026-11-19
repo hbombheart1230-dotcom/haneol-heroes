@@ -171,6 +171,28 @@ func test_panel_needs_a_fresh_tap_on_one_card() -> void:
 	assert_float(panel.card_rect(0).position.y).is_greater(1280.0 * 0.45)
 
 
+func test_panel_accepts_mouse_click_and_never_picks_twice() -> void:
+	var panel: LevelUpPanel = auto_free(LevelUpPanel.new())
+	panel.size = Vector2(720, 1280)
+	add_child(panel)
+	var picked: Array = []
+	panel.chosen.connect(func(u: UpgradeDef) -> void: picked.append(u))
+	panel.open([_up(&"a", []), _up(&"b", []), _up(&"c", [])] as Array[UpgradeDef], 2, {})
+	panel._process(0.5)
+	var c := panel.card_rect(0).get_center()
+	var down := InputEventMouseButton.new()
+	down.button_index = MOUSE_BUTTON_LEFT
+	down.pressed = true
+	down.position = c
+	var up := down.duplicate() as InputEventMouseButton
+	up.pressed = false
+	panel._input(down)
+	panel.handle_touch(0, c, true)  # 같은 클릭이 터치로도 들어옴
+	panel._input(up)
+	panel.handle_touch(0, c, false)
+	assert_int(picked.size()).is_equal(1)
+
+
 # --- 판 규칙 ---
 
 func test_run_has_no_time_victory() -> void:
