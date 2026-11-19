@@ -5,14 +5,14 @@
 #   powershell -ExecutionPolicy Bypass -File tools/build/export_aab.ps1
 param([string]$Out = "build/android/haneol-heroes.aab")
 $ErrorActionPreference = "Stop"
-$keyFile = Join-Path $env:USERPROFILE ".haneol-keys\upload-key.txt"
-if (-not (Test-Path $keyFile)) { throw "업로드 키 정보가 없습니다: $keyFile" }
-$k = @{}
-foreach ($line in Get-Content $keyFile) {
-    $i = $line.IndexOf("=")
-    if ($i -gt 0) { $k[$line.Substring(0, $i).Trim()] = $line.Substring($i + 1).Trim() }
-}
 try {
+    $keyFile = Join-Path $env:USERPROFILE ".haneol-keys\upload-key.txt"
+    if (-not (Test-Path $keyFile)) { throw "업로드 키 정보가 없습니다: $keyFile" }
+    $k = @{}
+    foreach ($line in Get-Content $keyFile) {
+        $i = $line.IndexOf("=")
+        if ($i -gt 0) { $k[$line.Substring(0, $i).Trim()] = $line.Substring($i + 1).Trim() }
+    }
     $env:GODOT_ANDROID_KEYSTORE_RELEASE_PATH = $k["path"]
     $env:GODOT_ANDROID_KEYSTORE_RELEASE_USER = $k["alias"]
     $env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD = $k["password"]
