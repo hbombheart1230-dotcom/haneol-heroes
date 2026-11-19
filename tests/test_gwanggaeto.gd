@@ -186,6 +186,13 @@ func test_quake_and_conqueror_ignore_dead_enemies() -> void:
 	assert_int((GW.kit.tap as QuakeSkill).cast(ctx, 0.0).hits).is_equal(0)
 	assert_int((GW.kit.counter as ConquerorSkill).cast(ctx, 0.0).hits).is_equal(0)
 	assert_vector(dead.knockback).is_equal(Vector2.ZERO)
+	# Codex 7549930 회귀: 벽력돌파도 죽은 적을 세지 않는다
+	player.request_dash(Vector2.RIGHT)
+	player.global_position = Vector2(200, 0)
+	var run := (GW.kit.dash as ThunderTrailSkill).cast(ctx, 0.0)
+	for i in 30:
+		run.tick(DT)
+	assert_int(run.hits).is_equal(0)
 
 
 func test_conqueror_wide_stun_and_field() -> void:

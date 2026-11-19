@@ -42,8 +42,8 @@ class TrailRun extends SkillRun:
 		if left > 0.0 or finished:
 			return finished
 		for en in ctx.enemies_near_segment(a, b, skill.width * 0.5):
-			ctx.hit(en, skill.damage)
-			hits += 1
+			if ctx.hit(en, skill.damage):  # 실제로 맞은 적만 센다 (죽어서 지워지기 전인 적 제외)
+				hits += 1
 		if ctx.fx:
 			ctx.fx.add_slash(a, b, skill.width * 0.5, 0.3, skill.fx_color)
 			ctx.fx.add_slash(a, b, skill.width * 0.15, 0.2, Color(1, 1, 1))
