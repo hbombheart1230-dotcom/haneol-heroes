@@ -1,6 +1,7 @@
 [gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/main.gd" id="0_main"]
+[ext_resource type="Resource" path="res://data/audio/sfx_bank.tres" id="39_bank"]
 [ext_resource type="Resource" path="res://data/runs/default_run.tres" id="30_run"]
 [ext_resource type="Script" path="res://scripts/world/seal_choice.gd" id="31_seal"]
 [ext_resource type="Script" path="res://scripts/ui/hero_select.gd" id="33_select"]
@@ -121,6 +122,7 @@ camera = NodePath("../Player/Camera2D")
 fx = NodePath("../FxLayer")
 player = NodePath("../Player")
 skill_caster = NodePath("../Player/SkillCaster")
+bank = ExtResource("39_bank")
 
 [node name="TouchController" type="Node" parent="." node_paths=PackedStringArray("player", "skill_caster")]
 script = ExtResource("3_touch")

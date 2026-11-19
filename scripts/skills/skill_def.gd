@@ -12,6 +12,8 @@ extends Resource
 @export var fx_color: Color = Color(0.4, 0.8, 1.0)
 ## 스킬 아이콘 (없으면 색 원으로 표시).
 @export var icon: Texture2D
+## 발동 소리 (SoundBank 종류). 비우면 칸에 따라 기본 (베기·반격).
+@export var sfx: StringName = &""
 
 
 ## 발동. charge는 0~1 (충전 기술에만 의미).
