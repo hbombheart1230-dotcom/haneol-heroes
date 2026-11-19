@@ -85,7 +85,7 @@ func _start_flow() -> void:
 	elif stages.size() > 1 and not GameSettings.stage_picked and stage_select:
 		_hold()
 		stage_select.picked.connect(_on_stage_picked, CONNECT_ONE_SHOT)
-		stage_select.open(stages)
+		stage_select.open(stages, StageUnlock.flags(stages, GameSettings.cleared_stages, GameSettings.unlock_all_stages()))
 	else:
 		_apply_stage(stage_by_id(GameSettings.stage_id))
 		_begin_build()
@@ -190,8 +190,11 @@ func _physics_process(delta: float) -> void:
 		_end_time += delta
 
 
-func _on_ended(_result: GameState.Result) -> void:
+func _on_ended(result: GameState.Result) -> void:
 	_end_time = 0.0
+	if result == GameState.Result.VICTORY and run_config and run_config.stage:
+		if GameSettings.mark_cleared(run_config.stage.id):  # 다음 무대가 열린다
+			GameSettings.save_settings()
 	if seal_choice:
 		seal_choice.close()
 	GameTime.reset()

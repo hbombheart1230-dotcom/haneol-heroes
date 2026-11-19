@@ -18,6 +18,22 @@ static var title_seen: bool = false
 ## 마지막으로 고른 무대 id, 이번 실행에서 무대를 골랐는지.
 static var stage_id: StringName = &""
 static var stage_picked: bool = false
+## 이긴 무대 id들 (다음 무대 열기).
+static var cleared_stages: PackedStringArray = PackedStringArray()
+## 무대 전부 열기: -1 = 빌드 따라 (시험판이면 전부), 0 = 차례대로, 1 = 전부. 테스트가 바꾼다.
+static var unlock_all_override: int = -1
+
+
+static func unlock_all_stages() -> bool:
+	return StageUnlock.test_build() if unlock_all_override < 0 else unlock_all_override == 1
+
+
+## 무대를 이겼다고 기록 (이미 있으면 그대로). 기록이 늘면 true.
+static func mark_cleared(id: StringName) -> bool:
+	if id == &"" or cleared_stages.has(String(id)):
+		return false
+	cleared_stages.append(String(id))
+	return true
 
 
 static func load_settings(path: String = "") -> void:
@@ -29,6 +45,7 @@ static func load_settings(path: String = "") -> void:
 	skill_button_enabled = bool(cfg.get_value(SECTION, "skill_button_enabled", skill_button_enabled))
 	hero_id = StringName(cfg.get_value("game", "hero_id", String(hero_id)))
 	stage_id = StringName(cfg.get_value("game", "stage_id", String(stage_id)))
+	cleared_stages = PackedStringArray(cfg.get_value("game", "cleared_stages", cleared_stages))
 
 
 static func save_settings(path: String = "") -> Error:
@@ -39,4 +56,5 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value(SECTION, "skill_button_enabled", skill_button_enabled)
 	cfg.set_value("game", "hero_id", String(hero_id))
 	cfg.set_value("game", "stage_id", String(stage_id))
+	cfg.set_value("game", "cleared_stages", cleared_stages)
 	return cfg.save(path)

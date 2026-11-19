@@ -88,3 +88,77 @@ func test_main_waits_for_stage_then_uses_its_army() -> void:
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.save_settings()
+
+
+# --- 차례대로 열기 ---
+
+func _all() -> Array[StageTheme]:
+	var list: Array[StageTheme] = []
+	for id in IDS:
+		list.append(_stage(id))
+	return list
+
+
+func test_unlock_flags_follow_cleared_order() -> void:
+	var list := _all()
+	assert_array(StageUnlock.flags(list, PackedStringArray(), false)).is_equal([true, false, false, false])
+	assert_array(StageUnlock.flags(list, PackedStringArray(["manchuria_395"]), false)).is_equal([true, true, false, false])
+	assert_array(StageUnlock.flags(list, PackedStringArray(["chochungdo"]), false)).is_equal([true, false, false, true])
+	assert_array(StageUnlock.flags(list, PackedStringArray(), true)).is_equal([true, true, true, true])
+
+
+func test_mark_cleared_saves_once() -> void:
+	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.cleared_stages = PackedStringArray()
+	assert_bool(GameSettings.mark_cleared(&"manchuria_395")).is_true()
+	assert_bool(GameSettings.mark_cleared(&"manchuria_395")).is_false()
+	GameSettings.save_settings()
+	GameSettings.cleared_stages = PackedStringArray()
+	GameSettings.load_settings()
+	assert_array(Array(GameSettings.cleared_stages)).is_equal(["manchuria_395"])
+	GameSettings.cleared_stages = PackedStringArray()
+	GameSettings.save_settings()
+
+
+func test_locked_stage_card_is_not_pickable() -> void:
+	var sel: StageSelect = auto_free(StageSelect.new())
+	sel.size = Vector2(720, 1280)
+	add_child(sel)
+	var got: Array = []
+	sel.picked.connect(func(s: StageTheme) -> void: got.append(s))
+	sel.open(_all(), [true, false, false, false] as Array[bool])
+	var c := sel.slot_rect(1).get_center()
+	sel.handle_touch(0, c, true)
+	assert_bool(sel.handle_touch(0, c, false)).is_false()
+	assert_array(got).is_empty()
+	assert_str(sel.notice).contains("만주 벌판")
+	assert_bool(sel.is_open()).is_true()
+
+
+func test_victory_unlocks_next_stage_in_release_order() -> void:
+	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.unlock_all_override = 0
+	GameSettings.cleared_stages = PackedStringArray()
+	GameSettings.title_seen = true
+	GameSettings.hero_picked = true
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.stage_picked = false
+	GameSettings.save_settings()
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	add_child(main)
+	await get_tree().process_frame
+	var sel: StageSelect = main.stage_select
+	assert_array(sel.unlocked).is_equal([true, false, false, false])
+	var c := sel.slot_rect(0).get_center()
+	sel.handle_touch(0, c, true)
+	sel.handle_touch(0, c, false)
+	main._on_ended(GameState.Result.VICTORY)
+	assert_array(Array(GameSettings.cleared_stages)).is_equal(["manchuria_395"])
+	assert_array(StageUnlock.flags(main.stages, GameSettings.cleared_stages, false)).is_equal([true, true, false, false])
+	get_tree().paused = false
+	main.queue_free()
+	GameSettings.unlock_all_override = -1
+	GameSettings.cleared_stages = PackedStringArray()
+	GameSettings.stage_picked = true
+	GameSettings.stage_id = &"manchuria_395"
+	GameSettings.save_settings()
