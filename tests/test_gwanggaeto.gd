@@ -218,12 +218,47 @@ func test_hero_select_picks_with_one_tap() -> void:
 	sel.handle_touch(0, c, true)
 	assert_bool(sel.handle_touch(0, c, false)).is_true()
 	assert_array(got).is_equal([GW])
-	assert_float(sel.slot_rect(0).position.y).is_greater(1280.0 * 0.3)  # 엄지 닿는 아래쪽
+	assert_float(sel.slot_rect(1).end.y).is_greater(1280.0 * 0.8)  # 엄지 닿는 아래쪽까지 카드
+
+
+func test_locked_hero_card_is_not_pickable() -> void:
+	var sel: HeroSelect = auto_free(HeroSelect.new())
+	sel.size = Vector2(720, 1280)
+	add_child(sel)
+	var got: Array = []
+	sel.picked.connect(func(h: HeroData) -> void: got.append(h))
+	var sejong: HeroData = preload("res://data/heroes/sejong.tres")
+	sel.open([YI, GW, sejong] as Array[HeroData])
+	var c := sel.slot_rect(2).get_center()
+	sel.handle_touch(0, c, true)
+	assert_bool(sel.handle_touch(0, c, false)).is_false()
+	assert_array(got).is_empty()
+	assert_str(sel.notice).contains("준비 중")
+	assert_bool(sel.is_open()).is_true()
+
+
+func test_title_screen_enters_with_button_after_delay() -> void:
+	var title: TitleScreen = auto_free(TitleScreen.new())
+	title.size = Vector2(720, 1280)
+	add_child(title)
+	var n := [0]
+	title.entered.connect(func() -> void: n[0] += 1)
+	title.open()
+	var c := title.button_rect().get_center()
+	title.handle_touch(0, c, true)
+	assert_bool(title.handle_touch(0, c, false)).is_false()  # 열리자마자는 무시
+	title._process(0.5)
+	title.handle_touch(0, Vector2(10, 10), true)
+	assert_bool(title.handle_touch(0, Vector2(10, 10), false)).is_false()  # 단추 밖
+	title.handle_touch(0, c, true)
+	assert_bool(title.handle_touch(0, c, false)).is_true()
+	assert_int(n[0]).is_equal(1)
 
 
 func test_main_waits_for_hero_then_runs_chosen_hero() -> void:
 	GameSettings.settings_path = "user://test_settings.cfg"
 	GameSettings.hero_picked = false
+	GameSettings.title_seen = true
 	GameSettings.hero_id = &""
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()

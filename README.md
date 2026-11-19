@@ -160,6 +160,8 @@ Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-ag
 | (임시 효과음) | — | 자체 합성 (`scripts/fx/sfx_synth.gd`) | 엔진 AudioStreamWAV. 정식 효과음은 아트·사운드 단계에서 교체 |
 | KayKit Character Pack: Adventurers (Knight·Barbarian, 임시 캐릭터) | 1.0 | CC0 (`assets/models/kaykit/LICENSE.txt`) | https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0 (Kay Lousberg) |
 | KayKit Character Pack: Skeletons (Minion·Rogue·Warrior, 임시 적) | 1.0 | CC0 (`assets/models/kaykit_skeletons/LICENSE.txt`) | https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0 (Kay Lousberg) |
+| 나눔손글씨 붓 (NanumBrushScript, 제목 글꼴) | Google Fonts | OFL 1.1 (`assets/fonts/OFL_NanumBrushScript.txt`) | https://github.com/google/fonts/tree/main/ofl/nanumbrushscript — 게임에서 쓰는 글자만 남김 (`tools/fonts/subset_fonts.py`) |
+| 고운바탕 (GowunBatang, 본문 글꼴) | Google Fonts | OFL 1.1 (`assets/fonts/OFL_GowunBatang.txt`) | https://github.com/google/fonts/tree/main/ofl/gowunbatang — 같은 방식으로 줄임 |
 | Health, HitBoxes, HurtBoxes and HitScans | 5.0.4 + HH 패치 | MIT (`addons/health_hitbox_hurtbox/LICENSE`) | https://github.com/cluttered-code/godot-health-hitbox-hurtbox |
 | Meshy API (AI 3D 생성 서비스, 개발 도구에서 호출) | openapi v1 | 유료 플랜 산출물 사용 조건은 Meshy 약관 | https://docs.meshy.ai/en/api |
 

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="HeroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Texture2D" path="res://assets/ui/heroes/shin_saimdang.png" id="card_art"]
+
+[resource]
+script = ExtResource("1_hero")
+id = &"shin_saimdang"
+display_name = "사임당"
+card_art = ExtResource("card_art")
+tagline = "수묵의 술사
+그림 속 생명을 깨운다"
+playable = false
+body_color = Color(0.5, 0.3, 0.62, 1)

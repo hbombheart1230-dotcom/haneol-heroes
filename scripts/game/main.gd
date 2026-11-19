@@ -12,6 +12,8 @@ extends Node2D
 ## 고를 수 있는 영웅. 둘 이상이면 앱을 켠 뒤 첫 판 전에 고르기 화면.
 @export var heroes: Array[HeroData] = []
 @export var hero_select: HeroSelect
+## 인트로(입장 단추). 앱을 켠 뒤 한 번만.
+@export var title_screen: TitleScreen
 ## 결과 화면에서 재시작 입력을 받기까지 대기(초). 연타로 바로 넘어가는 것을 막는다.
 @export var restart_delay: float = 0.6
 
@@ -65,19 +67,47 @@ func _ready() -> void:
 		hud.perf = perf
 		hud.progress = progress
 		hud.stage = run_config.stage if run_config else null
-		hud.can_change_hero = heroes.size() > 1
-	if heroes.size() > 1 and not GameSettings.hero_picked and hero_select:
-		waiting_pick = true
-		get_tree().paused = true
+		hud.can_change_hero = playable_heroes().size() > 1
+	_start_flow()
+
+
+## 시작 순서: 인트로(앱 켠 뒤 한 번) → 영웅 고르기(필요할 때) → 판 시작. 화면이 떠 있는 동안은 멈춘다.
+func _start_flow() -> void:
+	if title_screen and not GameSettings.title_seen:
+		_hold()
+		title_screen.entered.connect(_on_title_entered, CONNECT_ONE_SHOT)
+		title_screen.open()
+	elif playable_heroes().size() > 1 and not GameSettings.hero_picked and hero_select:
+		_hold()
 		hero_select.picked.connect(_on_hero_picked, CONNECT_ONE_SHOT)
 		hero_select.open(heroes)
 	else:
 		_begin_build()
+		waiting_pick = false
+		get_tree().paused = false
+
+
+func _hold() -> void:
+	waiting_pick = true
+	get_tree().paused = true
+
+
+func _on_title_entered() -> void:
+	GameSettings.title_seen = true
+	_start_flow()
+
+
+func playable_heroes() -> Array[HeroData]:
+	var out: Array[HeroData] = []
+	for h in heroes:
+		if h and h.playable:
+			out.append(h)
+	return out
 
 
 func hero_by_id(id: StringName) -> HeroData:
-	for h in heroes:
-		if h and h.id == id:
+	for h in playable_heroes():
+		if h.id == id:
 			return h
 	return null
 
@@ -94,9 +124,7 @@ func _on_hero_picked(h: HeroData) -> void:
 	GameSettings.save_settings()
 	if player and h != player.hero:
 		player.change_hero(h)
-	_begin_build()
-	waiting_pick = false
-	get_tree().paused = false
+	_start_flow()
 
 
 ## 렌더 프레임 기준 성능 기록 (플레이 중에만).
@@ -139,7 +167,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## 결과 화면 아래 띠 ("영웅 바꾸기"). HUD가 같은 영역을 그린다.
 func is_change_hero_area(pos: Vector2) -> bool:
-	return heroes.size() > 1 and pos.y >= get_viewport().get_visible_rect().size.y - Hud.CHANGE_HERO_BAND
+	return playable_heroes().size() > 1 and pos.y >= get_viewport().get_visible_rect().size.y - Hud.CHANGE_HERO_BAND
 
 
 func restart() -> void:

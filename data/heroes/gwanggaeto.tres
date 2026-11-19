@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="HeroData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Texture2D" path="res://assets/ui/heroes/gwanggaeto.png" id="card_art"]
 [ext_resource type="Script" path="res://scripts/data/basic_attack_data.gd" id="2_attack"]
 [ext_resource type="Script" path="res://scripts/skills/skill_kit.gd" id="3_kit"]
 [ext_resource type="Script" path="res://scripts/heroes/gwanggaeto/quake_skill.gd" id="4_quake"]
@@ -84,6 +85,7 @@ full_charge_time = 1.1
 script = ExtResource("1_hero")
 id = &"gwanggaeto"
 display_name = "광개토"
+card_art = ExtResource("card_art")
 tagline = "천둥의 정복자
 들어가서 터뜨린다"
 body_color = Color(0.55, 0.25, 0.15, 1)

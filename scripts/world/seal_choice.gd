@@ -124,7 +124,7 @@ func _physics_process(delta: float) -> void:
 func _draw() -> void:
 	if not is_open():
 		return
-	var font := ThemeDB.fallback_font
+	var font := UiStyle.BODY_FONT
 	var grow := clampf(_age / 0.15, 0.0, 1.0)
 	var r := seal_radius * grow
 	for i in choices.size():

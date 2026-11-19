@@ -192,5 +192,6 @@ func test_shockwave_follows_boss_during_telegraph() -> void:
 func _skip_hero_select() -> void:
 	GameSettings.settings_path = "user://test_settings.cfg"
 	GameSettings.hero_picked = true
+	GameSettings.title_seen = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.save_settings()

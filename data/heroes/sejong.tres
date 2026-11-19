@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="HeroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Texture2D" path="res://assets/ui/heroes/sejong.png" id="card_art"]
+
+[resource]
+script = ExtResource("1_hero")
+id = &"sejong"
+display_name = "세종"
+card_art = ExtResource("card_art")
+tagline = "천문의 지배자
+문자와 별의 마법"
+playable = false
+body_color = Color(0.72, 0.15, 0.12, 1)
