@@ -37,12 +37,14 @@ func tick(delta: float, pos: Vector2) -> void:
 func on_end(pos: Vector2, enemies: Array, now_sec: float = -1.0) -> int:
 	if style == null:
 		return 0
+	var now := now_sec if now_sec >= 0.0 else Time.get_ticks_msec() / 1000.0
+	if now - _last_effect < style.end_cooldown:
+		return 0  # 연속 대시: 도착 그림·효과 모두 간격마다 한 번 (자취는 계속)
+	_last_effect = now
 	if style.end_vfx:
 		Feedback.vfx_burst(style.end_vfx, pos, _dir)
-	var now := now_sec if now_sec >= 0.0 else Time.get_ticks_msec() / 1000.0
-	if style.end_radius <= 0.0 or now - _last_effect < style.end_cooldown:
+	if style.end_radius <= 0.0:
 		return 0
-	_last_effect = now
 	var center := _start_pos if style.effect_at_start else pos
 	var n := 0
 	for e in enemies:

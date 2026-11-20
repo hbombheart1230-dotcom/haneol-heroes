@@ -51,6 +51,7 @@ var _recoil_vel: Vector2 = Vector2.ZERO
 var _recoil_left: float = 0.0
 ## 영웅별 회피 이펙트·도착 효과 (hero.dash_style이 있을 때).
 var dash_runner: DashStyleRunner
+var _arrive_pending: bool = false
 var _glide_left: float = 0.0
 var _dash_time_left: float = 0.0
 ## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력 판정용.
@@ -311,14 +312,16 @@ func compute_velocity(delta: float) -> Vector2:
 			_glide_left = dash_glide_time
 		# 대시 직후엔 가속을 다시 기다리지 않는다 (대시 → 걷기 끊김 없이).
 		_walk_vel = move_input * move_speed
-		_dash_arrived()
+		_arrive_pending = true  # 도착 효과는 이번 프레임 이동을 마친 실제 자리에서 (_physics_process)
 		dash_ended.emit()
 	return v
 
 
 ## 대시 도착: 영웅별 도착 이펙트·효과 (트리 밖 테스트에서는 이펙트만).
+## 레벨업 인장을 고르는 느린 시간(GameTime.base < 1)에는 걸지 않는다.
 func _dash_arrived() -> void:
-	if dash_runner and not is_dead():
+	_arrive_pending = false
+	if dash_runner and not is_dead() and GameTime.base >= 1.0:
 		dash_runner.on_end(global_position, get_tree().get_nodes_in_group(Enemy.GROUP) if is_inside_tree() else [])
 
 
@@ -335,3 +338,5 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	if arena_rect.has_area():
 		global_position = global_position.clamp(arena_rect.position, arena_rect.end)
+	if _arrive_pending:
+		_dash_arrived()
