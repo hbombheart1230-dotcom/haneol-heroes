@@ -27,6 +27,7 @@ var trauma: float = 0.0
 var _sounds: Dictionary = {}
 var _players: Array[AudioStreamPlayer] = []
 var _voices: SfxVoices
+var _playing: Array[bool] = []
 ## 같은 소리가 한 프레임에 겹쳐 터지지 않게 (소리별 마지막 재생 시각).
 var _last_played: Dictionary = {}
 var _rng := RandomNumberGenerator.new()
@@ -60,6 +61,7 @@ func _ready() -> void:
 	for kind in SfxSynth.DURATIONS.keys():
 		_sounds[kind] = SfxSynth.make(kind)
 	_voices = SfxVoices.new(8)
+	_playing.resize(8)
 	for i in 8:
 		var p := AudioStreamPlayer.new()
 		p.bus = &"SFX"  # 설정 "효과음 크기"
@@ -125,10 +127,9 @@ func play(kind: StringName, min_gap: float = 0.04) -> void:
 	var now := Time.get_ticks_msec() / 1000.0
 	if now - float(_last_played.get(kind, -INF)) < min_gap:
 		return
-	var playing: Array = []
-	for pl in _players:
-		playing.append(pl.playing)
-	var i := _voices.pick(kind, bank.prio(kind) if bank else 1, bank.max_of(kind) if bank else 0, now, playing)
+	for k in _players.size():  # 미리 만든 배열을 채워 쓴다 (소리마다 새 배열을 만들지 않게)
+		_playing[k] = _players[k].playing
+	var i := _voices.pick(kind, bank.prio(kind) if bank else 1, bank.max_of(kind) if bank else 0, now, _playing)
 	if i < 0:
 		return  # 더 중요한 소리로 꽉 참
 	_last_played[kind] = now

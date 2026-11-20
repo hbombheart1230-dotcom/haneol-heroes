@@ -42,6 +42,8 @@ var _freeze_left: float = 0.0
 var _freeze_total: float = 0.0
 ## 맞는 반응 (맞는 동작·잡몹 경직·그림 움찔·흰 번쩍임).
 var reaction: HitReaction
+## 돌진 이동 (맞아 경직·기절하면 멈춘다).
+var _charge_tw: Tween
 ## 마지막으로 맞은 방향과 피해 (처치 날림용).
 var _last_hit_dir: Vector2 = Vector2.ZERO
 var _last_damage: int = 0
@@ -70,6 +72,8 @@ func shove(impulse: Vector2) -> void:
 	apply_knockback(impulse)
 	if reaction:
 		reaction.on_shove()
+		if reaction.is_staggered():
+			_stop_charge()
 
 
 ## 기절: 그동안 움직이지도 공격하지도 않는다. 기절에 약한 적(stun_scale 1 이상)은 예고 공격이 끊긴다.
@@ -78,6 +82,7 @@ func stun(seconds: float) -> void:
 	if seconds * scale <= 0.0:
 		return
 	_stun_left = maxf(_stun_left, seconds * scale)
+	_stop_charge()
 	if attack and scale >= 1.0 and attack.is_busy():
 		attack.cancel()
 	queue_redraw()
@@ -199,7 +204,7 @@ func _physics_process(delta: float) -> void:
 	_slow_left = maxf(_slow_left - delta, 0.0)
 	if reaction:
 		reaction.tick(delta)
-	if _stun_left > 0.0 or (reaction and reaction.is_staggered()):
+	if _stun_left > 0.0:
 		_stun_left = maxf(_stun_left - delta, 0.0)
 		_drift(delta)
 		return
@@ -222,6 +227,8 @@ func _physics_process(delta: float) -> void:
 	if _detour_left > 0.0:
 		_detour_left -= delta
 		chase = Obstacles.steer_around(chase, _detour_normal, _detour_side)
+	if reaction and reaction.is_staggered():
+		chase = Vector2.ZERO  # 잡몹 경직: 넉백만 (공격 예고는 그대로 흘러 공격권을 붙잡지 않는다)
 	velocity = chase + knockback
 	if sprite:
 		EnemySprite.update(self, busy)
@@ -233,7 +240,7 @@ func _physics_process(delta: float) -> void:
 		queue_redraw()
 
 
-## 기절·잡몹 경직: 쫓지도 치지도 않고 넉백만 받는다.
+## 기절: 쫓지도 치지도 않고 넉백만 받는다.
 func _drift(delta: float) -> void:
 	velocity = knockback
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
@@ -266,6 +273,8 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 		freeze(feel.freeze_for(applied))
 		if reaction and reaction.on_hit(applied, health.max, _last_hit_dir) and sprite:
 			EnemySprite.start_hit(self)  # 멈춤 동안 첫 프레임, 멈춤 뒤 나머지 (R1)
+		if reaction and reaction.is_staggered():
+			_stop_charge()  # 잡몹 돌진은 맞으면 멈춘다 (정예·보스는 그대로 밀고 온다)
 	Feedback.enemy_hit(global_position, applied, _last_hit_dir)
 	queue_redraw()
 
@@ -316,8 +325,19 @@ func damage_mult() -> float:
 
 
 func _charge_to(end: Vector2) -> void:
-	var tw := create_tween()
-	tw.tween_property(self, "global_position", end, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_stop_charge()
+	_charge_tw = create_tween()
+	_charge_tw.tween_property(self, "global_position", end, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+
+
+func _stop_charge() -> void:
+	if _charge_tw and _charge_tw.is_valid():
+		_charge_tw.kill()
+	_charge_tw = null
+
+
+func is_charging() -> bool:
+	return _charge_tw != null and _charge_tw.is_valid() and _charge_tw.is_running()
 
 
 func _fire_arrow() -> void:

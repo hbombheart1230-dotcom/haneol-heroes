@@ -21,7 +21,7 @@ func _init(count: int) -> void:
 
 
 ## playing[i]: i번 재생기가 지금 울리는 중인지. 반환: 쓸 재생기 번호 (-1이면 내지 않음).
-func pick(kind: StringName, prio: int, max_same: int, now: float, playing: Array) -> int:
+func pick(kind: StringName, prio: int, max_same: int, now: float, playing: Array[bool]) -> int:
 	var same := -1
 	var same_n := 0
 	for i in kinds.size():

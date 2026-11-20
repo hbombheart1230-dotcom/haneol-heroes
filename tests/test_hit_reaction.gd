@@ -10,6 +10,7 @@ const DT := 1.0 / 60.0
 func after_test() -> void:
 	Feedback.instance = null
 	GameTime.reset()
+	EnemyAttack.active_windups = 0
 
 
 func _enemy(data: EnemyData = SOLDIER, pos: Vector2 = Vector2(60, 0)) -> Enemy:
@@ -169,3 +170,44 @@ func test_shove_staggers_trash_only() -> void:
 	var el := _enemy(ELITE)
 	el.shove(Vector2(100, 0))
 	assert_bool(el.reaction.is_staggered()).is_false()
+
+
+## 경직 중에도 공격 예고는 흘러간다 (계속 맞아도 동시 예고 자리를 영원히 붙잡지 않음, Codex fa4d78c).
+func test_stagger_does_not_hold_windup_slot() -> void:
+	var p: Player = auto_free(Player.new())
+	var h := Health.new()
+	h.name = "Health"
+	p.add_child(h)
+	add_child(p)
+	var e := _enemy(SOLDIER, Vector2(40, 0))
+	e.target = p
+	var was_busy := false
+	var freed := false
+	for i in 400:
+		e.shove(Vector2(1, 0))  # 매 프레임 경직 갱신
+		e._physics_process(DT)
+		if e.attack.is_busy():
+			was_busy = true
+		elif was_busy:
+			freed = true
+			break
+	assert_bool(was_busy).is_true()
+	assert_bool(freed).is_true()
+	assert_int(EnemyAttack.active_windups).is_equal(0)
+
+
+## 돌진 중 잡몹이 맞으면 돌진이 멈춘다. 정예는 그대로 밀고 온다.
+func test_trash_hit_stops_charge_but_elite_keeps_going() -> void:
+	var t := _enemy(SOLDIER)
+	t.target = _target()
+	t._charge_to(Vector2(400, 0))
+	assert_bool(t.is_charging()).is_true()
+	t.health.damage(3)
+	assert_bool(t.is_charging()).is_false()
+	var el := _enemy(ELITE)
+	el.target = _target()
+	el._charge_to(Vector2(400, 0))
+	el.health.damage(3)
+	assert_bool(el.is_charging()).is_true()
+	el.stun(1.0)
+	assert_bool(el.is_charging()).is_false()

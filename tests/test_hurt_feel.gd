@@ -100,7 +100,7 @@ func test_hurt_vignette_fades_in_real_time() -> void:
 ## S3: 같은 종류 최대 수, 빈 재생기, 낮은 우선순위부터 끊기, 모두 더 중요하면 안 냄.
 func test_voices_priority_and_caps() -> void:
 	var v := SfxVoices.new(3)
-	var playing := [false, false, false]
+	var playing: Array[bool] = [false, false, false]
 	assert_int(v.pick(&"hit", 1, 2, 0.0, playing)).is_equal(0)
 	playing[0] = true
 	assert_int(v.pick(&"hit", 1, 2, 0.1, playing)).is_equal(1)
@@ -111,8 +111,10 @@ func test_voices_priority_and_caps() -> void:
 	assert_int(v.pick(&"die", 2, 0, 0.4, playing)).is_equal(1)  # 가장 낮은(명중) 중 오래된 것
 	assert_int(v.pick(&"hit", 1, 2, 0.5, playing)).is_equal(0)
 	var w := SfxVoices.new(1)
-	assert_int(w.pick(&"hurt", 4, 0, 0.0, [false])).is_equal(0)
-	assert_int(w.pick(&"hit", 1, 0, 0.1, [true])).is_equal(-1)  # 피격음을 명중음이 끊지 않는다
+	var one: Array[bool] = [false]
+	assert_int(w.pick(&"hurt", 4, 0, 0.0, one)).is_equal(0)
+	one[0] = true
+	assert_int(w.pick(&"hit", 1, 0, 0.1, one)).is_equal(-1)  # 피격음을 명중음이 끊지 않는다
 
 
 func test_bank_has_priorities_and_new_hurt() -> void:
