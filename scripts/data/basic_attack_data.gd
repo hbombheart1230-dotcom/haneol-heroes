@@ -38,4 +38,6 @@ extends Resource
 @export var release_delay: float = 0.0
 ## 던질 때 재생할 동작 (시트 이름). 비우면 동작 없이 손에서 나간다.
 @export var ranged_anim: StringName = &"attack"
+## 던지는 동작을 보여 주는 시간(초). 동작 길이(프레임 수 ÷ fps)에 맞춘다.
+@export var ranged_anim_time: float = 0.35
 @export var release_offset: Vector2 = Vector2.ZERO

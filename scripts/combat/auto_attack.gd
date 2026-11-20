@@ -115,7 +115,19 @@ func _release(enemy_list: Array) -> void:
 	if d == null or _release_src != data:  # 영웅·데이터가 바뀌었으면 손에 든 탄은 버린다
 		return
 	var from := player.global_position
-	var nearest := Targeting.nearest(enemy_list, from, d.ranged_range)
+	var nearest: Node2D = null
+	var best := d.ranged_range * d.ranged_range
+	for n in enemy_list:  # 막 죽어 아직 지워지기 전인 적은 겨누지 않는다 (Codex 88d3160)
+		var node := n as Node2D
+		if node == null or not is_instance_valid(node) or node.is_queued_for_deletion():
+			continue
+		var h := node.get_node_or_null("Health") as Health
+		if h and not h.is_alive():
+			continue
+		var d2 := from.distance_squared_to(node.global_position)
+		if d2 <= best:
+			best = d2
+			nearest = node
 	if nearest == null:
 		return
 	var to := nearest.global_position - from

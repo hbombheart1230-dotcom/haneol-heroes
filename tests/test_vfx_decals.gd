@@ -282,3 +282,35 @@ func test_data_swap_during_windup_drops_the_shot() -> void:
 	for pr in fired:
 		assert_object((pr as Projectile).art).is_null()  # 광개토 창이 세종으로 날아가지 않음
 		(pr as Projectile).queue_free()
+
+
+func test_release_ignores_an_enemy_that_just_died() -> void:
+	var p: Player = auto_free(Player.new())
+	add_child(p)
+	var a: AutoAttack = auto_free(AutoAttack.new())
+	a.player = p
+	a.projectile_scene = preload("res://scenes/projectile.tscn")
+	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.projectile_parent = self
+	add_child(a)
+	var fired: Array = []
+	a.projectile_fired.connect(func(pr: Projectile) -> void: fired.append(pr))
+	var e: Enemy = preload("res://scenes/enemy.tscn").instantiate()
+	add_child(auto_free(e))
+	e.set_physics_process(false)
+	e.global_position = Vector2((a.data.melee_range + a.data.ranged_range) * 0.5, 0)
+	a.tick(0.016, [e])
+	e.health.kill()  # 던지는 사이 죽음 (지워지기 전 같은 프레임)
+	for i in 12:
+		a.tick(0.016, [e])
+	assert_int(fired.size()).is_equal(0)
+
+
+func test_sejong_throws_with_the_new_clip() -> void:
+	var sj: HeroData = load("res://data/heroes/sejong.tres")
+	assert_str(String(sj.attack.ranged_anim)).is_equal("throw")
+	assert_bool(sj.sprite_sheet.has_anim("throw")).is_true()
+	var i := sj.sprite_sheet.anim_names.find("throw")
+	var clip := sj.sprite_sheet.frame_counts[i] / sj.sprite_sheet.fps[i]
+	assert_float(sj.attack.ranged_anim_time).is_equal_approx(clip, 0.02)
+	assert_float(sj.attack.release_delay).is_less(clip)  # 동작 중간에 손을 떠난다

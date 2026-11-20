@@ -45,8 +45,9 @@ ranged_knockback = 50.0
 glyph_px = 110
 proj_trail_color = Color(1, 0.8, 0.3, 0.5)
 proj_trail_len = 70.0
-release_delay = 0.12
-ranged_anim = &""
+release_delay = 0.17
+ranged_anim = &"throw"
+ranged_anim_time = 0.44
 release_offset = Vector2(30, 52)
 ranged_glyphs = "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ"
 

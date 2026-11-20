@@ -76,7 +76,7 @@ func _on_ranged_windup(_d: Vector2) -> void:
 	var atk := player.hero.attack if player.hero else null
 	var anim := String(atk.ranged_anim) if atk else "attack"
 	if anim != "" and not is_moving():
-		play_oneshot(anim, 0.35)
+		play_oneshot(anim, atk.ranged_anim_time if atk else 0.35)
 
 
 func is_moving() -> bool:
