@@ -22,10 +22,11 @@ func _init(p_data: HitReactionData = null, p_tier: Tier = Tier.TRASH) -> void:
 	tier = p_tier
 
 
-static func tier_of(d: EnemyData, has_affix: bool) -> Tier:
+## hp_mult < 1 (분열로 나온 작은 적 등)은 정예 데이터여도 잡몹.
+static func tier_of(d: EnemyData, has_affix: bool, hp_mult: float = 1.0) -> Tier:
 	if d and d.is_boss:
 		return Tier.BOSS
-	if (d and d.is_elite) or has_affix:
+	if ((d and d.is_elite) or has_affix) and hp_mult >= 1.0:
 		return Tier.ELITE
 	return Tier.TRASH
 

@@ -32,7 +32,7 @@ func _physics_process(delta: float) -> void:
 				en.slow(slow_factor, interval + 0.1)
 			if pull > 0.0:
 				en.apply_knockback((global_position - en.global_position).normalized() * pull)
-			ctx.hit(en, damage)
+			ctx.hit(en, damage, false)
 	if _age >= duration:
 		queue_free()
 	queue_redraw()
