@@ -23,6 +23,7 @@
 [ext_resource type="Resource" path="res://data/vfx/skill/yi_sun_sin_pado.tres" id="vs_pado"]
 [ext_resource type="Resource" path="res://data/vfx/skill/yi_sun_sin_haeil.tres" id="vs_haeil"]
 [ext_resource type="Resource" path="res://data/vfx/skill/yi_sun_sin_counter.tres" id="vs_counter"]
+[ext_resource type="Resource" path="res://data/heroes/dash/yi_sun_sin.tres" id="dash_style"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -142,3 +143,4 @@ attack = SubResource("Attack_yi")
 kit = SubResource("Kit_yi")
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+dash_style = ExtResource("dash_style")
