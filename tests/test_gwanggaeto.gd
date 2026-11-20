@@ -263,6 +263,7 @@ func test_main_waits_for_hero_then_runs_chosen_hero() -> void:
 	GameSettings.title_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"

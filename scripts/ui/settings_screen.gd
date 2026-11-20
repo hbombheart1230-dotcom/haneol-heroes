@@ -6,8 +6,10 @@ extends Control
 signal changed
 signal closed
 
-const ROWS: Array[StringName] = [&"sfx", &"music", &"haptics", &"story", &"skill_button"]
-const LABELS := {&"sfx": "효과음", &"music": "음악", &"haptics": "타격 진동", &"story": "이야기", &"skill_button": "스킬 단추"}
+const ROWS: Array[StringName] = [&"sfx", &"music", &"haptics", &"story", &"skill_button", &"enemy_hp", &"stats"]
+const LABELS := {&"sfx": "효과음", &"music": "음악", &"haptics": "타격 진동", &"story": "이야기",
+	&"skill_button": "스킬 단추", &"enemy_hp": "적 체력", &"stats": "수치 표시"}
+const ROW_STEP := 92.0
 const SLIDERS: Array[StringName] = [&"sfx", &"music"]
 
 var _was_paused := false
@@ -51,23 +53,24 @@ func _vp() -> Vector2:
 func panel_rect() -> Rect2:
 	var vp := _vp()
 	var w := minf(vp.x - 48.0, 620.0)
-	return Rect2((vp.x - w) * 0.5, vp.y * 0.5 - 380.0, w, 760.0)
+	var h := 150.0 + ROWS.size() * ROW_STEP + 130.0
+	return Rect2((vp.x - w) * 0.5, (vp.y - h) * 0.5, w, h)
 
 
 func row_rect(i: int) -> Rect2:
 	var p := panel_rect()
-	return Rect2(p.position.x + 32.0, p.position.y + 150.0 + i * 104.0, p.size.x - 64.0, 88.0)
+	return Rect2(p.position.x + 32.0, p.position.y + 150.0 + i * ROW_STEP, p.size.x - 64.0, ROW_STEP - 12.0)
 
 
 ## 밀대가 놓인 줄 영역 (줄 오른쪽 60%).
 func slider_rect(i: int) -> Rect2:
 	var r := row_rect(i)
-	return Rect2(r.position.x + r.size.x * 0.36, r.position.y + 30.0, r.size.x * 0.6, 28.0)
+	return Rect2(r.position.x + r.size.x * 0.36, r.position.y + 24.0, r.size.x * 0.6, 28.0)
 
 
 func toggle_rect(i: int) -> Rect2:
 	var r := row_rect(i)
-	return Rect2(r.end.x - 170.0, r.position.y + 12.0, 170.0, 64.0)
+	return Rect2(r.end.x - 170.0, r.position.y + 8.0, 170.0, 62.0)
 
 
 func close_rect() -> Rect2:
@@ -82,6 +85,8 @@ func value_of(row: StringName) -> Variant:
 		&"haptics": return GameSettings.haptics_enabled
 		&"story": return GameSettings.story_enabled
 		&"skill_button": return GameSettings.skill_button_enabled
+		&"enemy_hp": return GameSettings.enemy_hp_bars
+		&"stats": return GameSettings.show_stats
 	return null
 
 
@@ -94,6 +99,8 @@ func set_value(row: StringName, v: Variant) -> void:
 			Haptics.pulse(60, 0.7)  # 켜면 바로 한 번 떨려서 알려 준다
 		&"story": GameSettings.story_enabled = bool(v)
 		&"skill_button": GameSettings.skill_button_enabled = bool(v)
+		&"enemy_hp": GameSettings.enemy_hp_bars = bool(v)
+		&"stats": GameSettings.show_stats = bool(v)
 	GameSettings.apply_audio()
 	GameSettings.save_settings()
 	changed.emit()
@@ -166,7 +173,7 @@ func _draw() -> void:
 	for i in ROWS.size():
 		var row := ROWS[i]
 		var r := row_rect(i)
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, r.position.y + 56), LABELS[row], 34, UiStyle.PAPER)
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, r.position.y + 50), LABELS[row], 34, UiStyle.PAPER)
 		if SLIDERS.has(row):
 			_draw_slider(slider_rect(i), float(value_of(row)))
 		else:

@@ -18,6 +18,8 @@ func after_test() -> void:
 	GameSettings.haptics_enabled = true
 	GameSettings.story_enabled = true
 	GameSettings.skill_button_enabled = false
+	GameSettings.enemy_hp_bars = true
+	GameSettings.show_stats = true
 	GameSettings.apply_audio()
 	GameSettings.save_settings()
 
@@ -53,7 +55,7 @@ func test_sliders_set_bus_volume_and_zero_mutes() -> void:
 
 func test_toggles_flip_and_persist() -> void:
 	screen.open()
-	for row in [&"haptics", &"story", &"skill_button"]:
+	for row in [&"haptics", &"story", &"skill_button", &"enemy_hp", &"stats"]:
 		var before := bool(screen.value_of(row))
 		_tap(screen.row_rect(SettingsScreen.ROWS.find(row)).get_center())
 		assert_bool(bool(screen.value_of(row))).is_equal(not before)
@@ -63,6 +65,8 @@ func test_toggles_flip_and_persist() -> void:
 	assert_bool(GameSettings.haptics_enabled).is_false()
 	assert_bool(GameSettings.story_enabled).is_false()
 	assert_bool(GameSettings.skill_button_enabled).is_true()
+	assert_bool(GameSettings.enemy_hp_bars).is_false()
+	assert_bool(GameSettings.show_stats).is_false()
 
 
 func test_haptics_respects_setting() -> void:
@@ -126,3 +130,36 @@ func test_story_off_skips_prologue_and_hero_story() -> void:
 	GameSettings.title_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
+
+
+func test_panel_fits_screen_with_all_rows() -> void:
+	screen.open()
+	var vp := Rect2(Vector2.ZERO, screen.size)
+	assert_bool(vp.encloses(screen.panel_rect())).is_true()
+	assert_bool(screen.panel_rect().encloses(screen.close_rect())).is_true()
+	assert_float(screen.row_rect(SettingsScreen.ROWS.size() - 1).end.y).is_less_equal(screen.close_rect().position.y)
+
+
+func test_enemy_bars_only_for_hurt_non_boss_when_enabled() -> void:
+	var bars: EnemyBars = auto_free(EnemyBars.new())
+	add_child(bars)
+	var scene := preload("res://scenes/enemy.tscn")
+	var hurt: Enemy = scene.instantiate()
+	hurt.data = preload("res://data/enemies/chaser.tres")
+	add_child(auto_free(hurt))
+	hurt.set_physics_process(false)
+	var full: Enemy = scene.instantiate()
+	full.data = preload("res://data/enemies/chaser.tres")
+	add_child(auto_free(full))
+	full.set_physics_process(false)
+	var boss: Enemy = scene.instantiate()
+	boss.data = preload("res://data/enemies/boss_general.tres")
+	add_child(auto_free(boss))
+	boss.set_physics_process(false)
+	hurt.health.damage(1)
+	boss.health.damage(1)
+	GameSettings.enemy_hp_bars = true
+	assert_int(bars.bars().size()).is_equal(1)
+	assert_float(bars.bars()[0][1]).is_less(1.0)
+	GameSettings.enemy_hp_bars = false
+	assert_int(bars.bars().size()).is_equal(0)

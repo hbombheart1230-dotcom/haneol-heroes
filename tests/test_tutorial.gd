@@ -79,6 +79,7 @@ func test_first_run_holds_enemies_and_time_until_done() -> void:
 	assert_float(main.state.elapsed).is_greater(t)
 	main.queue_free()
 	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
 	GameSettings.save_settings()
 
 
@@ -87,6 +88,7 @@ func test_no_tutorial_once_done() -> void:
 	GameSettings.title_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)

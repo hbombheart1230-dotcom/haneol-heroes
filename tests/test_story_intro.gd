@@ -146,6 +146,7 @@ func test_story_once_skips_what_was_seen() -> void:
 	GameSettings.title_seen = false
 	GameSettings.intro_seen = true
 	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
 	GameSettings.hero_picked = false
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()

@@ -12,6 +12,8 @@
 [ext_resource type="Script" path="res://scripts/ui/settings_button.gd" id="50_gear"]
 [ext_resource type="Script" path="res://scripts/ui/tutorial_overlay.gd" id="51_tut"]
 [ext_resource type="Resource" path="res://data/tutorial/controls.tres" id="52_tut_data"]
+[ext_resource type="Resource" path="res://data/difficulty/curve.tres" id="53_curve"]
+[ext_resource type="Script" path="res://scripts/world/enemy_bars.gd" id="54_bars"]
 [ext_resource type="Resource" path="res://data/intro/story_intro.tres" id="48_intro_data"]
 [ext_resource type="Resource" path="res://data/stages/manchuria_395.tres" id="41_st1"]
 [ext_resource type="Resource" path="res://data/stages/gyeongbokgung_1433.tres" id="42_st2"]
@@ -64,6 +66,7 @@ breakables = NodePath("Breakables")
 story_intro = NodePath("HUD/StoryIntro")
 settings = NodePath("HUD/SettingsScreen")
 tutorial = ExtResource("52_tut_data")
+difficulty = ExtResource("53_curve")
 tutorial_overlay = NodePath("HUD/TutorialOverlay")
 
 [node name="Arena" type="Node2D" parent="."]
@@ -97,6 +100,9 @@ unlock_times = PackedFloat32Array(0, 10, 20)
 boss_data = ExtResource("19_boss")
 boss_time = 40.0
 elite_data = ExtResource("32_elite")
+
+[node name="EnemyBars" type="Node2D" parent="."]
+script = ExtResource("54_bars")
 
 [node name="Player" type="CharacterBody2D" parent="." node_paths=PackedStringArray("contact_sensor")]
 collision_mask = 16

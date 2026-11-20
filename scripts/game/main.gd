@@ -23,6 +23,9 @@ extends Node2D
 ## 첫 판 조작 안내 (끝내기 전엔 적이 나오지 않고 시간도 가지 않는다).
 @export var tutorial: TutorialData
 @export var tutorial_overlay: TutorialOverlay
+## 난이도 곡선: 영웅이 이긴 전장 수만큼 적이 강해진다.
+@export var difficulty: DifficultyCurve
+var _base_spawn := {}
 var tutorial_director: TutorialDirector
 ## 깨면 탕약이 나오는 물건들 (무대마다 다름).
 @export var breakables: BreakableField
@@ -147,6 +150,7 @@ func _apply_stage(st: StageTheme) -> void:
 		spawner.elite_data = st.elite
 	if spawner and st.boss:
 		spawner.boss_data = st.boss
+	_apply_difficulty(st)
 	if hud:
 		hud.stage = st
 
@@ -163,9 +167,35 @@ func advance_stage() -> void:
 	var cur := run_config.stage.id if run_config and run_config.stage else run_stage_id()
 	var nxt := HeroRoute.next(stages, cur)
 	if player and player.hero:
-		GameSettings.hero_stages[String(player.hero.id)] = String(nxt)
+		var hid := String(player.hero.id)
+		GameSettings.hero_stages[hid] = String(nxt)
+		GameSettings.hero_clears[hid] = int(GameSettings.hero_clears.get(hid, 0)) + 1
 	GameSettings.stage_id = nxt
 	GameSettings.save_settings()
+
+
+## 이 영웅의 난이도 단계 = 이 영웅이 이긴 전장 수.
+func difficulty_tier() -> int:
+	var hid := String(player.hero.id) if player and player.hero else ""
+	return int(GameSettings.hero_clears.get(hid, 0))
+
+
+## 무대 적 구성에 난이도를 입힌다 (적 데이터 사본, 나오는 간격·최대 수). 여러 번 불러도 겹치지 않게 원래 값에서.
+func _apply_difficulty(st: StageTheme) -> void:
+	if spawner == null or difficulty == null:
+		return
+	if _base_spawn.is_empty():
+		_base_spawn = {"start": spawner.interval_start, "min": spawner.interval_min, "alive": spawner.max_alive}
+	var tier := difficulty_tier()
+	var table: Array[EnemyData] = []
+	for e in (st.spawn_table if not st.spawn_table.is_empty() else spawner.spawn_table):
+		table.append(difficulty.scaled(e, tier))
+	spawner.spawn_table = table
+	spawner.elite_data = difficulty.scaled(st.elite if st.elite else spawner.elite_data, tier)
+	spawner.boss_data = difficulty.scaled(st.boss if st.boss else spawner.boss_data, tier)
+	spawner.interval_start = _base_spawn["start"] * difficulty.interval(tier)
+	spawner.interval_min = _base_spawn["min"] * difficulty.interval(tier)
+	spawner.max_alive = _base_spawn["alive"] + difficulty.alive_add(tier)
 
 
 func stage_by_id(id: StringName) -> StageTheme:
