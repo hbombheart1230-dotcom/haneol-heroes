@@ -17,6 +17,8 @@ const FEEL_PATH := "res://data/feel/combat_feel.tres"
 @export var sfx_volume_db: float = -8.0
 ## 녹음된 효과음 (CC0). 없는 종류는 SfxSynth 합성음.
 @export var bank: SoundBank
+## 동시에 울릴 수 있는 효과음 수 (명중 몸통 + 영웅 재질 겹 + 확인음).
+@export var sfx_voices: int = 12
 ## 배경 음악 음량(dB).
 @export var music_volume_db: float = -14.0
 ## 타격감 공통 수치 (멈춤·처치 날림·먹물·방향 흔들림).
@@ -60,9 +62,9 @@ func _ready() -> void:
 		fx.add_child(skill_vfx)
 	for kind in SfxSynth.DURATIONS.keys():
 		_sounds[kind] = SfxSynth.make(kind)
-	_voices = SfxVoices.new(8)
-	_playing.resize(8)
-	for i in 8:
+	_voices = SfxVoices.new(sfx_voices)
+	_playing.resize(sfx_voices)
+	for i in sfx_voices:
 		var p := AudioStreamPlayer.new()
 		p.bus = &"SFX"  # 설정 "효과음 크기"
 		p.volume_db = sfx_volume_db
@@ -212,10 +214,25 @@ static func enemy_hit(pos: Vector2, amount: int, dir: Vector2 = Vector2.ZERO) ->
 	if instance == null:
 		return
 	if instance.fx:
-		instance.fx.add_number(pos, amount, amount >= 40)
+		instance.fx.add_number(pos, amount, amount >= instance.feel.big_hit_damage)
 	if instance.kill_fx:
 		instance.kill_fx.drops(pos, dir, instance.feel.drops_for(amount))
-	instance.play(&"hit")
+	instance._play_hit(amount)
+
+
+## 명중 소리 겹 (S1·S2): 공통 몸통 + 영웅 재질 (HeroData.hit_sfx) + 큰 타격 확인음·국악 양념.
+func _play_hit(amount: int) -> void:
+	play(&"hit")
+	for kind in hit_layers():
+		play(kind)
+	if amount >= feel.big_hit_damage:
+		play(&"confirm_big", 0.08)
+		play(&"gugak_big", 0.12)  # 국악 꽹과리 (파일이 있을 때만 울린다)
+
+
+## 지금 영웅의 명중 재질 소리 (없으면 빈 배열).
+func hit_layers() -> Array[StringName]:
+	return player.hero.hit_sfx if player and player.hero else ([] as Array[StringName])
 
 
 ## 타격 진동 (Haptics → 설정 "타격 진동"을 따름). haptic_min_gap 안에 다시 오면 무시. 진동했으면 true.
@@ -302,6 +319,8 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 			d.sprite_offset if d else Vector2.ZERO, d.sprite_tint if d else Color.WHITE,
 			d.death_style if d else &"smoke", d.launch_scale if d else 1.0, finisher)
 	if finisher:
+		play(&"confirm_kill", 0.0)
+		play(&"gugak_kill", 0.0)  # 국악 북·징 (파일이 있을 때만)
 		haptic(feel.haptic_finisher_ms, feel.haptic_finisher_amp)
 		add_trauma(feel.finisher_trauma, dir)
 		kick(dir, feel.kill_kick_px * 2.0)

@@ -152,3 +152,4 @@ skill_trauma_miss = 0.12
 counter_trauma = 0.7
 reaction = SubResource("Reaction")
 skill_edge_scale = 1.0
+big_hit_damage = 40

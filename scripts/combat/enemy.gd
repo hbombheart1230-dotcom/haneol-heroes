@@ -158,6 +158,9 @@ func compute_velocity(neighbors: Array) -> Vector2:
 	if brain:
 		dir = brain.steer(dir, to_target.length())
 		speed_k = brain.speed_k
+		if brain.sweep_left <= 0.0 and AI.stand_off_band > 0.0:
+			var stop: float = body_radius * size_mult + ((target as Player).body_radius if target is Player else 22.0) + AI.stand_off_margin
+			dir = EnemyBrain.stand_off(dir, to_target.normalized(), to_target.length(), stop, AI.stand_off_band)
 	var push := Vector2.ZERO
 	for n in neighbors:
 		var other := n as Node2D
