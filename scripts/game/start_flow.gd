@@ -23,7 +23,11 @@ func _init(m: Node) -> void:
 func next() -> void:
 	var player: Player = main.player
 	if not _ready_to_run():
-		main.menu_music()  # 화면이 뜨는 동안은 전주
+		# 영웅 이야기 차례면 그 영웅 무대의 노래 (판이 시작돼도 끊기지 않고 이어진다), 아니면 입장 음악
+		if pending_hero_story() and not (main.title_screen and not GameSettings.title_seen):
+			main.hero_music(player.hero)
+		else:
+			main.menu_music()
 	if main.title_screen and not GameSettings.title_seen:
 		_hold()
 		main.title_screen.entered.connect(_on_title_entered, CONNECT_ONE_SHOT)

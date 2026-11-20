@@ -19,7 +19,8 @@ static func play(song: StageSong, section: StringName, fade: float = 0.6) -> boo
 		var pb := p.get_stream_playback() as AudioStreamPlaybackInteractive
 		if pb == null:
 			return false
-		pb.switch_to_clip_by_name(section)
+		if pb.get_current_clip_index() != StageSong.SECTIONS.find(section):  # 같은 구간이면 그대로 이어서
+			pb.switch_to_clip_by_name(section)
 		return true
 	stream.initial_clip = StageSong.SECTIONS.find(section)
 	if Feedback.instance:

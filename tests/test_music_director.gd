@@ -58,3 +58,40 @@ func test_main_cues_map_to_sections() -> void:
 	assert_str(String(main_script.SONG_SECTION[&"boss"])).is_equal("chorus")
 	assert_str(String(main_script.SONG_SECTION[&"victory"])).is_equal("outro")
 	assert_str(String(main_script.SONG_SECTION[&"defeat"])).is_equal("intro")
+
+
+func test_hero_story_plays_that_heros_stage_song() -> void:
+	GameSettings.settings_path = GameSettings.test_path()
+	GameSettings.title_seen = true
+	GameSettings.intro_seen = true
+	GameSettings.tutorial_done = true
+	GameSettings.hero_picked = false
+	GameSettings.story_enabled = true
+	GameSettings.hero_stages = {}
+	GameSettings.hero_clears = {}
+	GameSettings.stage_picked = false
+	GameSettings.save_settings()
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	add_child(main)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var sel: HeroSelect = main.hero_select
+	var c := sel.slot_rect(0).get_center()
+	sel.handle_touch(0, c, true)
+	sel.handle_touch(0, c, false)
+	await get_tree().process_frame
+	var hero: HeroData = main.get_node("Player").hero
+	var st: StageTheme = main.stage_by_id(hero.home_stage)
+	assert_bool(main.story_intro.is_open()).is_true()
+	await get_tree().create_timer(2.0).timeout  # 앞 곡을 줄였다가 바꾼다 (0.8초씩)
+	assert_object(MusicDirector.player().stream).is_same(st.song.interactive())
+	main.story_intro.finish()
+	await get_tree().create_timer(1.0).timeout
+	assert_object(MusicDirector.player().stream).is_same(st.song.interactive())  # 판이 시작돼도 같은 곡
+	get_tree().paused = false
+	main.queue_free()
+	GameSettings.hero_picked = true
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.stage_picked = true
+	GameSettings.stage_id = &"manchuria_395"
+	GameSettings.save_settings()

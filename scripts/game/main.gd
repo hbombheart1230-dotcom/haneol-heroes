@@ -259,10 +259,23 @@ func music_cue(kind: StringName) -> void:
 		_switch_music(stage_music(kind))
 
 
-## 메뉴·이야기 음악: 첫 무대 노래의 전주 (노래가 없으면 그대로 둔다).
+## 입장·공통 이야기·영웅 고르기 음악 (비우면 첫 무대 노래의 전주). 국악 곡을 정해 넣는다.
+@export var menu_track: AudioStream
+
+
+## 입장·공통 이야기·영웅 고르기 음악.
 func menu_music() -> void:
-	if not stages.is_empty() and stages[0] and stages[0].song:
+	if menu_track and Feedback.instance:
+		Feedback.instance.play_music(menu_track, 0.8)
+	elif not stages.is_empty() and stages[0] and stages[0].song:
 		MusicDirector.play(stages[0].song, &"intro")
+
+
+## 영웅 이야기 음악: 그 영웅이 지금 설 무대의 노래 본편 (판의 무대 곡과 같아서 이어진다).
+func hero_music(hero: HeroData) -> void:
+	var st := stage_by_id(HeroRoute.current(stages, hero, GameSettings.hero_stages))
+	if st and st.song:
+		MusicDirector.play(st.song, SONG_SECTION[&"stage"], 0.8)
 
 
 func _switch_music(stream: AudioStream) -> void:
