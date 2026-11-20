@@ -6,9 +6,9 @@ extends Control
 signal changed
 signal closed
 
-const ROWS: Array[StringName] = [&"sfx", &"music", &"haptics", &"story", &"skill_button", &"enemy_hp", &"stats"]
+const ROWS: Array[StringName] = [&"sfx", &"music", &"haptics", &"story", &"skill_button", &"enemy_hp", &"stats", &"tutorial"]
 const LABELS := {&"sfx": "효과음", &"music": "음악", &"haptics": "타격 진동", &"story": "이야기",
-	&"skill_button": "스킬 단추", &"enemy_hp": "적 체력", &"stats": "수치 표시"}
+	&"skill_button": "스킬 단추", &"enemy_hp": "적 체력", &"stats": "수치 표시", &"tutorial": "조작 안내"}
 const ROW_STEP := 92.0
 const SLIDERS: Array[StringName] = [&"sfx", &"music"]
 
@@ -87,6 +87,7 @@ func value_of(row: StringName) -> Variant:
 		&"skill_button": return GameSettings.skill_button_enabled
 		&"enemy_hp": return GameSettings.enemy_hp_bars
 		&"stats": return GameSettings.show_stats
+		&"tutorial": return not GameSettings.tutorial_done  # 켬 = 다음 판에 다시 보여 줌
 	return null
 
 
@@ -101,6 +102,7 @@ func set_value(row: StringName, v: Variant) -> void:
 		&"skill_button": GameSettings.skill_button_enabled = bool(v)
 		&"enemy_hp": GameSettings.enemy_hp_bars = bool(v)
 		&"stats": GameSettings.show_stats = bool(v)
+		&"tutorial": GameSettings.tutorial_done = not bool(v)
 	GameSettings.apply_audio()
 	GameSettings.save_settings()
 	changed.emit()

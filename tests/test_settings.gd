@@ -55,7 +55,8 @@ func test_sliders_set_bus_volume_and_zero_mutes() -> void:
 
 func test_toggles_flip_and_persist() -> void:
 	screen.open()
-	for row in [&"haptics", &"story", &"skill_button", &"enemy_hp", &"stats"]:
+	GameSettings.tutorial_done = true
+	for row in [&"haptics", &"story", &"skill_button", &"enemy_hp", &"stats", &"tutorial"]:
 		var before := bool(screen.value_of(row))
 		_tap(screen.row_rect(SettingsScreen.ROWS.find(row)).get_center())
 		assert_bool(bool(screen.value_of(row))).is_equal(not before)
@@ -67,6 +68,7 @@ func test_toggles_flip_and_persist() -> void:
 	assert_bool(GameSettings.skill_button_enabled).is_true()
 	assert_bool(GameSettings.enemy_hp_bars).is_false()
 	assert_bool(GameSettings.show_stats).is_false()
+	assert_bool(GameSettings.tutorial_done).is_false()  # 조작 안내 켬 → 다음 판에 다시
 
 
 func test_haptics_respects_setting() -> void:
