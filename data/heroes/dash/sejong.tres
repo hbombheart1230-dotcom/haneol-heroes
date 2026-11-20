@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/dash_style_data.gd" id="1_style"]
 [ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="2_vfx"]
+[ext_resource type="Texture2D" path="res://assets/vfx/dash_glyph.png" id="t_path"]
 
 [sub_resource type="Resource" id="Start"]
 script = ExtResource("2_vfx")
@@ -51,5 +52,6 @@ end_radius = 130.0
 end_slow_factor = 0.6
 end_slow_time = 1.2
 end_cooldown = 0.8
-path_width = 64.0
+path_width = 40.0
 path_color = Color(1, 0.8, 0.3, 0.85)
+path_strip = ExtResource("t_path")
