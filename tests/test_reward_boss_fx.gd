@@ -96,3 +96,9 @@ func test_main_scene_wires_reward_and_boss_fx() -> void:
 	assert_object(seal.reward_fx).is_not_null()
 	assert_object(br.reward_fx).is_same(seal.reward_fx)
 	assert_object(banner.spawner).is_same(main.get_node("EnemySpawner"))
+
+
+func test_boss_banner_pauses_with_game() -> void:
+	var b: BossBanner = auto_free(BossBanner.new())
+	add_child(b)
+	assert_int(b.process_mode).is_equal(Node.PROCESS_MODE_PAUSABLE)

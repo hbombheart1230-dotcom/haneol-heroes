@@ -23,6 +23,7 @@ var _tint: CanvasModulate
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	process_mode = Node.PROCESS_MODE_PAUSABLE  # 설정 화면 등으로 멈추면 같이 멈춘다 (HUD는 ALWAYS)
 	if spawner:
 		spawner.boss_spawned.connect(show_boss)
 
@@ -52,7 +53,7 @@ func step(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
-	step(delta)
+	step(delta / maxf(Engine.time_scale, 0.001))  # 실제 초: 고르기 슬로·타격 멈춤에 늘어지지 않게
 	if mood > 0.0 or banner_visible():
 		queue_redraw()
 
