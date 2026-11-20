@@ -1,9 +1,11 @@
 """CC0 효과음·음악을 게임용으로 다듬는다: 잘라내기, 끝 부드럽게, 크기 맞추기, 모노 OGG로 작게.
 
-  python tools/audio/prepare_audio.py <원본 폴더>
+  python tools/audio/prepare_audio.py <원본 폴더> [종류 ...]
+종류를 주면 그 효과음만 다시 만든다 (음악은 건너뜀). 예: ... <폴더> hurt
 원본 (모두 CC0, OpenGameArt — README 외부 자산 표):
   sword - StarNinjas/*.ogg, sword_clash.*.ogg (StarNinjas, 20 Sword Sound Effects)
   RPG Sound Pack/** (artisticdude), asianoriental1_0.ogg (Asianoriental1)
+  hits/hit*.mp3.flac (Independent.nu, 37 hits/punches)
 결과: assets/audio/sfx/<종류>_<번호>.ogg, assets/audio/music/<이름>.ogg
 """
 import glob
@@ -17,7 +19,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 SFX_RATE = 32000
 MUSIC_RATE = 22050
 
-## 종류 → [(원본 경로 패턴, 최대 길이 초, 음량 배율)]
+## 종류 → [(원본 경로 패턴, 최대 길이 초, 음량 배율[, 재생 속도])]. 재생 속도 < 1이면 낮고 묵직하게.
 SFX = {
     "slash": [("sword - StarNinjas/sword.3.ogg", 0.45, 0.8), ("sword - StarNinjas/sword.4.ogg", 0.45, 0.8),
               ("sword - StarNinjas/sword.6.ogg", 0.45, 0.8)],
@@ -26,7 +28,7 @@ SFX = {
     "evade": [("RPG Sound Pack/battle/swing3.wav", 0.2, 1.0)],
     "counter": [("sword_clash.1.ogg", 0.8, 1.0)],
     "magic": [("RPG Sound Pack/battle/magic1.wav", 0.8, 0.9)],
-    "hurt": [("RPG Sound Pack/inventory/armor-light.wav", 0.4, 0.9)],
+    "hurt": [("hits/hit26.mp3.flac", 0.35, 1.0, 0.85), ("hits/hit30.mp3.flac", 0.35, 1.0, 0.85)],  # 둔탁한 타격 (갑옷 부스럭 대신)
     "die": [("RPG Sound Pack/NPC/gutteral beast/mnstr1.wav", 0.45, 0.6),
             ("RPG Sound Pack/NPC/gutteral beast/mnstr12.wav", 0.45, 0.6),
             ("RPG Sound Pack/NPC/gutteral beast/mnstr15.wav", 0.4, 0.6)],
@@ -62,16 +64,31 @@ def shape(m: np.ndarray, rate: int, max_s: float, gain: float) -> np.ndarray:
     return np.clip(m / peak * 0.95 * gain, -1.0, 1.0)
 
 
-def main(src: str) -> None:
+def slow(m: np.ndarray, speed: float) -> np.ndarray:
+    """speed배 빠르기로 (1보다 작으면 길고 낮아짐)."""
+    if abs(speed - 1.0) < 1e-6:
+        return m
+    n = int(len(m) / speed)
+    return np.interp(np.linspace(0, len(m) - 1, n), np.arange(len(m)), m)
+
+
+def main(src: str, only: list) -> None:
     out = os.path.join(ROOT, "assets", "audio", "sfx")
     os.makedirs(out, exist_ok=True)
     total = 0
     for kind, items in SFX.items():
-        for i, (pat, max_s, gain) in enumerate(items):
+        if only and kind not in only:
+            continue
+        for i, item in enumerate(items):
+            pat, max_s, gain = item[:3]
+            speed = item[3] if len(item) > 3 else 1.0
             dest = os.path.join(out, f"{kind}_{i + 1}.ogg")
-            sf.write(dest, shape(load_mono(find(src, pat), SFX_RATE), SFX_RATE, max_s, gain), SFX_RATE,
-                     format="OGG", subtype="VORBIS")
+            m = slow(load_mono(find(src, pat), SFX_RATE), speed)
+            sf.write(dest, shape(m, SFX_RATE, max_s, gain), SFX_RATE, format="OGG", subtype="VORBIS")
             total += os.path.getsize(dest)
+    if only:
+        print(f"total {total // 1024} KiB")
+        return
     mdir = os.path.join(ROOT, "assets", "audio", "music")
     os.makedirs(mdir, exist_ok=True)
     for name, (pat, gain) in MUSIC.items():
@@ -87,4 +104,4 @@ def main(src: str) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main(sys.argv[1], sys.argv[2:])

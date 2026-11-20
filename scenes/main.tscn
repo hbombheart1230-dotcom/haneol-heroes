@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/main.gd" id="0_main"]
 [ext_resource type="Resource" path="res://data/audio/sfx_bank.tres" id="39_bank"]
@@ -52,6 +52,7 @@
 
 [ext_resource type="Script" path="res://scripts/fx/reward_fx.gd" id="70_reward_fx"]
 [ext_resource type="Script" path="res://scripts/ui/boss_banner.gd" id="71_boss_banner"]
+[ext_resource type="Script" path="res://scripts/ui/hurt_vignette.gd" id="72_hurt_vignette"]
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 22.0
 
@@ -200,6 +201,17 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("71_boss_banner")
 spawner = NodePath("../../EnemySpawner")
+
+[node name="HurtVignette" type="Control" parent="HUD" node_paths=PackedStringArray("player")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("72_hurt_vignette")
+player = NodePath("../../Player")
 
 [node name="HeroSelect" type="Control" parent="HUD"]
 layout_mode = 3

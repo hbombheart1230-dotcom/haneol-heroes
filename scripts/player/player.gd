@@ -7,6 +7,8 @@ signal dash_started(direction: Vector2)
 signal dash_ended
 ## 적 공격을 대시로 피했을 때 (회피 반격의 시작점).
 signal evaded
+## 실제로 피해를 받았을 때 (붉은 가장자리 등).
+signal hurt(amount: int)
 
 ## 지정하면 _ready에서 아래 수치를 이 데이터로 덮어쓴다.
 @export var hero: HeroData
@@ -33,6 +35,8 @@ var dash: DashCharges
 var health: Health
 
 var _hurt_cd: float = 0.0
+## 이번 피격 무적의 전체 길이 (피해에 비례, HurtResponse).
+var _hurt_total: float = 0.0
 ## 회피 성공 등으로 얻은 추가 무적 남은 시간(초).
 var _skill_invuln: float = 0.0
 var _dash_dir: Vector2 = Vector2.ZERO
@@ -186,6 +190,11 @@ func hurt_time_left() -> float:
 	return _hurt_cd
 
 
+## 마지막 피격 뒤 흐른 시간 (무적 중일 때만 의미 있음).
+func hurt_elapsed() -> float:
+	return _hurt_total - _hurt_cd
+
+
 func is_dead() -> bool:
 	return health != null and health.is_dead()
 
@@ -196,19 +205,27 @@ func apply_contact_damage(delta: float, amount: int) -> bool:
 	_hurt_cd = maxf(_hurt_cd - delta, 0.0)
 	if amount <= 0 or health == null or is_dead() or is_invulnerable():
 		return false
-	health.damage(amount)
-	_hurt_cd = hurt_invuln_time
-	Feedback.player_hurt()
+	_take_hit(amount)
 	return true
+
+
+## 피해 공통: 무적(피해 비례) + 주변 적 밀어내기(숨 돌릴 틈) + 연출.
+func _take_hit(amount: int) -> void:
+	health.damage(amount)
+	var react := Feedback.feel_data().reaction_data()
+	_hurt_total = HurtResponse.invuln_for(amount, health.max, hurt_invuln_time, react)
+	_hurt_cd = _hurt_total
+	if is_inside_tree() and not is_dead():
+		HurtResponse.breathe(global_position, get_tree().get_nodes_in_group(Enemy.GROUP), react)
+	Feedback.player_hurt()
+	hurt.emit(amount)
 
 
 ## 적 공격 타격. 무적이면 무시. 반환: 실제로 피해를 받았으면 true.
 func apply_hit(amount: int) -> bool:
 	if amount <= 0 or health == null or is_dead() or is_invulnerable():
 		return false
-	health.damage(amount)
-	_hurt_cd = hurt_invuln_time
-	Feedback.player_hurt()
+	_take_hit(amount)
 	return true
 
 

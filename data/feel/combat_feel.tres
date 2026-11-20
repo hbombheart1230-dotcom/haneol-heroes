@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/combat_feel_data.gd" id="1_feel"]
 [ext_resource type="Script" path="res://scripts/data/ink_burst_data.gd" id="2_burst"]
+[ext_resource type="Script" path="res://scripts/data/hit_reaction_data.gd" id="3_react"]
 [ext_resource type="Texture2D" path="res://assets/vfx/brush_ring.png" id="b_ring"]
 [ext_resource type="Texture2D" path="res://assets/vfx/brush_stroke.png" id="b_stroke"]
 [ext_resource type="Texture2D" path="res://assets/vfx/brush_splat.png" id="b_splat"]
@@ -48,6 +49,32 @@ ring_width_min = 2.0
 paper_edge_alpha = 0.7
 paper_edge_width = 1.5
 
+[sub_resource type="Resource" id="Reaction"]
+script = ExtResource("3_react")
+hit_anim_time = 0.25
+elite_flinch_hp_frac = 0.0625
+stagger_time = 0.15
+squash = Vector2(1.12, 0.88)
+squash_time = 0.08
+lean_px = 8.0
+tilt_deg = 6.0
+lean_time = 0.14
+heavy_flinch_scale = 0.4
+flash_white = 0.85
+flash_white_tail = 0.45
+hero_flash_time = 0.1
+hero_flash_color = Color(1.5, 0.45, 0.4, 1)
+hero_hit_anim_time = 0.25
+blink_hz = 12.0
+blink_alpha = 0.4
+vignette_time = 0.35
+vignette_alpha = 0.55
+vignette_color = Color(0.6, 0.02, 0.02, 1)
+breathe_radius = 90.0
+breathe_impulse = 240.0
+invuln_min_ratio = 0.67
+invuln_full_hp_frac = 0.15
+
 [resource]
 script = ExtResource("1_feel")
 hit_freeze = 0.05
@@ -68,7 +95,7 @@ max_corpses = 12
 mark_time = 0.8
 kill_drops = 10
 max_drops = 60
-kill_trauma = 0.12
+kill_trauma = 0.0
 kill_kick_px = 6.0
 kill_freeze = 0.03
 kill_freeze_min_gap = 0.25
@@ -111,11 +138,17 @@ flourish_ring_time = 0.45
 flourish_ring_width = 10.0
 flourish_ring_squash = 0.6
 max_flourish_rings = 6
-haptic_hurt_ms = 40
+haptic_hurt_ms = 30
 haptic_hurt_amp = 0.6
-haptic_finisher_ms = 60
+haptic_finisher_ms = 40
 haptic_finisher_amp = 0.8
-haptic_impact_ms = 25
+haptic_impact_ms = 15
 haptic_impact_amp = 0.5
 haptic_min_gap = 0.12
 burst = SubResource("Burst")
+shake_exponent = 1.5
+skill_trauma = 0.35
+skill_trauma_miss = 0.12
+counter_trauma = 0.7
+reaction = SubResource("Reaction")
+skill_edge_scale = 1.0

@@ -13,6 +13,8 @@ uniform vec4 army_tint : source_color = vec4(1.0);
 uniform float tint_mix = 0.0;
 // 구운 시트 한 칸 크기(px). 이웃 칸(다른 프레임)의 알파를 읽지 않도록 지금 칸 안에서만 본다. 0이면 제한 없음.
 uniform float cell_px = 0.0;
+// 피격 흰 번쩍임 (적마다 다름 → instance uniform, EnemySprite가 매 프레임 넣는다). 0이면 원래 색, 1이면 흰색.
+instance uniform float flash = 0.0;
 
 // 노드 modulate (피격 번쩍임 등). fragment의 COLOR는 텍스처가 이미 곱해져 있을 수 있어 vertex에서 따로 받는다.
 varying vec4 node_color;
@@ -51,6 +53,7 @@ void fragment() {
 	float outside = clamp(n * 0.25, 0.0, 1.0) * (1.0 - tex.a);
 	vec3 body = (tex.rgb - 0.5) * body_contrast + 0.5 + body_lift;
 	body = mix(body, body * army_tint.rgb * 1.25, tint_mix);
+	body = mix(body, vec3(1.0), clamp(flash, 0.0, 1.0));
 	vec4 col = vec4(clamp(body, 0.0, 1.0), tex.a) * node_color;
 	vec4 rim = vec4(rim_color.rgb, rim_color.a * outside * node_color.a);
 	// 몸 위에 테두리를 깔고 (몸이 있는 곳은 몸이 이긴다)

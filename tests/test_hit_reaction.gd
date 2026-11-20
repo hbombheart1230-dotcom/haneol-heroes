@@ -1,0 +1,171 @@
+extends GdUnitTestSuite
+## 맞는 반응 (docs/research/game_feel_benchmark.md R1·R2·B1·A1): 구운 맞는 동작, 잡몹 경직, 그림 움찔, 흰 번쩍임, 가장자리 판정.
+
+const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
+const SOLDIER := preload("res://data/enemies/jurchen_soldier.tres")
+const ELITE := preload("res://data/enemies/jurchen_elite.tres")
+const DT := 1.0 / 60.0
+
+
+func after_test() -> void:
+	Feedback.instance = null
+	GameTime.reset()
+
+
+func _enemy(data: EnemyData = SOLDIER, pos: Vector2 = Vector2(60, 0)) -> Enemy:
+	var e: Enemy = ENEMY_SCENE.instantiate()
+	e.data = data
+	add_child(auto_free(e))
+	e.set_physics_process(false)
+	e.global_position = pos
+	return e
+
+
+func _target(pos: Vector2 = Vector2.ZERO) -> Node2D:
+	var t: Node2D = auto_free(Node2D.new())
+	add_child(t)
+	t.global_position = pos
+	return t
+
+
+func _react(tier: HitReaction.Tier) -> HitReaction:
+	return HitReaction.new(load("res://data/feel/combat_feel.tres").reaction_data(), tier)
+
+
+func test_trash_hit_plays_anim_and_staggers() -> void:
+	var r := _react(HitReaction.Tier.TRASH)
+	assert_bool(r.on_hit(5, 30, Vector2.RIGHT)).is_true()
+	assert_bool(r.shows_hit_anim()).is_true()
+	assert_bool(r.is_staggered()).is_true()
+	r.tick(r.data.stagger_time + 0.01)
+	assert_bool(r.is_staggered()).is_false()
+	r.tick(r.data.hit_anim_time)
+	assert_bool(r.shows_hit_anim()).is_false()
+	assert_bool(r.on_hit(0, 30, Vector2.RIGHT)).is_false()  # 0 피해는 반응 없음
+
+
+func test_elite_flinches_only_on_big_hits_and_boss_never() -> void:
+	var r := _react(HitReaction.Tier.ELITE)
+	assert_bool(r.on_hit(10, 600, Vector2.RIGHT)).is_false()  # 1/16 = 37.5 미만
+	assert_bool(r.is_staggered()).is_false()  # 정예는 경직 없음
+	assert_bool(r.on_hit(40, 600, Vector2.RIGHT)).is_true()
+	var b := _react(HitReaction.Tier.BOSS)
+	assert_bool(b.on_hit(500, 600, Vector2.RIGHT)).is_false()
+	assert_bool(b.is_staggered()).is_false()
+	assert_int(HitReaction.tier_of(SOLDIER, false)).is_equal(HitReaction.Tier.TRASH)
+	assert_int(HitReaction.tier_of(SOLDIER, true)).is_equal(HitReaction.Tier.ELITE)
+	assert_int(HitReaction.tier_of(ELITE, false)).is_equal(HitReaction.Tier.ELITE)
+
+
+func test_flinch_squashes_leans_and_settles() -> void:
+	var r := _react(HitReaction.Tier.TRASH)
+	r.on_hit(5, 30, Vector2.RIGHT)
+	assert_vector(r.squash_mult()).is_equal_approx(r.data.squash, Vector2(0.001, 0.001))
+	assert_float(r.lean_offset().x).is_equal_approx(r.data.lean_px, 0.001)  # 맞은 방향(오른쪽)으로 젖힘
+	assert_float(r.tilt()).is_greater(0.0)
+	r.tick(maxf(r.data.squash_time, r.data.lean_time) + 0.01)
+	assert_vector(r.squash_mult()).is_equal(Vector2.ONE)
+	assert_vector(r.lean_offset()).is_equal(Vector2.ZERO)
+	assert_float(r.tilt()).is_equal(0.0)
+	var heavy := _react(HitReaction.Tier.ELITE)
+	heavy.on_hit(1, 600, Vector2.LEFT)
+	assert_float(absf(heavy.lean_offset().x)).is_less(r.data.lean_px)  # 정예는 작게
+	assert_float(heavy.tilt()).is_less(0.0)
+
+
+func test_shake_starts_big_and_fades_over_freeze() -> void:
+	assert_float(HitReaction.shake_px(4.0, 0.05, 0.05)).is_equal_approx(4.0, 0.001)
+	assert_float(HitReaction.shake_px(4.0, 0.025, 0.05)).is_equal_approx(2.0, 0.001)
+	assert_float(HitReaction.shake_px(4.0, 0.0, 0.05)).is_equal(0.0)
+
+
+func test_flash_amount_peaks_white_then_fades() -> void:
+	var r := _react(HitReaction.Tier.TRASH)
+	assert_float(r.flash_amount(0.08, 0.08, 0.03)).is_equal(r.data.flash_white)
+	assert_float(r.flash_amount(0.025, 0.08, 0.03)).is_equal_approx(r.data.flash_white_tail * 0.5, 0.001)
+	assert_float(r.flash_amount(0.0, 0.08, 0.03)).is_equal(0.0)
+
+
+## R1: 맞으면 구운 hit 동작 첫 프레임에서 멈춘 채 떨고, 멈춤 뒤 나머지 프레임이 이어진다 (예전: 첫 프레임만 스침).
+func test_enemy_shows_baked_hit_anim_through_freeze() -> void:
+	var e := _enemy()
+	e.target = _target()
+	e.health.damage(3)
+	assert_str(String(e.sprite.animation).get_slice("_", 0)).is_equal("hit")
+	assert_int(e.sprite.frame).is_equal(0)
+	e._physics_process(DT)
+	assert_float(e.sprite.speed_scale).is_equal(0.0)  # 멈춤 중 첫 프레임 고정
+	assert_float(absf(e.sprite.position.x - e.data.sprite_offset.x * e.size_mult - e.reaction.lean_offset().x)).is_greater(0.5)  # 떨림
+	for i in 6:
+		e._physics_process(DT)
+	assert_bool(e.is_frozen()).is_false()
+	assert_str(String(e.sprite.animation).get_slice("_", 0)).is_equal("hit")  # 번쩍임이 끝나도 동작은 이어짐
+	assert_float(e.sprite.speed_scale).is_equal(1.0)
+	for i in int(e.reaction.data.hit_anim_time / DT) + 2:
+		e._physics_process(DT)
+	assert_str(String(e.sprite.animation).get_slice("_", 0)).is_not_equal("hit")
+
+
+## B1: 잡몹은 경직 동안 쫓아오지 않아 넉백이 그대로 보인다.
+func test_trash_stagger_lets_knockback_show() -> void:
+	var e := _enemy(SOLDIER, Vector2(60, 0))
+	e.target = _target(Vector2.ZERO)
+	e.health.damage(3)
+	e.apply_knockback(Vector2(100, 0))
+	while e.is_frozen():
+		e._physics_process(DT)
+	e._physics_process(DT)
+	assert_bool(e.reaction.is_staggered()).is_true()
+	assert_float(e.velocity.x).is_greater(0.0)  # 넉백(바깥)만, 플레이어 쪽(왼쪽)으로 걷지 않음
+	for i in int(e.reaction.data.stagger_time / DT) + 2:
+		e._physics_process(DT)
+	assert_bool(e.reaction.is_staggered()).is_false()
+	e.knockback = Vector2.ZERO
+	e._physics_process(DT)
+	assert_float(e.velocity.x).is_less(0.0)  # 다시 쫓아옴
+
+
+## R2: 흰 번쩍임은 셰이더(instance uniform)로 섞는다. 곱하기 밝기(2.6배)는 쓰지 않는다.
+func test_white_flash_goes_through_shader() -> void:
+	var e := _enemy()
+	e.target = _target()
+	e.health.damage(3)
+	e._physics_process(DT)
+	assert_object(e.sprite.material).is_not_null()
+	assert_float(float(e.sprite.get_instance_shader_parameter(&"flash"))).is_greater(0.5)
+	assert_float(e.sprite.modulate.r).is_less_equal(1.0)
+	for i in 12:
+		e._physics_process(DT)
+	assert_float(float(e.sprite.get_instance_shader_parameter(&"flash"))).is_equal(0.0)
+
+
+func test_shader_declares_flash_uniform() -> void:
+	var code: String = load("res://shaders/enemy_rim.gdshader").code
+	assert_str(code).contains("instance uniform float flash")
+
+
+## A1: 기술 판정에 적 몸 반경을 더한다 (그림 가장자리에 걸친 적도 맞음).
+func test_skill_hits_on_enemy_edge() -> void:
+	var e := _enemy(SOLDIER, Vector2(100 + e_radius(), 0))
+	var ctx := SkillContext.new()
+	ctx.enemy_source = func() -> Array: return [e]
+	assert_int(ctx.enemies_in_radius(Vector2.ZERO, 100.0).size()).is_equal(1)
+	assert_int(ctx.enemies_in_radius(Vector2.ZERO, 98.0).size()).is_equal(0)
+	e.global_position = Vector2(50, 45 + e_radius() - 1.0)
+	assert_int(ctx.enemies_near_segment(Vector2.ZERO, Vector2(200, 0), 45.0).size()).is_equal(1)
+	e.global_position = Vector2(50, 45 + e_radius() + 2.0)
+	assert_int(ctx.enemies_near_segment(Vector2.ZERO, Vector2(200, 0), 45.0).size()).is_equal(0)
+
+
+func e_radius() -> float:
+	return SOLDIER.body_radius * Feedback.feel_data().skill_edge_scale
+
+
+func test_shove_staggers_trash_only() -> void:
+	var t := _enemy(SOLDIER)
+	t.shove(Vector2(100, 0))
+	assert_bool(t.reaction.is_staggered()).is_true()
+	assert_float(t.knockback.x).is_greater(0.0)
+	var el := _enemy(ELITE)
+	el.shove(Vector2(100, 0))
+	assert_bool(el.reaction.is_staggered()).is_false()

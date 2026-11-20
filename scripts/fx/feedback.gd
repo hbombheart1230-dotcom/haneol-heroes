@@ -22,11 +22,11 @@ const FEEL_PATH := "res://data/feel/combat_feel.tres"
 ## 타격감 공통 수치 (멈춤·처치 날림·먹물·방향 흔들림).
 @export var feel: CombatFeelData = preload("res://data/feel/combat_feel.tres")
 
-## 0~1. 흔들림 크기 = trauma^2.
+## 0~1. 흔들림 크기 = trauma^shake_exponent × max_shake.
 var trauma: float = 0.0
 var _sounds: Dictionary = {}
 var _players: Array[AudioStreamPlayer] = []
-var _next_player: int = 0
+var _voices: SfxVoices
 ## 같은 소리가 한 프레임에 겹쳐 터지지 않게 (소리별 마지막 재생 시각).
 var _last_played: Dictionary = {}
 var _rng := RandomNumberGenerator.new()
@@ -59,6 +59,7 @@ func _ready() -> void:
 		fx.add_child(skill_vfx)
 	for kind in SfxSynth.DURATIONS.keys():
 		_sounds[kind] = SfxSynth.make(kind)
+	_voices = SfxVoices.new(8)
 	for i in 8:
 		var p := AudioStreamPlayer.new()
 		p.bus = &"SFX"  # 설정 "효과음 크기"
@@ -96,7 +97,7 @@ func _process(delta: float) -> void:
 
 ## 이번 프레임 흔들림 오프셋. 방향 흔들림이면 마지막 방향으로 주로 떨리고 옆으로는 조금만.
 func shake_offset() -> Vector2:
-	var s := trauma * trauma * max_shake
+	var s := pow(trauma, feel.shake_exponent) * max_shake
 	if s <= 0.01:
 		return Vector2.ZERO
 	if feel.directional_shake and _shake_dir != Vector2.ZERO:
@@ -124,13 +125,18 @@ func play(kind: StringName, min_gap: float = 0.04) -> void:
 	var now := Time.get_ticks_msec() / 1000.0
 	if now - float(_last_played.get(kind, -INF)) < min_gap:
 		return
+	var playing: Array = []
+	for pl in _players:
+		playing.append(pl.playing)
+	var i := _voices.pick(kind, bank.prio(kind) if bank else 1, bank.max_of(kind) if bank else 0, now, playing)
+	if i < 0:
+		return  # 더 중요한 소리로 꽉 참
 	_last_played[kind] = now
-	var p := _players[_next_player]
-	_next_player = (_next_player + 1) % _players.size()
+	var p := _players[i]
 	if bank and bank.has(kind):
 		p.stream = bank.pick(kind, _rng)
 		p.volume_db = sfx_volume_db + bank.db(kind)
-		p.pitch_scale = _rng.randf_range(0.94, 1.06)  # 같은 소리 반복이 덜 거슬리게
+		p.pitch_scale = _rng.randf_range(bank.pitch_range.x, bank.pitch_range.y)
 	else:
 		p.stream = _sounds[kind]
 		p.volume_db = sfx_volume_db
@@ -185,18 +191,17 @@ func _on_skill_cast(slot: SkillCaster.Slot, hits: int) -> void:
 	var def := skill_caster.def_of(slot) if skill_caster else null
 	if def and def.sfx != &"":  # 기술마다 정한 소리 (세종·사임당 = 마법)
 		play(def.sfx, 0.0)
-		add_trauma(0.7 if slot == SkillCaster.Slot.COUNTER else 0.2)
+		add_trauma(skill_trauma_for(slot, hits))
 		return
-	match slot:
-		SkillCaster.Slot.COUNTER:
-			add_trauma(0.7)
-			play(&"counter", 0.0)
-		SkillCaster.Slot.TAP, SkillCaster.Slot.CHARGE:
-			add_trauma(0.25 if hits > 0 else 0.1)
-			play(&"slash", 0.0)
-		SkillCaster.Slot.DASH:
-			add_trauma(0.2)
-			play(&"slash", 0.0)
+	add_trauma(skill_trauma_for(slot, hits))
+	play(&"counter" if slot == SkillCaster.Slot.COUNTER else &"slash", 0.0)
+
+
+## 기술 시전 흔들림 (CombatFeelData): 반격은 크게, 맞혔으면 보통, 헛치면 작게.
+func skill_trauma_for(slot: SkillCaster.Slot, hits: int) -> float:
+	if slot == SkillCaster.Slot.COUNTER:
+		return feel.counter_trauma
+	return feel.skill_trauma if hits > 0 else feel.skill_trauma_miss
 
 
 # --- 게임 로직에서 부르는 static 진입점 ---

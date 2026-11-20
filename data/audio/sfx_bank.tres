@@ -16,8 +16,11 @@
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/slash_2.ogg" id="s12"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/slash_3.ogg" id="s13"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/ui_1.ogg" id="s14"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hurt_2.ogg" id="s15"]
 
 [resource]
 script = ExtResource("1_bank")
-sounds = {&"counter": [ExtResource("s0")], &"dash": [ExtResource("s1"), ExtResource("s2")], &"die": [ExtResource("s3"), ExtResource("s4"), ExtResource("s5")], &"evade": [ExtResource("s6")], &"hit": [ExtResource("s7"), ExtResource("s8")], &"hurt": [ExtResource("s9")], &"magic": [ExtResource("s10")], &"slash": [ExtResource("s11"), ExtResource("s12"), ExtResource("s13")], &"ui": [ExtResource("s14")]}
+sounds = {&"counter": [ExtResource("s0")], &"dash": [ExtResource("s1"), ExtResource("s2")], &"die": [ExtResource("s3"), ExtResource("s4"), ExtResource("s5")], &"evade": [ExtResource("s6")], &"hit": [ExtResource("s7"), ExtResource("s8")], &"hurt": [ExtResource("s9"), ExtResource("s15")], &"magic": [ExtResource("s10")], &"slash": [ExtResource("s11"), ExtResource("s12"), ExtResource("s13")], &"ui": [ExtResource("s14")]}
 volume_db = {&"hit": -6.0, &"die": -4.0, &"ui": -4.0}
+priority = {&"ui": 5, &"hurt": 4, &"counter": 4, &"magic": 3, &"slash": 3, &"dash": 3, &"evade": 3, &"die": 2, &"hit": 1}
+max_voices = {&"hit": 4, &"die": 3}

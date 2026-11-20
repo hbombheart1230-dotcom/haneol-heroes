@@ -134,7 +134,7 @@ func test_kill_launches_corpse_and_kicks_camera() -> void:
 	e.health.damage(9999)
 	assert_int(f.kill_fx.corpse_count()).is_equal(1)
 	assert_float(f._kick.x).is_greater(0.0)  # 맞은 방향(오른쪽)으로 툭
-	assert_float(f.trauma).is_greater(0.0)
+	assert_float(f.trauma).is_equal_approx(f.feel.kill_trauma, 0.0001)  # 일반 처치는 흔들림 대신 툭 (kill_trauma, 지금 0)
 
 
 func test_elite_kill_slows_time_then_restores() -> void:

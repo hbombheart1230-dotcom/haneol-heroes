@@ -56,6 +56,12 @@ extends Resource
 @export var shake_side_ratio: float = 0.3
 ## 방향 밀림이 돌아오는 빠르기(초당 감쇠율).
 @export var kick_return: float = 14.0
+## 흔들림 크기 = trauma^exponent × 최대. 2면 작은 값(처치·작은 기술)이 1px도 안 돼 사라져서 1.5.
+@export var shake_exponent: float = 1.5
+## 기술 시전 흔들림: 맞힘·헛침·반격 (기술마다 정한 소리가 있는 영웅도 같음).
+@export var skill_trauma: float = 0.35
+@export var skill_trauma_miss: float = 0.12
+@export var counter_trauma: float = 0.7
 
 
 @export_group("영웅 동작")
@@ -122,6 +128,19 @@ extends Resource
 @export var haptic_impact_amp: float = 0.5
 ## 진동 사이 최소 간격(초).
 @export var haptic_min_gap: float = 0.12
+
+
+@export_group("맞는 반응·판정")
+## 적·영웅 맞는 반응 수치 (비우면 기본값).
+@export var reaction: HitReactionData
+## 기술 판정에 더하는 적 몸 반경 배율 (가장자리 판정, LoL식). 0이면 중심점만.
+@export var skill_edge_scale: float = 1.0
+
+
+func reaction_data() -> HitReactionData:
+	if reaction == null:
+		reaction = HitReactionData.new()
+	return reaction
 
 
 func burst_data() -> InkBurstData:
