@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/dash_style_data.gd" id="1_style"]
 [ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="2_vfx"]
-[ext_resource type="Texture2D" path="res://assets/vfx/lightning.png" id="t_lightning"]
+[ext_resource type="Texture2D" path="res://assets/vfx/lightning_strip.png" id="t_path"]
 
 [sub_resource type="Resource" id="Start"]
 script = ExtResource("2_vfx")
@@ -34,9 +34,8 @@ color_end = Color(0.7, 0.6, 1, 0)
 
 [sub_resource type="Resource" id="End"]
 script = ExtResource("2_vfx")
-decal = ExtResource("t_lightning")
 shape = 3
-count = 10
+count = 5
 speed = Vector2(260, 520)
 damping = 6.0
 life = Vector2(0.18, 0.32)
@@ -45,11 +44,6 @@ align_to_velocity = true
 stretch = 2.6
 color = Color(1, 0.8, 0.25, 1)
 color_end = Color(0.7, 0.6, 1, 0)
-decal_size = 299
-decal_upright = true
-decal_time = 0.3
-glow = 0.6
-glow_color = Color(1, 0.85, 0.4, 1)
 
 [resource]
 script = ExtResource("1_style")
@@ -63,3 +57,5 @@ trail_color = Color(1, 0.8, 0.3, 1)
 end_radius = 90.0
 end_stun = 0.3
 end_cooldown = 0.8
+path_strip = ExtResource("t_path")
+path_width = 40.0

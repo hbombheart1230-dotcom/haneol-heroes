@@ -68,6 +68,15 @@ func has_bolt() -> bool:
 @export var glow_color: Color = Color(1, 0.9, 0.6)
 @export var glow_size: float = 0.9
 
+@export_group("띠 (직선 기술)")
+## 직선 기술(파도격·벽력돌파·발묵)은 경로를 따라 이 그림을 늘려 그린다 (출발점에서 앞으로 펼쳐짐).
+## 그림은 가로로 길고 오른쪽이 앞 (assets/vfx/*_strip.png).
+@export var strip: Texture2D
+## 띠 두께(px), 보이는 시간(초), 앞으로 다 펼쳐지는 시간(초).
+@export var strip_width: float = 110.0
+@export var strip_time: float = 0.5
+@export var strip_reveal: float = 0.15
+
 @export_group("강화 단계")
 ## 기술 강화 단계(SkillDef.vfx_level)마다: 크기, 입자 수, 빛 세기가 늘어난다.
 @export var level_size: float = 0.12

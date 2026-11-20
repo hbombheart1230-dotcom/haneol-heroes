@@ -52,6 +52,7 @@ func _physics_process(delta: float) -> void:
 	if t and _cd <= 0.0 and t.global_position.distance_to(global_position) <= touch_radius + t.body_radius:
 		if ctx.hit(t, damage):
 			hits += 1
+			ctx.impact(t.global_position)  # 문 자리에 매화 꽃잎
 		_cd = hit_interval
 	if _age >= lifetime:
 		queue_free()
@@ -61,13 +62,19 @@ func _physics_process(delta: float) -> void:
 func _draw() -> void:
 	var a := clampf((lifetime - _age) / 0.5, 0.0, 1.0)
 	var flap := sin(_age * 22.0)
-	if kind == Kind.BUTTERFLY:
-		for s in [-1.0, 1.0]:
-			Ink.blob(self, Vector2(s * 12.0, -4.0), 12.0 * (0.6 + 0.4 * absf(flap)), Color(color, 0.85 * a), s, 0.1, 0.8)
-			Ink.blob(self, Vector2(s * 9.0, 8.0), 7.0, Color(color.darkened(0.2), 0.8 * a), s + 2.0, 0.1, 0.8)
-		Ink.stroke(self, Vector2(0, -10), Vector2(0, 12), 3.0, Color(Ink.INK, a))
-	else:
-		Ink.blob(self, Vector2.ZERO, 14.0, Color(0.35, 0.55, 0.25, 0.9 * a), 3.0, 0.08, 0.45)
-		Ink.stroke(self, Vector2(-6, 4), Vector2(-20, 14 + flap * 4.0), 2.5, Color(Ink.INK, a))
-		Ink.stroke(self, Vector2(6, 4), Vector2(20, 14 - flap * 4.0), 2.5, Color(Ink.INK, a))
-		Ink.stroke(self, Vector2(10, -3), Vector2(26, -12), 1.5, Color(Ink.INK, a))
+	var petal := VfxTextures.get_texture(SkillVfxData.Shape.PETAL)
+	if kind == Kind.BUTTERFLY:  # 꽃잎 날개 두 쌍이 팔랑인다
+		for side in [-1.0, 1.0]:
+			var w := 26.0 * (0.55 + 0.45 * absf(flap))
+			draw_set_transform(Vector2(side * 10.0, -2.0), side * 0.6, Vector2(w / 26.0, 1.0))
+			draw_texture_rect(petal, Rect2(-13, -16, 26, 32), false, Color(color, 0.9 * a))
+			draw_set_transform(Vector2(side * 8.0, 9.0), side * 1.1, Vector2.ONE)
+			draw_texture_rect(petal, Rect2(-8, -10, 16, 20), false, Color(color.darkened(0.2), 0.85 * a))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	else:  # 방아깨비: 길쭉한 풀잎 몸 + 뛰는 다리 잎
+		draw_set_transform(Vector2.ZERO, PI * 0.5, Vector2(1.0, 0.45))
+		draw_texture_rect(petal, Rect2(-14, -26, 28, 52), false, Color(0.35, 0.6, 0.25, 0.95 * a))
+		for side in [-1.0, 1.0]:
+			draw_set_transform(Vector2(side * 14.0, 10.0 + flap * side * 3.0), side * 0.9, Vector2(0.5, 0.9))
+			draw_texture_rect(petal, Rect2(-8, -14, 16, 28), false, Color(0.3, 0.5, 0.2, 0.9 * a))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

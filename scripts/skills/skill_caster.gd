@@ -274,4 +274,11 @@ func _draw() -> void:
 	if input.state != SkillInput.State.CHARGING:
 		return
 	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0)
+	var art := Feedback.feel_data().ring_art
+	if art:  # 붓 고리가 충전만큼 커지고 진해진다
+		var s := (36.0 + 20.0 * c) * 2.4
+		draw_set_transform(Vector2.ZERO, c * TAU, Vector2.ONE)
+		draw_texture_rect(art, Rect2(-s * 0.5, -s * 0.5, s, s), false, Color(0.4, 0.8, 1.0, 0.35 + 0.6 * c))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
 	draw_arc(Vector2.ZERO, 36.0 + 20.0 * c, -PI / 2, -PI / 2 + TAU * maxf(c, 0.02), 32, Color(0.4, 0.8, 1.0, 0.9), 5.0)

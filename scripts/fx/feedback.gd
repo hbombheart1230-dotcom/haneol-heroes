@@ -4,6 +4,7 @@ extends Node
 ## 게임 로직은 static 함수만 호출한다 (씬에 Feedback 노드가 없으면 아무 일도 안 함 → 테스트 안전).
 
 static var instance: Feedback
+const FEEL_PATH := "res://data/feel/combat_feel.tres"
 
 @export var camera: Camera2D
 @export var fx: FxLayer
@@ -239,12 +240,31 @@ static func vfx_burst(data: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.Z
 		instance.skill_vfx.burst(data, pos, dir, level)
 
 
+## 경로를 따라 펼쳐지는 그림 띠 (직선 기술은 SkillVfxData, 회피 자취는 직접).
+static func vfx_strip_for(data: SkillVfxData, a: Vector2, b: Vector2, level: int = 0) -> void:
+	if instance and instance.decals:
+		instance.decals.strip_for(data, a, b, level)
+
+
+## 붓 획 하나 (세종 금빛 회피 자취 등).
+static func vfx_stroke(a: Vector2, b: Vector2, width: float, time: float, color: Color) -> void:
+	if instance and instance.fx:
+		instance.fx.add_slash(a, b, width, time, color)
+
+
+static func vfx_strip(tex: Texture2D, a: Vector2, b: Vector2, width: float, time: float, reveal: float) -> void:
+	if instance and instance.decals:
+		instance.decals.strip(tex, a, b, width, time, reveal)
+
+
 ## 공통 타격감 수치 (Feedback이 없으면 기본값 → 테스트 안전).
 static func feel_data() -> CombatFeelData:
 	if instance and instance.feel:
 		return instance.feel
-	if _default_feel == null:
-		_default_feel = CombatFeelData.new()
+	if _default_feel == null:  # Feedback가 없을 때(테스트·도구)도 같은 데이터 (붓 그림 포함)
+		_default_feel = load(FEEL_PATH) as CombatFeelData
+		if _default_feel == null:
+			_default_feel = CombatFeelData.new()
 	return _default_feel
 
 

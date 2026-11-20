@@ -17,6 +17,13 @@ extends HitBox2D
 @export var wave_style: bool = false
 ## 비어 있지 않으면 이 글자를 붓글씨로 그린다 (세종 문자탄).
 @export var glyph: String = ""
+@export var glyph_px: int = 40
+## 영웅별 탄 그림 (오른쪽 = 진행 방향)과 길이·두께(px). 비면 먹 획.
+@export var art: Texture2D
+@export var art_size: Vector2 = Vector2(96, 36)
+## 뒤 자취 자취 색과 길이(px). 길이 0이면 없음.
+@export var trail_color: Color = Color(0.3, 0.55, 0.9, 0.6)
+@export var trail_len: float = 0.0
 
 var direction: Vector2 = Vector2.RIGHT
 var hits: int = 0
@@ -53,9 +60,17 @@ func _on_action_applied(hurt_box: HurtBox2D) -> void:
 
 
 func _draw() -> void:
+	if trail_len > 0.0:  # 뒤 자취: 뒤로 갈수록 가늘고 옅게
+		var w := art_size.y * 0.45 if art else float(glyph_px) * 0.22  # 자모는 글자 칸 안에 작게 그려진다
+		Ink.stroke(self, Vector2(-trail_len, 0), Vector2(-4, 0), w, trail_color)
+	if art:
+		draw_texture_rect(art, Rect2(-art_size.x * 0.6, -art_size.y * 0.5, art_size.x, art_size.y), false)
+		return
 	if glyph != "":
 		draw_set_transform(Vector2.ZERO, -rotation, Vector2.ONE)  # 글자는 똑바로
-		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-20, 14), glyph, 40, UiStyle.GOLD, 40.0, Color(0, 0, 0, 0.7), 5)
+		var g := float(glyph_px)
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-g * 0.5, g * 0.35), glyph, glyph_px, UiStyle.GOLD, g,
+			Color(0, 0, 0, 0.7), maxi(roundi(g / 8.0), 3))
 		return
 	if wave_style:
 		var a := 1.0 - _age / lifetime * 0.5

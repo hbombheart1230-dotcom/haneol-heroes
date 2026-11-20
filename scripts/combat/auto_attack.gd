@@ -7,6 +7,8 @@ extends Node2D
 
 signal melee_swung(direction: Vector2, hits: int)
 signal projectile_fired(projectile: Projectile)
+## 원거리: 던지는 동작 시작 (손을 떠나기 전, PlayerView가 동작을 맞춘다).
+signal ranged_windup(direction: Vector2)
 
 @export var player: Player
 ## 비어 있으면 player.hero.attack, 그것도 없으면 기본값.
@@ -20,6 +22,13 @@ var _ranged_cd: float = 0.0
 var _glyph_i: int = 0
 var _swing_dir: Vector2 = Vector2.DOWN
 var _swing_time: float = 0.0
+## 던지는 중인 탄: 손을 떠나기까지 남은 시간과 방향.
+var _release_left: float = -1.0
+var _release_dir: Vector2 = Vector2.ZERO
+## 던지기 시작할 때의 수치 사본 (던지는 사이 성장이 같은 리소스를 바꿔도 이 탄은 그대로)과
+## 그때의 데이터 (영웅이 바뀌어 data가 다른 것으로 바뀌면 던지지 않는다).
+var _release_data: BasicAttackData
+var _release_src: BasicAttackData
 
 
 func _ready() -> void:
@@ -47,6 +56,14 @@ func tick(delta: float, enemy_list: Array) -> void:
 	_swing_time = maxf(_swing_time - delta, 0.0)
 	if player == null:
 		return
+	if player.is_dead():  # 죽으면 손에 든 탄은 버린다
+		_release_left = -1.0
+		_release_data = null
+		return
+	if _release_left >= 0.0:
+		_release_left -= delta
+		if _release_left < 0.0:
+			_release(enemy_list)
 	var from := player.global_position
 	var nearest := Targeting.nearest(enemy_list, from, stats().ranged_range)
 	if nearest == null:
@@ -77,9 +94,47 @@ func _melee(from: Vector2, toward: Vector2, enemy_list: Array) -> void:
 	queue_redraw()
 
 
+## 원거리: 던지는 동작을 시작하고 release_delay초 뒤 손에서 놓는다 (0이면 바로).
 func _fire(from: Vector2, dir: Vector2) -> void:
 	var d := stats()
 	_ranged_cd = d.ranged_interval
+	ranged_windup.emit(dir)
+	if d.release_delay > 0.0:
+		_release_left = d.release_delay
+		_release_dir = dir
+		_release_data = d.duplicate()
+		_release_src = data
+		return
+	_spawn(from, dir, d)
+
+
+## 손을 떠나는 순간: 가장 가까운 적으로 다시 겨눈다. 그사이 적이 다 사라졌으면 던지지 않는다.
+func _release(enemy_list: Array) -> void:
+	var d := _release_data
+	_release_data = null
+	if d == null or _release_src != data:  # 영웅·데이터가 바뀌었으면 손에 든 탄은 버린다
+		return
+	var from := player.global_position
+	var nearest: Node2D = null
+	var best := d.ranged_range * d.ranged_range
+	for n in enemy_list:  # 막 죽어 아직 지워지기 전인 적은 겨누지 않는다 (Codex 88d3160)
+		var node := n as Node2D
+		if node == null or not is_instance_valid(node) or node.is_queued_for_deletion():
+			continue
+		var h := node.get_node_or_null("Health") as Health
+		if h and not h.is_alive():
+			continue
+		var d2 := from.distance_squared_to(node.global_position)
+		if d2 <= best:
+			best = d2
+			nearest = node
+	if nearest == null:
+		return
+	var to := nearest.global_position - from
+	_spawn(from, to.normalized() if to.length_squared() > 1.0 else _release_dir, d)
+
+
+func _spawn(from: Vector2, dir: Vector2, d: BasicAttackData) -> void:
 	if projectile_scene == null:
 		return
 	var p := projectile_scene.instantiate() as Projectile
@@ -88,10 +143,15 @@ func _fire(from: Vector2, dir: Vector2) -> void:
 	p.speed = d.ranged_speed
 	p.lifetime = d.ranged_lifetime
 	p.knockback = d.ranged_knockback
+	p.art = d.proj_art
+	p.art_size = d.proj_size
+	p.glyph_px = d.glyph_px
+	p.trail_color = d.proj_trail_color
+	p.trail_len = d.proj_trail_len
 	if d.ranged_glyphs != "":
 		p.glyph = d.ranged_glyphs[_glyph_i % d.ranged_glyphs.length()]
 		_glyph_i += 1
-	p.global_position = from
+	p.global_position = from + dir * d.release_offset.x + Vector2(0, -d.release_offset.y)  # 손에서
 	var parent := projectile_parent if projectile_parent else player.get_parent()
 	parent.add_child(p)
 	projectile_fired.emit(p)
@@ -108,4 +168,13 @@ func _draw() -> void:
 	var a := _swing_dir.angle()
 	var half := deg_to_rad(stats().melee_arc_degrees * 0.5)
 	var alpha := _swing_time / 0.12
-	draw_arc(Vector2.ZERO, stats().melee_range * 0.85, a - half, a + half, 20, Color(0.55, 0.85, 1.0, 0.8 * alpha), 10.0)
+	var art := Feedback.feel_data().crescent_art
+	var col := stats().swing_color
+	if art:  # 붓으로 그린 초승달 베기 (오른쪽 = 베는 방향)
+		var r := stats().melee_range
+		draw_set_transform(Vector2.ZERO, a, Vector2.ONE)
+		draw_texture_rect(art, Rect2(r * 0.2, -r * sin(half) * 0.9, r * 0.95, r * sin(half) * 1.8), false,
+			Color(col, col.a * alpha))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
+	draw_arc(Vector2.ZERO, stats().melee_range * 0.85, a - half, a + half, 20, Color(col, col.a * alpha), 10.0)
