@@ -30,10 +30,11 @@ static func panel(c: CanvasItem, r: Rect2, fill: Color = LACQUER, border: Color 
 		c.draw_circle(corner + Vector2(sx * 10, sy * 10), 2.5, border)
 
 
-## 금박 단추. pressed면 안쪽이 붉게 차오른다.
+## 금박 단추. pressed면 안쪽이 붉게 차오른다. 단추 글자는 훈민정음풍 본문 글꼴 (사용자 결정, 제목만 붓글씨).
 static func button(c: CanvasItem, r: Rect2, label: String, px: int = 38, pressed: bool = false) -> void:
 	panel(c, r, LACQUER_RED if pressed else LACQUER, GOLD)
-	text(c, TITLE_FONT, r.position + Vector2(0, r.size.y * 0.5 + px * 0.36), label, px, GOLD, r.size.x)
+	var size := int(px * 0.85)
+	text(c, BODY_FONT, r.position + Vector2(0, r.size.y * 0.5 + size * 0.36), label, size, GOLD, r.size.x)
 
 
 ## 테두리 있는 글자 (가운데 정렬 기본). width < 0이면 왼쪽 정렬.

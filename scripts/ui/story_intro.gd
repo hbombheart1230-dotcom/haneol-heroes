@@ -99,6 +99,36 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
+## 붓으로 휘갈겨 쓰듯 한 줄을 그린다: progress(0~1)만큼 글자가 차례로 먹이 번지며 나타난다
+## (막 쓰인 글자는 크게 찍혔다가 자리를 잡고, 아래에 먹 번짐이 잠깐 남는다).
+const LINE_PX := 50
+
+
+func _write_line(line: String, center_x: float, baseline: float, progress: float) -> void:
+	var font: Font = UiStyle.TITLE_FONT
+	var count := line.length()
+	var total := font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, LINE_PX).x
+	var x := center_x - total * 0.5
+	var reveal := progress * count
+	for j in count:
+		var ch := line.substr(j, 1)
+		var w := font.get_string_size(ch, HORIZONTAL_ALIGNMENT_LEFT, -1, LINE_PX).x
+		var t := clampf(reveal - j, 0.0, 1.0)
+		if t <= 0.0:
+			break
+		var mid := Vector2(x + w * 0.5, baseline - LINE_PX * 0.32)
+		if t < 1.0 and ch != " ":  # 먹 번짐
+			for ring in 4:  # 가운데가 진하고 바깥으로 옅어지는 먹
+				draw_circle(mid, LINE_PX * (0.25 + 0.5 * t) * (1.0 - ring * 0.2), Color(0, 0, 0, 0.09 * (1.0 - t)))
+		var k := lerpf(1.45, 1.0, ease(t, 0.4))
+		draw_set_transform(mid, lerpf(-0.12, 0.0, t), Vector2(k, k))
+		var p := Vector2(-w * 0.5, LINE_PX * 0.32)
+		draw_string_outline(font, p, ch, HORIZONTAL_ALIGNMENT_LEFT, -1, LINE_PX, 7, Color(0, 0, 0, 0.8 * t))
+		draw_string(font, p, ch, HORIZONTAL_ALIGNMENT_LEFT, -1, LINE_PX, Color(UiStyle.PAPER, t))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		x += w
+
+
 ## 세로로 부드럽게 어두워지는 띠 (꼭짓점 색 보간).
 func _gradient(y0: float, y1: float, a0: float, a1: float, w: float) -> void:
 	var c0 := Color(0, 0, 0, a0)
@@ -132,14 +162,11 @@ func _draw() -> void:
 		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, vp.y * 0.16), s.caption, 64, Color(UiStyle.GOLD, ca), vp.x)
 		UiStyle.gold_rule(self, Vector2(vp.x * 0.5, vp.y * 0.16 + 26.0), vp.x * 0.22 * ca, ca)
 	var n := s.lines.size()
-	var y0 := vp.y * 0.66 - maxf(n - 3, 0) * 22.0
+	var y0 := vp.y * 0.64 - maxf(n - 3, 0) * 26.0
 	for k in n:
 		var a := timeline.line_alpha(i, k, n, local)
-		if a <= 0.0:
-			continue
-		var rise := (1.0 - a) * 22.0
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(40, y0 + k * 52.0 + rise), s.lines[k], 32,
-			Color(UiStyle.PAPER, a), vp.x - 80.0, Color(0, 0, 0, 0.85), 6)
+		if a > 0.0:
+			_write_line(s.lines[k], vp.x * 0.5, y0 + k * 68.0, a)
 	var b := timeline.black(i, local)
 	if b > 0.0:
 		draw_rect(Rect2(Vector2.ZERO, vp), Color(0, 0, 0, b))
