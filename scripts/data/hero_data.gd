@@ -41,6 +41,8 @@ extends Resource
 ## 0보다 크면 대시 경로 옆의 적을 이 힘으로 밀쳐 낸다 (광개토대왕 돌격). 대시 한 번에 적마다 한 번.
 @export var dash_shove: float = 0.0
 @export var dash_shove_radius: float = 70.0
+## 영웅마다 다른 회피 생김새·도착 효과 (없으면 기본 대시).
+@export var dash_style: DashStyleData
 
 @export_group("전투")
 @export var attack: BasicAttackData

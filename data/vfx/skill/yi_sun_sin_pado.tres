@@ -6,14 +6,14 @@
 [resource]
 script = ExtResource("1_vfx")
 shape = 4
-count = 12
+count = 6
 aim = 0
 speed = Vector2(80, 220)
 damping = 3.5
 gravity = 120.0
 spawn_radius = 48.0
 life = Vector2(0.4, 0.7)
-size = Vector2(36, 68)
+size = Vector2(21.6, 40.8)
 size_end = 0.3
 spin = 2.0
 color = Color(0.45, 0.75, 1, 0.95)

@@ -23,6 +23,7 @@
 [ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_ink_bleed.tres" id="vs_ink_bleed"]
 [ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_canvas.tres" id="vs_canvas"]
 [ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_plum.tres" id="vs_plum"]
+[ext_resource type="Resource" path="res://data/heroes/dash/shin_saimdang.tres" id="dash_style"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -128,3 +129,4 @@ attack = SubResource("Attack")
 kit = SubResource("Kit")
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+dash_style = ExtResource("dash_style")

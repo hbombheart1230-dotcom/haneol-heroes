@@ -23,6 +23,7 @@
 [ext_resource type="Resource" path="res://data/vfx/skill/sejong_meteor.tres" id="vs_meteor"]
 [ext_resource type="Resource" path="res://data/vfx/skill/sejong_constellation.tres" id="vs_constellation"]
 [ext_resource type="Resource" path="res://data/vfx/skill/sejong_sundial.tres" id="vs_sundial"]
+[ext_resource type="Resource" path="res://data/heroes/dash/sejong.tres" id="dash_style"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -129,3 +130,4 @@ attack = SubResource("Attack")
 kit = SubResource("Kit")
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+dash_style = ExtResource("dash_style")

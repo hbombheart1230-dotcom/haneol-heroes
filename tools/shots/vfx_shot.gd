@@ -37,7 +37,16 @@ func _run() -> void:
 	decals.set_process(false)  # 시간은 아래에서 직접 (창 띄우는 첫 프레임이 길어 다 사라지지 않게)
 	parts.set_process(false)
 	var skills := [hero.kit.tap, hero.kit.dash, hero.kit.charge, hero.kit.counter]
-	if args.size() > 3:
+	if args[1] == "dash" and hero.dash_style:  # 회피: 출발 → 자취 → 도착 (아래로 내려가며)
+		var ds := hero.dash_style
+		decals.burst(ds.start_vfx, Vector2(360, 300), Vector2.DOWN)
+		parts.burst(ds.start_vfx, Vector2(360, 300), Vector2.DOWN)
+		for k in 8:
+			parts.burst(ds.trail_vfx, Vector2(360, 380 + k * 60), Vector2.UP)
+		decals.burst(ds.end_vfx, Vector2(360, 950), Vector2.DOWN)
+		parts.burst(ds.end_vfx, Vector2(360, 950), Vector2.DOWN)
+		skills = []
+	elif args.size() > 3:
 		var d1: SkillDef = skills[int(args[3])]
 		var v1: SkillVfxData = d1.vfx_impact if d1.vfx_impact and d1.vfx_impact.decal else d1.vfx_cast
 		if not after:

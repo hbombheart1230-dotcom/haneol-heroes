@@ -121,10 +121,12 @@ func _update_sprite(delta: float) -> void:
 		if same_anim:  # 방향만 바뀌면 프레임 이어서
 			_sprite.frame = mini(frame, _sprite.sprite_frames.get_frame_count(anim_name) - 1)
 	var tint := Color(1, 1, 1)
+	var ds := player.hero.dash_style if player.hero else null
 	if player.skill_invuln_left() > 0.0 and not player.is_dashing():
 		tint = Color(1.0, 0.9, 0.55)
 	elif player.is_dashing():
-		tint = Color(0.75, 0.9, 1.0)
+		tint = ds.body_tint if ds else Color(0.75, 0.9, 1.0)
+		tint.a = ds.body_alpha if ds else 1.0  # 광개토 번개 순간이동·사임당 먹으로 흩어짐
 	_sprite.modulate = tint
 	_sprite.speed_scale = run_anim_speed() if current_anim() == "run" else 1.0
 
@@ -151,6 +153,11 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 
+func _trail_color() -> Color:
+	var ds := player.hero.dash_style if player.hero else null
+	return ds.trail_color if ds else Ink.WATER
+
+
 func _draw() -> void:
 	if player == null:
 		return
@@ -158,7 +165,7 @@ func _draw() -> void:
 	# 대시 잔상: 물빛 먹 번짐
 	for i in _trail.size():
 		var a := float(i + 1) / float(_trail.size() + 1)
-		Ink.blob(self, to_local(_trail[i]) + Vector2(0, -r * 0.4), r * (0.5 + 0.4 * a), Color(Ink.WATER, 0.28 * a), i)
+		Ink.blob(self, to_local(_trail[i]) + Vector2(0, -r * 0.4), r * (0.5 + 0.4 * a), Color(_trail_color(), 0.28 * a), i)
 	Ink.shadow(self, Vector2(0, r * 0.8), r * 1.1)
 	if _sprite:
 		return  # 몸은 스프라이트가 그린다
