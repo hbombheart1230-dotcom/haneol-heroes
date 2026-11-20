@@ -69,7 +69,7 @@ func _ready() -> void:
 		player.health.died.connect(func(_e: Node) -> void: state.player_died())
 	if spawner:
 		spawner.enemy_killed.connect(_on_enemy_killed)
-		spawner.boss_spawned.connect(func(_b: Enemy) -> void: _switch_music(stage_music(&"boss")))
+		spawner.boss_spawned.connect(func(_b: Enemy) -> void: music_cue(&"boss"))
 	if hud:
 		hud.state = state
 		hud.perf = perf
@@ -90,8 +90,7 @@ func begin_run() -> void:
 	_begin_build()
 	waiting_pick = false
 	get_tree().paused = false
-	if Feedback.instance and run_config and run_config.stage:  # 다시 시작하면 무대 곡으로 (같으면 이어서)
-		Feedback.instance.play_music(stage_music(&"stage"), 0.6)
+	music_cue(&"stage")  # 다시 시작하면 무대 곡으로 (같으면 이어서)
 
 
 func playable_heroes() -> Array[HeroData]:
@@ -190,13 +189,31 @@ func stage_music(kind: StringName) -> AudioStream:
 	return s if s else st.music
 
 
+## 음악 신호: &"stage" / &"boss" / &"victory" / &"defeat". 무대 노래가 있으면 구간을 넘나들고, 없으면 곡을 바꾼다.
+const SONG_SECTION := {&"stage": &"verse", &"boss": &"chorus", &"victory": &"outro", &"defeat": &"intro"}
+
+
+func music_cue(kind: StringName) -> void:
+	var st := run_config.stage if run_config else null
+	if st and st.song:
+		MusicDirector.play(st.song, SONG_SECTION[kind])
+	else:
+		_switch_music(stage_music(kind))
+
+
+## 메뉴·이야기 음악: 첫 무대 노래의 전주 (노래가 없으면 그대로 둔다).
+func menu_music() -> void:
+	if not stages.is_empty() and stages[0] and stages[0].song:
+		MusicDirector.play(stages[0].song, &"intro")
+
+
 func _switch_music(stream: AudioStream) -> void:
 	if Feedback.instance and stream:
 		Feedback.instance.play_music(stream, 0.6)
 
 
 func _on_ended(result: GameState.Result) -> void:
-	_switch_music(stage_music(&"victory" if result == GameState.Result.VICTORY else &"defeat"))
+	music_cue(&"victory" if result == GameState.Result.VICTORY else &"defeat")
 	if hud and result == GameState.Result.VICTORY and run_config and run_config.stage:
 		hud.next_stage = stage_by_id(HeroRoute.next(stages, run_config.stage.id))
 	_end_time = 0.0

@@ -22,6 +22,7 @@
 [ext_resource type="Resource" path="res://data/enemies/jurchen_elite.tres" id="e_jurchen_elite"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_chieftain.tres" id="e_jurchen_chieftain"]
 [ext_resource type="Resource" path="res://data/breakables/gyeongbokgung_1433.tres" id="b_gyeongbokgung_1433"]
+[ext_resource type="Resource" path="res://data/songs/manchuria_395.tres" id="song"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 
 [resource]
@@ -33,6 +34,7 @@ subtitle = "세종 15년, 최윤덕이 파저강의 여진을 토벌한 해"
 music = ExtResource("2_music")
 hero_hint = "세종"
 breakable = ExtResource("b_gyeongbokgung_1433")
+song = ExtResource("song")
 spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_heavy")])
 spawn_weights = PackedFloat32Array(6, 2, 1)
 unlock_times = PackedFloat32Array(0, 10, 20)
