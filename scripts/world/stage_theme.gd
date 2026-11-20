@@ -10,6 +10,11 @@ extends Resource
 @export_multiline var subtitle: String = ""
 ## 무대 배경 음악 (반복).
 @export var music: AudioStream
+## 보스가 나오면 바꿔 트는 곡 (반복). 비우면 무대 곡을 그대로.
+@export var boss_music: AudioStream
+## 판이 끝났을 때 한 번 트는 짧은 곡. 비우면 무대 곡을 그대로.
+@export var victory_music: AudioStream
+@export var defeat_music: AudioStream
 
 @export_group("배경 지도")
 ## 무대 전체를 덮는 큰 그림 (tools/art/make_backgrounds.py). 경로로 두고 무대를 열 때만 불러온다
