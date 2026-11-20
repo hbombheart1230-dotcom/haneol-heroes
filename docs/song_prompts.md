@@ -225,3 +225,21 @@ Korean traditional epic overture, cinematic game opening theme, four heroes awak
 
 [End]
 ```
+
+## 6. 다시 정함 (2026-11-21): 민요로 바꾸기
+
+사용자 노래 멜로디가 너무 들어가 "중국스럽다" → 누구나 아는 전통 곡으로 (멜로디 저작권 없음), 목소리는 Suno **Voice**(사용자 녹음본, 다시 안 부름), 원곡 업로드 안 함.
+
+| 무대 | 곡 |
+|---|---|
+| 메인 뮤비 | 본조 아리랑 |
+| 순신 (한산도) | 진도아리랑 (명량의 바다) |
+| 광개토 (만주) | 밀양아리랑 |
+| 사임당 (초충도) | 정선아리랑 (강원, 사임당 고향) |
+| 세종 (경복궁) | 종묘제례악 (진지하게, §3 v2 프롬프트) |
+
+이전 가사를 살리고 후렴에 그 아리랑의 전통 후렴을 넣는다. 강강술래는 "사람들이 잘 모른다"로 뺌.
+멜로디 안내 음원: `tools/audio/melody_guide.py` (Suno가 가락을 못 맞출 때만).
+
+순신 스타일: `Korean folk song Jindo Arirang, famous traditional melody with the refrain "ari arirang seuri seurirang arariga nanne", southern coast namdo minyo style with deep yukjabaegi sigimsae, semachi 9/8 rhythm, steady tempo 96 BPM, janggu and buk, ajaeng, haegeum, daegeum, gayageum, ocean waves, naval battle energy, chorus sings the refrain, authentic Korean folk melody, not a pop song, instrumental intro and outro`
+순신 후렴: 아리 아리랑 서리 서리랑 / 아라리가 났네 / 아리랑 응응응 아라리가 났네
