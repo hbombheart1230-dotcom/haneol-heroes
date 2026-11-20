@@ -223,3 +223,40 @@ func test_dead_player_drops_the_shot_in_hand() -> void:
 	for i in 20:
 		a.tick(0.016, [target])
 	assert_int(fired.size()).is_equal(0)
+
+
+func test_release_reaims_and_keeps_windup_stats() -> void:
+	var p: Player = auto_free(Player.new())
+	add_child(p)
+	var a: AutoAttack = auto_free(AutoAttack.new())
+	a.player = p
+	a.projectile_scene = preload("res://scenes/projectile.tscn")
+	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.projectile_parent = self
+	add_child(a)
+	var fired: Array = []
+	a.projectile_fired.connect(func(pr: Projectile) -> void: fired.append(pr))
+	var mid := (a.data.melee_range + a.data.ranged_range) * 0.5
+	var t1 := Node2D.new()
+	add_child(auto_free(t1))
+	t1.global_position = Vector2(mid, 0)
+	a.tick(0.016, [t1])  # 오른쪽으로 던지기 시작
+	var dmg := a.data.ranged_damage
+	a.data = a.data.duplicate()
+	a.data.ranged_damage = dmg + 100  # 던지는 사이 성장
+	var t2 := Node2D.new()
+	add_child(auto_free(t2))
+	t2.global_position = Vector2(0, mid)  # 첫 적은 사라지고 아래에 새 적
+	for i in 12:
+		a.tick(0.016, [t2])
+	assert_int(fired.size()).is_equal(1)
+	var pr: Projectile = fired[0]
+	assert_float(pr.direction.y).is_greater(0.9)  # 다시 겨눔
+	assert_int(pr.damage).is_equal(dmg)  # 던지기 시작할 때 수치
+	pr.queue_free()
+	# 적이 모두 사라지면 던지지 않는다
+	a._ranged_cd = 0.0
+	a.tick(0.016, [t2])
+	for i in 12:
+		a.tick(0.016, [])
+	assert_int(fired.size()).is_equal(1)

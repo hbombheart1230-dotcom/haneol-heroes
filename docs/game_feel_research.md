@@ -265,3 +265,5 @@
 - **원거리 탄:** 영웅마다 그림·크기·자취 (`BasicAttackData` 탄 그림 묶음): 순신 물칼, 광개토 번개 창, 세종 큰 금빛 자모, 사임당 먹 붓. 던지는 동작 0.12초 뒤 손 앞(앞 30~36px, 위 40~52px)에서 나간다.
 - **그림:** `wave_strip / lightning_strip / explosion / proj_water / proj_spear / proj_ink`는 사용자 GPT 그림 (`tools/vfx/gpt_to_vfx.py`로 가장자리 정리, 가로 그림은 비율 유지). `ink_strip`은 먹 붓 획 그림(proj_ink 원본)을 길게 씀. 임시 그림 도구 `tools/vfx/make_placeholders.py`는 이미 있는 그림을 덮어쓰지 않는다.
 - 결과: `docs/images/lines_projectiles_dash.png` (영웅마다 위 = 직선 기술 띠 / 세종은 떨어지는 유성, 가운데 = 원거리 탄·해일검기, 아래 = 회피 자취; 맨 오른쪽 = 유성 폭발 강화 0단계/최대).
+- **코드 도형 없애기 (사용자 규칙: "기본 동그라미·선이 보이면 안 됨"):** 기술이 부르던 범위 고리·검기 선·타격 튐, 장판(먹 웅덩이 등), 충전 표시, 근접 베기 호를 전부 무채색 붓 그림에 기술 색을 곱해 그린다 (`tools/vfx/make_neutral.py` → `assets/vfx/brush_{ring,stroke,splat,pool,crescent}.png`, `CombatFeelData` 붓 그림 묶음). 정음진은 그림 고리만, 회피는 동그라미 자취 없이 띠만, 초충 나비·방아깨비는 꽃잎·풀잎 그림. 결과: `docs/images/brush_instead_of_shapes.png`. 적 예고 영역·기절/느려짐 표시·처치 연출은 기술이 아니라 그대로 둠.
+- **세종 원거리 동작:** 던질 때 "고개가 좀비 같다" → Meshy 동작이 'Charged Spell Cast' 하나뿐이라, 지금은 던지는 동작 없이 손에서 글자가 나간다 (`BasicAttackData.ranged_anim`, 세종 = 비움). 더 나은 던지기 동작을 Meshy에서 새로 받으려면 크레딧이 든다 (사용자 결정).

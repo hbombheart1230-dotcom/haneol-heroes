@@ -25,6 +25,8 @@ var _swing_time: float = 0.0
 ## 던지는 중인 탄: 손을 떠나기까지 남은 시간과 방향.
 var _release_left: float = -1.0
 var _release_dir: Vector2 = Vector2.ZERO
+## 던지기 시작할 때의 수치 (던지는 사이 성장으로 바뀌어도 이 탄은 그대로).
+var _release_data: BasicAttackData
 
 
 func _ready() -> void:
@@ -54,11 +56,12 @@ func tick(delta: float, enemy_list: Array) -> void:
 		return
 	if player.is_dead():  # 죽으면 손에 든 탄은 버린다
 		_release_left = -1.0
+		_release_data = null
 		return
 	if _release_left >= 0.0:
 		_release_left -= delta
 		if _release_left < 0.0:
-			_spawn(player.global_position, _release_dir)
+			_release(enemy_list)
 	var from := player.global_position
 	var nearest := Targeting.nearest(enemy_list, from, stats().ranged_range)
 	if nearest == null:
@@ -97,12 +100,24 @@ func _fire(from: Vector2, dir: Vector2) -> void:
 	if d.release_delay > 0.0:
 		_release_left = d.release_delay
 		_release_dir = dir
+		_release_data = d
 		return
-	_spawn(from, dir)
+	_spawn(from, dir, d)
 
 
-func _spawn(from: Vector2, dir: Vector2) -> void:
-	var d := stats()
+## 손을 떠나는 순간: 가장 가까운 적으로 다시 겨눈다. 그사이 적이 다 사라졌으면 던지지 않는다.
+func _release(enemy_list: Array) -> void:
+	var d := _release_data if _release_data else stats()
+	_release_data = null
+	var from := player.global_position
+	var nearest := Targeting.nearest(enemy_list, from, d.ranged_range)
+	if nearest == null:
+		return
+	var to := nearest.global_position - from
+	_spawn(from, to.normalized() if to.length_squared() > 1.0 else _release_dir, d)
+
+
+func _spawn(from: Vector2, dir: Vector2, d: BasicAttackData) -> void:
 	if projectile_scene == null:
 		return
 	var p := projectile_scene.instantiate() as Projectile
@@ -136,4 +151,13 @@ func _draw() -> void:
 	var a := _swing_dir.angle()
 	var half := deg_to_rad(stats().melee_arc_degrees * 0.5)
 	var alpha := _swing_time / 0.12
-	draw_arc(Vector2.ZERO, stats().melee_range * 0.85, a - half, a + half, 20, Color(0.55, 0.85, 1.0, 0.8 * alpha), 10.0)
+	var art := Feedback.feel_data().crescent_art
+	var col := stats().swing_color
+	if art:  # 붓으로 그린 초승달 베기 (오른쪽 = 베는 방향)
+		var r := stats().melee_range
+		draw_set_transform(Vector2.ZERO, a, Vector2.ONE)
+		draw_texture_rect(art, Rect2(r * 0.2, -r * sin(half) * 0.9, r * 0.95, r * sin(half) * 1.8), false,
+			Color(col, col.a * alpha))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
+	draw_arc(Vector2.ZERO, stats().melee_range * 0.85, a - half, a + half, 20, Color(col, col.a * alpha), 10.0)

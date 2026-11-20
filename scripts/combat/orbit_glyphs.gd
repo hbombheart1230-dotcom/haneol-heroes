@@ -59,7 +59,8 @@ func _draw() -> void:
 		draw_set_transform(Vector2.ZERO, _age * spin_speed * 0.5, Vector2.ONE)
 		draw_texture_rect(art, Rect2(-s * 0.5, -s * 0.5, s, s), false, Color(1, 1, 1, art_alpha * fade))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(UiStyle.GOLD, 0.25 * fade), 2.0)
+	else:
+		draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(UiStyle.GOLD, 0.25 * fade), 2.0)
 	var n := maxi(glyphs.length(), 1)
 	for i in n:
 		var p := Vector2.from_angle(_age * spin_speed + TAU * i / n) * radius

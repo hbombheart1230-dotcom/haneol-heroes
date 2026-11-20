@@ -7,7 +7,7 @@ var _fx: Array[Dictionary] = []
 
 
 func add_ring(pos: Vector2, radius: float, duration: float, color: Color) -> void:
-	_fx.append({"kind": "ring", "pos": pos, "r": radius, "t": 0.0, "dur": duration, "color": color})
+	_fx.append({"kind": "ring", "pos": pos, "r": radius, "t": 0.0, "dur": duration, "color": color, "seed": randf() * TAU})
 
 
 func add_slash(from: Vector2, to: Vector2, width: float, duration: float, color: Color) -> void:
@@ -47,6 +47,16 @@ func add_number(pos: Vector2, amount: int, strong: bool = false) -> void:
 		"color": Color(1, 0.85, 0.3) if strong else Color(1, 1, 1)})
 
 
+## 붓 그림 하나를 가운데 맞춰 돌려 그린다. 그림이 없으면 false (코드 그림으로 대신).
+func _tex_draw(tex: Texture2D, pos: Vector2, size: float, rot: float, col: Color) -> bool:
+	if tex == null:
+		return false
+	draw_set_transform(pos, rot, Vector2.ONE)
+	draw_texture_rect(tex, Rect2(-size * 0.5, -size * 0.5, size, size), false, col)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	return true
+
+
 func count() -> int:
 	return _fx.size()
 
@@ -59,24 +69,25 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
+	var feel := Feedback.feel_data()
 	for f in _fx:
 		var k := float(f["t"]) / float(f["dur"])
 		var c: Color = f["color"]
 		match f["kind"]:
-			"ring":  # 물결 먹선 (해룡참·반격)
+			"ring":  # 범위·예고: 붓으로 그린 고리 그림을 기술 색으로 (그림이 없으면 먹선)
 				var r := float(f["r"]) * (0.35 + 0.65 * k)
-				Ink.ring(self, f["pos"], r, 16.0 * (1.0 - k) + 3.0, Color(c.darkened(0.35), (1.0 - k) * 0.85))
-				Ink.ring(self, f["pos"], r * 0.8, 6.0, Color(Ink.INK, (1.0 - k) * 0.35), 0.6, 2.0)
+				if not _tex_draw(feel.ring_art, f["pos"], r * 2.3, float(f.get("seed", 0.0)) + k, Color(c, 1.0 - k)):
+					Ink.ring(self, f["pos"], r, 16.0 * (1.0 - k) + 3.0, Color(c.darkened(0.35), (1.0 - k) * 0.85))
 			"slash":  # 붓 획 검기
-				Ink.stroke(self, f["a"], f["b"], float(f["w"]) * (1.0 - k * 0.6), Color(c.darkened(0.3), 1.0 - k))
-				Ink.stroke(self, f["a"], f["b"], float(f["w"]) * 0.3, Color(Ink.INK, (1.0 - k) * 0.7))
-			"number":
-				var font := UiStyle.TITLE_FONT
-				var size := 48 if f["strong"] else 34
-				var p: Vector2 = f["pos"] + Vector2(-60, -50.0 * k - 30.0)
-				var ink_col := Ink.SEAL if f["strong"] else Ink.INK
-				draw_string_outline(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, 6, Color(Ink.PAPER, 1.0 - k))
-				draw_string(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, Color(ink_col, 1.0 - k))
+				var a2: Vector2 = f["a"]
+				var d2: Vector2 = (f["b"] as Vector2) - a2
+				var w2 := float(f["w"]) * (1.0 - k * 0.6) * 2.4
+				if feel.stroke_art:
+					draw_set_transform(a2, d2.angle(), Vector2.ONE)
+					draw_texture_rect(feel.stroke_art, Rect2(0.0, -w2 * 0.5, d2.length(), w2), false, Color(c, 1.0 - k))
+					draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+				else:
+					Ink.stroke(self, a2, f["b"], float(f["w"]) * (1.0 - k * 0.6), Color(c.darkened(0.3), 1.0 - k))
 			"fall":  # 떨어지는 유성: 가속하며 내려온다
 				var tex: Texture2D = f["tex"]
 				var p: Vector2 = (f["a"] as Vector2).lerp(f["b"], k * k)
@@ -91,6 +102,7 @@ func _draw() -> void:
 				draw_polyline(pts, Color(c, (1.0 - k) * st.bolt_glow_alpha), w * st.bolt_glow_width)
 				draw_polyline(pts, Color(c, 1.0 - k), w * st.bolt_body_width)
 				draw_polyline(pts, Color(1, 1, 1, 1.0 - k), w * st.bolt_core_width)
-			"spark":  # 먹물 튀김
-				var p: Vector2 = f["pos"]
-				Ink.splash(self, p, 10.0 + 14.0 * k, Color(Ink.INK, (1.0 - k) * 0.8), float(f.get("seed", 0.0)))
+			"spark":  # 타격 튐: 물보라 붓 그림
+				var p3: Vector2 = f["pos"]
+				if not _tex_draw(feel.splat_art, p3, 36.0 + 30.0 * k, float(f.get("seed", 0.0)), Color(c, (1.0 - k) * 0.9)):
+					Ink.splash(self, p3, 10.0 + 14.0 * k, Color(Ink.INK, (1.0 - k) * 0.8), float(f.get("seed", 0.0)))

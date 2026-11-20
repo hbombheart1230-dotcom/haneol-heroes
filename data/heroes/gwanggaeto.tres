@@ -33,6 +33,7 @@ melee_range = 140.0
 melee_arc_degrees = 180.0
 melee_damage = 22
 melee_knockback = 220.0
+swing_color = Color(1, 0.8, 0.3, 0.9)
 melee_recoil = 6.0
 ranged_interval = 1.2
 ranged_range = 320.0

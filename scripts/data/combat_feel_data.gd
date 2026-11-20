@@ -88,6 +88,13 @@ extends Resource
 @export var max_decals: int = 24
 ## 직선 기술·회피 띠 동시 최대 수.
 @export var max_strips: int = 12
+## 코드로 그린 동그라미·선 대신 쓰는 무채색 붓 그림 (기술 색을 곱해 그린다, tools/vfx/make_neutral.py).
+## 고리(범위·예고), 붓 획(검기·선), 튐(타격), 웅덩이(장판), 초승달(근접 베기).
+@export var ring_art: Texture2D
+@export var stroke_art: Texture2D
+@export var splat_art: Texture2D
+@export var pool_art: Texture2D
+@export var crescent_art: Texture2D
 @export var decal_edge: float = 0.12
 ## 수명이 이 비율 아래로 내려가면 번지기 시작한다.
 @export var decal_dissolve_from: float = 0.5

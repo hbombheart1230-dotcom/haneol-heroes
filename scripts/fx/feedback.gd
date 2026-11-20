@@ -4,6 +4,7 @@ extends Node
 ## 게임 로직은 static 함수만 호출한다 (씬에 Feedback 노드가 없으면 아무 일도 안 함 → 테스트 안전).
 
 static var instance: Feedback
+const FEEL_PATH := "res://data/feel/combat_feel.tres"
 
 @export var camera: Camera2D
 @export var fx: FxLayer
@@ -258,8 +259,10 @@ static func vfx_strip(tex: Texture2D, a: Vector2, b: Vector2, width: float, time
 static func feel_data() -> CombatFeelData:
 	if instance and instance.feel:
 		return instance.feel
-	if _default_feel == null:
-		_default_feel = CombatFeelData.new()
+	if _default_feel == null:  # Feedback가 없을 때(테스트·도구)도 같은 데이터 (붓 그림 포함)
+		_default_feel = load(FEEL_PATH) as CombatFeelData
+		if _default_feel == null:
+			_default_feel = CombatFeelData.new()
 	return _default_feel
 
 
