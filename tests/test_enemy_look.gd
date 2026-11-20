@@ -7,8 +7,9 @@ const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
 func _all_enemy_data() -> Array[EnemyData]:
 	var out: Array[EnemyData] = []
 	for f in DirAccess.get_files_at("res://data/enemies"):
-		if f.ends_with(".tres"):
-			out.append(load("res://data/enemies/" + f))
+		var d := load("res://data/enemies/" + f) as EnemyData if f.ends_with(".tres") else null
+		if d:  # enemy_ai.tres 같은 공통 데이터는 건너뛴다
+			out.append(d)
 	return out
 
 
