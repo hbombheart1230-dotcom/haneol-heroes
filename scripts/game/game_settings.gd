@@ -15,6 +15,11 @@ const SECTION := "controls"
 
 ## 스킬 버튼 표시·사용. 기본은 끔 (한 손 제스처가 기본 조작).
 static var skill_button_enabled: bool = false
+## 설정 화면: 효과음·음악 크기 (0~1), 타격 진동, 이야기 보기.
+static var sfx_volume: float = 0.8
+static var music_volume: float = 0.8
+static var haptics_enabled: bool = true
+static var story_enabled: bool = true
 ## 마지막으로 고른 영웅 id (재시작 때 그대로).
 static var hero_id: StringName = &""
 ## 이번 실행에서 영웅을 이미 골랐는지 (앱을 새로 켜면 고르기 화면부터).

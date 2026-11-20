@@ -247,3 +247,27 @@ func test_seal_slow_time_keeps_running_finisher() -> void:
 	assert_float(Engine.time_scale).is_equal_approx(0.35 * 0.25, 0.001)
 	await _wait_real(0.3)
 	assert_float(Engine.time_scale).is_equal_approx(0.35, 0.001)
+
+
+func test_haptics_fire_on_hurt_and_finisher_with_gap_and_setting() -> void:
+	var f := _feedback()
+	var was := GameSettings.haptics_enabled
+	GameSettings.haptics_enabled = true
+	Haptics.last = []
+	assert_bool(f.haptic(f.feel.haptic_hurt_ms, f.feel.haptic_hurt_amp)).is_true()
+	assert_array(Haptics.last).is_equal([f.feel.haptic_hurt_ms, f.feel.haptic_hurt_amp])
+	assert_bool(f.haptic(10, 0.1)).is_false()  # 간격 제한
+	f._last_haptic = -INF
+	GameSettings.haptics_enabled = false
+	assert_bool(f.haptic(10, 0.1)).is_false()  # 설정 끔
+	GameSettings.haptics_enabled = true
+	# 정예 처치 → 마무리 진동
+	f._last_haptic = -INF
+	Haptics.last = []
+	var p: Player = auto_free(Player.new())
+	add_child(p)
+	var e := _enemy(ELITE)
+	e.target = p
+	e.health.damage(99999)
+	assert_array(Haptics.last).is_equal([f.feel.haptic_finisher_ms, f.feel.haptic_finisher_amp])
+	GameSettings.haptics_enabled = was

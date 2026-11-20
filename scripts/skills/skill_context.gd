@@ -67,6 +67,7 @@ func impact(pos: Vector2, dir: Vector2 = Vector2.ZERO) -> void:
 		fx.add_bolt(pos + Vector2(0, -v.bolt_height), pos, v.bolt_width, v.bolt_time, v.bolt_color, v.bolt_segments,
 			v.bolt_jitter)
 	Feedback.vfx_burst(v, pos, dir)
+	Feedback.impact_haptic()
 
 
 ## a→b 번개 줄기 (vfx_impact에 번개 설정이 있으면 꺾인 번개, 없으면 붓 획). 연쇄·벼락길에 쓴다.

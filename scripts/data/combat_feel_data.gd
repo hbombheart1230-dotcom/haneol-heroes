@@ -86,6 +86,18 @@ extends Resource
 @export var bolt_thin: float = 0.5
 
 
+@export_group("타격 진동")
+## 진동 길이(ms)와 세기(0~1). 일반 자동 공격에는 울리지 않는다 (너무 자주 옴). 설정 "타격 진동"을 따른다.
+@export var haptic_hurt_ms: int = 40
+@export var haptic_hurt_amp: float = 0.6
+@export var haptic_finisher_ms: int = 60
+@export var haptic_finisher_amp: float = 0.8
+@export var haptic_impact_ms: int = 25
+@export var haptic_impact_amp: float = 0.5
+## 진동 사이 최소 간격(초).
+@export var haptic_min_gap: float = 0.12
+
+
 func burst_data() -> InkBurstData:
 	if burst == null:
 		burst = InkBurstData.new()

@@ -37,6 +37,7 @@ var skill_vfx: SkillVfx
 var _shake_dir: Vector2 = Vector2.ZERO
 var _kick: Vector2 = Vector2.ZERO
 var _last_kill_freeze: float = -INF
+var _last_haptic: float = -INF
 ## 음악 재생기는 장면 밖(트리 루트)에 하나만 두어, 다시 시작(장면 다시 불러오기)해도 곡이 이어진다.
 static var _music: AudioStreamPlayer
 static var _music_tween: Tween
@@ -204,6 +205,23 @@ static func enemy_hit(pos: Vector2, amount: int, dir: Vector2 = Vector2.ZERO) ->
 	instance.play(&"hit")
 
 
+## 타격 진동 (Haptics → 설정 "타격 진동"을 따름). haptic_min_gap 안에 다시 오면 무시. 진동했으면 true.
+func haptic(ms: int, amplitude: float) -> bool:
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - _last_haptic < feel.haptic_min_gap:
+		return false
+	if not Haptics.pulse(ms, amplitude):
+		return false
+	_last_haptic = now
+	return true
+
+
+## 기술이 내리꽂는 순간 짧은 진동.
+static func impact_haptic() -> void:
+	if instance:
+		instance.haptic(instance.feel.haptic_impact_ms, instance.feel.haptic_impact_amp)
+
+
 ## 기술 이펙트 터뜨리기 (Feedback이 없으면 아무 일도 안 함 → 테스트 안전).
 static func vfx_burst(data: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO) -> void:
 	if instance and instance.skill_vfx and data:
@@ -247,6 +265,7 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 			d.sprite_offset if d else Vector2.ZERO, d.sprite_tint if d else Color.WHITE,
 			d.death_style if d else &"smoke", d.launch_scale if d else 1.0, finisher)
 	if finisher:
+		haptic(feel.haptic_finisher_ms, feel.haptic_finisher_amp)
 		add_trauma(feel.finisher_trauma, dir)
 		kick(dir, feel.kill_kick_px * 2.0)
 		if is_inside_tree():
@@ -270,3 +289,4 @@ static func player_hurt() -> void:
 	if instance:
 		instance.play(&"hurt", 0.0)
 		instance.add_trauma(0.4)
+		instance.haptic(instance.feel.haptic_hurt_ms, instance.feel.haptic_hurt_amp)
