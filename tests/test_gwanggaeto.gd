@@ -261,6 +261,7 @@ func test_main_waits_for_hero_then_runs_chosen_hero() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.hero_picked = false
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.tutorial_done = true
 	GameSettings.hero_clears = {}

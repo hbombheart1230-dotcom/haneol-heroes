@@ -61,6 +61,7 @@ func test_mark_cleared_saves_once() -> void:
 func test_each_stage_run_uses_its_own_army() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.tutorial_done = true
 	GameSettings.hero_clears = {}

@@ -60,6 +60,7 @@ func test_intro_finishes_by_itself() -> void:
 func test_enter_prologue_hero_hero_story_then_run() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = false
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = false
 	GameSettings.seen_stories = PackedStringArray()
 	GameSettings.hero_picked = false
@@ -94,6 +95,7 @@ func test_enter_prologue_hero_hero_story_then_run() -> void:
 	get_tree().paused = false
 	main.queue_free()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
@@ -124,6 +126,7 @@ func test_prologue_plays_every_time_by_default() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.story_once = false
 	GameSettings.title_seen = false
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true  # 전에 봤어도
 	GameSettings.hero_picked = false
 	GameSettings.save_settings()
@@ -135,6 +138,7 @@ func test_prologue_plays_every_time_by_default() -> void:
 	get_tree().paused = false
 	main.queue_free()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.save_settings()
@@ -144,6 +148,7 @@ func test_story_once_skips_what_was_seen() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.story_once = true  # 나중에 켤 "다시 안 보기"
 	GameSettings.title_seen = false
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.tutorial_done = true
 	GameSettings.hero_clears = {}
@@ -159,6 +164,7 @@ func test_story_once_skips_what_was_seen() -> void:
 	main.queue_free()
 	GameSettings.story_once = false
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.save_settings()

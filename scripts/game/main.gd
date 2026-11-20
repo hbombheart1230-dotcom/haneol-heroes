@@ -20,6 +20,8 @@ extends Node2D
 @export var story_intro: StoryIntro
 ## 설정 화면 (톱니 단추). 바뀌면 스킬 단추 등을 바로 반영.
 @export var settings: SettingsScreen
+## 앱을 켜면 입장 화면 앞에 한 번 나오는 오프닝 영상.
+@export var opening_video: OpeningVideo
 ## 첫 판 조작 안내 (끝내기 전엔 적이 나오지 않고 시간도 가지 않는다).
 @export var tutorial: TutorialData
 @export var tutorial_overlay: TutorialOverlay

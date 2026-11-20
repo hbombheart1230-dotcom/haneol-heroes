@@ -14,6 +14,8 @@
 [ext_resource type="Resource" path="res://data/tutorial/controls.tres" id="52_tut_data"]
 [ext_resource type="Resource" path="res://data/difficulty/curve.tres" id="53_curve"]
 [ext_resource type="Script" path="res://scripts/world/enemy_bars.gd" id="54_bars"]
+[ext_resource type="Script" path="res://scripts/ui/opening_video.gd" id="58_opening"]
+[ext_resource type="VideoStream" path="res://assets/video/opening.ogv" id="59_opening_video"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/menu/title.ogg" id="55_title_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/menu/victory.ogg" id="56_victory_music"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/menu/defeat.ogg" id="57_defeat_music"]
@@ -54,7 +56,7 @@ radius = 22.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
 radius = 30.0
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select", "title_screen", "breakables", "story_intro", "settings", "tutorial_overlay")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select", "title_screen", "breakables", "story_intro", "settings", "tutorial_overlay", "opening_video")]
 script = ExtResource("0_main")
 player = NodePath("Player")
 spawner = NodePath("EnemySpawner")
@@ -68,6 +70,7 @@ stages = Array[ExtResource("45_stage_theme")]([ExtResource("41_st1"), ExtResourc
 breakables = NodePath("Breakables")
 story_intro = NodePath("HUD/StoryIntro")
 settings = NodePath("HUD/SettingsScreen")
+opening_video = NodePath("HUD/OpeningVideo")
 tutorial = ExtResource("52_tut_data")
 difficulty = ExtResource("53_curve")
 menu_track = ExtResource("55_title_music")
@@ -241,3 +244,14 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("49_settings")
+
+[node name="OpeningVideo" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("58_opening")
+stream = ExtResource("59_opening_video")

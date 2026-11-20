@@ -63,6 +63,7 @@ func test_main_cues_map_to_sections() -> void:
 func test_hero_story_plays_that_heros_stage_song() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.tutorial_done = true
 	GameSettings.hero_picked = false
@@ -112,6 +113,7 @@ func test_scene_has_menu_and_result_tracks() -> void:
 func test_stage_plays_its_own_song_and_hero_starts_at_home() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.tutorial_done = true
 	GameSettings.hero_picked = true

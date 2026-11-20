@@ -31,6 +31,8 @@ static var hero_id: StringName = &""
 static var hero_picked: bool = false
 ## 이번 실행에서 인트로를 지나갔는지.
 static var title_seen: bool = false
+## 이번 실행에서 오프닝 영상을 봤는지 (앱을 켤 때마다 한 번).
+static var opening_seen: bool = false
 ## 이야기 인트로를 한 번 봤는지 (저장). 처음 입장할 때만 나온다.
 static var intro_seen: bool = false
 ## 이야기를 이미 본 영웅 id들 (영웅 이야기는 영웅마다 처음 한 번).

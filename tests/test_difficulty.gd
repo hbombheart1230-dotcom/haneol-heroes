@@ -33,6 +33,7 @@ func test_scaled_copy_leaves_original() -> void:
 func test_run_uses_hero_tier_and_victory_raises_it() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.tutorial_done = true

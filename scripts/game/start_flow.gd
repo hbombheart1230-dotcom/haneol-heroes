@@ -22,6 +22,11 @@ func _init(m: Node) -> void:
 
 func next() -> void:
 	var player: Player = main.player
+	if main.opening_video and main.opening_video.stream and not GameSettings.opening_seen 			and not GameSettings.title_seen:
+		_hold()  # 오프닝 영상 (자기 소리가 있어 음악은 영상 뒤에)
+		main.opening_video.finished.connect(_on_opening_finished, CONNECT_ONE_SHOT)
+		main.opening_video.open()
+		return
 	if not _ready_to_run():
 		# 영웅 이야기 차례면 그 영웅 무대의 노래 (판이 시작돼도 끊기지 않고 이어진다), 아니면 입장 음악
 		if pending_hero_story() and not (main.title_screen and not GameSettings.title_seen):
@@ -70,6 +75,11 @@ func pending_hero_story() -> bool:
 func _hold() -> void:
 	main.waiting_pick = true
 	main.get_tree().paused = true
+
+
+func _on_opening_finished() -> void:
+	GameSettings.opening_seen = true
+	next()
 
 
 func _on_title_entered() -> void:

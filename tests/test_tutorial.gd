@@ -54,6 +54,7 @@ func test_skill_slots_map_to_events() -> void:
 func test_first_run_holds_enemies_and_time_until_done() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.tutorial_done = false
@@ -86,6 +87,7 @@ func test_first_run_holds_enemies_and_time_until_done() -> void:
 func test_no_tutorial_once_done() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.tutorial_done = true
 	GameSettings.hero_clears = {}

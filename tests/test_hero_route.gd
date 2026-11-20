@@ -32,6 +32,7 @@ func test_next_follows_order_and_wraps() -> void:
 func test_victory_tap_goes_to_next_stage_for_that_hero() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.tutorial_done = true
 	GameSettings.hero_clears = {}
@@ -65,6 +66,7 @@ func test_victory_tap_goes_to_next_stage_for_that_hero() -> void:
 func test_picking_a_hero_starts_at_home_stage() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.tutorial_done = true
 	GameSettings.story_enabled = false

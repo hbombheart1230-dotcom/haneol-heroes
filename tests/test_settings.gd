@@ -108,6 +108,7 @@ func test_gear_button_opens_screen() -> void:
 func test_story_off_skips_prologue_and_hero_story() -> void:
 	GameSettings.story_enabled = false
 	GameSettings.title_seen = false
+	GameSettings.opening_seen = true
 	GameSettings.hero_picked = false
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
@@ -130,6 +131,7 @@ func test_story_off_skips_prologue_and_hero_story() -> void:
 	get_tree().paused = false
 	main.queue_free()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 
