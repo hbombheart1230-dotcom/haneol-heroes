@@ -105,7 +105,7 @@ func test_every_skill_has_a_painted_effect() -> void:
 			var d: SkillDef = h.kit.get(slot)
 			if d == null:
 				continue
-			var painted := (d.vfx_impact and d.vfx_impact.decal) or (d.vfx_cast and d.vfx_cast.decal)
+			var painted := (d.vfx_impact and (d.vfx_impact.decal or d.vfx_impact.strip)) 				or (d.vfx_cast and d.vfx_cast.decal)
 			assert_bool(painted).override_failure_message("%s %s" % [id, slot]).is_true()
 
 
@@ -127,3 +127,75 @@ func test_flourish_rings_are_capped() -> void:
 	for i in 30:
 		v.burst(d, Vector2.ZERO, Vector2.ZERO, d.ring_level)
 	assert_int(v.ring_count()).is_equal(v.feel.max_flourish_rings)
+
+
+func test_strip_unrolls_along_path_and_expires() -> void:
+	var v: VfxDecals = auto_free(VfxDecals.new())
+	v.strip(PlaceholderTexture2D.new(), Vector2.ZERO, Vector2(300, 0), 100.0, 0.5, 0.1)
+	v.strip(PlaceholderTexture2D.new(), Vector2.ZERO, Vector2.ZERO, 100.0, 0.5, 0.1)  # 길이 0은 무시
+	v.strip(null, Vector2.ZERO, Vector2(300, 0), 100.0, 0.5, 0.1)
+	assert_int(v.strip_count()).is_equal(1)
+	v.step(0.6)
+	assert_int(v.strip_count()).is_equal(0)
+	for i in 40:
+		v.strip(PlaceholderTexture2D.new(), Vector2.ZERO, Vector2(300, 0), 100.0, 5.0, 0.1)
+	assert_int(v.strip_count()).is_equal(v.feel.max_strips)
+
+
+func test_line_skills_use_strips_not_circles() -> void:
+	var yi: HeroData = load("res://data/heroes/yi_sun_sin.tres")
+	var gw: HeroData = load("res://data/heroes/gwanggaeto.tres")
+	var sa: HeroData = load("res://data/heroes/shin_saimdang.tres")
+	for d in [yi.kit.dash, gw.kit.dash, sa.kit.dash]:
+		assert_object(d.vfx_impact.strip).override_failure_message(String(d.id)).is_not_null()
+		assert_object(d.vfx_impact.decal).override_failure_message(String(d.id)).is_null()
+	assert_object(yi.kit.charge.wave_art).is_not_null()  # 해일검기 물결 그림 탄
+	var sj: HeroData = load("res://data/heroes/sejong.tres")
+	assert_object(sj.kit.tap.ring_art).is_not_null()  # 정음진 고리 그림
+	assert_object(sj.kit.dash.fall_art).is_not_null()  # 유성이 떨어진다
+	assert_object(sa.kit.tap.vfx_impact.decal).is_not_null()  # 초충: 문 자리 꽃잎
+
+
+func test_meteor_falls_then_explodes() -> void:
+	var fx: FxLayer = auto_free(FxLayer.new())
+	fx.add_fall(PlaceholderTexture2D.new(), Vector2(300, -600), Vector2.ZERO, 0.3, 200.0, 135.0)
+	assert_str(String(fx._fx[0]["kind"])).is_equal("fall")
+	fx.add_fall(null, Vector2.ZERO, Vector2.ONE, 0.3, 200.0)
+	assert_int(fx._fx.size()).is_equal(1)
+
+
+func test_hero_ranged_art_and_release_from_hand() -> void:
+	var proj := preload("res://scenes/projectile.tscn")
+	for id in HEROES:
+		var h: HeroData = load("res://data/heroes/%s.tres" % id)
+		assert_float(h.attack.release_delay).override_failure_message(id).is_greater(0.0)
+		assert_float(h.attack.proj_trail_len).is_greater(0.0)
+		assert_bool(h.attack.proj_art != null or h.attack.ranged_glyphs != "").override_failure_message(id).is_true()
+	var p: Player = auto_free(Player.new())
+	add_child(p)
+	p.global_position = Vector2.ZERO
+	var a: AutoAttack = auto_free(AutoAttack.new())
+	a.player = p
+	a.projectile_scene = proj
+	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.projectile_parent = self
+	add_child(a)
+	var fired: Array = []
+	var wound: Array = []
+	a.projectile_fired.connect(func(pr: Projectile) -> void: fired.append(pr))
+	a.ranged_windup.connect(func(d: Vector2) -> void: wound.append(d))
+	var target := Node2D.new()
+	target.add_to_group(Enemy.GROUP)
+	add_child(auto_free(target))
+	target.global_position = Vector2((a.data.melee_range + a.data.ranged_range) * 0.5, 0)
+	a.tick(0.016, [target])
+	assert_int(wound.size()).is_equal(1)
+	assert_int(fired.size()).is_equal(0)  # 아직 손에 있음
+	for i in 12:
+		a.tick(0.016, [target])
+	assert_int(fired.size()).is_equal(1)
+	var pr: Projectile = fired[0]
+	assert_object(pr.art).is_same(a.data.proj_art)
+	assert_float(pr.global_position.x).is_equal_approx(a.data.release_offset.x, 0.5)  # 손 앞에서 나간다
+	assert_float(pr.global_position.y).is_equal_approx(-a.data.release_offset.y, 0.5)
+	pr.queue_free()

@@ -52,6 +52,7 @@ func _physics_process(delta: float) -> void:
 	if t and _cd <= 0.0 and t.global_position.distance_to(global_position) <= touch_radius + t.body_radius:
 		if ctx.hit(t, damage):
 			hits += 1
+			ctx.impact(t.global_position)  # 문 자리에 매화 꽃잎
 		_cd = hit_interval
 	if _age >= lifetime:
 		queue_free()

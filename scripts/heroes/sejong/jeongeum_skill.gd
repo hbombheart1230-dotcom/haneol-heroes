@@ -7,6 +7,8 @@ extends SkillDef
 @export var duration: float = 4.0
 @export var damage: int = 10
 @export var hit_interval: float = 0.5
+## 고리 밑에 깔리는 정음 자모 그림 (함께 돈다).
+@export var ring_art: Texture2D
 @export_group("큰 변형 · 두 겹 고리")
 ## 0보다 크면 이 반경으로 바깥 고리가 하나 더 (반대로 돈다).
 @export var outer_radius: float = 0.0
@@ -31,5 +33,6 @@ func _ring(ctx: SkillContext, r: float, spin: float) -> OrbitGlyphs:
 	o.damage = damage
 	o.hit_interval = hit_interval
 	o.spin_speed = spin
+	o.art = ring_art
 	ctx.add_to_world(o, ctx.player.global_position)
 	return o

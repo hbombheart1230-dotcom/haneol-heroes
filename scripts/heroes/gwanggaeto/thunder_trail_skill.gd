@@ -44,6 +44,7 @@ class TrailRun extends SkillRun:
 		for en in ctx.enemies_near_segment(a, b, skill.width * 0.5):
 			if ctx.hit(en, skill.damage):  # 실제로 맞은 적만 센다 (죽어서 지워지기 전인 적 제외)
 				hits += 1
+		ctx.strip(a, b)  # 길을 따라 번개 줄기
 		ctx.bolt(a, b, skill.width * 0.5, 0.3, skill.fx_color)
 		ctx.impact(b, b - a)
 		ctx.shake(0.25)

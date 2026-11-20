@@ -70,6 +70,12 @@ func impact(pos: Vector2, dir: Vector2 = Vector2.ZERO) -> void:
 	Feedback.impact_haptic()
 
 
+## 직선 기술 경로 a→b에 그림 띠 (vfx_impact.strip). 띠가 없으면 아무것도 안 한다.
+func strip(a: Vector2, b: Vector2) -> void:
+	if skill and skill.vfx_impact:
+		Feedback.vfx_strip_for(skill.vfx_impact, a, b, skill.vfx_level)
+
+
 ## a→b 번개 줄기 (vfx_impact에 번개 설정이 있으면 꺾인 번개, 없으면 붓 획). 연쇄·벼락길에 쓴다.
 func bolt(a: Vector2, b: Vector2, width: float, duration: float, color: Color) -> void:
 	if fx == null:

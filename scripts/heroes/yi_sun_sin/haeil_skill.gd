@@ -8,6 +8,9 @@ extends SkillDef
 @export var max_scale: float = 3.2
 @export var speed: float = 650.0
 @export var lifetime: float = 1.1
+## 물결 그림 (오른쪽 = 진행 방향)과 크기(px, size_scale 배율 적용). 비면 코드로 그린 물결 호.
+@export var wave_art: Texture2D
+@export var wave_art_size: Vector2 = Vector2(150, 60)
 @export_group("큰 변형 · 세 갈래")
 ## 양옆으로 더 쏘는 물결 수 (0이면 한 줄기). 쌍으로 퍼진다.
 @export var extra_waves: int = 0
@@ -34,4 +37,7 @@ func _wave(ctx: SkillContext, dir: Vector2, c: float) -> Projectile:
 		pr.pierce = true
 		pr.wave_style = true
 		pr.damage = roundi(lerpf(min_damage, max_damage, c))
-		pr.size_scale = lerpf(min_scale, max_scale, c))
+		pr.size_scale = lerpf(min_scale, max_scale, c)
+		if wave_art:
+			pr.art = wave_art
+			pr.art_size = wave_art_size)

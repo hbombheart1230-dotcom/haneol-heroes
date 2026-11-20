@@ -32,11 +32,21 @@ func tick(delta: float, pos: Vector2) -> void:
 		Feedback.vfx_burst(style.trail_vfx, pos, -_dir)
 
 
+func _draw_path(pos: Vector2) -> void:
+	if _start_pos.distance_squared_to(pos) < 4.0:
+		return
+	if style.path_strip:
+		Feedback.vfx_strip(style.path_strip, _start_pos, pos, style.path_width, style.path_time, style.path_time * 0.3)
+	else:
+		Feedback.vfx_stroke(_start_pos, pos, style.path_width * 0.35, style.path_time, style.path_color)
+
+
 ## 도착: 이펙트 + 범위 안 적에게 작은 효과 (end_cooldown마다 한 번). 효과 받은 적 수를 돌려준다.
 ## now_sec을 넘기지 않으면 실제 시간.
 func on_end(pos: Vector2, enemies: Array, now_sec: float = -1.0) -> int:
 	if style == null:
 		return 0
+	_draw_path(pos)  # 지나간 길은 대시마다
 	var now := now_sec if now_sec >= 0.0 else Time.get_ticks_msec() / 1000.0
 	if now - _last_effect < style.end_cooldown:
 		return 0  # 연속 대시: 도착 그림·효과 모두 간격마다 한 번 (자취는 계속)

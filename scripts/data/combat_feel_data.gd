@@ -86,6 +86,8 @@ extends Resource
 @export var bolt_thin: float = 0.5
 ## 그려진 이펙트(shaders/ink_decal.gdshader): 동시 최대 수, 사라지는 가장자리 폭·먹 물들임·잡음 배율.
 @export var max_decals: int = 24
+## 직선 기술·회피 띠 동시 최대 수.
+@export var max_strips: int = 12
 @export var decal_edge: float = 0.12
 ## 수명이 이 비율 아래로 내려가면 번지기 시작한다.
 @export var decal_dissolve_from: float = 0.5

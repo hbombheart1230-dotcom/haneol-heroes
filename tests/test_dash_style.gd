@@ -25,7 +25,9 @@ func test_every_hero_has_a_distinct_dash() -> void:
 		assert_object(h.dash_style).override_failure_message(id).is_not_null()
 		assert_object(h.dash_style.start_vfx).is_not_null()
 		assert_object(h.dash_style.end_vfx).is_not_null()
-		assert_object(h.dash_style.end_vfx.decal).override_failure_message(id + " end painting").is_not_null()
+		# 기술과 섞이지 않게: 회피에는 둥근 그림이 없고, 지나간 길(띠·붓 획)만
+		assert_object(h.dash_style.start_vfx.decal).override_failure_message(id + " start").is_null()
+		assert_object(h.dash_style.end_vfx.decal).override_failure_message(id + " end").is_null()
 		assert_float(h.dash_style.end_radius).is_greater(0.0)
 		tints.append(h.dash_style.body_tint)
 	for i in tints.size():
@@ -86,7 +88,7 @@ func test_player_dash_drives_effects() -> void:
 	p.dash_runner._last_effect = -INF  # 위 반복에서 이미 도착했을 수 있다 (간격 제한 풀기)
 	p._dash_arrived()
 	assert_bool(e.is_stunned()).is_true()
-	assert_int(f.decals.count()).is_greater(0)  # 도착 번개 그림
+	assert_int(f.decals.strip_count()).is_greater(0)  # 지나간 길에 번개 줄기 띠
 
 
 func test_chained_dashes_cannot_chain_the_effect() -> void:

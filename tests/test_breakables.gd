@@ -98,4 +98,4 @@ func test_every_stage_has_breakable_with_art() -> void:
 		var st := load("res://data/stages/%s.tres" % id) as StageTheme
 		assert_object(st.breakable).is_not_null()
 		assert_object(st.breakable.texture).is_not_null()
-		assert_bool(st.prop_textures.has(st.breakable.texture)).is_false()  # 장식 소품과 헷갈리지 않게
+		assert_bool(st.prop_textures.has(st.breakable.texture)).is_false()  # 장식 소품과 섞이지 않게

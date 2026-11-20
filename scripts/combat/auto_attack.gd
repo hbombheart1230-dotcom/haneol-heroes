@@ -7,6 +7,8 @@ extends Node2D
 
 signal melee_swung(direction: Vector2, hits: int)
 signal projectile_fired(projectile: Projectile)
+## 원거리: 던지는 동작 시작 (손을 떠나기 전, PlayerView가 동작을 맞춘다).
+signal ranged_windup(direction: Vector2)
 
 @export var player: Player
 ## 비어 있으면 player.hero.attack, 그것도 없으면 기본값.
@@ -20,6 +22,9 @@ var _ranged_cd: float = 0.0
 var _glyph_i: int = 0
 var _swing_dir: Vector2 = Vector2.DOWN
 var _swing_time: float = 0.0
+## 던지는 중인 탄: 손을 떠나기까지 남은 시간과 방향.
+var _release_left: float = -1.0
+var _release_dir: Vector2 = Vector2.ZERO
 
 
 func _ready() -> void:
@@ -47,6 +52,10 @@ func tick(delta: float, enemy_list: Array) -> void:
 	_swing_time = maxf(_swing_time - delta, 0.0)
 	if player == null:
 		return
+	if _release_left >= 0.0:
+		_release_left -= delta
+		if _release_left < 0.0:
+			_spawn(player.global_position, _release_dir)
 	var from := player.global_position
 	var nearest := Targeting.nearest(enemy_list, from, stats().ranged_range)
 	if nearest == null:
@@ -77,9 +86,20 @@ func _melee(from: Vector2, toward: Vector2, enemy_list: Array) -> void:
 	queue_redraw()
 
 
+## 원거리: 던지는 동작을 시작하고 release_delay초 뒤 손에서 놓는다 (0이면 바로).
 func _fire(from: Vector2, dir: Vector2) -> void:
 	var d := stats()
 	_ranged_cd = d.ranged_interval
+	ranged_windup.emit(dir)
+	if d.release_delay > 0.0:
+		_release_left = d.release_delay
+		_release_dir = dir
+		return
+	_spawn(from, dir)
+
+
+func _spawn(from: Vector2, dir: Vector2) -> void:
+	var d := stats()
 	if projectile_scene == null:
 		return
 	var p := projectile_scene.instantiate() as Projectile
@@ -88,10 +108,15 @@ func _fire(from: Vector2, dir: Vector2) -> void:
 	p.speed = d.ranged_speed
 	p.lifetime = d.ranged_lifetime
 	p.knockback = d.ranged_knockback
+	p.art = d.proj_art
+	p.art_size = d.proj_size
+	p.glyph_px = d.glyph_px
+	p.trail_color = d.proj_trail_color
+	p.trail_len = d.proj_trail_len
 	if d.ranged_glyphs != "":
 		p.glyph = d.ranged_glyphs[_glyph_i % d.ranged_glyphs.length()]
 		_glyph_i += 1
-	p.global_position = from
+	p.global_position = from + dir * d.release_offset.x + Vector2(0, -d.release_offset.y)  # 손에서
 	var parent := projectile_parent if projectile_parent else player.get_parent()
 	parent.add_child(p)
 	projectile_fired.emit(p)

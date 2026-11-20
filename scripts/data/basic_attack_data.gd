@@ -22,3 +22,16 @@ extends Resource
 @export var ranged_knockback: float = 0.0
 ## 비어 있지 않으면 원거리 투사체를 이 글자들로 차례로 그린다 (세종 문자탄).
 @export var ranged_glyphs: String = ""
+
+@export_group("원거리 탄 그림")
+## 영웅마다 다른 탄 그림 (오른쪽 = 날아가는 방향, assets/vfx/proj_*.png). 비면 먹 획.
+@export var proj_art: Texture2D
+## 탄 그림 길이·두께(px), 글자 탄 글자 크기(px).
+@export var proj_size: Vector2 = Vector2(96, 36)
+@export var glyph_px: int = 40
+## 뒤 자취 자취 색과 길이(px).
+@export var proj_trail_color: Color = Color(0.3, 0.55, 0.9, 0.6)
+@export var proj_trail_len: float = 60.0
+## 던지는 동작: 쏘기 시작 후 손을 떠나기까지(초)와 손 위치 (앞으로 x px, 위로 y px).
+@export var release_delay: float = 0.0
+@export var release_offset: Vector2 = Vector2.ZERO

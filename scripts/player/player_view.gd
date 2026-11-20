@@ -57,6 +57,7 @@ func _setup_sprite(h: HeroData) -> void:
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
 	if attack:
 		attack.melee_swung.connect(_on_auto_swing)
+		attack.ranged_windup.connect(func(d: Vector2) -> void: _on_auto_swing(d, 0))  # 던지는 동작
 	var caster := player.get_node_or_null("SkillCaster") as SkillCaster
 	if caster:
 		caster.skill_cast.connect(func(_s: SkillCaster.Slot, _h: int) -> void: play_oneshot("attack", 0.35))

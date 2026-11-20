@@ -89,6 +89,7 @@ bolt_body_width = 0.8
 bolt_core_width = 0.25
 bolt_thin = 0.5
 max_decals = 24
+max_strips = 12
 decal_edge = 0.12
 decal_dissolve_from = 0.5
 decal_edge_ink = 0.6

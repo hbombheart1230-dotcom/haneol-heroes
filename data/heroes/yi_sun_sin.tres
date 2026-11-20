@@ -24,6 +24,8 @@
 [ext_resource type="Resource" path="res://data/vfx/skill/yi_sun_sin_haeil.tres" id="vs_haeil"]
 [ext_resource type="Resource" path="res://data/vfx/skill/yi_sun_sin_counter.tres" id="vs_counter"]
 [ext_resource type="Resource" path="res://data/heroes/dash/yi_sun_sin.tres" id="dash_style"]
+[ext_resource type="Texture2D" path="res://assets/vfx/proj_water.png" id="proj_art"]
+[ext_resource type="Texture2D" path="res://assets/vfx/wave_strip.png" id="wave_art"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -39,6 +41,12 @@ ranged_damage = 10
 ranged_speed = 700.0
 ranged_lifetime = 0.8
 ranged_knockback = 60.0
+proj_art = ExtResource("proj_art")
+proj_size = Vector2(144, 58)
+proj_trail_color = Color(0.4, 0.75, 1, 0.55)
+proj_trail_len = 70.0
+release_delay = 0.12
+release_offset = Vector2(34, 40)
 
 [sub_resource type="Resource" id="Skill_haeryong"]
 script = ExtResource("4_haeryong")
@@ -88,6 +96,8 @@ lifetime = 1.1
 vfx_cast = ExtResource("vs_haeil")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vfx_impact")
+wave_art = ExtResource("wave_art")
+wave_art_size = Vector2(160, 64)
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("7_counter")

@@ -32,6 +32,14 @@ func add_bolt(from: Vector2, to: Vector2, width: float, duration: float, color: 
 	_fx.append({"kind": "bolt", "pts": pts, "w": width, "t": 0.0, "dur": duration, "color": color})
 
 
+## 하늘에서 떨어지는 그림 (유성): from → to를 duration초 동안 점점 빠르게. angle_deg = 그림이 원래 날아가는 방향.
+func add_fall(tex: Texture2D, from: Vector2, to: Vector2, duration: float, size: float, angle_deg: float = 0.0) -> void:
+	if tex == null:
+		return
+	_fx.append({"kind": "fall", "tex": tex, "a": from, "b": to, "t": 0.0, "dur": maxf(duration, 0.01), "size": size,
+		"rot": (to - from).angle() - deg_to_rad(angle_deg), "color": Color.WHITE})
+
+
 ## 데미지 숫자: 위로 떠오르며 사라진다. strong이면 크고 노랗게.
 func add_number(pos: Vector2, amount: int, strong: bool = false) -> void:
 	var jitter := Vector2(randf_range(-10, 10), 0)
@@ -69,6 +77,13 @@ func _draw() -> void:
 				var ink_col := Ink.SEAL if f["strong"] else Ink.INK
 				draw_string_outline(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, 6, Color(Ink.PAPER, 1.0 - k))
 				draw_string(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, Color(ink_col, 1.0 - k))
+			"fall":  # 떨어지는 유성: 가속하며 내려온다
+				var tex: Texture2D = f["tex"]
+				var p: Vector2 = (f["a"] as Vector2).lerp(f["b"], k * k)
+				var s := float(f["size"])
+				draw_set_transform(p, float(f["rot"]), Vector2.ONE)
+				draw_texture_rect(tex, Rect2(-s * 0.5, -s * 0.5, s, s), false)
+				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 			"bolt":  # 꺾인 번개: 넓은 빛 + 흰 심지
 				var pts: PackedVector2Array = f["pts"]
 				var st := Feedback.feel_data()
