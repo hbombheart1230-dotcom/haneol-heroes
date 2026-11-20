@@ -14,6 +14,9 @@
 [ext_resource type="Resource" path="res://data/tutorial/controls.tres" id="52_tut_data"]
 [ext_resource type="Resource" path="res://data/difficulty/curve.tres" id="53_curve"]
 [ext_resource type="Script" path="res://scripts/world/enemy_bars.gd" id="54_bars"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/menu/title.ogg" id="55_title_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/menu/victory.ogg" id="56_victory_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/menu/defeat.ogg" id="57_defeat_music"]
 [ext_resource type="Resource" path="res://data/intro/story_intro.tres" id="48_intro_data"]
 [ext_resource type="Resource" path="res://data/stages/manchuria_395.tres" id="41_st1"]
 [ext_resource type="Resource" path="res://data/stages/gyeongbokgung_1433.tres" id="42_st2"]
@@ -67,6 +70,9 @@ story_intro = NodePath("HUD/StoryIntro")
 settings = NodePath("HUD/SettingsScreen")
 tutorial = ExtResource("52_tut_data")
 difficulty = ExtResource("53_curve")
+menu_track = ExtResource("55_title_music")
+victory_track = ExtResource("56_victory_music")
+defeat_track = ExtResource("57_defeat_music")
 tutorial_overlay = NodePath("HUD/TutorialOverlay")
 
 [node name="Arena" type="Node2D" parent="."]

@@ -252,6 +252,10 @@ const SONG_SECTION := {&"stage": &"verse", &"boss": &"chorus", &"victory": &"out
 
 
 func music_cue(kind: StringName) -> void:
+	var jingle: AudioStream = {&"victory": victory_track, &"defeat": defeat_track}.get(kind)
+	if jingle and Feedback.instance:
+		Feedback.instance.play_music(jingle, 0.4)
+		return
 	var st := run_config.stage if run_config else null
 	if st and st.song:
 		MusicDirector.play(st.song, SONG_SECTION[kind])
@@ -261,6 +265,9 @@ func music_cue(kind: StringName) -> void:
 
 ## 입장·공통 이야기·영웅 고르기 음악 (비우면 첫 무대 노래의 전주). 국악 곡을 정해 넣는다.
 @export var menu_track: AudioStream
+## 판이 끝났을 때 한 번 트는 짧은 곡 (모든 무대 공용). 비우면 무대 노래의 후주·전주.
+@export var victory_track: AudioStream
+@export var defeat_track: AudioStream
 
 
 ## 입장·공통 이야기·영웅 고르기 음악.

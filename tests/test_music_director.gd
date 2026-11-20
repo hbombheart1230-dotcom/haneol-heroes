@@ -95,3 +95,15 @@ func test_hero_story_plays_that_heros_stage_song() -> void:
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.save_settings()
+
+
+func test_scene_has_menu_and_result_tracks() -> void:
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	assert_object(main.menu_track).is_not_null()
+	assert_bool((main.menu_track as AudioStreamOggVorbis).loop).is_true()  # 입장 곡은 반복
+	assert_object(main.victory_track).is_not_null()
+	assert_object(main.defeat_track).is_not_null()
+	assert_bool((main.victory_track as AudioStreamOggVorbis).loop).is_false()
+	assert_float(main.victory_track.get_length()).is_less(30.0)
+	assert_float(main.defeat_track.get_length()).is_less(30.0)
+	main.free()
