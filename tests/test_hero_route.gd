@@ -31,7 +31,6 @@ func test_next_follows_order_and_wraps() -> void:
 
 func test_victory_tap_goes_to_next_stage_for_that_hero() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
-	GameSettings.unlock_all_override = 0
 	GameSettings.title_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
@@ -53,7 +52,6 @@ func test_victory_tap_goes_to_next_stage_for_that_hero() -> void:
 	assert_array(Array(GameSettings.cleared_stages)).contains(["hansan_1592"])
 	get_tree().paused = false
 	main.queue_free()
-	GameSettings.unlock_all_override = -1
 	GameSettings.hero_stages = {}
 	GameSettings.cleared_stages = PackedStringArray()
 	GameSettings.stage_picked = true

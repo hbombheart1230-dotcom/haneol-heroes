@@ -59,7 +59,6 @@ func test_intro_finishes_by_itself() -> void:
 
 func test_enter_prologue_hero_hero_story_then_run() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
-	GameSettings.unlock_all_override = 0  # 정식판 흐름 (전장 고르기 없음)
 	GameSettings.title_seen = false
 	GameSettings.intro_seen = false
 	GameSettings.seen_stories = PackedStringArray()
@@ -94,7 +93,6 @@ func test_enter_prologue_hero_hero_story_then_run() -> void:
 	assert_str(String(main.run_config.stage.id)).is_equal(String(hero.home_stage))  # 그 영웅의 무대로
 	get_tree().paused = false
 	main.queue_free()
-	GameSettings.unlock_all_override = -1
 	GameSettings.title_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.stage_picked = true

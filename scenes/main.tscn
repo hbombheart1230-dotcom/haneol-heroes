@@ -6,7 +6,6 @@
 [ext_resource type="Script" path="res://scripts/world/seal_choice.gd" id="31_seal"]
 [ext_resource type="Script" path="res://scripts/ui/hero_select.gd" id="33_select"]
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="36_title"]
-[ext_resource type="Script" path="res://scripts/ui/stage_select.gd" id="40_stage_sel"]
 [ext_resource type="Script" path="res://scripts/world/breakable_field.gd" id="46_breakables"]
 [ext_resource type="Script" path="res://scripts/ui/story_intro.gd" id="47_intro"]
 [ext_resource type="Resource" path="res://data/intro/story_intro.tres" id="48_intro_data"]
@@ -46,7 +45,7 @@ radius = 22.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
 radius = 30.0
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select", "title_screen", "stage_select", "breakables", "story_intro")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select", "title_screen", "breakables", "story_intro")]
 script = ExtResource("0_main")
 player = NodePath("Player")
 spawner = NodePath("EnemySpawner")
@@ -57,7 +56,6 @@ heroes = Array[ExtResource("35_herodata")]([ExtResource("12_hero"), ExtResource(
 hero_select = NodePath("HUD/HeroSelect")
 title_screen = NodePath("HUD/TitleScreen")
 stages = Array[ExtResource("45_stage_theme")]([ExtResource("41_st1"), ExtResource("42_st2"), ExtResource("43_st3"), ExtResource("44_st4")])
-stage_select = NodePath("HUD/StageSelect")
 breakables = NodePath("Breakables")
 story_intro = NodePath("HUD/StoryIntro")
 
@@ -182,15 +180,6 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("36_title")
 
-[node name="StageSelect" type="Control" parent="HUD"]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("40_stage_sel")
 
 [node name="StoryIntro" type="Control" parent="HUD"]
 layout_mode = 3
