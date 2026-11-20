@@ -1,0 +1,69 @@
+class_name CombatFeelData
+extends Resource
+## 타격감 공통 수치 (docs/game_feel_research.md ①②③ + 방향 흔들림).
+## 영웅별 수치는 BasicAttackData·HeroData, 적 종류별은 EnemyData에 둔다.
+
+@export_group("피격 (적 개별 멈춤)")
+## 맞은 적만 잠깐 멈추고 떨린다 (내 이동은 안 끊김). 피해가 heavy_damage 이상이면 heavy 쪽.
+@export var hit_freeze: float = 0.05
+@export var hit_freeze_heavy: float = 0.08
+@export var heavy_damage: int = 20
+## 멈춤 동안 좌우 떨림 폭(px).
+@export var hit_shake_px: float = 4.0
+## 피격 밝아짐 전체 시간과, 그중 아주 밝게 보이는 처음 구간(초).
+@export var flash_time: float = 0.08
+@export var flash_peak_time: float = 0.03
+## 피격 먹물 방울 수 (약/강).
+@export var hit_drops: int = 3
+@export var hit_drops_heavy: int = 5
+
+@export_group("처치 날림")
+## 시체가 포물선으로 날아가는 시간(초), 거리 = base + 마지막 피해 × per_damage (최대 max).
+@export var launch_time: float = 0.42
+@export var launch_base: float = 80.0
+@export var launch_per_damage: float = 3.0
+@export var launch_max: float = 320.0
+## 날아가는 높이(px, 가상 Z)와 회전 수.
+@export var launch_height: float = 60.0
+@export var launch_spins: float = 1.5
+## 동시에 날아가는 시체 최대 수 (넘으면 가장 오래된 것부터 사라짐).
+@export var max_corpses: int = 12
+## 땅에 남는 먹 자국이 옅어지는 시간(초).
+@export var mark_time: float = 0.8
+## 처치 시 먹물 방울 수.
+@export var kill_drops: int = 10
+## 화면 전체 먹물 방울 최대 수.
+@export var max_drops: int = 60
+
+@export_group("처치 반응")
+## 일반 처치 흔들림(trauma)과 방향 밀림(px).
+@export var kill_trauma: float = 0.12
+@export var kill_kick_px: float = 6.0
+## 일반 처치 전체 멈춤(초). 연속 처치로 화면이 끊기지 않게 min_gap마다 한 번만.
+@export var kill_freeze: float = 0.03
+@export var kill_freeze_min_gap: float = 0.25
+## 정예·보스 마무리: 게임 속도 배율, 실제 시간(초), 흔들림.
+@export var finisher_time_scale: float = 0.25
+@export var finisher_time: float = 0.35
+@export var finisher_trauma: float = 0.6
+
+@export_group("카메라")
+## true면 흔들림이 맞은 방향으로 밀리는 쪽으로 치우친다 (무작위 대신).
+@export var directional_shake: bool = true
+## 방향 흔들림에서 옆으로 떨리는 비율 (0 = 정확히 한 방향).
+@export var shake_side_ratio: float = 0.3
+## 방향 밀림이 돌아오는 빠르기(초당 감쇠율).
+@export var kick_return: float = 14.0
+
+
+func freeze_for(damage: int) -> float:
+	return hit_freeze_heavy if damage >= heavy_damage else hit_freeze
+
+
+func drops_for(damage: int) -> int:
+	return hit_drops_heavy if damage >= heavy_damage else hit_drops
+
+
+## 마지막 피해로 날아갈 거리 (적 종류 배율 포함).
+func launch_distance(last_damage: int, scale: float = 1.0) -> float:
+	return minf(launch_base + maxf(last_damage, 0) * launch_per_damage, launch_max) * scale

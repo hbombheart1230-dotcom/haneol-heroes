@@ -7,6 +7,8 @@ extends HitBox2D
 @export var speed: float = 700.0
 @export var lifetime: float = 0.8
 @export var damage: int = 10
+## 적중 시 진행 방향으로 미는 힘 (0이면 없음).
+@export var knockback: float = 0.0
 ## true면 적중 후에도 사라지지 않고 계속 관통한다.
 @export var pierce: bool = false
 ## 크기 배율 (충돌 영역과 그림 모두).
@@ -39,8 +41,10 @@ func _physics_process(delta: float) -> void:
 		queue_redraw()
 
 
-func _on_action_applied(_hurt_box: HurtBox2D) -> void:
+func _on_action_applied(hurt_box: HurtBox2D) -> void:
 	hits += 1
+	if knockback > 0.0 and hurt_box and hurt_box.get_parent() is Enemy:
+		(hurt_box.get_parent() as Enemy).apply_knockback(direction * knockback)
 	if pierce:
 		return
 	ignore_collisions = true

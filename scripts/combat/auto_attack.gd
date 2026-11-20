@@ -71,6 +71,8 @@ func _melee(from: Vector2, toward: Vector2, enemy_list: Array) -> void:
 			h.damage(d.melee_damage)
 		if e is Enemy:  # 피격 반응: 살짝 밀려남
 			(e as Enemy).apply_knockback((e.global_position - from).normalized() * d.melee_knockback)
+	if not hits.is_empty() and d.melee_recoil > 0.0:  # 칼이 닿은 반동 (Hollow Knight식)
+		player.apply_recoil(-_swing_dir * d.melee_recoil)
 	melee_swung.emit(_swing_dir, hits.size())
 	queue_redraw()
 
@@ -85,6 +87,7 @@ func _fire(from: Vector2, dir: Vector2) -> void:
 	p.damage = d.ranged_damage
 	p.speed = d.ranged_speed
 	p.lifetime = d.ranged_lifetime
+	p.knockback = d.ranged_knockback
 	if d.ranged_glyphs != "":
 		p.glyph = d.ranged_glyphs[_glyph_i % d.ranged_glyphs.length()]
 		_glyph_i += 1

@@ -32,3 +32,4 @@ sprite_sheet = ExtResource("3_sheet")
 sprite_tint = Color(0.82, 0.9, 1, 1)
 sprite_scale = 1.45
 sprite_offset = Vector2(0, -60)
+launch_scale = 0.6

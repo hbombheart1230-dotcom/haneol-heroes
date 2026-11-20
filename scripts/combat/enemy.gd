@@ -36,6 +36,11 @@ var _detour_side: float = 1.0
 ## 느려짐: 이동 속도 배율과 남은 시간 (해시계 멈춤·발묵).
 var _slow_factor: float = 1.0
 var _slow_left: float = 0.0
+## 개별 멈춤(맞은 적만 잠깐 멈춤) 남은 시간과 떨림 기준 위치.
+var _freeze_left: float = 0.0
+## 마지막으로 맞은 방향과 피해 (처치 날림용).
+var _last_hit_dir: Vector2 = Vector2.ZERO
+var _last_damage: int = 0
 ## 넉백 감쇠율(초당). 클수록 빨리 멈춘다.
 @export var knockback_damping: float = 8.0
 
@@ -121,7 +126,42 @@ func compute_velocity(neighbors: Array) -> Vector2:
 	return (dir + push * separation_strength).limit_length(1.0) * move_speed * speed_scale()
 
 
+## 맞은 적만 seconds초 멈추고 떨린다 (Smash식 개별 히트스톱). 더 긴 쪽 유지.
+func freeze(seconds: float) -> void:
+	_freeze_left = maxf(_freeze_left, seconds)
+
+
+func is_frozen() -> bool:
+	return _freeze_left > 0.0
+
+
+func last_hit_dir() -> Vector2:
+	return _last_hit_dir
+
+
+## 멈춤 중: 움직이지 않고 동작도 멈춘 채 좌우로 떤다. 넉백은 멈춤이 끝나면 그대로 이어진다.
+func _tick_freeze(delta: float) -> void:
+	_freeze_left = maxf(_freeze_left - delta, 0.0)
+	_flash = maxf(_flash - delta, 0.0)
+	if sprite:
+		var px := Feedback.feel_data().hit_shake_px
+		sprite.speed_scale = 0.0 if _freeze_left > 0.0 else 1.0
+		sprite.position = data.sprite_offset + Vector2((px if Engine.get_physics_frames() % 2 == 0 else -px) if _freeze_left > 0.0 else 0.0, 0)
+		sprite.modulate = _flash_color()
+	queue_redraw()
+
+
+func _flash_color() -> Color:
+	if _flash <= 0.0:
+		return data.sprite_tint if data else Color.WHITE
+	var feel := Feedback.feel_data()
+	return Color(2.6, 2.6, 2.6) if _flash > feel.flash_time - feel.flash_peak_time else Color(1.8, 1.8, 1.8)
+
+
 func _physics_process(delta: float) -> void:
+	if _freeze_left > 0.0:
+		_tick_freeze(delta)
+		return
 	var busy := false
 	_slow_left = maxf(_slow_left - delta, 0.0)
 	if _stun_left > 0.0:
@@ -168,8 +208,15 @@ func _note_obstacle() -> void:
 
 
 func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc: int, _mul: float, applied: int) -> void:
-	_flash = 0.1
-	Feedback.enemy_hit(global_position, applied)
+	var feel := Feedback.feel_data()
+	_flash = feel.flash_time
+	_last_damage = applied
+	if target and is_instance_valid(target):
+		var d := global_position - target.global_position
+		_last_hit_dir = d.normalized() if d.length_squared() > 0.01 else _last_hit_dir
+	if applied > 0 and not health.is_dead():
+		freeze(feel.freeze_for(applied))
+	Feedback.enemy_hit(global_position, applied, _last_hit_dir)
 	queue_redraw()
 
 
@@ -203,7 +250,9 @@ func _update_sprite(busy: bool) -> void:
 	var name_dir := StringName("%s_%d" % [anim, sheet.dir_index(face)])
 	if sprite.animation != name_dir:
 		sprite.play(name_dir)
-	sprite.modulate = Color(1.8, 1.8, 1.8) if _flash > 0.0 else data.sprite_tint
+	sprite.speed_scale = 1.0
+	sprite.position = data.sprite_offset
+	sprite.modulate = _flash_color()
 
 
 func _charge_to(end: Vector2) -> void:
@@ -228,7 +277,7 @@ func _on_died(_entity: Node) -> void:
 		attack.cancel()
 	remove_from_group(GROUP)
 	remove_from_group(BOSS_GROUP)
-	Feedback.enemy_died(global_position)
+	Feedback.enemy_died(self, _last_hit_dir, _last_damage)
 	killed.emit(self)
 	queue_free()
 

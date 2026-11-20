@@ -14,6 +14,15 @@ var _sheet: SpriteSheetSet
 ## 일회성 동작(공격·피격)이 끝날 때까지 남은 시간.
 var _oneshot: String = ""
 var _oneshot_left: float = 0.0
+## 지금 보여 주는 방향 번호 (-1 = 아직 없음). 경계에서 떨리지 않게 붙잡아 둔다.
+var _dir: int = -1
+## 달리기 ↔ 대기 전환 문턱 (최고 속도 대비). 들어갈 때와 나올 때를 다르게 해 깜빡임 방지.
+const RUN_ENTER := 0.2
+const RUN_EXIT := 0.08
+## 달리기 동작 재생 속도 = 실제 속도 비율, 이 범위로 제한 (발이 미끄러져 보이지 않게).
+const RUN_ANIM_MIN := 0.6
+const RUN_ANIM_MAX := 1.15
+var _running: bool = false
 
 
 func _ready() -> void:
@@ -52,10 +61,27 @@ func _setup_sprite(h: HeroData) -> void:
 	add_child(_sprite)
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
 	if attack:
-		attack.melee_swung.connect(func(_d: Vector2, _h: int) -> void: play_oneshot("attack", 0.35))
+		attack.melee_swung.connect(_on_auto_swing)
 	var caster := player.get_node_or_null("SkillCaster") as SkillCaster
 	if caster:
 		caster.skill_cast.connect(func(_s: SkillCaster.Slot, _h: int) -> void: play_oneshot("attack", 0.35))
+
+
+## 자동 공격 동작은 서 있을 때만. 달리는 중엔 다리를 멈추지 않고 검기 이펙트만 보인다
+## (0.55초마다 달리기가 끊겨 끊겨 보이던 원인).
+func _on_auto_swing(_d: Vector2, _h: int) -> void:
+	if not is_moving():
+		play_oneshot("attack", 0.35)
+
+
+## 실제 걷기 속도 기준으로 달리는 중인지 (문턱 두 개로 깜빡임 방지).
+func is_moving() -> bool:
+	var top := maxf(player.move_speed, 1.0)
+	var ratio := player.walk_velocity().length() / top
+	if player.move_input.length() > 0.1:
+		ratio = maxf(ratio, player.move_input.length())
+	_running = ratio > (RUN_EXIT if _running else RUN_ENTER)
+	return _running
 
 
 func play_oneshot(anim: String, seconds: float) -> void:
@@ -73,7 +99,7 @@ func current_anim() -> String:
 		return "hit"
 	if _oneshot_left > 0.0:
 		return _oneshot
-	if player.move_input.length() > 0.1:
+	if is_moving():
 		return "run"
 	return "idle"
 
@@ -89,7 +115,8 @@ func available_anim(anim: String) -> String:
 
 func _update_sprite(delta: float) -> void:
 	_oneshot_left = maxf(_oneshot_left - delta, 0.0)
-	var dir := _sheet.dir_index(player.facing)
+	_dir = _sheet.dir_index_sticky(player.facing, _dir)
+	var dir := _dir
 	var anim_name := StringName("%s_%d" % [available_anim(current_anim()), dir])
 	if _sprite.animation != anim_name:
 		var frame := _sprite.frame
@@ -103,6 +130,13 @@ func _update_sprite(delta: float) -> void:
 	elif player.is_dashing():
 		tint = Color(0.75, 0.9, 1.0)
 	_sprite.modulate = tint
+	_sprite.speed_scale = run_anim_speed() if current_anim() == "run" else 1.0
+
+
+## 달리기 동작 속도: 실제로 빨리 갈수록 빨리 (가속 중엔 천천히 → 발이 땅에 붙어 보인다).
+func run_anim_speed() -> float:
+	var ratio := player.walk_velocity().length() / maxf(player.move_speed, 1.0)
+	return clampf(ratio, RUN_ANIM_MIN, RUN_ANIM_MAX)
 
 
 func _physics_process(delta: float) -> void:

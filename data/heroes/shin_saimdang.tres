@@ -24,11 +24,13 @@ melee_range = 110.0
 melee_arc_degrees = 150.0
 melee_damage = 10
 melee_knockback = 100.0
+melee_recoil = 3.0
 ranged_interval = 0.8
 ranged_range = 450.0
 ranged_damage = 10
 ranged_speed = 650.0
 ranged_lifetime = 0.75
+ranged_knockback = 50.0
 
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
@@ -95,6 +97,8 @@ sprite_scale = 0.85
 sprite_offset = Vector2(0, -59)
 max_hp = 90
 move_speed = 330.0
+move_accel_time = 0.04
+move_decel_time = 0.04
 hurt_invuln_time = 0.6
 evade_invuln_time = 1.0
 dash_distance = 240.0

@@ -31,3 +31,4 @@ stun_scale = 0.8
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.45
 sprite_offset = Vector2(0, -61)
+launch_scale = 0.6
