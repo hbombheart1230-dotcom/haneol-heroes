@@ -238,3 +238,12 @@ func test_reset_drops_stop_watch_at_once() -> void:
 	GameTime.reset()
 	assert_bool(get_tree().process_frame.is_connected(GameTime._on_frame)).is_false()
 	assert_float(Engine.time_scale).is_equal(1.0)
+
+
+func test_seal_slow_time_keeps_running_finisher() -> void:
+	# Codex 5fb5388: 정예 처치 슬로모션 직후 인장(기준 0.35)이 열려도 슬로모션이 이어지고, 끝나면 0.35로
+	GameTime.stop(get_tree(), 0.2, 0.25)
+	GameTime.set_base(0.35)
+	assert_float(Engine.time_scale).is_equal_approx(0.35 * 0.25, 0.001)
+	await _wait_real(0.3)
+	assert_float(Engine.time_scale).is_equal_approx(0.35, 0.001)

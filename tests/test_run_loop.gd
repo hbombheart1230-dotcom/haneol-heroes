@@ -302,7 +302,9 @@ func test_main_scene_level_up_drops_seals_without_pausing() -> void:
 	assert_bool(sc.is_open()).is_true()
 	assert_bool(sc.major).is_false()
 	assert_bool(get_tree().paused).is_false()
-	assert_float(Engine.time_scale).is_equal(sc.slow_scale)
+	# 처치 멈춤(0.03초)이 아직 걸려 있으면 인장의 느린 시간 위에 겹친다
+	assert_float(GameTime.base).is_equal(sc.slow_scale)
+	assert_float(Engine.time_scale).is_less_equal(sc.slow_scale)
 	var t: float = main.state.elapsed
 	await get_tree().physics_frame
 	assert_float(main.state.elapsed).is_greater(t)  # 멈추지 않는다 (느리게 흐름)

@@ -8,16 +8,22 @@ static var base: float = 1.0
 ## (짧은 처치 멈춤이 정예·보스 슬로모션을 일찍 풀지 않게, Codex c6580b8 지적).
 static var _stop_until_ms: int = 0
 static var _tree: SceneTree
+## 지금 걸린 멈춤의 배율 (base × 이 값).
+static var _stop_scale: float = 1.0
 
 
+## 기준 배율 바꾸기 (인장 고르기 느린 시간). 걸려 있던 멈춤은 지우지 않고 새 기준 위에서 이어 간다
+## (정예 처치 슬로모션 직후 인장이 열려도 슬로모션이 사라지지 않게, Codex 5fb5388 지적).
 static func set_base(scale: float) -> void:
 	base = scale
-	Engine.time_scale = scale
-	_stop_until_ms = 0
-	_unwatch()  # 걸려 있던 멈춤 감시도 바로 끊는다
+	Engine.time_scale = base * _stop_scale if is_stopped() else base
 
 
+## 판 새로 시작·장면 다시 불러오기: 기준 1.0, 걸린 멈춤과 감시도 바로 끊는다.
 static func reset() -> void:
+	_stop_until_ms = 0
+	_stop_scale = 1.0
+	_unwatch()
 	set_base(1.0)
 
 
@@ -34,6 +40,7 @@ static func stop(tree: SceneTree, duration: float, scale: float = 0.05) -> void:
 	if is_stopped() and until < _stop_until_ms:
 		return  # 더 긴 멈춤이 이미 걸려 있다
 	_stop_until_ms = until
+	_stop_scale = scale
 	Engine.time_scale = base * scale
 	if _tree != tree:
 		_unwatch()
@@ -45,6 +52,7 @@ static func stop(tree: SceneTree, duration: float, scale: float = 0.05) -> void:
 static func _on_frame() -> void:
 	if is_stopped():
 		return
+	_stop_scale = 1.0
 	Engine.time_scale = base
 	_unwatch()
 
