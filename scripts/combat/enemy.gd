@@ -325,9 +325,7 @@ func _on_died(_entity: Node) -> void:
 
 func _draw() -> void:
 	EnemyArt.draw(self)
-	if affix and affix.label != "":  # 정예 변종 이름
-		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-60, -body_radius * 3.2), affix.label, 26, affix.rim_color, 120.0,
-			Color(0, 0, 0, 0.75), 5)
+	EnemyNameTag.draw(self)  # 네임드 이름·변종 이름
 	if _slow_left > 0.0:  # 느려짐: 발밑 먹 고리
 		draw_arc(Vector2(0, body_radius * 0.7), body_radius * 1.1, 0.0, TAU, 20, Color(Ink.INK, 0.35), 3.0)
 	if _stun_left > 0.0:  # 기절: 머리 위 번개 고리

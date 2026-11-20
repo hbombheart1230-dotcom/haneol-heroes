@@ -8,6 +8,11 @@ signal chosen(upgrade: UpgradeDef, major: bool)
 
 @export var player: Player
 @export var fx: FxLayer
+## 떨어질 때 빛기둥, 먹을 때 터짐·글자 (없으면 고리만).
+@export var reward_fx: RewardFx
+## 하늘에서 떨어져 바닥에 닿기까지(실제 초)와 떨어지는 높이.
+@export var fall_time: float = 0.3
+@export var fall_height: float = 260.0
 ## 인장까지 거리(px)와 인장 크기.
 @export var spread: float = 160.0
 @export var seal_radius: float = 46.0
@@ -25,6 +30,7 @@ var major: bool = false
 var stacks: Dictionary = {}
 var _left: float = 0.0
 var _age: float = 0.0
+var _landed := false
 
 ## 인장 개수별 방향(도, 화면 기준 y 아래): 위왼쪽·위오른쪽·아래.
 const ANGLES := {1: [-90.0], 2: [-150.0, -30.0], 3: [-150.0, -30.0, 90.0]}
@@ -54,6 +60,7 @@ func open(p_choices: Array[UpgradeDef], center: Vector2, p_major: bool, p_stacks
 		positions.append(p)
 	_left = timeout
 	_age = 0.0
+	_landed = false
 	show()
 	GameTime.set_base(slow_scale)
 
@@ -97,6 +104,12 @@ func pick(i: int) -> void:
 	close()
 	if fx:
 		fx.add_ring(where, seal_radius * 2.2, 0.35, Ink.GOLD if was_major else u.color)
+	if reward_fx:
+		reward_fx.pickup(where, Ink.GOLD if was_major else u.color, u.title, u.description.split("
+")[0])
+	if Feedback.instance:
+		Feedback.instance.play(&"magic")
+		Feedback.instance.haptic(60, 0.8)
 	chosen.emit(u, was_major)
 
 
@@ -106,6 +119,11 @@ func step(real_delta: float) -> void:
 		return
 	_age += real_delta
 	_left -= real_delta
+	if not _landed and _age >= fall_time:
+		_landed = true
+		for i in positions.size():
+			if reward_fx:
+				reward_fx.land(positions[i], Ink.GOLD if major else choices[i].color)
 	if player:
 		var hit := seal_at(player.global_position, player.body_radius * 0.5)
 		if hit >= 0:
@@ -127,9 +145,15 @@ func _draw() -> void:
 	var font := UiStyle.BODY_FONT
 	var grow := clampf(_age / 0.15, 0.0, 1.0)
 	var r := seal_radius * grow
+	var fall := clampf(_age / maxf(fall_time, 0.01), 0.0, 1.0)
+	var drop := -fall_height * (1.0 - fall * fall)  # 하늘에서 빨라지며 떨어진다
+	var glow := 0.55 + 0.25 * sin(_age * 6.0)
 	for i in choices.size():
 		var u := choices[i]
-		var c := to_local(positions[i])
+		var ground := to_local(positions[i])
+		var ring_col := Ink.GOLD if major else u.color
+		_draw_beam(ground, ring_col, glow if fall >= 1.0 else 0.9)
+		var c := ground + Vector2(0, drop)
 		Ink.blob(self, c, r * 1.15, Color(Ink.INK, 0.25), float(i) + 3.0)
 		draw_circle(c, r, Ink.PAPER)
 		var ring := Ink.GOLD if major else u.color
@@ -154,3 +178,14 @@ func _draw() -> void:
 		var pc := to_local(player.global_position)
 		var k := clampf(_left / maxf(timeout, 0.001), 0.0, 1.0)
 		draw_arc(pc, 70.0, -PI * 0.5, -PI * 0.5 + TAU * k, 48, Color(Ink.INK, 0.6), 4.0)
+
+
+## 바닥에 놓인 보상 위로 서는 빛기둥과 발밑 빛무리 (멀리서도 보이게).
+func _draw_beam(ground: Vector2, col: Color, a: float) -> void:
+	var w := seal_radius * 0.9
+	var top := ground - Vector2(0, 300)
+	draw_polygon(PackedVector2Array([top - Vector2(w * 0.4, 0), top + Vector2(w * 0.4, 0), ground + Vector2(w, 0), ground - Vector2(w, 0)]),
+		PackedColorArray([Color(col, 0.0), Color(col, 0.0), Color(col, 0.45 * a), Color(col, 0.45 * a)]))
+	draw_set_transform(ground + Vector2(0, seal_radius * 0.6), 0.0, Vector2(1.0, 0.4))
+	draw_circle(Vector2.ZERO, seal_radius * 1.6, Color(col, 0.3 * a))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

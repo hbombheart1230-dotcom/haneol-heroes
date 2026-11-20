@@ -8,6 +8,8 @@ signal potion_taken(pos: Vector2, healed: int)
 
 @export var player: Player
 @export var fx: FxLayer
+## 탕약이 떨어질 때 빛기둥, 마실 때 터짐·글자.
+@export var reward_fx: RewardFx
 ## 근접 공격이 물건도 깨게 (부채꼴 안).
 @export var auto_attack: AutoAttack
 ## 막히는 장애물 안에는 놓지 않는다 (Main이 무대마다 Arena.obstacles를 넣어 준다).
@@ -114,6 +116,8 @@ func break_at(i: int) -> void:
 	var dropped := rng.randf() < data.drop_chance
 	if dropped:
 		potions.append({"pos": p, "age": 0.0})
+		if reward_fx:
+			reward_fx.land(p, POTION_COLOR)
 	if fx:
 		fx.add_ring(p, data.radius * 2.0, 0.3, Ink.INK)
 		fx.add_spark(p, Ink.PAPER)
@@ -131,8 +135,11 @@ func _drink(i: int) -> void:
 		player.health.heal(healed)
 	if fx:
 		fx.add_ring(p, 70.0, 0.4, Color(0.45, 0.8, 0.45))
+	if reward_fx:
+		reward_fx.pickup(p, POTION_COLOR, "+%d" % healed, "체력 회복")
 	if Feedback.instance:
 		Feedback.instance.play(&"magic")
+		Feedback.instance.haptic(40, 0.6)
 	potion_taken.emit(p, healed)
 
 
@@ -154,6 +161,7 @@ func _draw() -> void:
 
 ## 탕약 사발: 흰 사발에 검붉은 약, 김 두 줄, 초록 빛무리. 사라지기 3초 전부터 깜빡인다.
 const POTION_SCALE := 1.5
+const POTION_COLOR := Color(0.45, 0.85, 0.45)
 
 
 func _draw_potion(p: Vector2, age: float) -> void:
