@@ -119,3 +119,11 @@ func test_feedback_routes_to_decals() -> void:
 	add_child(f)
 	Feedback.vfx_burst(_decal(), Vector2.ZERO, Vector2.ZERO, 0)
 	assert_int(f.decals.count()).is_equal(1)
+
+
+func test_flourish_rings_are_capped() -> void:
+	var v: VfxDecals = auto_free(VfxDecals.new())
+	var d := _decal()
+	for i in 30:
+		v.burst(d, Vector2.ZERO, Vector2.ZERO, d.ring_level)
+	assert_int(v.ring_count()).is_equal(v.feel.max_flourish_rings)

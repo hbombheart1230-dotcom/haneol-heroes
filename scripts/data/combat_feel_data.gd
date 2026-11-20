@@ -98,6 +98,9 @@ extends Resource
 @export var flourish_ring_scale: float = 0.45
 @export var flourish_ring_time: float = 0.45
 @export var flourish_ring_width: float = 10.0
+## 고리 세로 눌림 비율과 동시 최대 수.
+@export var flourish_ring_squash: float = 0.6
+@export var max_flourish_rings: int = 6
 
 
 @export_group("타격 진동")
