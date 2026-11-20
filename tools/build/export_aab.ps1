@@ -24,6 +24,15 @@ try {
         (Get-ChildItem (Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Packages\*Godot*\Godot_v4*_console.exe") | Select-Object -Last 1).FullName
     }
     if (-not $godot) { throw "Godot 콘솔 실행 파일을 찾지 못했습니다 (GODOT_BIN으로 지정)" }
+    # 크기 최적화 엔진 (tools/build/build_templates.ps1 → build/templates/, README "커스텀 내보내기 템플릿")
+    $tpl = if ($Apk) { "build/templates/android_release.apk" } else { "build/templates/godot-lib.template_release.aar" }
+    if (-not (Test-Path $tpl)) { throw "커스텀 템플릿이 없습니다: $tpl (먼저 tools/build/build_templates.ps1)" }
+    if (-not $Apk) {
+        # gradle 빌드는 android/build/libs/release/의 엔진 라이브러리를 쓴다 (내려받은 기본 엔진을 덮어쓴다)
+        $libDst = "android/build/libs/release/godot-lib.template_release.aar"
+        if (-not (Test-Path (Split-Path $libDst))) { throw "android/build가 없습니다 (README의 gradle 템플릿 설치 참고)" }
+        Copy-Item -Force $tpl $libDst
+    }
     New-Item -ItemType Directory -Force (Split-Path $Out) | Out-Null
     & $godot --headless --path . --export-release $preset $Out
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path $Out)) { throw "AAB 빌드 실패 (exit $LASTEXITCODE)" }
