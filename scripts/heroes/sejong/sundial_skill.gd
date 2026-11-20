@@ -6,7 +6,6 @@ extends SkillDef
 @export var damage: int = 30
 @export var slow_factor: float = 0.3
 @export var slow_time: float = 2.0
-@export var hit_stop: float = 0.06
 @export_group("큰 변형 · 멈춘 시간")
 ## 0보다 크면 느려진 적이 이 초 동안 완전히 멈춘다 (기절).
 @export var freeze_time: float = 0.0
@@ -29,6 +28,4 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		for i in 12:  # 해시계 눈금
 			var d := Vector2.from_angle(TAU * i / 12.0)
 			ctx.fx.add_slash(center + d * radius * 0.8, center + d * radius, 4.0, 0.6, fx_color)
-	if hits > 0:
-		ctx.hit_stop(hit_stop)
-	return SkillRun.instant(hits)
+	return SkillRun.instant(hits)  # 명중 멈춤은 SkillHitStop 공통 규칙 (피해 비례, D3)

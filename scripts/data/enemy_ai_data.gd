@@ -21,6 +21,21 @@ extends Resource
 @export var stand_off_margin: float = -8.0
 @export var stand_off_band: float = 24.0
 
+@export_group("무게 등급 (B3)")
+## 정예 갑옷 = 최대체력 × elite_armor_frac. 갑옷이 있는 동안 넉백 면역, 깨지면 armor_break_stun초 기절,
+## armor_regen_delay초 뒤 다시 찬다. 분열로 나온 작은 적은 잡몹 취급.
+@export var elite_armor_frac: float = 0.3
+@export var armor_break_stun: float = 1.0
+@export var armor_regen_delay: float = 6.0
+## 보스: 넉백 면역, 경직 게이지 = 최대체력 × boss_stagger_frac. 차면 boss_stagger_time초 휘청, 다음 게이지는 growth배.
+@export var boss_stagger_frac: float = 0.12
+@export var boss_stagger_time: float = 0.8
+@export var boss_stagger_growth: float = 1.5
+## 발밑 막대: 두께(px), 갑옷 색, 경직 게이지 색.
+@export var poise_bar_height: float = 4.0
+@export var armor_bar_color: Color = Color(0.82, 0.88, 0.95, 0.95)
+@export var stagger_bar_color: Color = Color(1.0, 0.78, 0.3, 0.95)
+
 @export_group("예고·처벌")
 ## 공격 직후 경직 중 받는 피해 배율 (빈틈을 찌르면 더 아프다).
 @export var punish_mult: float = 1.3

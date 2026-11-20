@@ -7,7 +7,6 @@ extends SkillDef
 @export var damage: int = 60
 @export var knockback: float = 520.0
 ## 히트스톱 길이(실시간 초).
-@export var hit_stop: float = 0.08
 @export_group("큰 변형 · 사방 검기")
 ## 반격과 함께 사방으로 날리는 관통 검기 수 (0이면 없음).
 @export var radial_blades: int = 0
@@ -39,6 +38,4 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 			pr.pierce = true
 			pr.damage = blade_damage
 			pr.size_scale = 1.3)
-	if hits > 0:
-		ctx.hit_stop(hit_stop)
-	return SkillRun.instant(hits)
+	return SkillRun.instant(hits)  # 명중 멈춤은 SkillHitStop 공통 규칙 (피해 비례, D3)

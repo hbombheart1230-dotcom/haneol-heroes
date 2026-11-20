@@ -42,6 +42,8 @@ var _freeze_left: float = 0.0
 var _freeze_total: float = 0.0
 ## 맞는 반응 (맞는 동작·잡몹 경직·그림 움찔·흰 번쩍임).
 var reaction: HitReaction
+## 무게 등급 (정예 갑옷·보스 경직 게이지).
+var poise: EnemyPoise
 ## 돌진 이동 (맞아 경직·기절하면 멈춘다).
 var _charge_tw: Tween
 ## 마지막으로 맞은 방향과 피해 (처치 날림용).
@@ -64,7 +66,7 @@ static func ai_data() -> EnemyAIData:
 
 
 func apply_knockback(impulse: Vector2) -> void:
-	knockback += impulse * (data.knockback_scale if data else 1.0)
+	knockback += impulse * (data.knockback_scale if data else 1.0) * (poise.knockback_mult() if poise else 1.0)
 
 
 ## 밀쳐내기 (영웅 숨 돌릴 틈): 넉백 + 잡몹은 잠깐 경직 (쫓아오며 넉백을 지우지 않게).
@@ -135,7 +137,8 @@ func _ready() -> void:
 			add_to_group(BOSS_GROUP)
 		if data.sprite_sheet:
 			sprite = EnemySprite.setup(self)
-	reaction = HitReaction.new(Feedback.feel_data().reaction_data(), HitReaction.tier_of(data, affix != null))
+	reaction = HitReaction.new(Feedback.feel_data().reaction_data(), HitReaction.tier_of(data, affix != null, hp_mult))
+	poise = EnemyPoise.new(reaction.tier, health.max, AI)
 	add_to_group(GROUP)
 	health.damaged.connect(_on_damaged)
 	health.died.connect(_on_died)
@@ -207,6 +210,9 @@ func _physics_process(delta: float) -> void:
 	_slow_left = maxf(_slow_left - delta, 0.0)
 	if reaction:
 		reaction.tick(delta)
+	if poise and poise.bar_ratio() >= 0.0:
+		poise.tick(delta)
+		queue_redraw()
 	if _stun_left > 0.0:
 		_stun_left = maxf(_stun_left - delta, 0.0)
 		_drift(delta)
@@ -214,7 +220,7 @@ func _physics_process(delta: float) -> void:
 	if attack:
 		var r := attack.tick(delta, global_position, target as Player)
 		if r != EnemyAttack.Result.NONE:
-			_on_attack_result(r)
+			EnemyActions.on_attack_result(self, r)
 		busy = attack.is_busy()
 		if busy:
 			queue_redraw()
@@ -278,23 +284,25 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 			EnemySprite.start_hit(self)  # 멈춤 동안 첫 프레임, 멈춤 뒤 나머지 (R1)
 		if reaction and reaction.is_staggered():
 			_stop_charge()  # 잡몹 돌진은 맞으면 멈춘다 (정예·보스는 그대로 밀고 온다)
+		if poise:
+			_on_poise(poise.on_damage(applied))
 	Feedback.enemy_hit(global_position, applied, _last_hit_dir)
 	queue_redraw()
 
 
-## 공격 결과: 화살 발사, 돌진(빗나가면 더 미끄러짐), 혀로 끌어당기기.
-func _on_attack_result(r: EnemyAttack.Result) -> void:
-	var d := attack.data
-	if r == EnemyAttack.Result.FIRED:
-		_fire_arrow()
-	elif d.kind == EnemyAttackData.Kind.CHARGE:
-		var extra := d.miss_overshoot if r != EnemyAttack.Result.HIT else 0.0
-		_charge_to(attack.charge_end() + attack.aim_dir * extra)
-	elif d.kind == EnemyAttackData.Kind.PULL and r == EnemyAttack.Result.HIT and target is Player:
-		var p := target as Player
-		var to_me := global_position - p.global_position
-		var dist := minf(d.pull_distance, maxf(to_me.length() - body_radius - p.body_radius, 0.0))
-		p.apply_recoil(to_me.normalized() * dist, d.pull_time)
+## 갑옷 깨짐(정예) · 휘청(보스): 기절 저항(stun_scale)과 무관하게 정해진 시간 멈추고 맞는 동작.
+func _on_poise(ev: EnemyPoise.Event) -> void:
+	if ev == EnemyPoise.Event.NONE:
+		return
+	var broke := ev == EnemyPoise.Event.ARMOR_BREAK
+	_stun_left = maxf(_stun_left, AI.armor_break_stun if broke else AI.boss_stagger_time)
+	if attack:
+		attack.cancel()
+	_stop_charge()
+	if reaction and sprite:
+		reaction.anim_left = reaction.data.hit_anim_time
+		EnemySprite.start_hit(self)
+	Feedback.poise_broken(global_position, broke)
 
 
 ## 공격 중 움직임 (물러나며 쏘기만, 나머지는 제자리).
@@ -343,13 +351,6 @@ func is_charging() -> bool:
 	return _charge_tw != null and _charge_tw.is_valid() and _charge_tw.is_running()
 
 
-func _fire_arrow() -> void:
-	var a := EnemyArrow.new()
-	a.direction = attack.aim_dir
-	a.setup(target as Player, global_position, attack.data)
-	get_parent().add_child(a)
-
-
 func _exit_tree() -> void:
 	if attack:
 		attack.cancel()
@@ -372,12 +373,7 @@ func _on_died(_entity: Node) -> void:
 func _draw() -> void:
 	EnemyArt.draw(self)
 	EnemyNameTag.draw(self)  # 네임드 이름·변종 이름
-	if _slow_left > 0.0:  # 느려짐: 발밑 먹 고리
-		draw_arc(Vector2(0, body_radius * 0.7), body_radius * 1.1, 0.0, TAU, 20, Color(Ink.INK, 0.35), 3.0)
-	if _stun_left > 0.0:  # 기절: 머리 위 번개 고리
-		var top := Vector2(0, -body_radius * 2.2)
-		var spin := Time.get_ticks_msec() * 0.008
-		draw_arc(top, body_radius * 0.6, spin, spin + PI * 1.3, 12, Color(1.0, 0.9, 0.3, 0.9), 3.0)
+	EnemyStatusArt.draw(self, _slow_left > 0.0, _stun_left > 0.0)  # 느려짐·기절 고리, 갑옷·경직 막대
 
 
 func flash_left() -> float:
