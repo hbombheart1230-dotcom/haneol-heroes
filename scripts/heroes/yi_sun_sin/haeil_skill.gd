@@ -19,11 +19,12 @@ extends SkillDef
 
 func cast(ctx: SkillContext, charge: float) -> SkillRun:
 	var c := clampf(charge, 0.0, 1.0)
-	var p := _wave(ctx, ctx.player.facing, c)
+	var dir := aim(ctx)
+	var p := _wave(ctx, dir, c)
 	for i in extra_waves:
 		var side := 1.0 if i % 2 == 0 else -1.0
 		var step := float(floori(i / 2.0) + 1)
-		_wave(ctx, ctx.player.facing.rotated(deg_to_rad(spread_degrees * step * side)), c)
+		_wave(ctx, dir.rotated(deg_to_rad(spread_degrees * step * side)), c)
 	var run := SkillRun.instant(0)
 	run.set_meta(&"projectile", p)
 	return run

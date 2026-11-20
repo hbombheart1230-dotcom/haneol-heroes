@@ -43,6 +43,8 @@ extends Resource
 @export var dash_shove_radius: float = 70.0
 ## 영웅마다 다른 회피 생김새·도착 효과 (없으면 기본 대시).
 @export var dash_style: DashStyleData
+## 명중 재질 소리 겹 (SoundBank 종류, 공통 몸통 "hit" 위에 같이 울린다). 예: 순신 물·칼.
+@export var hit_sfx: Array[StringName] = []
 ## 궁극기를 모으는 동안 발밑 표시 (없으면 공통 붓 고리).
 @export var charge_marker: ChargeMarkerData
 

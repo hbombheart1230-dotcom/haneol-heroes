@@ -131,6 +131,8 @@ extends Resource
 
 
 @export_group("맞는 반응·판정")
+## 이 피해 이상이면 큰 타격: 피해 숫자 강조 + 확인음 "팅" (+ 국악 양념).
+@export var big_hit_damage: int = 40
 ## 적·영웅 맞는 반응 수치 (비우면 기본값).
 @export var reaction: HitReactionData
 ## 기술 판정에 더하는 적 몸 반경 배율 (가장자리 판정, LoL식). 0이면 중심점만.

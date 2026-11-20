@@ -14,16 +14,23 @@ extends Resource
 ## 피치 무작위 범위 (배율). 같은 소리 반복이 덜 거슬리게.
 @export var pitch_range: Vector2 = Vector2(0.94, 1.06)
 
+var _last_pick: Dictionary = {}
+
 
 func has(kind: StringName) -> bool:
 	return sounds.has(kind) and not (sounds[kind] as Array).is_empty()
 
 
+## 무작위로 하나, 바로 전과 같은 것은 피한다 (같은 소리 연달아 → 기관총 같음).
 func pick(kind: StringName, rng: RandomNumberGenerator) -> AudioStream:
 	var list: Array = sounds.get(kind, [])
 	if list.is_empty():
 		return null
-	return list[rng.randi() % list.size()]
+	var i := rng.randi() % list.size()
+	if list.size() > 1 and i == int(_last_pick.get(kind, -1)):
+		i = (i + 1 + rng.randi() % (list.size() - 1)) % list.size()
+	_last_pick[kind] = i
+	return list[i]
 
 
 func db(kind: StringName) -> float:

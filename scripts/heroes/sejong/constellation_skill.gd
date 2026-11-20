@@ -28,7 +28,7 @@ func star_points(origin: Vector2, facing: Vector2, n: int) -> PackedVector2Array
 
 
 func cast(ctx: SkillContext, charge: float) -> SkillRun:
-	var pts := star_points(ctx.player.global_position, ctx.player.facing, star_count(charge))
+	var pts := star_points(ctx.player.global_position, aim(ctx), star_count(charge))
 	var struck := {}
 	var hits := 0
 	var prev := ctx.player.global_position
