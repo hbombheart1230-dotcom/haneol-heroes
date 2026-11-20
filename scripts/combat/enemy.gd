@@ -210,9 +210,9 @@ func _physics_process(delta: float) -> void:
 	_slow_left = maxf(_slow_left - delta, 0.0)
 	if reaction:
 		reaction.tick(delta)
-	if poise and poise.bar_ratio() >= 0.0:
+	if poise and poise.armor_max > 0.0 and not poise.is_armored():
 		poise.tick(delta)
-		queue_redraw()
+		queue_redraw()  # 깨진 갑옷이 다시 차는 막대 (그 밖엔 맞을 때만 다시 그린다)
 	if _stun_left > 0.0:
 		_stun_left = maxf(_stun_left - delta, 0.0)
 		_drift(delta)

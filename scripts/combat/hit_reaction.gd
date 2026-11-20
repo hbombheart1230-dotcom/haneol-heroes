@@ -26,7 +26,7 @@ func _init(p_data: HitReactionData = null, p_tier: Tier = Tier.TRASH) -> void:
 static func tier_of(d: EnemyData, has_affix: bool, hp_mult: float = 1.0) -> Tier:
 	if d and d.is_boss:
 		return Tier.BOSS
-	if ((d and d.is_elite) or has_affix) and hp_mult >= 0.999:
+	if ((d and d.is_elite) or has_affix) and hp_mult >= 1.0:
 		return Tier.ELITE
 	return Tier.TRASH
 
