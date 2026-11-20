@@ -30,7 +30,7 @@ func test_next_follows_order_and_wraps() -> void:
 
 
 func test_victory_tap_goes_to_next_stage_for_that_hero() -> void:
-	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.unlock_all_override = 0
 	GameSettings.title_seen = true
 	GameSettings.intro_seen = true

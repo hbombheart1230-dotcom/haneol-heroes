@@ -329,7 +329,7 @@ func test_main_scene_level_up_drops_seals_without_pausing() -> void:
 
 ## 메인 씬 테스트: 영웅 고르기 화면 없이 이순신으로, 실제 설정 파일은 건드리지 않는다.
 func _skip_hero_select() -> void:
-	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.hero_picked = true
 	GameSettings.title_seen = true
 	GameSettings.intro_seen = true

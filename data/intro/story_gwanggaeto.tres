@@ -4,10 +4,11 @@
 [ext_resource type="Script" path="res://scripts/data/intro_slide.gd" id="2_slide"]
 [ext_resource type="Texture2D" path="res://assets/ui/heroes/gwanggaeto.png" id="card"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/manchuria_395.png" id="map"]
+[ext_resource type="Texture2D" path="res://assets/intro/gwanggaeto/s1.png" id="s1"]
 
 [sub_resource type="Resource" id="slide1"]
 script = ExtResource("2_slide")
-image = ExtResource("card")
+image = ExtResource("s1")
 tint = Color(1, 1, 1, 1)
 caption = "광개토"
 lines = PackedStringArray("열여덟에 왕위에 올라", "북으로 남으로 땅을 넓힌 고구려의 왕.")

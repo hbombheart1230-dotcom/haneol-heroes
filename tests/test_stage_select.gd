@@ -61,7 +61,7 @@ func test_stage_select_picks_with_one_tap_only_on_same_card() -> void:
 
 
 func test_main_waits_for_stage_then_uses_its_army() -> void:
-	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
@@ -110,7 +110,7 @@ func test_unlock_flags_follow_cleared_order() -> void:
 
 
 func test_mark_cleared_saves_once() -> void:
-	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.cleared_stages = PackedStringArray()
 	assert_bool(GameSettings.mark_cleared(&"manchuria_395")).is_true()
 	assert_bool(GameSettings.mark_cleared(&"manchuria_395")).is_false()
@@ -138,7 +138,7 @@ func test_locked_stage_card_is_not_pickable() -> void:
 
 
 func test_each_stage_run_uses_its_own_army() -> void:
-	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])

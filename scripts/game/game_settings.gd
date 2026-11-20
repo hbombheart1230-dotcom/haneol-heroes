@@ -5,6 +5,12 @@ extends RefCounted
 const PATH := "user://settings.cfg"
 ## 실제로 읽고 쓰는 파일 (테스트는 다른 파일로 바꿔 실제 설정을 건드리지 않는다).
 static var settings_path: String = PATH
+
+
+## 테스트 전용 설정 파일: 실행(프로세스)마다 다른 파일이라, 다른 실행이 남긴 파일을 읽지 않는다
+## (저장 폴더에 쓸 수 없는 검증 환경에서 이전 실행의 설정이 섞이던 문제).
+static func test_path() -> String:
+	return "user://test_settings_%d.cfg" % OS.get_process_id()
 const SECTION := "controls"
 
 ## 스킬 버튼 표시·사용. 기본은 끔 (한 손 제스처가 기본 조작).

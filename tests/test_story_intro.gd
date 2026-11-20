@@ -58,7 +58,7 @@ func test_intro_finishes_by_itself() -> void:
 
 
 func test_enter_prologue_hero_hero_story_then_run() -> void:
-	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.unlock_all_override = 0  # 정식판 흐름 (전장 고르기 없음)
 	GameSettings.title_seen = false
 	GameSettings.intro_seen = false
@@ -115,7 +115,7 @@ func test_every_hero_has_a_complete_story() -> void:
 
 
 func test_intro_skipped_when_already_seen() -> void:
-	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = false
 	GameSettings.intro_seen = true
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
