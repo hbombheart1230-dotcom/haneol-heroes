@@ -22,6 +22,8 @@ func _init(m: Node) -> void:
 
 func next() -> void:
 	var player: Player = main.player
+	if not _ready_to_run():
+		main.menu_music()  # 화면이 뜨는 동안은 전주
 	if main.title_screen and not GameSettings.title_seen:
 		_hold()
 		main.title_screen.entered.connect(_on_title_entered, CONNECT_ONE_SHOT)
@@ -44,6 +46,15 @@ func next() -> void:
 		main.begin_run()
 
 
+## 이번 호출에서 바로 판이 시작되는지 (띄울 화면이 하나도 없으면).
+func _ready_to_run() -> bool:
+	if not GameSettings.title_seen or (prologue_pending and prologue):
+		return false
+	if main.playable_heroes().size() > 1 and not GameSettings.hero_picked:
+		return false
+	return not pending_hero_story()
+
+
 ## 방금 고른 영웅의 이야기를 보여 줄 차례면 true.
 func pending_hero_story() -> bool:
 	var player: Player = main.player
@@ -60,7 +71,7 @@ func _hold() -> void:
 func _on_title_entered() -> void:
 	Feedback.ui()
 	GameSettings.title_seen = true
-	prologue_pending = GameSettings.should_show_story(GameSettings.intro_seen)
+	prologue_pending = GameSettings.story_enabled and GameSettings.should_show_story(GameSettings.intro_seen)
 	next()
 
 
@@ -74,7 +85,7 @@ func _on_hero_picked(h: HeroData) -> void:
 	Feedback.ui()
 	GameSettings.hero_id = h.id
 	GameSettings.hero_picked = true
-	hero_story_pending = true
+	hero_story_pending = GameSettings.story_enabled
 	GameSettings.save_settings()
 	var player: Player = main.player
 	if player and h != player.hero:
@@ -87,4 +98,3 @@ func _on_hero_story_finished(hero_id: StringName) -> void:
 		GameSettings.seen_stories.append(String(hero_id))
 	GameSettings.save_settings()
 	next()
-

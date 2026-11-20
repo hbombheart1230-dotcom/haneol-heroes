@@ -31,7 +31,7 @@ static func draw(hud: Hud) -> void:
 			"%s · %s" % [hud.next_stage.year_label, hud.next_stage.title], 22, Color(UiStyle.GOLD, 0.85), w)
 	else:
 		UiStyle.button(hud, btn, "다시 시작", 42)
-	if hud.perf and hud.show_touch_debug:
+	if hud.perf and hud.show_touch_debug and GameSettings.show_stats:
 		UiStyle.text(hud, UiStyle.BODY_FONT, Vector2(cx, panel.end.y - 30), hud.perf.summary(), 18,
 			Color(1, 1, 0.6, 0.8), w, Color(0, 0, 0, 0.6), 3)
 	if hud.can_change_hero:

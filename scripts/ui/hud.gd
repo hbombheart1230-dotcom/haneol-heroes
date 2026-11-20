@@ -41,7 +41,7 @@ func _draw() -> void:
 		_draw_status()
 		_draw_boss_bar()
 		_draw_stage_title()
-	if show_touch_debug and controller:
+	if show_touch_debug and GameSettings.show_stats and controller:
 		_draw_touch_debug()
 	if state and not state.is_playing():
 		_draw_result()

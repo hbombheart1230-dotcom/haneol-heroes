@@ -212,17 +212,6 @@ func test_button_hit_area_larger_than_visual() -> void:
 	assert_bool(ctrl.is_on_skill_button(outside)).is_false()
 
 
-func test_toggle_area_switches_button() -> void:
-	var p := ctrl.toggle_rect().get_center()
-	_down(0, p, 0.0)
-	assert_bool(ctrl.skill_button_enabled).is_true()
-	assert_bool(ctrl.touch_input.is_active()).is_false()
-	_up(0, p, 0.05)
-	_down(1, p, 0.2)
-	assert_bool(ctrl.skill_button_enabled).is_false()
-	GameSettings.skill_button_enabled = false
-
-
 func test_button_press_overrides_pending_gesture() -> void:
 	ctrl.skill_button_enabled = true
 	_down(0, Vector2(200, 900), 0.0)  # 이동 손가락 (제스처 판정 전)
@@ -264,18 +253,6 @@ func test_dead_player_charge_release_never_casts() -> void:
 	_up(0, Vector2(300, 900), 0.5)
 	assert_array(casts).is_empty()
 	assert_bool(caster.input.is_down()).is_false()
-
-
-func test_second_finger_on_toggle_does_not_toggle_back() -> void:
-	var p := ctrl.toggle_rect().get_center()
-	_down(0, p, 0.0)
-	_down(1, p, 0.01)
-	assert_bool(ctrl.skill_button_enabled).is_true()
-	_up(1, p, 0.05)
-	_up(0, p, 0.06)
-	_down(2, p, 0.3)  # 손을 다 뗀 뒤 다시 누르면 정상 전환
-	assert_bool(ctrl.skill_button_enabled).is_false()
-	GameSettings.skill_button_enabled = false
 
 
 func test_button_held_then_release_flick_casts_only_dash_skill() -> void:

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="StageSong" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/stage_song.gd" id="1_song"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/intro.ogg" id="intro"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/verse.ogg" id="verse"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/chorus.ogg" id="chorus"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/outro.ogg" id="outro"]
+
+[resource]
+script = ExtResource("1_song")
+intro = ExtResource("intro")
+verse = ExtResource("verse")
+chorus = ExtResource("chorus")
+outro = ExtResource("outro")
+bpm = 84.0
+bar_beats = 4
