@@ -318,7 +318,7 @@ func compute_velocity(delta: float) -> Vector2:
 
 ## 대시 도착: 영웅별 도착 이펙트·효과 (트리 밖 테스트에서는 이펙트만).
 func _dash_arrived() -> void:
-	if dash_runner:
+	if dash_runner and not is_dead():
 		dash_runner.on_end(global_position, get_tree().get_nodes_in_group(Enemy.GROUP) if is_inside_tree() else [])
 
 

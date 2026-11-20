@@ -62,3 +62,4 @@ body_alpha = 0.15
 trail_color = Color(1, 0.8, 0.3, 1)
 end_radius = 90.0
 end_stun = 0.3
+end_cooldown = 0.8

@@ -64,3 +64,4 @@ trail_color = Color(0.95, 0.7, 0.2, 1)
 end_radius = 130.0
 end_slow_factor = 0.6
 end_slow_time = 1.2
+end_cooldown = 0.8

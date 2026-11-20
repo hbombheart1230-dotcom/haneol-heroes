@@ -49,7 +49,7 @@ func test_arrival_effects_per_hero() -> void:
 	assert_float(e3.speed_scale()).is_less(1.0)  # 세종: 해시계 느리게
 	# 사임당: 먹 웅덩이는 출발 자리에 남는다
 	var r := DashStyleRunner.new(sa.dash_style)
-	r.on_start(Vector2(500, 0), Vector2.RIGHT)
+	r.on_start(Vector2(500, 0), Vector2.RIGHT)  # 출발 자리
 	var near_start := _enemy(Vector2(520, 0))
 	var near_end := _enemy(Vector2(20, 0))
 	assert_int(r.on_end(Vector2.ZERO, [near_start, near_end])).is_equal(1)
@@ -83,6 +83,16 @@ func test_player_dash_drives_effects() -> void:
 		p.compute_velocity(1.0 / 60.0)
 		p.global_position += p.velocity / 60.0
 	p.global_position = Vector2(240, 0)
+	p.dash_runner._last_effect = -INF  # 위 반복에서 이미 도착했을 수 있다 (간격 제한 풀기)
 	p._dash_arrived()
 	assert_bool(e.is_stunned()).is_true()
 	assert_int(f.decals.count()).is_greater(0)  # 도착 번개 그림
+
+
+func test_chained_dashes_cannot_chain_the_effect() -> void:
+	var gw: HeroData = load("res://data/heroes/gwanggaeto.tres")
+	var r := DashStyleRunner.new(gw.dash_style)
+	var e := _enemy(Vector2(40, 0))
+	assert_int(r.on_end(Vector2.ZERO, [e], 10.0)).is_equal(1)
+	assert_int(r.on_end(Vector2.ZERO, [e], 10.0 + gw.dash_style.end_cooldown * 0.5)).is_equal(0)
+	assert_int(r.on_end(Vector2.ZERO, [e], 10.0 + gw.dash_style.end_cooldown + 0.01)).is_equal(1)

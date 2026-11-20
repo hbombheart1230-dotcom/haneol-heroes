@@ -23,5 +23,7 @@ extends Resource
 @export var end_stun: float = 0.0
 @export var end_slow_factor: float = 1.0
 @export var end_slow_time: float = 0.0
+## 도착 효과 사이 최소 간격(초). 연속 대시로 기절·느리게를 줄줄이 걸지 못하게 (이펙트는 매번).
+@export var end_cooldown: float = 0.8
 ## true면 효과를 도착 자리가 아니라 출발 자리에 남긴다 (사임당 먹 웅덩이).
 @export var effect_at_start: bool = false

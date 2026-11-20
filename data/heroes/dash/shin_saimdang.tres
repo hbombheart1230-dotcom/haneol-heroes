@@ -63,3 +63,4 @@ end_radius = 90.0
 end_slow_factor = 0.7
 end_slow_time = 1.5
 effect_at_start = true
+end_cooldown = 0.8

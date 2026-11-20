@@ -6,6 +6,8 @@ var style: DashStyleData
 var _trail_cd: float = 0.0
 var _start_pos: Vector2 = Vector2.ZERO
 var _dir: Vector2 = Vector2.RIGHT
+## 마지막 도착 효과 시각(초, 실제 시간).
+var _last_effect: float = -INF
 
 
 func _init(p_style: DashStyleData) -> void:
@@ -30,14 +32,17 @@ func tick(delta: float, pos: Vector2) -> void:
 		Feedback.vfx_burst(style.trail_vfx, pos, -_dir)
 
 
-## 도착: 이펙트 + 범위 안 적에게 작은 효과. 효과 받은 적 수를 돌려준다.
-func on_end(pos: Vector2, enemies: Array) -> int:
+## 도착: 이펙트 + 범위 안 적에게 작은 효과 (end_cooldown마다 한 번). 효과 받은 적 수를 돌려준다.
+## now_sec을 넘기지 않으면 실제 시간.
+func on_end(pos: Vector2, enemies: Array, now_sec: float = -1.0) -> int:
 	if style == null:
 		return 0
 	if style.end_vfx:
 		Feedback.vfx_burst(style.end_vfx, pos, _dir)
-	if style.end_radius <= 0.0:
+	var now := now_sec if now_sec >= 0.0 else Time.get_ticks_msec() / 1000.0
+	if style.end_radius <= 0.0 or now - _last_effect < style.end_cooldown:
 		return 0
+	_last_effect = now
 	var center := _start_pos if style.effect_at_start else pos
 	var n := 0
 	for e in enemies:
