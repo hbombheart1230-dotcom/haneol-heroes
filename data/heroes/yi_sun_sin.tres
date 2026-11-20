@@ -42,7 +42,7 @@ ranged_speed = 700.0
 ranged_lifetime = 0.8
 ranged_knockback = 60.0
 proj_art = ExtResource("proj_art")
-proj_size = Vector2(144, 58)
+proj_size = Vector2(130, 69)
 proj_trail_color = Color(0.4, 0.75, 1, 0.55)
 proj_trail_len = 70.0
 release_delay = 0.12
@@ -97,7 +97,7 @@ vfx_cast = ExtResource("vs_haeil")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vfx_impact")
 wave_art = ExtResource("wave_art")
-wave_art_size = Vector2(160, 64)
+wave_art_size = Vector2(190, 52)
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("7_counter")

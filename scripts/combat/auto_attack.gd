@@ -52,6 +52,9 @@ func tick(delta: float, enemy_list: Array) -> void:
 	_swing_time = maxf(_swing_time - delta, 0.0)
 	if player == null:
 		return
+	if player.is_dead():  # 죽으면 손에 든 탄은 버린다
+		_release_left = -1.0
+		return
 	if _release_left >= 0.0:
 		_release_left -= delta
 		if _release_left < 0.0:

@@ -1,10 +1,11 @@
 """GPT 그림이 오기 전 임시 그림 (같은 파일 이름으로 덮어쓰면 바로 바뀐다).
 
-  python tools/vfx/make_placeholders.py
+  python tools/vfx/make_placeholders.py [--force]   (이미 있는 그림은 건너뜀)
 wave_strip / lightning_strip / ink_strip: 가로로 긴 띠 (경로를 따라 늘려 그림), explosion: 유성 충돌,
 proj_water / proj_spear / proj_ink: 원거리 탄 (오른쪽 = 날아가는 방향).
 """
 import os
+import sys
 
 from PIL import Image
 
@@ -33,6 +34,10 @@ def feather(img: Image.Image, edge: float = 0.14) -> Image.Image:
 
 
 def save(img: Image.Image, name: str) -> None:
+    path = os.path.join(V, f"{name}.png")
+    if os.path.exists(path) and "--force" not in sys.argv:  # GPT 그림이 들어온 것은 덮어쓰지 않는다
+        print("skip", name)
+        return
     img = feather(img) if name != "explosion" else img
     img.save(os.path.join(V, f"{name}.png"), optimize=True)
     print("ok", name)

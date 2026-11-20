@@ -263,5 +263,5 @@
 - **정음진:** 글자 고리 밑에 정음 자모 그림이 함께 돈다. **초충:** 나비·방아깨비가 문 자리에 꽃잎.
 - **유성:** 하늘에서 떨어지는 유성 그림 → 폭발 그림 + 오래 남는 불꽃.
 - **원거리 탄:** 영웅마다 그림·크기·자취 (`BasicAttackData` 탄 그림 묶음): 순신 물칼, 광개토 번개 창, 세종 큰 금빛 자모, 사임당 먹 붓. 던지는 동작 0.12초 뒤 손 앞(앞 30~36px, 위 40~52px)에서 나간다.
-- **임시 그림:** `wave_strip / lightning_strip / ink_strip / explosion / proj_water / proj_spear / proj_ink`는 `tools/vfx/make_placeholders.py`가 기존 그림에서 만든 것. 사용자 GPT 그림이 오면 같은 이름으로 덮어쓰면 끝.
-- 결과: `docs/images/lines_projectiles_dash.png` (위 = 직선 기술 띠 / 세종은 떨어지는 유성, 가운데 = 원거리 탄·해일검기, 아래 = 회피 자취).
+- **그림:** `wave_strip / lightning_strip / explosion / proj_water / proj_spear / proj_ink`는 사용자 GPT 그림 (`tools/vfx/gpt_to_vfx.py`로 가장자리 정리, 가로 그림은 비율 유지). `ink_strip`은 먹 붓 획 그림(proj_ink 원본)을 길게 씀. 임시 그림 도구 `tools/vfx/make_placeholders.py`는 이미 있는 그림을 덮어쓰지 않는다.
+- 결과: `docs/images/lines_projectiles_dash.png` (영웅마다 위 = 직선 기술 띠 / 세종은 떨어지는 유성, 가운데 = 원거리 탄·해일검기, 아래 = 회피 자취; 맨 오른쪽 = 유성 폭발 강화 0단계/최대).

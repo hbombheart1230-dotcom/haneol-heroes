@@ -199,3 +199,27 @@ func test_hero_ranged_art_and_release_from_hand() -> void:
 	assert_float(pr.global_position.x).is_equal_approx(a.data.release_offset.x, 0.5)  # 손 앞에서 나간다
 	assert_float(pr.global_position.y).is_equal_approx(-a.data.release_offset.y, 0.5)
 	pr.queue_free()
+
+
+func test_dead_player_drops_the_shot_in_hand() -> void:
+	var p: Player = auto_free(Player.new())
+	var h := Health.new()
+	h.name = "Health"
+	p.add_child(h)
+	add_child(p)
+	var a: AutoAttack = auto_free(AutoAttack.new())
+	a.player = p
+	a.projectile_scene = preload("res://scenes/projectile.tscn")
+	a.data = (load("res://data/heroes/sejong.tres") as HeroData).attack.duplicate()
+	a.projectile_parent = self
+	add_child(a)
+	var fired: Array = []
+	a.projectile_fired.connect(func(pr: Projectile) -> void: fired.append(pr))
+	var target := Node2D.new()
+	add_child(auto_free(target))
+	target.global_position = Vector2((a.data.melee_range + a.data.ranged_range) * 0.5, 0)
+	a.tick(0.016, [target])  # 던지기 시작
+	h.kill()
+	for i in 20:
+		a.tick(0.016, [target])
+	assert_int(fired.size()).is_equal(0)
