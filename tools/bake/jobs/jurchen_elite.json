@@ -7,8 +7,9 @@
   "ink": {
     "inner_line": 0.1,
     "line_px": 1.6,
-    "wash_amount": 0.5,
-    "grain": 0.05
+    "wash_amount": 0.12,
+    "grain": 0.03,
+    "color_keep": 0.92
   },
   "lossy_quality": 0.5,
   "anims": [
@@ -40,5 +41,21 @@
       "fps": 12.0,
       "loop": false
     }
-  ]
+  ],
+  "light": {
+    "key": 1.8,
+    "ambient": 0.22,
+    "rim": 1.4,
+    "rim_color": "#bcd4ff"
+  },
+  "recolor": {
+    "stops": [
+      "#14110e",
+      "#4a3322",
+      "#9a7448",
+      "#e8c870"
+    ],
+    "mix": 0.85,
+    "contrast": 1.3
+  }
 }

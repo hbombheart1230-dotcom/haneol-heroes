@@ -16,16 +16,16 @@ PX_PER_M = 97.0
 
 ## (시트 이름, 역할, 화면 이름, 색 보정 또는 None, 보스면 크기 배율)
 ENEMIES = [
-    ("waegun_soldier", "soldier", "왜군 망령 졸병", "Color(0.82, 0.9, 1, 1)", 1.0),
-    ("waegun_gunner", "archer", "왜군 망령 철포병", "Color(0.82, 0.9, 1, 1)", 1.0),
-    ("waegun_heavy", "heavy", "왜군 망령 무사", "Color(0.82, 0.9, 1, 1)", 1.0),
-    ("waegun_elite", "elite", "왜군 망령 사무라이 대장", "Color(1, 0.9, 0.7, 1)", 1.0),
-    ("waegun_commander", "boss", "왜군 망령 수군 장수", "Color(0.85, 0.92, 1, 1)", 1.2),
-    ("jurchen_soldier", "soldier", "여진 망령 전사", "Color(1, 0.96, 0.92, 1)", 1.0),
-    ("jurchen_archer", "archer", "여진 망령 궁수", "Color(1, 0.96, 0.92, 1)", 1.0),
-    ("jurchen_heavy", "heavy", "여진 망령 장사", "Color(1, 0.96, 0.92, 1)", 1.0),
-    ("jurchen_elite", "elite", "여진 망령 용사", "Color(1, 0.9, 0.7, 1)", 1.0),
-    ("jurchen_chieftain", "boss", "여진 망령 추장", "Color(1, 0.97, 0.94, 1)", 1.2),
+    ("waegun_soldier", "soldier", "왜군 망령 졸병", None, 1.0),
+    ("waegun_gunner", "archer", "왜군 망령 철포병", None, 1.0),
+    ("waegun_heavy", "heavy", "왜군 망령 무사", None, 1.0),
+    ("waegun_elite", "elite", "왜군 망령 사무라이 대장", None, 1.0),
+    ("waegun_commander", "boss", "왜군 망령 수군 장수", None, 1.2),
+    ("jurchen_soldier", "soldier", "여진 망령 전사", None, 1.0),
+    ("jurchen_archer", "archer", "여진 망령 궁수", None, 1.0),
+    ("jurchen_heavy", "heavy", "여진 망령 장사", None, 1.0),
+    ("jurchen_elite", "elite", "여진 망령 용사", None, 1.0),
+    ("jurchen_chieftain", "boss", "여진 망령 추장", None, 1.2),
     ("cc_mouse", "soldier", "수박 들쥐", None, 1.0),
     ("cc_grasshopper", "archer", "방아깨비 궁수", None, 1.0),
     ("cc_beetle", "heavy", "맨드라미 쇠똥벌레", None, 1.0),
@@ -37,9 +37,11 @@ ENEMIES = [
 ## 군대별 가독성 (EnemyData "가독성" 묶음 + 죽는 모양). 칙칙한 회색 망령이 무대 바닥에 묻히지 않게 (사용자 피드백).
 ## 값: (테두리 색, 몸 밝기 더하기, 대비, 군대 색, 섞는 비율, 죽는 모양)
 ARMY_LOOK = {
-    "waegun": ("Color(0.35, 0.5, 1, 0.9)", 0.12, 1.15, "Color(0.7, 0.8, 1, 1)", 0.35, "smoke"),
-    "jurchen": ("Color(0.45, 1, 0.92, 0.9)", 0.1, 1.2, "Color(0.8, 1, 1, 1)", 0.35, "smoke"),
-    "biryeo": ("Color(0.12, 0.07, 0.04, 0.9)", 0.12, 1.2, "Color(1, 0.9, 0.75, 1)", 0.2, "smoke"),
+    # 왜군·여진·비려는 굽기에서 군대 색으로 다시 칠했다 (tools/bake/recolor.gdshader, 작업의 "recolor")
+    # → 덧칠(tint_mix)·밝힘(body_lift)은 끄고 테두리만 남긴다.
+    "waegun": ("Color(1, 0.72, 0.3, 0.9)", 0.0, 1.05, "Color(1, 1, 1, 1)", 0.0, "smoke"),
+    "jurchen": ("Color(0.45, 1, 0.92, 0.9)", 0.0, 1.05, "Color(1, 1, 1, 1)", 0.0, "smoke"),
+    "biryeo": ("Color(0.12, 0.07, 0.04, 0.9)", 0.0, 1.05, "Color(1, 1, 1, 1)", 0.0, "smoke"),
     "cc": ("Color(0.08, 0.08, 0.1, 0.85)", 0.05, 1.1, "Color(1, 1, 1, 1)", 0.0, "paper"),
 }
 ## 테두리 두께 (구운 텍스처 픽셀): 보통 / 정예·보스.

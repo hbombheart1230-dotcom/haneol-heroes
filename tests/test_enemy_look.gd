@@ -47,7 +47,11 @@ func test_armies_get_distinct_rims() -> void:
 	for i in rims.size():
 		for k in range(i + 1, rims.size()):
 			assert_bool(rims[i].is_equal_approx(rims[k])).is_false()
-	assert_float(w.body_lift).is_greater(0.0)
+	# 사람 군대는 굽기에서 군대 색으로 다시 칠했다 → 덧칠·밝힘은 끄고 테두리만 (tools/bake/recolor.gdshader)
+	for e in [w, j, b]:
+		assert_float(e.tint_mix).is_equal(0.0)
+		assert_float(e.body_lift).is_equal(0.0)
+		assert_float(e.rim_width).is_greater(0.0)
 	assert_str(String(c.death_style)).is_equal("paper")  # 다시 만들어도 초충도 죽는 모양 유지
 
 

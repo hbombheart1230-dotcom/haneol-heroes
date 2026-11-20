@@ -168,23 +168,57 @@ func _setup(job: Dictionary) -> AnimationPlayer:
 	cam.transform = Transform3D(Basis.looking_at(Vector3(0, 0.9, 0) - cam_pos, Vector3.UP), cam_pos)
 	world.add_child(cam)
 	cam.current = true
+	# 조명 (작업의 "light"로 바꿀 수 있다): 주광 + 주변광 + 뒤쪽 테두리 빛. 기본값은 예전 그대로.
+	var light: Dictionary = job.get("light", {})
 	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-50, -30, 0)
-	sun.light_energy = 1.2
+	sun.rotation_degrees = Vector3(float(light.get("key_pitch", -50.0)), float(light.get("key_yaw", -30.0)), 0)
+	sun.light_energy = float(light.get("key", 1.2))
+	sun.light_color = Color(light.get("key_color", "#ffffff"))
 	world.add_child(sun)
+	var rim_energy := float(light.get("rim", 0.0))
+	if rim_energy > 0.0:
+		var rim := DirectionalLight3D.new()
+		rim.rotation_degrees = Vector3(-25, 160, 0)  # 뒤 위쪽에서: 윤곽이 빛나 입체감
+		rim.light_energy = rim_energy
+		rim.light_color = Color(light.get("rim_color", "#cfe0ff"))
+		world.add_child(rim)
 	var env := WorldEnvironment.new()
 	env.environment = Environment.new()
 	env.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.environment.ambient_light_color = Color(0.9, 0.88, 0.85)
-	env.environment.ambient_light_energy = 0.6
+	env.environment.ambient_light_energy = float(light.get("ambient", 0.6))
 	world.add_child(env)
 	_pivot = Node3D.new()
 	world.add_child(_pivot)
 	var model: Node3D = (load(job["model"]) as PackedScene).instantiate()
 	_pivot.add_child(model)
+	if job.has("recolor"):
+		_recolor(model, job["recolor"])
 	_post = _make_post(job) if job.get("style", "") == "ink" else null
 	_skel = _find_skeleton(model)
 	return model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+
+
+## 작업의 "recolor": {"stops": [어둠, 중간, 밝음, 빛 (#rrggbb)], "mix", "contrast", "roughness", "specular"}
+## 모든 메시 표면을 원래 텍스처를 쓰는 다시 칠하기 셰이더로 바꾼다 (recolor.gdshader).
+static func _recolor(model: Node, cfg: Dictionary) -> void:
+	var shader := load("res://tools/bake/recolor.gdshader") as Shader
+	var stops: Array = cfg.get("stops", [])
+	for mi in model.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		for i in m.mesh.get_surface_count():
+			var src := m.get_active_material(i) as BaseMaterial3D
+			var mat := ShaderMaterial.new()
+			mat.shader = shader
+			if src and src.albedo_texture:
+				mat.set_shader_parameter("albedo_tex", src.albedo_texture)
+			for k in mini(stops.size(), 4):
+				mat.set_shader_parameter("c%d" % k, Color(stops[k]))
+			mat.set_shader_parameter("mix_amount", float(cfg.get("mix", 0.85)))
+			mat.set_shader_parameter("contrast", float(cfg.get("contrast", 1.25)))
+			mat.set_shader_parameter("roughness_v", float(cfg.get("roughness", 0.55)))
+			mat.set_shader_parameter("specular_v", float(cfg.get("specular", 0.45)))
+			m.set_surface_override_material(i, mat)
 
 
 static func locked_root_position(rest: Vector3, pose: Vector3) -> Vector3:
