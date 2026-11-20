@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillVfxData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="1_vfx"]
+[ext_resource type="Texture2D" path="res://assets/vfx/plum.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_vfx")
+shape = 2
+count = 14
+aim = 0
+speed = Vector2(100, 260)
+damping = 3.0
+gravity = 150.0
+spawn_radius = 48.0
+life = Vector2(0.55, 0.9)
+size = Vector2(28, 44)
+size_end = 0.5
+spin = 7.0
+color = Color(0.92, 0.42, 0.58, 1)
+color_end = Color(0.9, 0.7, 0.78, 0)
+decal = ExtResource("2_tex")
+decal_size = 440.0
+decal_spin = 1.2
+decal_layers = 2
+glow = 0.35
+glow_color = Color(1, 0.55, 0.75, 1)

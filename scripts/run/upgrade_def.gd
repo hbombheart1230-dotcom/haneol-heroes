@@ -13,3 +13,5 @@ extends Resource
 ## 선택지에 나올 가중치.
 @export var weight: float = 1.0
 @export var mods: Array[StatMod] = []
+## 이 성장이 건드린 기술의 이펙트 강화 단계를 얼마나 올리는지 (큰 변형은 크게).
+@export var vfx_level_gain: int = 1

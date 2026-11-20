@@ -17,6 +17,7 @@ value = 3.0
 
 [sub_resource type="Resource" id="Up_major_butterflies"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_butterflies"
 icon = ExtResource("i_critters")
 title = "풀벌레 · 화접도"
@@ -35,6 +36,7 @@ value = 40.0
 
 [sub_resource type="Resource" id="Up_major_cloud"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_cloud"
 icon = ExtResource("i_ink_bleed")
 title = "발묵 · 먹구름"
@@ -53,6 +55,7 @@ value = 1.0
 
 [sub_resource type="Resource" id="Up_major_screen"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_screen"
 icon = ExtResource("i_canvas")
 title = "화폭 · 병풍"
@@ -71,6 +74,7 @@ value = 3.0
 
 [sub_resource type="Resource" id="Up_major_petals"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_petals"
 icon = ExtResource("i_plum")
 title = "매화 · 꽃비"

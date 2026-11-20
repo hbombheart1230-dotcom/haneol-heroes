@@ -233,3 +233,12 @@
 - **정예 변종:** 철갑(받는 피해 ×0.55), 질풍(속도 ×1.5), 분열(죽으면 작은 적 3마리).
 
 출처: [Game Developer: The AI of DOOM (2016)](https://www.gamedeveloper.com/design/cyber-demons-the-ai-of-doom-2016-), [GDC Vault: Bringing Hell to Life — AI and Full Body Animation in DOOM](https://gdcvault.com/play/1024186/Bringing-Hell-to-Life-AI), [Hades 위키: 적·정예](https://hades.wiki.fextralife.com/Enemies), [PC Gamer: Hades 팁(철갑)](https://www.pcgamer.com/hades-guide-tips-and-tricks), [TheGamer: Vampire Survivors 꽃 포위](https://www.thegamer.com/vampire-survivors-flower-venus-flytrap-circle-annoying/), [Epic: Vampire Survivors와 장르](https://store.epicgames.com/news/vampire-survivors-built-genre-autoshooter-bullet-heaven).
+
+## 기술 이펙트 2차 (사용자: "너무 선이고 비루해, 강화해도 안 화려해짐, 적어도 아이콘만큼은")
+
+- **그려진 이펙트:** `VfxDecals` + `shaders/ink_decal.gdshader` — 그림이 커지며 돌고, 수명 후반에 먹 번지듯 사라진다. 아래에 더하기 빛 층.
+- **그림:** 지금은 기술 아이콘에서 효과 부분만 뽑은 것 (`tools/vfx/icon_to_vfx.py` → `assets/vfx/*.png`: 물결·지진 불길·번개·유성·별자리·해시계·매화·먹). 사람 얼굴이 든 아이콘은 쓰지 않음. 더 좋은 그림은 `docs/skill_vfx_prompts.md`의 GPT 프롬프트로 만들어 같은 이름으로 넣으면 끝 (코드 수정 없음).
+- **강화하면 화려해짐:** 성장으로 기술을 고칠 때마다 `SkillDef.vfx_level` +1, 큰 변형 +3 (`UpgradeDef.vfx_level_gain`). 단계마다 크기 +12%, 입자 +25%, 빛 +12%, 2단계부터 그림 한 겹 더, 4단계부터 금빛 고리 (최대 6단계, 모두 `SkillVfxData`).
+- **기술마다 다른 그림:** `data/vfx/skill/<영웅>_<기술>.tres` (16개).
+- **모바일 상한:** 그림 24장, 입자 160개, 한 노드 `_draw`.
+- **전후 비교:** `docs/images/skill_vfx_before_after.png` (위 = 이전, 아래 = 지금 강화 0단계/최대 단계; 순신·광개토·세종·사임당). `tools/shots/vfx_shot.gd`로 찍음.

@@ -17,6 +17,7 @@ value = 2.0
 
 [sub_resource type="Resource" id="Up_major_whirl"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_whirl"
 title = "해룡참 · 소용돌이"
 description = "베고 난 자리에 2초간
@@ -36,6 +37,7 @@ value = 150.0
 
 [sub_resource type="Resource" id="Up_major_burst"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_burst"
 title = "파도격 · 물보라"
 description = "물길 끝에서 크게 터진다"
@@ -54,6 +56,7 @@ value = 2.0
 
 [sub_resource type="Resource" id="Up_major_triple"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_triple"
 title = "해일검기 · 세 갈래"
 description = "물결이 세 갈래로 퍼진다"
@@ -72,6 +75,7 @@ value = 8.0
 
 [sub_resource type="Resource" id="Up_major_radial"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_radial"
 title = "반격 · 사방 검기"
 description = "반격 때 여덟 방향으로

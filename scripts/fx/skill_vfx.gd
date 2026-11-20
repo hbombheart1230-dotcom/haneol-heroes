@@ -29,15 +29,16 @@ func count() -> int:
 	return _parts.size()
 
 
-## 터뜨리기. dir은 FORWARD일 때 방향 (없으면 위).
-func burst(data: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO) -> void:
+## 터뜨리기. dir은 FORWARD일 때 방향 (없으면 위). level = 기술 강화 단계 (입자 수·크기가 늘어난다).
+func burst(data: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: int = 0) -> void:
 	if data == null or data.count <= 0:
 		return
+	var size_k := data.size_mult(level)
 	var base := dir.normalized() if dir.length_squared() > 0.0001 else Vector2.UP
 	if data.aim == SkillVfxData.Aim.UP:
 		base = Vector2.UP
 	var half := deg_to_rad(data.spread_deg) * 0.5
-	for i in data.count:
+	for i in data.count_for(level):
 		var a := randf() * TAU if data.aim == SkillVfxData.Aim.RADIAL else base.angle() + randf_range(-half, half)
 		var v := Vector2.from_angle(a) * randf_range(data.speed.x, data.speed.y)
 		var glyph := ""
@@ -46,7 +47,7 @@ func burst(data: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO) -> voi
 			_glyph_i += 1
 		_parts.append({"data": data, "pos": pos + Vector2.from_angle(randf() * TAU) * randf() * data.spawn_radius,
 			"vel": v, "t": 0.0, "life": randf_range(data.life.x, data.life.y),
-			"size": randf_range(data.size.x, data.size.y), "rot": randf() * TAU,
+			"size": randf_range(data.size.x, data.size.y) * size_k, "rot": randf() * TAU,
 			"spin": randf_range(-data.spin, data.spin), "glyph": glyph})
 	while _parts.size() > maxi(feel.max_vfx_particles, 0):
 		_parts.pop_front()

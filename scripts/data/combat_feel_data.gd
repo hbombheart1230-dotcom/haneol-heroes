@@ -76,7 +76,7 @@ extends Resource
 @export var max_vfx_particles: int = 160
 ## 수묵 셰이더: 가장자리 갉기 세기, 가장자리 먹 물들임, 잡음 배율.
 @export var vfx_roughness: float = 0.35
-@export var vfx_edge_ink: float = 0.65
+@export var vfx_edge_ink: float = 0.4
 @export var vfx_noise_scale: float = 0.02
 ## 번개 줄기 그리기: 빛 두께·투명도, 몸통 두께, 흰 심지 두께 (모두 줄기 폭 대비), 사라지며 가늘어지는 비율.
 @export var bolt_glow_width: float = 2.2
@@ -84,6 +84,20 @@ extends Resource
 @export var bolt_body_width: float = 0.8
 @export var bolt_core_width: float = 0.25
 @export var bolt_thin: float = 0.5
+## 그려진 이펙트(shaders/ink_decal.gdshader): 동시 최대 수, 사라지는 가장자리 폭·먹 물들임·잡음 배율.
+@export var max_decals: int = 24
+@export var decal_edge: float = 0.12
+## 수명이 이 비율 아래로 내려가면 번지기 시작한다.
+@export var decal_dissolve_from: float = 0.5
+@export var decal_edge_ink: float = 0.6
+@export var decal_noise_uv: float = 1.7
+## 겹친 그림이 한 겹마다 작아지는 비율과 돌아가는 각도(라디안).
+@export var decal_layer_shrink: float = 0.8
+@export var decal_layer_turn: float = 0.9
+## 금빛 고리 (강화 단계 ring_level부터): 크기 배율·시간·두께.
+@export var flourish_ring_scale: float = 0.45
+@export var flourish_ring_time: float = 0.45
+@export var flourish_ring_width: float = 10.0
 
 
 @export_group("타격 진동")
