@@ -114,7 +114,7 @@ func test_run_anim_speed_follows_real_speed() -> void:
 	var v := _view()
 	player.set_move_input(Vector2.RIGHT)
 	player.compute_velocity(DT)  # 가속 시작
-	assert_float(v.run_anim_speed()).is_equal(PlayerView.RUN_ANIM_MIN)
+	assert_float(v.run_anim_speed()).is_equal(Feedback.feel_data().run_anim_min)
 	for i in 30:
 		player.compute_velocity(DT)
 	assert_float(v.run_anim_speed()).is_equal_approx(1.0, 0.01)

@@ -56,6 +56,19 @@ extends Resource
 @export var kick_return: float = 14.0
 
 
+@export_group("영웅 동작")
+## 근접 반동이 이어지는 시간(초).
+@export var recoil_time: float = 0.06
+## 달리기 ↔ 대기 전환 문턱 (최고 속도 대비). 들어갈 때와 나올 때를 다르게 해 깜빡임 방지.
+@export var run_enter: float = 0.2
+@export var run_exit: float = 0.08
+## 달리기 동작 재생 속도 = 실제 속도 비율, 이 범위로 제한 (발이 미끄러져 보이지 않게).
+@export var run_anim_min: float = 0.6
+@export var run_anim_max: float = 1.15
+## 방향 그림을 바꾸려면 칸 경계를 이만큼(도) 넘어야 한다.
+@export var dir_margin_deg: float = 10.0
+
+
 func freeze_for(damage: int) -> float:
 	return hit_freeze_heavy if damage >= heavy_damage else hit_freeze
 

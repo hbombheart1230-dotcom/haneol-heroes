@@ -203,7 +203,7 @@ func test_hit_stop_returns_to_slow_time_not_full_speed() -> void:
 	ctx.player = p
 	ctx.hit_stop(0.05)
 	assert_float(Engine.time_scale).is_less(0.1)
-	await get_tree().create_timer(0.15, true, false, true).timeout
+	await _wait_real(0.15)
 	assert_float(Engine.time_scale).is_equal(0.35)
 	GameTime.reset()
 
@@ -338,3 +338,10 @@ func _skip_hero_select() -> void:
 	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.save_settings()
+
+
+## 실제 시간으로 기다린다 (ignore_time_scale 타이머는 느린 시간에서 일찍 끝난다).
+func _wait_real(seconds: float) -> void:
+	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
+	while Time.get_ticks_msec() < end:
+		await get_tree().process_frame

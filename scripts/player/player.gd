@@ -49,7 +49,6 @@ var move_decel_time: float = 0.0
 ## 근접 적중 반동: 남은 이동량(px/s)과 남은 시간.
 var _recoil_vel: Vector2 = Vector2.ZERO
 var _recoil_left: float = 0.0
-const RECOIL_TIME := 0.06
 var _glide_left: float = 0.0
 var _dash_time_left: float = 0.0
 ## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력 판정용.
@@ -138,10 +137,11 @@ func refresh_stats(old_max_hp: int) -> void:
 		health.current = clampi(health.current + maxi(hero.max_hp - old_max_hp, 0), 1, health.max)
 
 
-## 근접 적중 반동: offset(px)만큼 RECOIL_TIME초 동안 밀린다.
+## 근접 적중 반동: offset(px)만큼 recoil_time초(CombatFeelData) 동안 밀린다.
 func apply_recoil(offset: Vector2) -> void:
-	_recoil_vel = offset / RECOIL_TIME
-	_recoil_left = RECOIL_TIME
+	var t := maxf(Feedback.feel_data().recoil_time, 0.001)
+	_recoil_vel = offset / t
+	_recoil_left = t
 
 
 ## 이번 프레임 걷기 속도: 목표 속도로 가속·감속 (영웅별 무게감).

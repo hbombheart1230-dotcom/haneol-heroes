@@ -145,7 +145,7 @@ func test_elite_kill_slows_time_then_restores() -> void:
 	e.target = p
 	e.health.damage(99999)
 	assert_float(Engine.time_scale).is_equal_approx(f.feel.finisher_time_scale, 0.001)
-	await get_tree().create_timer(f.feel.finisher_time + 0.1, true, false, true).timeout
+	await _wait_real(f.feel.finisher_time + 0.1)
 	assert_float(Engine.time_scale).is_equal(1.0)
 
 
@@ -187,3 +187,21 @@ func test_hero_data_has_feel_numbers() -> void:
 	var heavy: HeroData = load("res://data/heroes/gwanggaeto.tres")
 	var light: HeroData = load("res://data/heroes/shin_saimdang.tres")
 	assert_float(heavy.move_accel_time).is_greater(light.move_accel_time)
+
+
+func test_short_stop_does_not_cut_finisher_short() -> void:
+	# Codex c6580b8 P1: 정예 슬로모션 중 일반 처치 멈춤이 슬로모션을 일찍 풀면 안 된다
+	GameTime.stop(get_tree(), 0.3, 0.25)
+	GameTime.stop(get_tree(), 0.03, 0.05)
+	assert_float(Engine.time_scale).is_equal_approx(0.25, 0.001)
+	await _wait_real(0.12)
+	assert_float(Engine.time_scale).is_equal_approx(0.25, 0.001)
+	await _wait_real(0.3)
+	assert_float(Engine.time_scale).is_equal(1.0)
+
+
+## 실제 시간으로 기다린다 (ignore_time_scale 타이머는 느린 시간에서 일찍 끝난다).
+func _wait_real(seconds: float) -> void:
+	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
+	while Time.get_ticks_msec() < end:
+		await get_tree().process_frame

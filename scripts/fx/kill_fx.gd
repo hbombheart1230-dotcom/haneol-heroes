@@ -53,9 +53,8 @@ func drops(pos: Vector2, dir: Vector2, n: int, color: Color = Ink.INK) -> void:
 		var v := base.rotated(randf_range(-0.9, 0.9)) * randf_range(120.0, 320.0)
 		_drops.append({"pos": pos + Vector2(0, -16), "vel": v, "t": 0.0, "life": randf_range(0.3, 0.5),
 			"r": randf_range(3.0, 6.5), "color": color})
-	var extra := _drops.size() - maxi(feel.max_drops, 0)
-	if extra > 0:
-		_drops = _drops.slice(extra)
+	while _drops.size() > maxi(feel.max_drops, 0):
+		_drops.pop_front()
 
 
 ## 군대별 죽음 모양 + 먹 자국.
@@ -84,29 +83,39 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
-## 시간 진행 (테스트에서 직접 부른다).
+## 시간 진행 (테스트에서 직접 부른다). 배열을 새로 만들지 않고 제자리에서 지운다 (모바일 GC 부담 줄이기).
 func step(delta: float) -> void:
-	var landed: Array[Dictionary] = []
-	for c in _corpses:
+	var i := _corpses.size() - 1
+	while i >= 0:
+		var c := _corpses[i]
 		c["t"] = float(c["t"]) + delta
-		if (c["flight"] as CorpseFlight).landed(c["t"]):
-			landed.append(c)
-	for c in landed:
-		_corpses.erase(c)
-		death_burst((c["flight"] as CorpseFlight).to, c["style"], c["finisher"])
-	for d in _drops:
+		var f: CorpseFlight = c["flight"]
+		if f.landed(c["t"]):
+			_corpses.remove_at(i)
+			death_burst(f.to, c["style"], c["finisher"])
+		i -= 1
+	i = _drops.size() - 1
+	while i >= 0:
+		var d := _drops[i]
 		d["t"] = float(d["t"]) + delta
-		d["pos"] = (d["pos"] as Vector2) + (d["vel"] as Vector2) * delta
-		d["vel"] = (d["vel"] as Vector2) * maxf(1.0 - 7.0 * delta, 0.0)
-	_drops = _drops.filter(func(d: Dictionary) -> bool: return float(d["t"]) < float(d["life"]))
-	for b in _bits:
+		if float(d["t"]) >= float(d["life"]):
+			_drops.remove_at(i)
+		else:
+			d["pos"] = (d["pos"] as Vector2) + (d["vel"] as Vector2) * delta
+			d["vel"] = (d["vel"] as Vector2) * maxf(1.0 - 7.0 * delta, 0.0)
+		i -= 1
+	i = _bits.size() - 1
+	while i >= 0:
+		var b := _bits[i]
 		b["t"] = float(b["t"]) + delta
-		if b.has("vel"):
+		if float(b["t"]) >= float(b["life"]):
+			_bits.remove_at(i)
+		elif b.has("vel"):
 			b["pos"] = (b["pos"] as Vector2) + (b["vel"] as Vector2) * delta
 			if b["kind"] == "paper":  # 종이는 떨어진다
 				b["vel"] = (b["vel"] as Vector2) + Vector2(0, 520.0) * delta
 				b["rot"] = float(b["rot"]) + float(b["spin"]) * delta
-	_bits = _bits.filter(func(b: Dictionary) -> bool: return float(b["t"]) < float(b["life"]))
+		i -= 1
 
 
 func _draw() -> void:

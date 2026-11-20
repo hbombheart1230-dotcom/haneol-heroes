@@ -16,12 +16,7 @@ var _oneshot: String = ""
 var _oneshot_left: float = 0.0
 ## 지금 보여 주는 방향 번호 (-1 = 아직 없음). 경계에서 떨리지 않게 붙잡아 둔다.
 var _dir: int = -1
-## 달리기 ↔ 대기 전환 문턱 (최고 속도 대비). 들어갈 때와 나올 때를 다르게 해 깜빡임 방지.
-const RUN_ENTER := 0.2
-const RUN_EXIT := 0.08
-## 달리기 동작 재생 속도 = 실제 속도 비율, 이 범위로 제한 (발이 미끄러져 보이지 않게).
-const RUN_ANIM_MIN := 0.6
-const RUN_ANIM_MAX := 1.15
+## 문턱·재생 속도 범위는 CombatFeelData("영웅 동작")에 있다.
 var _running: bool = false
 
 
@@ -80,7 +75,8 @@ func is_moving() -> bool:
 	var ratio := player.walk_velocity().length() / top
 	if player.move_input.length() > 0.1:
 		ratio = maxf(ratio, player.move_input.length())
-	_running = ratio > (RUN_EXIT if _running else RUN_ENTER)
+	var feel := Feedback.feel_data()
+	_running = ratio > (feel.run_exit if _running else feel.run_enter)
 	return _running
 
 
@@ -115,7 +111,7 @@ func available_anim(anim: String) -> String:
 
 func _update_sprite(delta: float) -> void:
 	_oneshot_left = maxf(_oneshot_left - delta, 0.0)
-	_dir = _sheet.dir_index_sticky(player.facing, _dir)
+	_dir = _sheet.dir_index_sticky(player.facing, _dir, Feedback.feel_data().dir_margin_deg)
 	var dir := _dir
 	var anim_name := StringName("%s_%d" % [available_anim(current_anim()), dir])
 	if _sprite.animation != anim_name:
@@ -136,7 +132,8 @@ func _update_sprite(delta: float) -> void:
 ## 달리기 동작 속도: 실제로 빨리 갈수록 빨리 (가속 중엔 천천히 → 발이 땅에 붙어 보인다).
 func run_anim_speed() -> float:
 	var ratio := player.walk_velocity().length() / maxf(player.move_speed, 1.0)
-	return clampf(ratio, RUN_ANIM_MIN, RUN_ANIM_MAX)
+	var feel := Feedback.feel_data()
+	return clampf(ratio, feel.run_anim_min, feel.run_anim_max)
 
 
 func _physics_process(delta: float) -> void:
