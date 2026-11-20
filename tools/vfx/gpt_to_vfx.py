@@ -26,6 +26,11 @@ PICKS = {
     "lightning": "69cb45c1-image.png",   # v2: v1은 회색 안개 상자 (v2의 빨강 테두리는 아래에서 지움)
     "constellation": "fda96084-image.png",  # v2: v1은 어두운 밤하늘 원판 안개
     "explosion": "bd110236-image.png",   # 유성 충돌 폭발
+    "sea_dragon": "e8074611-image.png",  # 순신 해룡참: 세 판 중 용 머리가 가장 또렷
+    "fire_counter": "c5d2eb6e-image.png",  # 순신 반격: 가운데가 비어 영웅 둘레에 맞음
+    "royal_shock": "2595f891-image.png",  # 광개토 정복자의 일격: 왕관이 더 깨끗
+    "critter_swarm": "f7dd42a5-image.png",  # 사임당 풀벌레: 벌레가 더 많음 (노란 테두리는 색 오염 제거)
+    "scroll_unfold": "040321c3-image.png",  # 사임당 화폭: 가로로 펼친 두루마리
 }
 ## 흰 바탕 묶음 그림: 5칸 × 2줄 (wave, foam, lightning, quake, meteor / constellation, glyphs, sundial, plum, ink)
 SHEET = "0b54f876-image.png"
@@ -38,7 +43,11 @@ STRIPS = {
     "proj_spear": ("a1258558-image.png", 256),
     "proj_ink": ("7aad2263-image.png", 256),    # 바탕 RGB는 어두운 보라지만 알파 0 (반투명 빛 테두리는 색 오염 제거로 정리)
     "proj_water": ("f1e0c6f9-image.png", 256),  # 바탕 RGB는 어두운 청록이지만 알파 0
-    "ink_strip": ("7aad2263-image.png", 512),   # 발묵 띠·사임당 회피 자취: 먹 붓 획을 길게
+    "ink_strip": ("7aad2263-image.png", 512),   # 발묵 띠: 먹 붓 획을 길게
+    "tidal_blade": ("7a2b8906-image.png", 384, True),  # 순신 해일검기 탄: 가로 판, 칼날이 왼쪽이라 뒤집음
+    "dash_spray": ("fcae3fff-image.png", 384),        # 순신 회피 자취 (물마루가 오른쪽 = 앞)
+    "dash_ink": ("408c7ac1-image.png", 384, True),    # 사임당 회피 자취 (굵은 쪽이 앞이 되게 뒤집음)
+    "dash_spark": ("e7b2cf91-image.png", 384, True),  # 광개토 회피 자취 (밝은 쪽이 앞)
 }  # 이 알파 아래는 안개로 보고 지우고, 위로 갈수록 그대로
 
 
@@ -78,8 +87,10 @@ def clean_png(path: str) -> Image.Image:
     return _finish(np.asarray(Image.open(path).convert("RGBA")).astype(np.float32) / 255.0)
 
 
-def clean_strip(path: str, width: int) -> Image.Image:
+def clean_strip(path: str, width: int, flip: bool = False) -> Image.Image:
     img = _clean(np.asarray(Image.open(path).convert("RGBA")).astype(np.float32) / 255.0)
+    if flip:  # 그림의 앞이 오른쪽이 되게
+        img = img.transpose(Image.FLIP_LEFT_RIGHT)
     return img.resize((width, max(round(width * img.height / img.width), 1)), Image.LANCZOS)
 
 
@@ -95,17 +106,34 @@ def cut_white(sheet: Image.Image, row: int, col: int) -> Image.Image:
     return _finish(np.dstack([np.clip(rgb, 0, 1), a]))
 
 
+def dash_glyph() -> Image.Image:
+    """세종 회피 자취: 정음 자모 그림 아래쪽 금빛 붓 획만 잘라 가로로 (새 그림 없이)."""
+    g = Image.open(os.path.join(DST, "glyphs.png")).convert("RGBA")
+    band = g.crop((int(g.width * 0.70), int(g.height * 0.02), g.width, int(g.height * 0.30)))  # 글자 없는 오른쪽 위 붓 쓸기
+    a = np.asarray(band).astype(np.float32)
+    w = a.shape[1]
+    x = np.minimum(np.arange(w) / (w * 0.15), (w - 1 - np.arange(w)) / (w * 0.15)).clip(0, 1)
+    a[..., 3] *= x[None, :]
+    img = Image.fromarray(a.astype(np.uint8), "RGBA")
+    return img.resize((384, max(round(384 * img.height / img.width), 1)), Image.LANCZOS)
+
+
 if __name__ == "__main__":
     src = sys.argv[1]
     os.makedirs(DST, exist_ok=True)
     for name, f in PICKS.items():
+        if not os.path.exists(os.path.join(src, f)):
+            continue
         clean_png(os.path.join(src, f)).save(os.path.join(DST, f"{name}.png"), optimize=True)
         print("ok", name, f)
-    for name, (f, w) in STRIPS.items():
+    for name, spec in STRIPS.items():
+        f, w = spec[0], spec[1]
         if os.path.exists(os.path.join(src, f)):
-            clean_strip(os.path.join(src, f), w).save(os.path.join(DST, f"{name}.png"), optimize=True)
+            clean_strip(os.path.join(src, f), w, len(spec) > 2 and spec[2]).save(os.path.join(DST, f"{name}.png"), optimize=True)
             print("ok", name, f)
     sheet = Image.open(os.path.join(src, SHEET))
     for name, (r, c) in SHEET_CELLS.items():
         cut_white(sheet, r, c).save(os.path.join(DST, f"{name}.png"), optimize=True)
         print("ok", name, "sheet")
+    dash_glyph().save(os.path.join(DST, "dash_glyph.png"), optimize=True)
+    print("ok dash_glyph (glyphs.png 아래 붓 획)")

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/dash_style_data.gd" id="1_style"]
 [ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="2_vfx"]
-[ext_resource type="Texture2D" path="res://assets/vfx/lightning_strip.png" id="t_path"]
+[ext_resource type="Texture2D" path="res://assets/vfx/dash_spark.png" id="t_path"]
 
 [sub_resource type="Resource" id="Start"]
 script = ExtResource("2_vfx")

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/dash_style_data.gd" id="1_style"]
 [ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="2_vfx"]
-[ext_resource type="Texture2D" path="res://assets/vfx/wave_strip.png" id="t_path"]
+[ext_resource type="Texture2D" path="res://assets/vfx/dash_spray.png" id="t_path"]
 
 [sub_resource type="Resource" id="Start"]
 script = ExtResource("2_vfx")
@@ -52,4 +52,4 @@ end_radius = 100.0
 end_push = 180.0
 end_cooldown = 0.8
 path_strip = ExtResource("t_path")
-path_width = 48.0
+path_width = 40.0
