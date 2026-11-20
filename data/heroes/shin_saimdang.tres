@@ -19,6 +19,10 @@
 [ext_resource type="Resource" path="res://data/vfx/shin_saimdang_cast.tres" id="vfx_cast"]
 [ext_resource type="Resource" path="res://data/vfx/shin_saimdang_hit.tres" id="vfx_hit"]
 [ext_resource type="Resource" path="res://data/vfx/shin_saimdang_impact.tres" id="vfx_impact"]
+[ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_critter.tres" id="vs_critter"]
+[ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_ink_bleed.tres" id="vs_ink_bleed"]
+[ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_canvas.tres" id="vs_canvas"]
+[ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_plum.tres" id="vs_plum"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -44,7 +48,7 @@ display_name = "풀벌레 부르기"
 cooldown = 9.0
 color = Color(0.85, 0.4, 0.55, 1)
 fx_color = Color(0.9, 0.5, 0.65, 1)
-vfx_cast = ExtResource("vfx_cast")
+vfx_cast = ExtResource("vs_critter")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vfx_impact")
 
@@ -59,7 +63,7 @@ color = Color(0.2, 0.2, 0.25, 1)
 fx_color = Color(0.25, 0.22, 0.3, 1)
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
-vfx_impact = ExtResource("vfx_impact")
+vfx_impact = ExtResource("vs_ink_bleed")
 
 [sub_resource type="Resource" id="Skill_charge"]
 script = ExtResource("s2")
@@ -72,7 +76,7 @@ color = Color(0.55, 0.3, 0.62, 1)
 fx_color = Color(0.7, 0.5, 0.8, 1)
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
-vfx_impact = ExtResource("vfx_impact")
+vfx_impact = ExtResource("vs_canvas")
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("s3")
@@ -84,7 +88,7 @@ color = Color(0.85, 0.4, 0.55, 1)
 fx_color = Color(1, 0.75, 0.85, 1)
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
-vfx_impact = ExtResource("vfx_impact")
+vfx_impact = ExtResource("vs_plum")
 
 [sub_resource type="Resource" id="Kit"]
 script = ExtResource("3_kit")

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="SkillVfxData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="1_vfx"]
+[ext_resource type="Texture2D" path="res://assets/vfx/wave.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_vfx")
+shape = 3
+count = 14
+aim = 1
+spread_deg = 50.0
+speed = Vector2(260, 520)
+damping = 4.0
+gravity = 380.0
+life = Vector2(0.3, 0.5)
+size = Vector2(24, 44)
+size_end = 0.5
+align_to_velocity = true
+stretch = 2.2
+color = Color(0.35, 0.68, 1, 1)
+color_end = Color(0.15, 0.4, 0.8, 0)
+decal = ExtResource("2_tex")
+decal_size = 340.0
+decal_align = true
+decal_grow = 1.5
+glow = 0.4
+glow_color = Color(0.4, 0.8, 1, 1)

@@ -19,6 +19,10 @@
 [ext_resource type="Resource" path="res://data/vfx/yi_sun_sin_cast.tres" id="vfx_cast"]
 [ext_resource type="Resource" path="res://data/vfx/yi_sun_sin_hit.tres" id="vfx_hit"]
 [ext_resource type="Resource" path="res://data/vfx/yi_sun_sin_impact.tres" id="vfx_impact"]
+[ext_resource type="Resource" path="res://data/vfx/skill/yi_sun_sin_haeryong.tres" id="vs_haeryong"]
+[ext_resource type="Resource" path="res://data/vfx/skill/yi_sun_sin_pado.tres" id="vs_pado"]
+[ext_resource type="Resource" path="res://data/vfx/skill/yi_sun_sin_haeil.tres" id="vs_haeil"]
+[ext_resource type="Resource" path="res://data/vfx/skill/yi_sun_sin_counter.tres" id="vs_counter"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -48,7 +52,7 @@ damage = 25
 knockback = 420.0
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
-vfx_impact = ExtResource("vfx_impact")
+vfx_impact = ExtResource("vs_haeryong")
 
 [sub_resource type="Resource" id="Skill_pado"]
 script = ExtResource("5_pado")
@@ -65,7 +69,7 @@ damage_per_hit = 10
 hit_interval = 0.07
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
-vfx_impact = ExtResource("vfx_impact")
+vfx_impact = ExtResource("vs_pado")
 
 [sub_resource type="Resource" id="Skill_haeil"]
 script = ExtResource("6_haeil")
@@ -80,7 +84,7 @@ min_scale = 1.6
 max_scale = 3.2
 speed = 650.0
 lifetime = 1.1
-vfx_cast = ExtResource("vfx_cast")
+vfx_cast = ExtResource("vs_haeil")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vfx_impact")
 
@@ -98,7 +102,7 @@ knockback = 520.0
 hit_stop = 0.08
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
-vfx_impact = ExtResource("vfx_impact")
+vfx_impact = ExtResource("vs_counter")
 
 [sub_resource type="Resource" id="Kit_yi"]
 script = ExtResource("3_kit")

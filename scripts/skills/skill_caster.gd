@@ -225,7 +225,7 @@ func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
 	var ctx := _context()
 	ctx.skill = d
 	if d.vfx_cast:
-		Feedback.vfx_burst(d.vfx_cast, player.global_position, player.facing)
+		Feedback.vfx_burst(d.vfx_cast, player.global_position, player.facing, d.vfx_level)
 	var run := d.cast(ctx, charge)
 	if run.finished:
 		skill_cast.emit(slot, run.hits)
