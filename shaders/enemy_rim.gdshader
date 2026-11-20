@@ -23,7 +23,7 @@ void vertex() {
 
 // lo~hi 칸 밖이면 0 (이웃 프레임을 읽지 않음).
 float alpha_in(sampler2D t, vec2 uv, vec2 lo, vec2 hi) {
-	if (uv.x < lo.x || uv.y < lo.y || uv.x > hi.x || uv.y > hi.y) {
+	if (uv.x < lo.x || uv.y < lo.y || uv.x >= hi.x || uv.y >= hi.y) {
 		return 0.0;
 	}
 	return texture(t, uv).a;

@@ -11,6 +11,8 @@ extends Resource
 ## 공격권이 없으면 이 거리에서 플레이어 둘레를 돈다 (옆걸음 속도 배율).
 @export var hold_radius: float = 240.0
 @export var strafe_ratio: float = 0.5
+## 고리에서 이 폭(px) 안쪽·바깥쪽에서는 천천히 다가가거나 물러난다.
+@export var hold_band: float = 60.0
 ## 공격권을 가진 적이 이보다 멀어지면 돌려준다.
 @export var release_radius: float = 420.0
 
@@ -27,6 +29,8 @@ extends Resource
 @export var volley_window: float = 0.25
 
 @export_group("무리 이벤트")
+## 무리 이벤트·분열로 동시 최대 수(EnemySpawner.max_alive)를 이만큼까지 넘을 수 있다 (모바일 상한).
+@export var horde_extra_alive: int = 16
 ## 첫 이벤트 시각과 간격(초). 0이면 없음.
 @export var horde_first: float = 25.0
 @export var horde_interval: float = 30.0

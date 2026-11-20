@@ -66,7 +66,7 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 		State.READY:
 			if player and not player.is_dead() and _cooldown <= 0.0 \
 					and self_pos.distance_to(player.global_position) <= data.trigger_range \
-					and (data.bypass_cap or active_windups < max_concurrent) 					and (not data.volley or EnemyBrain.volley_open(ai, Time.get_ticks_msec() / 1000.0)):
+					and (data.bypass_cap or data.volley or active_windups < max_concurrent) 					and (not data.volley or EnemyBrain.volley_open(ai, Time.get_ticks_msec() / 1000.0)):
 				state = State.WINDUP
 				active_windups += 1
 				_timer = data.windup

@@ -16,6 +16,8 @@ var _hop_left: float = 0.0
 var _hop_vel: Vector2 = Vector2.ZERO
 var revealed: bool = true
 var _strafe_side: float = 1.0
+## steer()가 정한 속도 배율 (배열을 매 프레임 만들지 않게 따로 둔다).
+var speed_k: float = 1.0
 
 
 func _init(p_ai: EnemyAIData, p_beh: EnemyBehaviourData, p_id: int, p_melee: bool) -> void:
@@ -35,27 +37,30 @@ func style() -> EnemyBehaviourData.Style:
 
 
 ## 쫓을 방향을 공격권·둘레 돌기·매복에 맞게 고친다. dir = 플레이어 쪽 단위 벡터, dist = 거리.
-## 반환: [방향(길이 ≤ 1), 속도 배율]
-func steer(dir: Vector2, dist: float) -> Array:
+## 반환: 방향(길이 ≤ 1). 속도 배율은 speed_k에.
+func steer(dir: Vector2, dist: float) -> Vector2:
+	speed_k = 1.0
 	if sweep_left > 0.0:
-		return [sweep_dir, ai.wall_speed_mult]
+		speed_k = ai.wall_speed_mult
+		return sweep_dir
 	if style() == EnemyBehaviourData.Style.AMBUSH and not revealed:
 		if dist <= beh.ambush_range:
 			revealed = true
 		else:
-			return [dir, beh.ambush_speed_mult]
+			speed_k = beh.ambush_speed_mult
+			return dir
 	if not melee:
-		return [dir, 1.0]
+		return dir
 	if dist <= ai.engage_radius and AttackTokens.request(id, ai.max_melee_tokens):
-		return [dir, 1.0]
+		return dir
 	if dist > ai.release_radius:
 		AttackTokens.release(id)
 	if AttackTokens.has(id) or dist > ai.engage_radius:  # 멀면 그냥 다가온다
-		return [dir, 1.0]
+		return dir
 	# 공격권 없음: hold_radius 고리로 가서 옆걸음으로 돈다.
-	var radial := dir * clampf((dist - ai.hold_radius) / 60.0, -1.0, 1.0)
+	var radial := dir * clampf((dist - ai.hold_radius) / ai.hold_band, -1.0, 1.0)
 	var side := dir.orthogonal() * _strafe_side * ai.strafe_ratio
-	return [(radial + side).limit_length(1.0), 1.0]
+	return (radial + side).limit_length(1.0)
 
 
 ## 공격 중에도 움직이는 경우의 방향 (물러나며 쏘기). 없으면 Vector2.ZERO.

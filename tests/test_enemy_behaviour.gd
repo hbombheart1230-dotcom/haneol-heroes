@@ -43,22 +43,22 @@ func test_without_token_enemy_circles_instead_of_charging() -> void:
 	var a := EnemyBrain.new(ai, null, 1, true)
 	var b := EnemyBrain.new(ai, null, 2, true)
 	var c := EnemyBrain.new(ai, null, 3, true)
-	assert_vector(a.steer(Vector2.RIGHT, 200.0)[0]).is_equal(Vector2.RIGHT)
-	assert_vector(b.steer(Vector2.RIGHT, 200.0)[0]).is_equal(Vector2.RIGHT)
-	var d: Vector2 = c.steer(Vector2.RIGHT, ai.hold_radius)[0]
+	assert_vector(a.steer(Vector2.RIGHT, 200.0)).is_equal(Vector2.RIGHT)
+	assert_vector(b.steer(Vector2.RIGHT, 200.0)).is_equal(Vector2.RIGHT)
+	var d: Vector2 = c.steer(Vector2.RIGHT, ai.hold_radius)
 	assert_float(absf(d.dot(Vector2.RIGHT))).is_less(0.1)  # 고리 위: 옆걸음만
 	assert_float(absf(d.y)).is_greater(0.1)
 	# 멀어지면 공격권을 돌려준다
 	a.steer(Vector2.RIGHT, ai.release_radius + 10.0)
 	assert_bool(AttackTokens.has(1)).is_false()
-	assert_vector(c.steer(Vector2.RIGHT, 200.0)[0]).is_equal(Vector2.RIGHT)
+	assert_vector(c.steer(Vector2.RIGHT, 200.0)).is_equal(Vector2.RIGHT)
 
 
 func test_ranged_and_bosses_ignore_tokens() -> void:
 	var ai := _ai()
 	ai.max_melee_tokens = 0
 	var r := EnemyBrain.new(ai, null, 9, false)
-	assert_vector(r.steer(Vector2.RIGHT, 100.0)[0]).is_equal(Vector2.RIGHT)
+	assert_vector(r.steer(Vector2.RIGHT, 100.0)).is_equal(Vector2.RIGHT)
 
 
 func test_punish_window_and_front_guard() -> void:
@@ -104,8 +104,8 @@ func test_ambush_hidden_until_close() -> void:
 	var beh := EnemyBehaviourData.new()
 	beh.style = EnemyBehaviourData.Style.AMBUSH
 	var b := EnemyBrain.new(EnemyAIData.new(), beh, 0, false)
-	var st: Array = b.steer(Vector2.RIGHT, 600.0)
-	assert_float(st[1]).is_equal(beh.ambush_speed_mult)
+	b.steer(Vector2.RIGHT, 600.0)
+	assert_float(b.speed_k).is_equal(beh.ambush_speed_mult)
 	assert_float(b.alpha()).is_equal(beh.ambush_alpha)
 	b.steer(Vector2.RIGHT, beh.ambush_range - 1.0)
 	assert_float(b.alpha()).is_equal(1.0)
@@ -214,9 +214,9 @@ func _spawner() -> EnemySpawner:
 	var sp: EnemySpawner = auto_free(EnemySpawner.new())
 	sp.enemy_scene = ENEMY_SCENE
 	sp.target = p
-	sp.active = false
 	sp.spawn_table = [load("res://data/enemies/jurchen_soldier.tres")] as Array[EnemyData]
 	add_child(sp)
+	sp.set_physics_process(false)  # 시간 진행 없이 직접 부른다 (add_child 뒤에 꺼야 남는다)
 	return sp
 
 
@@ -259,3 +259,49 @@ func test_elite_affix_applies_and_splitting_splits() -> void:
 	var tough := sp.spawn_at(d, Vector2(-300, 0), func(en: Enemy) -> void: en.affix = armored)
 	tough._update_damage_mult()
 	assert_float(tough.damage_mult()).is_equal_approx(armored.damage_taken_mult, 0.001)
+
+
+func test_horde_and_splits_respect_extra_cap() -> void:
+	# Codex 36997a5: 무리·분열이 동시 최대 수를 끝없이 넘지 않게
+	var sp := _spawner()
+	sp.max_alive = 0
+	var cap := Enemy.ai_data().horde_extra_alive
+	var made := 0
+	for i in 4:
+		made += sp.start_horde(HordeDirector.Kind.SWARM)
+	assert_int(made).is_equal(cap)
+	assert_int(sp.alive_count()).is_equal(cap)
+
+
+func test_no_split_after_run_ends() -> void:
+	var sp := _spawner()
+	var split: EliteAffixData
+	for a in Enemy.ai_data().elite_affixes:
+		if a.split_count > 0:
+			split = a
+	var e := sp.spawn_at(load("res://data/enemies/jurchen_elite.tres"), Vector2(300, 0), func(en: Enemy) -> void: en.affix = split)
+	var n := sp.alive_count()
+	sp.active = false  # 판 끝
+	e.health.kill()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_int(sp.alive_count()).is_equal(n - 1)
+
+
+func test_volley_shooters_ignore_windup_cap() -> void:
+	var d := EnemyAttackData.new()
+	d.kind = EnemyAttackData.Kind.SHOOT
+	d.volley = true
+	d.trigger_range = 1000.0
+	var p: Player = auto_free(Player.new())
+	var h := Health.new()
+	h.name = "Health"
+	p.add_child(h)
+	add_child(p)
+	var was := EnemyAttack.active_windups
+	EnemyAttack.active_windups = EnemyAttack.max_concurrent
+	var atk := EnemyAttack.new(d)  # ai 없음 = 박자 제한 없음
+	atk.tick(0.016, Vector2(100, 0), p)
+	assert_int(atk.state).is_equal(EnemyAttack.State.WINDUP)
+	atk.cancel()
+	EnemyAttack.active_windups = was

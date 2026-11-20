@@ -42,6 +42,10 @@ var horde := HordeDirector.new(Enemy.ai_data())
 signal horde_started(kind: int)
 
 
+func _ready() -> void:
+	AttackTokens.clear()  # 새 판: 지난 판의 공격권이 남지 않게
+
+
 func alive_count() -> int:
 	var n := 0
 	for c in get_children():
@@ -127,8 +131,11 @@ func _spawn_special(d: EnemyData) -> Enemy:
 
 
 ## at(월드 좌표)에 생성 (INF면 고리 영역 무작위). configure는 add_child 전에 적을 꾸민다 (변종·떼 배율).
-func spawn_at(d: EnemyData, at: Vector2, configure: Callable = Callable()) -> Enemy:
+## extra = true(무리·분열)면 max_alive + horde_extra_alive까지만.
+func spawn_at(d: EnemyData, at: Vector2, configure: Callable = Callable(), extra: bool = false) -> Enemy:
 	if enemy_scene == null or target == null:
+		return null
+	if extra and alive_count() >= max_alive + Enemy.ai_data().horde_extra_alive:
 		return null
 	var e := enemy_scene.instantiate() as Enemy
 	e.data = d
@@ -146,14 +153,22 @@ func spawn_at(d: EnemyData, at: Vector2, configure: Callable = Callable()) -> En
 
 func _on_killed(en: Enemy) -> void:
 	enemy_killed.emit(en)
-	# 분열 변종: 작은 적으로 갈라진다 (변종은 물려받지 않음).
-	if en.affix and en.affix.split_count > 0:
+	# 분열 변종: 작은 적으로 갈라진다 (변종은 물려받지 않음). 판이 끝났으면(플레이어 사망) 갈라지지 않는다.
+	var over := not active or (target is Player and (target as Player).is_dead())
+	if en.affix and en.affix.split_count > 0 and not over:
 		var af := en.affix
 		for i in af.split_count:
 			var off := Vector2.from_angle(TAU * i / af.split_count) * en.body_radius * 2.0
-			spawn_at.call_deferred(en.data, en.global_position + off, func(s: Enemy) -> void:
-				s.hp_mult = af.split_hp_mult
-				s.size_mult = af.split_scale)
+			_split_later.call_deferred(en.data, en.global_position + off, af)
+
+
+## 분열 조각 (한 프레임 뒤). 그사이 판이 끝났으면 만들지 않는다.
+func _split_later(d: EnemyData, at: Vector2, af: EliteAffixData) -> void:
+	if not active or (target is Player and (target as Player).is_dead()):
+		return
+	spawn_at(d, at, func(s: Enemy) -> void:
+		s.hp_mult = af.split_hp_mult
+		s.size_mult = af.split_scale, true)
 
 
 ## 무리 이벤트 하나를 연다 (종류는 HordeDirector.Kind). 생성한 수를 돌려준다.
@@ -168,16 +183,16 @@ func start_horde(kind: int) -> int:
 	match kind:
 		HordeDirector.Kind.RING:
 			for p in horde.ring_points(center):
-				n += 1 if spawn_at(basic, p) else 0
+				n += 1 if spawn_at(basic, p, Callable(), true) else 0
 		HordeDirector.Kind.WALL:
 			for p in horde.wall_points(center, side):
-				n += 1 if spawn_at(basic, p, func(e: Enemy) -> void: e.set_meta(&"sweep", -side)) else 0
+				n += 1 if spawn_at(basic, p, func(e: Enemy) -> void: e.set_meta(&"sweep", -side), true) else 0
 		_:
 			for p in horde.swarm_points(center, side, rng):
 				n += 1 if spawn_at(basic, p, func(e: Enemy) -> void:
 					e.hp_mult = ai.swarm_hp_mult
 					e.speed_mult = ai.swarm_speed_mult
-					e.size_mult = ai.swarm_scale) else 0
+					e.size_mult = ai.swarm_scale, true) else 0
 	horde_started.emit(kind)
 	return n
 

@@ -140,9 +140,8 @@ func compute_velocity(neighbors: Array) -> Vector2:
 		elif d <= data.preferred_range + 40.0:
 			dir = Vector2.ZERO
 	if brain:
-		var st: Array = brain.steer(dir, to_target.length())
-		dir = st[0]
-		speed_k = st[1]
+		dir = brain.steer(dir, to_target.length())
+		speed_k = brain.speed_k
 	var push := Vector2.ZERO
 	for n in neighbors:
 		var other := n as Node2D
