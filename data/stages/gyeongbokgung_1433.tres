@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/gyeongbokgung_1433/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/arrows_a.png" id="p_arrows_a"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/arrows_b.png" id="p_arrows_b"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/banner_blue.png" id="p_banner_blue"]

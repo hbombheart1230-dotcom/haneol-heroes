@@ -20,7 +20,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/spear_grass.png" id="p_spear_grass"]
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/spears.png" id="p_spears"]
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/wheel.png" id="p_wheel"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395/verse.ogg" id="2_music"]
 [ext_resource type="Resource" path="res://data/songs/manchuria_395.tres" id="song"]
 
 [resource]

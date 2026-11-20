@@ -39,11 +39,17 @@ def exists(enemy: str) -> bool:
     return os.path.exists(os.path.join(ROOT, f"data/enemies/{enemy}.tres"))
 
 
+def fallback_music(sid: str) -> str:
+    """노래(StageSong)를 못 쓸 때 트는 곡: 이 무대 노래의 본편. 없으면 예전 공용 곡."""
+    own = f"assets/audio/music/{sid}/verse.ogg"
+    return f"res://{own}" if os.path.exists(os.path.join(ROOT, own)) else "res://assets/audio/music/manchuria_395.ogg"
+
+
 def make(sid: str, s: dict) -> str:
     props = sorted(os.path.basename(p)[:-4] for p in glob.glob(os.path.join(ROOT, f"assets/props/{s['props']}/*.png")))
     props = [p for p in props if p not in s.get("skip_props", [])]
     ext = ['[ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]',
-           '[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]']
+           f'[ext_resource type="AudioStream" path="{fallback_music(sid)}" id="2_music"]']
     ext += [f'[ext_resource type="Texture2D" path="res://assets/props/{s["props"]}/{p}.png" id="p_{p}"]' for p in props]
     army = [e for e in s["army"] if exists(e)]
     ext += [f'[ext_resource type="Resource" path="res://data/enemies/{e}.tres" id="e_{e}"]'

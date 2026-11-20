@@ -101,6 +101,7 @@ Korean traditional epic, solemn tragic heroism, Goguryeo war march, jungmori 12/
 
 [End]
 ```
+**주의 (2026-11-21):** 순신 곡과 화음·조성이 거의 같아(크로마 유사도 0.99) 들으면 같은 노래로 느껴짐 → 원곡 오디오 없이(페르소나, 오디오 영향 0) 다른 조성으로 다시 만들 것.
 **쓴 판:** 첫 번째 버전 (`manchuria_395_v1.mp3`), 72 BPM, 첫 박 0.2s — 전주 0–2 / 1절 2–19 / 후렴 19–27 / 후주 56–끝.
 두 번째 버전은 `manchuria_395_v2.mp3`에 보관.
 
@@ -143,7 +144,12 @@ Korean royal court music meets battle march, daechwita royal military procession
 
 [End]
 ```
-**쓴 판:** `gyeongbokgung_1433_v1.mp3`, 122 BPM, 첫 박 0.17s — 전주 0–7 / 1절 7–23 / 후렴 23–31 / 후주 62–끝.
+**v2 (2026-11-21, "너무 경박해 진지하게"):** 종묘제례악·정가풍 68 BPM으로 다시 — 기이함 20%, 스타일 영향 85%, 오디오 영향 25%;
+제외에 `upbeat, cheerful, playful, bouncy, festive, march, fast tempo, jabara cymbals, chuimsae shouts` 추가, 지화자 뺌.
+후렴: 백성의 소리를 글로 새겨 / 어둠을 밝히는 빛이 되라 / 하늘의 별이 글이 되니 / 이 나라를 내가 지키리 / 둥 둥 둥 둥 / 나랏말씀이 빛나리라
+(새 곡이 오면 다시 자른다.)
+
+**쓴 판 (v1, 교체 예정):** `gyeongbokgung_1433_v1.mp3`, 122 BPM, 첫 박 0.17s — 전주 0–7 / 1절 7–23 / 후렴 23–31 / 후주 62–끝.
 
 ## 4. 사임당 — 초충도 `먹빛 정원` (가야금 산조·굿거리)
 
