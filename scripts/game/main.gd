@@ -238,56 +238,30 @@ func _physics_process(delta: float) -> void:
 		_end_time += delta
 
 
-## 무대 곡 고르기: &"stage" / &"boss" / &"victory" / &"defeat". 비어 있으면 무대 곡.
-func stage_music(kind: StringName) -> AudioStream:
-	var st := run_config.stage if run_config else null
-	if st == null:
-		return null
-	var s: AudioStream = {&"boss": st.boss_music, &"victory": st.victory_music, &"defeat": st.defeat_music}.get(kind)
-	return s if s else st.music
-
-
-## 음악 신호: &"stage" / &"boss" / &"victory" / &"defeat". 무대 노래가 있으면 구간을 넘나들고, 없으면 곡을 바꾼다.
-const SONG_SECTION := {&"stage": &"verse", &"boss": &"chorus", &"victory": &"outro", &"defeat": &"intro"}
+## 음악 (RunMusic): 영웅 노래 구간 넘나들기·메뉴 곡·승패 곡. 곡 칸은 장면에서 정한다.
+## 입장·공통 이야기·영웅 고르기 곡 (비우면 첫 무대 노래의 전주).
+@export var menu_track: AudioStream
+## 판이 끝났을 때 한 번 트는 짧은 곡 (모든 무대 공용). 비우면 노래의 후주·전주.
+@export var victory_track: AudioStream
+@export var defeat_track: AudioStream
+const SONG_SECTION := RunMusic.SONG_SECTION
+var music := RunMusic.new(self)
 
 
 func music_cue(kind: StringName) -> void:
-	var jingle: AudioStream = {&"victory": victory_track, &"defeat": defeat_track}.get(kind)
-	if jingle and Feedback.instance:
-		Feedback.instance.play_music(jingle, 0.4)
-		return
-	var st := run_config.stage if run_config else null
-	if st and st.song:
-		MusicDirector.play(st.song, SONG_SECTION[kind])
-	else:
-		_switch_music(stage_music(kind))
+	music.cue(kind)
 
 
-## 입장·공통 이야기·영웅 고르기 음악 (비우면 첫 무대 노래의 전주). 국악 곡을 정해 넣는다.
-@export var menu_track: AudioStream
-## 판이 끝났을 때 한 번 트는 짧은 곡 (모든 무대 공용). 비우면 무대 노래의 후주·전주.
-@export var victory_track: AudioStream
-@export var defeat_track: AudioStream
-
-
-## 입장·공통 이야기·영웅 고르기 음악.
 func menu_music() -> void:
-	if menu_track and Feedback.instance:
-		Feedback.instance.play_music(menu_track, 0.8)
-	elif not stages.is_empty() and stages[0] and stages[0].song:
-		MusicDirector.play(stages[0].song, &"intro")
+	music.menu()
 
 
-## 영웅 이야기 음악: 그 영웅이 지금 설 무대의 노래 본편 (판의 무대 곡과 같아서 이어진다).
 func hero_music(hero: HeroData) -> void:
-	var st := stage_by_id(HeroRoute.current(stages, hero, GameSettings.hero_stages))
-	if st and st.song:
-		MusicDirector.play(st.song, SONG_SECTION[&"stage"], 0.8)
+	music.hero(hero)
 
 
-func _switch_music(stream: AudioStream) -> void:
-	if Feedback.instance and stream:
-		Feedback.instance.play_music(stream, 0.6)
+func stage_music(kind: StringName) -> AudioStream:
+	return music.stage_track(kind)
 
 
 func _on_ended(result: GameState.Result) -> void:

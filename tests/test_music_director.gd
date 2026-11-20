@@ -107,3 +107,30 @@ func test_scene_has_menu_and_result_tracks() -> void:
 	assert_float(main.victory_track.get_length()).is_less(30.0)
 	assert_float(main.defeat_track.get_length()).is_less(30.0)
 	main.free()
+
+
+func test_hero_keeps_own_song_on_next_battlefield() -> void:
+	GameSettings.settings_path = GameSettings.test_path()
+	GameSettings.title_seen = true
+	GameSettings.intro_seen = true
+	GameSettings.tutorial_done = true
+	GameSettings.hero_picked = true
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.stage_picked = false
+	GameSettings.hero_stages = {"yi_sun_sin": "manchuria_395"}  # 한산도를 이기고 만주로 넘어감
+	GameSettings.hero_clears = {}
+	GameSettings.save_settings()
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	add_child(main)
+	await get_tree().process_frame
+	assert_str(String(main.run_config.stage.id)).is_equal("manchuria_395")
+	var own: StageSong = main.stage_by_id(&"hansan_1592").song
+	assert_object(main.music.hero_song(main.get_node("Player").hero)).is_same(own)
+	await get_tree().create_timer(1.5).timeout
+	assert_object(MusicDirector.player().stream).is_same(own.interactive())  # 만주에서도 순신 노래
+	get_tree().paused = false
+	main.queue_free()
+	GameSettings.hero_stages = {}
+	GameSettings.stage_picked = true
+	GameSettings.stage_id = &"manchuria_395"
+	GameSettings.save_settings()
