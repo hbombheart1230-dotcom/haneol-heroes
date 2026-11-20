@@ -267,3 +267,9 @@
 - 결과: `docs/images/lines_projectiles_dash.png` (영웅마다 위 = 직선 기술 띠 / 세종은 떨어지는 유성, 가운데 = 원거리 탄·해일검기, 아래 = 회피 자취; 맨 오른쪽 = 유성 폭발 강화 0단계/최대).
 - **코드 도형 없애기 (사용자 규칙: "기본 동그라미·선이 보이면 안 됨"):** 기술이 부르던 범위 고리·검기 선·타격 튐, 장판(먹 웅덩이 등), 충전 표시, 근접 베기 호를 전부 무채색 붓 그림에 기술 색을 곱해 그린다 (`tools/vfx/make_neutral.py` → `assets/vfx/brush_{ring,stroke,splat,pool,crescent}.png`, `CombatFeelData` 붓 그림 묶음). 정음진은 그림 고리만, 회피는 동그라미 자취 없이 띠만, 초충 나비·방아깨비는 꽃잎·풀잎 그림. 결과: `docs/images/brush_instead_of_shapes.png`. 적 예고 영역·기절/느려짐 표시·처치 연출은 기술이 아니라 그대로 둠.
 - **세종 원거리 동작:** 던질 때 "고개가 좀비 같다" ('Charged Spell Cast') → 사용자 승인으로 Meshy 'Mage Soell Cast 4'(action 133, 한 팔로 앞으로 던짐, 고개 바로) 추가, 3크레딧 사용 (1,936 → 1,933). `throw` 동작으로 다시 구움 (8프레임·18fps), 글자는 던지는 프레임(0.17초)에 손에서 나간다 (`ranged_anim = throw`, `release_delay = 0.17`).
+
+## 5차: 궁극기 모으기 발밑 표시 영웅별로 (사용자: "기 모으는 거 바닥 표시 영웅에 맞게")
+
+- `HeroData.charge_marker` → `data/heroes/charge/*.tres` (`ChargeMarkerData`, `ChargeMarker`): 그림 두 겹이 반대로 돌며 충전만큼 커지고 진해짐, 모으는 동안 작은 입자, 다 찬 순간 이펙트 + 번쩍. 영웅 그림 아래(바닥)에 깔림.
+  - 순신: 물결 고리 + 물보라, 물방울 / 광개토: 지진 불길 + 번개, 불똥 / 세종: 해시계 + 정음 자모, 별 / 사임당: 먹 소용돌이 + 매화, 꽃잎
+- 결과: `docs/images/charge_markers.png` (위 = 충전 30%, 아래 = 다 찬 순간).

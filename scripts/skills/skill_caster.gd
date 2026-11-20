@@ -22,6 +22,7 @@ enum Slot { NONE, TAP, DASH, CHARGE, COUNTER }
 @export var hit_stop_enabled: bool = true
 
 var input := SkillInput.new()
+var _charge_marker: ChargeMarker
 ## 적 목록 공급자. 테스트에서 교체할 수 있다.
 var enemy_source: Callable = func() -> Array: return get_tree().get_nodes_in_group(Enemy.GROUP)
 
@@ -33,6 +34,7 @@ var _runs: Array = []
 
 
 func _ready() -> void:
+	show_behind_parent = true  # 충전 표시는 바닥 (영웅 그림 아래)
 	if kit == null and player and player.hero:
 		kit = player.hero.kit
 	apply_kit(kit)
@@ -264,21 +266,26 @@ func _context() -> SkillContext:
 	return ctx
 
 
+## 영웅별 충전 표시 (영웅이 바뀌면 다시 만든다).
+func _marker() -> ChargeMarker:
+	var d := player.hero.charge_marker if player and player.hero else null
+	if _charge_marker == null or _charge_marker.data != d:
+		_charge_marker = ChargeMarker.new(d)
+	return _charge_marker
+
+
 func _physics_process(delta: float) -> void:
 	tick(delta, Time.get_ticks_usec() / 1_000_000.0)
+	var charging := input.state == SkillInput.State.CHARGING
+	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0) if charging else 0.0
+	if player:
+		_marker().tick(delta, charging, c, player.global_position)
 	queue_redraw()
 
 
 func _draw() -> void:
-	# 충전 중 표시: 플레이어 발밑 고리
-	if input.state != SkillInput.State.CHARGING:
-		return
-	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0)
-	var art := Feedback.feel_data().ring_art
-	if art:  # 붓 고리가 충전만큼 커지고 진해진다
-		var s := (36.0 + 20.0 * c) * 2.4
-		draw_set_transform(Vector2.ZERO, c * TAU, Vector2.ONE)
-		draw_texture_rect(art, Rect2(-s * 0.5, -s * 0.5, s, s), false, Color(0.4, 0.8, 1.0, 0.35 + 0.6 * c))
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-		return
-	draw_arc(Vector2.ZERO, 36.0 + 20.0 * c, -PI / 2, -PI / 2 + TAU * maxf(c, 0.02), 32, Color(0.4, 0.8, 1.0, 0.9), 5.0)
+	# 충전 중 표시: 플레이어 발밑 (영웅별 그림, show_behind_parent로 영웅 그림 아래)
+	var charging := input.state == SkillInput.State.CHARGING
+	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0) if charging else 1.0
+	if player:
+		_marker().draw(self, charging, c)
