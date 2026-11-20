@@ -44,8 +44,20 @@ static func draw(e: Enemy) -> void:
 			Ink.stroke(e, -to_target * r * 0.6, to_target * r * 1.5, 4.0, Color(0.35, 0.25, 0.15))
 
 
+## 공격 직후 경직(빈틈): 머리 위 흰 먹 소용돌이 (이때 치면 더 아프다).
+static func _opening(e: Enemy) -> void:
+	var a := e.attack
+	if a == null or a.state != EnemyAttack.State.RECOVER:
+		return
+	var top := Vector2(0, -e.body_radius * 2.4)
+	var spin := -Time.get_ticks_msec() * 0.006
+	e.draw_arc(top, e.body_radius * 0.55, spin, spin + PI * 1.5, 12, Color(Ink.PAPER, 0.95), 4.0)
+	e.draw_arc(top, e.body_radius * 0.55, spin, spin + PI * 1.5, 12, Color(Ink.INK, 0.6), 1.5)
+
+
 ## 예고 영역: 인주 빛으로 차오르고 먹선 테두리.
 static func _telegraph(e: Enemy) -> void:
+	_opening(e)
 	var a := e.attack
 	if a == null or a.state != EnemyAttack.State.WINDUP:
 		return
@@ -66,7 +78,7 @@ static func _telegraph(e: Enemy) -> void:
 			e.draw_colored_polygon(pts, fill)
 			pts.append(origin)
 			e.draw_polyline(pts, edge, 4.0)
-		EnemyAttackData.Kind.CHARGE:
+		EnemyAttackData.Kind.CHARGE, EnemyAttackData.Kind.PULL:
 			var d := a.aim_dir
 			var n := d.orthogonal() * a.data.width * 0.5
 			var back := origin - d * a.data.width * 0.5
