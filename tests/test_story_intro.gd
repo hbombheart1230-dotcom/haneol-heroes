@@ -114,26 +114,66 @@ func test_every_hero_has_a_complete_story() -> void:
 			assert_int(s.lines.size()).is_greater(0)
 
 
-func test_intro_skipped_when_already_seen() -> void:
-	GameSettings.settings_path = GameSettings.test_path()
-	GameSettings.title_seen = false
-	GameSettings.intro_seen = true
-	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
-	GameSettings.hero_picked = false
-	GameSettings.save_settings()
-	var main: Node = load("res://scenes/main.tscn").instantiate()
-	add_child(main)
-	await get_tree().process_frame
+func _enter(main: Node) -> void:
 	var title: TitleScreen = main.title_screen
 	title._process(0.5)
 	var b := title.button_rect().get_center()
 	title.handle_touch(0, b, true)
 	title.handle_touch(0, b, false)
-	assert_bool(main.story_intro.is_open()).is_false()
-	assert_bool(main.hero_select.is_open()).is_true()
+
+
+func test_prologue_plays_every_time_by_default() -> void:
+	GameSettings.settings_path = GameSettings.test_path()
+	GameSettings.story_once = false
+	GameSettings.title_seen = false
+	GameSettings.intro_seen = true  # 전에 봤어도
+	GameSettings.hero_picked = false
+	GameSettings.save_settings()
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	add_child(main)
+	await get_tree().process_frame
+	_enter(main)
+	assert_bool(main.story_intro.is_open()).is_true()  # 매번 나온다
 	get_tree().paused = false
 	main.queue_free()
 	GameSettings.title_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.save_settings()
+
+
+func test_story_once_skips_what_was_seen() -> void:
+	GameSettings.settings_path = GameSettings.test_path()
+	GameSettings.story_once = true  # 나중에 켤 "다시 안 보기"
+	GameSettings.title_seen = false
+	GameSettings.intro_seen = true
+	GameSettings.hero_picked = false
+	GameSettings.save_settings()
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	add_child(main)
+	await get_tree().process_frame
+	_enter(main)
+	assert_bool(main.story_intro.is_open()).is_false()
+	assert_bool(main.hero_select.is_open()).is_true()
+	get_tree().paused = false
+	main.queue_free()
+	GameSettings.story_once = false
+	GameSettings.title_seen = true
+	GameSettings.hero_picked = true
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.save_settings()
+
+
+func test_next_button_advances_and_last_says_start() -> void:
+	var intro: StoryIntro = auto_free(StoryIntro.new())
+	intro.size = Vector2(720, 1280)
+	add_child(intro)
+	intro.open(INTRO)
+	intro.t = 1.0
+	var c := intro.next_rect().get_center()
+	intro.handle_touch(0, c, true)
+	intro.handle_touch(0, c, false)
+	intro._process(INTRO.fade + 0.01)
+	assert_int(intro.timeline.slide_at(intro.t)).is_equal(1)
+	assert_bool(intro.is_open()).is_true()
+	assert_bool(intro.skip_rect().intersects(intro.next_rect())).is_false()

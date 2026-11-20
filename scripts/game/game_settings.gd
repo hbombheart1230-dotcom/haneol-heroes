@@ -25,6 +25,13 @@ static var title_seen: bool = false
 static var intro_seen: bool = false
 ## 이야기를 이미 본 영웅 id들 (영웅 이야기는 영웅마다 처음 한 번).
 static var seen_stories: PackedStringArray = PackedStringArray()
+## true면 한 번 본 이야기는 다시 안 보여 준다. 지금은 매번 보여 준다 (사용자 결정, 나중에 켤 수 있게 남김).
+static var story_once: bool = false
+
+
+## 이 이야기를 보여 줄지: 매번 보여 주거나(story_once 꺼짐), 아직 안 봤으면.
+static func should_show_story(seen: bool) -> bool:
+	return not (story_once and seen)
 ## 마지막으로 고른 무대 id, 이번 실행에서 무대를 골랐는지.
 static var stage_id: StringName = &""
 static var stage_picked: bool = false

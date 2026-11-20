@@ -279,6 +279,8 @@ func test_main_waits_for_hero_then_runs_chosen_hero() -> void:
 	var c := sel.slot_rect(1).get_center()
 	sel.handle_touch(0, c, true)
 	sel.handle_touch(0, c, false)
+	assert_bool(main.story_intro.is_open()).is_true()  # 고른 직후 그 영웅 이야기
+	main.story_intro.finish()
 	var p: Player = main.get_node("Player")
 	assert_bool(main.waiting_pick).is_false()
 	assert_bool(get_tree().paused).is_false()

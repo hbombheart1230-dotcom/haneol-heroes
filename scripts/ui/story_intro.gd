@@ -1,7 +1,7 @@
 class_name StoryIntro
 extends Control
 ## 입장 뒤 이야기 인트로: 장면 그림이 천천히 다가가고, 연도 붓글씨 아래로 글줄이 하나씩 떠오른다.
-## 화면을 누르면 다음 장면, 오른쪽 위 "건너뛰기"는 끝까지. 내용은 IntroData (data/intro/story_intro.tres).
+## 아래 "다음 ›" (또는 화면 아무 곳)은 다음 장면, "건너뛰기"는 끝까지. 내용은 IntroData (data/intro/*.tres).
 
 signal finished
 
@@ -10,6 +10,7 @@ signal finished
 var timeline: IntroTimeline
 var t: float = 0.0
 var _press_index: int = -1
+var _press_on_skip := false
 
 
 func _ready() -> void:
@@ -40,8 +41,15 @@ func _vp() -> Vector2:
 	return size if size.x > 0.0 else get_viewport_rect().size
 
 
+## 아래쪽 단추: 왼쪽 "건너뛰기", 오른쪽 "다음 ›" (마지막 장면은 "시작").
 func skip_rect() -> Rect2:
-	return Rect2(_vp().x - 190.0, 70.0, 170.0, 64.0)
+	var vp := _vp()
+	return Rect2(28.0, vp.y - 118.0, 220.0, 76.0)
+
+
+func next_rect() -> Rect2:
+	var vp := _vp()
+	return Rect2(vp.x - 248.0, vp.y - 118.0, 220.0, 76.0)
 
 
 func finish() -> void:
@@ -57,6 +65,7 @@ func handle_touch(index: int, pos: Vector2, pressed: bool) -> void:
 		return
 	if pressed:
 		_press_index = index
+		_press_on_skip = skip_rect().grow(16.0).has_point(pos)
 		return
 	if index != _press_index:
 		return
@@ -134,5 +143,6 @@ func _draw() -> void:
 	var b := timeline.black(i, local)
 	if b > 0.0:
 		draw_rect(Rect2(Vector2.ZERO, vp), Color(0, 0, 0, b))
-	var sr := skip_rect()
-	UiStyle.text(self, UiStyle.BODY_FONT, sr.position + Vector2(0, 42), "건너뛰기 ›", 28, Color(UiStyle.PAPER, 0.75), sr.size.x)
+	var last := i == data.slides.size() - 1
+	UiStyle.button(self, skip_rect(), "건너뛰기", 32, _press_index >= 0 and _press_on_skip)
+	UiStyle.button(self, next_rect(), "시작" if last else "다음 ›", 34, _press_index >= 0 and not _press_on_skip)
