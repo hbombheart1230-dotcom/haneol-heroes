@@ -192,3 +192,36 @@ Korean traditional sanjo fantasy, dreamy ink-painting garden, gutgeori 12/8 rhyt
 [End]
 ```
 **쓴 판:** `chochungdo_v1.mp3`, 84 BPM, 첫 박 0.26s — 전주 0–4 / 1절 4–20 / 후렴 28–36 / 후주 44–끝.
+
+## 5. 오프닝 영상 곡 (Suno 곡 + Suno 뮤비 MP4, 입장 화면 앞)
+
+- 30–45초, 세로 9:16 (안 되면 정사각). 커버 그림: 프롤로그 5번(네 영웅) 또는 타이틀 그림 → 뮤비 화풍이 게임과 맞음.
+- 설정: 기이함 25%, 스타일 영향 80%, **원곡 오디오 없음** (커버로 만들면 순신·광개토처럼 같은 곡이 됨).
+- 게임에 넣기: 엔진의 영상 모듈(theora)을 다시 켜고 템플릿 다시 빌드 → MP4를 세로 .ogv로 변환, 화면 누르면 건너뜀.
+
+스타일:
+```
+Korean traditional epic overture, cinematic game opening theme, four heroes awakening against a phantom army, steady tempo 80 BPM, starts quiet and mysterious then builds to a powerful climax, low ajaeng drone, daegeum solo, haegeum, gayageum, pyeonjong bronze bells, heavy buk and geongo war drums, taepyeongso call at the climax, male and female choir chanting, pentatonic gyemyeonjo mode, not a pop melody, ink painting atmosphere, short instrumental ending
+```
+제외: `K-pop, pop ballad, western chord progression, rock guitar, EDM, autotune, rap, tempo change, fade out, cheerful, playful`
+
+가사:
+```
+[Intro]
+[Instrumental: low ajaeng drone, daegeum, one bronze bell]
+
+[Build]
+[Instrumental: buk drums, gayageum, haegeum, choir hum]
+
+[Chant]
+한얼이여 깨어나라
+천 년의 어둠을 가르리라
+
+[Climax]
+[Instrumental: taepyeongso, full drums, pyeonjong bells]
+
+[Outro]
+[One long bell]
+
+[End]
+```
