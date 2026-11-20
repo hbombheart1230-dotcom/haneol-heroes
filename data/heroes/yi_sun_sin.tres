@@ -115,7 +115,6 @@ fx_color = Color(1, 0.9, 0.5, 1)
 radius = 230.0
 damage = 60
 knockback = 520.0
-hit_stop = 0.08
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_counter")

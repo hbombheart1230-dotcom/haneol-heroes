@@ -175,7 +175,7 @@ func test_frog_tongue_pulls_player() -> void:
 	fr.target = p
 	fr.attack.set_patterns([fr.attack.patterns[1]])
 	fr.attack.aim_dir = Vector2.LEFT
-	fr._on_attack_result(EnemyAttack.Result.HIT)
+	EnemyActions.on_attack_result(fr, EnemyAttack.Result.HIT)
 	assert_float(p._recoil_vel.x).is_greater(0.0)  # 개구리(오른쪽) 쪽으로
 
 

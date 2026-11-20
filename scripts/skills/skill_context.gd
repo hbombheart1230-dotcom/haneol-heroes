@@ -52,11 +52,14 @@ func enemies_near_segment(a: Vector2, b: Vector2, half_width: float) -> Array[En
 
 
 ## 살아 있는 적에게 피해. 반환: 실제로 맞았으면 true.
-func hit(en: Enemy, dmg: int) -> bool:
+## stop: 기술 명중 멈춤 공통 규칙(SkillHitStop)에 알림. 계속 닿는 장판·도는 글자·벌레는 false.
+func hit(en: Enemy, dmg: int, stop: bool = true) -> bool:
 	var h := en.get_node_or_null("Health") as Health
 	if h == null or not h.is_alive():
 		return false
 	h.damage(dmg)
+	if stop and hit_stop_enabled and player and player.is_inside_tree():
+		SkillHitStop.request(player.get_tree(), dmg)
 	if fx:
 		fx.add_spark(en.global_position)
 	if skill and skill.vfx_hit and player:

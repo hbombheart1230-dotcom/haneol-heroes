@@ -62,6 +62,8 @@ extends Resource
 @export var skill_trauma: float = 0.35
 @export var skill_trauma_miss: float = 0.12
 @export var counter_trauma: float = 0.7
+## 정예 갑옷 깨짐·보스 휘청 흔들림.
+@export var poise_trauma: float = 0.4
 
 
 @export_group("영웅 동작")
@@ -135,6 +137,15 @@ extends Resource
 @export var big_hit_damage: int = 40
 ## 적·영웅 맞는 반응 수치 (비우면 기본값).
 @export var reaction: HitReactionData
+## 기술 명중 멈춤 (D3, SkillHitStop): 길이 = base + 피해 × per_damage (최대 cap, 최소 min),
+## 한 번에 맞힌 적이 하나 늘 때마다 × multi, 멈춤 사이 최소 간격(초), 멈춤 중 게임 속도.
+@export var skill_stop_base: float = 0.03
+@export var skill_stop_per_damage: float = 0.0015
+@export var skill_stop_cap: float = 0.12
+@export var skill_stop_min: float = 0.03
+@export var skill_stop_multi: float = 0.85
+@export var skill_stop_min_gap: float = 0.2
+@export var skill_stop_scale: float = 0.05
 ## 기술 판정에 더하는 적 몸 반경 배율 (가장자리 판정, LoL식). 0이면 중심점만.
 @export var skill_edge_scale: float = 1.0
 

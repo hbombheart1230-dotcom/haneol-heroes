@@ -235,6 +235,15 @@ func hit_layers() -> Array[StringName]:
 	return player.hero.hit_sfx if player and player.hero else ([] as Array[StringName])
 
 
+## 정예 갑옷 깨짐 · 보스 휘청 (B3): 확인음 + 흔들림 + 진동.
+static func poise_broken(_pos: Vector2, armor: bool) -> void:
+	if instance == null:
+		return
+	instance.play(&"confirm_big" if armor else &"confirm_kill", 0.0)
+	instance.add_trauma(instance.feel.poise_trauma)
+	instance.haptic(instance.feel.haptic_impact_ms, instance.feel.haptic_impact_amp)
+
+
 ## 타격 진동 (Haptics → 설정 "타격 진동"을 따름). haptic_min_gap 안에 다시 오면 무시. 진동했으면 true.
 func haptic(ms: int, amplitude: float) -> bool:
 	var now := Time.get_ticks_msec() / 1000.0

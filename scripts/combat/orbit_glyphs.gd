@@ -45,7 +45,7 @@ func _physics_process(delta: float) -> void:
 				if now - float(_last_hit.get(id, -INF)) < hit_interval:
 					continue
 				_last_hit[id] = now
-				if ctx.hit(en, damage):
+				if ctx.hit(en, damage, false):
 					hits += 1
 	if _age >= duration:
 		queue_free()
