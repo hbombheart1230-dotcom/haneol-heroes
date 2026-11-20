@@ -205,3 +205,21 @@ func _wait_real(seconds: float) -> void:
 	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
 	while Time.get_ticks_msec() < end:
 		await get_tree().process_frame
+
+
+func test_burst_numbers_come_from_data() -> void:
+	var feel := CombatFeelData.new()
+	feel.burst = InkBurstData.new()
+	feel.burst.paper_count = 2
+	feel.burst.smoke_count = 3
+	var k: KillFx = auto_free(KillFx.new(feel))
+	k.death_burst(Vector2.ZERO, &"paper")
+	var paper := 0
+	for b in k._bits:
+		paper += 1 if b["kind"] == "paper" else 0
+	assert_int(paper).is_equal(2)
+	k.death_burst(Vector2.ZERO, &"smoke", true)
+	var smoke := 0
+	for b in k._bits:
+		smoke += 1 if b["kind"] == "smoke" else 0
+	assert_int(smoke).is_equal(3 * feel.burst.finisher_scale)

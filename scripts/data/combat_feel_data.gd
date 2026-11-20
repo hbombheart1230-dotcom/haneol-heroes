@@ -34,6 +34,8 @@ extends Resource
 @export var kill_drops: int = 10
 ## 화면 전체 먹물 방울 최대 수.
 @export var max_drops: int = 60
+## 먹물·죽음 모양 세부 수치 (비우면 기본값).
+@export var burst: InkBurstData
 
 @export_group("처치 반응")
 ## 일반 처치 흔들림(trauma)과 방향 밀림(px).
@@ -67,6 +69,12 @@ extends Resource
 @export var run_anim_max: float = 1.15
 ## 방향 그림을 바꾸려면 칸 경계를 이만큼(도) 넘어야 한다.
 @export var dir_margin_deg: float = 10.0
+
+
+func burst_data() -> InkBurstData:
+	if burst == null:
+		burst = InkBurstData.new()
+	return burst
 
 
 func freeze_for(damage: int) -> float:
