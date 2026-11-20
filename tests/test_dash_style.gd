@@ -96,3 +96,30 @@ func test_chained_dashes_cannot_chain_the_effect() -> void:
 	assert_int(r.on_end(Vector2.ZERO, [e], 10.0)).is_equal(1)
 	assert_int(r.on_end(Vector2.ZERO, [e], 10.0 + gw.dash_style.end_cooldown * 0.5)).is_equal(0)
 	assert_int(r.on_end(Vector2.ZERO, [e], 10.0 + gw.dash_style.end_cooldown + 0.01)).is_equal(1)
+
+
+func test_no_arrival_effect_during_seal_slow_time() -> void:
+	var gw: HeroData = load("res://data/heroes/gwanggaeto.tres")
+	var p: Player = auto_free(Player.new())
+	p.apply_hero(gw)
+	add_child(p)
+	var e := _enemy(Vector2(30, 0))
+	GameTime.set_base(0.35)
+	p._dash_arrived()
+	GameTime.reset()
+	assert_bool(e.is_stunned()).is_false()
+
+
+func test_natural_arrival_waits_for_the_move() -> void:
+	var p: Player = auto_free(Player.new())
+	p.apply_hero(load("res://data/heroes/gwanggaeto.tres"))
+	add_child(p)
+	p.set_physics_process(false)
+	p.request_dash(Vector2.RIGHT)
+	for i in 30:
+		p.compute_velocity(1.0 / 60.0)
+		if p._arrive_pending:
+			break
+	assert_bool(p._arrive_pending).is_true()  # compute_velocity는 표시만, 효과는 이동 뒤
+	p._physics_process(1.0 / 60.0)
+	assert_bool(p._arrive_pending).is_false()
