@@ -1,9 +1,11 @@
 class_name SettingsButton
 extends Control
-## 오른쪽 위 톱니 단추: 누르면 설정 화면을 연다. 어느 화면에서나 (제목·이야기·전투) 다른 화면보다 먼저 눌린다.
+## 오른쪽 위 톱니 단추 (낡은 나무 톱니바퀴): 누르면 설정 화면을 연다. 어느 화면에서나 (제목·이야기·전투) 다른 화면보다 먼저 눌린다.
 
 @export var screen: SettingsScreen
 @export var radius: float = 34.0
+
+const GEAR := preload("res://assets/ui/icons/settings_gear.png")
 
 var _press_index := -1
 
@@ -57,18 +59,12 @@ func _process(_delta: float) -> void:
 	visible = screen != null and not screen.is_open()
 
 
-## 톱니바퀴: 금빛 테두리 원판 + 이 8개 + 가운데 구멍.
+## 낡은 나무 톱니바퀴 그림 (tools/art/make_settings_gear.py). 누르면 어두워지며 살짝 돈다.
 func _draw() -> void:
 	var c := center()
 	var pressed := _press_index != -1
-	draw_circle(c, radius, UiStyle.LACQUER_RED if pressed else UiStyle.LACQUER)
-	draw_arc(c, radius, 0.0, TAU, 32, UiStyle.GOLD, 2.5)
-	var r := radius * 0.62
-	for k in 8:
-		var a := TAU * k / 8.0
-		var d := Vector2(cos(a), sin(a))
-		var n := d.orthogonal()
-		draw_colored_polygon(PackedVector2Array([c + d * r * 0.8 + n * 5.0, c + d * r * 1.25 + n * 4.0,
-			c + d * r * 1.25 - n * 4.0, c + d * r * 0.8 - n * 5.0]), UiStyle.GOLD)
-	draw_circle(c, r * 0.85, UiStyle.GOLD)
-	draw_circle(c, r * 0.4, UiStyle.LACQUER)
+	var s := radius * 2.5
+	draw_set_transform(c, deg_to_rad(20.0) if pressed else 0.0, Vector2.ONE)
+	draw_texture_rect(GEAR, Rect2(-s * 0.5, -s * 0.5, s, s), false,
+		Color(0.7, 0.62, 0.55) if pressed else Color.WHITE)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
