@@ -24,6 +24,7 @@
 [ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_lightning.tres" id="vs_lightning"]
 [ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_conqueror.tres" id="vs_conqueror"]
 [ext_resource type="Resource" path="res://data/heroes/dash/gwanggaeto.tres" id="dash_style"]
+[ext_resource type="Texture2D" path="res://assets/vfx/proj_spear.png" id="proj_art"]
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
@@ -32,6 +33,7 @@ melee_range = 140.0
 melee_arc_degrees = 180.0
 melee_damage = 22
 melee_knockback = 220.0
+swing_color = Color(1, 0.8, 0.3, 0.9)
 melee_recoil = 6.0
 ranged_interval = 1.2
 ranged_range = 320.0
@@ -39,6 +41,12 @@ ranged_damage = 12
 ranged_speed = 800.0
 ranged_lifetime = 0.45
 ranged_knockback = 90.0
+proj_art = ExtResource("proj_art")
+proj_size = Vector2(170, 52)
+proj_trail_color = Color(1, 0.85, 0.3, 0.6)
+proj_trail_len = 90.0
+release_delay = 0.12
+release_offset = Vector2(36, 44)
 
 [sub_resource type="Resource" id="Skill_quake"]
 script = ExtResource("4_quake")

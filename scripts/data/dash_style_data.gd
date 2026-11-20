@@ -15,6 +15,13 @@ extends Resource
 ## 몸 뒤 먹 번짐 자취 색 (PlayerView).
 @export var trail_color: Color = Color(0.25, 0.55, 0.85)
 
+@export_group("지나간 길 (기술과 다르게 가늘게)")
+## 출발 → 도착 경로에 남는 띠 그림 (물길·번개 줄기·먹 자국). 비면 path_color 붓 획.
+@export var path_strip: Texture2D
+@export var path_width: float = 46.0
+@export var path_time: float = 0.35
+@export var path_color: Color = Color(1, 0.85, 0.35, 0.8)
+
 @export_group("도착 효과 (작게, 균형 유지)")
 ## 효과 범위(px). 0이면 효과 없음.
 @export var end_radius: float = 0.0

@@ -11,6 +11,8 @@ var feel: CombatFeelData
 var _items: Array[Dictionary] = []
 ## 금빛 고리 {pos, r, t, life}
 var _rings: Array[Dictionary] = []
+## 직선 기술 띠 {tex, a, b, w, t, life, reveal, bright}
+var _strips: Array[Dictionary] = []
 var _glow: Node2D
 
 
@@ -42,6 +44,28 @@ func count() -> int:
 
 func ring_count() -> int:
 	return _rings.size()
+
+
+func strip_count() -> int:
+	return _strips.size()
+
+
+## 경로 a→b를 따라 그림 띠를 펼친다 (직선 기술·회피 자취). 강화 단계만큼 커지고 밝아진다.
+func strip(tex: Texture2D, a: Vector2, b: Vector2, width: float, time: float, reveal: float, level_mult: float = 1.0,
+		bright: float = 1.0) -> void:
+	if tex == null or a.distance_squared_to(b) < 1.0:
+		return
+	_strips.append({"tex": tex, "a": a, "b": b, "w": width * level_mult, "t": 0.0, "life": maxf(time, 0.01),
+		"reveal": maxf(reveal, 0.001), "bright": bright})
+	while _strips.size() > maxi(feel.max_strips, 1):
+		_strips.pop_front()
+
+
+## 기술 데이터의 띠 설정으로 펼친다.
+func strip_for(d: SkillVfxData, a: Vector2, b: Vector2, level: int = 0) -> void:
+	if d and d.strip:
+		strip(d.strip, a, b, d.strip_width, d.strip_time, d.strip_reveal, d.size_mult(level),
+			1.0 + d.level_glow * d.level_of(level))
 
 
 ## 그림 터뜨리기. level = 기술 강화 단계 (클수록 크고 밝고 겹이 많다).
@@ -83,6 +107,12 @@ func step(delta: float) -> void:
 		else:
 			it["rot"] = float(it["rot"]) + float(it["spin"]) * delta
 		i -= 1
+	i = _strips.size() - 1
+	while i >= 0:
+		_strips[i]["t"] = float(_strips[i]["t"]) + delta
+		if float(_strips[i]["t"]) >= float(_strips[i]["life"]):
+			_strips.remove_at(i)
+		i -= 1
 	i = _rings.size() - 1
 	while i >= 0:
 		_rings[i]["t"] = float(_rings[i]["t"]) + delta
@@ -107,6 +137,18 @@ func _draw() -> void:
 		var b := float(it["bright"])
 		draw_set_transform(it["pos"], float(it["rot"]), Vector2.ONE)
 		draw_texture_rect(d.decal, Rect2(Vector2.ONE * -sh.y * 0.5, Vector2.ONE * sh.y), false, Color(b, b, b, sh.z))
+	for s in _strips:  # 앞으로 펼쳐지는 띠: 그림의 앞부분부터 보인다
+		var tex: Texture2D = s["tex"]
+		var a: Vector2 = s["a"]
+		var d: Vector2 = (s["b"] as Vector2) - a
+		var t := float(s["t"])
+		var k := minf(t / float(s["reveal"]), 1.0)
+		var life := 1.0 - t / float(s["life"])
+		var w := float(s["w"])
+		var br := float(s["bright"])
+		draw_set_transform(a, d.angle(), Vector2.ONE)
+		draw_texture_rect_region(tex, Rect2(0.0, -w * 0.5, d.length() * k, w),
+			Rect2(tex.get_width() * (1.0 - k), 0.0, tex.get_width() * k, tex.get_height()), Color(br, br, br, life))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	for r in _rings:  # 엔진 draw_arc (GDScript 배열을 매 프레임 만들지 않음), 세로로 눌러 바닥에 깐 고리
 		var k := float(r["t"]) / float(r["life"])

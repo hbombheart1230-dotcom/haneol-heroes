@@ -53,6 +53,14 @@
       "frames": 6,
       "fps": 10.0,
       "loop": false
+    },
+    {
+      "key": "throw",
+      "src": "Mage Soell Cast 4",
+      "frames": 8,
+      "fps": 18.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/sejong/animated_extra1.glb"
     }
   ]
 }

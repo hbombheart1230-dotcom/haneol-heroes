@@ -38,8 +38,8 @@
     {
       "key": "run",
       "match": "run",
-      "frames": 8,
-      "fps": 14.0,
+      "frames": 12,
+      "fps": 21.0,
       "loop": true,
       "action_id": 14
     },
@@ -74,6 +74,14 @@
       "fps": 10.0,
       "loop": false,
       "action_id": 8
+    },
+    {
+      "key": "throw",
+      "match": "cast",
+      "action_id": 133,
+      "frames": 8,
+      "fps": 18.0,
+      "loop": false
     }
   ]
 }

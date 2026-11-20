@@ -57,6 +57,7 @@ func _setup_sprite(h: HeroData) -> void:
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
 	if attack:
 		attack.melee_swung.connect(_on_auto_swing)
+		attack.ranged_windup.connect(_on_ranged_windup)  # 던지는 동작
 	var caster := player.get_node_or_null("SkillCaster") as SkillCaster
 	if caster:
 		caster.skill_cast.connect(func(_s: SkillCaster.Slot, _h: int) -> void: play_oneshot("attack", 0.35))
@@ -70,6 +71,14 @@ func _on_auto_swing(_d: Vector2, _h: int) -> void:
 
 
 ## 실제 걷기 속도 기준으로 달리는 중인지 (문턱 두 개로 깜빡임 방지).
+## 원거리: 영웅 데이터가 고른 던지는 동작 (비면 동작 없음), 서 있을 때만.
+func _on_ranged_windup(_d: Vector2) -> void:
+	var atk := player.hero.attack if player.hero else null
+	var anim := String(atk.ranged_anim) if atk else "attack"
+	if anim != "" and not is_moving():
+		play_oneshot(anim, atk.ranged_anim_time if atk else 0.35)
+
+
 func is_moving() -> bool:
 	var top := maxf(player.move_speed, 1.0)
 	var ratio := player.walk_velocity().length() / top
@@ -163,7 +172,7 @@ func _draw() -> void:
 		return
 	var r := player.body_radius
 	# 대시 잔상: 물빛 먹 번짐
-	for i in _trail.size():
+	for i in (_trail.size() if player.hero == null or player.hero.dash_style == null else 0):  # 회피 띠가 있으면 동그라미 자취 없음
 		var a := float(i + 1) / float(_trail.size() + 1)
 		Ink.blob(self, to_local(_trail[i]) + Vector2(0, -r * 0.4), r * (0.5 + 0.4 * a), Color(_trail_color(), 0.28 * a), i)
 	Ink.shadow(self, Vector2(0, r * 0.8), r * 1.1)

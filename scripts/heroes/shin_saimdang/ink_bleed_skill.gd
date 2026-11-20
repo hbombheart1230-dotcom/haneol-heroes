@@ -18,6 +18,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	var a := ctx.player.dash_start_position()
 	if a.distance_to(b) < min_length:
 		a = b - ctx.player.facing * min_length
+	ctx.strip(a, b)  # 길을 따라 먹 번짐 띠
 	var steps := maxi(roundi(a.distance_to(b) / width), 1)
 	for i in steps + 1:  # 길을 따라 먹 웅덩이 여러 개
 		var z := DamageZone.new()
@@ -54,8 +55,7 @@ class BurstRun extends SkillRun:
 			for en in ctx.enemies_near_segment(a, b, skill.width * 0.6):
 				if ctx.hit(en, skill.burst_damage):
 					hits += 1
+			ctx.strip(a, b)
 			ctx.impact(b, b - a)
-			if ctx.fx:
-				ctx.fx.add_slash(a, b, skill.width * 0.5, 0.35, skill.fx_color)
 			finished = true
 		return finished
