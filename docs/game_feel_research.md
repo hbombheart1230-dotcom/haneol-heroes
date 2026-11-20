@@ -192,3 +192,14 @@
 - 일반 — [Vlambeer "The Art of Screenshake" 정리](https://infovore.org/?p=5275), [재현 데브로그](https://dkliao.itch.io/the-art-of-screenshake-recreation/devlog/451576/quick-breakdown-of-all-the-effects), [GDC Vault: Juicing Your Cameras With Math (Eiserloh)](https://gdcvault.com/play/1023146/Math-for-Game-Programmers-Juicing), [Godot 포럼: trauma 흔들림·실시간 히트스톱](https://forum.godotengine.org/t/game-feel-effects-that-stack-without-fighting-your-code-trauma-shake-real-time-hit-stop-and-apply-the-difference/146379)
 
 > 주의: Dead Cells 프레임 수, Hades 무적 프레임 같은 세부 숫자는 개발사 공식 수치가 아니라 커뮤니티·블로그 추정이다. 제안 숫자는 이를 참고한 **초안**이고, 실기기 APK로 조정한다.
+
+---
+
+## 구현 기록 (사용자 선택: ①②③④ + 정예·보스만 슬로모션 + 방향 흔들림, 이어서 기술 이펙트)
+
+- **수치 위치:** 공통 `data/feel/combat_feel.tres` (CombatFeelData + InkBurstData), 영웅별 `data/heroes/*.tres`(가속·반동·원거리 넉백), 적별 `data/enemies/*.tres`(`launch_scale`, `death_style`), 기술 이펙트 `data/vfx/<영웅>_{cast,hit,impact}.tres`.
+- **히트스톱 버그 수정:** `SceneTreeTimer(ignore_time_scale)`가 느린 시간에서 5~20배 일찍 끝나, 기존 기술 히트스톱이 거의 보이지 않았다. `GameTime.stop`이 실제 시간(ms)으로 매 프레임 확인하도록 바꿨다. 겹치면 더 긴 멈춤이 이기고, 인장 느린 시간 위에서도 이어진다.
+- **영웅 달리기:** 달리는 중 자동 공격 동작이 달리기를 끊지 않음, 8방향 경계 떨림 방지(10°), 다리 속도 = 실제 속도, 달리기 시트 8→12프레임(같은 0.57초 주기).
+- **기술 이펙트 (2단계):** 순신 물보라·물방울, 광개토 꺾인 번개 줄기·불똥, 세종 별·한글 자모, 사임당 먹 덩어리·매화 꽃잎. 발동(cast)·적중(hit)·내리꽂힘(impact) 세 순간에 터진다.
+  - **외부 텍스처를 쓰지 않은 이유:** CC0 팩(Kenney 등)을 검토했으나, 필요한 모양(점·별·꽃잎·불똥·먹 덩어리)은 엔진 기본 `Image`·`FastNoiseLite`로 64px 텍스처를 코드에서 만들 수 있었다. APK 용량 0, 내려받기·라이선스 기록 불필요. 수묵풍은 `shaders/ink_vfx.gdshader`(가장자리 잡음 갉기 + 먹 테두리)로 입힌다. 그래서 README "외부 자산"에 추가할 항목이 없다.
+  - **모바일 상한:** 기술 입자 160개, 먹물 방울 60개, 날아가는 시체 12개. 모두 노드 하나의 `_draw`로 그리고 배열을 새로 만들지 않는다.

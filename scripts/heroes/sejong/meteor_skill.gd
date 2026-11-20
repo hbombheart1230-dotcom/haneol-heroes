@@ -25,6 +25,7 @@ func strike(ctx: SkillContext, at: Vector2, dmg: int, r: float) -> int:
 		if ctx.hit(en, dmg):
 			en.stun(stun_time)
 			n += 1
+	ctx.impact(at)
 	if ctx.fx:
 		ctx.fx.add_slash(at + Vector2(-120, -420), at, 12.0, 0.25, fx_color)
 		ctx.fx.add_ring(at, r, 0.35, Color(1, 1, 1))

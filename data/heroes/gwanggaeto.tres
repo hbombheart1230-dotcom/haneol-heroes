@@ -16,6 +16,9 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/lightning.png" id="i_lightning"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/conqueror.png" id="i_conqueror"]
 [ext_resource type="Resource" path="res://data/intro/story_gwanggaeto.tres" id="story"]
+[ext_resource type="Resource" path="res://data/vfx/gwanggaeto_cast.tres" id="vfx_cast"]
+[ext_resource type="Resource" path="res://data/vfx/gwanggaeto_hit.tres" id="vfx_hit"]
+[ext_resource type="Resource" path="res://data/vfx/gwanggaeto_impact.tres" id="vfx_impact"]
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
@@ -44,6 +47,9 @@ radius = 180.0
 damage = 30
 stun_time = 0.5
 knockback = 160.0
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Skill_trail"]
 script = ExtResource("5_trail")
@@ -56,6 +62,9 @@ fx_color = Color(0.75, 0.7, 1, 1)
 delay = 0.3
 width = 110.0
 damage = 35
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Skill_bolt"]
 script = ExtResource("6_bolt")
@@ -68,6 +77,9 @@ fx_color = Color(0.85, 0.85, 1, 1)
 min_bolts = 1
 max_bolts = 6
 damage = 40
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Skill_conq"]
 script = ExtResource("7_conq")
@@ -80,6 +92,9 @@ fx_color = Color(1, 0.8, 0.35, 1)
 radius = 280.0
 damage = 70
 stun_time = 1.2
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Kit_gw"]
 script = ExtResource("3_kit")

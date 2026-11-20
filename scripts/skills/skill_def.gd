@@ -14,6 +14,13 @@ extends Resource
 @export var icon: Texture2D
 ## 발동 소리 (SoundBank 종류). 비우면 칸에 따라 기본 (베기·반격).
 @export var sfx: StringName = &""
+@export_group("이펙트")
+## 발동 순간 영웅 자리에서 (바라보는 방향으로) 터지는 이펙트.
+@export var vfx_cast: SkillVfxData
+## 적이 맞을 때마다 그 자리에서 터지는 이펙트.
+@export var vfx_hit: SkillVfxData
+## 기술이 내리꽂히는 자리(범위 중심·벼락·별똥별)에서 터지는 이펙트. 번개 줄기 설정도 여기.
+@export var vfx_impact: SkillVfxData
 
 
 ## 발동. charge는 0~1 (충전 기술에만 의미).

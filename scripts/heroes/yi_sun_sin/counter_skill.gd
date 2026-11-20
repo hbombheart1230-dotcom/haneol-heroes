@@ -23,6 +23,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		en.apply_knockback(dir * knockback)
 		ctx.hit(en, damage)
 		hits += 1
+	ctx.impact(center)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.45, fx_color)
 		ctx.fx.add_ring(center, radius * 0.6, 0.3, Color(1, 1, 1))

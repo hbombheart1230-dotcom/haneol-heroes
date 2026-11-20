@@ -40,8 +40,7 @@ func cast(ctx: SkillContext, charge: float) -> SkillRun:
 			if next == null:
 				break
 			struck[next.get_instance_id()] = true
-			if ctx.fx:
-				ctx.fx.add_slash(from, next.global_position, 6.0, 0.2, fx_color)
+			ctx.bolt(from, next.global_position, 6.0, 0.2, fx_color)
 			if ctx.hit(next, roundi(damage * chain_ratio)):
 				hits += 1
 			from = next.global_position
@@ -55,8 +54,10 @@ func _bolt(ctx: SkillContext, at: Vector2, dmg: int) -> int:
 	for en in ctx.enemies_in_radius(at, splash_radius):
 		if ctx.hit(en, dmg):
 			n += 1
-	if ctx.fx:
+	if vfx_impact == null and ctx.fx:
 		ctx.fx.add_slash(at + Vector2(0, -420), at, 10.0, 0.22, fx_color)  # 하늘에서 내리꽂힘
+	ctx.impact(at)  # 번개 줄기 + 불똥 (vfx_impact)
+	if ctx.fx:
 		ctx.fx.add_ring(at, splash_radius, 0.3, Color(1, 1, 1))
 	return n
 

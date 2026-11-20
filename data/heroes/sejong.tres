@@ -16,6 +16,9 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/constellation.png" id="i_constellation"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/sundial.png" id="i_sundial"]
 [ext_resource type="Resource" path="res://data/intro/story_sejong.tres" id="story"]
+[ext_resource type="Resource" path="res://data/vfx/sejong_cast.tres" id="vfx_cast"]
+[ext_resource type="Resource" path="res://data/vfx/sejong_hit.tres" id="vfx_hit"]
+[ext_resource type="Resource" path="res://data/vfx/sejong_impact.tres" id="vfx_impact"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -42,6 +45,9 @@ display_name = "정음진"
 cooldown = 6.0
 color = Color(0.86, 0.68, 0.32, 1)
 fx_color = Color(1, 0.85, 0.45, 1)
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Skill_dash"]
 script = ExtResource("s1")
@@ -52,6 +58,9 @@ display_name = "유성"
 cooldown = 3.0
 color = Color(0.3, 0.45, 0.8, 1)
 fx_color = Color(0.75, 0.85, 1, 1)
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Skill_charge"]
 script = ExtResource("s2")
@@ -62,6 +71,9 @@ display_name = "성좌진"
 cooldown = 5.0
 color = Color(0.86, 0.68, 0.32, 1)
 fx_color = Color(1, 0.92, 0.6, 1)
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("s3")
@@ -71,6 +83,9 @@ display_name = "해시계 멈춤"
 cooldown = 0.0
 color = Color(0.72, 0.15, 0.12, 1)
 fx_color = Color(1, 0.8, 0.4, 1)
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Kit"]
 script = ExtResource("3_kit")

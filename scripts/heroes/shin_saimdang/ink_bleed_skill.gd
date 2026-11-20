@@ -54,6 +54,7 @@ class BurstRun extends SkillRun:
 			for en in ctx.enemies_near_segment(a, b, skill.width * 0.6):
 				if ctx.hit(en, skill.burst_damage):
 					hits += 1
+			ctx.impact(b, b - a)
 			if ctx.fx:
 				ctx.fx.add_slash(a, b, skill.width * 0.5, 0.35, skill.fx_color)
 			finished = true

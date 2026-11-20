@@ -53,6 +53,7 @@ class PadoRun extends SkillRun:
 			ctx.fx.add_slash(a + side, b + side, 10.0, 0.18, Color(0.7, 0.95, 1.0))
 		if left <= 0:
 			finished = true
+			ctx.impact(b, b - a)  # 물보라
 			if skill.end_burst_radius > 0.0:
 				for en in ctx.enemies_in_radius(b, skill.end_burst_radius):
 					ctx.hit(en, skill.end_burst_damage)

@@ -16,6 +16,9 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/haeil.png" id="i_haeil"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/counter.png" id="i_counter"]
 [ext_resource type="Resource" path="res://data/intro/story_yi_sun_sin.tres" id="story"]
+[ext_resource type="Resource" path="res://data/vfx/yi_sun_sin_cast.tres" id="vfx_cast"]
+[ext_resource type="Resource" path="res://data/vfx/yi_sun_sin_hit.tres" id="vfx_hit"]
+[ext_resource type="Resource" path="res://data/vfx/yi_sun_sin_impact.tres" id="vfx_impact"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -43,6 +46,9 @@ fx_color = Color(0.35, 0.75, 1, 1)
 radius = 170.0
 damage = 25
 knockback = 420.0
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Skill_pado"]
 script = ExtResource("5_pado")
@@ -57,6 +63,9 @@ width = 90.0
 hit_count = 3
 damage_per_hit = 10
 hit_interval = 0.07
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Skill_haeil"]
 script = ExtResource("6_haeil")
@@ -71,6 +80,9 @@ min_scale = 1.6
 max_scale = 3.2
 speed = 650.0
 lifetime = 1.1
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("7_counter")
@@ -84,6 +96,9 @@ radius = 230.0
 damage = 60
 knockback = 520.0
 hit_stop = 0.08
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
 
 [sub_resource type="Resource" id="Kit_yi"]
 script = ExtResource("3_kit")

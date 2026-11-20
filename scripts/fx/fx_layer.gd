@@ -18,6 +18,20 @@ func add_spark(pos: Vector2, color: Color = Color(1, 1, 1)) -> void:
 	_fx.append({"kind": "spark", "pos": pos, "t": 0.0, "dur": 0.22, "color": color, "seed": randf() * 10.0})
 
 
+## 꺾인 번개 줄기 a→b: 마디마다 옆으로 흔든 점을 한 번만 만들어 두고 (그릴 때 배열을 만들지 않음),
+## 넓고 옅은 빛 + 가는 흰 심지로 그린다.
+func add_bolt(from: Vector2, to: Vector2, width: float, duration: float, color: Color, segments: int = 6,
+		jitter: float = 26.0) -> void:
+	var pts := PackedVector2Array()
+	var n := maxi(segments, 1)
+	var side := (to - from).orthogonal().normalized()
+	for i in n + 1:
+		var k := float(i) / n
+		var off := 0.0 if i == 0 or i == n else randf_range(-jitter, jitter)
+		pts.append(from.lerp(to, k) + side * off)
+	_fx.append({"kind": "bolt", "pts": pts, "w": width, "t": 0.0, "dur": duration, "color": color})
+
+
 ## 데미지 숫자: 위로 떠오르며 사라진다. strong이면 크고 노랗게.
 func add_number(pos: Vector2, amount: int, strong: bool = false) -> void:
 	var jitter := Vector2(randf_range(-10, 10), 0)
@@ -55,6 +69,13 @@ func _draw() -> void:
 				var ink_col := Ink.SEAL if f["strong"] else Ink.INK
 				draw_string_outline(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, 6, Color(Ink.PAPER, 1.0 - k))
 				draw_string(font, p, str(f["n"]), HORIZONTAL_ALIGNMENT_CENTER, 120, size, Color(ink_col, 1.0 - k))
+			"bolt":  # 꺾인 번개: 넓은 빛 + 흰 심지
+				var pts: PackedVector2Array = f["pts"]
+				var st := Feedback.feel_data()
+				var w := float(f["w"]) * (1.0 - k * st.bolt_thin)
+				draw_polyline(pts, Color(c, (1.0 - k) * st.bolt_glow_alpha), w * st.bolt_glow_width)
+				draw_polyline(pts, Color(c, 1.0 - k), w * st.bolt_body_width)
+				draw_polyline(pts, Color(1, 1, 1, 1.0 - k), w * st.bolt_core_width)
 			"spark":  # 먹물 튀김
 				var p: Vector2 = f["pos"]
 				Ink.splash(self, p, 10.0 + 14.0 * k, Color(Ink.INK, (1.0 - k) * 0.8), float(f.get("seed", 0.0)))

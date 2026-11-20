@@ -31,6 +31,8 @@ var _last_played: Dictionary = {}
 var _rng := RandomNumberGenerator.new()
 ## 처치·먹물 이펙트 (fx 아래에 만든다).
 var kill_fx: KillFx
+## 기술 이펙트 입자 (fx 아래에 만든다).
+var skill_vfx: SkillVfx
 ## 방향 흔들림: 마지막으로 민 방향과, 돌아오는 밀림 오프셋(px).
 var _shake_dir: Vector2 = Vector2.ZERO
 var _kick: Vector2 = Vector2.ZERO
@@ -47,6 +49,8 @@ func _ready() -> void:
 	if fx:
 		kill_fx = KillFx.new(feel)
 		fx.add_child(kill_fx)
+		skill_vfx = SkillVfx.new(feel)
+		fx.add_child(skill_vfx)
 	for kind in SfxSynth.DURATIONS.keys():
 		_sounds[kind] = SfxSynth.make(kind)
 	for i in 8:
@@ -198,6 +202,12 @@ static func enemy_hit(pos: Vector2, amount: int, dir: Vector2 = Vector2.ZERO) ->
 	if instance.kill_fx:
 		instance.kill_fx.drops(pos, dir, instance.feel.drops_for(amount))
 	instance.play(&"hit")
+
+
+## 기술 이펙트 터뜨리기 (Feedback이 없으면 아무 일도 안 함 → 테스트 안전).
+static func vfx_burst(data: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO) -> void:
+	if instance and instance.skill_vfx and data:
+		instance.skill_vfx.burst(data, pos, dir)
 
 
 ## 공통 타격감 수치 (Feedback이 없으면 기본값 → 테스트 안전).

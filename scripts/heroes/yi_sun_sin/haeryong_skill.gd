@@ -22,6 +22,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		en.apply_knockback(dir * knockback)
 		ctx.hit(en, damage)
 		hits += 1  # 범위 안 대상 수 (리팩터링 전과 동일한 집계)
+	ctx.impact(center)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.35, fx_color)
 	if whirl_time > 0.0:

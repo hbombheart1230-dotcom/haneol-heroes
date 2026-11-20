@@ -71,6 +71,21 @@ extends Resource
 @export var dir_margin_deg: float = 10.0
 
 
+@export_group("기술 이펙트")
+## 화면 전체 기술 이펙트 입자 최대 수 (넘으면 가장 오래된 것부터 사라짐).
+@export var max_vfx_particles: int = 160
+## 수묵 셰이더: 가장자리 갉기 세기, 가장자리 먹 물들임, 잡음 배율.
+@export var vfx_roughness: float = 0.35
+@export var vfx_edge_ink: float = 0.65
+@export var vfx_noise_scale: float = 0.02
+## 번개 줄기 그리기: 빛 두께·투명도, 몸통 두께, 흰 심지 두께 (모두 줄기 폭 대비), 사라지며 가늘어지는 비율.
+@export var bolt_glow_width: float = 2.2
+@export var bolt_glow_alpha: float = 0.45
+@export var bolt_body_width: float = 0.8
+@export var bolt_core_width: float = 0.25
+@export var bolt_thin: float = 0.5
+
+
 func burst_data() -> InkBurstData:
 	if burst == null:
 		burst = InkBurstData.new()
