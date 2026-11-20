@@ -17,6 +17,10 @@ extends Resource
 @export var preferred_range: float = 0.0
 ## 넉백을 받는 정도 (중장병은 작게).
 @export var knockback_scale: float = 1.0
+## 처치 때 날아가는 거리 배율 (무거운 적·보스는 작게).
+@export var launch_scale: float = 1.0
+## 죽는 모양: &"smoke" (망령 → 푸른 연기), &"paper" (초충도 생물 → 조각난 종이 + 먹).
+@export var death_style: StringName = &"smoke"
 ## 기절 시간 배율 (보스·정예는 작게). 1 미만이면 예고 공격을 끊지 않는다.
 @export var stun_scale: float = 1.0
 ## 여러 공격 패턴을 차례로 쓴다 (보스). 있으면 attack 대신 사용.

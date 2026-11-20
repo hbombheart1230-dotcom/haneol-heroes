@@ -54,6 +54,7 @@ class TrapRun extends SkillRun:
 			for en in trapped:
 				if is_instance_valid(en) and ctx.hit(en, roundi(skill.damage * skill.damage_mult)):
 					hits += 1
+			ctx.impact(center)
 			if ctx.fx:
 				ctx.fx.add_ring(center, r, 0.3, Color(1, 1, 1))
 			ctx.shake(0.25)

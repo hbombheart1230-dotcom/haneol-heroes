@@ -32,3 +32,4 @@ knockback_scale = 1.0
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.33
 sprite_offset = Vector2(0, -60)
+death_style = &"paper"

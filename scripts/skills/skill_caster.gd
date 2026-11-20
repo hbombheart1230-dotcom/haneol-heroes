@@ -222,7 +222,11 @@ func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
 	_cd[slot] = d.cooldown
 	if slot == Slot.COUNTER:
 		_counter_left = 0.0
-	var run := d.cast(_context(), charge)
+	var ctx := _context()
+	ctx.skill = d
+	if d.vfx_cast:
+		Feedback.vfx_burst(d.vfx_cast, player.global_position, player.facing)
+	var run := d.cast(ctx, charge)
 	if run.finished:
 		skill_cast.emit(slot, run.hits)
 	else:

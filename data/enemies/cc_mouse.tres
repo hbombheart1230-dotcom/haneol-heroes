@@ -27,3 +27,4 @@ attack = SubResource("Attack_slam")
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.15
 sprite_offset = Vector2(0, -63)
+death_style = &"paper"

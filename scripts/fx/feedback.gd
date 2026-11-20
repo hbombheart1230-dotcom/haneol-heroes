@@ -18,6 +18,8 @@ static var instance: Feedback
 @export var bank: SoundBank
 ## 배경 음악 음량(dB).
 @export var music_volume_db: float = -14.0
+## 타격감 공통 수치 (멈춤·처치 날림·먹물·방향 흔들림).
+@export var feel: CombatFeelData = preload("res://data/feel/combat_feel.tres")
 
 ## 0~1. 흔들림 크기 = trauma^2.
 var trauma: float = 0.0
@@ -27,6 +29,15 @@ var _next_player: int = 0
 ## 같은 소리가 한 프레임에 겹쳐 터지지 않게 (소리별 마지막 재생 시각).
 var _last_played: Dictionary = {}
 var _rng := RandomNumberGenerator.new()
+## 처치·먹물 이펙트 (fx 아래에 만든다).
+var kill_fx: KillFx
+## 기술 이펙트 입자 (fx 아래에 만든다).
+var skill_vfx: SkillVfx
+## 방향 흔들림: 마지막으로 민 방향과, 돌아오는 밀림 오프셋(px).
+var _shake_dir: Vector2 = Vector2.ZERO
+var _kick: Vector2 = Vector2.ZERO
+var _last_kill_freeze: float = -INF
+var _last_haptic: float = -INF
 ## 음악 재생기는 장면 밖(트리 루트)에 하나만 두어, 다시 시작(장면 다시 불러오기)해도 곡이 이어진다.
 static var _music: AudioStreamPlayer
 static var _music_tween: Tween
@@ -34,6 +45,13 @@ static var _music_tween: Tween
 
 func _ready() -> void:
 	instance = self
+	if feel == null:
+		feel = CombatFeelData.new()
+	if fx:
+		kill_fx = KillFx.new(feel)
+		fx.add_child(kill_fx)
+		skill_vfx = SkillVfx.new(feel)
+		fx.add_child(skill_vfx)
 	for kind in SfxSynth.DURATIONS.keys():
 		_sounds[kind] = SfxSynth.make(kind)
 	for i in 8:
@@ -64,13 +82,35 @@ func _exit_tree() -> void:
 
 func _process(delta: float) -> void:
 	trauma = maxf(trauma - shake_decay * delta, 0.0)
+	_kick = _kick * maxf(1.0 - feel.kick_return * delta, 0.0)
+	if _kick.length_squared() < 0.01:
+		_kick = Vector2.ZERO
 	if camera:
-		var s := trauma * trauma * max_shake
-		camera.offset = Vector2(randf_range(-s, s), randf_range(-s, s)) if s > 0.01 else Vector2.ZERO
+		camera.offset = shake_offset() + _kick
 
 
-func add_trauma(amount: float) -> void:
+## 이번 프레임 흔들림 오프셋. 방향 흔들림이면 마지막 방향으로 주로 떨리고 옆으로는 조금만.
+func shake_offset() -> Vector2:
+	var s := trauma * trauma * max_shake
+	if s <= 0.01:
+		return Vector2.ZERO
+	if feel.directional_shake and _shake_dir != Vector2.ZERO:
+		return _shake_dir * randf_range(-s, s) + _shake_dir.orthogonal() * randf_range(-s, s) * feel.shake_side_ratio
+	return Vector2(randf_range(-s, s), randf_range(-s, s))
+
+
+## dir이 있으면 그 방향으로 흔들림이 치우친다.
+func add_trauma(amount: float, dir: Vector2 = Vector2.ZERO) -> void:
 	trauma = clampf(trauma + amount, 0.0, 1.0)
+	if dir.length_squared() > 0.0001:
+		_shake_dir = dir.normalized()
+
+
+## 화면을 dir 쪽으로 px만큼 밀었다가 돌아오게 한다.
+func kick(dir: Vector2, px: float) -> void:
+	if dir.length_squared() > 0.0001 and px > 0.0:
+		_kick += dir.normalized() * px
+		_shake_dir = dir.normalized()
 
 
 func play(kind: StringName, min_gap: float = 0.04) -> void:
@@ -156,12 +196,50 @@ func _on_skill_cast(slot: SkillCaster.Slot, hits: int) -> void:
 
 # --- 게임 로직에서 부르는 static 진입점 ---
 
-static func enemy_hit(pos: Vector2, amount: int) -> void:
+## dir: 맞은 방향 (공격자 → 적). 먹물이 그쪽으로 튄다.
+static func enemy_hit(pos: Vector2, amount: int, dir: Vector2 = Vector2.ZERO) -> void:
 	if instance == null:
 		return
 	if instance.fx:
 		instance.fx.add_number(pos, amount, amount >= 40)
+	if instance.kill_fx:
+		instance.kill_fx.drops(pos, dir, instance.feel.drops_for(amount))
 	instance.play(&"hit")
+
+
+## 타격 진동 (Haptics → 설정 "타격 진동"을 따름). haptic_min_gap 안에 다시 오면 무시. 진동했으면 true.
+func haptic(ms: int, amplitude: float) -> bool:
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - _last_haptic < feel.haptic_min_gap:
+		return false
+	if not Haptics.pulse(ms, amplitude):
+		return false
+	_last_haptic = now
+	return true
+
+
+## 기술이 내리꽂는 순간 짧은 진동.
+static func impact_haptic() -> void:
+	if instance:
+		instance.haptic(instance.feel.haptic_impact_ms, instance.feel.haptic_impact_amp)
+
+
+## 기술 이펙트 터뜨리기 (Feedback이 없으면 아무 일도 안 함 → 테스트 안전).
+static func vfx_burst(data: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO) -> void:
+	if instance and instance.skill_vfx and data:
+		instance.skill_vfx.burst(data, pos, dir)
+
+
+## 공통 타격감 수치 (Feedback이 없으면 기본값 → 테스트 안전).
+static func feel_data() -> CombatFeelData:
+	if instance and instance.feel:
+		return instance.feel
+	if _default_feel == null:
+		_default_feel = CombatFeelData.new()
+	return _default_feel
+
+
+static var _default_feel: CombatFeelData
 
 
 ## 기술이 부르는 화면 흔들림 (0~1).
@@ -170,10 +248,37 @@ static func shake(amount: float) -> void:
 		instance.add_trauma(amount)
 
 
-static func enemy_died(_pos: Vector2) -> void:
-	if instance:
-		instance.play(&"die")
-		instance.add_trauma(0.05)
+## 적 처치: 시체를 dir 쪽으로 날리고, 정예·보스면 슬로모션.
+static func enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
+	if instance == null:
+		return
+	instance._on_enemy_died(e, dir, last_damage)
+
+
+func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
+	play(&"die")
+	var d := e.data
+	var finisher := d != null and (d.is_boss or d.is_elite)
+	if kill_fx:
+		var tex: Texture2D = null
+		if e.sprite and e.sprite.sprite_frames:
+			tex = e.sprite.sprite_frames.get_frame_texture(e.sprite.animation, e.sprite.frame)
+		kill_fx.launch(e.global_position, dir, last_damage, tex, d.sprite_scale if d else 1.0,
+			d.sprite_offset if d else Vector2.ZERO, d.sprite_tint if d else Color.WHITE,
+			d.death_style if d else &"smoke", d.launch_scale if d else 1.0, finisher)
+	if finisher:
+		haptic(feel.haptic_finisher_ms, feel.haptic_finisher_amp)
+		add_trauma(feel.finisher_trauma, dir)
+		kick(dir, feel.kill_kick_px * 2.0)
+		if is_inside_tree():
+			GameTime.stop(get_tree(), feel.finisher_time, feel.finisher_time_scale)
+		return
+	add_trauma(feel.kill_trauma, dir)
+	kick(dir, feel.kill_kick_px)
+	var now := Time.get_ticks_msec() / 1000.0
+	if feel.kill_freeze > 0.0 and now - _last_kill_freeze >= feel.kill_freeze_min_gap and is_inside_tree():
+		_last_kill_freeze = now
+		GameTime.stop(get_tree(), feel.kill_freeze)
 
 
 ## 단추·인장 소리 (인트로·영웅 고르기·성장).
@@ -186,3 +291,4 @@ static func player_hurt() -> void:
 	if instance:
 		instance.play(&"hurt", 0.0)
 		instance.add_trauma(0.4)
+		instance.haptic(instance.feel.haptic_hurt_ms, instance.feel.haptic_hurt_amp)

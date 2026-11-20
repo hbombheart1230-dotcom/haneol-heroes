@@ -203,7 +203,7 @@ func test_hit_stop_returns_to_slow_time_not_full_speed() -> void:
 	ctx.player = p
 	ctx.hit_stop(0.05)
 	assert_float(Engine.time_scale).is_less(0.1)
-	await get_tree().create_timer(0.15, true, false, true).timeout
+	await _wait_real(0.15)
 	assert_float(Engine.time_scale).is_equal(0.35)
 	GameTime.reset()
 
@@ -302,7 +302,9 @@ func test_main_scene_level_up_drops_seals_without_pausing() -> void:
 	assert_bool(sc.is_open()).is_true()
 	assert_bool(sc.major).is_false()
 	assert_bool(get_tree().paused).is_false()
-	assert_float(Engine.time_scale).is_equal(sc.slow_scale)
+	# 처치 멈춤(0.03초)이 아직 걸려 있으면 인장의 느린 시간 위에 겹친다
+	assert_float(GameTime.base).is_equal(sc.slow_scale)
+	assert_float(Engine.time_scale).is_less_equal(sc.slow_scale)
 	var t: float = main.state.elapsed
 	await get_tree().physics_frame
 	assert_float(main.state.elapsed).is_greater(t)  # 멈추지 않는다 (느리게 흐름)
@@ -340,3 +342,10 @@ func _skip_hero_select() -> void:
 	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.save_settings()
+
+
+## 실제 시간으로 기다린다 (ignore_time_scale 타이머는 느린 시간에서 일찍 끝난다).
+func _wait_real(seconds: float) -> void:
+	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
+	while Time.get_ticks_msec() < end:
+		await get_tree().process_frame

@@ -9,21 +9,15 @@ var fx: FxLayer
 var projectile_scene: PackedScene
 var enemy_source: Callable
 var hit_stop_enabled: bool = true
-## 겹친 히트스톱 중 가장 마지막 것만 시간을 되돌린다 (Codex e593772 지적).
-static var _hit_stop_token: int = 0
+## 지금 발동 중인 기술 (이펙트 데이터를 읽는다). 없으면 이펙트 없음.
+var skill: SkillDef
 
 
-## 히트스톱: 아주 짧게 게임 시간을 거의 멈춘다 (엔진 기본 time_scale + 실시간 타이머).
+## 히트스톱: 아주 짧게 게임 시간을 거의 멈춘다 (엔진 기본 time_scale + 실시간 타이머, GameTime 공용).
 func hit_stop(duration: float, scale: float = 0.05) -> void:
 	if not hit_stop_enabled or duration <= 0.0 or player == null or not player.is_inside_tree():
 		return
-	Engine.time_scale = scale
-	_hit_stop_token += 1
-	var token := _hit_stop_token
-	var timer := player.get_tree().create_timer(duration, true, false, true)
-	timer.timeout.connect(func() -> void:
-		if token == _hit_stop_token:
-			Engine.time_scale = GameTime.base)
+	GameTime.stop(player.get_tree(), duration, scale)
 
 
 func enemies() -> Array:
@@ -59,7 +53,32 @@ func hit(en: Enemy, dmg: int) -> bool:
 	h.damage(dmg)
 	if fx:
 		fx.add_spark(en.global_position)
+	if skill and skill.vfx_hit and player:
+		Feedback.vfx_burst(skill.vfx_hit, en.global_position, en.global_position - player.global_position)
 	return true
+
+
+## 기술이 내리꽂히는 자리: vfx_impact 입자 + (설정돼 있으면) 하늘에서 번개 줄기.
+func impact(pos: Vector2, dir: Vector2 = Vector2.ZERO) -> void:
+	if skill == null or skill.vfx_impact == null:
+		return
+	var v := skill.vfx_impact
+	if v.has_bolt() and fx:
+		fx.add_bolt(pos + Vector2(0, -v.bolt_height), pos, v.bolt_width, v.bolt_time, v.bolt_color, v.bolt_segments,
+			v.bolt_jitter)
+	Feedback.vfx_burst(v, pos, dir)
+	Feedback.impact_haptic()
+
+
+## a→b 번개 줄기 (vfx_impact에 번개 설정이 있으면 꺾인 번개, 없으면 붓 획). 연쇄·벼락길에 쓴다.
+func bolt(a: Vector2, b: Vector2, width: float, duration: float, color: Color) -> void:
+	if fx == null:
+		return
+	var v := skill.vfx_impact if skill else null
+	if v and v.has_bolt():
+		fx.add_bolt(a, b, width, duration, v.bolt_color, v.bolt_segments, v.bolt_jitter)
+	else:
+		fx.add_slash(a, b, width, duration, color)
 
 
 ## 화면 흔들림 (Feedback이 없으면 아무 일도 안 함).

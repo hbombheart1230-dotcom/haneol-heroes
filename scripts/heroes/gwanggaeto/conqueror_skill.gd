@@ -24,6 +24,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		if ctx.hit(en, damage):
 			en.stun(stun_time)
 		hits += 1
+	ctx.impact(center)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.5, fx_color)
 		ctx.fx.add_ring(center, radius * 0.7, 0.35, Color(1, 1, 1))

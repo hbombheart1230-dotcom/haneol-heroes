@@ -41,6 +41,14 @@ var _dash_dir: Vector2 = Vector2.ZERO
 ## 미끄러짐 시작 속도 = 대시 속도 × 이 값.
 @export var dash_glide_ratio: float = 0.4
 var _glide_vel: Vector2 = Vector2.ZERO
+## 걷기 속도 (가속·감속을 거친 실제 값).
+var _walk_vel: Vector2 = Vector2.ZERO
+## 멈춤 → 최고 속도 / 최고 속도 → 멈춤 시간(초). 0이면 즉시.
+var move_accel_time: float = 0.0
+var move_decel_time: float = 0.0
+## 근접 적중 반동: 남은 이동량(px/s)과 남은 시간.
+var _recoil_vel: Vector2 = Vector2.ZERO
+var _recoil_left: float = 0.0
 var _glide_left: float = 0.0
 var _dash_time_left: float = 0.0
 ## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력 판정용.
@@ -76,6 +84,8 @@ func change_hero(h: HeroData) -> void:
 func apply_hero(h: HeroData) -> void:
 	hero = h
 	move_speed = h.move_speed
+	move_accel_time = h.move_accel_time
+	move_decel_time = h.move_decel_time
 	dash_distance = h.dash_distance
 	dash_duration = h.dash_duration
 	max_dash_charges = h.max_dash_charges
@@ -125,6 +135,29 @@ func refresh_stats(old_max_hp: int) -> void:
 	if health and hero.max_hp != old_max_hp:
 		health.max = hero.max_hp
 		health.current = clampi(health.current + maxi(hero.max_hp - old_max_hp, 0), 1, health.max)
+
+
+## 근접 적중 반동: offset(px)만큼 recoil_time초(CombatFeelData) 동안 밀린다.
+func apply_recoil(offset: Vector2) -> void:
+	var t := maxf(Feedback.feel_data().recoil_time, 0.001)
+	_recoil_vel = offset / t
+	_recoil_left = t
+
+
+## 이번 프레임 걷기 속도: 목표 속도로 가속·감속 (영웅별 무게감).
+func _walk_velocity(delta: float) -> Vector2:
+	var want := move_input * move_speed
+	var speeding_up := want.length() >= _walk_vel.length() - 0.01
+	var t := move_accel_time if speeding_up else move_decel_time
+	if t <= 0.0:
+		_walk_vel = want
+	else:
+		_walk_vel = _walk_vel.move_toward(want, move_speed / t * delta)
+	return _walk_vel
+
+
+func walk_velocity() -> Vector2:
+	return _walk_vel
 
 
 func is_dashing() -> bool:
@@ -253,7 +286,10 @@ func compute_velocity(delta: float) -> Vector2:
 	_skill_invuln = maxf(_skill_invuln - delta, 0.0)
 	if not is_dashing():
 		_since_dash_end += delta
-		var v_move := move_input * move_speed
+		var v_move := _walk_velocity(delta)
+		if _recoil_left > 0.0:
+			v_move += _recoil_vel * (minf(delta, _recoil_left) / delta if delta > 0.0 else 0.0)
+			_recoil_left = maxf(_recoil_left - delta, 0.0)
 		if _glide_left > 0.0:
 			v_move += _glide_vel * (_glide_left / dash_glide_time)
 			_glide_left = maxf(_glide_left - delta, 0.0)
@@ -267,6 +303,8 @@ func compute_velocity(delta: float) -> Vector2:
 		if dash_glide_time > 0.0:
 			_glide_vel = _dash_dir * (dash_distance / dash_duration) * dash_glide_ratio
 			_glide_left = dash_glide_time
+		# 대시 직후엔 가속을 다시 기다리지 않는다 (대시 → 걷기 끊김 없이).
+		_walk_vel = move_input * move_speed
 		dash_ended.emit()
 	return v
 

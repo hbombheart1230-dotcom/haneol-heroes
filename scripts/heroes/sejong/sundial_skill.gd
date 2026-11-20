@@ -23,6 +23,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 			en.stun(freeze_time)
 		if ctx.hit(en, damage):
 			hits += 1
+	ctx.impact(center)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.6, fx_color)
 		for i in 12:  # 해시계 눈금

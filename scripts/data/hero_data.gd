@@ -25,6 +25,9 @@ extends Resource
 @export_group("능력치")
 @export var max_hp: int = 100
 @export var move_speed: float = 340.0
+## 멈춤 → 최고 속도까지 걸리는 시간(초)과 최고 속도 → 멈춤 시간. 0이면 즉시 (가벼움 ↔ 무게감).
+@export var move_accel_time: float = 0.0
+@export var move_decel_time: float = 0.0
 ## 피격 후 무적 시간(초).
 @export var hurt_invuln_time: float = 0.6
 ## 회피 성공(예고 원을 대시로 벗어남) 즉시 무적 시간(초).

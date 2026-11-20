@@ -59,3 +59,4 @@ is_boss = true
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.35
 sprite_offset = Vector2(0, -66)
+launch_scale = 0.4

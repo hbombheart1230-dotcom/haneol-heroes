@@ -50,3 +50,16 @@ func dir_index(v: Vector2) -> int:
 	if v.length_squared() < 0.0001:
 		return 2  # 아래(정면)
 	return posmod(roundi(v.angle() / (TAU / directions)), directions)
+
+
+## 방향 번호, 단 지금 방향(current)에서 칸 경계를 margin_deg 이상 넘어야 바꾼다.
+## 손가락이 경계 근처에서 떨릴 때 두 방향 그림이 번갈아 깜빡이지 않게 (끊겨 보임 방지).
+func dir_index_sticky(v: Vector2, current: int, margin_deg: float = 10.0) -> int:
+	if v.length_squared() < 0.0001 or current < 0:
+		return dir_index(v) if current < 0 else current
+	var sector := TAU / directions
+	var center := current * sector
+	var diff := absf(wrapf(v.angle() - center, -PI, PI))
+	if diff <= sector * 0.5 + deg_to_rad(margin_deg):
+		return current
+	return dir_index(v)
