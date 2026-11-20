@@ -13,6 +13,8 @@ extends Resource
 @export var drop_damping: float = 7.0
 @export var drop_lift: float = 16.0
 @export var drop_alpha: float = 0.85
+## 수명 끝에서 방울이 줄어드는 비율.
+@export var drop_shrink: float = 0.5
 
 @export_group("먹 자국")
 @export var mark_radius: float = 26.0
@@ -47,3 +49,10 @@ extends Resource
 ## 정예·보스 금빛 고리.
 @export var ring_time: float = 0.5
 @export var ring_radius: float = 140.0
+## 고리가 처음 크기(배율)에서 커지고, 두께는 ring_width → ring_width_min으로 가늘어진다.
+@export var ring_start_scale: float = 0.3
+@export var ring_width: float = 12.0
+@export var ring_width_min: float = 2.0
+## 종이 조각 테두리 먹선 투명도와 두께(px).
+@export var paper_edge_alpha: float = 0.7
+@export var paper_edge_width: float = 1.5

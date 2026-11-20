@@ -223,3 +223,18 @@ func test_burst_numbers_come_from_data() -> void:
 	for b in k._bits:
 		smoke += 1 if b["kind"] == "smoke" else 0
 	assert_int(smoke).is_equal(3 * feel.burst.finisher_scale)
+
+
+func test_feel_tres_holds_burst_values() -> void:
+	var d: CombatFeelData = load("res://data/feel/combat_feel.tres")
+	assert_object(d.burst).is_not_null()
+	assert_int(d.burst.paper_count).is_greater(0)
+	assert_float(d.burst.ring_width).is_greater(d.burst.ring_width_min)
+
+
+func test_reset_drops_stop_watch_at_once() -> void:
+	GameTime.stop(get_tree(), 1.0, 0.25)
+	assert_bool(get_tree().process_frame.is_connected(GameTime._on_frame)).is_true()
+	GameTime.reset()
+	assert_bool(get_tree().process_frame.is_connected(GameTime._on_frame)).is_false()
+	assert_float(Engine.time_scale).is_equal(1.0)

@@ -152,7 +152,7 @@ func _draw() -> void:
 	for d in _drops:
 		var k := float(d["t"]) / float(d["life"])
 		var col: Color = d["color"]
-		draw_circle(d["pos"], float(d["r"]) * (1.0 - 0.5 * k), Color(col, _b.drop_alpha * (1.0 - k)))
+		draw_circle(d["pos"], float(d["r"]) * (1.0 - _b.drop_shrink * k), Color(col, _b.drop_alpha * (1.0 - k)))
 	for b in _bits:
 		var k := float(b["t"]) / float(b["life"])
 		match b["kind"]:
@@ -167,6 +167,7 @@ func _draw() -> void:
 					_outline[i] = _quad[i]
 				_outline[4] = _quad[0]
 				draw_colored_polygon(_quad, Color(Ink.PAPER, 1.0 - k))
-				draw_polyline(_outline, Color(Ink.INK, 0.7 * (1.0 - k)), 1.5)
+				draw_polyline(_outline, Color(Ink.INK, _b.paper_edge_alpha * (1.0 - k)), _b.paper_edge_width)
 			"ring":
-				Ink.ring(self, b["pos"], float(b["r"]) * (0.3 + 0.7 * k), 10.0 * (1.0 - k) + 2.0, Color(Ink.GOLD, 1.0 - k))
+				Ink.ring(self, b["pos"], float(b["r"]) * lerpf(_b.ring_start_scale, 1.0, k),
+					lerpf(_b.ring_width, _b.ring_width_min, k), Color(Ink.GOLD, 1.0 - k))

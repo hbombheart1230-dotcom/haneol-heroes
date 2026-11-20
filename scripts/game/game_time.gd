@@ -14,6 +14,7 @@ static func set_base(scale: float) -> void:
 	base = scale
 	Engine.time_scale = scale
 	_stop_until_ms = 0
+	_unwatch()  # 걸려 있던 멈춤 감시도 바로 끊는다
 
 
 static func reset() -> void:
