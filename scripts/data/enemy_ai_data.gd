@@ -1,0 +1,48 @@
+class_name EnemyAIData
+extends Resource
+## 적 무리 공통 규칙: 공격권, 둘러싸기, 처벌 시간, 일제 사격 박자, 무리 이벤트, 정예 변종.
+## data/enemies/enemy_ai.tres 하나를 모든 적이 함께 쓴다.
+
+@export_group("공격권 (Doom 2016식)")
+## 동시에 덤비는 근접 적 최대 수. 나머지는 hold_radius 고리에서 맴돈다.
+@export var max_melee_tokens: int = 3
+## 이 거리 안에 들어오면 공격권을 달라고 한다.
+@export var engage_radius: float = 280.0
+## 공격권이 없으면 이 거리에서 플레이어 둘레를 돈다 (옆걸음 속도 배율).
+@export var hold_radius: float = 240.0
+@export var strafe_ratio: float = 0.5
+## 공격권을 가진 적이 이보다 멀어지면 돌려준다.
+@export var release_radius: float = 420.0
+
+@export_group("예고·처벌")
+## 공격 직후 경직 중 받는 피해 배율 (빈틈을 찌르면 더 아프다).
+@export var punish_mult: float = 1.3
+## 예고 마지막 이 비율부터 몸이 번쩍인다 (곧 친다는 신호)와 그 밝기.
+@export var strike_flash_from: float = 0.8
+@export var strike_flash: float = 1.6
+
+@export_group("일제 사격")
+## 박자 간격(초)과 조준을 시작할 수 있는 창(초).
+@export var volley_interval: float = 2.6
+@export var volley_window: float = 0.25
+
+@export_group("무리 이벤트")
+## 첫 이벤트 시각과 간격(초). 0이면 없음.
+@export var horde_first: float = 25.0
+@export var horde_interval: float = 30.0
+## 포위(RING): 수, 반지름. 휩쓸기(WALL): 수, 간격, 출발 거리, 속도 배율, 직진 시간. 떼(SWARM): 수, 체력·속도·크기 배율.
+@export var ring_count: int = 12
+@export var ring_radius: float = 560.0
+@export var wall_count: int = 9
+@export var wall_spacing: float = 80.0
+@export var wall_distance: float = 640.0
+@export var wall_speed_mult: float = 1.4
+@export var wall_time: float = 4.0
+@export var swarm_count: int = 14
+@export var swarm_hp_mult: float = 0.5
+@export var swarm_speed_mult: float = 1.6
+@export var swarm_scale: float = 0.8
+@export var swarm_spread: float = 140.0
+
+@export_group("정예 변종")
+@export var elite_affixes: Array[EliteAffixData] = []

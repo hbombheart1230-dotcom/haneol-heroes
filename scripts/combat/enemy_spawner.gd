@@ -36,6 +36,10 @@ signal elite_spawned(elite: Enemy)
 var elapsed: float = 0.0
 var rng := RandomNumberGenerator.new()
 var _cooldown: float = 0.0
+## 무리 이벤트 (포위·휩쓸기·떼). horde_enabled가 false면 없음 (테스트).
+@export var horde_enabled: bool = true
+var horde := HordeDirector.new(Enemy.ai_data())
+signal horde_started(kind: int)
 
 
 func alive_count() -> int:
@@ -110,22 +114,72 @@ func spawn_boss() -> Enemy:
 
 ## 정예 한 마리 (동시 최대 수와 상관없이 나온다).
 func spawn_elite() -> Enemy:
-	var e := _spawn_special(elite_data) if elite_data else null
+	var affixes := Enemy.ai_data().elite_affixes
+	var af: EliteAffixData = affixes[rng.randi() % affixes.size()] if not affixes.is_empty() else null
+	var e := spawn_at(elite_data, Vector2.INF, func(en: Enemy) -> void: en.affix = af) if elite_data else null
 	if e:
 		elite_spawned.emit(e)
 	return e
 
 
 func _spawn_special(d: EnemyData) -> Enemy:
+	return spawn_at(d, Vector2.INF)
+
+
+## at(월드 좌표)에 생성 (INF면 고리 영역 무작위). configure는 add_child 전에 적을 꾸민다 (변종·떼 배율).
+func spawn_at(d: EnemyData, at: Vector2, configure: Callable = Callable()) -> Enemy:
 	if enemy_scene == null or target == null:
 		return null
 	var e := enemy_scene.instantiate() as Enemy
 	e.data = d
 	e.target = target
-	e.position = pick_spawn_position(target.global_position) - global_position
-	e.killed.connect(func(en: Enemy) -> void: enemy_killed.emit(en))
+	var p := pick_spawn_position(target.global_position) if at == Vector2.INF else at
+	if arena_rect.has_area():
+		p = p.clamp(arena_rect.position, arena_rect.end)
+	e.position = p - global_position
+	if configure.is_valid():
+		configure.call(e)
+	e.killed.connect(_on_killed)
 	add_child(e)
 	return e
+
+
+func _on_killed(en: Enemy) -> void:
+	enemy_killed.emit(en)
+	# 분열 변종: 작은 적으로 갈라진다 (변종은 물려받지 않음).
+	if en.affix and en.affix.split_count > 0:
+		var af := en.affix
+		for i in af.split_count:
+			var off := Vector2.from_angle(TAU * i / af.split_count) * en.body_radius * 2.0
+			spawn_at.call_deferred(en.data, en.global_position + off, func(s: Enemy) -> void:
+				s.hp_mult = af.split_hp_mult
+				s.size_mult = af.split_scale)
+
+
+## 무리 이벤트 하나를 연다 (종류는 HordeDirector.Kind). 생성한 수를 돌려준다.
+func start_horde(kind: int) -> int:
+	if spawn_table.is_empty() or target == null:
+		return 0
+	var ai := Enemy.ai_data()
+	var basic: EnemyData = spawn_table[0]
+	var center := target.global_position
+	var side := Vector2.from_angle(rng.randf_range(0.0, TAU))
+	var n := 0
+	match kind:
+		HordeDirector.Kind.RING:
+			for p in horde.ring_points(center):
+				n += 1 if spawn_at(basic, p) else 0
+		HordeDirector.Kind.WALL:
+			for p in horde.wall_points(center, side):
+				n += 1 if spawn_at(basic, p, func(e: Enemy) -> void: e.set_meta(&"sweep", -side)) else 0
+		_:
+			for p in horde.swarm_points(center, side, rng):
+				n += 1 if spawn_at(basic, p, func(e: Enemy) -> void:
+					e.hp_mult = ai.swarm_hp_mult
+					e.speed_mult = ai.swarm_speed_mult
+					e.size_mult = ai.swarm_scale) else 0
+	horde_started.emit(kind)
+	return n
 
 
 func tick(delta: float) -> void:
@@ -137,6 +191,10 @@ func tick(delta: float) -> void:
 	while _elites_spawned < elite_times.size() and elapsed >= elite_times[_elites_spawned]:
 		_elites_spawned += 1
 		spawn_elite()
+	if horde_enabled:
+		var k := horde.tick(elapsed)
+		if k >= 0:
+			start_horde(k)
 	_cooldown -= delta
 	while _cooldown <= 0.0:
 		_cooldown += current_interval()

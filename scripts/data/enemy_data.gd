@@ -23,6 +23,8 @@ extends Resource
 @export var death_style: StringName = &"smoke"
 ## 기절 시간 배율 (보스·정예는 작게). 1 미만이면 예고 공격을 끊지 않는다.
 @export var stun_scale: float = 1.0
+## 움직임·특수 동작 (군대마다 다른 버릇). 없으면 그냥 쫓아온다.
+@export var behaviour: EnemyBehaviourData
 ## 여러 공격 패턴을 차례로 쓴다 (보스). 있으면 attack 대신 사용.
 @export var patterns: Array[EnemyAttackData] = []
 ## 보스: 처치하면 승리, 화면 위 체력 막대 표시.

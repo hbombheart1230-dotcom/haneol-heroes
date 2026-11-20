@@ -57,3 +57,10 @@ func test_enemy_sprite_uses_look_material() -> void:
 	e.set_physics_process(false)
 	assert_object(e.sprite).is_not_null()
 	assert_object(e.sprite.material).is_same(EnemyLook.material_for(e.data))
+
+
+func test_rim_stays_inside_its_sheet_cell() -> void:
+	# Codex 79a3232: 이웃 프레임 알파를 읽지 않게 칸 크기를 넘긴다
+	var d: EnemyData = load("res://data/enemies/cc_mouse.tres")
+	var m := EnemyLook.material_for(d)
+	assert_float(float(m.get_shader_parameter("cell_px"))).is_equal(float(d.sprite_sheet.frame_size))

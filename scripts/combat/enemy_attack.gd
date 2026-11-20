@@ -17,6 +17,8 @@ static var max_concurrent: int = 4
 static var escape_window: float = 0.3
 
 var data: EnemyAttackData
+## 무리 공통 규칙 (일제 사격 박자). 없으면 박자 없이 바로 쏜다.
+var ai: EnemyAIData
 ## 순환할 공격 패턴들 (비어 있으면 data 하나만).
 var patterns: Array = []
 var _pattern_index: int = 0
@@ -64,7 +66,7 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 		State.READY:
 			if player and not player.is_dead() and _cooldown <= 0.0 \
 					and self_pos.distance_to(player.global_position) <= data.trigger_range \
-					and (data.bypass_cap or active_windups < max_concurrent):
+					and (data.bypass_cap or active_windups < max_concurrent) 					and (not data.volley or EnemyBrain.volley_open(ai, Time.get_ticks_msec() / 1000.0)):
 				state = State.WINDUP
 				active_windups += 1
 				_timer = data.windup
@@ -86,6 +88,8 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 				_end_windup()
 				state = State.RECOVER
 				_timer = data.recovery
+				if r != Result.HIT and data.miss_recovery > 0.0:  # 빗나간 돌진: 크게 미끄러져 빈틈
+					_timer = data.miss_recovery
 				_cooldown = data.cooldown
 				return r
 		State.RECOVER:
@@ -138,7 +142,7 @@ func contains(pos: Vector2) -> bool:
 			if d > data.radius:
 				return false
 			return d < 1.0 or aim_dir.dot(off / d) >= cos(deg_to_rad(data.angle_degrees * 0.5))
-		EnemyAttackData.Kind.CHARGE:
+		EnemyAttackData.Kind.CHARGE, EnemyAttackData.Kind.PULL:
 			var off := pos - aim_origin
 			var along := off.dot(aim_dir)
 			var side := absf(off.dot(aim_dir.orthogonal()))

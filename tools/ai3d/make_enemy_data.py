@@ -63,7 +63,32 @@ def apply_look(t: str, name: str, role: str) -> str:
             f"army_tint = {tint}", f"tint_mix = {mix}"]
     if death != "smoke":
         look.append(f'death_style = &"{death}"')
-    return t.rstrip(NL) + NL + NL.join(look) + NL
+    return apply_behaviour(t.rstrip(NL) + NL + NL.join(look) + NL, name)
+
+
+## 군대별 버릇 (data/enemies/behaviour/*.tres). 다시 만들어도 남도록 여기서 붙인다.
+BEHAVIOUR = {
+    "archer": "biryeo_kite",
+    "jurchen_soldier": "jurchen_charge",
+    "jurchen_heavy": "jurchen_heavy_charge",
+    "waegun_gunner": "waegun_volley",
+    "waegun_heavy": "waegun_shield",
+    "cc_grasshopper": "cc_hop",
+    "cc_mantis": "cc_ambush",
+    "cc_frog": "cc_frog_tongue",
+}
+
+
+def apply_behaviour(t: str, name: str) -> str:
+    t = re.sub(NL + r'\[ext_resource type="Resource" path="res://data/enemies/behaviour/[a-z_]+\.tres" id="beh"\]', "", t)
+    t = re.sub(NL + r"behaviour = [^" + NL + "]*", "", t)
+    beh = BEHAVIOUR.get(name)
+    if not beh:
+        return t
+    ext = f'[ext_resource type="Resource" path="res://data/enemies/behaviour/{beh}.tres" id="beh"]'
+    last = [m.end() for m in re.finditer(r"\[ext_resource[^\n]*\]", t)][-1]
+    t = t[:last] + NL + ext + t[last:]
+    return t.rstrip(NL) + NL + 'behaviour = ExtResource("beh")' + NL
 
 
 def mean_feet(sheet_dir: str, frame: int) -> float:
