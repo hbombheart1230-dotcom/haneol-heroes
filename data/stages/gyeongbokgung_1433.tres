@@ -22,7 +22,7 @@
 [ext_resource type="Resource" path="res://data/enemies/jurchen_elite.tres" id="e_jurchen_elite"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_chieftain.tres" id="e_jurchen_chieftain"]
 [ext_resource type="Resource" path="res://data/breakables/gyeongbokgung_1433.tres" id="b_gyeongbokgung_1433"]
-[ext_resource type="Resource" path="res://data/songs/manchuria_395.tres" id="song"]
+[ext_resource type="Resource" path="res://data/songs/gyeongbokgung_1433.tres" id="song"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 
 [resource]
