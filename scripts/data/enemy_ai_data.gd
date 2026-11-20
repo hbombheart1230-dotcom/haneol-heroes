@@ -15,6 +15,11 @@ extends Resource
 @export var hold_band: float = 60.0
 ## 공격권을 가진 적이 이보다 멀어지면 돌려준다.
 @export var release_radius: float = 420.0
+## 거리 유지 고리 (C1): 쫓는 적은 영웅 몸 + 자기 몸 + margin(px)에서 멈춘다 (영웅 그림 위로 파고들지 않게).
+## margin은 음수: 영웅 접촉 판정(감지 반경 30 + 적 몸)과 겹쳐야 접촉 피해가 그대로 들어온다.
+## band(px) 앞부터 천천히 멈추고, 더 안쪽이면 살짝 물러난다. band가 0이면 끔.
+@export var stand_off_margin: float = -8.0
+@export var stand_off_band: float = 24.0
 
 @export_group("예고·처벌")
 ## 공격 직후 경직 중 받는 피해 배율 (빈틈을 찌르면 더 아프다).

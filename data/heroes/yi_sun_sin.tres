@@ -100,6 +100,9 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vfx_impact")
 wave_art = ExtResource("wave_art")
 wave_art_size = Vector2(150, 100)
+aim_assist_deg = 80.0
+aim_assist_range = 600.0
+aim_fallback_nearest = true
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("7_counter")
@@ -157,3 +160,4 @@ upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
 dash_style = ExtResource("dash_style")
 charge_marker = ExtResource("charge_marker")
+hit_sfx = Array[StringName]([&"mat_water", &"mat_blade"])

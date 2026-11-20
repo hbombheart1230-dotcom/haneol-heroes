@@ -6,6 +6,7 @@
   sword - StarNinjas/*.ogg, sword_clash.*.ogg (StarNinjas, 20 Sword Sound Effects)
   RPG Sound Pack/** (artisticdude), asianoriental1_0.ogg (Asianoriental1)
   hits/hit*.mp3.flac (Independent.nu, 37 hits/punches)
+  rpg80/*.ogg (rubberduck, 80 CC0 RPG SFX), scifi/*.ogg (rubberduck, 50 CC0 Sci-Fi SFX)
 결과: assets/audio/sfx/<종류>_<번호>.ogg, assets/audio/music/<이름>.ogg
 """
 import glob
@@ -23,7 +24,20 @@ MUSIC_RATE = 22050
 SFX = {
     "slash": [("sword - StarNinjas/sword.3.ogg", 0.45, 0.8), ("sword - StarNinjas/sword.4.ogg", 0.45, 0.8),
               ("sword - StarNinjas/sword.6.ogg", 0.45, 0.8)],
-    "hit": [("sword_clash.5.ogg", 0.22, 0.45), ("sword_clash.10.ogg", 0.22, 0.45)],
+    # 명중 몸통 ("퍽"): 모든 영웅 공통. 재질 겹은 영웅 데이터 hit_sfx (mat_*)
+    "hit": [("hits/hit17.mp3.flac", 0.2, 0.8), ("hits/hit22.mp3.flac", 0.2, 0.8), ("hits/hit28.mp3.flac", 0.2, 0.8),
+            ("hits/hit32.mp3.flac", 0.2, 0.8)],
+    "mat_blade": [("rpg80/blade_01.ogg", 0.18, 0.8), ("rpg80/blade_03.ogg", 0.18, 0.8)],
+    "mat_water": [("RPG Sound Pack/inventory/bubble.wav", 0.22, 0.9), ("rpg80/creature_slime_03.ogg", 0.22, 0.8)],
+    "mat_fire": [("rpg80/spell_fire_06.ogg", 0.3, 0.8), ("rpg80/spell_fire_06.ogg", 0.3, 0.8, 0.88)],
+    "mat_blunt": [("rpg80/stones_01.ogg", 0.22, 0.9), ("rpg80/stones_04.ogg", 0.15, 0.9)],
+    "mat_lightning": [("scifi/shoot_02.ogg", 0.15, 0.7), ("scifi/misc_07.ogg", 0.16, 0.7)],
+    "mat_glyph": [("rpg80/item_gem_01.ogg", 0.18, 0.7), ("rpg80/item_gem_03.ogg", 0.12, 0.7)],
+    "mat_ink": [("rpg80/creature_slime_03.ogg", 0.22, 0.8, 0.9), ("RPG Sound Pack/NPC/slime/slime1.wav", 0.1, 0.8)],
+    "mat_brush": [("RPG Sound Pack/inventory/cloth.wav", 0.22, 0.9), ("RPG Sound Pack/inventory/cloth-heavy.wav", 0.2, 0.9)],
+    # 확인음: 큰 타격 "팅", 정예·보스 처치 "쿵" (낮게)
+    "confirm_big": [("RPG Sound Pack/inventory/metal-ringing.wav", 0.35, 0.8)],
+    "confirm_kill": [("hits/hit35.mp3.flac", 0.6, 1.0, 0.7), ("hits/hit19.mp3.flac", 0.6, 1.0, 0.7)],
     "dash": [("RPG Sound Pack/battle/swing.wav", 0.25, 0.9), ("RPG Sound Pack/battle/swing2.wav", 0.2, 0.9)],
     "evade": [("RPG Sound Pack/battle/swing3.wav", 0.2, 1.0)],
     "counter": [("sword_clash.1.ogg", 0.8, 1.0)],

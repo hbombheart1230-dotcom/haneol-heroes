@@ -63,6 +63,20 @@ func steer(dir: Vector2, dist: float) -> Vector2:
 	return (radial + side).limit_length(1.0)
 
 
+## 거리 유지 고리 (C1): 대상 쪽으로 파고드는 성분을 stop_dist 앞 band부터 줄여 stop_dist에서 0으로,
+## 더 안쪽이면 바깥으로 조금 민다. 옆걸음 성분은 그대로 (둘레로 퍼진다). to_dir = 대상 쪽 단위 벡터.
+static func stand_off(dir: Vector2, to_dir: Vector2, dist: float, stop_dist: float, band: float) -> Vector2:
+	if stop_dist <= 0.0 or band <= 0.0:
+		return dir
+	var inward := dir.dot(to_dir)
+	var out := dir
+	if inward > 0.0:
+		out -= to_dir * inward * clampf((stop_dist + band - dist) / band, 0.0, 1.0)
+	if dist < stop_dist:
+		out -= to_dir * clampf((stop_dist - dist) / band, 0.0, 1.0) * 0.5
+	return out
+
+
 ## 공격 중에도 움직이는 경우의 방향 (물러나며 쏘기). 없으면 Vector2.ZERO.
 func busy_dir(attack: EnemyAttack, dir: Vector2) -> Vector2:
 	if attack and attack.state == EnemyAttack.State.WINDUP and attack.data.kite_while_aiming > 0.0:
