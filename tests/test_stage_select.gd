@@ -9,7 +9,7 @@ func _stage(id: String) -> StageTheme:
 
 
 func test_new_stages_are_complete() -> void:
-	for id in IDS.slice(1):
+	for id in IDS:  # Codex d695035: 1무대도 자기 군대를 데이터로 (장면 기본값에 기대지 않게)
 		var st := _stage(id)
 		assert_str(String(st.id)).is_equal(id)
 		assert_str(st.title).is_not_empty()
@@ -160,5 +160,27 @@ func test_victory_unlocks_next_stage_in_release_order() -> void:
 	GameSettings.unlock_all_override = -1
 	GameSettings.cleared_stages = PackedStringArray()
 	GameSettings.stage_picked = true
+	GameSettings.stage_id = &"manchuria_395"
+	GameSettings.save_settings()
+
+
+func test_each_stage_run_uses_its_own_army() -> void:
+	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.title_seen = true
+	GameSettings.hero_picked = true
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.stage_picked = true
+	for id in IDS:
+		GameSettings.stage_id = StringName(id)
+		GameSettings.save_settings()  # Main이 시작할 때 설정 파일을 다시 읽는다
+		var main: Node = load("res://scenes/main.tscn").instantiate()
+		add_child(main)
+		await get_tree().process_frame
+		var st := _stage(id)
+		assert_array(main.spawner.spawn_table).is_equal(st.spawn_table)
+		assert_object(main.spawner.boss_data).is_same(st.boss)
+		assert_object(main.spawner.elite_data).is_same(st.elite)
+		get_tree().paused = false
+		main.free()
 	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.save_settings()

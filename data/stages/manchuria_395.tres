@@ -2,6 +2,12 @@
 
 [ext_resource type="Resource" path="res://data/breakables/manchuria_395.tres" id="b_manchuria_395"]
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
+[ext_resource type="Resource" path="res://data/enemies/chaser.tres" id="e_chaser"]
+[ext_resource type="Resource" path="res://data/enemies/archer.tres" id="e_archer"]
+[ext_resource type="Resource" path="res://data/enemies/heavy.tres" id="e_heavy"]
+[ext_resource type="Resource" path="res://data/enemies/elite_warrior.tres" id="e_elite"]
+[ext_resource type="Resource" path="res://data/enemies/boss_general.tres" id="e_boss"]
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/cart.png" id="p_cart"]
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/fence.png" id="p_fence"]
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/flags.png" id="p_flags"]
@@ -23,6 +29,11 @@ year_label = "395년"
 title = "만주 벌판"
 hero_hint = "광개토"
 breakable = ExtResource("b_manchuria_395")
+spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_heavy")])
+spawn_weights = PackedFloat32Array(6, 2, 1)
+unlock_times = PackedFloat32Array(0, 10, 20)
+elite = ExtResource("e_elite")
+boss = ExtResource("e_boss")
 card_art = ExtResource("p_flags")
 subtitle = "광개토대왕릉비에 새겨진 비려 정벌의 전장"
 floor_base = Color(0.666, 0.560, 0.473, 1)
