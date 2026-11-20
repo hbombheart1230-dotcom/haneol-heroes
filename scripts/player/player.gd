@@ -49,6 +49,9 @@ var move_decel_time: float = 0.0
 ## 근접 적중 반동: 남은 이동량(px/s)과 남은 시간.
 var _recoil_vel: Vector2 = Vector2.ZERO
 var _recoil_left: float = 0.0
+## 영웅별 회피 이펙트·도착 효과 (hero.dash_style이 있을 때).
+var dash_runner: DashStyleRunner
+var _arrive_pending: bool = false
 var _glide_left: float = 0.0
 var _dash_time_left: float = 0.0
 ## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력 판정용.
@@ -83,6 +86,7 @@ func change_hero(h: HeroData) -> void:
 
 func apply_hero(h: HeroData) -> void:
 	hero = h
+	dash_runner = DashStyleRunner.new(h.dash_style) if h.dash_style else null
 	move_speed = h.move_speed
 	move_accel_time = h.move_accel_time
 	move_decel_time = h.move_decel_time
@@ -262,6 +266,7 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 			return false
 		_dash_time_left = 0.0
 		_since_dash_end = 0.0
+		_dash_arrived()
 		dash_ended.emit()
 	var dir := direction
 	if dir.length_squared() < 0.0001:
@@ -275,6 +280,8 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 	_dash_start_pos = global_position
 	_shoved.clear()
 	facing = _dash_dir
+	if dash_runner:
+		dash_runner.on_start(global_position, _dash_dir)
 	dash_started.emit(_dash_dir)
 	return true
 
@@ -305,8 +312,17 @@ func compute_velocity(delta: float) -> Vector2:
 			_glide_left = dash_glide_time
 		# 대시 직후엔 가속을 다시 기다리지 않는다 (대시 → 걷기 끊김 없이).
 		_walk_vel = move_input * move_speed
+		_arrive_pending = true  # 도착 효과는 이번 프레임 이동을 마친 실제 자리에서 (_physics_process)
 		dash_ended.emit()
 	return v
+
+
+## 대시 도착: 영웅별 도착 이펙트·효과 (트리 밖 테스트에서는 이펙트만).
+## 레벨업 인장을 고르는 느린 시간(GameTime.base < 1)에는 걸지 않는다.
+func _dash_arrived() -> void:
+	_arrive_pending = false
+	if dash_runner and not is_dead() and GameTime.base >= 1.0:
+		dash_runner.on_end(global_position, get_tree().get_nodes_in_group(Enemy.GROUP) if is_inside_tree() else [])
 
 
 func _physics_process(delta: float) -> void:
@@ -314,9 +330,13 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		return
 	velocity = compute_velocity(delta)
+	if dash_runner and is_dashing():
+		dash_runner.tick(delta, global_position)
 	if is_dashing() and hero and hero.dash_shove > 0.0:
 		shove_enemies(get_tree().get_nodes_in_group(Enemy.GROUP))
 	apply_contact_damage(delta, _touching_damage())
 	move_and_slide()
 	if arena_rect.has_area():
 		global_position = global_position.clamp(arena_rect.position, arena_rect.end)
+	if _arrive_pending:
+		_dash_arrived()

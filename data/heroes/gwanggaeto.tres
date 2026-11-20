@@ -23,6 +23,7 @@
 [ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_thunder_trail.tres" id="vs_thunder_trail"]
 [ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_lightning.tres" id="vs_lightning"]
 [ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_conqueror.tres" id="vs_conqueror"]
+[ext_resource type="Resource" path="res://data/heroes/dash/gwanggaeto.tres" id="dash_style"]
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
@@ -140,3 +141,4 @@ attack = SubResource("Attack_gw")
 kit = SubResource("Kit_gw")
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+dash_style = ExtResource("dash_style")
