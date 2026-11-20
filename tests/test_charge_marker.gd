@@ -84,3 +84,15 @@ func test_caster_draws_marker_behind_the_hero() -> void:
 	add_child(p)
 	assert_bool(sc.show_behind_parent).is_true()
 	assert_object(sc._marker().data).is_same(p.hero.charge_marker)
+
+
+func test_cancel_and_hero_swap_do_not_reflash() -> void:
+	var sj: HeroData = load("res://data/heroes/sejong.tres")
+	var yi: HeroData = load("res://data/heroes/yi_sun_sin.tres")
+	var m := ChargeMarker.new(sj.charge_marker)
+	assert_bool(m.tick(0.016, true, 1.0, Vector2.ZERO)).is_true()
+	m.cancel()
+	assert_float(m.flash_left()).is_equal(0.0)  # 죽으면 번쩍임도 지움
+	var m2 := ChargeMarker.new(yi.charge_marker)
+	m2.carry_from(m)
+	assert_bool(m2.tick(0.016, true, 1.0, Vector2.ZERO)).is_false()  # 같은 충전: 다시 번쩍이지 않음

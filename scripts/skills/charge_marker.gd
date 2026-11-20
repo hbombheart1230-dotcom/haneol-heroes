@@ -36,6 +36,19 @@ func tick(delta: float, charging: bool, c: float, pos: Vector2) -> bool:
 	return became_full
 
 
+## 바로 지운다 (죽었을 때: 번쩍임도 남기지 않음).
+func cancel() -> void:
+	_flash_left = 0.0
+	_spark_cd = 0.0
+
+
+## 영웅이 바뀌어 새로 만들 때 이어받기 (같은 충전으로 번쩍임이 두 번 나지 않게).
+func carry_from(old: ChargeMarker) -> void:
+	if old:
+		_was_full = old._was_full
+		_age = old._age
+
+
 func flash_left() -> float:
 	return _flash_left
 

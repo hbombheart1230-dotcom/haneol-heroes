@@ -275,7 +275,9 @@ func _is_charging_alive() -> bool:
 func _marker() -> ChargeMarker:
 	var d := player.hero.charge_marker if player and player.hero else null
 	if _charge_marker == null or _charge_marker.data != d:
-		_charge_marker = ChargeMarker.new(d)
+		var m := ChargeMarker.new(d)
+		m.carry_from(_charge_marker)
+		_charge_marker = m
 	return _charge_marker
 
 
@@ -284,7 +286,10 @@ func _physics_process(delta: float) -> void:
 	var charging := _is_charging_alive()
 	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0) if charging else 0.0
 	if player:
-		_marker().tick(delta, charging, c, player.global_position)
+		if player.is_dead():
+			_marker().cancel()  # 죽으면 번쩍임까지 바로 지운다
+		else:
+			_marker().tick(delta, charging, c, player.global_position)
 	queue_redraw()
 
 
