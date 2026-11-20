@@ -12,5 +12,5 @@ intro = ExtResource("intro")
 verse = ExtResource("verse")
 chorus = ExtResource("chorus")
 outro = ExtResource("outro")
-bpm = 122.0
+bpm = 65.5
 bar_beats = 4
