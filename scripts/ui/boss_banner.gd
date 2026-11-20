@@ -83,9 +83,14 @@ func _draw() -> void:
 
 ## 네 가장자리에서 안쪽으로 옅어지는 붉은 어둠.
 func _draw_vignette(vp: Vector2, a: float) -> void:
-	var d := minf(vp.x, vp.y) * 0.36
-	var o := Color(vignette_color, a)
-	var i := Color(vignette_color, 0.0)
+	draw_edge_glow(self, vp, vignette_color, a)
+
+
+## 화면 네 가장자리에서 안쪽으로 옅어지는 색 (영웅 피격 HurtVignette도 쓴다).
+static func draw_edge_glow(ci: CanvasItem, vp: Vector2, color: Color, a: float, depth: float = 0.36) -> void:
+	var d := minf(vp.x, vp.y) * depth
+	var o := Color(color, a)
+	var i := Color(color, 0.0)
 	var quads := [
 		[Vector2.ZERO, Vector2(vp.x, 0), Vector2(vp.x - d, d), Vector2(d, d)],
 		[Vector2(0, vp.y), Vector2(d, vp.y - d), Vector2(vp.x - d, vp.y - d), vp],
@@ -98,7 +103,7 @@ func _draw_vignette(vp: Vector2, a: float) -> void:
 			var p: Vector2 = q[k]
 			var outer := p.x <= 0.0 or p.y <= 0.0 or p.x >= vp.x or p.y >= vp.y
 			cols.append(o if outer else i)
-		draw_polygon(PackedVector2Array(q), cols)
+		ci.draw_polygon(PackedVector2Array(q), cols)
 
 
 func _draw_banner(vp: Vector2) -> void:

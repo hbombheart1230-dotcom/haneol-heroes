@@ -24,13 +24,19 @@ func enemies() -> Array:
 	return enemy_source.call() if enemy_source.is_valid() else []
 
 
+## 가장자리 판정 (LoL식): 적 몸이 범위에 걸치면 맞는다 (중심점 + 몸 반경 × skill_edge_scale).
 func enemies_in_radius(center: Vector2, radius: float) -> Array[Enemy]:
 	var out: Array[Enemy] = []
 	for e in enemies():
 		var en := e as Enemy
-		if en and is_instance_valid(en) and en.global_position.distance_to(center) <= radius:
+		if en and is_instance_valid(en) and en.global_position.distance_to(center) <= radius + edge_of(en):
 			out.append(en)
 	return out
+
+
+## 적 몸이 판정에 더해지는 폭(px).
+static func edge_of(en: Enemy) -> float:
+	return en.body_radius * en.size_mult * Feedback.feel_data().skill_edge_scale
 
 
 func enemies_near_segment(a: Vector2, b: Vector2, half_width: float) -> Array[Enemy]:
@@ -40,7 +46,7 @@ func enemies_near_segment(a: Vector2, b: Vector2, half_width: float) -> Array[En
 		if en == null or not is_instance_valid(en):
 			continue
 		var p := Geometry2D.get_closest_point_to_segment(en.global_position, a, b)
-		if p.distance_to(en.global_position) <= half_width:
+		if p.distance_to(en.global_position) <= half_width + edge_of(en):
 			out.append(en)
 	return out
 

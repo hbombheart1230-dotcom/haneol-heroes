@@ -100,7 +100,7 @@ func current_anim() -> String:
 		return "death"
 	if player.is_dashing():
 		return "dash"
-	if player.hurt_time_left() > player.hurt_invuln_time - 0.25:
+	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time:
 		return "hit"
 	if _oneshot_left > 0.0:
 		return _oneshot
@@ -136,8 +136,20 @@ func _update_sprite(delta: float) -> void:
 	elif player.is_dashing():
 		tint = ds.body_tint if ds else Color(0.75, 0.9, 1.0)
 		tint.a = ds.body_alpha if ds else 1.0  # 광개토 번개 순간이동·사임당 먹으로 흩어짐
-	_sprite.modulate = tint
+	_sprite.modulate = hurt_tint(tint)
 	_sprite.speed_scale = run_anim_speed() if current_anim() == "run" else 1.0
+
+
+## 피격 표시 (R3): 맞은 순간 붉게, 무적 동안 깜빡임 (대시 중에는 대시 색 그대로).
+func hurt_tint(tint: Color) -> Color:
+	if player.hurt_time_left() <= 0.0 or player.is_dashing() or player.is_dead():
+		return tint
+	var d := Feedback.feel_data().reaction_data()
+	var t := player.hurt_elapsed()
+	var c := d.hero_flash_color if t < d.hero_flash_time else tint
+	if t >= d.hero_flash_time and int(t * d.blink_hz) % 2 == 1:
+		c.a = tint.a * d.blink_alpha
+	return c
 
 
 ## 달리기 동작 속도: 실제로 빨리 갈수록 빨리 (가속 중엔 천천히 → 발이 땅에 붙어 보인다).
