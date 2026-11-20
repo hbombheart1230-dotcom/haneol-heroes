@@ -227,6 +227,7 @@ func _setup_sprite() -> void:
 	sprite.scale = Vector2.ONE * data.sprite_scale
 	sprite.position = data.sprite_offset
 	sprite.modulate = data.sprite_tint
+	sprite.material = EnemyLook.material_for(data)  # 군대별 테두리·밝기 (잘 보이게)
 	add_child(sprite)
 
 

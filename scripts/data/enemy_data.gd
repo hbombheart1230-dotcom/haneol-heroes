@@ -36,3 +36,15 @@ extends Resource
 @export var sprite_offset: Vector2 = Vector2(0, -24)
 ## 스프라이트 색 보정 (보스 금빛 등).
 @export var sprite_tint: Color = Color(1, 1, 1)
+
+@export_group("잘 보이게 (shaders/enemy_rim.gdshader)")
+## 몸 둘레 망령 빛 테두리 색. 알파가 0이면 셰이더를 쓰지 않는다.
+@export var rim_color: Color = Color(0, 0, 0, 0)
+## 테두리 두께 (구운 텍스처 픽셀). 정예·보스는 더 크게.
+@export var rim_width: float = 3.0
+## 몸 밝기 더하기와 대비 배율 (칙칙한 회색 망령을 바닥에서 띄운다).
+@export var body_lift: float = 0.0
+@export var body_contrast: float = 1.0
+## 군대 색과 섞는 비율 (0 = 원래 색).
+@export var army_tint: Color = Color(1, 1, 1)
+@export var tint_mix: float = 0.0
