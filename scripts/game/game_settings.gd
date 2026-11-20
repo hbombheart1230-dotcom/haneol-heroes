@@ -45,7 +45,7 @@ static func should_show_story(seen: bool) -> bool:
 ## 강제로 정한 무대 (테스트·디버그용, stage_picked가 true일 때만). 평소에는 영웅의 무대 순서(hero_stages).
 static var stage_id: StringName = &""
 static var stage_picked: bool = false
-## 영웅마다 지금 설 무대 (hero_id → stage_id 문자열). 없으면 그 영웅의 home_stage. "다음 전장"이 바꾼다.
+## 영웅마다 지금 설 무대 (hero_id → stage_id). 이번 실행 동안만 (저장 안 함): 앱을 켜거나 영웅을 고르면 자기 무대부터, "다음 전장"으로만 이어간다.
 static var hero_stages: Dictionary = {}
 ## 영웅마다 이긴 전장 수 (hero_id → 수). 난이도 단계 (DifficultyCurve).
 static var hero_clears: Dictionary = {}
@@ -81,7 +81,6 @@ static func load_settings(path: String = "") -> void:
 	intro_seen = bool(cfg.get_value("game", "intro_seen", intro_seen))
 	seen_stories = PackedStringArray(cfg.get_value("game", "seen_stories", seen_stories))
 	cleared_stages = PackedStringArray(cfg.get_value("game", "cleared_stages", cleared_stages))
-	hero_stages = cfg.get_value("game", "hero_stages", hero_stages)
 	hero_clears = cfg.get_value("game", "hero_clears", hero_clears)
 
 
@@ -103,7 +102,6 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("game", "intro_seen", intro_seen)
 	cfg.set_value("game", "seen_stories", seen_stories)
 	cfg.set_value("game", "cleared_stages", cleared_stages)
-	cfg.set_value("game", "hero_stages", hero_stages)
 	cfg.set_value("game", "hero_clears", hero_clears)
 	return cfg.save(path)
 

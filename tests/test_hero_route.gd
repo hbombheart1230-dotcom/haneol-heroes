@@ -60,3 +60,35 @@ func test_victory_tap_goes_to_next_stage_for_that_hero() -> void:
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.save_settings()
+
+
+func test_picking_a_hero_starts_at_home_stage() -> void:
+	GameSettings.settings_path = GameSettings.test_path()
+	GameSettings.title_seen = true
+	GameSettings.intro_seen = true
+	GameSettings.tutorial_done = true
+	GameSettings.story_enabled = false
+	GameSettings.stage_picked = false
+	GameSettings.hero_picked = false
+	GameSettings.save_settings()
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	add_child(main)
+	await get_tree().process_frame
+	GameSettings.hero_stages = {"yi_sun_sin": "manchuria_395"}  # 이전에 다음 전장으로 갔어도
+	var sel: HeroSelect = main.hero_select
+	var yi := -1
+	for i in sel.heroes.size():
+		if sel.heroes[i].id == &"yi_sun_sin":
+			yi = i
+	var c := sel.slot_rect(yi).get_center()
+	sel.handle_touch(0, c, true)
+	sel.handle_touch(0, c, false)
+	assert_str(String(main.run_config.stage.id)).is_equal("hansan_1592")  # 고르면 자기 무대부터
+	get_tree().paused = false
+	main.queue_free()
+	GameSettings.story_enabled = true
+	GameSettings.hero_picked = true
+	GameSettings.hero_stages = {}
+	GameSettings.stage_picked = true
+	GameSettings.stage_id = &"manchuria_395"
+	GameSettings.save_settings()

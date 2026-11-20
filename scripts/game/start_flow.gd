@@ -89,6 +89,7 @@ func _on_hero_picked(h: HeroData) -> void:
 	Feedback.ui()
 	GameSettings.hero_id = h.id
 	GameSettings.hero_picked = true
+	GameSettings.hero_stages.erase(String(h.id))  # 영웅을 고르면 자기 무대부터
 	hero_story_pending = GameSettings.story_enabled
 	GameSettings.save_settings()
 	var player: Player = main.player

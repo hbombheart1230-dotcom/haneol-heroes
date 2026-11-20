@@ -1,6 +1,7 @@
 class_name RunMusic
 extends RefCounted
-## 판 음악 (Main에서 분리): 영웅마다 자기 노래(자기 무대의 StageSong) — 다음 전장으로 넘어가도 그대로.
+## 판 음악 (Main에서 분리): 무대마다 그 무대의 노래(StageSong) — 만주는 광개토 노래 (사용자 결정).
+## 영웅은 늘 자기 무대에서 시작하므로 영웅 이야기 음악은 그 영웅 자기 무대의 노래.
 ## 평소 = 본편(verse), 보스 = 후렴(chorus), 승리·패배 = 짧은 곡(Main.victory_track/defeat_track) 또는 후주·전주.
 ## 메뉴(입장·공통 이야기·영웅 고르기) = Main.menu_track.
 
@@ -19,8 +20,8 @@ func cue(kind: StringName) -> void:
 	if jingle and Feedback.instance:
 		Feedback.instance.play_music(jingle, 0.4)
 		return
-	var player: Player = main.player
-	var song := hero_song(player.hero if player else null)
+	var cfg: RunConfig = main.run_config
+	var song: StageSong = cfg.stage.song if cfg and cfg.stage else null
 	if song:
 		MusicDirector.play(song, SONG_SECTION[kind])
 	elif Feedback.instance and stage_track(kind):
