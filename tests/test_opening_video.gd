@@ -50,3 +50,26 @@ func test_app_start_plays_opening_then_title() -> void:
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.save_settings()
+
+
+func test_title_music_starts_with_opening_and_continues() -> void:
+	GameSettings.settings_path = GameSettings.test_path()
+	GameSettings.opening_seen = false
+	GameSettings.title_seen = false
+	GameSettings.save_settings()
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	add_child(main)
+	await get_tree().create_timer(1.2).timeout
+	var p := MusicDirector.player()
+	assert_object(p.stream).is_same(main.menu_track)  # 영상과 함께 입장 곡
+	var pos := p.get_playback_position()
+	main.opening_video.finish()
+	await get_tree().process_frame
+	assert_object(p.stream).is_same(main.menu_track)
+	assert_float(p.get_playback_position()).is_greater_equal(pos)  # 처음부터 다시가 아니라 이어서
+	get_tree().paused = false
+	main.queue_free()
+	GameSettings.title_seen = true
+	GameSettings.hero_picked = true
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.save_settings()

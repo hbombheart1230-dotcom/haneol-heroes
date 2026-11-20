@@ -23,7 +23,8 @@ func _init(m: Node) -> void:
 func next() -> void:
 	var player: Player = main.player
 	if main.opening_video and main.opening_video.stream and not GameSettings.opening_seen 			and not GameSettings.title_seen:
-		_hold()  # 오프닝 영상 (자기 소리가 있어 음악은 영상 뒤에)
+		_hold()  # 오프닝 영상 (소리 없음): 입장 곡(한얼 아리랑)이 처음부터 흐르고 입장 화면까지 이어진다
+		main.menu_music()
 		main.opening_video.finished.connect(_on_opening_finished, CONNECT_ONE_SHOT)
 		main.opening_video.open()
 		return
