@@ -53,8 +53,26 @@ func test_no_marker_data_is_safe() -> void:
 	var m := ChargeMarker.new(null)
 	assert_bool(m.tick(0.016, true, 1.0, Vector2.ZERO)).is_false()
 	var c: Node2D = auto_free(Node2D.new())
+	c.draw.connect(func() -> void: m.draw(c, true, 0.5))  # 그리기는 _draw 안에서만
 	add_child(c)
-	m.draw(c, true, 0.5)  # 공통 붓 고리로 그린다 (오류 없이)
+	c.queue_redraw()
+	await get_tree().process_frame  # 공통 붓 고리로 그린다 (오류 없이)
+
+
+func test_dead_player_shows_no_charge() -> void:
+	var p: Player = auto_free(Player.new())
+	var h := Health.new()
+	h.name = "Health"
+	p.add_child(h)
+	p.hero = load("res://data/heroes/sejong.tres")
+	var sc: SkillCaster = auto_free(SkillCaster.new())
+	sc.player = p
+	p.add_child(sc)
+	add_child(p)
+	sc.input.state = SkillInput.State.CHARGING
+	assert_bool(sc._is_charging_alive()).is_true()
+	h.kill()
+	assert_bool(sc._is_charging_alive()).is_false()
 
 
 func test_caster_draws_marker_behind_the_hero() -> void:

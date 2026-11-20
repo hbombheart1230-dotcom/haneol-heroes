@@ -266,6 +266,11 @@ func _context() -> SkillContext:
 	return ctx
 
 
+## 살아서 모으는 중인지 (죽으면 손을 떼기 전이라도 표시·입자·번쩍임 없음).
+func _is_charging_alive() -> bool:
+	return input.state == SkillInput.State.CHARGING and player != null and not player.is_dead()
+
+
 ## 영웅별 충전 표시 (영웅이 바뀌면 다시 만든다).
 func _marker() -> ChargeMarker:
 	var d := player.hero.charge_marker if player and player.hero else null
@@ -276,7 +281,7 @@ func _marker() -> ChargeMarker:
 
 func _physics_process(delta: float) -> void:
 	tick(delta, Time.get_ticks_usec() / 1_000_000.0)
-	var charging := input.state == SkillInput.State.CHARGING
+	var charging := _is_charging_alive()
 	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0) if charging else 0.0
 	if player:
 		_marker().tick(delta, charging, c, player.global_position)
@@ -285,7 +290,7 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	# 충전 중 표시: 플레이어 발밑 (영웅별 그림, show_behind_parent로 영웅 그림 아래)
-	var charging := input.state == SkillInput.State.CHARGING
+	var charging := _is_charging_alive()
 	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0) if charging else 1.0
 	if player:
 		_marker().draw(self, charging, c)
