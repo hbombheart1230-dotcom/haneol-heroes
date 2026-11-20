@@ -17,6 +17,8 @@ static var hero_picked: bool = false
 static var title_seen: bool = false
 ## 이야기 인트로를 한 번 봤는지 (저장). 처음 입장할 때만 나온다.
 static var intro_seen: bool = false
+## 이야기를 이미 본 영웅 id들 (영웅 이야기는 영웅마다 처음 한 번).
+static var seen_stories: PackedStringArray = PackedStringArray()
 ## 마지막으로 고른 무대 id, 이번 실행에서 무대를 골랐는지.
 static var stage_id: StringName = &""
 static var stage_picked: bool = false
@@ -50,6 +52,7 @@ static func load_settings(path: String = "") -> void:
 	hero_id = StringName(cfg.get_value("game", "hero_id", String(hero_id)))
 	stage_id = StringName(cfg.get_value("game", "stage_id", String(stage_id)))
 	intro_seen = bool(cfg.get_value("game", "intro_seen", intro_seen))
+	seen_stories = PackedStringArray(cfg.get_value("game", "seen_stories", seen_stories))
 	cleared_stages = PackedStringArray(cfg.get_value("game", "cleared_stages", cleared_stages))
 	hero_stages = cfg.get_value("game", "hero_stages", hero_stages)
 
@@ -63,6 +66,7 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("game", "hero_id", String(hero_id))
 	cfg.set_value("game", "stage_id", String(stage_id))
 	cfg.set_value("game", "intro_seen", intro_seen)
+	cfg.set_value("game", "seen_stories", seen_stories)
 	cfg.set_value("game", "cleared_stages", cleared_stages)
 	cfg.set_value("game", "hero_stages", hero_stages)
 	return cfg.save(path)

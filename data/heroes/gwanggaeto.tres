@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/thunder_trail.png" id="i_thunder_trail"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/lightning.png" id="i_lightning"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/conqueror.png" id="i_conqueror"]
+[ext_resource type="Resource" path="res://data/intro/story_gwanggaeto.tres" id="story"]
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
@@ -92,6 +93,7 @@ full_charge_time = 1.1
 [resource]
 script = ExtResource("1_hero")
 id = &"gwanggaeto"
+story = ExtResource("story")
 home_stage = &"manchuria_395"
 display_name = "광개토"
 card_art = ExtResource("card_art")

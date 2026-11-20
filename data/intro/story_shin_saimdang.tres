@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="IntroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/intro_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://scripts/data/intro_slide.gd" id="2_slide"]
+[ext_resource type="Texture2D" path="res://assets/ui/heroes/shin_saimdang.png" id="card"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/chochungdo.png" id="map"]
+
+[sub_resource type="Resource" id="slide1"]
+script = ExtResource("2_slide")
+image = ExtResource("card")
+tint = Color(1, 1, 1, 1)
+caption = "사임당"
+lines = PackedStringArray("풀과 벌레를", "살아 있는 듯 그린 조선의 화가.")
+duration = 7.5
+pan = Vector2(0, -0.02)
+
+[sub_resource type="Resource" id="slide2"]
+script = ExtResource("2_slide")
+image = ExtResource("map")
+tint = Color(0.75, 0.7, 0.65, 1)
+lines = PackedStringArray("망령의 기운이 그림에 스며들자", "그림 속 들쥐와 벌레들이 눈을 떴다.")
+duration = 7.5
+pan = Vector2(0.02, 0)
+
+[sub_resource type="Resource" id="slide3"]
+script = ExtResource("2_slide")
+image = ExtResource("map")
+tint = Color(0.35, 0.45, 0.5, 1)
+lines = PackedStringArray("수박을 갉던 들쥐, 오이 덩굴의 개구리,", "사마귀까지 붓 밖으로 기어 나왔다.")
+duration = 7.5
+pan = Vector2(0, -0.02)
+
+[sub_resource type="Resource" id="slide4"]
+script = ExtResource("2_slide")
+image = ExtResource("card")
+tint = Color(0.8, 0.85, 1, 1)
+lines = PackedStringArray("한얼은 그녀의 붓에 깃들었다.", "먹 한 획이 칼이 되고, 꽃이 방패가 된다.")
+duration = 7.5
+pan = Vector2(0.02, 0)
+
+[sub_resource type="Resource" id="slide5"]
+script = ExtResource("2_slide")
+image = ExtResource("map")
+tint = Color(1, 1, 1, 1)
+caption = "초충도"
+lines = PackedStringArray("그림 속으로 들어가라.")
+duration = 6.5
+pan = Vector2(0, -0.02)
+
+[resource]
+script = ExtResource("1_data")
+slides = Array[ExtResource("2_slide")]([SubResource("slide1"), SubResource("slide2"), SubResource("slide3"), SubResource("slide4"), SubResource("slide5")])

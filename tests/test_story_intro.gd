@@ -57,11 +57,12 @@ func test_intro_finishes_by_itself() -> void:
 	assert_int(done[0]).is_equal(1)
 
 
-func test_enter_then_hero_then_intro_once_then_run() -> void:
+func test_enter_prologue_hero_hero_story_then_run() -> void:
 	GameSettings.settings_path = "user://test_settings.cfg"
 	GameSettings.unlock_all_override = 0  # 정식판 흐름 (전장 고르기 없음)
 	GameSettings.title_seen = false
 	GameSettings.intro_seen = false
+	GameSettings.seen_stories = PackedStringArray()
 	GameSettings.hero_picked = false
 	GameSettings.stage_picked = false
 	GameSettings.hero_stages = {}
@@ -75,18 +76,21 @@ func test_enter_then_hero_then_intro_once_then_run() -> void:
 	title.handle_touch(0, b, true)
 	title.handle_touch(0, b, false)
 	var intro: StoryIntro = main.story_intro
-	assert_bool(main.hero_select.is_open()).is_true()  # 입장 → 영웅 고르기 먼저
-	assert_bool(intro.is_open()).is_false()
+	assert_bool(intro.is_open()).is_true()  # 입장 → 공통 이야기 먼저
+	assert_object(intro.data).is_same(INTRO)
+	intro.finish()
+	assert_bool(GameSettings.intro_seen).is_true()
 	var sel: HeroSelect = main.hero_select
+	assert_bool(sel.is_open()).is_true()
 	var c := sel.slot_rect(0).get_center()
 	sel.handle_touch(0, c, true)
 	sel.handle_touch(0, c, false)
-	assert_bool(intro.is_open()).is_true()  # 영웅 고른 뒤 이야기
-	intro.finish()
-	assert_bool(GameSettings.intro_seen).is_true()
-	assert_bool(main.stage_select.is_open()).is_false()
-	assert_bool(main.waiting_pick).is_false()
 	var hero: HeroData = main.get_node("Player").hero
+	assert_bool(intro.is_open()).is_true()  # 영웅 고른 뒤 그 영웅 이야기
+	assert_object(intro.data).is_same(hero.story)
+	intro.finish()
+	assert_bool(GameSettings.seen_stories.has(String(hero.id))).is_true()
+	assert_bool(main.waiting_pick).is_false()
 	assert_str(String(main.run_config.stage.id)).is_equal(String(hero.home_stage))  # 그 영웅의 무대로
 	get_tree().paused = false
 	main.queue_free()
@@ -96,14 +100,27 @@ func test_enter_then_hero_then_intro_once_then_run() -> void:
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.save_settings()
+
+
+func test_every_hero_has_a_complete_story() -> void:
+	for h in ["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"]:
+		var hero := load("res://data/heroes/%s.tres" % h) as HeroData
+		assert_object(hero.story).is_not_null()
+		assert_int(hero.story.slides.size()).is_equal(5)
+		for s in hero.story.slides:
+			assert_object(s.image).is_not_null()
+			assert_int(s.lines.size()).is_greater(0)
 
 
 func test_intro_skipped_when_already_seen() -> void:
 	GameSettings.settings_path = "user://test_settings.cfg"
 	GameSettings.title_seen = false
 	GameSettings.intro_seen = true
+	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.hero_picked = false
+	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
 	await get_tree().process_frame

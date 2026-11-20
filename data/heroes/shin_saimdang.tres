@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/ink_bleed.png" id="i_ink_bleed"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/canvas.png" id="i_canvas"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/plum.png" id="i_plum"]
+[ext_resource type="Resource" path="res://data/intro/story_shin_saimdang.tres" id="story"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -82,6 +83,7 @@ full_charge_time = 1.0
 [resource]
 script = ExtResource("1_hero")
 id = &"shin_saimdang"
+story = ExtResource("story")
 home_stage = &"chochungdo"
 display_name = "사임당"
 card_art = ExtResource("card_art")

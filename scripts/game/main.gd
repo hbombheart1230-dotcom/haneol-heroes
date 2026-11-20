@@ -25,6 +25,8 @@ extends Node2D
 @export var restart_delay: float = 0.6
 
 var state: GameState
+## 판 전 화면 순서 (입장 → 이야기 → 영웅 → 영웅 이야기 → 판).
+var flow: StartFlow
 var perf := PerfStats.new()
 var progress: RunProgress
 var build := RunBuild.new()
@@ -40,6 +42,7 @@ func _ready() -> void:
 	# 결과 화면에서 재시작 입력을 받으려면 Main은 일시정지 중에도 돌아야 한다.
 	# 게임 오브젝트는 일시정지되도록 명시한다 (INHERIT면 Main의 ALWAYS를 물려받음).
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	flow = StartFlow.new(self)
 	# 이전 판의 히트스톱·예고 공격 슬롯이 남지 않게 초기화.
 	GameTime.reset()
 	EnemyAttack.active_windups = 0
@@ -77,49 +80,19 @@ func _ready() -> void:
 	_start_flow()
 
 
-## 시작 순서: 인트로(앱 켠 뒤 한 번) → 영웅 고르기(필요할 때) → 판 시작. 화면이 떠 있는 동안은 멈춘다.
+## 판 전 화면 순서 (StartFlow). 화면이 다 끝나면 begin_run.
 func _start_flow() -> void:
-	if title_screen and not GameSettings.title_seen:
-		_hold()
-		title_screen.entered.connect(_on_title_entered, CONNECT_ONE_SHOT)
-		title_screen.open()
-	elif playable_heroes().size() > 1 and not GameSettings.hero_picked and hero_select:
-		_hold()
-		hero_select.picked.connect(_on_hero_picked, CONNECT_ONE_SHOT)
-		hero_select.open(heroes)
-	elif story_intro and story_intro.data and not GameSettings.intro_seen:
-		_hold()
-		story_intro.finished.connect(_on_intro_finished, CONNECT_ONE_SHOT)
-		story_intro.open()
-	elif stages.size() > 1 and not GameSettings.stage_picked and stage_select and GameSettings.unlock_all_stages():
-		# 시험판만: 아무 무대나 골라 시험. 정식판은 영웅의 무대 순서대로 바로 간다.
-		_hold()
-		stage_select.picked.connect(_on_stage_picked, CONNECT_ONE_SHOT)
-		stage_select.open(stages, StageUnlock.flags(stages, GameSettings.cleared_stages, GameSettings.unlock_all_stages()))
-	else:
-		_apply_stage(stage_by_id(run_stage_id()))
-		_begin_build()
-		waiting_pick = false
-		get_tree().paused = false
-		if Feedback.instance and run_config and run_config.stage:  # 다시 시작하면 무대 곡으로 (같으면 이어서)
-			Feedback.instance.play_music(stage_music(&"stage"), 0.6)
+	flow.next()
 
 
-func _hold() -> void:
-	waiting_pick = true
-	get_tree().paused = true
-
-
-func _on_title_entered() -> void:
-	Feedback.ui()
-	GameSettings.title_seen = true
-	_start_flow()
-
-
-func _on_intro_finished() -> void:
-	GameSettings.intro_seen = true
-	GameSettings.save_settings()
-	_start_flow()
+## 이번 판 시작: 무대 적용, 성장 준비, 멈춤 풀기, 무대 곡.
+func begin_run() -> void:
+	_apply_stage(stage_by_id(run_stage_id()))
+	_begin_build()
+	waiting_pick = false
+	get_tree().paused = false
+	if Feedback.instance and run_config and run_config.stage:  # 다시 시작하면 무대 곡으로 (같으면 이어서)
+		Feedback.instance.play_music(stage_music(&"stage"), 0.6)
 
 
 func playable_heroes() -> Array[HeroData]:
@@ -179,16 +152,6 @@ func stage_by_id(id: StringName) -> StageTheme:
 	return run_config.stage if run_config else null
 
 
-func _on_stage_picked(st: StageTheme) -> void:
-	Feedback.ui()
-	GameSettings.stage_id = st.id
-	GameSettings.stage_picked = true
-	if player and player.hero:
-		GameSettings.hero_stages[String(player.hero.id)] = String(st.id)
-	GameSettings.save_settings()
-	_start_flow()
-
-
 func hero_by_id(id: StringName) -> HeroData:
 	for h in playable_heroes():
 		if h.id == id:
@@ -200,16 +163,6 @@ func _begin_build() -> void:
 	if player:
 		build.begin(player, player.get_node_or_null("SkillCaster") as SkillCaster,
 			player.get_node_or_null("AutoAttack") as AutoAttack)
-
-
-func _on_hero_picked(h: HeroData) -> void:
-	Feedback.ui()
-	GameSettings.hero_id = h.id
-	GameSettings.hero_picked = true
-	GameSettings.save_settings()
-	if player and h != player.hero:
-		player.change_hero(h)
-	_start_flow()
 
 
 ## 렌더 프레임 기준 성능 기록 (플레이 중에만).

@@ -34,6 +34,7 @@ func test_victory_tap_goes_to_next_stage_for_that_hero() -> void:
 	GameSettings.unlock_all_override = 0
 	GameSettings.title_seen = true
 	GameSettings.intro_seen = true
+	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.stage_picked = false

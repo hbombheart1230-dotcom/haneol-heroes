@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="IntroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/intro_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://scripts/data/intro_slide.gd" id="2_slide"]
+[ext_resource type="Texture2D" path="res://assets/ui/heroes/gwanggaeto.png" id="card"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/manchuria_395.png" id="map"]
+
+[sub_resource type="Resource" id="slide1"]
+script = ExtResource("2_slide")
+image = ExtResource("card")
+tint = Color(1, 1, 1, 1)
+caption = "광개토"
+lines = PackedStringArray("열여덟에 왕위에 올라", "북으로 남으로 땅을 넓힌 고구려의 왕.")
+duration = 7.5
+pan = Vector2(0, -0.02)
+
+[sub_resource type="Resource" id="slide2"]
+script = ExtResource("2_slide")
+image = ExtResource("map")
+tint = Color(0.75, 0.7, 0.65, 1)
+lines = PackedStringArray("그가 무찌른 비려의 군대가", "천육백 년의 잠에서 깨어", "다시 벌판을 덮었다.")
+duration = 8.5
+pan = Vector2(0.02, 0)
+
+[sub_resource type="Resource" id="slide3"]
+script = ExtResource("2_slide")
+image = ExtResource("map")
+tint = Color(0.35, 0.45, 0.5, 1)
+lines = PackedStringArray("한얼의 천둥이", "잠든 왕의 혼을 깨운다.")
+duration = 7.5
+pan = Vector2(0, -0.02)
+
+[sub_resource type="Resource" id="slide4"]
+script = ExtResource("2_slide")
+image = ExtResource("card")
+tint = Color(0.8, 0.85, 1, 1)
+lines = PackedStringArray("다시 말에 올라라,", "영락의 왕이여.")
+duration = 7.5
+pan = Vector2(0.02, 0)
+
+[sub_resource type="Resource" id="slide5"]
+script = ExtResource("2_slide")
+image = ExtResource("map")
+tint = Color(1, 1, 1, 1)
+caption = "만주 벌판"
+lines = PackedStringArray("벌판의 망령을 쓸어라.")
+duration = 6.5
+pan = Vector2(0, -0.02)
+
+[resource]
+script = ExtResource("1_data")
+slides = Array[ExtResource("2_slide")]([SubResource("slide1"), SubResource("slide2"), SubResource("slide3"), SubResource("slide4"), SubResource("slide5")])

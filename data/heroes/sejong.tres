@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/meteor.png" id="i_meteor"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/constellation.png" id="i_constellation"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/sundial.png" id="i_sundial"]
+[ext_resource type="Resource" path="res://data/intro/story_sejong.tres" id="story"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -83,6 +84,7 @@ full_charge_time = 1.1
 [resource]
 script = ExtResource("1_hero")
 id = &"sejong"
+story = ExtResource("story")
 home_stage = &"gyeongbokgung_1433"
 display_name = "세종"
 card_art = ExtResource("card_art")

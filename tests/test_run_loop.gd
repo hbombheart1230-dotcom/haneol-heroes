@@ -333,6 +333,7 @@ func _skip_hero_select() -> void:
 	GameSettings.hero_picked = true
 	GameSettings.title_seen = true
 	GameSettings.intro_seen = true
+	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.hero_id = &"yi_sun_sin"
