@@ -5,6 +5,10 @@
 [ext_resource type="Texture2D" path="res://assets/ui/heroes/gwanggaeto.png" id="card"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/manchuria_395.png" id="map"]
 [ext_resource type="Texture2D" path="res://assets/intro/gwanggaeto/s1.png" id="s1"]
+[ext_resource type="Texture2D" path="res://assets/intro/gwanggaeto/s2.png" id="s2"]
+[ext_resource type="Texture2D" path="res://assets/intro/gwanggaeto/s3.png" id="s3"]
+[ext_resource type="Texture2D" path="res://assets/intro/gwanggaeto/s4.png" id="s4"]
+[ext_resource type="Texture2D" path="res://assets/intro/gwanggaeto/s5.png" id="s5"]
 
 [sub_resource type="Resource" id="slide1"]
 script = ExtResource("2_slide")
@@ -17,31 +21,31 @@ pan = Vector2(0, -0.02)
 
 [sub_resource type="Resource" id="slide2"]
 script = ExtResource("2_slide")
-image = ExtResource("map")
-tint = Color(0.75, 0.7, 0.65, 1)
+image = ExtResource("s2")
+tint = Color(1, 1, 1, 1)
 lines = PackedStringArray("그가 무찌른 비려의 군대가", "천육백 년의 잠에서 깨어", "다시 벌판을 덮었다.")
 duration = 8.5
 pan = Vector2(0.02, 0)
 
 [sub_resource type="Resource" id="slide3"]
 script = ExtResource("2_slide")
-image = ExtResource("map")
-tint = Color(0.35, 0.45, 0.5, 1)
+image = ExtResource("s3")
+tint = Color(1, 1, 1, 1)
 lines = PackedStringArray("한얼의 천둥이", "잠든 왕의 혼을 깨운다.")
 duration = 7.5
 pan = Vector2(0, -0.02)
 
 [sub_resource type="Resource" id="slide4"]
 script = ExtResource("2_slide")
-image = ExtResource("card")
-tint = Color(0.8, 0.85, 1, 1)
+image = ExtResource("s4")
+tint = Color(1, 1, 1, 1)
 lines = PackedStringArray("다시 말에 올라라,", "영락의 왕이여.")
 duration = 7.5
 pan = Vector2(0.02, 0)
 
 [sub_resource type="Resource" id="slide5"]
 script = ExtResource("2_slide")
-image = ExtResource("map")
+image = ExtResource("s5")
 tint = Color(1, 1, 1, 1)
 caption = "만주 벌판"
 lines = PackedStringArray("벌판의 망령을 쓸어라.")

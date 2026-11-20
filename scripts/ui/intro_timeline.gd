@@ -4,7 +4,7 @@ extends RefCounted
 ## - 장면은 차례대로, 장면 처음·끝 fade초 동안 검게 어두워진다.
 ## - 줄은 장면 앞쪽 75% 동안 고르게 하나씩 나타나 LINE_IN초 동안 떠오르며 밝아진다.
 
-const LINE_IN := 1.2
+const LINE_IN := 1.6  # 한 줄을 붓으로 다 쓰는 시간
 
 var durations: PackedFloat32Array
 var fade: float

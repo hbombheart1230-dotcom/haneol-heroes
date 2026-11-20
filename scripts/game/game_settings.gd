@@ -25,19 +25,20 @@ static var title_seen: bool = false
 static var intro_seen: bool = false
 ## 이야기를 이미 본 영웅 id들 (영웅 이야기는 영웅마다 처음 한 번).
 static var seen_stories: PackedStringArray = PackedStringArray()
-## 마지막으로 고른 무대 id, 이번 실행에서 무대를 골랐는지.
+## true면 한 번 본 이야기는 다시 안 보여 준다. 지금은 매번 보여 준다 (사용자 결정, 나중에 켤 수 있게 남김).
+static var story_once: bool = false
+
+
+## 이 이야기를 보여 줄지: 매번 보여 주거나(story_once 꺼짐), 아직 안 봤으면.
+static func should_show_story(seen: bool) -> bool:
+	return not (story_once and seen)
+## 강제로 정한 무대 (테스트·디버그용, stage_picked가 true일 때만). 평소에는 영웅의 무대 순서(hero_stages).
 static var stage_id: StringName = &""
 static var stage_picked: bool = false
 ## 영웅마다 지금 설 무대 (hero_id → stage_id 문자열). 없으면 그 영웅의 home_stage. "다음 전장"이 바꾼다.
 static var hero_stages: Dictionary = {}
 ## 이긴 무대 id들 (다음 무대 열기).
 static var cleared_stages: PackedStringArray = PackedStringArray()
-## 무대 전부 열기: -1 = 빌드 따라 (시험판이면 전부), 0 = 차례대로, 1 = 전부. 테스트가 바꾼다.
-static var unlock_all_override: int = -1
-
-
-static func unlock_all_stages() -> bool:
-	return StageUnlock.test_build() if unlock_all_override < 0 else unlock_all_override == 1
 
 
 ## 무대를 이겼다고 기록 (이미 있으면 그대로). 기록이 늘면 true.

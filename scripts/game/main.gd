@@ -16,7 +16,6 @@ extends Node2D
 @export var title_screen: TitleScreen
 ## 고를 수 있는 무대 (역사 연표 순). 둘 이상이면 영웅 다음에 고르기 화면.
 @export var stages: Array[StageTheme] = []
-@export var stage_select: StageSelect
 ## 입장 뒤 이야기 인트로 (처음 한 번).
 @export var story_intro: StoryIntro
 ## 깨면 탕약이 나오는 물건들 (무대마다 다름).
@@ -128,7 +127,7 @@ func _apply_stage(st: StageTheme) -> void:
 		hud.stage = st
 
 
-## 이번 판 무대: 시험판에서 직접 고른 무대가 있으면 그것, 아니면 영웅의 무대 순서에서 지금 차례.
+## 이번 판 무대: 영웅의 무대 순서에서 지금 차례 (GameSettings.stage_picked는 테스트·디버그용 강제 지정).
 func run_stage_id() -> StringName:
 	if GameSettings.stage_picked and HeroRoute.index_of(stages, GameSettings.stage_id) >= 0:
 		return GameSettings.stage_id

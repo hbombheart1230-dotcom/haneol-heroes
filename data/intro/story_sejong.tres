@@ -4,10 +4,15 @@
 [ext_resource type="Script" path="res://scripts/data/intro_slide.gd" id="2_slide"]
 [ext_resource type="Texture2D" path="res://assets/ui/heroes/sejong.png" id="card"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/gyeongbokgung_1433.png" id="map"]
+[ext_resource type="Texture2D" path="res://assets/intro/sejong/s1.png" id="s1"]
+[ext_resource type="Texture2D" path="res://assets/intro/sejong/s2.png" id="s2"]
+[ext_resource type="Texture2D" path="res://assets/intro/sejong/s3.png" id="s3"]
+[ext_resource type="Texture2D" path="res://assets/intro/sejong/s4.png" id="s4"]
+[ext_resource type="Texture2D" path="res://assets/intro/sejong/s5.png" id="s5"]
 
 [sub_resource type="Resource" id="slide1"]
 script = ExtResource("2_slide")
-image = ExtResource("card")
+image = ExtResource("s1")
 tint = Color(1, 1, 1, 1)
 caption = "세종"
 lines = PackedStringArray("백성을 위해 글자를 만든", "조선의 임금.")
@@ -16,8 +21,8 @@ pan = Vector2(0, -0.02)
 
 [sub_resource type="Resource" id="slide2"]
 script = ExtResource("2_slide")
-image = ExtResource("map")
-tint = Color(0.75, 0.7, 0.65, 1)
+image = ExtResource("s2")
+tint = Color(1, 1, 1, 1)
 caption = "서기 1433년"
 lines = PackedStringArray("최윤덕 장군이", "북방 파저강의 여진을 토벌한 해.")
 duration = 7.5
@@ -25,23 +30,23 @@ pan = Vector2(0.02, 0)
 
 [sub_resource type="Resource" id="slide3"]
 script = ExtResource("2_slide")
-image = ExtResource("map")
-tint = Color(0.35, 0.45, 0.5, 1)
+image = ExtResource("s3")
+tint = Color(1, 1, 1, 1)
 lines = PackedStringArray("그 여진의 망령이 강을 건너", "경복궁 뜰까지 밀려왔다.")
 duration = 7.5
 pan = Vector2(0, -0.02)
 
 [sub_resource type="Resource" id="slide4"]
 script = ExtResource("2_slide")
-image = ExtResource("card")
-tint = Color(0.8, 0.85, 1, 1)
+image = ExtResource("s4")
+tint = Color(1, 1, 1, 1)
 lines = PackedStringArray("한얼은 그에게 글자의 힘을 주었다.", "소리를 담은 획이 빛이 되어 떠오른다.")
 duration = 7.5
 pan = Vector2(0.02, 0)
 
 [sub_resource type="Resource" id="slide5"]
 script = ExtResource("2_slide")
-image = ExtResource("map")
+image = ExtResource("s5")
 tint = Color(1, 1, 1, 1)
 caption = "경복궁"
 lines = PackedStringArray("궁궐을 지켜라.")

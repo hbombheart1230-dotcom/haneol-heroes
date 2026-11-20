@@ -4,10 +4,15 @@
 [ext_resource type="Script" path="res://scripts/data/intro_slide.gd" id="2_slide"]
 [ext_resource type="Texture2D" path="res://assets/ui/heroes/yi_sun_sin.png" id="card"]
 [ext_resource type="Texture2D" path="res://assets/backgrounds/hansan_1592.png" id="map"]
+[ext_resource type="Texture2D" path="res://assets/intro/yi_sun_sin/s1.png" id="s1"]
+[ext_resource type="Texture2D" path="res://assets/intro/yi_sun_sin/s2.png" id="s2"]
+[ext_resource type="Texture2D" path="res://assets/intro/yi_sun_sin/s3.png" id="s3"]
+[ext_resource type="Texture2D" path="res://assets/intro/yi_sun_sin/s4.png" id="s4"]
+[ext_resource type="Texture2D" path="res://assets/intro/yi_sun_sin/s5.png" id="s5"]
 
 [sub_resource type="Resource" id="slide1"]
 script = ExtResource("2_slide")
-image = ExtResource("card")
+image = ExtResource("s1")
 tint = Color(1, 1, 1, 1)
 caption = "순신"
 lines = PackedStringArray("바다를 지켜", "나라를 지킨 조선의 장수.")
@@ -16,8 +21,8 @@ pan = Vector2(0, -0.02)
 
 [sub_resource type="Resource" id="slide2"]
 script = ExtResource("2_slide")
-image = ExtResource("map")
-tint = Color(0.75, 0.7, 0.65, 1)
+image = ExtResource("s2")
+tint = Color(1, 1, 1, 1)
 caption = "서기 1592년"
 lines = PackedStringArray("한산도 앞바다,", "학이 날개를 펴듯 배를 벌려", "왜 수군을 크게 무찔렀다.")
 duration = 8.5
@@ -25,23 +30,23 @@ pan = Vector2(0.02, 0)
 
 [sub_resource type="Resource" id="slide3"]
 script = ExtResource("2_slide")
-image = ExtResource("map")
-tint = Color(0.35, 0.45, 0.5, 1)
+image = ExtResource("s3")
+tint = Color(1, 1, 1, 1)
 lines = PackedStringArray("그날 가라앉은 왜군의 망령이", "검은 물결을 타고 다시 떠올랐다.")
 duration = 7.5
 pan = Vector2(0, -0.02)
 
 [sub_resource type="Resource" id="slide4"]
 script = ExtResource("2_slide")
-image = ExtResource("card")
-tint = Color(0.8, 0.85, 1, 1)
+image = ExtResource("s4")
+tint = Color(1, 1, 1, 1)
 lines = PackedStringArray("한얼의 물결이", "그의 칼에 감긴다.")
 duration = 7.5
 pan = Vector2(0.02, 0)
 
 [sub_resource type="Resource" id="slide5"]
 script = ExtResource("2_slide")
-image = ExtResource("map")
+image = ExtResource("s5")
 tint = Color(1, 1, 1, 1)
 caption = "한산도"
 lines = PackedStringArray("다시 바다로 나서라.")
