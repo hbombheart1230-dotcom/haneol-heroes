@@ -29,6 +29,10 @@ var attack: EnemyAttack
 ## 넉백 속도 (매 프레임 감쇠).
 var knockback: Vector2 = Vector2.ZERO
 var _stun_left: float = 0.0
+## 장애물 돌아가기: 남은 시간, 부딪힌 면의 법선, 정면일 때 도는 쪽 (적마다 고정).
+var _detour_left: float = 0.0
+var _detour_normal: Vector2 = Vector2.ZERO
+var _detour_side: float = 1.0
 ## 느려짐: 이동 속도 배율과 남은 시간 (해시계 멈춤·발묵).
 var _slow_factor: float = 1.0
 var _slow_left: float = 0.0
@@ -70,6 +74,7 @@ func speed_scale() -> float:
 
 
 func _ready() -> void:
+	_detour_side = 1.0 if get_instance_id() % 2 == 0 else -1.0
 	if data:
 		move_speed = data.move_speed
 		contact_damage = data.contact_damage
@@ -137,14 +142,29 @@ func _physics_process(delta: float) -> void:
 		if busy:
 			queue_redraw()
 	var chase := Vector2.ZERO if busy else compute_velocity(get_tree().get_nodes_in_group(GROUP))
+	if _detour_left > 0.0:
+		_detour_left -= delta
+		chase = Obstacles.steer_around(chase, _detour_normal, _detour_side)
 	velocity = chase + knockback
 	if sprite:
 		_update_sprite(busy)
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
 	move_and_slide()
+	_note_obstacle()
 	if _flash > 0.0:
 		_flash = maxf(_flash - delta, 0.0)
 		queue_redraw()
+
+
+## 장애물에 부딪혔으면 잠시 가장자리를 따라 돈다 (길 찾기 없이 직진하는 적이 끼지 않게).
+func _note_obstacle() -> void:
+	for i in get_slide_collision_count():
+		var col := get_slide_collision(i)
+		var body := col.get_collider() as Node
+		if body and body.is_in_group(Obstacles.GROUP):
+			_detour_normal = col.get_normal()
+			_detour_left = 0.4
+			return
 
 
 func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc: int, _mul: float, applied: int) -> void:

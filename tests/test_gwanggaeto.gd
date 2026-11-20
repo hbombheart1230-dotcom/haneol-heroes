@@ -258,9 +258,13 @@ func test_title_screen_enters_with_button_after_delay() -> void:
 
 
 func test_main_waits_for_hero_then_runs_chosen_hero() -> void:
-	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.hero_picked = false
 	GameSettings.title_seen = true
+	GameSettings.intro_seen = true
+	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
+	GameSettings.stage_picked = true
+	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.hero_id = &""
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()

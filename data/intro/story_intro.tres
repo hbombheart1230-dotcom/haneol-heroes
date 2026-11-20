@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="IntroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/intro_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://scripts/data/intro_slide.gd" id="2_slide"]
+[ext_resource type="Texture2D" path="res://assets/intro/s1_goguryeo_charge.png" id="6_s1"]
+[ext_resource type="Texture2D" path="res://assets/intro/s2_aftermath.png" id="7_s2"]
+[ext_resource type="Texture2D" path="res://assets/intro/s3_phantoms_rise.png" id="8_s3"]
+[ext_resource type="Texture2D" path="res://assets/intro/s4_hanul_lights.png" id="9_s4"]
+[ext_resource type="Texture2D" path="res://assets/intro/s5_four_heroes.png" id="10_s5"]
+
+[sub_resource type="Resource" id="s1"]
+script = ExtResource("2_slide")
+image = ExtResource("6_s1")
+caption = "서기 395년"
+lines = PackedStringArray("영락 5년, 광개토왕은", "북쪽 벌판에서 비려를 무찔렀다.", "그날의 승리는 훗날 큰 비석에 새겨졌다.")
+duration = 7.5
+zoom_from = 1.0
+zoom_to = 1.06
+pan = Vector2(0.02, 0)
+
+[sub_resource type="Resource" id="s2"]
+script = ExtResource("2_slide")
+image = ExtResource("7_s2")
+lines = PackedStringArray("쓰러진 군대는 흙이 되었으나", "그 원한은 끝내 흩어지지 않았다.")
+duration = 6.0
+zoom_from = 1.08
+zoom_to = 1.16
+pan = Vector2(0.02, -0.02)
+
+[sub_resource type="Resource" id="s3"]
+script = ExtResource("2_slide")
+image = ExtResource("8_s3")
+caption = "그리고 지금"
+lines = PackedStringArray("땅이 갈라지고, 거란의 망령이 깨어났다.", "망령의 기운은 시대를 거슬러 번져", "북방의 여진, 바다의 왜군,", "그림 속 들판까지 잠을 깨웠다.")
+duration = 8.5
+zoom_from = 1.16
+zoom_to = 1.26
+
+[sub_resource type="Resource" id="s4"]
+script = ExtResource("2_slide")
+image = ExtResource("9_s4")
+caption = "한얼"
+lines = PackedStringArray("시대는 달라도 영웅의 혼은 이어진다.", "한얼이 네 영웅을 불러냈다.", "물결의 순신, 문자의 세종,", "수묵의 사임당, 천둥의 광개토.")
+duration = 9.0
+
+[sub_resource type="Resource" id="s5"]
+script = ExtResource("2_slide")
+image = ExtResource("10_s5")
+caption = "역사가 전설이 된다"
+duration = 5.5
+zoom_from = 1.1
+zoom_to = 1.0
+pan = Vector2(0, 0)
+
+[resource]
+script = ExtResource("1_data")
+slides = Array[ExtResource("2_slide")]([SubResource("s1"), SubResource("s2"), SubResource("s3"), SubResource("s4"), SubResource("s5")])

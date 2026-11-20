@@ -15,6 +15,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/pado.png" id="i_pado"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/haeil.png" id="i_haeil"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/counter.png" id="i_counter"]
+[ext_resource type="Resource" path="res://data/intro/story_yi_sun_sin.tres" id="story"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -96,6 +97,8 @@ full_charge_time = 1.0
 [resource]
 script = ExtResource("1_hero")
 id = &"yi_sun_sin"
+story = ExtResource("story")
+home_stage = &"hansan_1592"
 display_name = "순신"
 card_art = ExtResource("card_art")
 tagline = "푸른 해류의 검

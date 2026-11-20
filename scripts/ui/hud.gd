@@ -18,6 +18,8 @@ var perf: PerfStats
 var progress: RunProgress
 ## 판 시작 때 띄우는 무대 이름 (연도 · 전장).
 var stage: StageTheme
+## 이겼을 때 "다음 전장" 무대 (결과 화면에 이름).
+var next_stage: StageTheme
 const STAGE_TITLE_TIME := 3.2
 
 

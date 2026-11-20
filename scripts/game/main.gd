@@ -14,10 +14,19 @@ extends Node2D
 @export var hero_select: HeroSelect
 ## 인트로(입장 단추). 앱을 켠 뒤 한 번만.
 @export var title_screen: TitleScreen
+## 고를 수 있는 무대 (역사 연표 순). 둘 이상이면 영웅 다음에 고르기 화면.
+@export var stages: Array[StageTheme] = []
+@export var stage_select: StageSelect
+## 입장 뒤 이야기 인트로 (처음 한 번).
+@export var story_intro: StoryIntro
+## 깨면 탕약이 나오는 물건들 (무대마다 다름).
+@export var breakables: BreakableField
 ## 결과 화면에서 재시작 입력을 받기까지 대기(초). 연타로 바로 넘어가는 것을 막는다.
 @export var restart_delay: float = 0.6
 
 var state: GameState
+## 판 전 화면 순서 (입장 → 이야기 → 영웅 → 영웅 이야기 → 판).
+var flow: StartFlow
 var perf := PerfStats.new()
 var progress: RunProgress
 var build := RunBuild.new()
@@ -33,6 +42,7 @@ func _ready() -> void:
 	# 결과 화면에서 재시작 입력을 받으려면 Main은 일시정지 중에도 돌아야 한다.
 	# 게임 오브젝트는 일시정지되도록 명시한다 (INHERIT면 Main의 ALWAYS를 물려받음).
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	flow = StartFlow.new(self)
 	# 이전 판의 히트스톱·예고 공격 슬롯이 남지 않게 초기화.
 	GameTime.reset()
 	EnemyAttack.active_windups = 0
@@ -51,9 +61,7 @@ func _ready() -> void:
 		player.change_hero(saved)
 	if spawner and run_config:
 		spawner.elite_times = run_config.elite_times
-	var arena := get_node_or_null("Arena") as Arena
-	if arena and run_config and run_config.stage:
-		arena.apply_theme(run_config.stage)
+	_apply_stage(run_config.stage if run_config else null)
 	if seal_choice:
 		seal_choice.chosen.connect(_on_upgrade_chosen)
 	state = GameState.new(survive_time)
@@ -72,33 +80,19 @@ func _ready() -> void:
 	_start_flow()
 
 
-## 시작 순서: 인트로(앱 켠 뒤 한 번) → 영웅 고르기(필요할 때) → 판 시작. 화면이 떠 있는 동안은 멈춘다.
+## 판 전 화면 순서 (StartFlow). 화면이 다 끝나면 begin_run.
 func _start_flow() -> void:
-	if title_screen and not GameSettings.title_seen:
-		_hold()
-		title_screen.entered.connect(_on_title_entered, CONNECT_ONE_SHOT)
-		title_screen.open()
-	elif playable_heroes().size() > 1 and not GameSettings.hero_picked and hero_select:
-		_hold()
-		hero_select.picked.connect(_on_hero_picked, CONNECT_ONE_SHOT)
-		hero_select.open(heroes)
-	else:
-		_begin_build()
-		waiting_pick = false
-		get_tree().paused = false
-		if Feedback.instance and run_config and run_config.stage:  # 다시 시작하면 무대 곡으로 (같으면 이어서)
-			Feedback.instance.play_music(stage_music(&"stage"), 0.6)
+	flow.next()
 
 
-func _hold() -> void:
-	waiting_pick = true
-	get_tree().paused = true
-
-
-func _on_title_entered() -> void:
-	Feedback.ui()
-	GameSettings.title_seen = true
-	_start_flow()
+## 이번 판 시작: 무대 적용, 성장 준비, 멈춤 풀기, 무대 곡.
+func begin_run() -> void:
+	_apply_stage(stage_by_id(run_stage_id()))
+	_begin_build()
+	waiting_pick = false
+	get_tree().paused = false
+	if Feedback.instance and run_config and run_config.stage:  # 다시 시작하면 무대 곡으로 (같으면 이어서)
+		Feedback.instance.play_music(stage_music(&"stage"), 0.6)
 
 
 func playable_heroes() -> Array[HeroData]:
@@ -107,6 +101,55 @@ func playable_heroes() -> Array[HeroData]:
 		if h and h.playable:
 			out.append(h)
 	return out
+
+
+## 무대 바꾸기: 바닥·소품, 적 구성. 고르기 화면과 시작 때 부른다.
+func _apply_stage(st: StageTheme) -> void:
+	if st == null:
+		return
+	if run_config:
+		run_config.stage = st
+	var arena := get_node_or_null("Arena") as Arena
+	if arena:
+		arena.apply_theme(st)
+		arena.clamp_camera(get_node_or_null("Player/Camera2D") as Camera2D)
+		if breakables:
+			breakables.obstacles = arena.obstacles
+			breakables.setup(st.breakable, arena.rect.grow(-maxf(st.prop_inset, 160.0)), st.seed)
+	if spawner and not st.spawn_table.is_empty():
+		spawner.spawn_table = st.spawn_table
+		spawner.spawn_weights = st.spawn_weights
+		spawner.unlock_times = st.unlock_times
+	if spawner and st.elite:
+		spawner.elite_data = st.elite
+	if spawner and st.boss:
+		spawner.boss_data = st.boss
+	if hud:
+		hud.stage = st
+
+
+## 이번 판 무대: 시험판에서 직접 고른 무대가 있으면 그것, 아니면 영웅의 무대 순서에서 지금 차례.
+func run_stage_id() -> StringName:
+	if GameSettings.stage_picked and HeroRoute.index_of(stages, GameSettings.stage_id) >= 0:
+		return GameSettings.stage_id
+	return HeroRoute.current(stages, player.hero if player else null, GameSettings.hero_stages)
+
+
+## 이긴 뒤 "다음 전장": 이 영웅의 다음 무대를 저장하고 새 판.
+func advance_stage() -> void:
+	var cur := run_config.stage.id if run_config and run_config.stage else run_stage_id()
+	var nxt := HeroRoute.next(stages, cur)
+	if player and player.hero:
+		GameSettings.hero_stages[String(player.hero.id)] = String(nxt)
+	GameSettings.stage_id = nxt
+	GameSettings.save_settings()
+
+
+func stage_by_id(id: StringName) -> StageTheme:
+	for st in stages:
+		if st and st.id == id:
+			return st
+	return run_config.stage if run_config else null
 
 
 func hero_by_id(id: StringName) -> HeroData:
@@ -120,16 +163,6 @@ func _begin_build() -> void:
 	if player:
 		build.begin(player, player.get_node_or_null("SkillCaster") as SkillCaster,
 			player.get_node_or_null("AutoAttack") as AutoAttack)
-
-
-func _on_hero_picked(h: HeroData) -> void:
-	Feedback.ui()
-	GameSettings.hero_id = h.id
-	GameSettings.hero_picked = true
-	GameSettings.save_settings()
-	if player and h != player.hero:
-		player.change_hero(h)
-	_start_flow()
 
 
 ## 렌더 프레임 기준 성능 기록 (플레이 중에만).
@@ -165,7 +198,12 @@ func _switch_music(stream: AudioStream) -> void:
 
 func _on_ended(result: GameState.Result) -> void:
 	_switch_music(stage_music(&"victory" if result == GameState.Result.VICTORY else &"defeat"))
+	if hud and result == GameState.Result.VICTORY and run_config and run_config.stage:
+		hud.next_stage = stage_by_id(HeroRoute.next(stages, run_config.stage.id))
 	_end_time = 0.0
+	if result == GameState.Result.VICTORY and run_config and run_config.stage:
+		if GameSettings.mark_cleared(run_config.stage.id):  # 다음 무대가 열린다
+			GameSettings.save_settings()
 	if seal_choice:
 		seal_choice.close()
 	GameTime.reset()
@@ -181,7 +219,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
 		if is_change_hero_area((event as InputEventScreenTouch).position):
-			GameSettings.hero_picked = false  # 다음 판 전에 고르기 화면
+			GameSettings.hero_picked = false  # 다음 판 전에 고르기 화면 (영웅 → 시험판이면 전장)
+			GameSettings.stage_picked = false
+		elif state.result == GameState.Result.VICTORY:
+			advance_stage()
 		restart()
 
 

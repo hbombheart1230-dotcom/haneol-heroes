@@ -1,0 +1,63 @@
+{
+  "name": "cc_mouse",
+  "image": "assets/concept/enemies/chochungdo/mouse_soldier.png",
+  "image_to_3d": {
+    "ai_model": "latest",
+    "should_texture": true,
+    "pose_mode": "a-pose",
+    "should_remesh": true,
+    "topology": "triangle",
+    "target_polycount": 20000,
+    "target_formats": [
+      "glb"
+    ]
+  },
+  "height_meters": 1.3,
+  "hero_data": "data/enemies/cc_mouse.tres",
+  "bake": {
+    "ortho_size": 1.9,
+    "frame": 160,
+    "style": "ink",
+    "ink": {
+      "inner_line": 0.0,
+      "line_px": 1.6,
+      "wash_amount": 0.3,
+      "grain": 0.0
+    },
+    "lossy_quality": 0.5
+  },
+  "anims": [
+    {
+      "key": "idle",
+      "match": "idle",
+      "action_id": 0,
+      "frames": 4,
+      "fps": 6.0,
+      "loop": true
+    },
+    {
+      "key": "run",
+      "match": "run|walk",
+      "action_id": 14,
+      "frames": 6,
+      "fps": 10.0,
+      "loop": true
+    },
+    {
+      "key": "attack",
+      "match": "attack|slash|shot|swing|thrust|chop",
+      "action_id": 97,
+      "frames": 6,
+      "fps": 10.0,
+      "loop": false
+    },
+    {
+      "key": "hit",
+      "match": "hit",
+      "action_id": 178,
+      "frames": 3,
+      "fps": 12.0,
+      "loop": false
+    }
+  ]
+}

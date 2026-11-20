@@ -16,6 +16,35 @@ extends Resource
 @export var victory_music: AudioStream
 @export var defeat_music: AudioStream
 
+@export_group("배경 지도")
+## 무대 전체를 덮는 큰 그림 (tools/art/make_backgrounds.py). 경로로 두고 무대를 열 때만 불러온다
+## (무대 고르기 화면이 네 무대를 다 들고 있어도 큰 그림은 메모리에 올라오지 않게).
+@export_file("*.png") var background_path: String = ""
+## 지도를 그릴 월드 영역. 걸어 다닐 부분이 전장(Arena.rect)에 맞게 만든다.
+@export var background_rect: Rect2 = Rect2()
+## 흩뿌리는 소품을 전장 가장자리에서 이만큼 띄운다 (지도 가장자리 그림과 겹치지 않게).
+@export var prop_inset: float = 0.0
+## 지도에 그려진 막히는 것들 (월드 x, y, 반지름). tools/art/make_backgrounds.py가 원본 픽셀에서 옮긴다.
+@export var map_blockers: PackedVector3Array = PackedVector3Array()
+## 흩뿌린 소품 중 막히는 것 (그림 파일 이름, 확장자 없이). 발밑에 원 충돌.
+@export var solid_props: PackedStringArray = PackedStringArray()
+
+@export_group("부서지는 물건")
+## 깨면 탕약(체력 회복)이 나오는 물건. 비우면 없음.
+@export var breakable: BreakableData
+
+@export_group("적 (망령 군대)")
+## 비어 있으면 장면(EnemySpawner)에 정해 둔 적을 그대로 쓴다.
+@export var spawn_table: Array[EnemyData] = []
+@export var spawn_weights: PackedFloat32Array = PackedFloat32Array()
+@export var unlock_times: PackedFloat32Array = PackedFloat32Array()
+@export var elite: EnemyData
+@export var boss: EnemyData
+## 고르기 화면 카드 그림 (없으면 첫 소품).
+@export var card_art: Texture2D
+## 이 무대의 주인공 (고르기 화면 표시용).
+@export var hero_hint: String = ""
+
 @export_group("바닥")
 @export var floor_base: Color = Color(0.92, 0.88, 0.79)
 @export var floor_stain: Color = Color(0.09, 0.09, 0.11)

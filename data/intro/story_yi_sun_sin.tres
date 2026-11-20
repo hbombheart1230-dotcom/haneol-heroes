@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="IntroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/intro_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://scripts/data/intro_slide.gd" id="2_slide"]
+[ext_resource type="Texture2D" path="res://assets/ui/heroes/yi_sun_sin.png" id="card"]
+[ext_resource type="Texture2D" path="res://assets/backgrounds/hansan_1592.png" id="map"]
+
+[sub_resource type="Resource" id="slide1"]
+script = ExtResource("2_slide")
+image = ExtResource("card")
+tint = Color(1, 1, 1, 1)
+caption = "순신"
+lines = PackedStringArray("바다를 지켜", "나라를 지킨 조선의 장수.")
+duration = 7.5
+pan = Vector2(0, -0.02)
+
+[sub_resource type="Resource" id="slide2"]
+script = ExtResource("2_slide")
+image = ExtResource("map")
+tint = Color(0.75, 0.7, 0.65, 1)
+caption = "서기 1592년"
+lines = PackedStringArray("한산도 앞바다,", "학이 날개를 펴듯 배를 벌려", "왜 수군을 크게 무찔렀다.")
+duration = 8.5
+pan = Vector2(0.02, 0)
+
+[sub_resource type="Resource" id="slide3"]
+script = ExtResource("2_slide")
+image = ExtResource("map")
+tint = Color(0.35, 0.45, 0.5, 1)
+lines = PackedStringArray("그날 가라앉은 왜군의 망령이", "검은 물결을 타고 다시 떠올랐다.")
+duration = 7.5
+pan = Vector2(0, -0.02)
+
+[sub_resource type="Resource" id="slide4"]
+script = ExtResource("2_slide")
+image = ExtResource("card")
+tint = Color(0.8, 0.85, 1, 1)
+lines = PackedStringArray("한얼의 물결이", "그의 칼에 감긴다.")
+duration = 7.5
+pan = Vector2(0.02, 0)
+
+[sub_resource type="Resource" id="slide5"]
+script = ExtResource("2_slide")
+image = ExtResource("map")
+tint = Color(1, 1, 1, 1)
+caption = "한산도"
+lines = PackedStringArray("다시 바다로 나서라.")
+duration = 6.5
+pan = Vector2(0, -0.02)
+
+[resource]
+script = ExtResource("1_data")
+slides = Array[ExtResource("2_slide")]([SubResource("slide1"), SubResource("slide2"), SubResource("slide3"), SubResource("slide4"), SubResource("slide5")])

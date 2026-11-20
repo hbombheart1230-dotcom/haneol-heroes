@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="StageTheme" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/arrows_a.png" id="p_arrows_a"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/arrows_b.png" id="p_arrows_b"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/banner_blue.png" id="p_banner_blue"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/banner_yellow.png" id="p_banner_yellow"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/drum.png" id="p_drum"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/haetae.png" id="p_haetae"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/palace_gate.png" id="p_palace_gate"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/pillar.png" id="p_pillar"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/pillar_broken.png" id="p_pillar_broken"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/pine_stone_bed.png" id="p_pine_stone_bed"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/railing_broken.png" id="p_railing_broken"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/rank_stones.png" id="p_rank_stones"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/roof_tiles.png" id="p_roof_tiles"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/stone_lantern.png" id="p_stone_lantern"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_soldier.tres" id="e_jurchen_soldier"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_archer.tres" id="e_jurchen_archer"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_heavy.tres" id="e_jurchen_heavy"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_elite.tres" id="e_jurchen_elite"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_chieftain.tres" id="e_jurchen_chieftain"]
+[ext_resource type="Resource" path="res://data/breakables/gyeongbokgung_1433.tres" id="b_gyeongbokgung_1433"]
+[ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
+
+[resource]
+script = ExtResource("1_theme")
+id = &"gyeongbokgung_1433"
+year_label = "1433년"
+title = "경복궁"
+subtitle = "세종 15년, 최윤덕이 파저강의 여진을 토벌한 해"
+music = ExtResource("2_music")
+hero_hint = "세종"
+breakable = ExtResource("b_gyeongbokgung_1433")
+spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_heavy")])
+spawn_weights = PackedFloat32Array(6, 2, 1)
+unlock_times = PackedFloat32Array(0, 10, 20)
+elite = ExtResource("e_jurchen_elite")
+boss = ExtResource("e_jurchen_chieftain")
+card_art = ExtResource("p_palace_gate")
+floor_base = Color(0.532, 0.461, 0.423, 1)
+floor_stain = Color(0.35, 0.34, 0.33, 1)
+grass_per_mpx = 0.0
+grass_color = Color(0.32, 0.36, 0.22, 0.55)
+rock_per_mpx = 0.0
+rock_color = Color(0.5, 0.49, 0.47, 0.6)
+clear_radius = 260.0
+seed = 11872
+prop_textures = Array[Texture2D]([ExtResource("p_arrows_a"), ExtResource("p_arrows_b"), ExtResource("p_banner_blue"), ExtResource("p_banner_yellow"), ExtResource("p_drum"), ExtResource("p_haetae"), ExtResource("p_palace_gate"), ExtResource("p_pillar"), ExtResource("p_pillar_broken"), ExtResource("p_pine_stone_bed"), ExtResource("p_railing_broken"), ExtResource("p_rank_stones"), ExtResource("p_roof_tiles"), ExtResource("p_stone_lantern")])
+picture_props_per_mpx = 1.5
+background_path = "res://assets/backgrounds/gyeongbokgung_1433.png"
+background_rect = Rect2(-1310, -2248, 2630, 3946)
+prop_inset = 260.0
+map_blockers = PackedVector3Array(-732, -1138, 57, -827, -918, 57, -925, -676, 57, -1022, -419, 57, -1125, -147, 57, -1225, 120, 57, 1058, -1113, 57, 1058, -900, 57, 1058, -650, 57, 1058, -378, 57, 1058, -111, 57, 1053, 179, 57, -655, -1477, 77, -1027, 988, 205, 1079, 1091, 257, 745, 1348, 141)
+solid_props = PackedStringArray("drum", "haetae", "palace_gate", "pillar", "pillar_broken", "pine_stone_bed", "stone_lantern")

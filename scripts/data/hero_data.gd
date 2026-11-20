@@ -11,6 +11,10 @@ extends Resource
 @export var card_art: Texture2D
 ## false면 고르기 화면에 "준비 중"으로만 보인다 (아직 기술·모델이 없는 영웅).
 @export var playable: bool = true
+## 이 영웅이 처음 서는 무대 (StageTheme.id). 이기면 무대 순서대로 다음 전장으로 이어간다.
+@export var home_stage: StringName = &""
+## 이 영웅을 처음 고르면 무대 전에 보여 줄 영웅 이야기 (data/intro/story_<영웅>.tres). 비우면 없음.
+@export var story: IntroData
 @export var body_color: Color = Color(0.15, 0.4, 0.8)
 ## 구워진 8방향 스프라이트 (tools/bake). 비어 있으면 수묵풍 코드 그림.
 @export var sprite_sheet: SpriteSheetSet

@@ -11,7 +11,7 @@ run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://assets/ui/icon/project_256.png"
 boot_splash/image="res://assets/ui/splash.png"
-boot_splash/stretch_mode=1
+boot_splash/stretch_mode=4
 boot_splash/bg_color=Color(0.04, 0.06, 0.12, 1)
 
 [display]
@@ -34,6 +34,7 @@ enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg", "res://addons/healt
 2d_physics/layer_2="enemy_body"
 2d_physics/layer_3="player_hurt"
 2d_physics/layer_4="enemy_hurt"
+2d_physics/layer_5="obstacle"
 
 [gui]
 

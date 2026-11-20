@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="StageTheme" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/banner_blue.png" id="p_banner_blue"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/banner_dragon.png" id="p_banner_dragon"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/banner_phoenix.png" id="p_banner_phoenix"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/brazier.png" id="p_brazier"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/cannon.png" id="p_cannon"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/cannonballs.png" id="p_cannonballs"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/crates_arrows.png" id="p_crates_arrows"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/deck_arrows.png" id="p_deck_arrows"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/deck_hatch.png" id="p_deck_hatch"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/mast_sail.png" id="p_mast_sail"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/oar.png" id="p_oar"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/oar_broken.png" id="p_oar_broken"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/planks.png" id="p_planks"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/rope.png" id="p_rope"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/shields.png" id="p_shields"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_soldier.tres" id="e_waegun_soldier"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_gunner.tres" id="e_waegun_gunner"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_heavy.tres" id="e_waegun_heavy"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_elite.tres" id="e_waegun_elite"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_commander.tres" id="e_waegun_commander"]
+[ext_resource type="Resource" path="res://data/breakables/hansan_1592.tres" id="b_hansan_1592"]
+[ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
+[ext_resource type="Texture2D" path="res://assets/props/hansan/geobukseon.png" id="p_geobukseon"]
+
+[resource]
+script = ExtResource("1_theme")
+id = &"hansan_1592"
+year_label = "1592년"
+title = "한산도"
+subtitle = "학익진으로 왜 수군을 크게 무찌른 한산도 대첩"
+music = ExtResource("2_music")
+hero_hint = "순신"
+breakable = ExtResource("b_hansan_1592")
+spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_heavy")])
+spawn_weights = PackedFloat32Array(6, 2, 1)
+unlock_times = PackedFloat32Array(0, 10, 20)
+elite = ExtResource("e_waegun_elite")
+boss = ExtResource("e_waegun_commander")
+card_art = ExtResource("p_geobukseon")
+floor_base = Color(0.490, 0.459, 0.429, 1)
+floor_stain = Color(0.25, 0.18, 0.12, 1)
+grass_per_mpx = 0.0
+grass_color = Color(0.2, 0.16, 0.12, 0.0)
+rock_per_mpx = 0.0
+rock_color = Color(0.3, 0.26, 0.22, 0.5)
+clear_radius = 260.0
+seed = 6559
+prop_textures = Array[Texture2D]([ExtResource("p_banner_blue"), ExtResource("p_banner_dragon"), ExtResource("p_banner_phoenix"), ExtResource("p_brazier"), ExtResource("p_cannon"), ExtResource("p_cannonballs"), ExtResource("p_crates_arrows"), ExtResource("p_deck_arrows"), ExtResource("p_deck_hatch"), ExtResource("p_mast_sail"), ExtResource("p_oar"), ExtResource("p_oar_broken"), ExtResource("p_planks"), ExtResource("p_rope"), ExtResource("p_shields")])
+picture_props_per_mpx = 2.0
+background_path = "res://assets/backgrounds/hansan_1592.png"
+background_rect = Rect2(-1130, -1841, 2258, 3386)
+prop_inset = 260.0
+map_blockers = PackedVector3Array(-21, -1268, 88, -618, -1030, 88, -491, -1168, 99, -678, -1113, 55, 513, -1179, 121, 634, -992, 99, -848, -749, 77, -947, -485, 77, -980, -154, 77, -1031, 227, 77, -1064, 607, 77, 806, -749, 77, 888, -485, 77, 969, -154, 77, 1020, 227, 77, 1053, 607, 77, -865, 915, 132, -682, 1151, 121, -486, 1301, 99, 833, 1070, 132, 623, 1268, 110)
+solid_props = PackedStringArray("brazier", "cannon", "mast_sail", "crates_arrows", "shields")
