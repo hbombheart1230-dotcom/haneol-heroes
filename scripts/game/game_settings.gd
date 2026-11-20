@@ -20,6 +20,8 @@ static var sfx_volume: float = 0.8
 static var music_volume: float = 0.8
 static var haptics_enabled: bool = true
 static var story_enabled: bool = true
+## 첫 판 조작 안내를 마쳤는지 (저장).
+static var tutorial_done: bool = false
 ## 마지막으로 고른 영웅 id (재시작 때 그대로).
 static var hero_id: StringName = &""
 ## 이번 실행에서 영웅을 이미 골랐는지 (앱을 새로 켜면 고르기 화면부터).
@@ -65,6 +67,7 @@ static func load_settings(path: String = "") -> void:
 	music_volume = clampf(float(cfg.get_value("sound", "music_volume", music_volume)), 0.0, 1.0)
 	haptics_enabled = bool(cfg.get_value("sound", "haptics", haptics_enabled))
 	story_enabled = bool(cfg.get_value("game", "story_enabled", story_enabled))
+	tutorial_done = bool(cfg.get_value("game", "tutorial_done", tutorial_done))
 	apply_audio()
 	hero_id = StringName(cfg.get_value("game", "hero_id", String(hero_id)))
 	stage_id = StringName(cfg.get_value("game", "stage_id", String(stage_id)))
@@ -84,6 +87,7 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("sound", "music_volume", music_volume)
 	cfg.set_value("sound", "haptics", haptics_enabled)
 	cfg.set_value("game", "story_enabled", story_enabled)
+	cfg.set_value("game", "tutorial_done", tutorial_done)
 	cfg.set_value("game", "hero_id", String(hero_id))
 	cfg.set_value("game", "stage_id", String(stage_id))
 	cfg.set_value("game", "intro_seen", intro_seen)

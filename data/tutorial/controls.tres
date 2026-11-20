@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="TutorialData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/tutorial_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://scripts/data/tutorial_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="move"]
+script = ExtResource("2_step")
+caption = "걷기"
+hint = "화면에 손가락을 대고 끌면
+그쪽으로 걸어갑니다"
+event = &"move"
+amount = 320.0
+
+[sub_resource type="Resource" id="dash"]
+script = ExtResource("2_step")
+caption = "대시"
+hint = "화면을 빠르게 튕기면 그 방향으로 돌진합니다
+돌진하는 동안은 맞지 않습니다"
+event = &"dash"
+amount = 2.0
+
+[sub_resource type="Resource" id="tap"]
+script = ExtResource("2_step")
+caption = "첫째 기술"
+hint = "화면을 가볍게 톡 치면
+첫째 기술이 나갑니다"
+button_hint = "오른쪽 아래 기술 단추를 톡 누르면
+첫째 기술이 나갑니다"
+event = &"skill_tap"
+
+[sub_resource type="Resource" id="dash_skill"]
+script = ExtResource("2_step")
+caption = "둘째 기술"
+hint = "대시한 뒤 바로 손을 떼면
+둘째 기술이 나갑니다"
+button_hint = "대시한 뒤 기술 단추를 누르면
+둘째 기술이 나갑니다"
+event = &"skill_dash"
+
+[sub_resource type="Resource" id="charge"]
+script = ExtResource("2_step")
+caption = "셋째 기술"
+hint = "화면을 꾹 누르고 있다가 떼면
+힘을 모은 셋째 기술이 나갑니다"
+button_hint = "기술 단추를 꾹 누르고 있다가 떼면
+힘을 모은 셋째 기술이 나갑니다"
+event = &"skill_charge"
+
+[sub_resource type="Resource" id="potion"]
+script = ExtResource("2_step")
+caption = "탕약"
+hint = "발밑에 금빛 고리가 있는 항아리를 대시로 깨면
+탕약이 나와 체력을 채웁니다"
+event = &"wait"
+amount = 4.0
+
+[resource]
+script = ExtResource("1_data")
+steps = Array[ExtResource("2_step")]([SubResource("move"), SubResource("dash"), SubResource("tap"), SubResource("dash_skill"), SubResource("charge"), SubResource("potion")])

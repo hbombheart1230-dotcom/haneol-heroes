@@ -20,6 +20,10 @@ extends Node2D
 @export var story_intro: StoryIntro
 ## 설정 화면 (톱니 단추). 바뀌면 스킬 단추 등을 바로 반영.
 @export var settings: SettingsScreen
+## 첫 판 조작 안내 (끝내기 전엔 적이 나오지 않고 시간도 가지 않는다).
+@export var tutorial: TutorialData
+@export var tutorial_overlay: TutorialOverlay
+var tutorial_director: TutorialDirector
 ## 깨면 탕약이 나오는 물건들 (무대마다 다름).
 @export var breakables: BreakableField
 ## 결과 화면에서 재시작 입력을 받기까지 대기(초). 연타로 바로 넘어가는 것을 막는다.
@@ -96,6 +100,9 @@ func begin_run() -> void:
 	waiting_pick = false
 	get_tree().paused = false
 	music_cue(&"stage")  # 다시 시작하면 무대 곡으로 (같으면 이어서)
+	if tutorial and not GameSettings.tutorial_done:
+		tutorial_director = TutorialDirector.new(self)
+		tutorial_director.start(tutorial)
 
 
 func _on_settings_changed() -> void:
@@ -191,6 +198,9 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	if waiting_pick:
+		return
+	if tutorial_director and tutorial_director.running():
+		tutorial_director.tick(delta)
 		return
 	if state.is_playing():
 		state.tick(delta)

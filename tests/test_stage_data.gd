@@ -62,6 +62,7 @@ func test_each_stage_run_uses_its_own_army() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
 	GameSettings.intro_seen = true
+	GameSettings.tutorial_done = true
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
