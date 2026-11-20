@@ -45,6 +45,7 @@ func apply(u: UpgradeDef) -> bool:
 	var ok := true
 	var old_max_hp := hero.max_hp if hero else 0
 	var touches_hero := false
+	var leveled := {}
 	for m in u.mods:
 		var obj := target_of(m.target)
 		if obj == null or not (m.property in obj):
@@ -53,6 +54,9 @@ func apply(u: UpgradeDef) -> bool:
 			continue
 		obj.set(m.property, m.apply_to(obj.get(m.property)))
 		touches_hero = touches_hero or m.target == &"hero"
+		if obj is SkillDef and not leveled.has(obj):  # 강화한 기술은 이펙트도 한 단계 화려하게
+			leveled[obj] = true
+			(obj as SkillDef).vfx_level += u.vfx_level_gain
 	if touches_hero and player:
 		player.refresh_stats(old_max_hp)
 	if caster:

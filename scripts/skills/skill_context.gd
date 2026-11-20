@@ -54,7 +54,7 @@ func hit(en: Enemy, dmg: int) -> bool:
 	if fx:
 		fx.add_spark(en.global_position)
 	if skill and skill.vfx_hit and player:
-		Feedback.vfx_burst(skill.vfx_hit, en.global_position, en.global_position - player.global_position)
+		Feedback.vfx_burst(skill.vfx_hit, en.global_position, en.global_position - player.global_position, skill.vfx_level)
 	return true
 
 
@@ -66,7 +66,7 @@ func impact(pos: Vector2, dir: Vector2 = Vector2.ZERO) -> void:
 	if v.has_bolt() and fx:
 		fx.add_bolt(pos + Vector2(0, -v.bolt_height), pos, v.bolt_width, v.bolt_time, v.bolt_color, v.bolt_segments,
 			v.bolt_jitter)
-	Feedback.vfx_burst(v, pos, dir)
+	Feedback.vfx_burst(v, pos, dir, skill.vfx_level)
 	Feedback.impact_haptic()
 
 

@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="SkillVfxData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="1_vfx"]
+[ext_resource type="Texture2D" path="res://assets/vfx/quake.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_vfx")
+shape = 3
+count = 14
+aim = 0
+speed = Vector2(260, 560)
+damping = 6.0
+spawn_radius = 48.0
+life = Vector2(0.25, 0.45)
+size = Vector2(24, 40)
+size_end = 0.3
+align_to_velocity = true
+stretch = 2.8
+color = Color(1, 0.72, 0.15, 1)
+color_end = Color(0.55, 0.4, 0.95, 0)
+bolt_segments = 7
+bolt_jitter = 28.0
+bolt_width = 14.0
+bolt_time = 0.22
+bolt_height = 420.0
+bolt_color = Color(1, 0.8, 0.2, 1)
+decal = ExtResource("2_tex")
+decal_size = 480.0
+decal_spin = 1.0
+decal_layers = 2
+glow = 0.8
+glow_color = Color(1, 0.6, 0.2, 1)

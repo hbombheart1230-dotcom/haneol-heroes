@@ -19,6 +19,10 @@
 [ext_resource type="Resource" path="res://data/vfx/gwanggaeto_cast.tres" id="vfx_cast"]
 [ext_resource type="Resource" path="res://data/vfx/gwanggaeto_hit.tres" id="vfx_hit"]
 [ext_resource type="Resource" path="res://data/vfx/gwanggaeto_impact.tres" id="vfx_impact"]
+[ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_quake.tres" id="vs_quake"]
+[ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_thunder_trail.tres" id="vs_thunder_trail"]
+[ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_lightning.tres" id="vs_lightning"]
+[ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_conqueror.tres" id="vs_conqueror"]
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
@@ -49,7 +53,7 @@ stun_time = 0.5
 knockback = 160.0
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
-vfx_impact = ExtResource("vfx_impact")
+vfx_impact = ExtResource("vs_quake")
 
 [sub_resource type="Resource" id="Skill_trail"]
 script = ExtResource("5_trail")
@@ -64,7 +68,7 @@ width = 110.0
 damage = 35
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
-vfx_impact = ExtResource("vfx_impact")
+vfx_impact = ExtResource("vs_thunder_trail")
 
 [sub_resource type="Resource" id="Skill_bolt"]
 script = ExtResource("6_bolt")
@@ -79,7 +83,7 @@ max_bolts = 6
 damage = 40
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
-vfx_impact = ExtResource("vfx_impact")
+vfx_impact = ExtResource("vs_lightning")
 
 [sub_resource type="Resource" id="Skill_conq"]
 script = ExtResource("7_conq")
@@ -94,7 +98,7 @@ damage = 70
 stun_time = 1.2
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
-vfx_impact = ExtResource("vfx_impact")
+vfx_impact = ExtResource("vs_conqueror")
 
 [sub_resource type="Resource" id="Kit_gw"]
 script = ExtResource("3_kit")

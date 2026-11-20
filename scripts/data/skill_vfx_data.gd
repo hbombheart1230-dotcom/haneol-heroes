@@ -45,3 +45,56 @@ enum Aim { RADIAL, FORWARD, UP }
 
 func has_bolt() -> bool:
 	return bolt_segments > 0
+
+@export_group("그림 (그려진 이펙트)")
+## 비어 있지 않으면 이 그림을 터뜨린다 (assets/vfx/*.png: 아이콘에서 뽑거나 GPT 그림).
+@export var decal: Texture2D
+## 지름(px)과 끝 크기 배율, 보이는 시간(초), 처음 나타나는 시간(초).
+@export var decal_size: float = 300.0
+@export var decal_grow: float = 1.35
+@export var decal_time: float = 0.55
+@export var decal_fade_in: float = 0.08
+## 회전 속도(라디안/초). true면 방향(dir) 쪽으로 돌려 놓는다 (베기·유성·벼락길).
+@export var decal_spin: float = 0.0
+@export var decal_align: bool = false
+## 그림이 원래 가리키는 방향(도, 0 = 오른쪽). 맞출 때 빼 준다 (번개 그림은 아래 = 90).
+@export var decal_angle_deg: float = 0.0
+## true면 돌리지 않고 그림 그대로 세운다 (내리꽂는 벼락·유성).
+@export var decal_upright: bool = false
+## 같은 그림을 이만큼 더 겹친다 (돌려서, 조금 작게). 강화 단계가 오르면 늘어난다.
+@export var decal_layers: int = 1
+## 더하기 빛 (어두운 바닥에서 빛나게): 세기와 색, 그림 대비 크기.
+@export var glow: float = 0.0
+@export var glow_color: Color = Color(1, 0.9, 0.6)
+@export var glow_size: float = 0.9
+
+@export_group("강화 단계")
+## 기술 강화 단계(SkillDef.vfx_level)마다: 크기, 입자 수, 빛 세기가 늘어난다.
+@export var level_size: float = 0.12
+@export var level_count: float = 0.25
+@export var level_glow: float = 0.12
+## 이 단계부터 그림을 한 겹 더, 이 단계부터 금빛 고리까지 (화려해짐).
+@export var flourish_level: int = 2
+@export var ring_level: int = 4
+## 단계 상한 (이 이상은 더 커지지 않음).
+@export var max_level: int = 6
+
+
+func level_of(level: int) -> int:
+	return clampi(level, 0, max_level)
+
+
+func size_mult(level: int) -> float:
+	return 1.0 + level_size * level_of(level)
+
+
+func count_for(level: int) -> int:
+	return roundi(count * (1.0 + level_count * level_of(level)))
+
+
+func layers_for(level: int) -> int:
+	return decal_layers + (1 if level_of(level) >= flourish_level else 0)
+
+
+func glow_for(level: int) -> float:
+	return glow * (1.0 + level_glow * level_of(level)) if glow > 0.0 else 0.0

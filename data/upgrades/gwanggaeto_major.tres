@@ -17,6 +17,7 @@ value = 0.5
 
 [sub_resource type="Resource" id="Up_major_aftershock"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_aftershock"
 icon = ExtResource("i_quake")
 title = "뇌진격 · 여진"
@@ -36,6 +37,7 @@ value = 2.5
 
 [sub_resource type="Resource" id="Up_major_field"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_field"
 icon = ExtResource("i_thunder_trail")
 title = "벽력돌파 · 감전 지대"
@@ -55,6 +57,7 @@ value = 2.0
 
 [sub_resource type="Resource" id="Up_major_chain"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_chain"
 icon = ExtResource("i_lightning")
 title = "낙뢰 · 연쇄"
@@ -74,6 +77,7 @@ value = 3.0
 
 [sub_resource type="Resource" id="Up_major_reign"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_reign"
 icon = ExtResource("i_conqueror")
 title = "정복자의 일격 · 천둥 군림"

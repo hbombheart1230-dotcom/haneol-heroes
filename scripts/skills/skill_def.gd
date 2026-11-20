@@ -21,6 +21,8 @@ extends Resource
 @export var vfx_hit: SkillVfxData
 ## 기술이 내리꽂히는 자리(범위 중심·벼락·별똥별)에서 터지는 이펙트. 번개 줄기 설정도 여기.
 @export var vfx_impact: SkillVfxData
+## 강화 단계 (이번 판 성장으로 오른다: 보통 +1, 큰 변형 +UpgradeDef.vfx_level_gain). 클수록 이펙트가 크고 화려하다.
+@export var vfx_level: int = 0
 
 
 ## 발동. charge는 0~1 (충전 기술에만 의미).
