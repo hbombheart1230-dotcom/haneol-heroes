@@ -105,7 +105,7 @@ func begin_run() -> void:
 	waiting_pick = false
 	get_tree().paused = false
 	music_cue(&"stage")  # 다시 시작하면 무대 곡으로 (같으면 이어서)
-	if tutorial and not GameSettings.tutorial_done:
+	if tutorial and GameSettings.tutorial_enabled and not GameSettings.tutorial_done:
 		tutorial_director = TutorialDirector.new(self)
 		tutorial_director.start(tutorial)
 

@@ -20,6 +20,7 @@ func after_test() -> void:
 	GameSettings.skill_button_enabled = false
 	GameSettings.enemy_hp_bars = true
 	GameSettings.show_stats = true
+	GameSettings.tutorial_enabled = true
 	GameSettings.apply_audio()
 	GameSettings.save_settings()
 
@@ -55,7 +56,7 @@ func test_sliders_set_bus_volume_and_zero_mutes() -> void:
 
 func test_toggles_flip_and_persist() -> void:
 	screen.open()
-	GameSettings.tutorial_done = true
+	GameSettings.tutorial_enabled = true
 	for row in [&"haptics", &"story", &"skill_button", &"enemy_hp", &"stats", &"tutorial"]:
 		var before := bool(screen.value_of(row))
 		_tap(screen.row_rect(SettingsScreen.ROWS.find(row)).get_center())
@@ -68,7 +69,20 @@ func test_toggles_flip_and_persist() -> void:
 	assert_bool(GameSettings.skill_button_enabled).is_true()
 	assert_bool(GameSettings.enemy_hp_bars).is_false()
 	assert_bool(GameSettings.show_stats).is_false()
-	assert_bool(GameSettings.tutorial_done).is_false()  # 조작 안내 켬 → 다음 판에 다시
+	assert_bool(GameSettings.tutorial_enabled).is_false()  # 조작 안내 끔이 저장됨
+
+
+func test_tutorial_setting_starts_on_and_turning_on_shows_it_again() -> void:
+	var fresh := ConfigFile.new()  # 저장 파일에 값이 없으면 (처음 설치) 켬
+	fresh.save(GameSettings.settings_path)
+	GameSettings.tutorial_enabled = false
+	GameSettings.load_settings()
+	assert_bool(GameSettings.tutorial_enabled).is_true()
+	assert_bool(bool(screen.value_of(&"tutorial"))).is_true()
+	screen.set_value(&"tutorial", false)
+	GameSettings.tutorial_done = true  # 이번 실행에서 이미 봄
+	screen.set_value(&"tutorial", true)
+	assert_bool(GameSettings.tutorial_done).is_false()  # 다시 켜면 다음 판에 나온다
 
 
 func test_haptics_respects_setting() -> void:

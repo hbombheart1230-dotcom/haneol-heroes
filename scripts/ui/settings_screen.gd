@@ -87,7 +87,7 @@ func value_of(row: StringName) -> Variant:
 		&"skill_button": return GameSettings.skill_button_enabled
 		&"enemy_hp": return GameSettings.enemy_hp_bars
 		&"stats": return GameSettings.show_stats
-		&"tutorial": return not GameSettings.tutorial_done  # 켬 = 다음 판에 다시 보여 줌
+		&"tutorial": return GameSettings.tutorial_enabled  # 켬(처음 값) = 앱을 켤 때마다 첫 판에 안내
 	return null
 
 
@@ -102,7 +102,10 @@ func set_value(row: StringName, v: Variant) -> void:
 		&"skill_button": GameSettings.skill_button_enabled = bool(v)
 		&"enemy_hp": GameSettings.enemy_hp_bars = bool(v)
 		&"stats": GameSettings.show_stats = bool(v)
-		&"tutorial": GameSettings.tutorial_done = not bool(v)
+		&"tutorial":
+			GameSettings.tutorial_enabled = bool(v)
+			if bool(v):
+				GameSettings.tutorial_done = false  # 다시 켜면 다음 판에 바로
 	GameSettings.apply_audio()
 	GameSettings.save_settings()
 	changed.emit()

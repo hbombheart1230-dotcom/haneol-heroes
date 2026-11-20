@@ -23,7 +23,9 @@ static var story_enabled: bool = true
 ## 왼쪽 아래 수치 (초당 장면 수·적 수), 적 머리 위 체력 막대.
 static var show_stats: bool = true
 static var enemy_hp_bars: bool = true
-## 첫 판 조작 안내를 마쳤는지 (저장).
+## 조작 안내 (설정 "조작 안내", 저장, 처음엔 켬): 켜 두면 앱을 켤 때마다 첫 판에 한 번 나온다.
+static var tutorial_enabled: bool = true
+## 이번 실행에서 조작 안내를 마쳤는지 (저장 안 함).
 static var tutorial_done: bool = false
 ## 마지막으로 고른 영웅 id (재시작 때 그대로).
 static var hero_id: StringName = &""
@@ -76,7 +78,7 @@ static func load_settings(path: String = "") -> void:
 	story_enabled = bool(cfg.get_value("game", "story_enabled", story_enabled))
 	show_stats = bool(cfg.get_value("display", "show_stats", show_stats))
 	enemy_hp_bars = bool(cfg.get_value("display", "enemy_hp_bars", enemy_hp_bars))
-	tutorial_done = bool(cfg.get_value("game", "tutorial_done", tutorial_done))
+	tutorial_enabled = bool(cfg.get_value("game", "tutorial_enabled", true))  # 값이 없으면 (처음·예전 저장) 켬
 	apply_audio()
 	hero_id = StringName(cfg.get_value("game", "hero_id", String(hero_id)))
 	stage_id = StringName(cfg.get_value("game", "stage_id", String(stage_id)))
@@ -98,7 +100,7 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("game", "story_enabled", story_enabled)
 	cfg.set_value("display", "show_stats", show_stats)
 	cfg.set_value("display", "enemy_hp_bars", enemy_hp_bars)
-	cfg.set_value("game", "tutorial_done", tutorial_done)
+	cfg.set_value("game", "tutorial_enabled", tutorial_enabled)
 	cfg.set_value("game", "hero_id", String(hero_id))
 	cfg.set_value("game", "stage_id", String(stage_id))
 	cfg.set_value("game", "intro_seen", intro_seen)
