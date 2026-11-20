@@ -185,4 +185,4 @@ Korean traditional sanjo fantasy, dreamy ink-painting garden, gutgeori 12/8 rhyt
 
 [End]
 ```
-**쓴 판:** 아직 없음 (초충도는 광개토 곡을 임시로 씀).
+**쓴 판:** `chochungdo_v1.mp3`, 84 BPM, 첫 박 0.26s — 전주 0–4 / 1절 4–20 / 후렴 28–36 / 후주 44–끝.

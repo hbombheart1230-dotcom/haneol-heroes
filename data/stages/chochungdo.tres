@@ -25,7 +25,7 @@
 [ext_resource type="Resource" path="res://data/enemies/cc_mantis.tres" id="e_cc_mantis"]
 [ext_resource type="Resource" path="res://data/enemies/cc_frog.tres" id="e_cc_frog"]
 [ext_resource type="Resource" path="res://data/breakables/chochungdo.tres" id="b_chochungdo"]
-[ext_resource type="Resource" path="res://data/songs/manchuria_395.tres" id="song"]
+[ext_resource type="Resource" path="res://data/songs/chochungdo.tres" id="song"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/watermelon.png" id="p_watermelon"]
 
