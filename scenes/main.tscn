@@ -8,6 +8,8 @@
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="36_title"]
 [ext_resource type="Script" path="res://scripts/world/breakable_field.gd" id="46_breakables"]
 [ext_resource type="Script" path="res://scripts/ui/story_intro.gd" id="47_intro"]
+[ext_resource type="Script" path="res://scripts/ui/settings_screen.gd" id="49_settings"]
+[ext_resource type="Script" path="res://scripts/ui/settings_button.gd" id="50_gear"]
 [ext_resource type="Resource" path="res://data/intro/story_intro.tres" id="48_intro_data"]
 [ext_resource type="Resource" path="res://data/stages/manchuria_395.tres" id="41_st1"]
 [ext_resource type="Resource" path="res://data/stages/gyeongbokgung_1433.tres" id="42_st2"]
@@ -45,7 +47,7 @@ radius = 22.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
 radius = 30.0
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select", "title_screen", "breakables", "story_intro")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select", "title_screen", "breakables", "story_intro", "settings")]
 script = ExtResource("0_main")
 player = NodePath("Player")
 spawner = NodePath("EnemySpawner")
@@ -58,6 +60,7 @@ title_screen = NodePath("HUD/TitleScreen")
 stages = Array[ExtResource("45_stage_theme")]([ExtResource("41_st1"), ExtResource("42_st2"), ExtResource("43_st3"), ExtResource("44_st4")])
 breakables = NodePath("Breakables")
 story_intro = NodePath("HUD/StoryIntro")
+settings = NodePath("HUD/SettingsScreen")
 
 [node name="Arena" type="Node2D" parent="."]
 script = ExtResource("1_arena")
@@ -191,3 +194,24 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("47_intro")
 data = ExtResource("48_intro_data")
+
+[node name="SettingsButton" type="Control" parent="HUD" node_paths=PackedStringArray("screen")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("50_gear")
+screen = NodePath("../SettingsScreen")
+
+[node name="SettingsScreen" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("49_settings")

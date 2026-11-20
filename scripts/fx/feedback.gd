@@ -38,6 +38,7 @@ func _ready() -> void:
 		_sounds[kind] = SfxSynth.make(kind)
 	for i in 8:
 		var p := AudioStreamPlayer.new()
+		p.bus = &"SFX"  # 설정 "효과음 크기"
 		p.volume_db = sfx_volume_db
 		p.process_mode = Node.PROCESS_MODE_ALWAYS  # 인트로·영웅 고르기(일시정지 중)에도 단추 소리
 		add_child(p)
@@ -45,6 +46,7 @@ func _ready() -> void:
 	if _music == null or not is_instance_valid(_music):
 		_music = AudioStreamPlayer.new()
 		_music.name = "HanulMusic"
+		_music.bus = &"Music"  # 설정 "음악 크기"
 		_music.process_mode = Node.PROCESS_MODE_ALWAYS
 		get_tree().root.add_child.call_deferred(_music)
 	_music.volume_db = music_volume_db

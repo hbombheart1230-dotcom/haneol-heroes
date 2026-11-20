@@ -18,6 +18,8 @@ extends Node2D
 @export var stages: Array[StageTheme] = []
 ## 입장 뒤 이야기 인트로 (처음 한 번).
 @export var story_intro: StoryIntro
+## 설정 화면 (톱니 단추). 바뀌면 스킬 단추 등을 바로 반영.
+@export var settings: SettingsScreen
 ## 깨면 탕약이 나오는 물건들 (무대마다 다름).
 @export var breakables: BreakableField
 ## 결과 화면에서 재시작 입력을 받기까지 대기(초). 연타로 바로 넘어가는 것을 막는다.
@@ -42,6 +44,9 @@ func _ready() -> void:
 	# 게임 오브젝트는 일시정지되도록 명시한다 (INHERIT면 Main의 ALWAYS를 물려받음).
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	flow = StartFlow.new(self)
+	if settings:
+		settings.changed.connect(_on_settings_changed)
+		settings.closed.connect(_on_settings_closed)
 	# 이전 판의 히트스톱·예고 공격 슬롯이 남지 않게 초기화.
 	GameTime.reset()
 	EnemyAttack.active_windups = 0
@@ -91,6 +96,19 @@ func begin_run() -> void:
 	waiting_pick = false
 	get_tree().paused = false
 	music_cue(&"stage")  # 다시 시작하면 무대 곡으로 (같으면 이어서)
+
+
+func _on_settings_changed() -> void:
+	var tc := get_node_or_null("TouchController") as TouchController
+	if tc:
+		tc.skill_button_enabled = GameSettings.skill_button_enabled
+
+
+## 설정을 닫으면 그 사이 놓친 손가락 떼기를 잊는다 (멈춘 동안 눌린 채로 남지 않게).
+func _on_settings_closed() -> void:
+	var tc := get_node_or_null("TouchController") as TouchController
+	if tc:
+		tc.cancel_all()
 
 
 func playable_heroes() -> Array[HeroData]:

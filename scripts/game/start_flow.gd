@@ -71,7 +71,7 @@ func _hold() -> void:
 func _on_title_entered() -> void:
 	Feedback.ui()
 	GameSettings.title_seen = true
-	prologue_pending = GameSettings.should_show_story(GameSettings.intro_seen)
+	prologue_pending = GameSettings.story_enabled and GameSettings.should_show_story(GameSettings.intro_seen)
 	next()
 
 
@@ -85,7 +85,7 @@ func _on_hero_picked(h: HeroData) -> void:
 	Feedback.ui()
 	GameSettings.hero_id = h.id
 	GameSettings.hero_picked = true
-	hero_story_pending = true
+	hero_story_pending = GameSettings.story_enabled
 	GameSettings.save_settings()
 	var player: Player = main.player
 	if player and h != player.hero:
