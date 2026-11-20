@@ -25,8 +25,10 @@ var _swing_time: float = 0.0
 ## 던지는 중인 탄: 손을 떠나기까지 남은 시간과 방향.
 var _release_left: float = -1.0
 var _release_dir: Vector2 = Vector2.ZERO
-## 던지기 시작할 때의 수치 (던지는 사이 성장으로 바뀌어도 이 탄은 그대로).
+## 던지기 시작할 때의 수치 사본 (던지는 사이 성장이 같은 리소스를 바꿔도 이 탄은 그대로)과
+## 그때의 데이터 (영웅이 바뀌어 data가 다른 것으로 바뀌면 던지지 않는다).
 var _release_data: BasicAttackData
+var _release_src: BasicAttackData
 
 
 func _ready() -> void:
@@ -100,15 +102,18 @@ func _fire(from: Vector2, dir: Vector2) -> void:
 	if d.release_delay > 0.0:
 		_release_left = d.release_delay
 		_release_dir = dir
-		_release_data = d
+		_release_data = d.duplicate()
+		_release_src = data
 		return
 	_spawn(from, dir, d)
 
 
 ## 손을 떠나는 순간: 가장 가까운 적으로 다시 겨눈다. 그사이 적이 다 사라졌으면 던지지 않는다.
 func _release(enemy_list: Array) -> void:
-	var d := _release_data if _release_data else stats()
+	var d := _release_data
 	_release_data = null
+	if d == null or _release_src != data:  # 영웅·데이터가 바뀌었으면 손에 든 탄은 버린다
+		return
 	var from := player.global_position
 	var nearest := Targeting.nearest(enemy_list, from, d.ranged_range)
 	if nearest == null:

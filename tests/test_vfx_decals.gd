@@ -242,8 +242,7 @@ func test_release_reaims_and_keeps_windup_stats() -> void:
 	t1.global_position = Vector2(mid, 0)
 	a.tick(0.016, [t1])  # 오른쪽으로 던지기 시작
 	var dmg := a.data.ranged_damage
-	a.data = a.data.duplicate()
-	a.data.ranged_damage = dmg + 100  # 던지는 사이 성장
+	a.data.ranged_damage = dmg + 100  # 던지는 사이 성장 (RunBuild처럼 같은 리소스를 바꿈)
 	var t2 := Node2D.new()
 	add_child(auto_free(t2))
 	t2.global_position = Vector2(0, mid)  # 첫 적은 사라지고 아래에 새 적
@@ -260,3 +259,26 @@ func test_release_reaims_and_keeps_windup_stats() -> void:
 	for i in 12:
 		a.tick(0.016, [])
 	assert_int(fired.size()).is_equal(1)
+
+
+func test_data_swap_during_windup_drops_the_shot() -> void:
+	var p: Player = auto_free(Player.new())
+	add_child(p)
+	var a: AutoAttack = auto_free(AutoAttack.new())
+	a.player = p
+	a.projectile_scene = preload("res://scenes/projectile.tscn")
+	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.projectile_parent = self
+	add_child(a)
+	var fired: Array = []
+	a.projectile_fired.connect(func(pr: Projectile) -> void: fired.append(pr))
+	var t := Node2D.new()
+	add_child(auto_free(t))
+	t.global_position = Vector2((a.data.melee_range + a.data.ranged_range) * 0.5, 0)
+	a.tick(0.016, [t])
+	a.data = (load("res://data/heroes/sejong.tres") as HeroData).attack.duplicate()  # 영웅 바뀜
+	for i in 12:
+		a.tick(0.016, [t])
+	for pr in fired:
+		assert_object((pr as Projectile).art).is_null()  # 광개토 창이 세종으로 날아가지 않음
+		(pr as Projectile).queue_free()
