@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/heroes/dash/yi_sun_sin.tres" id="dash_style"]
 [ext_resource type="Texture2D" path="res://assets/vfx/proj_water.png" id="proj_art"]
 [ext_resource type="Texture2D" path="res://assets/vfx/wave_strip.png" id="wave_art"]
+[ext_resource type="Resource" path="res://data/heroes/charge/yi_sun_sin.tres" id="charge_marker"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -155,3 +156,4 @@ kit = SubResource("Kit_yi")
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
 dash_style = ExtResource("dash_style")
+charge_marker = ExtResource("charge_marker")

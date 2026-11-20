@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/heroes/dash/shin_saimdang.tres" id="dash_style"]
 [ext_resource type="Texture2D" path="res://assets/vfx/proj_ink.png" id="proj_art"]
 [ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_critter_hit.tres" id="vs_critter_hit"]
+[ext_resource type="Resource" path="res://data/heroes/charge/shin_saimdang.tres" id="charge_marker"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -139,3 +140,4 @@ kit = SubResource("Kit")
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
 dash_style = ExtResource("dash_style")
+charge_marker = ExtResource("charge_marker")

@@ -43,6 +43,8 @@ extends Resource
 @export var dash_shove_radius: float = 70.0
 ## 영웅마다 다른 회피 생김새·도착 효과 (없으면 기본 대시).
 @export var dash_style: DashStyleData
+## 궁극기를 모으는 동안 발밑 표시 (없으면 공통 붓 고리).
+@export var charge_marker: ChargeMarkerData
 
 @export_group("전투")
 @export var attack: BasicAttackData
