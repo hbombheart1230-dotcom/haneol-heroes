@@ -63,6 +63,7 @@ func test_stage_select_picks_with_one_tap_only_on_same_card() -> void:
 func test_main_waits_for_stage_then_uses_its_army() -> void:
 	GameSettings.settings_path = "user://test_settings.cfg"
 	GameSettings.title_seen = true
+	GameSettings.intro_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.stage_picked = false
@@ -135,38 +136,10 @@ func test_locked_stage_card_is_not_pickable() -> void:
 	assert_bool(sel.is_open()).is_true()
 
 
-func test_victory_unlocks_next_stage_in_release_order() -> void:
-	GameSettings.settings_path = "user://test_settings.cfg"
-	GameSettings.unlock_all_override = 0
-	GameSettings.cleared_stages = PackedStringArray()
-	GameSettings.title_seen = true
-	GameSettings.hero_picked = true
-	GameSettings.hero_id = &"yi_sun_sin"
-	GameSettings.stage_picked = false
-	GameSettings.save_settings()
-	var main: Node = load("res://scenes/main.tscn").instantiate()
-	add_child(main)
-	await get_tree().process_frame
-	var sel: StageSelect = main.stage_select
-	assert_array(sel.unlocked).is_equal([true, false, false, false])
-	var c := sel.slot_rect(0).get_center()
-	sel.handle_touch(0, c, true)
-	sel.handle_touch(0, c, false)
-	main._on_ended(GameState.Result.VICTORY)
-	assert_array(Array(GameSettings.cleared_stages)).is_equal(["manchuria_395"])
-	assert_array(StageUnlock.flags(main.stages, GameSettings.cleared_stages, false)).is_equal([true, true, false, false])
-	get_tree().paused = false
-	main.queue_free()
-	GameSettings.unlock_all_override = -1
-	GameSettings.cleared_stages = PackedStringArray()
-	GameSettings.stage_picked = true
-	GameSettings.stage_id = &"manchuria_395"
-	GameSettings.save_settings()
-
-
 func test_each_stage_run_uses_its_own_army() -> void:
 	GameSettings.settings_path = "user://test_settings.cfg"
 	GameSettings.title_seen = true
+	GameSettings.intro_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.stage_picked = true

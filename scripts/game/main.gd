@@ -87,12 +87,17 @@ func _start_flow() -> void:
 		_hold()
 		hero_select.picked.connect(_on_hero_picked, CONNECT_ONE_SHOT)
 		hero_select.open(heroes)
-	elif stages.size() > 1 and not GameSettings.stage_picked and stage_select:
+	elif story_intro and story_intro.data and not GameSettings.intro_seen:
+		_hold()
+		story_intro.finished.connect(_on_intro_finished, CONNECT_ONE_SHOT)
+		story_intro.open()
+	elif stages.size() > 1 and not GameSettings.stage_picked and stage_select and GameSettings.unlock_all_stages():
+		# 시험판만: 아무 무대나 골라 시험. 정식판은 영웅의 무대 순서대로 바로 간다.
 		_hold()
 		stage_select.picked.connect(_on_stage_picked, CONNECT_ONE_SHOT)
 		stage_select.open(stages, StageUnlock.flags(stages, GameSettings.cleared_stages, GameSettings.unlock_all_stages()))
 	else:
-		_apply_stage(stage_by_id(GameSettings.stage_id))
+		_apply_stage(stage_by_id(run_stage_id()))
 		_begin_build()
 		waiting_pick = false
 		get_tree().paused = false
@@ -108,10 +113,6 @@ func _hold() -> void:
 func _on_title_entered() -> void:
 	Feedback.ui()
 	GameSettings.title_seen = true
-	if story_intro and story_intro.data and not GameSettings.intro_seen:
-		story_intro.finished.connect(_on_intro_finished, CONNECT_ONE_SHOT)
-		story_intro.open()
-		return
 	_start_flow()
 
 
@@ -154,6 +155,23 @@ func _apply_stage(st: StageTheme) -> void:
 		hud.stage = st
 
 
+## 이번 판 무대: 시험판에서 직접 고른 무대가 있으면 그것, 아니면 영웅의 무대 순서에서 지금 차례.
+func run_stage_id() -> StringName:
+	if GameSettings.stage_picked and HeroRoute.index_of(stages, GameSettings.stage_id) >= 0:
+		return GameSettings.stage_id
+	return HeroRoute.current(stages, player.hero if player else null, GameSettings.hero_stages)
+
+
+## 이긴 뒤 "다음 전장": 이 영웅의 다음 무대를 저장하고 새 판.
+func advance_stage() -> void:
+	var cur := run_config.stage.id if run_config and run_config.stage else run_stage_id()
+	var nxt := HeroRoute.next(stages, cur)
+	if player and player.hero:
+		GameSettings.hero_stages[String(player.hero.id)] = String(nxt)
+	GameSettings.stage_id = nxt
+	GameSettings.save_settings()
+
+
 func stage_by_id(id: StringName) -> StageTheme:
 	for st in stages:
 		if st and st.id == id:
@@ -165,6 +183,8 @@ func _on_stage_picked(st: StageTheme) -> void:
 	Feedback.ui()
 	GameSettings.stage_id = st.id
 	GameSettings.stage_picked = true
+	if player and player.hero:
+		GameSettings.hero_stages[String(player.hero.id)] = String(st.id)
 	GameSettings.save_settings()
 	_start_flow()
 
@@ -225,6 +245,8 @@ func _switch_music(stream: AudioStream) -> void:
 
 func _on_ended(result: GameState.Result) -> void:
 	_switch_music(stage_music(&"victory" if result == GameState.Result.VICTORY else &"defeat"))
+	if hud and result == GameState.Result.VICTORY and run_config and run_config.stage:
+		hud.next_stage = stage_by_id(HeroRoute.next(stages, run_config.stage.id))
 	_end_time = 0.0
 	if result == GameState.Result.VICTORY and run_config and run_config.stage:
 		if GameSettings.mark_cleared(run_config.stage.id):  # 다음 무대가 열린다
@@ -244,8 +266,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
 		if is_change_hero_area((event as InputEventScreenTouch).position):
-			GameSettings.hero_picked = false  # 다음 판 전에 고르기 화면 (영웅 → 전장)
+			GameSettings.hero_picked = false  # 다음 판 전에 고르기 화면 (영웅 → 시험판이면 전장)
 			GameSettings.stage_picked = false
+		elif state.result == GameState.Result.VICTORY:
+			advance_stage()
 		restart()
 
 

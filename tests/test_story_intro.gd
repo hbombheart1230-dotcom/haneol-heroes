@@ -57,11 +57,14 @@ func test_intro_finishes_by_itself() -> void:
 	assert_int(done[0]).is_equal(1)
 
 
-func test_enter_plays_intro_once_then_hero_select() -> void:
+func test_enter_then_hero_then_intro_once_then_run() -> void:
 	GameSettings.settings_path = "user://test_settings.cfg"
+	GameSettings.unlock_all_override = 0  # 정식판 흐름 (전장 고르기 없음)
 	GameSettings.title_seen = false
 	GameSettings.intro_seen = false
 	GameSettings.hero_picked = false
+	GameSettings.stage_picked = false
+	GameSettings.hero_stages = {}
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
@@ -72,15 +75,26 @@ func test_enter_plays_intro_once_then_hero_select() -> void:
 	title.handle_touch(0, b, true)
 	title.handle_touch(0, b, false)
 	var intro: StoryIntro = main.story_intro
-	assert_bool(intro.is_open()).is_true()
-	assert_bool(main.hero_select.is_open()).is_false()
+	assert_bool(main.hero_select.is_open()).is_true()  # 입장 → 영웅 고르기 먼저
+	assert_bool(intro.is_open()).is_false()
+	var sel: HeroSelect = main.hero_select
+	var c := sel.slot_rect(0).get_center()
+	sel.handle_touch(0, c, true)
+	sel.handle_touch(0, c, false)
+	assert_bool(intro.is_open()).is_true()  # 영웅 고른 뒤 이야기
 	intro.finish()
 	assert_bool(GameSettings.intro_seen).is_true()
-	assert_bool(main.hero_select.is_open()).is_true()
+	assert_bool(main.stage_select.is_open()).is_false()
+	assert_bool(main.waiting_pick).is_false()
+	var hero: HeroData = main.get_node("Player").hero
+	assert_str(String(main.run_config.stage.id)).is_equal(String(hero.home_stage))  # 그 영웅의 무대로
 	get_tree().paused = false
 	main.queue_free()
+	GameSettings.unlock_all_override = -1
 	GameSettings.title_seen = true
 	GameSettings.hero_picked = true
+	GameSettings.stage_picked = true
+	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.save_settings()
 

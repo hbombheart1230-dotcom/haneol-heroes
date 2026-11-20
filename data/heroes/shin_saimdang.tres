@@ -82,6 +82,7 @@ full_charge_time = 1.0
 [resource]
 script = ExtResource("1_hero")
 id = &"shin_saimdang"
+home_stage = &"chochungdo"
 display_name = "사임당"
 card_art = ExtResource("card_art")
 tagline = "수묵의 술사\n그림 속 생명을 깨운다"

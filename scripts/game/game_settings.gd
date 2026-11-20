@@ -20,6 +20,8 @@ static var intro_seen: bool = false
 ## 마지막으로 고른 무대 id, 이번 실행에서 무대를 골랐는지.
 static var stage_id: StringName = &""
 static var stage_picked: bool = false
+## 영웅마다 지금 설 무대 (hero_id → stage_id 문자열). 없으면 그 영웅의 home_stage. "다음 전장"이 바꾼다.
+static var hero_stages: Dictionary = {}
 ## 이긴 무대 id들 (다음 무대 열기).
 static var cleared_stages: PackedStringArray = PackedStringArray()
 ## 무대 전부 열기: -1 = 빌드 따라 (시험판이면 전부), 0 = 차례대로, 1 = 전부. 테스트가 바꾼다.
@@ -49,6 +51,7 @@ static func load_settings(path: String = "") -> void:
 	stage_id = StringName(cfg.get_value("game", "stage_id", String(stage_id)))
 	intro_seen = bool(cfg.get_value("game", "intro_seen", intro_seen))
 	cleared_stages = PackedStringArray(cfg.get_value("game", "cleared_stages", cleared_stages))
+	hero_stages = cfg.get_value("game", "hero_stages", hero_stages)
 
 
 static func save_settings(path: String = "") -> Error:
@@ -61,4 +64,5 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("game", "stage_id", String(stage_id))
 	cfg.set_value("game", "intro_seen", intro_seen)
 	cfg.set_value("game", "cleared_stages", cleared_stages)
+	cfg.set_value("game", "hero_stages", hero_stages)
 	return cfg.save(path)

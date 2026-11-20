@@ -83,6 +83,7 @@ full_charge_time = 1.1
 [resource]
 script = ExtResource("1_hero")
 id = &"sejong"
+home_stage = &"gyeongbokgung_1433"
 display_name = "세종"
 card_art = ExtResource("card_art")
 tagline = "천문의 지배자\n문자와 별의 마법"

@@ -92,6 +92,7 @@ full_charge_time = 1.1
 [resource]
 script = ExtResource("1_hero")
 id = &"gwanggaeto"
+home_stage = &"manchuria_395"
 display_name = "광개토"
 card_art = ExtResource("card_art")
 tagline = "천둥의 정복자

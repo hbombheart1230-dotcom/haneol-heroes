@@ -96,6 +96,7 @@ full_charge_time = 1.0
 [resource]
 script = ExtResource("1_hero")
 id = &"yi_sun_sin"
+home_stage = &"hansan_1592"
 display_name = "순신"
 card_art = ExtResource("card_art")
 tagline = "푸른 해류의 검
