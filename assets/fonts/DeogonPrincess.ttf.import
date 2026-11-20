@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://b7tdvhhmovph0"
-path="res://.godot/imported/jeongeum_body.ttf-4c54cafbeb231bcf8d3d7002316ccec6.fontdata"
+uid="uid://1d3mivgoqiiq"
+path="res://.godot/imported/DeogonPrincess.ttf-fdf268105b9ce6e19d6c7dc57565bae6.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/jeongeum_body.ttf"
-dest_files=["res://.godot/imported/jeongeum_body.ttf-4c54cafbeb231bcf8d3d7002316ccec6.fontdata"]
+source_file="res://assets/fonts/DeogonPrincess.ttf"
+dest_files=["res://.godot/imported/DeogonPrincess.ttf-fdf268105b9ce6e19d6c7dc57565bae6.fontdata"]
 
 [params]
 

@@ -26,7 +26,7 @@ static func draw(hud: Hud) -> void:
 			"%s · %s" % [hud.stage.year_label, hud.stage.title], 22, Color(UiStyle.PAPER, 0.7), w)
 	var btn := Rect2(panel.get_center().x - 150.0, panel.end.y - 150.0, 300.0, 84.0)
 	if victory and hud.next_stage:
-		UiStyle.button(hud, btn, "다음 전장 ›", 42)
+		UiStyle.button(hud, btn, "다음 전장 〉", 42)
 		UiStyle.text(hud, UiStyle.BODY_FONT, Vector2(cx, btn.position.y - 16),
 			"%s · %s" % [hud.next_stage.year_label, hud.next_stage.title], 22, Color(UiStyle.GOLD, 0.85), w)
 	else:
