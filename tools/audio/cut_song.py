@@ -66,6 +66,7 @@ def write_ogg(path: str, seg: np.ndarray, sr: int) -> None:
 def link_stage(stage: str) -> None:
     p = os.path.join(ROOT, f"data/stages/{stage}.tres")
     t = open(p, encoding="utf-8").read()
+    t = re.sub(r'path="res://data/songs/[^"]+\.tres" id="song"', f'path="res://data/songs/{stage}.tres" id="song"', t)
     if 'id="song"' not in t:
         t = re.sub(r"(\n\[ext_resource [^\n]*\]\n)(?!\[ext_resource)",
                    rf'\1[ext_resource type="Resource" path="res://data/songs/{stage}.tres" id="song"]\n', t, count=1)

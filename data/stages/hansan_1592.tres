@@ -23,7 +23,7 @@
 [ext_resource type="Resource" path="res://data/enemies/waegun_elite.tres" id="e_waegun_elite"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_commander.tres" id="e_waegun_commander"]
 [ext_resource type="Resource" path="res://data/breakables/hansan_1592.tres" id="b_hansan_1592"]
-[ext_resource type="Resource" path="res://data/songs/manchuria_395.tres" id="song"]
+[ext_resource type="Resource" path="res://data/songs/hansan_1592.tres" id="song"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/geobukseon.png" id="p_geobukseon"]
 
