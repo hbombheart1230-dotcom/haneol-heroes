@@ -200,6 +200,8 @@ func _physics_process(delta: float) -> void:
 		busy = attack.is_busy()
 		if busy:
 			queue_redraw()
+			if brain:
+				brain.revealed = true  # 숨은 채로 치지 않는다 (예고는 늘 보이게, Codex de7556d)
 	var chase := _busy_velocity() if busy else compute_velocity(get_tree().get_nodes_in_group(GROUP))
 	if brain:
 		brain.tick_sweep(delta)

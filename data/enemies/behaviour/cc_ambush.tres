@@ -21,6 +21,6 @@ script = ExtResource("1_beh")
 style = 2
 attack = SubResource("Lunge")
 uses_token = false
-ambush_range = 260.0
+ambush_range = 320.0
 ambush_alpha = 0.22
 ambush_speed_mult = 0.4

@@ -305,3 +305,19 @@ func test_volley_shooters_ignore_windup_cap() -> void:
 	assert_int(atk.state).is_equal(EnemyAttack.State.WINDUP)
 	atk.cancel()
 	EnemyAttack.active_windups = was
+
+
+func test_ambusher_reveals_before_it_can_strike() -> void:
+	var mt: EnemyData = load("res://data/enemies/cc_mantis.tres")
+	assert_float(mt.behaviour.ambush_range).is_greater(mt.behaviour.attack.trigger_range)
+	var p: Player = auto_free(Player.new())
+	var h := Health.new()
+	h.name = "Health"
+	p.add_child(h)
+	add_child(p)
+	var e := _enemy("res://data/enemies/cc_mantis.tres", Vector2(mt.behaviour.attack.trigger_range - 10.0, 0))
+	e.target = p
+	e.attack._cooldown = 0.0
+	e._physics_process(0.016)
+	assert_bool(e.attack.is_busy()).is_true()
+	assert_float(e.brain.alpha()).is_equal(1.0)

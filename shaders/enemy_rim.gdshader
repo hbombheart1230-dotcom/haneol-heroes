@@ -21,12 +21,9 @@ void vertex() {
 	node_color = COLOR;
 }
 
-// lo~hi 칸 밖이면 0 (이웃 프레임을 읽지 않음).
-float alpha_in(sampler2D t, vec2 uv, vec2 lo, vec2 hi) {
-	if (uv.x < lo.x || uv.y < lo.y || uv.x >= hi.x || uv.y >= hi.y) {
-		return 0.0;
-	}
-	return texture(t, uv).a;
+// lo~hi 칸 안이면 1, 밖이면 0 (이웃 프레임을 읽지 않음). TEXTURE는 함수에 넘기지 않는다 (gl_compatibility).
+float in_cell(vec2 uv, vec2 lo, vec2 hi) {
+	return step(lo.x, uv.x) * step(lo.y, uv.y) * (1.0 - step(hi.x, uv.x)) * (1.0 - step(hi.y, uv.y));
 }
 
 void fragment() {
@@ -39,10 +36,18 @@ void fragment() {
 		lo = floor(UV / cell) * cell;
 		hi = lo + cell;
 	}
-	float n = alpha_in(TEXTURE, UV + vec2(o.x, 0.0), lo, hi) + alpha_in(TEXTURE, UV - vec2(o.x, 0.0), lo, hi)
-		+ alpha_in(TEXTURE, UV + vec2(0.0, o.y), lo, hi) + alpha_in(TEXTURE, UV - vec2(0.0, o.y), lo, hi)
-		+ alpha_in(TEXTURE, UV + o, lo, hi) + alpha_in(TEXTURE, UV - o, lo, hi)
-		+ alpha_in(TEXTURE, UV + vec2(o.x, -o.y), lo, hi) + alpha_in(TEXTURE, UV + vec2(-o.x, o.y), lo, hi);
+	vec2 p1 = UV + vec2(o.x, 0.0);
+	vec2 p2 = UV - vec2(o.x, 0.0);
+	vec2 p3 = UV + vec2(0.0, o.y);
+	vec2 p4 = UV - vec2(0.0, o.y);
+	vec2 p5 = UV + o;
+	vec2 p6 = UV - o;
+	vec2 p7 = UV + vec2(o.x, -o.y);
+	vec2 p8 = UV + vec2(-o.x, o.y);
+	float n = texture(TEXTURE, p1).a * in_cell(p1, lo, hi) + texture(TEXTURE, p2).a * in_cell(p2, lo, hi)
+		+ texture(TEXTURE, p3).a * in_cell(p3, lo, hi) + texture(TEXTURE, p4).a * in_cell(p4, lo, hi)
+		+ texture(TEXTURE, p5).a * in_cell(p5, lo, hi) + texture(TEXTURE, p6).a * in_cell(p6, lo, hi)
+		+ texture(TEXTURE, p7).a * in_cell(p7, lo, hi) + texture(TEXTURE, p8).a * in_cell(p8, lo, hi);
 	float outside = clamp(n * 0.25, 0.0, 1.0) * (1.0 - tex.a);
 	vec3 body = (tex.rgb - 0.5) * body_contrast + 0.5 + body_lift;
 	body = mix(body, body * army_tint.rgb * 1.25, tint_mix);
