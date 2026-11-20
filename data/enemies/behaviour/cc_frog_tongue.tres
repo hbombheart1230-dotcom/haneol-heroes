@@ -1,0 +1,49 @@
+[gd_resource type="Resource" script_class="EnemyBehaviourData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_behaviour_data.gd" id="1_beh"]
+[ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+
+[sub_resource type="Resource" id="Cone"]
+script = ExtResource("2_attack")
+kind = 3
+anim = &"attack2"
+trigger_range = 220.0
+windup = 0.8
+radius = 240.0
+angle_degrees = 110.0
+damage = 30
+cooldown = 0.6
+recovery = 0.5
+bypass_cap = true
+
+[sub_resource type="Resource" id="Tongue"]
+script = ExtResource("2_attack")
+kind = 5
+anim = &"attack"
+trigger_range = 520.0
+windup = 0.9
+length = 460.0
+width = 70.0
+damage = 15
+cooldown = 0.6
+recovery = 0.7
+bypass_cap = true
+pull_distance = 300.0
+pull_time = 0.3
+
+[sub_resource type="Resource" id="Shockwave"]
+script = ExtResource("2_attack")
+kind = 2
+anim = &"attack"
+trigger_range = 260.0
+windup = 1.0
+radius = 250.0
+damage = 30
+cooldown = 0.6
+recovery = 0.8
+bypass_cap = true
+
+[resource]
+script = ExtResource("1_beh")
+patterns = Array[ExtResource("2_attack")]([SubResource("Cone"), SubResource("Tongue"), SubResource("Shockwave")])
+uses_token = false

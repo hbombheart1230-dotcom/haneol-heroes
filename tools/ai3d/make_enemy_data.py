@@ -34,6 +34,63 @@ ENEMIES = [
 ]
 
 
+## 군대별 가독성 (EnemyData "가독성" 묶음 + 죽는 모양). 칙칙한 회색 망령이 무대 바닥에 묻히지 않게 (사용자 피드백).
+## 값: (테두리 색, 몸 밝기 더하기, 대비, 군대 색, 섞는 비율, 죽는 모양)
+ARMY_LOOK = {
+    "waegun": ("Color(0.35, 0.5, 1, 0.9)", 0.12, 1.15, "Color(0.7, 0.8, 1, 1)", 0.35, "smoke"),
+    "jurchen": ("Color(0.45, 1, 0.92, 0.9)", 0.1, 1.2, "Color(0.8, 1, 1, 1)", 0.35, "smoke"),
+    "biryeo": ("Color(0.12, 0.07, 0.04, 0.9)", 0.12, 1.2, "Color(1, 0.9, 0.75, 1)", 0.2, "smoke"),
+    "cc": ("Color(0.08, 0.08, 0.1, 0.85)", 0.05, 1.1, "Color(1, 1, 1, 1)", 0.0, "paper"),
+}
+## 테두리 두께 (구운 텍스처 픽셀): 보통 / 정예·보스.
+RIM_WIDTH = (3.0, 5.0)
+LOOK_KEYS = ("rim_color", "rim_width", "body_lift", "body_contrast", "army_tint", "tint_mix", "death_style")
+NL = "\n"
+
+
+def army_of(name: str) -> str:
+    head = name.split("_")[0]
+    return head if head in ARMY_LOOK else "biryeo"
+
+
+def apply_look(t: str, name: str, role: str) -> str:
+    """가독성 값을 지우고 군대 값으로 다시 쓴다 (본뜬 역할 데이터의 값이 남지 않게)."""
+    for k in LOOK_KEYS:
+        t = re.sub(NL + k + r" = [^" + NL + "]*", "", t)
+    rim, lift, contrast, tint, mix, death = ARMY_LOOK[army_of(name)]
+    width = RIM_WIDTH[1] if role in ("elite", "boss") else RIM_WIDTH[0]
+    look = [f"rim_color = {rim}", f"rim_width = {width}", f"body_lift = {lift}", f"body_contrast = {contrast}",
+            f"army_tint = {tint}", f"tint_mix = {mix}"]
+    if death != "smoke":
+        look.append(f'death_style = &"{death}"')
+    return apply_behaviour(t.rstrip(NL) + NL + NL.join(look) + NL, name)
+
+
+## 군대별 버릇 (data/enemies/behaviour/*.tres). 다시 만들어도 남도록 여기서 붙인다.
+BEHAVIOUR = {
+    "archer": "biryeo_kite",
+    "jurchen_soldier": "jurchen_charge",
+    "jurchen_heavy": "jurchen_heavy_charge",
+    "waegun_gunner": "waegun_volley",
+    "waegun_heavy": "waegun_shield",
+    "cc_grasshopper": "cc_hop",
+    "cc_mantis": "cc_ambush",
+    "cc_frog": "cc_frog_tongue",
+}
+
+
+def apply_behaviour(t: str, name: str) -> str:
+    t = re.sub(NL + r'\[ext_resource type="Resource" path="res://data/enemies/behaviour/[a-z_]+\.tres" id="beh"\]', "", t)
+    t = re.sub(NL + r"behaviour = [^" + NL + "]*", "", t)
+    beh = BEHAVIOUR.get(name)
+    if not beh:
+        return t
+    ext = f'[ext_resource type="Resource" path="res://data/enemies/behaviour/{beh}.tres" id="beh"]'
+    last = [m.end() for m in re.finditer(r"\[ext_resource[^\n]*\]", t)][-1]
+    t = t[:last] + NL + ext + t[last:]
+    return t.rstrip(NL) + NL + 'behaviour = ExtResource("beh")' + NL
+
+
 def mean_feet(sheet_dir: str, frame: int) -> float:
     vals = []
     im = Image.open(os.path.join(sheet_dir, "run.png"))
@@ -69,13 +126,29 @@ def make(name: str, role: str, label: str, tint, boss_scale: float) -> str:
     t = re.sub(r"\nsprite_tint = Color\([^)]*\)", "", t)
     if tint:
         t = t.replace("\nsprite_scale = ", f"\nsprite_tint = {tint}\nsprite_scale = ", 1)
+    t = apply_look(t, name, role)
     dest = os.path.join(ROOT, f"data/enemies/{name}.tres")
     with open(dest, "w", encoding="utf-8", newline="\n") as f:
         f.write(t)
     return dest
 
 
+## 1무대(거란·비려)는 굽기 전부터 있던 손으로 만든 데이터라 가독성 값만 덧씌운다.
+STAGE1 = [("chaser", "soldier"), ("archer", "archer"), ("heavy", "heavy"), ("elite_warrior", "elite"),
+          ("boss_general", "boss")]
+
+
+def look_only(name: str, role: str) -> None:
+    path = os.path.join(ROOT, f"data/enemies/{name}.tres")
+    t = open(path, encoding="utf-8").read()
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(apply_look(t, name, role))
+
+
 if __name__ == "__main__":
     for e in ENEMIES:
         out = make(*e)
         print(("ok   " if out else "skip ") + e[0])
+    for n, r in STAGE1:
+        look_only(n, r)
+        print("look " + n)

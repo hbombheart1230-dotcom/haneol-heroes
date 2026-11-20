@@ -137,9 +137,9 @@ func refresh_stats(old_max_hp: int) -> void:
 		health.current = clampi(health.current + maxi(hero.max_hp - old_max_hp, 0), 1, health.max)
 
 
-## 근접 적중 반동: offset(px)만큼 recoil_time초(CombatFeelData) 동안 밀린다.
-func apply_recoil(offset: Vector2) -> void:
-	var t := maxf(Feedback.feel_data().recoil_time, 0.001)
+## 근접 적중 반동: offset(px)만큼 seconds초(기본 = CombatFeelData.recoil_time) 동안 밀린다. 개구리 혀 끌어당기기도.
+func apply_recoil(offset: Vector2, seconds: float = -1.0) -> void:
+	var t := maxf(seconds if seconds > 0.0 else Feedback.feel_data().recoil_time, 0.001)
 	_recoil_vel = offset / t
 	_recoil_left = t
 

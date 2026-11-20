@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
 [ext_resource type="Resource" path="res://assets/sprites/jurchen_soldier/jurchen_soldier.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://data/enemies/behaviour/jurchen_charge.tres" id="beh"]
 
 [sub_resource type="Resource" id="Attack_slam"]
 script = ExtResource("2_attack")
@@ -28,3 +29,10 @@ sprite_sheet = ExtResource("3_sheet")
 sprite_tint = Color(1, 0.96, 0.92, 1)
 sprite_scale = 1.33
 sprite_offset = Vector2(0, -62)
+rim_color = Color(0.45, 1, 0.92, 0.9)
+rim_width = 3.0
+body_lift = 0.1
+body_contrast = 1.2
+army_tint = Color(0.8, 1, 1, 1)
+tint_mix = 0.35
+behaviour = ExtResource("beh")

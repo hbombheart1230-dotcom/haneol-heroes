@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
 [ext_resource type="Resource" path="res://assets/sprites/waegun_heavy/waegun_heavy.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://data/enemies/behaviour/waegun_shield.tres" id="beh"]
 
 [sub_resource type="Resource" id="Attack_heavy_slam"]
 script = ExtResource("2_attack")
@@ -33,3 +34,10 @@ sprite_tint = Color(0.82, 0.9, 1, 1)
 sprite_scale = 1.45
 sprite_offset = Vector2(0, -60)
 launch_scale = 0.6
+rim_color = Color(0.35, 0.5, 1, 0.9)
+rim_width = 3.0
+body_lift = 0.12
+body_contrast = 1.15
+army_tint = Color(0.7, 0.8, 1, 1)
+tint_mix = 0.35
+behaviour = ExtResource("beh")

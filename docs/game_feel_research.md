@@ -203,3 +203,33 @@
 - **기술 이펙트 (2단계):** 순신 물보라·물방울, 광개토 꺾인 번개 줄기·불똥, 세종 별·한글 자모, 사임당 먹 덩어리·매화 꽃잎. 발동(cast)·적중(hit)·내리꽂힘(impact) 세 순간에 터진다.
   - **외부 텍스처를 쓰지 않은 이유:** CC0 팩(Kenney 등)을 검토했으나, 필요한 모양(점·별·꽃잎·불똥·먹 덩어리)은 엔진 기본 `Image`·`FastNoiseLite`로 64px 텍스처를 코드에서 만들 수 있었다. APK 용량 0, 내려받기·라이선스 기록 불필요. 수묵풍은 `shaders/ink_vfx.gdshader`(가장자리 잡음 갉기 + 먹 테두리)로 입힌다. 그래서 README "외부 자산"에 추가할 항목이 없다.
   - **모바일 상한:** 기술 입자 160개, 먹물 방울 60개, 날아가는 시체 12개. 모두 노드 하나의 `_draw`로 그리고 배열을 새로 만들지 않는다.
+
+---
+
+## 적이 잘 보이게 (사용자: "몹들 칙칙해서 잘 안 보임")
+
+- **문제:** 왜군·여진 망령이 회색으로 구워져 서로 비슷하고, 무대 지도(모래·돌바닥·갑판)에 묻혔다.
+- **한 것:** `shaders/enemy_rim.gdshader` — 몸 둘레 망령 빛 테두리 + 밝기·대비 올리기 + 군대 색. 수치는 `EnemyData`의 "잘 보이게" 묶음, 군대 값은 `tools/ai3d/make_enemy_data.py`의 `ARMY_LOOK`(다시 만들어도 유지).
+  - 왜군 = 차가운 쪽빛, 여진 = 서리 청록, 거란·비려(1무대) = 먹 테두리(모래 위에서 가장 또렷), 초충도 = 먹 윤곽선(원래 그림 색 유지). 정예·보스는 테두리를 더 크게.
+  - 텍스처 한 장에서 8점만 읽고, 시트의 지금 칸 밖은 읽지 않는다. 적 종류마다 재질 하나를 공유한다.
+- **전후 비교 (위 = 전, 아래 = 후; 1무대·경복궁·한산도·초충도):** `docs/images/enemy_readability_before_after.png` — `tools/shots/stage_shot.gd`로 찍음.
+
+## 적 행동 (사용자 승인: 공통 → 군대별 → 무리 이벤트 → 정예 변종)
+
+| 참고 | 가져온 것 |
+|---|---|
+| **Doom 2016** (공격권) | 동시에 덤비는 적 수를 공격권으로 제한하고, 권이 없는 적은 둘레를 돌며 압박한다. 난도가 오르면 권 수를 늘린다. |
+| **Hades** (예고·회복, 정예) | 공격 전 또렷한 예고, 공격 뒤 빈틈. 정예는 표시(테두리 색·이름)와 특별한 성질(철갑 등). |
+| **Vampire Survivors / Halls of Torment** (무리) | 일정 시간마다 포위 고리가 좁혀 오기, 한쪽에서 쓸고 지나가는 벽, 한 방향에서 몰려오는 떼. |
+| **Diablo** (무리 우두머리) | 정예 변종(철갑·질풍·분열)이 무리의 우선 표적이 되게. |
+
+- **공통:** 공격권 3개(`data/enemies/enemy_ai.tres` `max_melee_tokens`), 권 없는 근접 적은 240px 고리에서 옆걸음. 공격 직후 경직은 처벌 시간(피해 ×1.3, 머리 위 흰 소용돌이). 치기 직전 몸이 번쩍인다.
+- **군대별 (`data/enemies/behaviour/*.tres`):**
+  - 비려 기마 궁수: 조준 중에도 뒤로 물러나며 쏜다(파르티아식).
+  - 여진 졸병·장사: 직선 돌진 예고 → 빗나가면 멀리 미끄러지고 오래 빈틈.
+  - 왜군 철포: 같은 박자(2.6초)에만 조준을 시작해 함께 쏜다. 왜군 무사: 앞 120° 피해 ×0.3(뒤·옆을 노려야 함).
+  - 초충도: 방아깨비는 포물선으로 뛰고, 사마귀는 흐릿하게 숨어 있다가 가까이 오면 덮치고, 개구리 장군은 혀로 끌어당긴다.
+- **무리 이벤트:** 25초에 처음, 이후 30초마다 포위 → 휩쓸기 → 떼 순서.
+- **정예 변종:** 철갑(받는 피해 ×0.55), 질풍(속도 ×1.5), 분열(죽으면 작은 적 3마리).
+
+출처: [Game Developer: The AI of DOOM (2016)](https://www.gamedeveloper.com/design/cyber-demons-the-ai-of-doom-2016-), [GDC Vault: Bringing Hell to Life — AI and Full Body Animation in DOOM](https://gdcvault.com/play/1024186/Bringing-Hell-to-Life-AI), [Hades 위키: 적·정예](https://hades.wiki.fextralife.com/Enemies), [PC Gamer: Hades 팁(철갑)](https://www.pcgamer.com/hades-guide-tips-and-tricks), [TheGamer: Vampire Survivors 꽃 포위](https://www.thegamer.com/vampire-survivors-flower-venus-flytrap-circle-annoying/), [Epic: Vampire Survivors와 장르](https://store.epicgames.com/news/vampire-survivors-built-genre-autoshooter-bullet-heaven).

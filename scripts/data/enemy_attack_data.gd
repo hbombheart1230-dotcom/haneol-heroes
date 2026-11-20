@@ -6,8 +6,9 @@ extends Resource
 ##   SHOCKWAVE : 자기 주변 원 → 충격파
 ##   CONE  : 플레이어 방향 부채꼴 → 베기
 ##   CHARGE: 플레이어 방향 직사각형 → 그 끝까지 돌진
+##   PULL  : 플레이어 방향 직사각형 → 맞으면 적 쪽으로 끌어당김 (개구리 혀)
 
-enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE }
+enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE, PULL }
 
 @export var kind: Kind = Kind.SLAM
 ## 예고·공격 중 보여 줄 스프라이트 동작 (시트에 없으면 "attack"). 보스 패턴마다 다르게.
@@ -37,3 +38,15 @@ enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE }
 @export var projectile_range: float = 650.0
 ## 화살 판정 반지름(px).
 @export var projectile_radius: float = 14.0
+
+@export_group("군대별 동작")
+## 사격 예고 중에도 뒤로 물러나며 쏜다 (비려 기마 궁수, 파르티아식). 물러나는 속도 배율 (0 = 멈춰서 쏨).
+@export var kite_while_aiming: float = 0.0
+## 일제 사격: 같은 박자(EnemyAIData.volley_interval)에만 조준을 시작해 여럿이 함께 쏜다 (왜군 철포).
+@export var volley: bool = false
+## 돌진이 빗나가면 이만큼(px) 더 미끄러지고, 경직이 miss_recovery초로 길어진다 (여진 기병).
+@export var miss_overshoot: float = 0.0
+@export var miss_recovery: float = 0.0
+## PULL: 맞은 플레이어를 적 쪽으로 끌어오는 거리(px)와 시간(초).
+@export var pull_distance: float = 0.0
+@export var pull_time: float = 0.25
