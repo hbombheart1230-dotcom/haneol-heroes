@@ -243,3 +243,27 @@ Korean traditional epic overture, cinematic game opening theme, four heroes awak
 
 순신 스타일: `Korean folk song Jindo Arirang, famous traditional melody with the refrain "ari arirang seuri seurirang arariga nanne", southern coast namdo minyo style with deep yukjabaegi sigimsae, semachi 9/8 rhythm, steady tempo 96 BPM, janggu and buk, ajaeng, haegeum, daegeum, gayageum, ocean waves, naval battle energy, chorus sings the refrain, authentic Korean folk melody, not a pop song, instrumental intro and outro`
 순신 후렴: 아리 아리랑 서리 서리랑 / 아라리가 났네 / 아리랑 응응응 아라리가 났네
+
+## 7. 보스 판 (2026-11-21): 같은 노래를 기타·록으로 (Suno 커버)
+
+보스 때 같은 노래의 후렴으로만 넘어가니 "티가 안 난다" → 무대 노래 4곡을 **커버**로 한 판씩 더 만든다.
+가사·가락·목소리(Voice)는 그대로, 분위기만 전기기타·록 드럼·북을 얹어 거칠고 빠르게. 보스가 나오면 이 판으로 넘어간다.
+
+설정 (4곡 공통):
+- 만들기: 지금 게임에 쓰는 판(§6)을 열고 **커버(Cover)**. 목소리는 같은 Voice.
+- 가사: 원곡 가사 그대로 붙여 넣기.
+- 기이함 15–20%, 스타일 영향 75%, **오디오 영향 75–80%** (가락·목소리를 지키는 값. 너무 바뀌면 85%까지).
+- 빠르기는 원곡과 같게 (스타일에 BPM을 적었다). 같아야 박자 맞춰 넘어간다.
+- 제외 스타일: `pop ballad, soft, lo-fi, EDM, trap, autotune, acoustic only, slow intro`
+
+공통 앞부분 (각 곡 스타일 맨 앞에 붙인다):
+`Korean folk rock boss battle version, same melody and same lyrics, keep the original vocal, distorted electric guitar riffs and power chords, heavy bass guitar, rock drum kit layered with buk war drums, aggressive and driving, high energy, cinematic boss fight,`
+
+| 무대 | 곡 | 뒤에 붙일 스타일 |
+|---|---|---|
+| 한산도 (순신) | 진도아리랑 | `steady tempo 130 BPM, stormy naval battle, fast tremolo guitar like crashing waves, taepyeongso lead over the guitars, fast janggu, gang vocal shouts on the refrain` |
+| 만주 (광개토) | 밀양아리랑 | `steady tempo 73 BPM, heavy doom metal half-time groove, drop-tuned guitars, daegak war horns, jing gong hits, cavalry charge drums, tragic and fierce` |
+| 경복궁 (세종) | 긴아리랑 | `steady tempo 66 BPM, majestic orchestral rock, power chords with pyeonjong bronze bells and yonggo drums, male choir, royal and solemn but powerful, guitar solo in the bridge` |
+| 초충도 (사임당) | 정선아리랑 | `steady tempo 142 BPM, fast gayageum sanjo and electric guitar duel, haegeum lead, swirling ink storm, mysterious and intense, bright guitar solo` |
+
+받으면: `tools/audio/cut_song.py`로 같은 빠르기·첫 박에 맞춰 잘라 무대 노래에 "보스" 구간으로 넣는다 (보스 등장 → 다음 마디에 보스 판으로, 보스 처치 → 승리 곡).
