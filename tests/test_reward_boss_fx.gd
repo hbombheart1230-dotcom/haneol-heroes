@@ -22,7 +22,7 @@ func test_reward_fx_pickup_and_land_expire() -> void:
 	assert_int(fx.count()).is_equal(0)
 
 
-func test_seal_lands_with_pillar_then_pickup_bursts() -> void:
+func test_picking_a_card_bursts_with_its_title() -> void:
 	var fx: RewardFx = auto_free(RewardFx.new())
 	add_child(fx)
 	var sc: SealChoice = auto_free(SealChoice.new())
@@ -30,14 +30,10 @@ func test_seal_lands_with_pillar_then_pickup_bursts() -> void:
 	add_child(sc)
 	var ups: Array[UpgradeDef] = [_up(&"a"), _up(&"b"), _up(&"c")]
 	sc.open(ups, Vector2.ZERO, false, {})
-	sc.step(sc.fall_time * 0.5)
-	assert_int(fx.count()).is_equal(0)  # 아직 떨어지는 중
-	sc.step(sc.fall_time)
-	assert_int(fx.count()).is_equal(3)  # 셋 다 바닥에 닿음
+	assert_int(fx.count()).is_equal(0)
 	sc.pick(1)
-	assert_int(fx.count()).is_equal(4)
-	sc.close()
-
+	assert_int(fx.count()).is_equal(1)
+	assert_bool(get_tree().paused).is_false()
 
 func test_potion_drop_and_drink_show_reward_fx() -> void:
 	var fx: RewardFx = auto_free(RewardFx.new())

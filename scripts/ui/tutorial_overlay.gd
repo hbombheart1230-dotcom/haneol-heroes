@@ -156,10 +156,14 @@ func _draw_gesture(event: StringName, c: Vector2) -> void:
 			if t > 0.3:
 				var k := clampf((t - 0.3) / 0.25, 0.0, 1.0)
 				draw_line(c + Vector2(-48, -16), c + Vector2(-48 + 56 * k, -16 + 44 * k), Color(UiStyle.GOLD, 1.2 - t), 5.0)
-		&"upgrade":  # 인장(금빛 고리)으로 손가락이 걸어 들어간다
-			draw_circle(c + Vector2(22, 0), 18.0, Color(UiStyle.PAPER, 0.9))
-			draw_arc(c + Vector2(22, 0), 18.0, 0.0, TAU, 24, UiStyle.GOLD, 4.0)
-			draw_circle(c + Vector2(-36 + 58 * ease(t, 0.5), 0), 10.0, Color(finger, 1.0 - maxf(t - 0.8, 0.0) * 5.0))
+		&"upgrade":  # 카드 셋 중 가운데를 톡
+			for k in 3:
+				var cr := Rect2(c + Vector2(-46 + k * 32, -26), Vector2(26, 40))
+				draw_rect(cr, Color(UiStyle.LACQUER, 0.9))
+				draw_rect(cr, UiStyle.GOLD if k == 1 and t > 0.5 else Color(UiStyle.GOLD_DIM, 0.8), false, 2.0)
+			draw_circle(c + Vector2(-7, 6), 9.0, finger)
+			if t > 0.5:
+				draw_arc(c + Vector2(-7, 6), 10.0 + (t - 0.5) * 30.0, 0.0, TAU, 20, Color(UiStyle.GOLD, 1.0 - t), 3.0)
 		_:
 			draw_circle(c, 16.0, Color(0.55, 0.85, 0.5, 0.5 + 0.3 * sin(_t * 4.0)))  # 탕약 빛
 
