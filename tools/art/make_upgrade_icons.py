@@ -1,0 +1,228 @@
+"""레벨업 강화 카드 아이콘을 만든다: 강화마다 그림 하나 (영웅에 맞게, 같은 기술 강화끼리도 다르게).
+
+  python tools/art/make_upgrade_icons.py          # PNG 만들기 + data/upgrades/*.tres의 icon 연결
+  python tools/art/make_upgrade_icons.py --sheet out.png   # 확인용 한 장 모음도
+
+재료는 저장소에 이미 있는 그림만 쓴다 (외부 자산 없음):
+  assets/ui/icons/*.png (기술 그림), assets/vfx/*.png (이펙트), assets/ui/heroes/*.png (영웅 카드).
+만드는 법 (어떤 강화에 무엇을 쓰는지는 upgrade_icon_spec.py):
+  1) 안쪽 그림: 기술 그림의 다른 부분을 당겨 보거나, 영웅 바탕 위에 이펙트·상반신을 얹는다.
+  2) 큰 변형(major)은 기술 그림 위에 변형 이펙트를 겹친다.
+  3) 영웅 기술 아이콘의 금테를 그대로 두르고, 오른쪽 아래에 효과 표지 (icon_badges.py).
+출력: assets/ui/icons/upgrades/<영웅>/<강화 id>.png (SIZE px).
+GPT 그림 교체: assets/concept/upgrade_icons/<영웅>/<강화 id>.png 를 넣고 다시 돌리면 금테·표지를 두른 채 바뀐다
+  (프롬프트: docs/upgrade_icon_prompts.md). 새 PNG의 .import는 compress/mode=1 (손실 압축, 다른 아이콘과 같게).
+"""
+import os
+import re
+import sys
+
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
+
+sys.path.insert(0, os.path.dirname(__file__))
+from icon_badges import badge  # noqa: E402
+from upgrade_icon_spec import HEROES, SPEC  # noqa: E402
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+SIZE = 192  # 카드에는 130px 정도로 그려진다. 고해상 폰에서도 깨지지 않게 조금 크게
+WORK = 256  # 원본 기술 아이콘 크기에서 작업
+INSET, RADIUS = 11, 22  # 기술 아이콘 금테 안쪽 (256 기준)
+BADGE = 0.36  # 표지 지름 (아이콘 대비)
+OUT_DIR = "assets/ui/icons/upgrades"
+GPT_DIR = "assets/concept/upgrade_icons"  # GPT 원본 (APK 제외 폴더). 넣고 다시 돌리면 그 강화만 바뀐다
+
+
+def _load(rel: str) -> Image.Image:
+    return Image.open(os.path.join(ROOT, rel)).convert("RGBA")
+
+
+def _icon(name: str) -> Image.Image:
+    return _load(f"assets/ui/icons/{name}.png").resize((WORK, WORK), Image.LANCZOS)
+
+
+def _inner_mask() -> Image.Image:
+    m = Image.new("L", (WORK, WORK), 0)
+    ImageDraw.Draw(m).rounded_rectangle([INSET, INSET, WORK - INSET - 1, WORK - INSET - 1], RADIUS, fill=255)
+    return m
+
+
+def _zoomed(img: Image.Image, zoom: float, focus) -> Image.Image:
+    """금테 안쪽 그림에서 focus를 가운데로 zoom배 당긴다 (테두리 밖은 쓰지 않는다)."""
+    inner = img.crop((INSET, INSET, WORK - INSET, WORK - INSET))
+    w = inner.width
+    side = w / zoom
+    cx = min(max(focus[0] * w, side / 2), w - side / 2)
+    cy = min(max(focus[1] * w, side / 2), w - side / 2)
+    box = (int(cx - side / 2), int(cy - side / 2), int(cx + side / 2), int(cy + side / 2))
+    out = Image.new("RGBA", (WORK, WORK), (0, 0, 0, 255))
+    out.paste(inner.crop(box).resize((WORK, WORK), Image.LANCZOS), (0, 0))
+    return out
+
+
+def _tone(img: Image.Image, tone) -> Image.Image:
+    if tone is None:
+        return img
+    rgb, a = img.convert("RGB"), img.getchannel("A")
+    if tone == "warm":
+        rgb = Image.blend(rgb, Image.new("RGB", rgb.size, (255, 120, 40)), 0.14)
+        rgb = ImageEnhance.Contrast(rgb).enhance(1.1)
+    elif tone == "cool":
+        rgb = Image.blend(rgb, Image.new("RGB", rgb.size, (60, 150, 255)), 0.16)
+    elif tone == "bright":
+        rgb = ImageEnhance.Brightness(rgb).enhance(1.18)
+        rgb = ImageEnhance.Color(rgb).enhance(1.2)
+    elif tone == "dark":  # 큰 변형 바탕: 흐리고 어둡게 해서 위에 얹은 이펙트가 돋보이게
+        rgb = rgb.filter(ImageFilter.GaussianBlur(2.5))
+        rgb = ImageEnhance.Brightness(rgb).enhance(0.5)
+    elif tone == "gray":
+        rgb = ImageEnhance.Color(rgb).enhance(0.15)
+        rgb = Image.blend(rgb, Image.new("RGB", rgb.size, (90, 140, 200)), 0.25)
+        rgb = ImageEnhance.Brightness(rgb).enhance(0.75)
+    rgb.putalpha(a)
+    return rgb
+
+
+def _hero_bg(hero: str) -> Image.Image:
+    """영웅 바탕: 영웅 기술 그림을 크게 흐리고 어둡게 (색감만 남긴다)."""
+    bg = _icon(HEROES[hero]["bg"]).crop((INSET, INSET, WORK - INSET, WORK - INSET)).resize((WORK, WORK))
+    bg = bg.filter(ImageFilter.GaussianBlur(14))
+    bg = ImageEnhance.Brightness(bg).enhance(0.55)
+    glow = Image.new("L", (WORK, WORK), 0)
+    ImageDraw.Draw(glow).ellipse([WORK * 0.15, WORK * 0.15, WORK * 0.85, WORK * 0.85], fill=90)
+    glow = glow.filter(ImageFilter.GaussianBlur(30))
+    return Image.composite(Image.new("RGBA", bg.size, (255, 236, 200, 255)), bg, glow)
+
+
+def _hero_bust(hero: str) -> Image.Image:
+    card = _load(f"assets/ui/heroes/{hero}.png")
+    h = HEROES[hero]
+    y0, y1 = int(card.height * h["bust"][0]), int(card.height * h["bust"][1])
+    side = y1 - y0
+    cx = int(card.width * h["bust_x"])
+    bust = card.crop((cx - side // 2, y0, cx + side // 2, y1)).resize((int(WORK * 0.92), int(WORK * 0.92)), Image.LANCZOS)
+    out = _hero_bg(hero)
+    shadow = Image.new("RGBA", bust.size, (0, 0, 0, 0))
+    shadow.putalpha(bust.getchannel("A").filter(ImageFilter.GaussianBlur(6)).point(lambda v: v * 0.7))
+    o = ((WORK - bust.width) // 2, WORK - bust.height + 6)
+    out.alpha_composite(shadow, (o[0] + 4, o[1] + 4))
+    out.alpha_composite(bust, o)
+    return out
+
+
+def _overlay(img: Image.Image, over) -> Image.Image:
+    for name, scale, x, y, rot, alpha in over:
+        v = _load(f"assets/vfx/{name}.png")
+        w = int(WORK * scale)
+        v = v.resize((w, max(1, int(v.height * w / v.width))), Image.LANCZOS)
+        if rot:
+            v = v.rotate(-rot, expand=True, resample=Image.BICUBIC)
+        if alpha < 1.0:
+            v.putalpha(v.getchannel("A").point(lambda p, a=alpha: int(p * a)))
+        img.alpha_composite(v, (int(x * WORK - v.width / 2), int(y * WORK - v.height / 2)))
+    return img
+
+
+def _gpt_art(hero: str, uid: str):
+    """GPT로 받은 그림이 있으면 (GPT_DIR/<영웅>/<id>.png) 가운데 정사각형으로 잘라 안쪽 그림으로 쓴다."""
+    path = os.path.join(ROOT, GPT_DIR, hero, uid + ".png")
+    if not os.path.exists(path):
+        return None
+    g = Image.open(path).convert("RGBA")
+    side = min(g.size)
+    g = g.crop(((g.width - side) // 2, (g.height - side) // 2, (g.width + side) // 2, (g.height + side) // 2))
+    out = _hero_bg(hero)
+    out.alpha_composite(g.resize((WORK, WORK), Image.LANCZOS))
+    return out
+
+
+def make_icon(hero: str, uid: str) -> Image.Image:
+    sp = SPEC[(hero, uid)]
+    gpt = _gpt_art(hero, uid)
+    if gpt is not None:
+        art = gpt
+        sp = dict(sp, tone=None, over=[])
+    elif sp["base"].startswith("icon:"):
+        art = _zoomed(_icon(sp["base"][5:]), sp["zoom"], sp["focus"])
+    elif sp["base"] == "hero":
+        art = _hero_bust(hero)
+    else:
+        art = _hero_bg(hero)
+    art = _overlay(_tone(art, sp["tone"]), sp["over"])
+    frame = _icon(sp["base"][5:] if sp["base"].startswith("icon:") else HEROES[hero]["frame"])
+    out = frame.copy()
+    out.paste(art, (0, 0), _inner_mask())
+    if sp["badge"] == "major":  # 큰 변형: 안쪽 금빛 테
+        ring = Image.new("RGBA", (WORK, WORK), (0, 0, 0, 0))
+        ImageDraw.Draw(ring).rounded_rectangle([INSET + 3, INSET + 3, WORK - INSET - 4, WORK - INSET - 4], RADIUS - 3,
+                                               outline=(255, 214, 110, 220), width=4)
+        out.alpha_composite(ring.filter(ImageFilter.GaussianBlur(1.2)))
+    b = badge(sp["badge"], int(WORK * BADGE))
+    out.alpha_composite(b, (WORK - b.width - 4, WORK - b.height - 4))
+    return out.resize((SIZE, SIZE), Image.LANCZOS)
+
+
+def icon_path(hero: str, uid: str) -> str:
+    return f"{OUT_DIR}/{hero}/{uid}.png"
+
+
+def relink(pool_rel: str, hero: str) -> None:
+    """풀 .tres의 강화마다 icon을 새 그림으로 바꾸고, 안 쓰는 옛 Texture 연결은 지운다."""
+    path = os.path.join(ROOT, pool_rel)
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    ids = re.findall(r'^id = &"([^"]+)"', text, re.M)
+    text = re.sub(r'^\[ext_resource type="Texture2D"[^\n]*\n', "", text, flags=re.M)
+    head = "".join(f'[ext_resource type="Texture2D" path="res://{icon_path(hero, u)}" id="icon_{u}"]\n' for u in ids)
+    text = re.sub(r'(\[ext_resource type="Script"[^\n]*\n)(?!\[ext_resource type="Script")', lambda m: m.group(1) + head,
+                  text, count=1)
+    # 각 강화 블록: id 다음의 icon 줄을 바꾸거나 description 뒤에 넣는다
+    blocks = re.split(r'(?=^\[sub_resource )', text, flags=re.M)
+    for i, blk in enumerate(blocks):
+        m = re.search(r'^id = &"([^"]+)"', blk, re.M)
+        if not m:
+            continue
+        line = f'icon = ExtResource("icon_{m.group(1)}")\n'
+        blk = re.sub(r'^icon = [^\n]*\n', "", blk, flags=re.M)
+        blocks[i] = re.sub(r'^(color = )', line + r"\1", blk, count=1, flags=re.M)
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write("".join(blocks))
+
+
+def pools():
+    for hero in HEROES:
+        for suffix in ("", "_major"):
+            yield f"data/upgrades/{hero}{suffix}.tres", hero
+
+
+def main() -> None:
+    made = 0
+    for pool, hero in pools():
+        with open(os.path.join(ROOT, pool), encoding="utf-8") as f:
+            ids = re.findall(r'^id = &"([^"]+)"', f.read(), re.M)
+        os.makedirs(os.path.join(ROOT, OUT_DIR, hero), exist_ok=True)
+        for uid in ids:
+            make_icon(hero, uid).save(os.path.join(ROOT, icon_path(hero, uid)), optimize=True)
+            made += 1
+        relink(pool, hero)
+    print(f"{made} icons")
+    if "--sheet" in sys.argv:
+        sheet(sys.argv[sys.argv.index("--sheet") + 1])
+
+
+def sheet(out: str) -> None:
+    rows = []
+    for pool, hero in pools():
+        with open(os.path.join(ROOT, pool), encoding="utf-8") as f:
+            rows.append([icon_path(hero, u) for u in re.findall(r'^id = &"([^"]+)"', f.read(), re.M)])
+    cols = max(len(r) for r in rows)
+    s = 128
+    img = Image.new("RGB", (cols * s, len(rows) * s), (40, 30, 30))
+    for y, r in enumerate(rows):
+        for x, p in enumerate(r):
+            ic = _load(p).resize((s, s), Image.LANCZOS)
+            img.paste(ic, (x * s, y * s), ic)
+    img.save(out)
+
+
+if __name__ == "__main__":
+    main()

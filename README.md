@@ -60,6 +60,7 @@ P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서�
 
 ### 보류 항목 (나중에)
 - 새 영웅 디자인(`assets/concept/redesign/heroes`, 2026-11-21)에 맞춰 나중에 따로: 입장 그림(`keyart_portrait` → `tools/art/korean_title_art.py`) + 앱 아이콘(`tools/art/make_icons.py`가 입장 그림에서 자동). 광개토 이야기 첫 장면(`assets/intro/gwanggaeto/s1.png`)도 옛 디자인. 오프닝 영상은 그 뒤
+- 강화 카드 그림 12개(기술에 안 묶인 체력·기본 공격·이동·대시 강화)는 기존 그림을 얹은 임시 그림. GPT 그림을 받으면 `assets/concept/upgrade_icons/`에 넣고 `tools/art/make_upgrade_icons.py` 재실행 (프롬프트: `docs/upgrade_icon_prompts.md`)
 
 가벼운 조정·마감 항목. 핵심 단계 진행을 막지 않는다.
 
