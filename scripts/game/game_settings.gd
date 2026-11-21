@@ -43,6 +43,13 @@ static var seen_stories: PackedStringArray = PackedStringArray()
 static var story_once: bool = false
 
 
+## 설정 "나가기": 앱을 막 켠 것처럼 첫 화면부터 (오프닝 영상은 다시 틀지 않는다, 저장 값은 그대로).
+static func back_to_title() -> void:
+	title_seen = false
+	hero_picked = false
+	stage_picked = false
+
+
 ## 이 이야기를 보여 줄지: 매번 보여 주거나(story_once 꺼짐), 아직 안 봤으면.
 static func should_show_story(seen: bool) -> bool:
 	return not (story_once and seen)

@@ -114,3 +114,23 @@ func _on_hero_story_finished(hero_id: StringName) -> void:
 		GameSettings.seen_stories.append(String(hero_id))
 	GameSettings.save_settings()
 	next()
+
+
+## 설정 "나가기"가 할 일: 판 전 화면(첫 화면·이야기·영웅 고르기)이면 게임 끄기, 판 중·결과 화면이면 첫 화면으로.
+func exit_mode() -> StringName:
+	return &"quit" if main.waiting_pick else &"title"
+
+
+func exit(mode: StringName) -> void:
+	prepare_exit()
+	if mode == &"quit":
+		main.get_tree().quit()
+		return
+	GameSettings.back_to_title()
+	main.restart()  # 판을 버리고 장면을 새로 (첫 화면부터)
+
+
+## 나가기 전에 떠 있는 강화 카드를 닫는다 (카드가 걸어 둔 멈춤을 되돌린다).
+func prepare_exit() -> void:
+	if main.seal_choice and main.seal_choice.is_open():
+		main.seal_choice.close()

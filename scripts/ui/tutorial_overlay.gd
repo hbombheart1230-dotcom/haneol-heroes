@@ -119,7 +119,8 @@ func _draw_dots(b: Rect2) -> void:
 			draw_arc(c, 6.0, -PI * 0.5, -PI * 0.5 + TAU * run.ratio(), 16, UiStyle.GOLD, 3.0)
 
 
-## 손가락 동작 그림: 끌기(좌우로 미끄러짐) · 튕기기(빠른 획) · 톡(퍼지는 원) · 꾹(차오르는 고리).
+## 손가락 동작 그림: 끌기(좌우로 미끄러짐) · 튕기기(빠른 획) · 톡(퍼지는 원) · 꾹(차오르는 고리)
+## · 회피(붉은 원 밖으로 튕겨 나감) · 반격(피한 자리 옆에서 톡, 금빛 베기).
 func _draw_gesture(event: StringName, c: Vector2) -> void:
 	var finger := Color(UiStyle.PAPER, 0.9)
 	var t := fmod(_t, 1.6) / 1.6
@@ -140,6 +141,21 @@ func _draw_gesture(event: StringName, c: Vector2) -> void:
 		&"skill_charge":
 			draw_circle(c, 12.0, finger)
 			draw_arc(c, 26.0, -PI * 0.5, -PI * 0.5 + TAU * t, 32, UiStyle.GOLD, 5.0)
+		&"evade":  # 붉은 예고 원이 차오르고, 손가락이 원 밖으로 튕겨 나간다
+			_draw_warn_circle(c + Vector2(-14, 0), minf(t * 1.6, 1.0))
+			var out := ease(clampf((t - 0.45) / 0.3, 0.0, 1.0), 0.3)
+			var f := c + Vector2(-14 + out * 58.0, -out * 26.0)
+			if out > 0.0:
+				draw_line(c + Vector2(-14, 0), f, Color(UiStyle.GOLD, 0.8 * (1.0 - t)), 6.0)
+			draw_circle(f, 12.0, finger)
+		&"skill_counter":  # 원 밖에서 톡 → 원 쪽으로 금빛 베기
+			_draw_warn_circle(c + Vector2(-22, 6), 0.35)
+			var f := c + Vector2(30, -18)
+			draw_circle(f, 12.0, finger)
+			draw_arc(f, 14.0 + t * 26.0, 0.0, TAU, 24, Color(UiStyle.GOLD, 1.0 - t), 3.0)
+			if t > 0.3:
+				var k := clampf((t - 0.3) / 0.25, 0.0, 1.0)
+				draw_line(c + Vector2(-48, -16), c + Vector2(-48 + 56 * k, -16 + 44 * k), Color(UiStyle.GOLD, 1.2 - t), 5.0)
 		&"upgrade":  # 카드 셋 중 가운데를 톡
 			for k in 3:
 				var cr := Rect2(c + Vector2(-46 + k * 32, -26), Vector2(26, 40))
@@ -150,3 +166,9 @@ func _draw_gesture(event: StringName, c: Vector2) -> void:
 				draw_arc(c + Vector2(-7, 6), 10.0 + (t - 0.5) * 30.0, 0.0, TAU, 20, Color(UiStyle.GOLD, 1.0 - t), 3.0)
 		_:
 			draw_circle(c, 16.0, Color(0.55, 0.85, 0.5, 0.5 + 0.3 * sin(_t * 4.0)))  # 탕약 빛
+
+
+## 적의 붉은 예고 원 (k: 0~1 차오름).
+func _draw_warn_circle(c: Vector2, k: float) -> void:
+	draw_circle(c, 32.0, Color(UiStyle.SEAL, 0.12 + 0.3 * k))
+	draw_arc(c, 32.0, 0.0, TAU, 32, Color(UiStyle.SEAL, 0.85), 3.0)

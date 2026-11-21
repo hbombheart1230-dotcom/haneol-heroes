@@ -6,6 +6,8 @@ extends RefCounted
 var main: Node
 var run: TutorialProgress
 var _last_pos: Vector2
+## 회피·반격 단계의 연습 상대.
+var sparring: TutorialSparring
 
 
 func _init(m: Node) -> void:
@@ -19,6 +21,8 @@ func running() -> bool:
 func start(data: TutorialData) -> void:
 	run = TutorialProgress.new(data)
 	run.finished.connect(_on_finished, CONNECT_ONE_SHOT)
+	sparring = TutorialSparring.new(main, data)
+	run.advanced.connect(func(_i: int) -> void: _on_step_changed())
 	run.advanced.connect(func(_i: int) -> void: _maybe_offer_practice())
 	if main.seal_choice:
 		main.seal_choice.chosen.connect(_on_seal_chosen)
@@ -28,17 +32,19 @@ func start(data: TutorialData) -> void:
 	if player:
 		_last_pos = player.global_position
 		player.dash_started.connect(func(_d: Vector2) -> void: run.notify(&"dash"))
+		player.evaded.connect(func() -> void: run.notify(&"evade"))
 		var sc := player.get_node_or_null("SkillCaster") as SkillCaster
 		if sc:
 			sc.skill_cast.connect(_on_skill)
 	if main.tutorial_overlay:
 		main.tutorial_overlay.open(run)
+	_on_step_changed()
 
 
 ## 기술 칸 → 안내 단계 이름.
 static func skill_event(slot: SkillCaster.Slot) -> StringName:
 	return {SkillCaster.Slot.TAP: &"skill_tap", SkillCaster.Slot.DASH: &"skill_dash",
-		SkillCaster.Slot.CHARGE: &"skill_charge"}.get(slot, &"")
+		SkillCaster.Slot.CHARGE: &"skill_charge", SkillCaster.Slot.COUNTER: &"skill_counter"}.get(slot, &"")
 
 
 func _on_skill(slot: SkillCaster.Slot, _hits: int) -> void:
@@ -54,6 +60,22 @@ func tick(delta: float) -> void:
 		run.notify(&"move", player.global_position.distance_to(_last_pos))
 		_last_pos = player.global_position
 	run.notify(&"wait", delta)
+	sparring.tick(delta)
+
+
+## 단계가 바뀌면: 연습 상대를 세우거나 치우고, 반격이 없는 영웅은 반격 단계를 넘긴다 (막히지 않게).
+func _on_step_changed() -> void:
+	var s := run.current() if run else null
+	sparring.sync(s)
+	if s and s.event == &"skill_counter" and not _has_counter():
+		run.notify(&"skill_counter")
+
+
+func _has_counter() -> bool:
+	if main.player == null:
+		return false
+	var sc := main.player.get_node_or_null("SkillCaster") as SkillCaster
+	return sc != null and sc.kit != null and sc.kit.counter != null
 
 
 ## 강화 고르기 단계가 되면 연습 강화 카드 셋을 띄운다 (실제 강화를 얻는다).
@@ -73,6 +95,7 @@ func _on_seal_chosen(_u: UpgradeDef, _major: bool) -> void:
 
 
 func _on_finished() -> void:
+	sparring.clear()  # 연습 상대가 선 채로 건너뛰어도 치운다
 	GameSettings.tutorial_done = true
 	GameSettings.save_settings()
 	if main.spawner and main.state.is_playing():
