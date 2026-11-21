@@ -2,6 +2,8 @@ shader_type canvas_item;
 // 적 가독성: 몸 둘레 망령 빛 테두리 + 몸 밝기·대비 올리기 + 군대 색 물들이기.
 // 테두리는 주변 8점의 알파로 찾는다 (반복문 없음 → 모바일에서 가볍다). 시트의 지금 칸 밖은 읽지 않는다.
 // 수치는 EnemyData(rim_color·rim_width·body_lift·body_contrast·army_tint)에서 온다.
+// 망령 (EnemyData 망령 묶음): ghost_color 알파가 0보다 크면 테두리가 그 색으로 일렁이고, 몸이 조금 비치며,
+// 발쪽(칸 아래 ghost_fade 비율)이 그 색으로 물들며 사라진다. 사람 모습으로 구운 군대를 망령으로 보이게.
 
 uniform vec4 rim_color : source_color = vec4(0.4, 0.6, 1.0, 0.9);
 // 테두리 두께 (텍스처 픽셀).
@@ -13,6 +15,10 @@ uniform vec4 army_tint : source_color = vec4(1.0);
 uniform float tint_mix = 0.0;
 // 구운 시트 한 칸 크기(px). 이웃 칸(다른 프레임)의 알파를 읽지 않도록 지금 칸 안에서만 본다. 0이면 제한 없음.
 uniform float cell_px = 0.0;
+uniform vec4 ghost_color : source_color = vec4(0.0);
+// 망령 몸 불투명도 (1 = 안 비침), 칸 아래에서 사라지는 비율.
+uniform float ghost_body_alpha = 0.88;
+uniform float ghost_fade = 0.22;
 // 피격 흰 번쩍임 (적마다 다름 → instance uniform, EnemySprite가 매 프레임 넣는다). 0이면 원래 색, 1이면 흰색.
 instance uniform float flash = 0.0;
 
@@ -54,9 +60,17 @@ void fragment() {
 	vec3 body = (tex.rgb - 0.5) * body_contrast + 0.5 + body_lift;
 	body = mix(body, body * army_tint.rgb * 1.25, tint_mix);
 	body = mix(body, vec3(1.0), clamp(flash, 0.0, 1.0));
-	vec4 col = vec4(clamp(body, 0.0, 1.0), tex.a) * node_color;
-	vec4 rim = vec4(rim_color.rgb, rim_color.a * outside * node_color.a);
+	float g = ghost_color.a;
+	float y = (UV.y - lo.y) / max(hi.y - lo.y, 1e-5);  // 칸 안 세로 위치 (0 위, 1 아래)
+	float foot = smoothstep(1.0 - ghost_fade - 0.12, 1.0, y) * g;  // 발쪽일수록 1
+	body = mix(body, ghost_color.rgb * 1.2, foot * 0.6);
+	float a = tex.a * mix(1.0, ghost_body_alpha, g) * (1.0 - foot * 0.85);
+	vec4 col = vec4(clamp(body, 0.0, 1.0), a) * node_color;
+	float wave = 0.7 + 0.3 * sin(TIME * 5.0 + UV.y * 60.0 + UV.x * 25.0);  // 일렁이는 테두리
+	vec3 rim_rgb = mix(rim_color.rgb, ghost_color.rgb, g);
+	float rim_a = mix(rim_color.a, ghost_color.a * wave, g);
+	vec4 rim = vec4(rim_rgb, rim_a * outside * node_color.a);
 	// 몸 위에 테두리를 깔고 (몸이 있는 곳은 몸이 이긴다)
-	COLOR = mix(rim, col, tex.a);
+	COLOR = mix(rim, col, a);
 	COLOR.a = max(col.a, rim.a);
 }

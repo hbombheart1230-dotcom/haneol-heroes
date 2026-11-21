@@ -24,5 +24,8 @@ static func material_for(d: EnemyData, affix: EliteAffixData = null) -> ShaderMa
 		m.set_shader_parameter("army_tint", d.army_tint)
 		m.set_shader_parameter("tint_mix", d.tint_mix)
 		m.set_shader_parameter("cell_px", float(d.sprite_sheet.frame_size) if d.sprite_sheet else 0.0)
+		m.set_shader_parameter("ghost_color", d.ghost_color)
+		m.set_shader_parameter("ghost_body_alpha", d.ghost_body_alpha)
+		m.set_shader_parameter("ghost_fade", d.ghost_fade)
 		_cache[key] = m
 	return _cache[key]

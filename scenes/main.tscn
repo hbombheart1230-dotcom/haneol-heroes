@@ -53,6 +53,7 @@
 [ext_resource type="Script" path="res://scripts/fx/reward_fx.gd" id="70_reward_fx"]
 [ext_resource type="Script" path="res://scripts/ui/boss_banner.gd" id="71_boss_banner"]
 [ext_resource type="Script" path="res://scripts/ui/hurt_vignette.gd" id="72_hurt_vignette"]
+[ext_resource type="Script" path="res://scripts/world/ghost_fire.gd" id="73_ghost_fire"]
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 22.0
 
@@ -117,6 +118,9 @@ unlock_times = PackedFloat32Array(0, 10, 20)
 boss_data = ExtResource("19_boss")
 boss_time = 40.0
 elite_data = ExtResource("32_elite")
+
+[node name="GhostFire" type="Node2D" parent="."]
+script = ExtResource("73_ghost_fire")
 
 [node name="EnemyBars" type="Node2D" parent="."]
 script = ExtResource("54_bars")

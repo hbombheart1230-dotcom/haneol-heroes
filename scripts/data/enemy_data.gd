@@ -39,6 +39,13 @@ extends Resource
 ## 스프라이트 색 보정 (보스 금빛 등).
 @export var sprite_tint: Color = Color(1, 1, 1)
 
+@export_group("망령 (사람 모습 + 수묵·후처리)")
+## 망령 빛 색 (군대마다). 알파 0이면 망령 처리 없음 (곤충 등). 알파 = 세기.
+@export var ghost_color: Color = Color(0, 0, 0, 0)
+## 몸 불투명도 (1 = 안 비침), 발쪽이 사라지는 비율, 발밑 도깨비불 크기 배율.
+@export var ghost_body_alpha: float = 0.88
+@export var ghost_fade: float = 0.22
+@export var ghost_fire_scale: float = 1.0
 @export_group("잘 보이게 (shaders/enemy_rim.gdshader)")
 ## 몸 둘레 망령 빛 테두리 색. 알파가 0이면 셰이더를 쓰지 않는다.
 @export var rim_color: Color = Color(0, 0, 0, 0)
