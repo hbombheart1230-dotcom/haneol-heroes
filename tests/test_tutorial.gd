@@ -113,18 +113,15 @@ func test_upgrade_step_drops_practice_seals_and_picking_one_advances() -> void:
 	add_child(main)
 	await get_tree().process_frame
 	var run: TutorialProgress = main.tutorial_director.run
-	var normal_timeout: float = main.seal_choice.timeout
 	run.notify(&"move", 400.0)
 	run.notify(&"dash")
 	run.notify(&"dash")
 	for ev in [&"skill_tap", &"skill_dash", &"skill_charge"]:
 		run.notify(ev)
 	assert_str(String(run.current().event)).is_equal("upgrade")
-	assert_bool(main.seal_choice.is_open()).is_true()  # 연습 인장이 떨어졌다
-	assert_float(main.seal_choice.timeout).is_equal(DATA.upgrade_timeout)
+	assert_bool(main.seal_choice.is_open()).is_true()  # 연습 카드가 나왔다
 	main.seal_choice.pick(0)
 	assert_str(String(run.current().event)).is_equal("wait")  # 하나 먹으면 다음 단계
-	assert_float(main.seal_choice.timeout).is_equal(normal_timeout)
 	run.skip()
 	main.queue_free()
 	GameSettings.tutorial_done = true
@@ -155,31 +152,31 @@ func _advance_to_upgrade(run: TutorialProgress) -> void:
 
 
 func _cleanup(main: Node) -> void:
+	get_tree().paused = false
 	main.queue_free()
 	GameSettings.tutorial_done = true
 	GameSettings.hero_clears = {}
 	GameSettings.save_settings()
 
 
-func test_skipping_with_practice_seals_open_restores_pick_time() -> void:
+func test_skipping_with_practice_cards_open_keeps_cards_until_picked() -> void:
 	var main := _main_at_upgrade_step()
 	await get_tree().process_frame
-	var normal_timeout: float = main.seal_choice.timeout
 	_advance_to_upgrade(main.tutorial_director.run)
 	assert_bool(main.seal_choice.is_open()).is_true()
 	main.tutorial_director.run.skip()
-	assert_float(main.seal_choice.timeout).is_equal(normal_timeout)
+	assert_bool(main.seal_choice.is_open()).is_true()  # 건너뛰어도 카드는 고를 때까지 남는다
+	main.seal_choice.pick(0)
+	assert_bool(get_tree().paused).is_false()
 	_cleanup(main)
 
 
 func test_hero_without_upgrades_does_not_get_stuck_on_upgrade_step() -> void:
 	var main := _main_at_upgrade_step()
 	await get_tree().process_frame
-	var normal_timeout: float = main.seal_choice.timeout
 	main.build.hero = main.build.hero.duplicate()
 	main.build.hero.upgrade_pool = null
 	_advance_to_upgrade(main.tutorial_director.run)
 	assert_bool(main.seal_choice.is_open()).is_false()
 	assert_str(String(main.tutorial_director.run.current().event)).is_equal("wait")  # 넘어감
-	assert_float(main.seal_choice.timeout).is_equal(normal_timeout)
 	_cleanup(main)
