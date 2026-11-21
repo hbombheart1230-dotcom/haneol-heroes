@@ -48,12 +48,12 @@ func _alive() -> bool:
 
 
 func _spawn() -> void:
-	_respawn_left = data.practice_respawn if data else 1.0
 	var sp: EnemySpawner = main.spawner
 	var player: Player = main.player
-	if sp == null or player == null or _wanted == null:
+	if data == null or sp == null or player == null or _wanted == null:
 		return
-	enemy = sp.spawn_at(_wanted, player.global_position + Vector2(0, -(data.practice_distance if data else 240.0)))
+	_respawn_left = data.practice_respawn
+	enemy = sp.spawn_at(_wanted, player.global_position + Vector2(0, -data.practice_distance))
 	if enemy:
 		enemy.killed.connect(_on_killed)
 

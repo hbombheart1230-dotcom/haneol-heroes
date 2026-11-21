@@ -145,3 +145,26 @@ func test_practice_enemy_really_walks_up_and_winds_up_a_harmless_attack() -> voi
 	assert_str(String(dir.run.current().event)).is_equal("evade")  # 피하지 않으면 넘어가지 않는다
 	dir.run.skip()
 	_cleanup(main)
+
+
+func test_real_dash_out_of_the_red_circle_advances_the_dodge_step() -> void:
+	var main := _main()
+	await get_tree().process_frame
+	var dir: TutorialDirector = main.tutorial_director
+	_to_evade(dir.run)
+	var e := dir.sparring.enemy
+	for i in 60 * 6:  # 붉은 원이 그려질 때까지 기다린다
+		await get_tree().physics_frame
+		if is_instance_valid(e) and e.attack and e.attack.state == EnemyAttack.State.WINDUP:
+			break
+	assert_int(e.attack.state).is_equal(EnemyAttack.State.WINDUP)
+	var p: Player = main.player
+	var away := (p.global_position - e.global_position).normalized()
+	p.request_dash(away if away != Vector2.ZERO else Vector2.DOWN)  # 실제 대시로 원 밖으로
+	for i in 60:
+		await get_tree().physics_frame
+		if dir.run.current().event != &"evade":
+			break
+	assert_str(String(dir.run.current().event)).is_equal("skill_counter")
+	dir.run.skip()
+	_cleanup(main)
