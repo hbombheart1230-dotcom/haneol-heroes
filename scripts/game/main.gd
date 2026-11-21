@@ -56,6 +56,8 @@ func _ready() -> void:
 	if settings:
 		settings.changed.connect(_on_settings_changed)
 		settings.closed.connect(_on_settings_closed)
+		settings.opened.connect(func() -> void: settings.exit_mode = flow.exit_mode())
+		settings.exit_confirmed.connect(func(mode: StringName) -> void: flow.exit(mode))
 	# 이전 판의 히트스톱·예고 공격 슬롯이 남지 않게 초기화.
 	GameTime.reset()
 	EnemyAttack.active_windups = 0

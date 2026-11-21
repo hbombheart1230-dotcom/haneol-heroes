@@ -1,20 +1,32 @@
 class_name SettingsScreen
 extends Control
-## 설정 화면 (톱니 단추로 연다): 효과음·음악 크기(밀대), 타격 진동·이야기·스킬 단추(켬/끔), 닫기.
+## 설정 화면 (톱니 단추로 연다): 효과음·음악 크기(밀대), 타격 진동·이야기·스킬 단추(켬/끔), 닫기, 나가기.
 ## 바뀌면 바로 저장하고 changed를 알린다. 열려 있는 동안 게임은 멈춘다 (닫으면 원래대로).
+## 나가기는 한 번 더 묻고 exit_confirmed(exit_mode)를 알린다. 무엇을 할지는 StartFlow가 정한다
+## (판 중: 첫 화면으로, 첫 화면·이야기·영웅 고르기: 게임 끄기). opened 때 exit_mode를 정해 둔다.
 
 signal changed
 signal closed
+signal opened
+signal exit_confirmed(mode: StringName)
 
 const ROWS: Array[StringName] = [&"sfx", &"music", &"haptics", &"story", &"skill_button", &"enemy_hp", &"stats", &"tutorial"]
 const LABELS := {&"sfx": "효과음", &"music": "음악", &"haptics": "타격 진동", &"story": "이야기",
 	&"skill_button": "스킬 단추", &"enemy_hp": "적 체력", &"stats": "수치 표시", &"tutorial": "조작 안내"}
 const ROW_STEP := 92.0
 const SLIDERS: Array[StringName] = [&"sfx", &"music"]
+## 나가기 방식별 [단추 글, 확인 물음 두 줄].
+const EXIT_TEXT := {&"title": ["나가기", "이번 판을 그만두고", "첫 화면으로 돌아갈까요?"],
+	&"quit": ["게임 끄기", "게임을 끌까요?", ""]}
+
+## &"title"(첫 화면으로) 또는 &"quit"(앱 끄기).
+var exit_mode: StringName = &"title"
 
 var _was_paused := false
 var _drag_row: StringName = &""
 var _press_index := -1
+## 나가기를 한 번 누르고 확인을 기다리는 중.
+var _confirming := false
 
 
 func _ready() -> void:
@@ -30,7 +42,9 @@ func open() -> void:
 	get_tree().paused = true
 	_drag_row = &""
 	_press_index = -1
+	_confirming = false
 	show()
+	opened.emit()
 	queue_redraw()
 
 
@@ -75,7 +89,36 @@ func toggle_rect(i: int) -> Rect2:
 
 func close_rect() -> Rect2:
 	var p := panel_rect()
-	return Rect2(p.get_center().x - 130.0, p.end.y - 126.0, 260.0, 80.0)  # 아래 출처 두 줄 자리
+	return Rect2(p.get_center().x - 260.0, p.end.y - 126.0, 250.0, 80.0)  # 아래 출처 두 줄 자리
+
+
+func exit_rect() -> Rect2:
+	var c := close_rect()
+	return Rect2(c.end.x + 20.0, c.position.y, c.size.x, c.size.y)
+
+
+## 나가기 확인 상자와 그 안의 [나가기]·[취소] (확인 중에는 줄 대신 이것만 받는다).
+func confirm_rect() -> Rect2:
+	var p := panel_rect()
+	return Rect2(p.position.x + 32.0, p.get_center().y - 170.0, p.size.x - 64.0, 300.0)
+
+
+func confirm_yes_rect() -> Rect2:
+	var b := confirm_rect()
+	return Rect2(b.get_center().x - 250.0, b.end.y - 110.0, 240.0, 80.0)
+
+
+func confirm_no_rect() -> Rect2:
+	var y := confirm_yes_rect()
+	return Rect2(y.end.x + 20.0, y.position.y, y.size.x, y.size.y)
+
+
+func is_confirming() -> bool:
+	return visible and _confirming
+
+
+func _exit_text(i: int) -> String:
+	return EXIT_TEXT.get(exit_mode, EXIT_TEXT[&"title"])[i]
 
 
 func value_of(row: StringName) -> Variant:
@@ -120,6 +163,8 @@ func handle_touch(index: int, pos: Vector2, pressed: bool) -> void:
 		if _press_index != -1:
 			return
 		_press_index = index
+		if _confirming:
+			return
 		for i in ROWS.size():
 			if SLIDERS.has(ROWS[i]) and slider_rect(i).grow_individual(20, 30, 20, 30).has_point(pos):
 				_drag_row = ROWS[i]
@@ -130,6 +175,19 @@ func handle_touch(index: int, pos: Vector2, pressed: bool) -> void:
 	_press_index = -1
 	if _drag_row != &"":
 		_drag_row = &""
+		return
+	if _confirming:
+		if confirm_yes_rect().has_point(pos):
+			_confirming = false
+			close()
+			exit_confirmed.emit(exit_mode)
+		elif confirm_no_rect().has_point(pos) or not confirm_rect().has_point(pos):
+			_confirming = false
+			queue_redraw()
+		return
+	if exit_rect().has_point(pos):
+		_confirming = true
+		queue_redraw()
 		return
 	if close_rect().has_point(pos) or not panel_rect().has_point(pos):
 		close()
@@ -188,10 +246,25 @@ func _draw() -> void:
 			UiStyle.text(self, UiStyle.BODY_FONT, t.position + Vector2(0, 44), "켬" if on else "끔", 32,
 				UiStyle.GOLD if on else Color(UiStyle.PAPER, 0.6), t.size.x)
 	UiStyle.button(self, close_rect(), "닫기", 40)
+	UiStyle.button(self, exit_rect(), _exit_text(0), 40)
 	for k in UiStyle.CREDITS.size():  # 출처 (공공누리)
 		var y := p.end.y - 10.0 - (UiStyle.CREDITS.size() - 1 - k) * 20.0
 		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(p.position.x, y), UiStyle.CREDITS[k], 16,
 			Color(UiStyle.PAPER, 0.5), p.size.x)
+	if _confirming:
+		_draw_confirm()
+
+
+func _draw_confirm() -> void:
+	draw_rect(panel_rect(), Color(0, 0, 0, 0.55))
+	var b := confirm_rect()
+	UiStyle.panel(self, b, UiStyle.LACQUER_RED, UiStyle.GOLD)
+	var lines := [_exit_text(1), _exit_text(2)].filter(func(l: String) -> bool: return l != "")
+	var y0 := b.position.y + (80.0 if lines.size() > 1 else 100.0)
+	for i in lines.size():
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(b.position.x, y0 + i * 48.0), lines[i], 38, UiStyle.PAPER, b.size.x)
+	UiStyle.button(self, confirm_yes_rect(), _exit_text(0), 38)
+	UiStyle.button(self, confirm_no_rect(), "취소", 38)
 
 
 func _draw_slider(s: Rect2, v: float) -> void:

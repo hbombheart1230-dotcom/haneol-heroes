@@ -6,7 +6,7 @@ const DATA := preload("res://data/tutorial/controls.tres")
 
 func test_data_steps_cover_controls() -> void:
 	var evs := DATA.steps.map(func(s: TutorialStep) -> StringName: return s.event)
-	assert_array(evs).is_equal([&"move", &"dash", &"skill_tap", &"skill_dash", &"skill_charge", &"upgrade", &"wait"])
+	assert_array(evs).is_equal([&"move", &"dash", &"evade", &"skill_counter", &"skill_tap", &"skill_dash", &"skill_charge", &"upgrade", &"wait"])
 	for s in DATA.steps:
 		assert_str(s.caption).is_not_empty()
 		assert_str(s.hint).is_not_empty()
@@ -22,7 +22,7 @@ func test_progress_advances_only_on_matching_event() -> void:
 	p.notify(&"dash")
 	assert_int(p.index).is_equal(1)  # 두 번 해야 넘어감
 	p.notify(&"dash")
-	for ev in [&"skill_tap", &"skill_dash", &"skill_charge", &"upgrade"]:
+	for ev in [&"evade", &"skill_counter", &"skill_tap", &"skill_dash", &"skill_charge", &"upgrade"]:
 		assert_bool(p.notify(ev)).is_true()
 	var done := [false]
 	p.finished.connect(func() -> void: done[0] = true)
@@ -48,7 +48,7 @@ func test_skill_slots_map_to_events() -> void:
 	assert_str(String(TutorialDirector.skill_event(SkillCaster.Slot.TAP))).is_equal("skill_tap")
 	assert_str(String(TutorialDirector.skill_event(SkillCaster.Slot.DASH))).is_equal("skill_dash")
 	assert_str(String(TutorialDirector.skill_event(SkillCaster.Slot.CHARGE))).is_equal("skill_charge")
-	assert_str(String(TutorialDirector.skill_event(SkillCaster.Slot.COUNTER))).is_equal("")
+	assert_str(String(TutorialDirector.skill_event(SkillCaster.Slot.COUNTER))).is_equal("skill_counter")
 
 
 func test_first_run_holds_enemies_and_time_until_done() -> void:
@@ -117,7 +117,7 @@ func test_upgrade_step_drops_practice_seals_and_picking_one_advances() -> void:
 	run.notify(&"move", 400.0)
 	run.notify(&"dash")
 	run.notify(&"dash")
-	for ev in [&"skill_tap", &"skill_dash", &"skill_charge"]:
+	for ev in [&"evade", &"skill_counter", &"skill_tap", &"skill_dash", &"skill_charge"]:
 		run.notify(ev)
 	assert_str(String(run.current().event)).is_equal("upgrade")
 	assert_bool(main.seal_choice.is_open()).is_true()  # 연습 인장이 떨어졌다
@@ -150,7 +150,7 @@ func _advance_to_upgrade(run: TutorialProgress) -> void:
 	run.notify(&"move", 400.0)
 	run.notify(&"dash")
 	run.notify(&"dash")
-	for ev in [&"skill_tap", &"skill_dash", &"skill_charge"]:
+	for ev in [&"evade", &"skill_counter", &"skill_tap", &"skill_dash", &"skill_charge"]:
 		run.notify(ev)
 
 
