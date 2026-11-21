@@ -122,8 +122,15 @@ func exit_mode() -> StringName:
 
 
 func exit(mode: StringName) -> void:
+	prepare_exit()
 	if mode == &"quit":
 		main.get_tree().quit()
 		return
 	GameSettings.back_to_title()
 	main.restart()  # 판을 버리고 장면을 새로 (첫 화면부터)
+
+
+## 나가기 전에 떠 있는 강화 카드를 닫는다 (카드가 걸어 둔 멈춤을 되돌린다).
+func prepare_exit() -> void:
+	if main.seal_choice and main.seal_choice.is_open():
+		main.seal_choice.close()

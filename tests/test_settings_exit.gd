@@ -95,3 +95,22 @@ func test_exit_mode_quits_on_title_and_goes_to_title_in_a_run() -> void:
 	main.settings.close()
 	get_tree().paused = false
 	main.queue_free()
+
+
+func test_exit_closes_open_upgrade_cards_first() -> void:
+	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
+	GameSettings.hero_picked = true
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.tutorial_done = true
+	GameSettings.save_settings()
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	add_child(main)
+	await get_tree().process_frame
+	main.progress.pending += 1
+	main._offer_next()
+	assert_bool(main.seal_choice.is_open()).is_true()
+	main.flow.prepare_exit()
+	assert_bool(main.seal_choice.is_open()).is_false()
+	get_tree().paused = false
+	main.queue_free()
