@@ -51,3 +51,10 @@ Khitan (Biryeo) steppe nomad army of 395 AD: foot soldier with shaved crown and 
 ```
 Jurchen forest hunter army of 1433: foot soldier in a pointed fur cap with a long back braid holding a hand axe, archer with a long wooden bow and a fur quiver, heavy warrior wearing a bear skin and carrying a two-handed great axe, elite warrior with a fur-trimmed long coat and a feathered standard, boss chieftain with a bear-skull headdress and a huge iron club. Colors dark grey-green with white fur and iron metal, ghost fire icy blue.
 ```
+
+## 확정 (2026-11-21, 라인업 v2)
+`assets/concept/redesign/lineups_v2.png` (영웅 넷 · 왜군 · 거란 · 여진, 네 장을 이은 미리보기).
+- 거란: 털 없이 가죽·청동, 모두 정수리 밀고 옆머리 땋기. 보스는 말총 장식 청동 투구 + 큰 언월도.
+- 여진: 모두 흰 뾰족 털모자 + 흰 털 두른 녹색 옷. 곰 가죽은 보스만.
+- 왜군: 삿갓 졸병 · 화승총 · 노다치 무사 · 초승달 투구 + 깃발 대장 · 부채 보스.
+다음: 인물별 고해상도 원본(또는 앞·옆·뒤 설정화) → Meshy.
