@@ -59,6 +59,7 @@
 P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서버, 광고·결제, 멀티플레이, 정식 그래픽. (성장은 사용자 결정으로 3단계에서 런 안 성장만 추가)
 
 ### 보류 항목 (나중에)
+- 새 영웅 디자인(`assets/concept/redesign/heroes`, 2026-11-21)에 맞춰 나중에 따로: 입장 그림(`keyart_portrait` → `tools/art/korean_title_art.py`) + 앱 아이콘(`tools/art/make_icons.py`가 입장 그림에서 자동). 광개토 이야기 첫 장면(`assets/intro/gwanggaeto/s1.png`)도 옛 디자인. 오프닝 영상은 그 뒤
 
 가벼운 조정·마감 항목. 핵심 단계 진행을 막지 않는다.
 
