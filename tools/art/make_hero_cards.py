@@ -1,7 +1,7 @@
 """영웅 고르기 카드 그림 만들기: 새 디자인 원본(흰 바탕)에서 배경을 지우고 카드 크기로 줄인다.
 
   python tools/art/make_hero_cards.py [--ink] [--out <폴더>]
-원본: assets/concept/redesign/heroes/<영웅>.png (1254x1254, 흰 바탕, GPT)
+원본: assets/concept/redesign/heroes/<영웅>_pose.png (대표 자세, 1024x1536) — 없으면 <영웅>.png (A자세, 3D용)
 결과: assets/ui/heroes/<영웅>.png (가로 360, 투명 바탕) — --out을 주면 그 폴더에 (비교용)
 --ink: 입장 그림(수묵)과 어울리게 색을 조금 빼고 한지 빛으로 바랜다.
 - 배경은 가장자리에서 이어진 흰색 + 둘러싸인 큰 순백 구멍을 지운다 (그늘 있는 흰 천은 남는다).
@@ -64,7 +64,10 @@ def main() -> None:
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     for h in HEROES:
-        img = cut_out(Image.open(os.path.join(ROOT, f"assets/concept/redesign/heroes/{h}.png")))
+        src = os.path.join(ROOT, f"assets/concept/redesign/heroes/{h}_pose.png")  # 대표 자세 그림이 있으면 그것
+        if not os.path.exists(src):
+            src = os.path.join(ROOT, f"assets/concept/redesign/heroes/{h}.png")  # 없으면 A자세 (3D용)
+        img = cut_out(Image.open(src))
         if a.ink:
             img = ink_tone(img)
         img = img.resize((WIDTH, round(img.height * WIDTH / img.width)), Image.LANCZOS)
