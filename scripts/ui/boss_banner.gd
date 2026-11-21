@@ -1,13 +1,15 @@
 class_name BossBanner
 extends Control
 ## 보스 등장 연출: 화면 가운데 큰 이름 띠("적장 출현" + 보스 이름)가 잠깐 나오고,
-## 보스가 살아 있는 동안 화면 가장자리가 붉게 어두워지고 무대도 어둡고 붉어진다 (CanvasModulate).
-## 보스가 쓰러지면 천천히 원래대로. 음악 바뀜은 RunMusic(보스 → 후렴)이 따로 한다.
+## 등장하는 동안(pulse_time초) 화면 가장자리와 무대가 붉게 몇 번 깜박이다가 원래대로 돌아온다 (CanvasModulate).
+## 음악 바뀜은 RunMusic(보스 → 후렴)이 따로 한다.
 
 @export var spawner: EnemySpawner
-## 이름 띠가 떠 있는 시간(초), 무대 분위기가 바뀌는 데 걸리는 시간(초).
+## 이름 띠가 떠 있는 시간(초). 붉게 깜박이는 시간(초)과 횟수, 깜박임이 끝난 뒤 남은 붉음이 빠지는 시간(초).
 @export var banner_time: float = 3.0
-@export var mood_fade: float = 1.2
+@export var pulse_time: float = 3.0
+@export var pulses: int = 3
+@export var mood_fade: float = 0.4
 ## 가장자리 어둠 진하기와 색, 무대 색조.
 @export var vignette_alpha: float = 0.8
 @export var vignette_color: Color = Color(0.28, 0.02, 0.02)
@@ -47,7 +49,10 @@ func boss_alive() -> bool:
 
 func step(delta: float) -> void:
 	_t += delta
-	mood = move_toward(mood, 1.0 if boss_alive() else 0.0, delta / maxf(mood_fade, 0.01))
+	if _t < pulse_time and boss_alive():  # 0 → 1 → 0을 pulses번 (깜박임)
+		mood = 0.5 - 0.5 * cos(TAU * pulses * _t / maxf(pulse_time, 0.01))
+	else:
+		mood = move_toward(mood, 0.0, delta / maxf(mood_fade, 0.01))
 	if mood > 0.0 or _tint:
 		_apply_tint()
 

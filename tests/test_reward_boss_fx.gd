@@ -55,7 +55,7 @@ func test_potion_drop_and_drink_show_reward_fx() -> void:
 	assert_int(fx.count()).is_equal(2)
 
 
-func test_boss_banner_shows_name_and_mood_follows_boss_life() -> void:
+func test_boss_banner_blinks_red_then_returns_to_normal() -> void:
 	var b: BossBanner = auto_free(BossBanner.new())
 	add_child(b)
 	var data := EnemyData.new()
@@ -66,15 +66,15 @@ func test_boss_banner_shows_name_and_mood_follows_boss_life() -> void:
 	add_child(boss)
 	b.show_boss(boss)
 	assert_bool(b.banner_visible()).is_true()
-	b.step(b.mood_fade)
+	var peak := b.pulse_time / (2.0 * b.pulses)  # 첫 깜박임 꼭대기
+	b.step(peak)
 	assert_float(b.mood).is_equal_approx(1.0, 0.01)
-	b.step(b.banner_time)
-	assert_bool(b.banner_visible()).is_false()
-	assert_float(b.mood).is_equal_approx(1.0, 0.01)  # 보스가 살아 있는 동안 분위기 유지
-	b.boss = null  # 쓰러짐
+	b.step(peak)  # 첫 깜박임 끝: 다시 원래 색
+	assert_float(b.mood).is_equal_approx(0.0, 0.01)
+	b.step(b.pulse_time)  # 깜박임이 끝나면 보스가 살아 있어도 원래대로
 	b.step(b.mood_fade)
 	assert_float(b.mood).is_equal(0.0)
-
+	assert_bool(b.banner_visible()).is_false()
 
 func test_only_named_enemies_show_name() -> void:
 	var e: Enemy = auto_free(Enemy.new())
