@@ -66,17 +66,25 @@ func _maybe_offer_practice() -> void:
 	main.seal_choice.timeout = run.data.upgrade_timeout
 	main.progress.pending += 1
 	main._offer_next()
+	if not main.seal_choice.is_open():  # 고를 강화가 없는 영웅: 막히지 않게 이 단계를 넘긴다
+		_restore_timeout()
+		run.notify(&"upgrade")
 
 
 func _on_seal_chosen(_u: UpgradeDef, _major: bool) -> void:
-	if _seal_timeout >= 0.0 and main.seal_choice:
-		main.seal_choice.timeout = _seal_timeout
-		_seal_timeout = -1.0
+	_restore_timeout()
 	if run:
 		run.notify(&"upgrade")
 
 
+func _restore_timeout() -> void:
+	if _seal_timeout >= 0.0 and main.seal_choice:
+		main.seal_choice.timeout = _seal_timeout
+	_seal_timeout = -1.0
+
+
 func _on_finished() -> void:
+	_restore_timeout()  # 연습 인장이 떠 있는 채로 건너뛰어도 원래 고르는 시간으로
 	GameSettings.tutorial_done = true
 	GameSettings.save_settings()
 	if main.spawner and main.state.is_playing():

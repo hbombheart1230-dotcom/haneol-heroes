@@ -336,7 +336,9 @@ func _offer_next() -> void:
 		major_pending = 0
 	if progress.pending > 0:
 		var pool := build.hero.upgrade_pool
-		var choices: Array[UpgradeDef] = pool.roll(rng, progress.stacks, count) if pool else []
+		var choices: Array[UpgradeDef] = []  # 빈 배열 리터럴은 타입이 없어 삼항식에 쓰면 오류
+		if pool:
+			choices = pool.roll(rng, progress.stacks, count)
 		if not choices.is_empty():
 			seal_choice.open(choices, player.global_position, false, progress.stacks)
 			return

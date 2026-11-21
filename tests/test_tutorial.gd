@@ -130,3 +130,56 @@ func test_upgrade_step_drops_practice_seals_and_picking_one_advances() -> void:
 	GameSettings.tutorial_done = true
 	GameSettings.hero_clears = {}
 	GameSettings.save_settings()
+
+
+func _main_at_upgrade_step() -> Node:
+	GameSettings.settings_path = GameSettings.test_path()
+	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
+	GameSettings.hero_picked = true
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.tutorial_enabled = true
+	GameSettings.tutorial_done = false
+	GameSettings.save_settings()
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	add_child(main)
+	return main
+
+
+func _advance_to_upgrade(run: TutorialProgress) -> void:
+	run.notify(&"move", 400.0)
+	run.notify(&"dash")
+	run.notify(&"dash")
+	for ev in [&"skill_tap", &"skill_dash", &"skill_charge"]:
+		run.notify(ev)
+
+
+func _cleanup(main: Node) -> void:
+	main.queue_free()
+	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
+	GameSettings.save_settings()
+
+
+func test_skipping_with_practice_seals_open_restores_pick_time() -> void:
+	var main := _main_at_upgrade_step()
+	await get_tree().process_frame
+	var normal_timeout: float = main.seal_choice.timeout
+	_advance_to_upgrade(main.tutorial_director.run)
+	assert_bool(main.seal_choice.is_open()).is_true()
+	main.tutorial_director.run.skip()
+	assert_float(main.seal_choice.timeout).is_equal(normal_timeout)
+	_cleanup(main)
+
+
+func test_hero_without_upgrades_does_not_get_stuck_on_upgrade_step() -> void:
+	var main := _main_at_upgrade_step()
+	await get_tree().process_frame
+	var normal_timeout: float = main.seal_choice.timeout
+	main.build.hero = main.build.hero.duplicate()
+	main.build.hero.upgrade_pool = null
+	_advance_to_upgrade(main.tutorial_director.run)
+	assert_bool(main.seal_choice.is_open()).is_false()
+	assert_str(String(main.tutorial_director.run.current().event)).is_equal("wait")  # 넘어감
+	assert_float(main.seal_choice.timeout).is_equal(normal_timeout)
+	_cleanup(main)
