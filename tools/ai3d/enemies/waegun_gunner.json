@@ -1,6 +1,6 @@
 {
   "name": "waegun_gunner",
-  "image": "assets/concept/enemies/waegun/gunner.png",
+  "image": "assets/concept/redesign/waegun/gunner.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,

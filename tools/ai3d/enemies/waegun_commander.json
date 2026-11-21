@@ -1,6 +1,6 @@
 {
   "name": "waegun_commander",
-  "image": "assets/concept/enemies/waegun/commander_boss.png",
+  "image": "assets/concept/redesign/waegun/commander.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,

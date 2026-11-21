@@ -1,6 +1,6 @@
 {
   "name": "waegun_heavy",
-  "image": "assets/concept/enemies/waegun/heavy.png",
+  "image": "assets/concept/redesign/waegun/heavy.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,

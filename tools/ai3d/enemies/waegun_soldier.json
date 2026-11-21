@@ -1,6 +1,6 @@
 {
   "name": "waegun_soldier",
-  "image": "assets/concept/enemies/waegun/soldier.png",
+  "image": "assets/concept/redesign/waegun/soldier.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,

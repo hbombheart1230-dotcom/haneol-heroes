@@ -1,6 +1,6 @@
 {
   "name": "waegun_elite",
-  "image": "assets/concept/enemies/waegun/elite.png",
+  "image": "assets/concept/redesign/waegun/elite.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
