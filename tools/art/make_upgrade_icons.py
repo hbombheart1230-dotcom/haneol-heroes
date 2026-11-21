@@ -138,7 +138,8 @@ def _gpt_art(hero: str, uid: str):
 def make_icon(hero: str, uid: str) -> Image.Image:
     sp = SPEC[(hero, uid)]
     gpt = _gpt_art(hero, uid)
-    if gpt is not None:
+    if gpt is not None:  # spec의 gpt=True(임시 12개)가 아니어도 넣으면 바뀐다 — 기술 강화 그림을 따로 받을 때도 같은 길
+        print(f"GPT 그림 사용: {hero}/{uid}" + ("" if sp["gpt"] else " (기술 강화 그림 교체)"))
         art = gpt
         sp = dict(sp, tone=None, over=[])
     elif sp["base"].startswith("icon:"):
@@ -165,25 +166,49 @@ def icon_path(hero: str, uid: str) -> str:
     return f"{OUT_DIR}/{hero}/{uid}.png"
 
 
+def _upgrade_blocks(text: str):
+    """.tres를 sub_resource 덩어리로 나누고, UpgradeDef(upgrade_def.gd) 덩어리 번호와 id를 돌려준다."""
+    m = re.search(r'^\[ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="([^"]+)"\]', text, re.M)
+    if not m:
+        raise ValueError("upgrade_def.gd 스크립트 연결이 없다")
+    script = f'script = ExtResource("{m.group(1)}")'
+    blocks = re.split(r'(?=^\[sub_resource )', text, flags=re.M)
+    found = []
+    for i, blk in enumerate(blocks):
+        if script in blk:
+            uid = re.search(r'^id = &"([^"]+)"', blk, re.M)
+            if not uid:
+                raise ValueError(f"강화 덩어리 {i}에 id가 없다")
+            found.append((i, uid.group(1)))
+    return blocks, found
+
+
+def upgrade_ids(pool_rel: str) -> list:
+    with open(os.path.join(ROOT, pool_rel), encoding="utf-8") as f:
+        return [u for _, u in _upgrade_blocks(f.read())[1]]
+
+
 def relink(pool_rel: str, hero: str) -> None:
-    """풀 .tres의 강화마다 icon을 새 그림으로 바꾸고, 안 쓰는 옛 Texture 연결은 지운다."""
+    """풀 .tres의 강화마다 icon을 새 그림으로 바꾸고, 안 쓰는 옛 Texture 연결은 지운다.
+    UpgradeDef 덩어리만 건드린다. 예상과 다른 모양이면 고치지 않고 멈춘다 (파일을 망가뜨리지 않게)."""
     path = os.path.join(ROOT, pool_rel)
     with open(path, encoding="utf-8") as f:
         text = f.read()
-    ids = re.findall(r'^id = &"([^"]+)"', text, re.M)
     text = re.sub(r'^\[ext_resource type="Texture2D"[^\n]*\n', "", text, flags=re.M)
-    head = "".join(f'[ext_resource type="Texture2D" path="res://{icon_path(hero, u)}" id="icon_{u}"]\n' for u in ids)
-    text = re.sub(r'(\[ext_resource type="Script"[^\n]*\n)(?!\[ext_resource type="Script")', lambda m: m.group(1) + head,
-                  text, count=1)
-    # 각 강화 블록: id 다음의 icon 줄을 바꾸거나 description 뒤에 넣는다
-    blocks = re.split(r'(?=^\[sub_resource )', text, flags=re.M)
-    for i, blk in enumerate(blocks):
-        m = re.search(r'^id = &"([^"]+)"', blk, re.M)
-        if not m:
-            continue
-        line = f'icon = ExtResource("icon_{m.group(1)}")\n'
-        blk = re.sub(r'^icon = [^\n]*\n', "", blk, flags=re.M)
-        blocks[i] = re.sub(r'^(color = )', line + r"\1", blk, count=1, flags=re.M)
+    blocks, found = _upgrade_blocks(text)
+    head = "".join(f'[ext_resource type="Texture2D" path="res://{icon_path(hero, u)}" id="icon_{u}"]\n' for _, u in found)
+    first = blocks[0]
+    last_script = list(re.finditer(r'^\[ext_resource type="Script"[^\n]*\n', first, re.M))
+    if not last_script:
+        raise ValueError(f"{pool_rel}: 스크립트 연결 줄이 없다")
+    cut = last_script[-1].end()
+    blocks[0] = first[:cut] + head + first[cut:]
+    for i, uid in found:
+        blk = re.sub(r'^icon = [^\n]*\n', "", blocks[i], flags=re.M)
+        anchor = re.search(r'^color = ', blk, re.M) or re.search(r'^max_stacks = ', blk, re.M)
+        if not anchor:
+            raise ValueError(f"{pool_rel} / {uid}: icon을 넣을 자리(color·max_stacks)가 없다")
+        blocks[i] = blk[:anchor.start()] + f'icon = ExtResource("icon_{uid}")\n' + blk[anchor.start():]
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write("".join(blocks))
 
@@ -197,8 +222,7 @@ def pools():
 def main() -> None:
     made = 0
     for pool, hero in pools():
-        with open(os.path.join(ROOT, pool), encoding="utf-8") as f:
-            ids = re.findall(r'^id = &"([^"]+)"', f.read(), re.M)
+        ids = upgrade_ids(pool)
         os.makedirs(os.path.join(ROOT, OUT_DIR, hero), exist_ok=True)
         for uid in ids:
             make_icon(hero, uid).save(os.path.join(ROOT, icon_path(hero, uid)), optimize=True)
@@ -212,8 +236,7 @@ def main() -> None:
 def sheet(out: str) -> None:
     rows = []
     for pool, hero in pools():
-        with open(os.path.join(ROOT, pool), encoding="utf-8") as f:
-            rows.append([icon_path(hero, u) for u in re.findall(r'^id = &"([^"]+)"', f.read(), re.M)])
+        rows.append([icon_path(hero, u) for u in upgrade_ids(pool)])
     cols = max(len(r) for r in rows)
     s = 128
     img = Image.new("RGB", (cols * s, len(rows) * s), (40, 30, 30))
