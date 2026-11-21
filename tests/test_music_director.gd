@@ -15,8 +15,8 @@ func test_every_stage_has_a_complete_song() -> void:
 
 func test_interactive_stream_has_named_clips_and_bar_transitions() -> void:
 	var s := SONG.interactive()
-	assert_int(s.clip_count).is_equal(4)
-	for i in 4:
+	assert_int(s.clip_count).is_equal(5)
+	for i in 5:
 		assert_str(String(s.get_clip_name(i))).is_equal(String(StageSong.SECTIONS[i]))
 	assert_object(SONG.interactive()).is_same(s)  # 한 번 만들어 재사용
 	assert_bool(s.has_transition(AudioStreamInteractive.CLIP_ANY, 2)).is_true()  # → 후렴
@@ -138,3 +138,23 @@ func test_stage_plays_its_own_song_and_hero_starts_at_home() -> void:
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.save_settings()
+
+
+func test_every_stage_has_a_boss_version_with_its_own_tempo() -> void:
+	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo", "hansan_1592"]:
+		var song := (load("res://data/stages/%s.tres" % id) as StageTheme).song
+		assert_object(song.boss).is_not_null()
+		assert_float(song.boss_bpm).is_greater(song.bpm)  # 보스 판이 더 빠르다
+		var s := song.interactive()
+		assert_int(s.get_transition_from_time(AudioStreamInteractive.CLIP_ANY, 4)).is_equal(
+			AudioStreamInteractive.TRANSITION_FROM_TIME_IMMEDIATE)  # 마디를 기다리지 않고 바로
+		var boss := s.get_clip_stream(4) as AudioStreamOggVorbis
+		assert_bool(boss.loop).is_true()
+		assert_float(boss.bpm).is_equal(song.boss_bpm)
+		assert_str(String(RunMusic.section_for(&"boss", song))).is_equal("boss")
+
+
+func test_boss_falls_back_to_chorus_without_a_boss_version() -> void:
+	var song := StageSong.new()
+	assert_str(String(RunMusic.section_for(&"boss", song))).is_equal("chorus")
+	assert_str(String(RunMusic.section_for(&"stage", song))).is_equal("verse")

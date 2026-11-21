@@ -9,7 +9,7 @@ static func player() -> AudioStreamPlayer:
 	return p if p != null and is_instance_valid(p) else null
 
 
-## 노래의 한 구간을 튼다 (&"intro" / &"verse" / &"chorus" / &"outro"). 바꿨으면 true.
+## 노래의 한 구간을 튼다 (&"intro" / &"verse" / &"chorus" / &"outro" / &"boss"). 바꿨으면 true.
 static func play(song: StageSong, section: StringName, fade: float = 0.6) -> bool:
 	var p := player()
 	if p == null or song == null or not StageSong.SECTIONS.has(section):

@@ -282,3 +282,8 @@ Korean traditional epic overture, cinematic game opening theme, four heroes awak
 | 만주 (광개토) 밀양아리랑 | `Korean folk metal boss battle, Miryang Arirang refrain "nal jom boso nal jom boso", driving 112 BPM, drop-tuned heavy guitars, galloping cavalry drums with buk and jing gong, daegak war horns, powerful high-register vocal with fierce belted high notes and rough husky tone, war cry chants, tragic and fierce, epic climax, short instrumental intro` |
 | 경복궁 (세종) 긴아리랑 | `Korean orchestral rock boss battle, Gin Arirang melody, majestic 118 BPM, power chords with pyeonjong bronze bells and yonggo drums, brass and strings, male choir, powerful high-register jeongga vocal with long soaring high notes, royal and solemn but explosive, guitar solo, epic climax, short instrumental intro` |
 | 초충도 (사임당) 정선아리랑 | `Korean folk rock boss battle, Jeongseon Arirang refrain "arirang arirang arariyo", fast 160 BPM, gayageum sanjo and electric guitar duel, haegeum lead, rock drums with janggu, swirling ink storm, mysterious and intense, powerful high-register vocal with bright soaring high notes and sigimsae, bright guitar solo, short instrumental intro` |
+
+**쓴 판 (2026-11-21):** 국악기만 쓴 판 (§7-1 뒤에 드린 한국 악기 스타일). `build/music_src/boss/<무대>.mp3`,
+`tools/audio/cut_boss.py`로 뒤쪽 힘찬 구간을 반복용으로 자름 (8마디 단위):
+한산도 152 BPM 68–124마디 (111–201초) · 만주 112.3 BPM 56–96 (119–203초) · 경복궁 123 BPM 48–104 (96–207초) · 초충도 161.5 BPM 60–124 (92–190초).
+보스 등장 → 0.8초 겹쳐 보스 판으로 (StageSong.boss).

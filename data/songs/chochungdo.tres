@@ -5,6 +5,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/verse.ogg" id="verse"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/chorus.ogg" id="chorus"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/outro.ogg" id="outro"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/boss.ogg" id="boss"]
 
 [resource]
 script = ExtResource("1_song")
@@ -14,3 +15,5 @@ chorus = ExtResource("chorus")
 outro = ExtResource("outro")
 bpm = 141.9
 bar_beats = 4
+boss = ExtResource("boss")
+boss_bpm = 161.5
