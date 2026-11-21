@@ -1,6 +1,6 @@
 {
   "name": "biryeo_chieftain",
-  "image": "assets/concept/enemies/biryeo/chieftain_boss.png",
+  "image": "assets/concept/redesign/khitan/chieftain.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,

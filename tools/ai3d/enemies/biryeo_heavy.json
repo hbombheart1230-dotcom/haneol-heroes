@@ -1,6 +1,6 @@
 {
   "name": "biryeo_heavy",
-  "image": "assets/concept/enemies/biryeo/heavy.png",
+  "image": "assets/concept/redesign/khitan/heavy.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,

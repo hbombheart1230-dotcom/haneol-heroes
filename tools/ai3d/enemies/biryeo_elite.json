@@ -1,6 +1,6 @@
 {
   "name": "biryeo_elite",
-  "image": "assets/concept/enemies/biryeo/elite.png",
+  "image": "assets/concept/redesign/khitan/elite.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
