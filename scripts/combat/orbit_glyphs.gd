@@ -13,6 +13,10 @@ var hit_interval: float = 0.5
 var spin_speed: float = 3.2
 ## 글자 하나의 판정 반경(px).
 var glyph_radius: float = 30.0
+## 고리 밑에 깔리는 그림 (정음 자모 고리, 함께 돈다)과 크기 배율(반지름 대비)·투명도.
+var art: Texture2D
+var art_scale: float = 2.4
+var art_alpha: float = 0.55
 
 var hits: int = 0
 var _age: float = 0.0
@@ -41,7 +45,7 @@ func _physics_process(delta: float) -> void:
 				if now - float(_last_hit.get(id, -INF)) < hit_interval:
 					continue
 				_last_hit[id] = now
-				if ctx.hit(en, damage):
+				if ctx.hit(en, damage, false):
 					hits += 1
 	if _age >= duration:
 		queue_free()
@@ -50,7 +54,13 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	var fade := clampf((duration - _age) / 0.4, 0.0, 1.0)
-	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(UiStyle.GOLD, 0.25 * fade), 2.0)
+	if art:
+		var s := radius * art_scale
+		draw_set_transform(Vector2.ZERO, _age * spin_speed * 0.5, Vector2.ONE)
+		draw_texture_rect(art, Rect2(-s * 0.5, -s * 0.5, s, s), false, Color(1, 1, 1, art_alpha * fade))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	else:
+		draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(UiStyle.GOLD, 0.25 * fade), 2.0)
 	var n := maxi(glyphs.length(), 1)
 	for i in n:
 		var p := Vector2.from_angle(_age * spin_speed + TAU * i / n) * radius

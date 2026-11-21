@@ -147,7 +147,7 @@ func test_every_yi_upgrade_targets_a_real_property() -> void:
 	assert_object(HERO.upgrade_pool).is_same(POOL)
 
 
-# --- 전장 인장 고르기 ---
+# --- 강화 카드 고르기 ---
 
 func _seal(p: Player) -> SealChoice:
 	var sc: SealChoice = auto_free(SealChoice.new())
@@ -156,76 +156,73 @@ func _seal(p: Player) -> SealChoice:
 	return sc
 
 
-func test_seal_opens_slow_time_and_picks_by_touching() -> void:
+func _tap(sc: SealChoice, i: int) -> void:
+	var c := sc.cards.card_rect(i).get_center()
+	sc.cards.handle_touch(0, c, true)
+	sc.cards.handle_touch(0, c, false)
+
+
+func test_cards_pause_and_pick_by_tapping() -> void:
 	var parts := _player_with_build()
-	var p: Player = parts[0]
-	p.global_position = Vector2.ZERO
-	var sc := _seal(p)
+	var sc := _seal(parts[0])
+	sc.cards.size = Vector2(720, 1280)
 	var picked: Array = []
 	sc.chosen.connect(func(u: UpgradeDef, major: bool) -> void: picked.append([u, major]))
 	var ups: Array[UpgradeDef] = [_up(&"a", []), _up(&"b", []), _up(&"c", [])]
-	sc.open(ups, p.global_position, false, {})
+	sc.open(ups, Vector2.ZERO, false, {})
 	assert_bool(sc.is_open()).is_true()
-	assert_float(Engine.time_scale).is_equal(sc.slow_scale)
-	assert_int(sc.positions.size()).is_equal(3)
-	for q in sc.positions:
-		assert_float(q.distance_to(Vector2.ZERO)).is_equal_approx(sc.spread, 0.01)
-	sc.step(0.1)
-	assert_bool(sc.is_open()).is_true()  # 아무것도 안 닿음
-	p.global_position = sc.positions[2]
-	sc.step(0.016)
+	assert_bool(get_tree().paused).is_true()  # 카드를 고르는 동안 게임이 멈춘다
+	_tap(sc, 2)
+	assert_int(picked.size()).is_equal(0)  # 열린 직후 누름은 무시 (싸우다 잘못 누름)
+	sc.cards.step(sc.cards.input_delay)
+	_tap(sc, 2)
 	assert_int(picked.size()).is_equal(1)
 	assert_object(picked[0][0]).is_same(ups[2])
 	assert_bool(picked[0][1]).is_false()
 	assert_bool(sc.is_open()).is_false()
-	assert_float(Engine.time_scale).is_equal(1.0)
+	assert_bool(get_tree().paused).is_false()
 
 
-func test_seal_timeout_picks_nearest() -> void:
+func test_press_on_one_card_release_on_another_picks_nothing() -> void:
 	var parts := _player_with_build()
-	var p: Player = parts[0]
-	p.global_position = Vector2.ZERO
-	var sc := _seal(p)
+	var sc := _seal(parts[0])
+	sc.cards.size = Vector2(720, 1280)
 	var picked: Array = []
 	sc.chosen.connect(func(u: UpgradeDef, _m: bool) -> void: picked.append(u))
-	var ups: Array[UpgradeDef] = [_up(&"a", []), _up(&"b", []), _up(&"c", [])]
-	sc.open(ups, Vector2.ZERO, true, {})
-	p.global_position = sc.positions[1] * 0.4  # 1번 쪽으로 조금 이동
-	sc.step(sc.timeout + 0.01)
-	assert_object(picked[0]).is_same(ups[1])
-
-
-func test_hit_stop_returns_to_slow_time_not_full_speed() -> void:
-	var parts := _player_with_build()
-	var p: Player = parts[0]
-	GameTime.set_base(0.35)
-	var ctx := SkillContext.new()
-	ctx.player = p
-	ctx.hit_stop(0.05)
-	assert_float(Engine.time_scale).is_less(0.1)
-	await get_tree().create_timer(0.15, true, false, true).timeout
-	assert_float(Engine.time_scale).is_equal(0.35)
-	GameTime.reset()
-
-
-func test_iconless_seal_first_draw_has_no_zero_font() -> void:
-	# Codex 27e25cb 회귀: 막 열린 인장(크기 0)에서 글꼴 크기 0으로 그리지 않는다
-	var parts := _player_with_build()
-	var sc := _seal(parts[0])
-	sc.open([_up(&"a", []), _up(&"b", [])] as Array[UpgradeDef], Vector2.ZERO, false, {})
-	sc.queue_redraw()
-	await get_tree().process_frame
-	assert_bool(sc.is_open()).is_true()
+	sc.open([_up(&"a", []), _up(&"b", []), _up(&"c", [])] as Array[UpgradeDef], Vector2.ZERO, true, {})
+	sc.cards.step(1.0)
+	sc.cards.handle_touch(0, sc.cards.card_rect(0).get_center(), true)
+	sc.cards.handle_touch(0, sc.cards.card_rect(1).get_center(), false)
+	assert_int(picked.size()).is_equal(0)
+	assert_bool(sc.is_open()).is_true()  # 시간 제한 없음
 	sc.close()
+	assert_bool(get_tree().paused).is_false()
 
 
-func test_seals_stay_inside_arena() -> void:
+func test_cards_keep_an_already_paused_game_paused() -> void:
 	var parts := _player_with_build()
 	var sc := _seal(parts[0])
-	sc.arena_rect = Rect2(-200, -200, 400, 400)
-	sc.open([_up(&"a", []), _up(&"b", []), _up(&"c", [])] as Array[UpgradeDef], Vector2(190, 190), false, {})
-	for q in sc.positions:
-		assert_bool(sc.arena_rect.grow(-sc.seal_radius + 0.01).has_point(q)).is_true()
+	get_tree().paused = true
+	sc.open([_up(&"a", [])] as Array[UpgradeDef], Vector2.ZERO, false, {})
+	sc.close()
+	assert_bool(get_tree().paused).is_true()
+	get_tree().paused = false
+
+
+func test_cards_fit_and_draw_long_text() -> void:
+	var parts := _player_with_build()
+	var sc := _seal(parts[0])
+	sc.cards.size = Vector2(720, 1280)
+	var long := _up(&"a", [])
+	long.title = "뇌진격 · 아주 아주 무거운 검"
+	long.description = "기본 공격 피해 +40% 그리고 적을 더 멀리 밀어낸다"
+	sc.open([long, _up(&"b", []), _up(&"c", [])] as Array[UpgradeDef], Vector2.ZERO, false, {long.id: 1})
+	for i in 3:
+		var r := sc.cards.card_rect(i)
+		assert_bool(Rect2(Vector2.ZERO, sc.cards.size).encloses(r)).is_true()
+	assert_int(UpgradeCards.wrap_lines(UiStyle.BODY_FONT, long.description, 22, 180.0, 3).size()).is_less_equal(3)
+	sc.cards.queue_redraw()
+	await get_tree().process_frame
 	sc.close()
 
 
@@ -285,7 +282,7 @@ func test_run_has_no_time_victory() -> void:
 	assert_int(g.result).is_equal(GameState.Result.VICTORY)
 
 
-func test_main_scene_level_up_drops_seals_without_pausing() -> void:
+func test_main_scene_level_up_shows_cards_and_pauses() -> void:
 	_skip_hero_select()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
@@ -301,18 +298,12 @@ func test_main_scene_level_up_drops_seals_without_pausing() -> void:
 	var sc: SealChoice = main.seal_choice
 	assert_bool(sc.is_open()).is_true()
 	assert_bool(sc.major).is_false()
-	assert_bool(get_tree().paused).is_false()
-	assert_float(Engine.time_scale).is_equal(sc.slow_scale)
-	var t: float = main.state.elapsed
-	await get_tree().physics_frame
-	assert_float(main.state.elapsed).is_greater(t)  # 멈추지 않는다 (느리게 흐름)
-	var player: Player = main.get_node("Player")
+	assert_bool(get_tree().paused).is_true()  # 카드를 고르는 동안 멈춘다
 	var u: UpgradeDef = sc.choices[0]
-	player.global_position = sc.positions[0]
-	sc.step(0.016)
+	sc.pick(0)
 	assert_bool(sc.is_open()).is_false()
+	assert_bool(get_tree().paused).is_false()
 	assert_int(main.progress.stacks.get(u.id, 0)).is_equal(1)
-	assert_float(Engine.time_scale).is_equal(1.0)
 	# 정예 처치 → 금빛 큰 변형 인장
 	var elite: Enemy = spawner.spawn_elite()
 	elite.health.kill()
@@ -332,9 +323,19 @@ func _skip_hero_select() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.hero_picked = true
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
+	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.save_settings()
+
+
+## 실제 시간으로 기다린다 (ignore_time_scale 타이머는 느린 시간에서 일찍 끝난다).
+func _wait_real(seconds: float) -> void:
+	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
+	while Time.get_ticks_msec() < end:
+		await get_tree().process_frame

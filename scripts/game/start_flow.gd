@@ -22,6 +22,18 @@ func _init(m: Node) -> void:
 
 func next() -> void:
 	var player: Player = main.player
+	if main.opening_video and main.opening_video.stream and not GameSettings.opening_seen 			and not GameSettings.title_seen:
+		_hold()  # 오프닝 영상 (소리 없음): 입장 곡(한얼 아리랑)이 처음부터 흐르고 입장 화면까지 이어진다
+		main.menu_music()
+		main.opening_video.finished.connect(_on_opening_finished, CONNECT_ONE_SHOT)
+		main.opening_video.open()
+		return
+	if not _ready_to_run():
+		# 영웅 이야기 차례면 그 영웅 무대의 노래 (판이 시작돼도 끊기지 않고 이어진다), 아니면 입장 음악
+		if pending_hero_story() and not (main.title_screen and not GameSettings.title_seen):
+			main.hero_music(player.hero)
+		else:
+			main.menu_music()
 	if main.title_screen and not GameSettings.title_seen:
 		_hold()
 		main.title_screen.entered.connect(_on_title_entered, CONNECT_ONE_SHOT)
@@ -44,6 +56,15 @@ func next() -> void:
 		main.begin_run()
 
 
+## 이번 호출에서 바로 판이 시작되는지 (띄울 화면이 하나도 없으면).
+func _ready_to_run() -> bool:
+	if not GameSettings.title_seen or (prologue_pending and prologue):
+		return false
+	if main.playable_heroes().size() > 1 and not GameSettings.hero_picked:
+		return false
+	return not pending_hero_story()
+
+
 ## 방금 고른 영웅의 이야기를 보여 줄 차례면 true.
 func pending_hero_story() -> bool:
 	var player: Player = main.player
@@ -57,10 +78,15 @@ func _hold() -> void:
 	main.get_tree().paused = true
 
 
+func _on_opening_finished() -> void:
+	GameSettings.opening_seen = true
+	next()
+
+
 func _on_title_entered() -> void:
 	Feedback.ui()
 	GameSettings.title_seen = true
-	prologue_pending = GameSettings.should_show_story(GameSettings.intro_seen)
+	prologue_pending = GameSettings.story_enabled and GameSettings.should_show_story(GameSettings.intro_seen)
 	next()
 
 
@@ -74,7 +100,8 @@ func _on_hero_picked(h: HeroData) -> void:
 	Feedback.ui()
 	GameSettings.hero_id = h.id
 	GameSettings.hero_picked = true
-	hero_story_pending = true
+	GameSettings.hero_stages.erase(String(h.id))  # 영웅을 고르면 자기 무대부터
+	hero_story_pending = GameSettings.story_enabled
 	GameSettings.save_settings()
 	var player: Player = main.player
 	if player and h != player.hero:
@@ -88,3 +115,22 @@ func _on_hero_story_finished(hero_id: StringName) -> void:
 	GameSettings.save_settings()
 	next()
 
+
+## 설정 "나가기"가 할 일: 판 전 화면(첫 화면·이야기·영웅 고르기)이면 게임 끄기, 판 중·결과 화면이면 첫 화면으로.
+func exit_mode() -> StringName:
+	return &"quit" if main.waiting_pick else &"title"
+
+
+func exit(mode: StringName) -> void:
+	prepare_exit()
+	if mode == &"quit":
+		main.get_tree().quit()
+		return
+	GameSettings.back_to_title()
+	main.restart()  # 판을 버리고 장면을 새로 (첫 화면부터)
+
+
+## 나가기 전에 떠 있는 강화 카드를 닫는다 (카드가 걸어 둔 멈춤을 되돌린다).
+func prepare_exit() -> void:
+	if main.seal_choice and main.seal_choice.is_open():
+		main.seal_choice.close()

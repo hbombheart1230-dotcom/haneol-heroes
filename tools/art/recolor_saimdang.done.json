@@ -1,0 +1,9 @@
+{
+ "assets/sprites/shin_saimdang/attack.png": "aa4826cb325814bce55ae8d323b14a0041f7d4364616bbe2a031cf2543e5a9d2",
+ "assets/sprites/shin_saimdang/dash.png": "0a44b48da806d39cf93d2f8736f9d780cb18ae3cd79d73b7d44a4ecdc230e2ea",
+ "assets/sprites/shin_saimdang/death.png": "a22de1499f12adb09a8eee00cfa5ccd30f6b1bb854165e37c7e93812d1a43d61",
+ "assets/sprites/shin_saimdang/hit.png": "1b33362d4d741c6261322a6f7cbfbd5385f4b0a360e0b8b497e3d29d921880b7",
+ "assets/sprites/shin_saimdang/idle.png": "7a7e2dc9d6323fecfd016ccb152a39246382dc2d0ca4a3f22275759e61aa406f",
+ "assets/sprites/shin_saimdang/run.png": "d34ec97eb1f5235ce33bd78d0ab2b12c58125469c0c3f760a13dcb2206f33c97",
+ "assets/ui/heroes/shin_saimdang.png": "c7ee7059a2345d783f543381af15228bfb58c17807fb00770a6b7c31b09f3d9c"
+}

@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
 [ext_resource type="Resource" path="res://assets/sprites/jurchen_heavy/jurchen_heavy.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://data/enemies/behaviour/jurchen_heavy_charge.tres" id="beh"]
 
 [sub_resource type="Resource" id="Attack_heavy_slam"]
 script = ExtResource("2_attack")
@@ -29,6 +30,15 @@ preferred_range = 0.0
 knockback_scale = 0.3
 stun_scale = 0.8
 sprite_sheet = ExtResource("3_sheet")
-sprite_tint = Color(1, 0.96, 0.92, 1)
 sprite_scale = 1.45
 sprite_offset = Vector2(0, -60)
+launch_scale = 0.6
+rim_color = Color(0.45, 1, 0.92, 0.9)
+rim_width = 3.0
+body_lift = 0.0
+body_contrast = 1.05
+army_tint = Color(1, 1, 1, 1)
+tint_mix = 0.0
+behaviour = ExtResource("beh")
+ghost_color = Color(0.45, 0.9, 1, 0.9)
+ghost_fire_scale = 1.25

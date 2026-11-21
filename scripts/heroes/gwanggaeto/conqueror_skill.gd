@@ -6,7 +6,6 @@ extends SkillDef
 @export var damage: int = 70
 @export var stun_time: float = 1.2
 @export var knockback: float = 380.0
-@export var hit_stop: float = 0.1
 @export_group("큰 변형 · 천둥 군림")
 ## 0보다 크면 내리찍은 자리에 이 시간(초) 천둥 지대가 남는다.
 @export var field_time: float = 0.0
@@ -24,6 +23,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		if ctx.hit(en, damage):
 			en.stun(stun_time)
 		hits += 1
+	ctx.impact(center)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.5, fx_color)
 		ctx.fx.add_ring(center, radius * 0.7, 0.35, Color(1, 1, 1))
@@ -40,6 +40,4 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		z.color = fx_color
 		ctx.add_to_world(z, center)
 	ctx.shake(0.5)
-	if hits > 0:
-		ctx.hit_stop(hit_stop)
-	return SkillRun.instant(hits)
+	return SkillRun.instant(hits)  # 명중 멈춤은 SkillHitStop 공통 규칙 (피해 비례, D3)

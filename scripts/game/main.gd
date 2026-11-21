@@ -18,6 +18,17 @@ extends Node2D
 @export var stages: Array[StageTheme] = []
 ## 입장 뒤 이야기 인트로 (처음 한 번).
 @export var story_intro: StoryIntro
+## 설정 화면 (톱니 단추). 바뀌면 스킬 단추 등을 바로 반영.
+@export var settings: SettingsScreen
+## 앱을 켜면 입장 화면 앞에 한 번 나오는 오프닝 영상.
+@export var opening_video: OpeningVideo
+## 첫 판 조작 안내 (끝내기 전엔 적이 나오지 않고 시간도 가지 않는다).
+@export var tutorial: TutorialData
+@export var tutorial_overlay: TutorialOverlay
+## 난이도 곡선: 영웅이 이긴 전장 수만큼 적이 강해진다.
+@export var difficulty: DifficultyCurve
+var _base_spawn := {}
+var tutorial_director: TutorialDirector
 ## 깨면 탕약이 나오는 물건들 (무대마다 다름).
 @export var breakables: BreakableField
 ## 결과 화면에서 재시작 입력을 받기까지 대기(초). 연타로 바로 넘어가는 것을 막는다.
@@ -42,6 +53,11 @@ func _ready() -> void:
 	# 게임 오브젝트는 일시정지되도록 명시한다 (INHERIT면 Main의 ALWAYS를 물려받음).
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	flow = StartFlow.new(self)
+	if settings:
+		settings.changed.connect(_on_settings_changed)
+		settings.closed.connect(_on_settings_closed)
+		settings.opened.connect(func() -> void: settings.exit_mode = flow.exit_mode())
+		settings.exit_confirmed.connect(func(mode: StringName) -> void: flow.exit(mode))
 	# 이전 판의 히트스톱·예고 공격 슬롯이 남지 않게 초기화.
 	GameTime.reset()
 	EnemyAttack.active_windups = 0
@@ -69,7 +85,7 @@ func _ready() -> void:
 		player.health.died.connect(func(_e: Node) -> void: state.player_died())
 	if spawner:
 		spawner.enemy_killed.connect(_on_enemy_killed)
-		spawner.boss_spawned.connect(func(_b: Enemy) -> void: _switch_music(stage_music(&"boss")))
+		spawner.boss_spawned.connect(func(_b: Enemy) -> void: music_cue(&"boss"))
 	if hud:
 		hud.state = state
 		hud.perf = perf
@@ -90,8 +106,23 @@ func begin_run() -> void:
 	_begin_build()
 	waiting_pick = false
 	get_tree().paused = false
-	if Feedback.instance and run_config and run_config.stage:  # 다시 시작하면 무대 곡으로 (같으면 이어서)
-		Feedback.instance.play_music(stage_music(&"stage"), 0.6)
+	music_cue(&"stage")  # 다시 시작하면 무대 곡으로 (같으면 이어서)
+	if tutorial and GameSettings.tutorial_enabled and not GameSettings.tutorial_done:
+		tutorial_director = TutorialDirector.new(self)
+		tutorial_director.start(tutorial)
+
+
+func _on_settings_changed() -> void:
+	var tc := get_node_or_null("TouchController") as TouchController
+	if tc:
+		tc.skill_button_enabled = GameSettings.skill_button_enabled
+
+
+## 설정을 닫으면 그 사이 놓친 손가락 떼기를 잊는다 (멈춘 동안 눌린 채로 남지 않게).
+func _on_settings_closed() -> void:
+	var tc := get_node_or_null("TouchController") as TouchController
+	if tc:
+		tc.cancel_all()
 
 
 func playable_heroes() -> Array[HeroData]:
@@ -123,6 +154,7 @@ func _apply_stage(st: StageTheme) -> void:
 		spawner.elite_data = st.elite
 	if spawner and st.boss:
 		spawner.boss_data = st.boss
+	_apply_difficulty(st)
 	if hud:
 		hud.stage = st
 
@@ -139,9 +171,35 @@ func advance_stage() -> void:
 	var cur := run_config.stage.id if run_config and run_config.stage else run_stage_id()
 	var nxt := HeroRoute.next(stages, cur)
 	if player and player.hero:
-		GameSettings.hero_stages[String(player.hero.id)] = String(nxt)
+		var hid := String(player.hero.id)
+		GameSettings.hero_stages[hid] = String(nxt)
+		GameSettings.hero_clears[hid] = int(GameSettings.hero_clears.get(hid, 0)) + 1
 	GameSettings.stage_id = nxt
 	GameSettings.save_settings()
+
+
+## 이 영웅의 난이도 단계 = 이 영웅이 이긴 전장 수.
+func difficulty_tier() -> int:
+	var hid := String(player.hero.id) if player and player.hero else ""
+	return int(GameSettings.hero_clears.get(hid, 0))
+
+
+## 무대 적 구성에 난이도를 입힌다 (적 데이터 사본, 나오는 간격·최대 수). 여러 번 불러도 겹치지 않게 원래 값에서.
+func _apply_difficulty(st: StageTheme) -> void:
+	if spawner == null or difficulty == null:
+		return
+	if _base_spawn.is_empty():
+		_base_spawn = {"start": spawner.interval_start, "min": spawner.interval_min, "alive": spawner.max_alive}
+	var tier := difficulty_tier()
+	var table: Array[EnemyData] = []
+	for e in (st.spawn_table if not st.spawn_table.is_empty() else spawner.spawn_table):
+		table.append(difficulty.scaled(e, tier))
+	spawner.spawn_table = table
+	spawner.elite_data = difficulty.scaled(st.elite if st.elite else spawner.elite_data, tier)
+	spawner.boss_data = difficulty.scaled(st.boss if st.boss else spawner.boss_data, tier)
+	spawner.interval_start = _base_spawn["start"] * difficulty.interval(tier)
+	spawner.interval_min = _base_spawn["min"] * difficulty.interval(tier)
+	spawner.max_alive = _base_spawn["alive"] + difficulty.alive_add(tier)
 
 
 func stage_by_id(id: StringName) -> StageTheme:
@@ -175,28 +233,43 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if waiting_pick:
 		return
+	if tutorial_director and tutorial_director.running():
+		tutorial_director.tick(delta)
+		return
 	if state.is_playing():
 		state.tick(delta)
 	else:
 		_end_time += delta
 
 
-## 무대 곡 고르기: &"stage" / &"boss" / &"victory" / &"defeat". 비어 있으면 무대 곡.
+## 음악 (RunMusic): 영웅 노래 구간 넘나들기·메뉴 곡·승패 곡. 곡 칸은 장면에서 정한다.
+## 입장·공통 이야기·영웅 고르기 곡 (비우면 첫 무대 노래의 전주).
+@export var menu_track: AudioStream
+## 판이 끝났을 때 한 번 트는 짧은 곡 (모든 무대 공용). 비우면 노래의 후주·전주.
+@export var victory_track: AudioStream
+@export var defeat_track: AudioStream
+const SONG_SECTION := RunMusic.SONG_SECTION
+var music := RunMusic.new(self)
+
+
+func music_cue(kind: StringName) -> void:
+	music.cue(kind)
+
+
+func menu_music() -> void:
+	music.menu()
+
+
+func hero_music(hero: HeroData) -> void:
+	music.hero(hero)
+
+
 func stage_music(kind: StringName) -> AudioStream:
-	var st := run_config.stage if run_config else null
-	if st == null:
-		return null
-	var s: AudioStream = {&"boss": st.boss_music, &"victory": st.victory_music, &"defeat": st.defeat_music}.get(kind)
-	return s if s else st.music
-
-
-func _switch_music(stream: AudioStream) -> void:
-	if Feedback.instance and stream:
-		Feedback.instance.play_music(stream, 0.6)
+	return music.stage_track(kind)
 
 
 func _on_ended(result: GameState.Result) -> void:
-	_switch_music(stage_music(&"victory" if result == GameState.Result.VICTORY else &"defeat"))
+	music_cue(&"victory" if result == GameState.Result.VICTORY else &"defeat")
 	if hud and result == GameState.Result.VICTORY and run_config and run_config.stage:
 		hud.next_stage = stage_by_id(HeroRoute.next(stages, run_config.stage.id))
 	_end_time = 0.0
@@ -265,7 +338,9 @@ func _offer_next() -> void:
 		major_pending = 0
 	if progress.pending > 0:
 		var pool := build.hero.upgrade_pool
-		var choices: Array[UpgradeDef] = pool.roll(rng, progress.stacks, count) if pool else []
+		var choices: Array[UpgradeDef] = []  # 빈 배열 리터럴은 타입이 없어 삼항식에 쓰면 오류
+		if pool:
+			choices = pool.roll(rng, progress.stacks, count)
 		if not choices.is_empty():
 			seal_choice.open(choices, player.global_position, false, progress.stacks)
 			return

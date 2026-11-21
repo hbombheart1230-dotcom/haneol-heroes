@@ -7,6 +7,8 @@ signal dash_started(direction: Vector2)
 signal dash_ended
 ## 적 공격을 대시로 피했을 때 (회피 반격의 시작점).
 signal evaded
+## 실제로 피해를 받았을 때 (붉은 가장자리 등).
+signal hurt(amount: int)
 
 ## 지정하면 _ready에서 아래 수치를 이 데이터로 덮어쓴다.
 @export var hero: HeroData
@@ -33,6 +35,8 @@ var dash: DashCharges
 var health: Health
 
 var _hurt_cd: float = 0.0
+## 이번 피격 무적의 전체 길이 (피해에 비례, HurtResponse).
+var _hurt_total: float = 0.0
 ## 회피 성공 등으로 얻은 추가 무적 남은 시간(초).
 var _skill_invuln: float = 0.0
 var _dash_dir: Vector2 = Vector2.ZERO
@@ -41,6 +45,17 @@ var _dash_dir: Vector2 = Vector2.ZERO
 ## 미끄러짐 시작 속도 = 대시 속도 × 이 값.
 @export var dash_glide_ratio: float = 0.4
 var _glide_vel: Vector2 = Vector2.ZERO
+## 걷기 속도 (가속·감속을 거친 실제 값).
+var _walk_vel: Vector2 = Vector2.ZERO
+## 멈춤 → 최고 속도 / 최고 속도 → 멈춤 시간(초). 0이면 즉시.
+var move_accel_time: float = 0.0
+var move_decel_time: float = 0.0
+## 근접 적중 반동: 남은 이동량(px/s)과 남은 시간.
+var _recoil_vel: Vector2 = Vector2.ZERO
+var _recoil_left: float = 0.0
+## 영웅별 회피 이펙트·도착 효과 (hero.dash_style이 있을 때).
+var dash_runner: DashStyleRunner
+var _arrive_pending: bool = false
 var _glide_left: float = 0.0
 var _dash_time_left: float = 0.0
 ## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력 판정용.
@@ -75,7 +90,10 @@ func change_hero(h: HeroData) -> void:
 
 func apply_hero(h: HeroData) -> void:
 	hero = h
+	dash_runner = DashStyleRunner.new(h.dash_style) if h.dash_style else null
 	move_speed = h.move_speed
+	move_accel_time = h.move_accel_time
+	move_decel_time = h.move_decel_time
 	dash_distance = h.dash_distance
 	dash_duration = h.dash_duration
 	max_dash_charges = h.max_dash_charges
@@ -127,6 +145,29 @@ func refresh_stats(old_max_hp: int) -> void:
 		health.current = clampi(health.current + maxi(hero.max_hp - old_max_hp, 0), 1, health.max)
 
 
+## 근접 적중 반동: offset(px)만큼 seconds초(기본 = CombatFeelData.recoil_time) 동안 밀린다. 개구리 혀 끌어당기기도.
+func apply_recoil(offset: Vector2, seconds: float = -1.0) -> void:
+	var t := maxf(seconds if seconds > 0.0 else Feedback.feel_data().recoil_time, 0.001)
+	_recoil_vel = offset / t
+	_recoil_left = t
+
+
+## 이번 프레임 걷기 속도: 목표 속도로 가속·감속 (영웅별 무게감).
+func _walk_velocity(delta: float) -> Vector2:
+	var want := move_input * move_speed
+	var speeding_up := want.length() >= _walk_vel.length() - 0.01
+	var t := move_accel_time if speeding_up else move_decel_time
+	if t <= 0.0:
+		_walk_vel = want
+	else:
+		_walk_vel = _walk_vel.move_toward(want, move_speed / t * delta)
+	return _walk_vel
+
+
+func walk_velocity() -> Vector2:
+	return _walk_vel
+
+
 func is_dashing() -> bool:
 	return _dash_time_left > 0.0
 
@@ -149,6 +190,11 @@ func hurt_time_left() -> float:
 	return _hurt_cd
 
 
+## 마지막 피격 뒤 흐른 시간 (무적 중일 때만 의미 있음).
+func hurt_elapsed() -> float:
+	return _hurt_total - _hurt_cd
+
+
 func is_dead() -> bool:
 	return health != null and health.is_dead()
 
@@ -159,19 +205,27 @@ func apply_contact_damage(delta: float, amount: int) -> bool:
 	_hurt_cd = maxf(_hurt_cd - delta, 0.0)
 	if amount <= 0 or health == null or is_dead() or is_invulnerable():
 		return false
-	health.damage(amount)
-	_hurt_cd = hurt_invuln_time
-	Feedback.player_hurt()
+	_take_hit(amount)
 	return true
+
+
+## 피해 공통: 무적(피해 비례) + 주변 적 밀어내기(숨 돌릴 틈) + 연출.
+func _take_hit(amount: int) -> void:
+	health.damage(amount)
+	var react := Feedback.feel_data().reaction_data()
+	_hurt_total = HurtResponse.invuln_for(amount, health.max, hurt_invuln_time, react)
+	_hurt_cd = _hurt_total
+	if is_inside_tree() and not is_dead():
+		HurtResponse.breathe(global_position, get_tree().get_nodes_in_group(Enemy.GROUP), react)
+	Feedback.player_hurt()
+	hurt.emit(amount)
 
 
 ## 적 공격 타격. 무적이면 무시. 반환: 실제로 피해를 받았으면 true.
 func apply_hit(amount: int) -> bool:
 	if amount <= 0 or health == null or is_dead() or is_invulnerable():
 		return false
-	health.damage(amount)
-	_hurt_cd = hurt_invuln_time
-	Feedback.player_hurt()
+	_take_hit(amount)
 	return true
 
 
@@ -229,6 +283,7 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 			return false
 		_dash_time_left = 0.0
 		_since_dash_end = 0.0
+		_dash_arrived()
 		dash_ended.emit()
 	var dir := direction
 	if dir.length_squared() < 0.0001:
@@ -242,6 +297,8 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 	_dash_start_pos = global_position
 	_shoved.clear()
 	facing = _dash_dir
+	if dash_runner:
+		dash_runner.on_start(global_position, _dash_dir)
 	dash_started.emit(_dash_dir)
 	return true
 
@@ -253,7 +310,10 @@ func compute_velocity(delta: float) -> Vector2:
 	_skill_invuln = maxf(_skill_invuln - delta, 0.0)
 	if not is_dashing():
 		_since_dash_end += delta
-		var v_move := move_input * move_speed
+		var v_move := _walk_velocity(delta)
+		if _recoil_left > 0.0:
+			v_move += _recoil_vel * (minf(delta, _recoil_left) / delta if delta > 0.0 else 0.0)
+			_recoil_left = maxf(_recoil_left - delta, 0.0)
 		if _glide_left > 0.0:
 			v_move += _glide_vel * (_glide_left / dash_glide_time)
 			_glide_left = maxf(_glide_left - delta, 0.0)
@@ -267,8 +327,19 @@ func compute_velocity(delta: float) -> Vector2:
 		if dash_glide_time > 0.0:
 			_glide_vel = _dash_dir * (dash_distance / dash_duration) * dash_glide_ratio
 			_glide_left = dash_glide_time
+		# 대시 직후엔 가속을 다시 기다리지 않는다 (대시 → 걷기 끊김 없이).
+		_walk_vel = move_input * move_speed
+		_arrive_pending = true  # 도착 효과는 이번 프레임 이동을 마친 실제 자리에서 (_physics_process)
 		dash_ended.emit()
 	return v
+
+
+## 대시 도착: 영웅별 도착 이펙트·효과 (트리 밖 테스트에서는 이펙트만).
+## 레벨업 인장을 고르는 느린 시간(GameTime.base < 1)에는 걸지 않는다.
+func _dash_arrived() -> void:
+	_arrive_pending = false
+	if dash_runner and not is_dead() and GameTime.base >= 1.0:
+		dash_runner.on_end(global_position, get_tree().get_nodes_in_group(Enemy.GROUP) if is_inside_tree() else [])
 
 
 func _physics_process(delta: float) -> void:
@@ -276,9 +347,13 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		return
 	velocity = compute_velocity(delta)
+	if dash_runner and is_dashing():
+		dash_runner.tick(delta, global_position)
 	if is_dashing() and hero and hero.dash_shove > 0.0:
 		shove_enemies(get_tree().get_nodes_in_group(Enemy.GROUP))
 	apply_contact_damage(delta, _touching_damage())
 	move_and_slide()
 	if arena_rect.has_area():
 		global_position = global_position.clamp(arena_rect.position, arena_rect.end)
+	if _arrive_pending:
+		_dash_arrived()

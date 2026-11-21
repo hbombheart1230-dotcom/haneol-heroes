@@ -19,7 +19,8 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		dir = ctx.player.facing
 	var a := ctx.player.global_position - dir * 30.0
 	var b := ctx.player.global_position + dir * length
-	if ctx.fx:
+	ctx.strip(a, b)  # 앞으로 밀려가는 물결 띠
+	if ctx.fx and (vfx_impact == null or vfx_impact.strip == null):
 		ctx.fx.add_slash(a, b, width * 0.5, 0.3, fx_color)
 	var run := PadoRun.new(self, ctx, a, b)
 	run.strike()
@@ -53,6 +54,7 @@ class PadoRun extends SkillRun:
 			ctx.fx.add_slash(a + side, b + side, 10.0, 0.18, Color(0.7, 0.95, 1.0))
 		if left <= 0:
 			finished = true
+			ctx.impact(b, b - a)  # 물보라
 			if skill.end_burst_radius > 0.0:
 				for en in ctx.enemies_in_radius(b, skill.end_burst_radius):
 					ctx.hit(en, skill.end_burst_damage)

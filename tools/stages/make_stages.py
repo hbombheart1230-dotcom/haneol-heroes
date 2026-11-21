@@ -39,19 +39,31 @@ def exists(enemy: str) -> bool:
     return os.path.exists(os.path.join(ROOT, f"data/enemies/{enemy}.tres"))
 
 
+def fallback_music(sid: str) -> str:
+    """노래(StageSong)를 못 쓸 때 트는 곡: 이 무대 노래의 본편. 없으면 예전 공용 곡."""
+    own = f"assets/audio/music/{sid}/verse.ogg"
+    return f"res://{own}" if os.path.exists(os.path.join(ROOT, own)) else "res://assets/audio/music/manchuria_395.ogg"
+
+
 def make(sid: str, s: dict) -> str:
     props = sorted(os.path.basename(p)[:-4] for p in glob.glob(os.path.join(ROOT, f"assets/props/{s['props']}/*.png")))
     props = [p for p in props if p not in s.get("skip_props", [])]
     ext = ['[ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]',
-           '[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]']
+           f'[ext_resource type="AudioStream" path="{fallback_music(sid)}" id="2_music"]']
     ext += [f'[ext_resource type="Texture2D" path="res://assets/props/{s["props"]}/{p}.png" id="p_{p}"]' for p in props]
     army = [e for e in s["army"] if exists(e)]
     ext += [f'[ext_resource type="Resource" path="res://data/enemies/{e}.tres" id="e_{e}"]'
             for e in army + [x for x in (s["elite"], s["boss"]) if exists(x)]]
     ext.append(f'[ext_resource type="Resource" path="res://data/breakables/{sid}.tres" id="b_{sid}"]')
+    # 무대 노래 (tools/audio/cut_song.py). 이 무대 노래가 아직 없으면 첫 무대 노래를 임시로.
+    song = next((x for x in (sid, "manchuria_395") if os.path.exists(os.path.join(ROOT, f"data/songs/{x}.tres"))), None)
+    if song:
+        ext.append(f'[ext_resource type="Resource" path="res://data/songs/{song}.tres" id="song"]')
     body = ["[resource]", 'script = ExtResource("1_theme")', f'id = &"{sid}"', f'year_label = "{s["year"]}"',
             f'title = "{s["title"]}"', f'subtitle = "{s["subtitle"]}"', 'music = ExtResource("2_music")',
             f'hero_hint = "{s["hero"]}"', f'breakable = ExtResource("b_{sid}")']
+    if song:
+        body.append('song = ExtResource("song")')
     if army:
         body += ["spawn_table = Array[ExtResource(\"3_enemy\")]([" + ", ".join(f'ExtResource("e_{e}")' for e in army) + "])",
                  "spawn_weights = PackedFloat32Array(" + ", ".join(["6", "2", "1"][: len(army)]) + ")",

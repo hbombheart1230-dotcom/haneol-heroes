@@ -1,7 +1,7 @@
 class_name StoryIntro
 extends Control
 ## 입장 뒤 이야기 인트로: 장면 그림이 천천히 다가가고, 연도 붓글씨 아래로 글줄이 하나씩 떠오른다.
-## 아래 "다음 ›" (또는 화면 아무 곳)은 다음 장면, "건너뛰기"는 끝까지. 내용은 IntroData (data/intro/*.tres).
+## 아래 "다음 〉" (또는 화면 아무 곳)은 다음 장면, "건너뛰기"는 끝까지. 내용은 IntroData (data/intro/*.tres).
 
 signal finished
 
@@ -41,7 +41,7 @@ func _vp() -> Vector2:
 	return size if size.x > 0.0 else get_viewport_rect().size
 
 
-## 아래쪽 단추: 왼쪽 "건너뛰기", 오른쪽 "다음 ›" (마지막 장면은 "시작").
+## 아래쪽 단추: 왼쪽 "건너뛰기", 오른쪽 "다음 〉" (마지막 장면은 "시작").
 func skip_rect() -> Rect2:
 	var vp := _vp()
 	return Rect2(28.0, vp.y - 118.0, 220.0, 76.0)
@@ -172,4 +172,4 @@ func _draw() -> void:
 		draw_rect(Rect2(Vector2.ZERO, vp), Color(0, 0, 0, b))
 	var last := i == data.slides.size() - 1
 	UiStyle.button(self, skip_rect(), "건너뛰기", 32, _press_index >= 0 and _press_on_skip)
-	UiStyle.button(self, next_rect(), "시작" if last else "다음 ›", 34, _press_index >= 0 and not _press_on_skip)
+	UiStyle.button(self, next_rect(), "시작" if last else "다음 〉", 34, _press_index >= 0 and not _press_on_skip)

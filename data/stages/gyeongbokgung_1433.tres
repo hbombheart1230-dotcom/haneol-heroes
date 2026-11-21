@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/gyeongbokgung_1433/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/arrows_a.png" id="p_arrows_a"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/arrows_b.png" id="p_arrows_b"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/banner_blue.png" id="p_banner_blue"]
@@ -22,6 +22,7 @@
 [ext_resource type="Resource" path="res://data/enemies/jurchen_elite.tres" id="e_jurchen_elite"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_chieftain.tres" id="e_jurchen_chieftain"]
 [ext_resource type="Resource" path="res://data/breakables/gyeongbokgung_1433.tres" id="b_gyeongbokgung_1433"]
+[ext_resource type="Resource" path="res://data/songs/gyeongbokgung_1433.tres" id="song"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 
 [resource]
@@ -33,6 +34,7 @@ subtitle = "세종 15년, 최윤덕이 파저강의 여진을 토벌한 해"
 music = ExtResource("2_music")
 hero_hint = "세종"
 breakable = ExtResource("b_gyeongbokgung_1433")
+song = ExtResource("song")
 spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_heavy")])
 spawn_weights = PackedFloat32Array(6, 2, 1)
 unlock_times = PackedFloat32Array(0, 10, 20)

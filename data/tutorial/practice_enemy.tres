@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+[ext_resource type="Resource" path="res://assets/sprites/biryeo_soldier/biryeo_soldier.tres" id="3_sheet"]
+
+[sub_resource type="Resource" id="Attack_practice"]
+script = ExtResource("2_attack")
+trigger_range = 140.0
+windup = 1.0
+radius = 90.0
+damage = 0
+cooldown = 1.6
+recovery = 0.4
+
+[resource]
+script = ExtResource("1_enemy")
+id = &"practice"
+display_name = "연습 망령"
+max_hp = 80
+xp = 0
+move_speed = 90.0
+contact_damage = 0
+body_radius = 20.0
+color = Color(0.75, 0.2, 0.25, 1)
+attack = SubResource("Attack_practice")
+sprite_sheet = ExtResource("3_sheet")
+sprite_scale = 1.33
+sprite_offset = Vector2(0, -62)
+rim_color = Color(0.12, 0.07, 0.04, 0.9)
+rim_width = 3.0
+body_contrast = 1.05

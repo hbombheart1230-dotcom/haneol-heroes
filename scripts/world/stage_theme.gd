@@ -8,7 +8,9 @@ extends Resource
 @export var year_label: String = ""
 @export var title: String = ""
 @export_multiline var subtitle: String = ""
-## 무대 배경 음악 (반복).
+## 무대 노래 (구간 넘나들기: 1절 평소 → 후렴 보스 → 후주 승리, 전주는 메뉴·이야기). 있으면 아래 곡들 대신 쓴다.
+@export var song: StageSong
+## 무대 배경 음악 (반복). song이 없을 때만.
 @export var music: AudioStream
 ## 보스가 나오면 바꿔 트는 곡 (반복). 비우면 무대 곡을 그대로.
 @export var boss_music: AudioStream

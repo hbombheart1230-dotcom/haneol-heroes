@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
 [ext_resource type="Resource" path="res://assets/sprites/cc_grasshopper/cc_grasshopper.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://data/enemies/behaviour/cc_hop.tres" id="beh"]
 
 [sub_resource type="Resource" id="Attack_shoot"]
 script = ExtResource("2_attack")
@@ -32,3 +33,11 @@ knockback_scale = 1.0
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.33
 sprite_offset = Vector2(0, -60)
+rim_color = Color(0.08, 0.08, 0.1, 0.85)
+rim_width = 3.0
+body_lift = 0.05
+body_contrast = 1.1
+army_tint = Color(1, 1, 1, 1)
+tint_mix = 0.0
+death_style = &"paper"
+behaviour = ExtResource("beh")

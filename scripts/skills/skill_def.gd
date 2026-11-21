@@ -14,9 +14,30 @@ extends Resource
 @export var icon: Texture2D
 ## 발동 소리 (SoundBank 종류). 비우면 칸에 따라 기본 (베기·반격).
 @export var sfx: StringName = &""
+@export_group("조준 보정")
+## 방향 기술만: 바라보는 방향 ± 이 각도의 절반 안에 적이 있으면 그쪽으로 (0이면 끔). 사거리(px),
+## 부채꼴 안에 없을 때 가장 가까운 적 쪽으로 돌릴지.
+@export var aim_assist_deg: float = 0.0
+@export var aim_assist_range: float = 600.0
+@export var aim_fallback_nearest: bool = false
+@export_group("이펙트")
+## 발동 순간 영웅 자리에서 (바라보는 방향으로) 터지는 이펙트.
+@export var vfx_cast: SkillVfxData
+## 적이 맞을 때마다 그 자리에서 터지는 이펙트.
+@export var vfx_hit: SkillVfxData
+## 기술이 내리꽂히는 자리(범위 중심·벼락·별똥별)에서 터지는 이펙트. 번개 줄기 설정도 여기.
+@export var vfx_impact: SkillVfxData
+## 강화 단계 (이번 판 성장으로 오른다: 보통 +1, 큰 변형 +UpgradeDef.vfx_level_gain). 클수록 이펙트가 크고 화려하다.
+@export var vfx_level: int = 0
 
 
 ## 발동. charge는 0~1 (충전 기술에만 의미).
 ## 반환: 진행 상태. 즉시 끝나는 기술은 SkillRun.instant(hits).
+## 조준 보정된 방향 (aim_assist_deg 0이면 바라보는 방향).
+func aim(ctx: SkillContext) -> Vector2:
+	return Targeting.assist_dir(ctx.enemies(), ctx.player.global_position, ctx.player.facing,
+		aim_assist_deg, aim_assist_range, aim_fallback_nearest)
+
+
 func cast(_ctx: SkillContext, _charge: float) -> SkillRun:
 	return SkillRun.instant(0)

@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/brush.png" id="p_brush"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/cockscomb.png" id="p_cockscomb"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/cucumber_trellis.png" id="p_cucumber_trellis"]
@@ -25,6 +25,7 @@
 [ext_resource type="Resource" path="res://data/enemies/cc_mantis.tres" id="e_cc_mantis"]
 [ext_resource type="Resource" path="res://data/enemies/cc_frog.tres" id="e_cc_frog"]
 [ext_resource type="Resource" path="res://data/breakables/chochungdo.tres" id="b_chochungdo"]
+[ext_resource type="Resource" path="res://data/songs/chochungdo.tres" id="song"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/watermelon.png" id="p_watermelon"]
 
@@ -37,6 +38,7 @@ subtitle = "신사임당이 그린 풀과 벌레의 그림"
 music = ExtResource("2_music")
 hero_hint = "사임당"
 breakable = ExtResource("b_chochungdo")
+song = ExtResource("song")
 spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_beetle")])
 spawn_weights = PackedFloat32Array(6, 2, 1)
 unlock_times = PackedFloat32Array(0, 10, 20)

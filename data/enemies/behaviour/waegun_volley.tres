@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="EnemyBehaviourData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_behaviour_data.gd" id="1_beh"]
+[ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+
+[sub_resource type="Resource" id="Volley"]
+script = ExtResource("2_attack")
+kind = 1
+trigger_range = 420.0
+windup = 0.7
+damage = 12
+cooldown = 2.2
+recovery = 0.3
+projectile_speed = 520.0
+projectile_range = 650.0
+projectile_radius = 14.0
+volley = true
+
+[resource]
+script = ExtResource("1_beh")
+attack = SubResource("Volley")

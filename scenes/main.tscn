@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/main.gd" id="0_main"]
 [ext_resource type="Resource" path="res://data/audio/sfx_bank.tres" id="39_bank"]
@@ -8,6 +8,17 @@
 [ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="36_title"]
 [ext_resource type="Script" path="res://scripts/world/breakable_field.gd" id="46_breakables"]
 [ext_resource type="Script" path="res://scripts/ui/story_intro.gd" id="47_intro"]
+[ext_resource type="Script" path="res://scripts/ui/settings_screen.gd" id="49_settings"]
+[ext_resource type="Script" path="res://scripts/ui/settings_button.gd" id="50_gear"]
+[ext_resource type="Script" path="res://scripts/ui/tutorial_overlay.gd" id="51_tut"]
+[ext_resource type="Resource" path="res://data/tutorial/controls.tres" id="52_tut_data"]
+[ext_resource type="Resource" path="res://data/difficulty/curve.tres" id="53_curve"]
+[ext_resource type="Script" path="res://scripts/world/enemy_bars.gd" id="54_bars"]
+[ext_resource type="Script" path="res://scripts/ui/opening_video.gd" id="58_opening"]
+[ext_resource type="VideoStream" path="res://assets/video/opening.ogv" id="59_opening_video"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/menu/title.ogg" id="55_title_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/menu/victory.ogg" id="56_victory_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/menu/defeat.ogg" id="57_defeat_music"]
 [ext_resource type="Resource" path="res://data/intro/story_intro.tres" id="48_intro_data"]
 [ext_resource type="Resource" path="res://data/stages/manchuria_395.tres" id="41_st1"]
 [ext_resource type="Resource" path="res://data/stages/gyeongbokgung_1433.tres" id="42_st2"]
@@ -39,13 +50,17 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="18_enemy_data"]
 [ext_resource type="Resource" path="res://data/enemies/boss_general.tres" id="19_boss"]
 
+[ext_resource type="Script" path="res://scripts/fx/reward_fx.gd" id="70_reward_fx"]
+[ext_resource type="Script" path="res://scripts/ui/boss_banner.gd" id="71_boss_banner"]
+[ext_resource type="Script" path="res://scripts/ui/hurt_vignette.gd" id="72_hurt_vignette"]
+[ext_resource type="Script" path="res://scripts/world/ghost_fire.gd" id="73_ghost_fire"]
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 22.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_contact"]
 radius = 30.0
 
-[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select", "title_screen", "breakables", "story_intro")]
+[node name="Main" type="Node2D" node_paths=PackedStringArray("player", "spawner", "hud", "seal_choice", "hero_select", "title_screen", "breakables", "story_intro", "settings", "tutorial_overlay", "opening_video")]
 script = ExtResource("0_main")
 player = NodePath("Player")
 spawner = NodePath("EnemySpawner")
@@ -58,26 +73,39 @@ title_screen = NodePath("HUD/TitleScreen")
 stages = Array[ExtResource("45_stage_theme")]([ExtResource("41_st1"), ExtResource("42_st2"), ExtResource("43_st3"), ExtResource("44_st4")])
 breakables = NodePath("Breakables")
 story_intro = NodePath("HUD/StoryIntro")
+settings = NodePath("HUD/SettingsScreen")
+opening_video = NodePath("HUD/OpeningVideo")
+tutorial = ExtResource("52_tut_data")
+difficulty = ExtResource("53_curve")
+menu_track = ExtResource("55_title_music")
+victory_track = ExtResource("56_victory_music")
+defeat_track = ExtResource("57_defeat_music")
+tutorial_overlay = NodePath("HUD/TutorialOverlay")
 
 [node name="Arena" type="Node2D" parent="."]
 script = ExtResource("1_arena")
 rect = Rect2(-900, -1400, 1800, 2800)
 
-[node name="Breakables" type="Node2D" parent="." node_paths=PackedStringArray("player", "fx", "auto_attack")]
+[node name="Breakables" type="Node2D" parent="." node_paths=PackedStringArray("player", "fx", "auto_attack", "reward_fx")]
 script = ExtResource("46_breakables")
 player = NodePath("../Player")
 fx = NodePath("../FxLayer")
 auto_attack = NodePath("../Player/AutoAttack")
+reward_fx = NodePath("../RewardFx")
 
 [node name="FxLayer" type="Node2D" parent="."]
 z_index = 5
 script = ExtResource("11_fx")
 
-[node name="SealChoice" type="Node2D" parent="." node_paths=PackedStringArray("player", "fx")]
+[node name="RewardFx" type="Node2D" parent="."]
+z_index = 7
+script = ExtResource("70_reward_fx")
+
+[node name="SealChoice" type="Node2D" parent="." node_paths=PackedStringArray("player", "fx", "reward_fx")]
 script = ExtResource("31_seal")
 player = NodePath("../Player")
 fx = NodePath("../FxLayer")
-arena_rect = Rect2(-870, -1370, 1740, 2740)
+reward_fx = NodePath("../RewardFx")
 
 [node name="EnemySpawner" type="Node2D" parent="." node_paths=PackedStringArray("target")]
 script = ExtResource("7_spawner")
@@ -90,6 +118,12 @@ unlock_times = PackedFloat32Array(0, 10, 20)
 boss_data = ExtResource("19_boss")
 boss_time = 40.0
 elite_data = ExtResource("32_elite")
+
+[node name="GhostFire" type="Node2D" parent="."]
+script = ExtResource("73_ghost_fire")
+
+[node name="EnemyBars" type="Node2D" parent="."]
+script = ExtResource("54_bars")
 
 [node name="Player" type="CharacterBody2D" parent="." node_paths=PackedStringArray("contact_sensor")]
 collision_mask = 16
@@ -160,6 +194,28 @@ script = ExtResource("4_hud")
 player = NodePath("../../Player")
 controller = NodePath("../../TouchController")
 
+[node name="BossBanner" type="Control" parent="HUD" node_paths=PackedStringArray("spawner")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("71_boss_banner")
+spawner = NodePath("../../EnemySpawner")
+
+[node name="HurtVignette" type="Control" parent="HUD" node_paths=PackedStringArray("player")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("72_hurt_vignette")
+player = NodePath("../../Player")
+
 [node name="HeroSelect" type="Control" parent="HUD"]
 layout_mode = 3
 anchors_preset = 15
@@ -191,3 +247,45 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("47_intro")
 data = ExtResource("48_intro_data")
+
+[node name="TutorialOverlay" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("51_tut")
+
+[node name="SettingsButton" type="Control" parent="HUD" node_paths=PackedStringArray("screen")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("50_gear")
+screen = NodePath("../SettingsScreen")
+
+[node name="SettingsScreen" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("49_settings")
+
+[node name="OpeningVideo" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("58_opening")
+stream = ExtResource("59_opening_video")

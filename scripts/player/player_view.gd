@@ -14,6 +14,10 @@ var _sheet: SpriteSheetSet
 ## 일회성 동작(공격·피격)이 끝날 때까지 남은 시간.
 var _oneshot: String = ""
 var _oneshot_left: float = 0.0
+## 지금 보여 주는 방향 번호 (-1 = 아직 없음). 경계에서 떨리지 않게 붙잡아 둔다.
+var _dir: int = -1
+## 문턱·재생 속도 범위는 CombatFeelData("영웅 동작")에 있다.
+var _running: bool = false
 
 
 func _ready() -> void:
@@ -52,10 +56,37 @@ func _setup_sprite(h: HeroData) -> void:
 	add_child(_sprite)
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
 	if attack:
-		attack.melee_swung.connect(func(_d: Vector2, _h: int) -> void: play_oneshot("attack", 0.35))
+		attack.melee_swung.connect(_on_auto_swing)
+		attack.ranged_windup.connect(_on_ranged_windup)  # 던지는 동작
 	var caster := player.get_node_or_null("SkillCaster") as SkillCaster
 	if caster:
 		caster.skill_cast.connect(func(_s: SkillCaster.Slot, _h: int) -> void: play_oneshot("attack", 0.35))
+
+
+## 자동 공격 동작은 서 있을 때만. 달리는 중엔 다리를 멈추지 않고 검기 이펙트만 보인다
+## (0.55초마다 달리기가 끊겨 끊겨 보이던 원인).
+func _on_auto_swing(_d: Vector2, _h: int) -> void:
+	if not is_moving():
+		play_oneshot("attack", 0.35)
+
+
+## 실제 걷기 속도 기준으로 달리는 중인지 (문턱 두 개로 깜빡임 방지).
+## 원거리: 영웅 데이터가 고른 던지는 동작 (비면 동작 없음), 서 있을 때만.
+func _on_ranged_windup(_d: Vector2) -> void:
+	var atk := player.hero.attack if player.hero else null
+	var anim := String(atk.ranged_anim) if atk else "attack"
+	if anim != "" and not is_moving():
+		play_oneshot(anim, atk.ranged_anim_time if atk else 0.35)
+
+
+func is_moving() -> bool:
+	var top := maxf(player.move_speed, 1.0)
+	var ratio := player.walk_velocity().length() / top
+	if player.move_input.length() > 0.1:
+		ratio = maxf(ratio, player.move_input.length())
+	var feel := Feedback.feel_data()
+	_running = ratio > (feel.run_exit if _running else feel.run_enter)
+	return _running
 
 
 func play_oneshot(anim: String, seconds: float) -> void:
@@ -69,11 +100,11 @@ func current_anim() -> String:
 		return "death"
 	if player.is_dashing():
 		return "dash"
-	if player.hurt_time_left() > player.hurt_invuln_time - 0.25:
+	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time:
 		return "hit"
 	if _oneshot_left > 0.0:
 		return _oneshot
-	if player.move_input.length() > 0.1:
+	if is_moving():
 		return "run"
 	return "idle"
 
@@ -89,7 +120,8 @@ func available_anim(anim: String) -> String:
 
 func _update_sprite(delta: float) -> void:
 	_oneshot_left = maxf(_oneshot_left - delta, 0.0)
-	var dir := _sheet.dir_index(player.facing)
+	_dir = _sheet.dir_index_sticky(player.facing, _dir, Feedback.feel_data().dir_margin_deg)
+	var dir := _dir
 	var anim_name := StringName("%s_%d" % [available_anim(current_anim()), dir])
 	if _sprite.animation != anim_name:
 		var frame := _sprite.frame
@@ -98,11 +130,33 @@ func _update_sprite(delta: float) -> void:
 		if same_anim:  # 방향만 바뀌면 프레임 이어서
 			_sprite.frame = mini(frame, _sprite.sprite_frames.get_frame_count(anim_name) - 1)
 	var tint := Color(1, 1, 1)
+	var ds := player.hero.dash_style if player.hero else null
 	if player.skill_invuln_left() > 0.0 and not player.is_dashing():
 		tint = Color(1.0, 0.9, 0.55)
 	elif player.is_dashing():
-		tint = Color(0.75, 0.9, 1.0)
-	_sprite.modulate = tint
+		tint = ds.body_tint if ds else Color(0.75, 0.9, 1.0)
+		tint.a = ds.body_alpha if ds else 1.0  # 광개토 번개 순간이동·사임당 먹으로 흩어짐
+	_sprite.modulate = hurt_tint(tint)
+	_sprite.speed_scale = run_anim_speed() if current_anim() == "run" else 1.0
+
+
+## 피격 표시 (R3): 맞은 순간 붉게, 무적 동안 깜빡임 (대시 중에는 대시 색 그대로).
+func hurt_tint(tint: Color) -> Color:
+	if player.hurt_time_left() <= 0.0 or player.is_dashing() or player.is_dead():
+		return tint
+	var d := Feedback.feel_data().reaction_data()
+	var t := player.hurt_elapsed()
+	var c := d.hero_flash_color if t < d.hero_flash_time else tint
+	if t >= d.hero_flash_time and int(t * d.blink_hz) % 2 == 1:
+		c.a = tint.a * d.blink_alpha
+	return c
+
+
+## 달리기 동작 속도: 실제로 빨리 갈수록 빨리 (가속 중엔 천천히 → 발이 땅에 붙어 보인다).
+func run_anim_speed() -> float:
+	var ratio := player.walk_velocity().length() / maxf(player.move_speed, 1.0)
+	var feel := Feedback.feel_data()
+	return clampf(ratio, feel.run_anim_min, feel.run_anim_max)
 
 
 func _physics_process(delta: float) -> void:
@@ -120,14 +174,19 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 
+func _trail_color() -> Color:
+	var ds := player.hero.dash_style if player.hero else null
+	return ds.trail_color if ds else Ink.WATER
+
+
 func _draw() -> void:
 	if player == null:
 		return
 	var r := player.body_radius
 	# 대시 잔상: 물빛 먹 번짐
-	for i in _trail.size():
+	for i in (_trail.size() if player.hero == null or player.hero.dash_style == null else 0):  # 회피 띠가 있으면 동그라미 자취 없음
 		var a := float(i + 1) / float(_trail.size() + 1)
-		Ink.blob(self, to_local(_trail[i]) + Vector2(0, -r * 0.4), r * (0.5 + 0.4 * a), Color(Ink.WATER, 0.28 * a), i)
+		Ink.blob(self, to_local(_trail[i]) + Vector2(0, -r * 0.4), r * (0.5 + 0.4 * a), Color(_trail_color(), 0.28 * a), i)
 	Ink.shadow(self, Vector2(0, r * 0.8), r * 1.1)
 	if _sprite:
 		return  # 몸은 스프라이트가 그린다

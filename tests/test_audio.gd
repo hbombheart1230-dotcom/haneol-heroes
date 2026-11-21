@@ -16,8 +16,10 @@ func test_bank_covers_every_synth_kind_plus_magic_and_ui() -> void:
 
 
 func test_stage_music_loops() -> void:
-	assert_object(STAGE.music).is_not_null()
-	assert_bool((STAGE.music as AudioStreamOggVorbis).loop).is_true()
+	# 무대 음악은 노래(구간 넘나들기)의 본편: 판 중에 반복된다. music(대체 곡)은 그 무대 노래의 본편 파일.
+	assert_object(STAGE.song).is_not_null()
+	assert_bool((STAGE.song.interactive().get_clip_stream(1) as AudioStreamOggVorbis).loop).is_true()
+	assert_str(STAGE.music.resource_path).is_equal(STAGE.song.verse.resource_path)
 
 
 func test_mage_heroes_cast_with_magic_sound() -> void:

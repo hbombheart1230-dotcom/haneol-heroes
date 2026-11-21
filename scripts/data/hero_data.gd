@@ -25,6 +25,9 @@ extends Resource
 @export_group("능력치")
 @export var max_hp: int = 100
 @export var move_speed: float = 340.0
+## 멈춤 → 최고 속도까지 걸리는 시간(초)과 최고 속도 → 멈춤 시간. 0이면 즉시 (가벼움 ↔ 무게감).
+@export var move_accel_time: float = 0.0
+@export var move_decel_time: float = 0.0
 ## 피격 후 무적 시간(초).
 @export var hurt_invuln_time: float = 0.6
 ## 회피 성공(예고 원을 대시로 벗어남) 즉시 무적 시간(초).
@@ -38,6 +41,12 @@ extends Resource
 ## 0보다 크면 대시 경로 옆의 적을 이 힘으로 밀쳐 낸다 (광개토대왕 돌격). 대시 한 번에 적마다 한 번.
 @export var dash_shove: float = 0.0
 @export var dash_shove_radius: float = 70.0
+## 영웅마다 다른 회피 생김새·도착 효과 (없으면 기본 대시).
+@export var dash_style: DashStyleData
+## 명중 재질 소리 겹 (SoundBank 종류, 공통 몸통 "hit" 위에 같이 울린다). 예: 순신 물·칼.
+@export var hit_sfx: Array[StringName] = []
+## 궁극기를 모으는 동안 발밑 표시 (없으면 공통 붓 고리).
+@export var charge_marker: ChargeMarkerData
 
 @export_group("전투")
 @export var attack: BasicAttackData

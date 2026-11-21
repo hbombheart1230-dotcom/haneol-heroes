@@ -59,6 +59,7 @@
 P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서버, 광고·결제, 멀티플레이, 정식 그래픽. (성장은 사용자 결정으로 3단계에서 런 안 성장만 추가)
 
 ### 보류 항목 (나중에)
+- 새 영웅 디자인(`assets/concept/redesign/heroes`, 2026-11-21)에 맞춰 나중에 따로: 입장 그림(`keyart_portrait` → `tools/art/korean_title_art.py`) + 앱 아이콘(`tools/art/make_icons.py`가 입장 그림에서 자동). 광개토 이야기 첫 장면(`assets/intro/gwanggaeto/s1.png`)도 옛 디자인. 오프닝 영상은 그 뒤
 
 가벼운 조정·마감 항목. 핵심 단계 진행을 막지 않는다.
 
@@ -171,10 +172,13 @@ Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-ag
 | (임시 효과음) | — | 자체 합성 (`scripts/fx/sfx_synth.gd`) | 엔진 AudioStreamWAV. 정식 효과음은 아트·사운드 단계에서 교체 |
 | KayKit Character Pack: Adventurers (Knight·Barbarian, 임시 캐릭터) | 1.0 | CC0 (`assets/models/kaykit/LICENSE.txt`) | https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0 (Kay Lousberg) |
 | KayKit Character Pack: Skeletons (Minion·Rogue·Warrior, 임시 적) | 1.0 | CC0 (`assets/models/kaykit_skeletons/LICENSE.txt`) | https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0 (Kay Lousberg) |
-| 나눔손글씨 붓 (NanumBrushScript, 제목 글꼴) | Google Fonts | OFL 1.1 (`assets/fonts/OFL_NanumBrushScript.txt`) | https://github.com/google/fonts/tree/main/ofl/nanumbrushscript — 게임에서 쓰는 글자만 남김 (`tools/fonts/subset_fonts.py`) |
-| 송명 (Song Myung, 본문 글꼴, 옛 목판 인쇄풍) | Google Fonts | OFL 1.1 (`assets/fonts/OFL_SongMyung.txt`) | https://github.com/google/fonts/tree/main/ofl/songmyung — 같은 방식으로 줄임 |
+| 덕온공주체 (DeogonPrincess, 게임 글꼴 하나, 궁체) | 2021-10 TTF (sha256 `35ae40e5…`) | 공공누리 제3유형: 상업 사용 가능, 출처 표시, 변경 금지 (`assets/fonts/LICENSE_DeogonPrincess.txt`) | https://hanfont.hangeul.go.kr/relaxfont/font/deokon.do (국립한글박물관·윤디자인그룹) — 원본 파일 그대로 넣음 (글자 줄이기 안 함, `tests/test_fonts.gd`가 해시 확인). 출처는 설정 화면 아래에 표시 |
 | 20 Sword Sound Effects (StarNinjas, 칼 휘두름·부딪힘) | — | CC0 | https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes — 잘라 줄임 (`tools/audio/prepare_audio.py`) |
-| RPG Sound Pack (artisticdude, 대시·마법·피격·적 쓰러짐·단추) | — | CC0 | https://opengameart.org/content/rpg-sound-pack — 같은 방식 |
+| RPG Sound Pack (artisticdude, 대시·마법·적 쓰러짐·단추, 명중 재질: 물방울·옷 스침, 큰 타격 확인음) | `rpg_sound_pack.zip` | CC0 | https://opengameart.org/content/rpg-sound-pack — 같은 방식 |
+| 80 CC0 RPG SFX (rubberduck, 명중 재질: 칼·불·돌·먹(점액)·글자(보석)) | `80-CC0-RPG-SFX_0.zip` (2026-11-21 받음) | CC0 | https://opengameart.org/content/80-cc0-rpg-sfx — 잘라 줄임 (`tools/audio/prepare_audio.py ... mat_*`) |
+| 50 CC0 Sci-Fi SFX (rubberduck, 명중 재질: 세종 번개 지지직) | `sci-fi-sfx.zip` (2026-11-21 받음) | CC0 | https://opengameart.org/content/50-cc0-sci-fi-sfx — shoot_02·misc_07만 잘라 씀 |
+| 37 hits/punches (Independent.nu, 영웅 피격음·명중 몸통 "퍽"·정예 처치 "쿵") | `independent_nu_ljudbank-hits_and_punches.7z` (2026-11-21 받음) | CC0 | https://opengameart.org/content/37-hitspunches — hit26·hit30을 0.85배 빠르기로 낮추고 0.35초로 자름 (`tools/audio/prepare_audio.py ... hurt`). 명중 몸통 hit17·22·28·32 (0.2초), 처치 확인 hit35·hit19 (0.7배 빠르기) |
+| 전통악기 장구·꽹과리 연주 (국악 덧소리: 큰 타격 꽹과리, 정예·보스 처치 장구) | 전통악기_장구_치다_보통속도_Ver.1_MKH418_ST_192 (wrtSn=13287485), 전통악기_꽹과리_치다_연주_MKH418_ST_192 (wrtSn=13287481), 2026-11-21 받음 | 공공누리 제1유형 (출처표시, 상업·변경 가능) — 저작권자 (재)전주정보문화산업진흥원. 출처는 설정 화면 아래에 표시 | https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=13287485&menuNo=200020 , https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=13287481&menuNo=200020 — 센 한 타씩 골라 0.35·0.7초로 자름 (`tools/audio/cut_gugak.py`) |
 | Asianoriental1 (무대 1 음악) | — | CC0 | https://opengameart.org/content/asianoriental1 — 모노 22kHz로 줄임 |
 | Health, HitBoxes, HurtBoxes and HitScans | 5.0.4 + HH 패치 | MIT (`addons/health_hitbox_hurtbox/LICENSE`) | https://github.com/cluttered-code/godot-health-hitbox-hurtbox |
 | Meshy API (AI 3D 생성 서비스, 개발 도구에서 호출) | openapi v1 | 유료 플랜 산출물 사용 조건은 Meshy 약관 | https://docs.meshy.ai/en/api |

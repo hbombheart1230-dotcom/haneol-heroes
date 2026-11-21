@@ -16,8 +16,36 @@
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/slash_2.ogg" id="s12"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/slash_3.ogg" id="s13"]
 [ext_resource type="AudioStream" path="res://assets/audio/sfx/ui_1.ogg" id="s14"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hurt_2.ogg" id="s15"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit_3.ogg" id="n_hit_3"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/hit_4.ogg" id="n_hit_4"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_blade_1.ogg" id="n_mat_blade_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_blade_2.ogg" id="n_mat_blade_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_water_1.ogg" id="n_mat_water_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_water_2.ogg" id="n_mat_water_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_fire_1.ogg" id="n_mat_fire_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_fire_2.ogg" id="n_mat_fire_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_blunt_1.ogg" id="n_mat_blunt_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_blunt_2.ogg" id="n_mat_blunt_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_lightning_1.ogg" id="n_mat_lightning_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_lightning_2.ogg" id="n_mat_lightning_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_glyph_1.ogg" id="n_mat_glyph_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_glyph_2.ogg" id="n_mat_glyph_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_ink_1.ogg" id="n_mat_ink_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_ink_2.ogg" id="n_mat_ink_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_brush_1.ogg" id="n_mat_brush_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/mat_brush_2.ogg" id="n_mat_brush_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/confirm_big_1.ogg" id="n_confirm_big_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/confirm_kill_1.ogg" id="n_confirm_kill_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/confirm_kill_2.ogg" id="n_confirm_kill_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/gugak_big_1.ogg" id="g_gugak_big_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/gugak_big_2.ogg" id="g_gugak_big_2"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/gugak_kill_1.ogg" id="g_gugak_kill_1"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/gugak_kill_2.ogg" id="g_gugak_kill_2"]
 
 [resource]
 script = ExtResource("1_bank")
-sounds = {&"counter": [ExtResource("s0")], &"dash": [ExtResource("s1"), ExtResource("s2")], &"die": [ExtResource("s3"), ExtResource("s4"), ExtResource("s5")], &"evade": [ExtResource("s6")], &"hit": [ExtResource("s7"), ExtResource("s8")], &"hurt": [ExtResource("s9")], &"magic": [ExtResource("s10")], &"slash": [ExtResource("s11"), ExtResource("s12"), ExtResource("s13")], &"ui": [ExtResource("s14")]}
-volume_db = {&"hit": -6.0, &"die": -4.0, &"ui": -4.0}
+sounds = {&"counter": [ExtResource("s0")], &"dash": [ExtResource("s1"), ExtResource("s2")], &"die": [ExtResource("s3"), ExtResource("s4"), ExtResource("s5")], &"evade": [ExtResource("s6")], &"hit": [ExtResource("s7"), ExtResource("s8"), ExtResource("n_hit_3"), ExtResource("n_hit_4")], &"hurt": [ExtResource("s9"), ExtResource("s15")], &"magic": [ExtResource("s10")], &"slash": [ExtResource("s11"), ExtResource("s12"), ExtResource("s13")], &"ui": [ExtResource("s14")], &"mat_blade": [ExtResource("n_mat_blade_1"), ExtResource("n_mat_blade_2")], &"mat_water": [ExtResource("n_mat_water_1"), ExtResource("n_mat_water_2")], &"mat_fire": [ExtResource("n_mat_fire_1"), ExtResource("n_mat_fire_2")], &"mat_blunt": [ExtResource("n_mat_blunt_1"), ExtResource("n_mat_blunt_2")], &"mat_lightning": [ExtResource("n_mat_lightning_1"), ExtResource("n_mat_lightning_2")], &"mat_glyph": [ExtResource("n_mat_glyph_1"), ExtResource("n_mat_glyph_2")], &"mat_ink": [ExtResource("n_mat_ink_1"), ExtResource("n_mat_ink_2")], &"mat_brush": [ExtResource("n_mat_brush_1"), ExtResource("n_mat_brush_2")], &"confirm_big": [ExtResource("n_confirm_big_1")], &"confirm_kill": [ExtResource("n_confirm_kill_1"), ExtResource("n_confirm_kill_2")], &"gugak_big": [ExtResource("g_gugak_big_1"), ExtResource("g_gugak_big_2")], &"gugak_kill": [ExtResource("g_gugak_kill_1"), ExtResource("g_gugak_kill_2")]}
+volume_db = {&"hit": -7.0, &"die": -4.0, &"ui": -4.0, &"mat_blade": -12.0, &"mat_water": -10.0, &"mat_fire": -11.0, &"mat_blunt": -10.0, &"mat_lightning": -14.0, &"mat_glyph": -13.0, &"mat_ink": -10.0, &"mat_brush": -11.0, &"confirm_big": -9.0, &"confirm_kill": -3.0, &"gugak_big": -8.0, &"gugak_kill": -4.0}
+priority = {&"ui": 5, &"hurt": 4, &"counter": 4, &"confirm_kill": 4, &"gugak_kill": 4, &"magic": 3, &"slash": 3, &"dash": 3, &"evade": 3, &"confirm_big": 3, &"gugak_big": 3, &"die": 2, &"hit": 1, &"mat_blade": 1, &"mat_water": 1, &"mat_fire": 1, &"mat_blunt": 1, &"mat_lightning": 1, &"mat_glyph": 1, &"mat_ink": 1, &"mat_brush": 1}
+max_voices = {&"hit": 3, &"die": 3, &"mat_blade": 2, &"mat_water": 2, &"mat_fire": 2, &"mat_blunt": 2, &"mat_lightning": 2, &"mat_glyph": 2, &"mat_ink": 2, &"mat_brush": 2, &"confirm_big": 2}

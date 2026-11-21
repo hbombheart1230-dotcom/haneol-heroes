@@ -1,11 +1,15 @@
 class_name UiStyle
 extends RefCounted
-## 화면 꾸밈 공통 (하데스 참고 → 한국풍): 붓글씨 제목, 훈민정음 해례본풍 본문(송명체), 옻칠 판 + 금박 테두리.
+## 화면 꾸밈 공통 (하데스 참고 → 한국풍): 궁체(덕온공주체) 글자, 옻칠 판 + 금박 테두리.
 ## 화면 글자는 모두 한글로 쓴다 (영문 표기 없음).
-## 글꼴은 게임에서 쓰는 글자만 남긴 OFL 글꼴 (tools/fonts/subset_fonts.py).
+## 글꼴: 국립한글박물관 덕온공주체 (공공누리 제3유형: 출처 표시, 변경 금지 → 원본 파일 그대로 넣는다, 글자 줄이기 금지).
+## 제목·본문을 한 글꼴로 쓰지만, 나중에 나눌 수 있게 이름은 둘로 둔다.
 
-const TITLE_FONT := preload("res://assets/fonts/brush_title.ttf")
-const BODY_FONT := preload("res://assets/fonts/jeongeum_body.ttf")
+const TITLE_FONT := preload("res://assets/fonts/DeogonPrincess.ttf")
+const BODY_FONT := TITLE_FONT
+## 출처 표시 (설정 화면 아래에 보인다): 공공누리 자료는 출처를 밝혀야 한다.
+const CREDITS: Array[String] = ["글꼴: 국립한글박물관 덕온공주체 (공공누리 제3유형)",
+	"국악 소리: (재)전주정보문화산업진흥원, 공유마당 (공공누리 제1유형)"]
 
 const LACQUER := Color(0.08, 0.06, 0.06, 0.92)
 const LACQUER_RED := Color(0.32, 0.07, 0.06, 0.95)

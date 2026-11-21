@@ -193,7 +193,10 @@ func _skip_hero_select() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.hero_picked = true
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
+	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"

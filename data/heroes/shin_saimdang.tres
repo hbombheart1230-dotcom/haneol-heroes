@@ -16,6 +16,17 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/canvas.png" id="i_canvas"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/plum.png" id="i_plum"]
 [ext_resource type="Resource" path="res://data/intro/story_shin_saimdang.tres" id="story"]
+[ext_resource type="Resource" path="res://data/vfx/shin_saimdang_cast.tres" id="vfx_cast"]
+[ext_resource type="Resource" path="res://data/vfx/shin_saimdang_hit.tres" id="vfx_hit"]
+[ext_resource type="Resource" path="res://data/vfx/shin_saimdang_impact.tres" id="vfx_impact"]
+[ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_critter.tres" id="vs_critter"]
+[ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_ink_bleed.tres" id="vs_ink_bleed"]
+[ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_canvas.tres" id="vs_canvas"]
+[ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_plum.tres" id="vs_plum"]
+[ext_resource type="Resource" path="res://data/heroes/dash/shin_saimdang.tres" id="dash_style"]
+[ext_resource type="Texture2D" path="res://assets/vfx/proj_ink.png" id="proj_art"]
+[ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_critter_hit.tres" id="vs_critter_hit"]
+[ext_resource type="Resource" path="res://data/heroes/charge/shin_saimdang.tres" id="charge_marker"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -24,11 +35,20 @@ melee_range = 110.0
 melee_arc_degrees = 150.0
 melee_damage = 10
 melee_knockback = 100.0
+swing_color = Color(0.85, 0.45, 0.9, 0.9)
+melee_recoil = 3.0
 ranged_interval = 0.8
 ranged_range = 450.0
 ranged_damage = 10
 ranged_speed = 650.0
 ranged_lifetime = 0.75
+ranged_knockback = 50.0
+proj_art = ExtResource("proj_art")
+proj_size = Vector2(150, 65)
+proj_trail_color = Color(0.4, 0.2, 0.55, 0.55)
+proj_trail_len = 70.0
+release_delay = 0.12
+release_offset = Vector2(30, 44)
 
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
@@ -39,6 +59,9 @@ display_name = "풀벌레 부르기"
 cooldown = 9.0
 color = Color(0.85, 0.4, 0.55, 1)
 fx_color = Color(0.9, 0.5, 0.65, 1)
+vfx_cast = ExtResource("vs_critter")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vs_critter_hit")
 
 [sub_resource type="Resource" id="Skill_dash"]
 script = ExtResource("s1")
@@ -49,6 +72,9 @@ display_name = "발묵"
 cooldown = 3.5
 color = Color(0.2, 0.2, 0.25, 1)
 fx_color = Color(0.25, 0.22, 0.3, 1)
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vs_ink_bleed")
 
 [sub_resource type="Resource" id="Skill_charge"]
 script = ExtResource("s2")
@@ -59,6 +85,9 @@ display_name = "화폭 펼치기"
 cooldown = 6.0
 color = Color(0.55, 0.3, 0.62, 1)
 fx_color = Color(0.7, 0.5, 0.8, 1)
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vs_canvas")
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("s3")
@@ -68,6 +97,9 @@ display_name = "매화 만개"
 cooldown = 0.0
 color = Color(0.85, 0.4, 0.55, 1)
 fx_color = Color(1, 0.75, 0.85, 1)
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vs_plum")
 
 [sub_resource type="Resource" id="Kit"]
 script = ExtResource("3_kit")
@@ -95,6 +127,8 @@ sprite_scale = 0.85
 sprite_offset = Vector2(0, -59)
 max_hp = 90
 move_speed = 330.0
+move_accel_time = 0.04
+move_decel_time = 0.04
 hurt_invuln_time = 0.6
 evade_invuln_time = 1.0
 dash_distance = 240.0
@@ -105,3 +139,6 @@ attack = SubResource("Attack")
 kit = SubResource("Kit")
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+dash_style = ExtResource("dash_style")
+charge_marker = ExtResource("charge_marker")
+hit_sfx = Array[StringName]([&"mat_ink", &"mat_brush"])

@@ -21,10 +21,11 @@
     },
     {
       "key": "run",
-      "src": "Run 2",
+      "src": "Walking Woman",
       "frames": 8,
-      "fps": 14.0,
-      "loop": true
+      "fps": 16.0,
+      "loop": true,
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra1.glb"
     },
     {
       "key": "dash",

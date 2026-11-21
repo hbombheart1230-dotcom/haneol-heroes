@@ -17,6 +17,7 @@ value = 190.0
 
 [sub_resource type="Resource" id="Up_major_double"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_double"
 icon = ExtResource("i_jeongeum")
 title = "정음진 · 두 겹 고리"
@@ -35,6 +36,7 @@ value = 4.0
 
 [sub_resource type="Resource" id="Up_major_shower"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_shower"
 icon = ExtResource("i_meteor")
 title = "유성 · 유성우"
@@ -53,6 +55,7 @@ value = 70.0
 
 [sub_resource type="Resource" id="Up_major_big_dipper"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_big_dipper"
 icon = ExtResource("i_constellation")
 title = "성좌진 · 북두칠성"
@@ -71,6 +74,7 @@ value = 0.8
 
 [sub_resource type="Resource" id="Up_major_stopped"]
 script = ExtResource("2_up")
+vfx_level_gain = 3
 id = &"major_stopped"
 icon = ExtResource("i_sundial")
 title = "해시계 · 멈춘 시간"

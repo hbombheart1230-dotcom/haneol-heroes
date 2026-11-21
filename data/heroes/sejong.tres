@@ -16,6 +16,17 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/constellation.png" id="i_constellation"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/sundial.png" id="i_sundial"]
 [ext_resource type="Resource" path="res://data/intro/story_sejong.tres" id="story"]
+[ext_resource type="Resource" path="res://data/vfx/sejong_cast.tres" id="vfx_cast"]
+[ext_resource type="Resource" path="res://data/vfx/sejong_hit.tres" id="vfx_hit"]
+[ext_resource type="Resource" path="res://data/vfx/sejong_impact.tres" id="vfx_impact"]
+[ext_resource type="Resource" path="res://data/vfx/skill/sejong_jeongeum.tres" id="vs_jeongeum"]
+[ext_resource type="Resource" path="res://data/vfx/skill/sejong_meteor.tres" id="vs_meteor"]
+[ext_resource type="Resource" path="res://data/vfx/skill/sejong_constellation.tres" id="vs_constellation"]
+[ext_resource type="Resource" path="res://data/vfx/skill/sejong_sundial.tres" id="vs_sundial"]
+[ext_resource type="Resource" path="res://data/heroes/dash/sejong.tres" id="dash_style"]
+[ext_resource type="Texture2D" path="res://assets/vfx/meteor.png" id="fall_art"]
+[ext_resource type="Texture2D" path="res://assets/vfx/glyphs.png" id="ring_art"]
+[ext_resource type="Resource" path="res://data/heroes/charge/sejong.tres" id="charge_marker"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -24,11 +35,21 @@ melee_range = 90.0
 melee_arc_degrees = 120.0
 melee_damage = 8
 melee_knockback = 100.0
+swing_color = Color(1, 0.85, 0.4, 0.9)
+melee_recoil = 3.0
 ranged_interval = 0.55
 ranged_range = 600.0
 ranged_damage = 14
 ranged_speed = 760.0
 ranged_lifetime = 0.85
+ranged_knockback = 50.0
+glyph_px = 110
+proj_trail_color = Color(1, 0.8, 0.3, 0.5)
+proj_trail_len = 70.0
+release_delay = 0.17
+ranged_anim = &"throw"
+ranged_anim_time = 0.44
+release_offset = Vector2(30, 52)
 ranged_glyphs = "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ"
 
 [sub_resource type="Resource" id="Skill_tap"]
@@ -40,6 +61,10 @@ display_name = "정음진"
 cooldown = 6.0
 color = Color(0.86, 0.68, 0.32, 1)
 fx_color = Color(1, 0.85, 0.45, 1)
+vfx_cast = ExtResource("vs_jeongeum")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vfx_impact")
+ring_art = ExtResource("ring_art")
 
 [sub_resource type="Resource" id="Skill_dash"]
 script = ExtResource("s1")
@@ -50,6 +75,11 @@ display_name = "유성"
 cooldown = 3.0
 color = Color(0.3, 0.45, 0.8, 1)
 fx_color = Color(0.75, 0.85, 1, 1)
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vs_meteor")
+fall_art = ExtResource("fall_art")
+fall_size = 220.0
 
 [sub_resource type="Resource" id="Skill_charge"]
 script = ExtResource("s2")
@@ -60,6 +90,12 @@ display_name = "성좌진"
 cooldown = 5.0
 color = Color(0.86, 0.68, 0.32, 1)
 fx_color = Color(1, 0.92, 0.6, 1)
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vs_constellation")
+aim_assist_deg = 80.0
+aim_assist_range = 600.0
+aim_fallback_nearest = true
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("s3")
@@ -69,6 +105,9 @@ display_name = "해시계 멈춤"
 cooldown = 0.0
 color = Color(0.72, 0.15, 0.12, 1)
 fx_color = Color(1, 0.8, 0.4, 1)
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vs_sundial")
 
 [sub_resource type="Resource" id="Kit"]
 script = ExtResource("3_kit")
@@ -96,6 +135,8 @@ sprite_scale = 0.87
 sprite_offset = Vector2(0, -59)
 max_hp = 85
 move_speed = 330.0
+move_accel_time = 0.05
+move_decel_time = 0.05
 hurt_invuln_time = 0.6
 evade_invuln_time = 1.0
 dash_distance = 220.0
@@ -106,3 +147,6 @@ attack = SubResource("Attack")
 kit = SubResource("Kit")
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+dash_style = ExtResource("dash_style")
+charge_marker = ExtResource("charge_marker")
+hit_sfx = Array[StringName]([&"mat_lightning", &"mat_glyph"])

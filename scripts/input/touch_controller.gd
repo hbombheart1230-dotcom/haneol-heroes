@@ -19,7 +19,6 @@ extends Node
 ## 실제 터치 판정 범위 = 보이는 반지름 × 이 값.
 @export var skill_button_hit_scale: float = 1.3
 ## 버튼 켜기/끄기 토글 영역 (화면 오른쪽 위 기준 크기).
-@export var toggle_size: Vector2 = Vector2(150, 56)
 
 var touch_input := TouchMoveInput.new()
 ## 디버그 HUD용 마지막 플릭 방향과 시각.
@@ -27,8 +26,6 @@ var last_flick_dir: Vector2 = Vector2.ZERO
 var last_flick_time: float = -INF
 ## 진단용 한 줄: 마지막 대시 판정 결과 (HUD 디버그 표시).
 var dash_note: String = ""
-## 토글을 누르고 있는 손가락 (-1 = 없음). 누르는 동안 다른 손가락은 토글하지 못한다.
-var _toggle_index: int = -1
 
 
 func _ready() -> void:
@@ -55,12 +52,6 @@ func handle_event(event: InputEvent, time: float) -> bool:
 
 
 func _on_down(index: int, pos: Vector2, time: float) -> bool:
-	if is_on_toggle(pos):
-		# 동시에 여러 손가락이 닿아도 한 번만 바뀐다 (Codex edeb579 지적).
-		if _toggle_index == -1:
-			_toggle_index = index
-			set_skill_button_enabled(not skill_button_enabled)
-		return true
 	# 버튼 위에서 시작한 터치는 (스킬이 받지 않더라도) 이동 손가락이 되지 않는다.
 	if is_on_skill_button(pos):
 		skill_caster.on_press(index, time)
@@ -73,7 +64,7 @@ func _on_down(index: int, pos: Vector2, time: float) -> bool:
 
 
 func _on_drag(index: int, pos: Vector2, time: float) -> bool:
-	if index == _toggle_index or _is_button_finger(index):
+	if _is_button_finger(index):
 		return true
 	if index != touch_input.get_move_index():
 		return false
@@ -88,9 +79,6 @@ func _on_drag(index: int, pos: Vector2, time: float) -> bool:
 
 
 func _on_up(index: int, pos: Vector2, time: float, canceled: bool) -> bool:
-	if index == _toggle_index:
-		_toggle_index = -1
-		return true
 	if _is_button_finger(index):
 		if canceled:
 			skill_caster.cancel_input()
@@ -144,13 +132,6 @@ func is_on_skill_button(pos: Vector2) -> bool:
 		and pos.distance_to(skill_button_center()) <= skill_button_radius * skill_button_hit_scale
 
 
-func toggle_rect() -> Rect2:
-	return Rect2(Vector2(viewport_size().x - toggle_size.x - 12, 44), toggle_size)
-
-
-func is_on_toggle(pos: Vector2) -> bool:
-	return skill_caster != null and toggle_rect().has_point(pos)
-
 
 func _is_button_finger(index: int) -> bool:
 	return skill_caster != null and skill_caster.input.is_from(SkillInput.Source.BUTTON) \
@@ -194,7 +175,6 @@ func _notification(what: int) -> void:
 ## 진행 중인 터치를 모두 잊는다 (앱 전환, 레벨업 선택 화면처럼 손가락 떼기를 놓치는 경우).
 func cancel_all() -> void:
 	touch_input.reset()
-	_toggle_index = -1
 	if skill_caster:
 		skill_caster.cancel_input()
 	if player:

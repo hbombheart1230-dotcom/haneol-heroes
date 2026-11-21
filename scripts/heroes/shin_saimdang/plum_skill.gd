@@ -5,7 +5,6 @@ extends SkillDef
 @export var radius: float = 260.0
 @export var damage: int = 45
 @export var heal: int = 10
-@export var hit_stop: float = 0.06
 @export_group("큰 변형 · 꽃비")
 ## 0보다 크면 이 시간(초) 동안 꽃잎이 남아 계속 피해.
 @export var petal_time: float = 0.0
@@ -29,11 +28,10 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		z.damage = 6
 		z.color = fx_color
 		ctx.add_to_world(z, center)
+	ctx.impact(center)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.5, fx_color)
 		for i in 10:
 			var d := Vector2.from_angle(TAU * i / 10.0)
 			ctx.fx.add_slash(center + d * 30.0, center + d * radius, 10.0, 0.35, fx_color)
-	if hits > 0:
-		ctx.hit_stop(hit_stop)
-	return SkillRun.instant(hits)
+	return SkillRun.instant(hits)  # 명중 멈춤은 SkillHitStop 공통 규칙 (피해 비례, D3)

@@ -28,7 +28,7 @@ func star_points(origin: Vector2, facing: Vector2, n: int) -> PackedVector2Array
 
 
 func cast(ctx: SkillContext, charge: float) -> SkillRun:
-	var pts := star_points(ctx.player.global_position, ctx.player.facing, star_count(charge))
+	var pts := star_points(ctx.player.global_position, aim(ctx), star_count(charge))
 	var struck := {}
 	var hits := 0
 	var prev := ctx.player.global_position
@@ -41,6 +41,7 @@ func cast(ctx: SkillContext, charge: float) -> SkillRun:
 			for en in ctx.enemies_in_radius(p, star_burst_radius):
 				if ctx.hit(en, roundi(damage * 0.5)):
 					hits += 1
+		ctx.impact(p, p - prev)
 		if ctx.fx:
 			ctx.fx.add_slash(prev, p, 6.0, 0.5, fx_color)
 			ctx.fx.add_ring(p, 18.0, 0.5, Color(1, 1, 1))

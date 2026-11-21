@@ -9,34 +9,34 @@ var fx: FxLayer
 var projectile_scene: PackedScene
 var enemy_source: Callable
 var hit_stop_enabled: bool = true
-## 겹친 히트스톱 중 가장 마지막 것만 시간을 되돌린다 (Codex e593772 지적).
-static var _hit_stop_token: int = 0
+## 지금 발동 중인 기술 (이펙트 데이터를 읽는다). 없으면 이펙트 없음.
+var skill: SkillDef
 
 
-## 히트스톱: 아주 짧게 게임 시간을 거의 멈춘다 (엔진 기본 time_scale + 실시간 타이머).
+## 히트스톱: 아주 짧게 게임 시간을 거의 멈춘다 (엔진 기본 time_scale + 실시간 타이머, GameTime 공용).
 func hit_stop(duration: float, scale: float = 0.05) -> void:
 	if not hit_stop_enabled or duration <= 0.0 or player == null or not player.is_inside_tree():
 		return
-	Engine.time_scale = scale
-	_hit_stop_token += 1
-	var token := _hit_stop_token
-	var timer := player.get_tree().create_timer(duration, true, false, true)
-	timer.timeout.connect(func() -> void:
-		if token == _hit_stop_token:
-			Engine.time_scale = GameTime.base)
+	GameTime.stop(player.get_tree(), duration, scale)
 
 
 func enemies() -> Array:
 	return enemy_source.call() if enemy_source.is_valid() else []
 
 
+## 가장자리 판정 (LoL식): 적 몸이 범위에 걸치면 맞는다 (중심점 + 몸 반경 × skill_edge_scale).
 func enemies_in_radius(center: Vector2, radius: float) -> Array[Enemy]:
 	var out: Array[Enemy] = []
 	for e in enemies():
 		var en := e as Enemy
-		if en and is_instance_valid(en) and en.global_position.distance_to(center) <= radius:
+		if en and is_instance_valid(en) and en.global_position.distance_to(center) <= radius + edge_of(en):
 			out.append(en)
 	return out
+
+
+## 적 몸이 판정에 더해지는 폭(px).
+static func edge_of(en: Enemy) -> float:
+	return en.body_radius * en.size_mult * Feedback.feel_data().skill_edge_scale
 
 
 func enemies_near_segment(a: Vector2, b: Vector2, half_width: float) -> Array[Enemy]:
@@ -46,20 +46,54 @@ func enemies_near_segment(a: Vector2, b: Vector2, half_width: float) -> Array[En
 		if en == null or not is_instance_valid(en):
 			continue
 		var p := Geometry2D.get_closest_point_to_segment(en.global_position, a, b)
-		if p.distance_to(en.global_position) <= half_width:
+		if p.distance_to(en.global_position) <= half_width + edge_of(en):
 			out.append(en)
 	return out
 
 
 ## 살아 있는 적에게 피해. 반환: 실제로 맞았으면 true.
-func hit(en: Enemy, dmg: int) -> bool:
+## stop: 기술 명중 멈춤 공통 규칙(SkillHitStop)에 알림. 계속 닿는 장판·도는 글자·벌레는 false.
+func hit(en: Enemy, dmg: int, stop: bool = true) -> bool:
 	var h := en.get_node_or_null("Health") as Health
 	if h == null or not h.is_alive():
 		return false
 	h.damage(dmg)
+	if stop and hit_stop_enabled and player and player.is_inside_tree():
+		SkillHitStop.request(player.get_tree(), dmg)
 	if fx:
 		fx.add_spark(en.global_position)
+	if skill and skill.vfx_hit and player:
+		Feedback.vfx_burst(skill.vfx_hit, en.global_position, en.global_position - player.global_position, skill.vfx_level)
 	return true
+
+
+## 기술이 내리꽂히는 자리: vfx_impact 입자 + (설정돼 있으면) 하늘에서 번개 줄기.
+func impact(pos: Vector2, dir: Vector2 = Vector2.ZERO) -> void:
+	if skill == null or skill.vfx_impact == null:
+		return
+	var v := skill.vfx_impact
+	if v.has_bolt() and fx:
+		fx.add_bolt(pos + Vector2(0, -v.bolt_height), pos, v.bolt_width, v.bolt_time, v.bolt_color, v.bolt_segments,
+			v.bolt_jitter)
+	Feedback.vfx_burst(v, pos, dir, skill.vfx_level)
+	Feedback.impact_haptic()
+
+
+## 직선 기술 경로 a→b에 그림 띠 (vfx_impact.strip). 띠가 없으면 아무것도 안 한다.
+func strip(a: Vector2, b: Vector2) -> void:
+	if skill and skill.vfx_impact:
+		Feedback.vfx_strip_for(skill.vfx_impact, a, b, skill.vfx_level)
+
+
+## a→b 번개 줄기 (vfx_impact에 번개 설정이 있으면 꺾인 번개, 없으면 붓 획). 연쇄·벼락길에 쓴다.
+func bolt(a: Vector2, b: Vector2, width: float, duration: float, color: Color) -> void:
+	if fx == null:
+		return
+	var v := skill.vfx_impact if skill else null
+	if v and v.has_bolt():
+		fx.add_bolt(a, b, width, duration, v.bolt_color, v.bolt_segments, v.bolt_jitter)
+	else:
+		fx.add_slash(a, b, width, duration, color)
 
 
 ## 화면 흔들림 (Feedback이 없으면 아무 일도 안 함).

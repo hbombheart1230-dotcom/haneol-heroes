@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/hansan_1592/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/banner_blue.png" id="p_banner_blue"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/banner_dragon.png" id="p_banner_dragon"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/banner_phoenix.png" id="p_banner_phoenix"]
@@ -23,6 +23,7 @@
 [ext_resource type="Resource" path="res://data/enemies/waegun_elite.tres" id="e_waegun_elite"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_commander.tres" id="e_waegun_commander"]
 [ext_resource type="Resource" path="res://data/breakables/hansan_1592.tres" id="b_hansan_1592"]
+[ext_resource type="Resource" path="res://data/songs/hansan_1592.tres" id="song"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/geobukseon.png" id="p_geobukseon"]
 
@@ -35,6 +36,7 @@ subtitle = "학익진으로 왜 수군을 크게 무찌른 한산도 대첩"
 music = ExtResource("2_music")
 hero_hint = "순신"
 breakable = ExtResource("b_hansan_1592")
+song = ExtResource("song")
 spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_heavy")])
 spawn_weights = PackedFloat32Array(6, 2, 1)
 unlock_times = PackedFloat32Array(0, 10, 20)

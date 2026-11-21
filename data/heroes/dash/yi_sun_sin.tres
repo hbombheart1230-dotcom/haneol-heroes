@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="DashStyleData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/dash_style_data.gd" id="1_style"]
+[ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="2_vfx"]
+[ext_resource type="Texture2D" path="res://assets/vfx/dash_spray.png" id="t_path"]
+
+[sub_resource type="Resource" id="Start"]
+script = ExtResource("2_vfx")
+count = 10
+aim = 1
+spread_deg = 70.0
+speed = Vector2(160, 320)
+gravity = 200.0
+life = Vector2(0.25, 0.4)
+size = Vector2(14, 26)
+color = Color(0.45, 0.8, 1, 1)
+color_end = Color(0.2, 0.5, 0.9, 0)
+
+[sub_resource type="Resource" id="Trail"]
+script = ExtResource("2_vfx")
+shape = 0
+count = 3
+aim = 1
+spread_deg = 60.0
+speed = Vector2(60, 140)
+gravity = 160.0
+life = Vector2(0.25, 0.4)
+size = Vector2(10, 18)
+color = Color(0.55, 0.85, 1, 1)
+color_end = Color(0.3, 0.6, 0.95, 0)
+
+[sub_resource type="Resource" id="End"]
+script = ExtResource("2_vfx")
+shape = 4
+count = 4
+speed = Vector2(80, 200)
+life = Vector2(0.3, 0.5)
+size = Vector2(18, 30)
+color = Color(0.5, 0.82, 1, 0.9)
+color_end = Color(0.2, 0.5, 0.9, 0)
+
+[resource]
+script = ExtResource("1_style")
+start_vfx = SubResource("Start")
+trail_vfx = SubResource("Trail")
+end_vfx = SubResource("End")
+trail_interval = 0.03
+body_tint = Color(0.6, 0.85, 1, 1)
+body_alpha = 0.85
+trail_color = Color(0.25, 0.6, 0.95, 1)
+end_radius = 100.0
+end_push = 180.0
+end_cooldown = 0.8
+path_strip = ExtResource("t_path")
+path_width = 40.0

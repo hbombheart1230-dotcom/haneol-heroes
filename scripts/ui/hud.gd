@@ -41,7 +41,7 @@ func _draw() -> void:
 		_draw_status()
 		_draw_boss_bar()
 		_draw_stage_title()
-	if show_touch_debug and controller:
+	if show_touch_debug and GameSettings.show_stats and controller:
 		_draw_touch_debug()
 	if state and not state.is_playing():
 		_draw_result()
@@ -111,7 +111,8 @@ func _draw_boss_bar() -> void:
 	draw_rect(Rect2(r.position, Vector2(r.size.x * b.health.percent(), r.size.y)), Color(0.78, 0.16, 0.12))
 	draw_rect(Rect2(r.position, Vector2(r.size.x * b.health.percent(), 4)), Color(1, 0.6, 0.45, 0.5))
 	var name_text := b.data.display_name if b.data.display_name != "" else "보스"
-	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, r.position.y - 14), name_text, 40, UiStyle.GOLD, size.x)
+	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, r.position.y - 14), name_text, 46, EnemyNameTag.BOSS_COLOR, size.x,
+		Color(0, 0, 0, 0.85), 8)
 
 
 func _draw_dash_pips() -> void:

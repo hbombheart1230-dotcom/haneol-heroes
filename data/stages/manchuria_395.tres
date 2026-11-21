@@ -20,7 +20,8 @@
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/spear_grass.png" id="p_spear_grass"]
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/spears.png" id="p_spears"]
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/wheel.png" id="p_wheel"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395/verse.ogg" id="2_music"]
+[ext_resource type="Resource" path="res://data/songs/manchuria_395.tres" id="song"]
 
 [resource]
 script = ExtResource("1_theme")
@@ -46,6 +47,7 @@ clear_radius = 260.0
 seed = 395
 prop_textures = Array[Texture2D]([ExtResource("p_cart"), ExtResource("p_fence"), ExtResource("p_flags"), ExtResource("p_grass"), ExtResource("p_planks"), ExtResource("p_rack"), ExtResource("p_rock_sharp"), ExtResource("p_rocks_big"), ExtResource("p_rocks_grass"), ExtResource("p_spear_grass"), ExtResource("p_spears"), ExtResource("p_wheel")])
 picture_props_per_mpx = 2.0
+song = ExtResource("song")
 music = ExtResource("2_music")
 background_path = "res://assets/backgrounds/manchuria_395.png"
 background_rect = Rect2(-1068, -1711, 2124, 3186)

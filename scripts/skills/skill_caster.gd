@@ -22,6 +22,7 @@ enum Slot { NONE, TAP, DASH, CHARGE, COUNTER }
 @export var hit_stop_enabled: bool = true
 
 var input := SkillInput.new()
+var _charge_marker: ChargeMarker
 ## 적 목록 공급자. 테스트에서 교체할 수 있다.
 var enemy_source: Callable = func() -> Array: return get_tree().get_nodes_in_group(Enemy.GROUP)
 
@@ -33,6 +34,7 @@ var _runs: Array = []
 
 
 func _ready() -> void:
+	show_behind_parent = true  # 충전 표시는 바닥 (영웅 그림 아래)
 	if kit == null and player and player.hero:
 		kit = player.hero.kit
 	apply_kit(kit)
@@ -222,7 +224,11 @@ func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
 	_cd[slot] = d.cooldown
 	if slot == Slot.COUNTER:
 		_counter_left = 0.0
-	var run := d.cast(_context(), charge)
+	var ctx := _context()
+	ctx.skill = d
+	if d.vfx_cast:
+		Feedback.vfx_burst(d.vfx_cast, player.global_position, player.facing, d.vfx_level)
+	var run := d.cast(ctx, charge)
 	if run.finished:
 		skill_cast.emit(slot, run.hits)
 	else:
@@ -260,14 +266,36 @@ func _context() -> SkillContext:
 	return ctx
 
 
+## 살아서 모으는 중인지 (죽으면 손을 떼기 전이라도 표시·입자·번쩍임 없음).
+func _is_charging_alive() -> bool:
+	return input.state == SkillInput.State.CHARGING and player != null and not player.is_dead()
+
+
+## 영웅별 충전 표시 (영웅이 바뀌면 다시 만든다).
+func _marker() -> ChargeMarker:
+	var d := player.hero.charge_marker if player and player.hero else null
+	if _charge_marker == null or _charge_marker.data != d:
+		var m := ChargeMarker.new(d)
+		m.carry_from(_charge_marker)
+		_charge_marker = m
+	return _charge_marker
+
+
 func _physics_process(delta: float) -> void:
 	tick(delta, Time.get_ticks_usec() / 1_000_000.0)
+	var charging := _is_charging_alive()
+	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0) if charging else 0.0
+	if player:
+		if player.is_dead():
+			_marker().cancel()  # 죽으면 번쩍임까지 바로 지운다
+		else:
+			_marker().tick(delta, charging, c, player.global_position)
 	queue_redraw()
 
 
 func _draw() -> void:
-	# 충전 중 표시: 플레이어 발밑 고리
-	if input.state != SkillInput.State.CHARGING:
-		return
-	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0)
-	draw_arc(Vector2.ZERO, 36.0 + 20.0 * c, -PI / 2, -PI / 2 + TAU * maxf(c, 0.02), 32, Color(0.4, 0.8, 1.0, 0.9), 5.0)
+	# 충전 중 표시: 플레이어 발밑 (영웅별 그림, show_behind_parent로 영웅 그림 아래)
+	var charging := _is_charging_alive()
+	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0) if charging else 1.0
+	if player:
+		_marker().draw(self, charging, c)

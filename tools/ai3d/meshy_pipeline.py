@@ -168,6 +168,28 @@ def add_anims(cfg: dict, args: argparse.Namespace) -> None:
     print("완료")
 
 
+## 단계 → 그 단계부터 다시 받을 파일 (다시 요청하면 옛 파일을 지워야 새 결과를 받는다).
+STAGE_FILES = {"model": "model", "rig": "rigged", "anim": "animated"}
+
+
+def meshy_dir() -> str:
+    return rel(os.path.join("assets", "models", "meshy"))
+
+
+def clear_downloads(out_dir: str, restart: str) -> None:
+    """restart 단계부터의 받은 .glb와 Godot이 뽑은 그림·가져오기 파일을 지운다 (download_all은 있으면 건너뛴다).
+    지우는 곳은 assets/models/meshy/<영문 소문자 이름> 폴더 안으로만 (이름에 ..·경로가 섞이면 거절)."""
+    name = os.path.basename(os.path.normpath(out_dir))
+    base = os.path.realpath(meshy_dir())
+    real = os.path.realpath(out_dir)
+    if not re.fullmatch(r"[a-z0-9_]+", name) or os.path.dirname(real) != base:
+        raise SystemExit(f"지울 폴더가 assets/models/meshy/<이름> 이 아닙니다: {out_dir}")
+    for s in STAGES[STAGES.index(restart):]:
+        for f in glob.glob(os.path.join(real, glob.escape(STAGE_FILES[s]) + "*")):
+            if os.path.isfile(f) and os.path.dirname(os.path.realpath(f)) == real:
+                os.remove(f)
+
+
 def download_all(state: dict, out_dir: str) -> None:
     for key, file in (("model_glb_url", "model.glb"), ("rigged_glb_url", "rigged.glb"),
                       ("anim_glb_url", "animated.glb")):
@@ -259,6 +281,7 @@ def run(cfg: dict, args: argparse.Namespace) -> None:
     if args.restart:
         for s in STAGES[STAGES.index(args.restart):]:
             state.pop(f"{s}_done", None)
+        clear_downloads(out_dir, args.restart)
     if plan(cfg, state) > 0 and not args.yes:
         raise SystemExit("유료 작업입니다. 확인했으면 --yes를 붙여 다시 실행하세요.")
     for s, fn in zip(STAGES, (stage_model, stage_rig, stage_anim)):
