@@ -1,7 +1,8 @@
 class_name TutorialStep
 extends Resource
 ## 조작 안내 한 단계: 붓글씨 제목 + 설명, 무엇을 몇 번 하면 넘어가는지.
-## event: &"move"(걸은 거리 px) / &"dash" / &"skill_tap" / &"skill_dash" / &"skill_charge" / &"wait"(초).
+## event: &"move"(걸은 거리 px) / &"dash" / &"skill_tap" / &"skill_dash" / &"skill_charge" / &"wait"(초)
+## / &"upgrade"(연습 인장을 하나 먹기: 단계가 시작되면 인장 셋이 떨어진다).
 
 @export var caption: String = ""
 @export_multiline var hint: String = ""

@@ -46,6 +46,13 @@ button_hint = "기술 단추를 꾹 누르고 있다가 떼면
 힘을 모은 셋째 기술이 나갑니다"
 event = &"skill_charge"
 
+[sub_resource type="Resource" id="upgrade"]
+script = ExtResource("2_step")
+caption = "강화 고르기"
+hint = "적을 쓰러뜨려 기운이 차면 둘레에 인장 셋이 떨어집니다
+걸어가거나 대시로 하나를 먹으면 그 강화를 얻습니다"
+event = &"upgrade"
+
 [sub_resource type="Resource" id="potion"]
 script = ExtResource("2_step")
 caption = "탕약"
@@ -56,4 +63,4 @@ amount = 4.0
 
 [resource]
 script = ExtResource("1_data")
-steps = Array[ExtResource("2_step")]([SubResource("move"), SubResource("dash"), SubResource("tap"), SubResource("dash_skill"), SubResource("charge"), SubResource("potion")])
+steps = Array[ExtResource("2_step")]([SubResource("move"), SubResource("dash"), SubResource("tap"), SubResource("dash_skill"), SubResource("charge"), SubResource("upgrade"), SubResource("potion")])

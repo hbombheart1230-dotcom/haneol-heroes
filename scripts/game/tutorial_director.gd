@@ -6,6 +6,7 @@ extends RefCounted
 var main: Node
 var run: TutorialProgress
 var _last_pos: Vector2
+var _seal_timeout := -1.0  # 연습 인장 동안 바꿔 둔 SealChoice.timeout (원래 값)
 
 
 func _init(m: Node) -> void:
@@ -19,6 +20,9 @@ func running() -> bool:
 func start(data: TutorialData) -> void:
 	run = TutorialProgress.new(data)
 	run.finished.connect(_on_finished, CONNECT_ONE_SHOT)
+	run.advanced.connect(func(_i: int) -> void: _maybe_offer_practice())
+	if main.seal_choice:
+		main.seal_choice.chosen.connect(_on_seal_chosen)
 	if main.spawner:
 		main.spawner.active = false
 	var player: Player = main.player
@@ -51,6 +55,25 @@ func tick(delta: float) -> void:
 		run.notify(&"move", player.global_position.distance_to(_last_pos))
 		_last_pos = player.global_position
 	run.notify(&"wait", delta)
+
+
+## 강화 고르기 단계가 되면 연습 인장 셋을 떨어뜨린다 (실제 강화를 얻는다). 고르는 시간은 넉넉히.
+func _maybe_offer_practice() -> void:
+	var s := run.current() if run else null
+	if s == null or s.event != &"upgrade" or main.seal_choice == null or main.seal_choice.is_open():
+		return
+	_seal_timeout = main.seal_choice.timeout
+	main.seal_choice.timeout = run.data.upgrade_timeout
+	main.progress.pending += 1
+	main._offer_next()
+
+
+func _on_seal_chosen(_u: UpgradeDef, _major: bool) -> void:
+	if _seal_timeout >= 0.0 and main.seal_choice:
+		main.seal_choice.timeout = _seal_timeout
+		_seal_timeout = -1.0
+	if run:
+		run.notify(&"upgrade")
 
 
 func _on_finished() -> void:

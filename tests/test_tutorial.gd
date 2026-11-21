@@ -6,7 +6,7 @@ const DATA := preload("res://data/tutorial/controls.tres")
 
 func test_data_steps_cover_controls() -> void:
 	var evs := DATA.steps.map(func(s: TutorialStep) -> StringName: return s.event)
-	assert_array(evs).is_equal([&"move", &"dash", &"skill_tap", &"skill_dash", &"skill_charge", &"wait"])
+	assert_array(evs).is_equal([&"move", &"dash", &"skill_tap", &"skill_dash", &"skill_charge", &"upgrade", &"wait"])
 	for s in DATA.steps:
 		assert_str(s.caption).is_not_empty()
 		assert_str(s.hint).is_not_empty()
@@ -22,7 +22,7 @@ func test_progress_advances_only_on_matching_event() -> void:
 	p.notify(&"dash")
 	assert_int(p.index).is_equal(1)  # 두 번 해야 넘어감
 	p.notify(&"dash")
-	for ev in [&"skill_tap", &"skill_dash", &"skill_charge"]:
+	for ev in [&"skill_tap", &"skill_dash", &"skill_charge", &"upgrade"]:
 		assert_bool(p.notify(ev)).is_true()
 	var done := [false]
 	p.finished.connect(func() -> void: done[0] = true)
@@ -98,3 +98,35 @@ func test_no_tutorial_once_done() -> void:
 	assert_object(main.tutorial_director).is_null()
 	assert_bool(main.spawner.active).is_true()
 	main.queue_free()
+
+
+func test_upgrade_step_drops_practice_seals_and_picking_one_advances() -> void:
+	GameSettings.settings_path = GameSettings.test_path()
+	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
+	GameSettings.hero_picked = true
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.tutorial_enabled = true
+	GameSettings.tutorial_done = false
+	GameSettings.save_settings()
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	add_child(main)
+	await get_tree().process_frame
+	var run: TutorialProgress = main.tutorial_director.run
+	var normal_timeout: float = main.seal_choice.timeout
+	run.notify(&"move", 400.0)
+	run.notify(&"dash")
+	run.notify(&"dash")
+	for ev in [&"skill_tap", &"skill_dash", &"skill_charge"]:
+		run.notify(ev)
+	assert_str(String(run.current().event)).is_equal("upgrade")
+	assert_bool(main.seal_choice.is_open()).is_true()  # 연습 인장이 떨어졌다
+	assert_float(main.seal_choice.timeout).is_equal(DATA.upgrade_timeout)
+	main.seal_choice.pick(0)
+	assert_str(String(run.current().event)).is_equal("wait")  # 하나 먹으면 다음 단계
+	assert_float(main.seal_choice.timeout).is_equal(normal_timeout)
+	run.skip()
+	main.queue_free()
+	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
+	GameSettings.save_settings()
