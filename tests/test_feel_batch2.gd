@@ -111,7 +111,7 @@ func test_pick_avoids_immediate_repeat() -> void:
 		prev = s
 
 
-## 큰 타격은 몸통 + 영웅 재질 둘 + 확인음. 국악 칸은 파일이 없으면 조용히 건너뛴다.
+## 큰 타격은 몸통 + 영웅 재질 둘 + 확인음 + 국악 꽹과리 (공유마당 장구·꽹과리, tools/audio/cut_gugak.py).
 func test_big_hit_layers_body_material_and_confirm() -> void:
 	var f: Feedback = auto_free(Feedback.new())
 	f.bank = BANK
@@ -121,7 +121,7 @@ func test_big_hit_layers_body_material_and_confirm() -> void:
 	f._play_hit(f.feel.big_hit_damage)
 	for k in [&"hit", &"mat_fire", &"mat_blunt", &"confirm_big"]:
 		assert_bool(f._voices.kinds.has(k)).is_true()
-	assert_bool(f._voices.kinds.has(&"gugak_big")).is_false()
+	assert_bool(f._voices.kinds.has(&"gugak_big")).is_true()
 	f._last_played.clear()
 	f._voices = SfxVoices.new(f.sfx_voices)
 	f._play_hit(5)

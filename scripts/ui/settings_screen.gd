@@ -75,7 +75,7 @@ func toggle_rect(i: int) -> Rect2:
 
 func close_rect() -> Rect2:
 	var p := panel_rect()
-	return Rect2(p.get_center().x - 130.0, p.end.y - 112.0, 260.0, 80.0)
+	return Rect2(p.get_center().x - 130.0, p.end.y - 126.0, 260.0, 80.0)  # 아래 출처 두 줄 자리
 
 
 func value_of(row: StringName) -> Variant:
@@ -188,8 +188,10 @@ func _draw() -> void:
 			UiStyle.text(self, UiStyle.BODY_FONT, t.position + Vector2(0, 44), "켬" if on else "끔", 32,
 				UiStyle.GOLD if on else Color(UiStyle.PAPER, 0.6), t.size.x)
 	UiStyle.button(self, close_rect(), "닫기", 40)
-	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(p.position.x, p.end.y - 12), UiStyle.FONT_CREDIT, 18,
-		Color(UiStyle.PAPER, 0.5), p.size.x)
+	for k in UiStyle.CREDITS.size():  # 출처 (공공누리)
+		var y := p.end.y - 10.0 - (UiStyle.CREDITS.size() - 1 - k) * 20.0
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(p.position.x, y), UiStyle.CREDITS[k], 16,
+			Color(UiStyle.PAPER, 0.5), p.size.x)
 
 
 func _draw_slider(s: Rect2, v: float) -> void:

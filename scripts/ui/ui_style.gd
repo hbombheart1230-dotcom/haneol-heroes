@@ -7,8 +7,9 @@ extends RefCounted
 
 const TITLE_FONT := preload("res://assets/fonts/DeogonPrincess.ttf")
 const BODY_FONT := TITLE_FONT
-## 글꼴 출처 표시 (설정 화면 아래에 보인다).
-const FONT_CREDIT := "글꼴: 국립한글박물관 덕온공주체 (공공누리 제3유형)"
+## 출처 표시 (설정 화면 아래에 보인다): 공공누리 자료는 출처를 밝혀야 한다.
+const CREDITS: Array[String] = ["글꼴: 국립한글박물관 덕온공주체 (공공누리 제3유형)",
+	"국악 소리: (재)전주정보문화산업진흥원, 공유마당 (공공누리 제1유형)"]
 
 const LACQUER := Color(0.08, 0.06, 0.06, 0.92)
 const LACQUER_RED := Color(0.32, 0.07, 0.06, 0.95)
