@@ -1,6 +1,6 @@
 {
   "name": "shin_saimdang",
-  "image": "assets/concept/shin_saimdang/front_apose.png",
+  "image": "assets/concept/redesign/heroes/shin_saimdang.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
@@ -37,11 +37,11 @@
     },
     {
       "key": "run",
-      "match": "run",
+      "match": "walk",
       "frames": 8,
-      "fps": 14.0,
+      "fps": 16.0,
       "loop": true,
-      "action_id": 14
+      "action_id": 1
     },
     {
       "key": "dash",
