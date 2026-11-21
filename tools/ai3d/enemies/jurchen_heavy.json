@@ -1,6 +1,6 @@
 {
   "name": "jurchen_heavy",
-  "image": "assets/concept/enemies/jurchen/heavy.png",
+  "image": "assets/concept/redesign/jurchen/heavy.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,

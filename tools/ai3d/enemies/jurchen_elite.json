@@ -1,6 +1,6 @@
 {
   "name": "jurchen_elite",
-  "image": "assets/concept/enemies/jurchen/elite.png",
+  "image": "assets/concept/redesign/jurchen/elite.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,

@@ -1,6 +1,6 @@
 {
   "name": "jurchen_chieftain",
-  "image": "assets/concept/enemies/jurchen/chieftain_boss.png",
+  "image": "assets/concept/redesign/jurchen/chieftain.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,

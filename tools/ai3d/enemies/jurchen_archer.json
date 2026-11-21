@@ -1,6 +1,6 @@
 {
   "name": "jurchen_archer",
-  "image": "assets/concept/enemies/jurchen/archer.png",
+  "image": "assets/concept/redesign/jurchen/archer.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,

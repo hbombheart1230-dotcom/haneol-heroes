@@ -1,6 +1,6 @@
 {
   "name": "jurchen_soldier",
-  "image": "assets/concept/enemies/jurchen/soldier.png",
+  "image": "assets/concept/redesign/jurchen/soldier.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
