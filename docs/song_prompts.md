@@ -267,3 +267,18 @@ Korean traditional epic overture, cinematic game opening theme, four heroes awak
 | 초충도 (사임당) | 정선아리랑 | `steady tempo 142 BPM, fast gayageum sanjo and electric guitar duel, haegeum lead, swirling ink storm, mysterious and intense, bright guitar solo` |
 
 받으면: `tools/audio/cut_song.py`로 같은 빠르기·첫 박에 맞춰 잘라 무대 노래에 "보스" 구간으로 넣는다 (보스 등장 → 다음 마디에 보스 판으로, 보스 처치 → 승리 곡).
+
+### 7-1. 바꿈 (2026-11-21): 커버 말고 새로 만들기
+
+커버는 빠르기·흐름이 원곡을 그대로 따라가서 티가 안 난다 → **커버를 쓰지 않고** 원래 가사·같은 Voice로 새로 만들고 스타일만 바꾼다.
+가락은 조금 바뀌어도 됨, 높은 음 위주 좋음. 빠르기가 원곡과 달라지므로 게임에서는 박자 맞춤 대신 짧게 겹쳐 넘어간다 (보스 등장 → 0.6초 겹침).
+
+설정 (4곡 공통): 새로 만들기(Custom), 가사 = 원곡 가사 그대로, 목소리 = 같은 Voice, 원곡 오디오 없음.
+기이함 25%, 스타일 영향 80%. 제외 스타일: `pop ballad, soft, lo-fi, EDM, trap, autotune, acoustic only, slow intro, low mumbling vocal`
+
+| 무대 | 스타일 |
+|---|---|
+| 한산도 (순신) 진도아리랑 | `Korean folk rock boss battle, Jindo Arirang refrain "ari arirang seuri seurirang", fast 150 BPM, distorted electric guitar riffs and tremolo picking like crashing waves, heavy bass, rock drums with buk war drums, taepyeongso lead, powerful high-register male vocal with soaring belted high notes and namdo sigimsae, gang vocal shouts, stormy naval battle, intense climax, short instrumental intro` |
+| 만주 (광개토) 밀양아리랑 | `Korean folk metal boss battle, Miryang Arirang refrain "nal jom boso nal jom boso", driving 112 BPM, drop-tuned heavy guitars, galloping cavalry drums with buk and jing gong, daegak war horns, powerful high-register male vocal with fierce belted high notes and rough husky tone, war cry chants, tragic and fierce, epic climax, short instrumental intro` |
+| 경복궁 (세종) 긴아리랑 | `Korean orchestral rock boss battle, Gin Arirang melody, majestic 118 BPM, power chords with pyeonjong bronze bells and yonggo drums, brass and strings, male choir, powerful high-register male jeongga vocal with long soaring high notes, royal and solemn but explosive, guitar solo, epic climax, short instrumental intro` |
+| 초충도 (사임당) 정선아리랑 | `Korean folk rock boss battle, Jeongseon Arirang refrain "arirang arirang arariyo", fast 160 BPM, gayageum sanjo and electric guitar duel, haegeum lead, rock drums with janggu, swirling ink storm, mysterious and intense, powerful high-register female vocal with bright soaring high notes and sigimsae, bright guitar solo, short instrumental intro` |
