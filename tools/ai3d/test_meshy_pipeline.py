@@ -249,5 +249,25 @@ class PipelineTest(unittest.TestCase):
             self.assertIn(".env", [line.strip() for line in f])
 
 
+
+class ClearDownloadsTest(unittest.TestCase):
+    def test_refuses_paths_outside_the_meshy_folder(self):
+        for bad in [os.path.join(mp.meshy_dir(), "..", "x"), os.path.join(mp.meshy_dir(), "a", "..", "..", "b"),
+                    os.path.join(mp.meshy_dir(), "Bad-Name"), tempfile.gettempdir()]:
+            with self.assertRaises(SystemExit):
+                mp.clear_downloads(bad, "model")
+
+    def test_deletes_only_restarted_stage_files(self):
+        d = os.path.join(mp.meshy_dir(), "zz_test_clear")
+        os.makedirs(d, exist_ok=True)
+        try:
+            for f in ("model.glb", "rigged.glb", "animated.glb", "state.json"):
+                open(os.path.join(d, f), "w").close()
+            mp.clear_downloads(d, "rig")
+            self.assertEqual(sorted(os.listdir(d)), ["model.glb", "state.json"])
+        finally:
+            shutil.rmtree(d)
+
+
 if __name__ == "__main__":
     unittest.main()

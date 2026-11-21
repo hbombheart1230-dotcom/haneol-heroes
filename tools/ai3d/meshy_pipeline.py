@@ -172,11 +172,22 @@ def add_anims(cfg: dict, args: argparse.Namespace) -> None:
 STAGE_FILES = {"model": "model", "rig": "rigged", "anim": "animated"}
 
 
+def meshy_dir() -> str:
+    return rel(os.path.join("assets", "models", "meshy"))
+
+
 def clear_downloads(out_dir: str, restart: str) -> None:
-    """restart 단계부터의 받은 .glb와 Godot이 뽑은 그림·가져오기 파일을 지운다 (download_all은 있으면 건너뛴다)."""
+    """restart 단계부터의 받은 .glb와 Godot이 뽑은 그림·가져오기 파일을 지운다 (download_all은 있으면 건너뛴다).
+    지우는 곳은 assets/models/meshy/<영문 소문자 이름> 폴더 안으로만 (이름에 ..·경로가 섞이면 거절)."""
+    name = os.path.basename(os.path.normpath(out_dir))
+    base = os.path.realpath(meshy_dir())
+    real = os.path.realpath(out_dir)
+    if not re.fullmatch(r"[a-z0-9_]+", name) or os.path.dirname(real) != base:
+        raise SystemExit(f"지울 폴더가 assets/models/meshy/<이름> 이 아닙니다: {out_dir}")
     for s in STAGES[STAGES.index(restart):]:
-        for f in glob.glob(os.path.join(out_dir, STAGE_FILES[s] + "*")):
-            os.remove(f)
+        for f in glob.glob(os.path.join(real, glob.escape(STAGE_FILES[s]) + "*")):
+            if os.path.isfile(f) and os.path.dirname(os.path.realpath(f)) == real:
+                os.remove(f)
 
 
 def download_all(state: dict, out_dir: str) -> None:
