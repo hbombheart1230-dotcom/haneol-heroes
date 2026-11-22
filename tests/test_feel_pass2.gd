@@ -99,6 +99,35 @@ func test_hero_melee_damage_waits_for_contact() -> void:
 	assert_int(e.health.current).is_less(hp)
 
 
+## 죽으면 휘두르던 칼은 버리고 새 공격도 시작하지 않는다 (Codex 535304c).
+func test_dead_hero_neither_finishes_nor_starts_attacks() -> void:
+	var p: Player = auto_free(Player.new())
+	var h := Health.new()
+	h.name = "Health"
+	p.add_child(h)
+	add_child(p)
+	var aa: AutoAttack = auto_free(AutoAttack.new())
+	aa.player = p
+	aa.data = BasicAttackData.new()
+	aa.data.melee_delay = 0.1
+	add_child(aa)
+	var e: Enemy = ENEMY_SCENE.instantiate()
+	e.data = SOLDIER
+	add_child(auto_free(e))
+	e.set_physics_process(false)
+	e.global_position = Vector2(40, 0)
+	var hp := e.health.current
+	var windups := [0]
+	aa.melee_windup.connect(func(_d: Vector2) -> void: windups[0] += 1)
+	aa.tick(DT, [e])
+	assert_int(windups[0]).is_equal(1)
+	h.damage(99999)
+	for i in 60:
+		aa.tick(DT, [e])
+	assert_int(e.health.current).is_equal(hp)  # 휘두르던 칼이 닿지 않음
+	assert_int(windups[0]).is_equal(1)  # 새로 휘두르지도 않음
+
+
 func test_attack_sfx_defaults_and_overrides() -> void:
 	var d := EnemyAttackData.new()
 	d.kind = EnemyAttackData.Kind.CONE

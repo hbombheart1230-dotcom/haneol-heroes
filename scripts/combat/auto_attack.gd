@@ -64,12 +64,12 @@ func tick(delta: float, enemy_list: Array) -> void:
 	if player.is_dead():  # 죽으면 손에 든 탄·휘두르던 칼은 버린다
 		_release_left = -1.0
 		_melee_left = -1.0
-	if _melee_left >= 0.0:
+		_release_data = null
+		return
+	if _melee_left >= 0.0:  # 휘두르는 중: 칼이 닿는 순간 피해
 		_melee_left -= delta
 		if _melee_left < 0.0 and _melee_src == data:
 			_strike(player.global_position, enemy_list)
-		_release_data = null
-		return
 	if _release_left >= 0.0:
 		_release_left -= delta
 		if _release_left < 0.0:
