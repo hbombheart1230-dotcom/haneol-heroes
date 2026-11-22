@@ -3,6 +3,12 @@
 [ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="1_vfx"]
 [ext_resource type="Texture2D" path="res://assets/vfx/sea_dragon_ring.png" id="2_tex"]
 [ext_resource type="Texture2D" path="res://assets/vfx/water_stain.png" id="art_water_stain_1"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_1.png" id="art_water_clump_1"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_2.png" id="art_water_clump_2"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_3.png" id="art_water_clump_3"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_4.png" id="art_water_clump_4"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_5.png" id="art_water_clump_5"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_6.png" id="art_water_clump_6"]
 
 [resource]
 script = ExtResource("1_vfx")
@@ -14,7 +20,7 @@ damping = 3.5
 gravity = 120.0
 spawn_radius = 48.0
 life = Vector2(0.4, 0.7)
-size = Vector2(21.6, 40.8)
+size = Vector2(44, 76)
 size_end = 0.3
 spin = 2.0
 color = Color(0.45, 0.75, 1, 0.95)
@@ -39,3 +45,4 @@ flicker = 0.8
 twist = 0.5
 art_fill = 0.95
 ground_art = ExtResource("art_water_stain_1")
+part_art = Array[Texture2D]([ExtResource("art_water_clump_1"), ExtResource("art_water_clump_2"), ExtResource("art_water_clump_3"), ExtResource("art_water_clump_4"), ExtResource("art_water_clump_5"), ExtResource("art_water_clump_6")])
