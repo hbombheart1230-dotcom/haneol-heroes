@@ -49,6 +49,12 @@ var waves: WaveRunner
 var _warnings: int = 0
 ## true면 다음 물결을 기다린다 (강화 고르는 중, Main이 넣는다).
 var hold_check: Callable
+## 물결 등장 자리가 막힌 곳(벽·바위 같은 장애물)인지 묻는 함수 (p, 여유) → bool. 비면 검사 없음.
+var blocked_check: Callable
+## 막힌 자리면 다시 뽑는 횟수.
+@export var spawn_point_tries: int = 8
+## 등장 자리와 장애물 사이 여유 (px, 몸 반지름쯤).
+@export var spawn_clearance: float = 24.0
 ## 물결 적 데이터에 난이도를 입힌다 (Main이 넣는다, 비면 그대로).
 var data_scaler: Callable
 ## 장면에 정해 둔 무리 이벤트 켜짐 (물결 무대에서 물결 없는 무대로 바꾸면 되돌린다).
@@ -246,8 +252,14 @@ func _tick_waves(delta: float) -> void:
 
 ## 화면 안 등장 자리: center에서 min~max px (전장 안).
 func near_point(center: Vector2, dmin: float, dmax: float) -> Vector2:
-	var p := center + Vector2.from_angle(rng.randf_range(0.0, TAU)) * rng.randf_range(dmin, dmax)
-	return p.clamp(arena_rect.position, arena_rect.end) if arena_rect.has_area() else p
+	var p := center
+	for i in maxi(spawn_point_tries, 1):  # 장애물 속이면 다시 뽑는다 (Codex e423e86 지적)
+		p = center + Vector2.from_angle(rng.randf_range(0.0, TAU)) * rng.randf_range(dmin, dmax)
+		if arena_rect.has_area():
+			p = p.clamp(arena_rect.position, arena_rect.end)
+		if not blocked_check.is_valid() or not bool(blocked_check.call(p, spawn_clearance)):
+			break
+	return p
 
 
 ## 먹 번짐 예고 뒤 등장 (물결·보스 부하). 예고 중에도 화면 최대에 센다.

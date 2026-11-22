@@ -189,3 +189,21 @@ func test_boss_enters_phase_two_and_summons() -> void:
 	boss._update_damage_mult()
 	boss.health.damage(50)
 	assert_int(boss.health.current).is_equal(hp)  # 단계가 바뀐 순간 무적
+
+
+## 물결 등장 자리는 장애물 속을 피한다 (Codex e423e86), 그리고 elite_last가 아닌 물결도 첫 무리가 나온다.
+func test_spawn_point_avoids_obstacles_and_plain_wave_has_budget() -> void:
+	var sp: EnemySpawner = auto_free(EnemySpawner.new())
+	add_child(sp)
+	sp.set_physics_process(false)
+	var obs := Obstacles.new()
+	add_child(auto_free(obs))
+	obs.build(PackedVector3Array([Vector3(300, 0, 200)]))  # 오른쪽을 큰 바위가 막는다
+	sp.blocked_check = obs.blocks
+	for i in 40:
+		var p := sp.near_point(Vector2.ZERO, 260.0, 420.0)
+		assert_bool(obs.blocks(p, sp.spawn_clearance)).is_false()
+	var r := WaveRunner.new(_wave_set([3], 2), 0.0)  # elite_last = false
+	r.tick(DT, 0, false)
+	assert_bool(r.is_fighting()).is_true()
+	assert_int(r.next_spawn(0, 8).size()).is_equal(1)
