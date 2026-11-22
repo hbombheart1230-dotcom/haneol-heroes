@@ -88,3 +88,36 @@ func test_saimdang_brush_flick_reaches_mid_range_without_projectiles() -> void:
 	# 3타는 둘레 원 (360° 이상), 2타는 좁고 길게
 	assert_float(d.melee_arc_degrees * ComboSteps.at(d.step_arc_mults, 3, 1.0)).is_greater_equal(360.0)
 	assert_float(d.melee_range * ComboSteps.at(d.step_range_mults, 2, 1.0)).is_greater(d.melee_range)
+
+
+## 사임당 중거리 자리 (약 210px, 사거리 230 안): 1·2·3타 모두 닿는다 (3타 원 붓질도 230 × 1.0, 검증 지적 4).
+func test_saimdang_every_step_reaches_mid_range() -> void:
+	var sa: HeroData = load("res://data/heroes/shin_saimdang.tres")
+	for dist in [210.0, 225.0]:
+		for step in [1, 2, 3]:
+			assert_float(sa.attack.melee_range * ComboSteps.at(sa.attack.step_range_mults, step, 1.0)) \
+				.override_failure_message("step %d" % step).is_greater_equal(dist)
+	var p: Player = auto_free(Player.new())
+	var h := Health.new()
+	h.name = "Health"
+	p.add_child(h)
+	p.hero = sa
+	add_child(p)
+	p.set_physics_process(false)
+	var a := AutoAttack.new()
+	a.player = p
+	a.data = sa.attack
+	p.add_child(a)
+	a.set_physics_process(false)
+	var e: Enemy = preload("res://scenes/enemy.tscn").instantiate()
+	e.data = preload("res://data/enemies/waegun_soldier.tres")
+	add_child(auto_free(e))
+	e.set_physics_process(false)
+	e.global_position = Vector2(215, 0)
+	e.health.max = 9999
+	e.health.current = 9999
+	a.manual_strike(3, false, [e])
+	for i in 60:
+		a.tick(1.0 / 60.0, [e])
+	assert_int(e.health.current).is_less(9999)
+	EnemyAttack.active_windups = 0
