@@ -14,6 +14,8 @@ signal card_picked(index: int)
 var choices: Array[UpgradeDef] = []
 var major: bool = false
 var stacks: Dictionary = {}
+## 이번에 고르면 오르는 단계 수 (물결 모드는 한 번에 여러 단계).
+var gain: int = 1
 var _age: float = 0.0
 var _press_index := -1
 var _press_card := -1
@@ -26,7 +28,8 @@ func _ready() -> void:
 	hide()
 
 
-func open(p_choices: Array[UpgradeDef], p_major: bool, p_stacks: Dictionary) -> void:
+func open(p_choices: Array[UpgradeDef], p_major: bool, p_stacks: Dictionary, p_gain: int = 1) -> void:
+	gain = maxi(p_gain, 1)
 	choices = p_choices
 	major = p_major
 	stacks = p_stacks
@@ -179,6 +182,7 @@ func _draw_card(i: int, k: float) -> void:
 		y += 27.0
 	var have := int(stacks.get(u.id, 0))
 	if u.max_stacks > 1:
-		var lv := "%d단계 → %d단계" % [have, have + 1] if have > 0 else "새 강화"
+		var to := mini(have + gain, u.max_stacks)
+		var lv := "%d단계 → %d단계" % [have, to] if have > 0 else ("새 강화" if to <= 1 else "새 강화 → %d단계" % to)
 		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, r.end.y - 18), lv, 20,
 			Color(UiStyle.GOLD_DIM if have > 0 else UiStyle.GOLD, k), r.size.x, Color(0, 0, 0, 0.7 * k), 4)

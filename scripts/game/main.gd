@@ -43,6 +43,8 @@ var build := RunBuild.new()
 var rng := RandomNumberGenerator.new()
 ## 정예 처치로 받을 큰 변형 고르기 대기 수 (레벨업보다 먼저 연다).
 var major_pending: int = 0
+## 물결 모드: 이번 숨 고르기에 남은 고르기 횟수 (한 번만 고른다).
+var break_picks: int = 0
 var _end_time: float = 0.0
 ## 영웅 고르기 화면이 떠 있어 판이 아직 시작되지 않음.
 var waiting_pick: bool = false
@@ -324,7 +326,7 @@ func _on_enemy_killed(e: Enemy) -> void:
 	if e.data.is_elite:
 		major_pending += 1
 	progress.add_xp(roundi(e.data.xp * (spawner.xp_mult() if spawner else 1.0)))
-	if not is_choosing() and (spawner == null or spawner.can_offer()):  # 물결 싸움 중엔 물결 끝까지 쌓아 둔다
+	if not is_choosing() and not _one_pick() and (spawner == null or spawner.can_offer()):  # 물결 싸움 중엔 물결 끝까지 쌓아 둔다
 		_offer_next()
 
 
@@ -334,7 +336,17 @@ func _on_breather(slowmo: bool) -> void:
 		var f := Feedback.feel_data()
 		GameTime.stop(get_tree(), f.wave_end_slow_time, f.wave_end_slow_scale)
 	if state.is_playing() and not is_choosing():
+		break_picks = 1
 		_offer_next()
+
+
+## 물결 모드에서 숨 고르기마다 한 번만 고르는지 (그 한 번이 올리는 단계 수는 pick_gain).
+func _one_pick() -> bool:
+	return spawner != null and spawner.waves != null and spawner.waves.data.one_pick_per_break
+
+
+func pick_gain(major: bool) -> int:
+	return 1 if major or not _one_pick() else maxi(spawner.waves.data.pick_stacks, 1)
 
 
 func is_choosing() -> bool:
@@ -346,19 +358,22 @@ func _offer_next() -> void:
 	if seal_choice == null or player == null or build.hero == null:
 		return
 	var count := run_config.choice_count if run_config else 3
+	var one := _one_pick()
+	if one and break_picks <= 0:
+		return
 	if major_pending > 0:
 		var majors := build.hero.major_pool.roll(rng, progress.stacks, count) if build.hero.major_pool else []
 		if not majors.is_empty():
 			seal_choice.open(majors, player.global_position, true, progress.stacks)
 			return
 		major_pending = 0
-	if progress.pending > 0:
+	if progress.pending > 0 or one:  # 물결 모드는 레벨과 상관없이 숨 고르기마다 한 번
 		var pool := build.hero.upgrade_pool
 		var choices: Array[UpgradeDef] = []  # 빈 배열 리터럴은 타입이 없어 삼항식에 쓰면 오류
 		if pool:
 			choices = pool.roll(rng, progress.stacks, count)
 		if not choices.is_empty():
-			seal_choice.open(choices, player.global_position, false, progress.stacks)
+			seal_choice.open(choices, player.global_position, false, progress.stacks, pick_gain(false))
 			return
 		progress.pending = 0
 
@@ -371,5 +386,9 @@ func _on_upgrade_chosen(u: UpgradeDef, major: bool) -> void:
 		progress.stacks[u.id] = int(progress.stacks.get(u.id, 0)) + 1
 	else:
 		progress.record_choice(u)
+		for i in mini(pick_gain(false), u.max_stacks - int(progress.stacks.get(u.id, 0)) + 1) - 1:  # 한 번에 여러 단계
+			build.apply(u)
+			progress.stacks[u.id] = int(progress.stacks.get(u.id, 0)) + 1
+	break_picks = maxi(break_picks - 1, 0)
 	if state.is_playing():
 		_offer_next()

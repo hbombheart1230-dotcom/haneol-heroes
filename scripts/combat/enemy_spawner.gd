@@ -262,6 +262,14 @@ func near_point(center: Vector2, dmin: float, dmax: float) -> Vector2:
 	return p
 
 
+## at이 장애물 속이거나 전장 밖이면 around 둘레에서 다시 뽑은 자리 (보스 부하 소환).
+func safe_point(at: Vector2, around: Vector2, dmin: float, dmax: float) -> Vector2:
+	var p := at.clamp(arena_rect.position, arena_rect.end) if arena_rect.has_area() else at
+	if blocked_check.is_valid() and bool(blocked_check.call(p, spawn_clearance)):
+		return near_point(around, dmin, dmax)
+	return p
+
+
 ## 먹 번짐 예고 뒤 등장 (물결·보스 부하). 예고 중에도 화면 최대에 센다.
 func warn_spawn(d: EnemyData, at: Vector2, elite: bool = false) -> void:
 	if d == null:

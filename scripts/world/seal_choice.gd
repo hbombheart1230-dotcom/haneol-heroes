@@ -35,7 +35,7 @@ func is_open() -> bool:
 	return not choices.is_empty()
 
 
-func open(p_choices: Array[UpgradeDef], _center: Vector2, p_major: bool, p_stacks: Dictionary) -> void:
+func open(p_choices: Array[UpgradeDef], _center: Vector2, p_major: bool, p_stacks: Dictionary, gain: int = 1) -> void:
 	if p_choices.is_empty():
 		return
 	if not is_open():
@@ -46,7 +46,7 @@ func open(p_choices: Array[UpgradeDef], _center: Vector2, p_major: bool, p_stack
 	if is_inside_tree():
 		get_tree().paused = true
 	if cards:
-		cards.open(choices, major, stacks)
+		cards.open(choices, major, stacks, gain)
 
 
 func close() -> void:

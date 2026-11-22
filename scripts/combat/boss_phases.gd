@@ -44,7 +44,8 @@ static func enter(e: Enemy, ph: BossPhaseData) -> void:
 	if sp:
 		for i in ph.summon.size():
 			var off := Vector2.from_angle(TAU * i / maxf(ph.summon.size(), 1)) * (e.body_radius * e.size_mult + 120.0)
-			sp.warn_spawn(ph.summon[i], e.global_position + off)
+			var r := off.length()
+			sp.warn_spawn(ph.summon[i], sp.safe_point(e.global_position + off, e.global_position, r, r + 80.0))  # 벽 속 소환 방지 (Codex 3ceebe3)
 		sp.breather.emit(false)  # 쌓인 강화를 연다
 	var fb := Feedback.instance
 	if fb:

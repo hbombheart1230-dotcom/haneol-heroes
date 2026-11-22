@@ -207,3 +207,17 @@ func test_spawn_point_avoids_obstacles_and_plain_wave_has_budget() -> void:
 	r.tick(DT, 0, false)
 	assert_bool(r.is_fighting()).is_true()
 	assert_int(r.next_spawn(0, 8).size()).is_equal(1)
+
+
+## 보스 부하 소환 자리도 장애물 속이면 옮긴다 (Codex 3ceebe3).
+func test_safe_point_moves_out_of_obstacles() -> void:
+	var sp: EnemySpawner = auto_free(EnemySpawner.new())
+	add_child(sp)
+	sp.set_physics_process(false)
+	var obs := Obstacles.new()
+	add_child(auto_free(obs))
+	obs.build(PackedVector3Array([Vector3(150, 0, 60)]))
+	sp.blocked_check = obs.blocks
+	assert_vector(sp.safe_point(Vector2(-150, 0), Vector2.ZERO, 150.0, 230.0)).is_equal(Vector2(-150, 0))  # 빈 자리는 그대로
+	var p := sp.safe_point(Vector2(150, 0), Vector2.ZERO, 150.0, 230.0)
+	assert_bool(obs.blocks(p, sp.spawn_clearance)).is_false()

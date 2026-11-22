@@ -108,6 +108,7 @@ func test_exit_closes_open_upgrade_cards_first() -> void:
 	add_child(main)
 	await get_tree().process_frame
 	main.progress.pending += 1
+	main.break_picks = 1  # 물결 모드(한산)는 숨 고르기 때만 연다
 	main._offer_next()
 	assert_bool(main.seal_choice.is_open()).is_true()
 	main.flow.prepare_exit()

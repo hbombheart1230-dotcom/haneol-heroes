@@ -17,3 +17,7 @@ extends Resource
 @export var boss_delay: float = 1.5
 ## 처치 경험치 배율 (적이 적은 만큼, 강화 횟수가 지금과 비슷하게).
 @export var xp_mult: float = 3.5
+## 숨 고르기(물결 끝·보스 단계)마다 강화를 한 번만 고른다 (하데스식: 연달아 여러 번 고르지 않는다).
+@export var one_pick_per_break: bool = true
+## 그 한 번이 올려 주는 단계 수 (횟수가 준 만큼 한 번을 크게; 최대 단계는 넘지 않는다).
+@export var pick_stacks: int = 2
