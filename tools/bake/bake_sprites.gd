@@ -194,6 +194,8 @@ func _setup(job: Dictionary) -> AnimationPlayer:
 	world.add_child(_pivot)
 	var model: Node3D = (load(job["model"]) as PackedScene).instantiate()
 	_pivot.add_child(model)
+	if job.has("rigid"):  # 무기를 손뼈에만 묶어 구겨지지 않게
+		print("rigid weapon verts: ", RigidWeapon.apply(model, job["rigid"]))
 	if job.has("recolor"):
 		_recolor(model, job["recolor"])
 	_post = _make_post(job) if job.get("style", "") == "ink" else null
