@@ -57,6 +57,10 @@ var size_mult: float = 1.0
 var speed_mult: float = 1.0
 var hp_mult: float = 1.0
 var _damage_mult: float = 1.0
+## 지금 맞으면 반격·뒤치기인지 (HitBonus 깃발, 피해 배율과 같은 값으로 글자를 띄운다).
+var _bonus: int = 0
+## 영웅 3타째 강타가 이번 피해인지 (AutoAttack이 피해 직전에 켜고 바로 끈다).
+var heavy_pending: bool = false
 ## 넉백 감쇠율(초당). 클수록 빨리 멈춘다.
 @export var knockback_damping: float = 8.0
 
@@ -87,6 +91,7 @@ func stun(seconds: float) -> void:
 	_stop_charge()
 	if attack and scale >= 1.0 and attack.is_busy():
 		attack.cancel()
+	_update_damage_mult()
 	queue_redraw()
 
 
@@ -214,7 +219,7 @@ func _physics_process(delta: float) -> void:
 	if poise and poise.armor_max > 0.0 and not poise.is_armored():
 		poise.tick(delta)
 		queue_redraw()  # 깨진 갑옷이 다시 차는 막대 (그 밖엔 맞을 때만 다시 그린다)
-	if _stun_left > 0.0:
+	if _stun_left > 0.0 or (reaction and reaction.is_down()):  # 기절·넘어짐 (B8)
 		_stun_left = maxf(_stun_left - delta, 0.0)
 		_drift(delta)
 		return
@@ -255,6 +260,7 @@ func _physics_process(delta: float) -> void:
 
 ## 기절: 쫓지도 치지도 않고 넉백만 받는다.
 func _drift(delta: float) -> void:
+	_update_damage_mult()
 	velocity = knockback
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
 	move_and_slide()
@@ -288,25 +294,13 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 			EnemySprite.start_hit(self)  # 멈춤 동안 첫 프레임, 멈춤 뒤 나머지 (R1)
 		if reaction and reaction.is_staggered():
 			_stop_charge()  # 잡몹 돌진은 맞으면 멈춘다 (정예·보스는 그대로 밀고 온다)
+		EnemyHits.on_hit(self, heavy_pending)  # 잡몹 예고 끊김 · 강타 멈춤·넘어짐
 		if poise:
-			_on_poise(poise.on_damage(applied))
-	Feedback.enemy_hit(global_position, applied, _last_hit_dir)
+			EnemyHits.on_poise(self, poise.on_damage(applied))
+	Feedback.enemy_hit(global_position, applied, _last_hit_dir, EnemyHits.number_style(applied, heavy_pending),
+		_bonus if applied > 0 else HitBonus.NONE)
+	_update_damage_mult()
 	queue_redraw()
-
-
-## 갑옷 깨짐(정예) · 휘청(보스): 기절 저항(stun_scale)과 무관하게 정해진 시간 멈추고 맞는 동작.
-func _on_poise(ev: EnemyPoise.Event) -> void:
-	if ev == EnemyPoise.Event.NONE:
-		return
-	var broke := ev == EnemyPoise.Event.ARMOR_BREAK
-	_stun_left = maxf(_stun_left, AI.armor_break_stun if broke else AI.boss_stagger_time)
-	if attack:
-		attack.cancel()
-	_stop_charge()
-	if reaction and sprite:
-		reaction.anim_left = reaction.data.hit_anim_time
-		EnemySprite.start_hit(self)
-	Feedback.poise_broken(global_position, broke)
 
 
 ## 공격 중 움직임 (물러나며 쏘기만, 나머지는 제자리).
@@ -323,10 +317,13 @@ func _dir_to_target() -> Vector2:
 	return d.normalized() if d.length_squared() > 1.0 else Vector2.ZERO
 
 
-## 받는 피해 배율 (경직 처벌 × 정면 방패 × 변종)을 체력 애드온의 modifier로. 바뀔 때만 새로 만든다.
+## 받는 피해 배율 (경직 처벌 × 정면 방패 × 변종 × 반격·뒤치기)을 체력 애드온의 modifier로. 바뀔 때만 새로 만든다.
 func _update_damage_mult() -> void:
+	if brain == null:
+		return
 	var facing := attack.aim_dir if attack and attack.is_busy() else _dir_to_target()
-	var m := brain.damage_mult(attack, facing, _dir_to_target(), affix.damage_taken_mult if affix else 1.0)
+	_bonus = EnemyHits.bonus_flags(self)
+	var m := brain.damage_mult(attack, facing, _dir_to_target(), affix.damage_taken_mult if affix else 1.0) 		* HitBonus.mult(_bonus, EnemyHits.impact())
 	if is_equal_approx(m, _damage_mult):
 		return
 	_damage_mult = m

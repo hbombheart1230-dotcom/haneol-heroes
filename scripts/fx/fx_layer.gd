@@ -40,11 +40,22 @@ func add_fall(tex: Texture2D, from: Vector2, to: Vector2, duration: float, size:
 		"rot": (to - from).angle() - deg_to_rad(angle_deg), "color": Color.WHITE})
 
 
-## 데미지 숫자: 위로 떠오르며 사라진다. strong이면 크고 노랗게.
-func add_number(pos: Vector2, amount: int, strong: bool = false) -> void:
-	var jitter := Vector2(randf_range(-10, 10), 0)
-	_fx.append({"kind": "number", "pos": pos + jitter, "n": amount, "strong": strong, "t": 0.0, "dur": 0.6,
-		"color": Color(1, 0.85, 0.3) if strong else Color(1, 1, 1)})
+## 피해 숫자 (B6): 위로 떠오르며 사라진다. style 0 = 보통 먹색, 1 = 큰 피해 인장색, 2 = 3타째 강타 금빛·가장 크게.
+func add_number(pos: Vector2, amount: int, style: int = 0) -> void:
+	var d := Feedback.feel_data().impact_data()
+	if number_count() >= d.max_numbers:
+		return  # 떼거리에서 숫자가 화면을 덮지 않게
+	var col := d.number_color_heavy if style == 2 else (d.number_color_big if style == 1 else d.number_color)
+	var size := d.number_size_heavy if style == 2 else (d.number_size_big if style == 1 else d.number_size)
+	_fx.append({"kind": "number", "pos": pos + Vector2(randf_range(-10, 10), 0), "text": str(amount), "size": size,
+		"t": 0.0, "dur": d.number_time, "color": col})
+
+
+## 반격·뒤치기 글자: 숫자보다 조금 위에서 떠오른다.
+func add_label(pos: Vector2, text: String, color: Color) -> void:
+	var d := Feedback.feel_data().impact_data()
+	_fx.append({"kind": "number", "pos": pos + Vector2(0, -34), "text": text, "size": d.label_size, "t": 0.0,
+		"dur": d.number_time * 1.3, "color": color})
 
 
 ## 붓 그림 하나를 가운데 맞춰 돌려 그린다. 그림이 없으면 false (코드 그림으로 대신).
@@ -59,6 +70,14 @@ func _tex_draw(tex: Texture2D, pos: Vector2, size: float, rot: float, col: Color
 
 func count() -> int:
 	return _fx.size()
+
+
+func number_count() -> int:
+	var n := 0
+	for f in _fx:
+		if f["kind"] == "number":
+			n += 1
+	return n
 
 
 func _process(delta: float) -> void:
@@ -102,6 +121,13 @@ func _draw() -> void:
 				draw_polyline(pts, Color(c, (1.0 - k) * st.bolt_glow_alpha), w * st.bolt_glow_width)
 				draw_polyline(pts, Color(c, 1.0 - k), w * st.bolt_body_width)
 				draw_polyline(pts, Color(1, 1, 1, 1.0 - k), w * st.bolt_core_width)
+			"number":  # 피해 숫자·글자: 종이색 테두리 + 먹·인장색 글씨, 떠오르며 흐려짐
+				var im := feel.impact_data()
+				var np: Vector2 = (f["pos"] as Vector2) + Vector2(-80, -im.number_rise * k - 30.0)
+				var fs := int(f["size"])
+				draw_string_outline(UiStyle.TITLE_FONT, np, f["text"], HORIZONTAL_ALIGNMENT_CENTER, 160, fs,
+					im.number_outline, Color(Ink.PAPER, 1.0 - k))
+				draw_string(UiStyle.TITLE_FONT, np, f["text"], HORIZONTAL_ALIGNMENT_CENTER, 160, fs, Color(c, 1.0 - k))
 			"spark":  # 타격 튐: 물보라 붓 그림
 				var p3: Vector2 = f["pos"]
 				if not _tex_draw(feel.splat_art, p3, 36.0 + 30.0 * k, float(f.get("seed", 0.0)), Color(c, (1.0 - k) * 0.9)):

@@ -45,6 +45,12 @@ SFX = {
     "e_gun_windup": [("rpg80/lock_01.ogg", 0.25, 0.8)],
     "e_gun": [("scifi/explosion_01.ogg", 0.5, 1.0, 0.85), ("scifi/explosion_02.ogg", 0.5, 1.0, 0.85)],
     "e_bow": [("rpg80/misc_02.ogg", 0.2, 0.9), ("rpg80/misc_03.ogg", 0.2, 0.9)],
+    # 영웅 근접 무기 (던파 벤치마크 B9): 칼 "챙", 창 "턱", 붓 "착", 두루마리 "탁", 3타째 강타 "쾅" (낮게)
+    "w_sword": [("rpg80/blade_02.ogg", 0.2, 0.8), ("rpg80/metal_02.ogg", 0.18, 0.7)],
+    "w_spear": [("rpg80/wood_03.ogg", 0.18, 0.9, 0.85), ("hits/hit12.mp3.flac", 0.16, 0.8, 0.85)],
+    "w_brush": [("rpg80/book_02.ogg", 0.2, 0.9), ("rpg80/book_03.ogg", 0.2, 0.9)],
+    "w_scroll": [("rpg80/book_04.ogg", 0.18, 0.9), ("rpg80/item_wood_01.ogg", 0.15, 0.8)],
+    "w_heavy": [("hits/hit35.mp3.flac", 0.4, 1.0, 0.75), ("rpg80/stones_03.ogg", 0.35, 1.0, 0.8)],
     "dash": [("RPG Sound Pack/battle/swing.wav", 0.25, 0.9), ("RPG Sound Pack/battle/swing2.wav", 0.2, 0.9)],
     "evade": [("RPG Sound Pack/battle/swing3.wav", 0.2, 1.0)],
     "counter": [("sword_clash.1.ogg", 0.8, 1.0)],
