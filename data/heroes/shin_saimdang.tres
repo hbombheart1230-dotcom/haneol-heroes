@@ -67,6 +67,7 @@ fx_color = Color(0.9, 0.5, 0.65, 1)
 vfx_cast = ExtResource("vs_critter")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_critter_hit")
+sfx_layers = Array[StringName]([&"gugak_gaya"])
 
 [sub_resource type="Resource" id="Skill_dash"]
 script = ExtResource("s1")
@@ -80,6 +81,7 @@ fx_color = Color(0.25, 0.22, 0.3, 1)
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_ink_bleed")
+sfx_layers = Array[StringName]([&"gugak_gaya"])
 
 [sub_resource type="Resource" id="Skill_charge"]
 script = ExtResource("s2")
@@ -93,6 +95,7 @@ fx_color = Color(0.7, 0.5, 0.8, 1)
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_canvas")
+sfx_layers = Array[StringName]([&"gugak_gaya"])
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("s3")
@@ -105,6 +108,8 @@ fx_color = Color(1, 0.75, 0.85, 1)
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_plum")
+cutin = true
+sfx_layers = Array[StringName]([&"gugak_gaya", &"gugak_kill"])
 
 [sub_resource type="Resource" id="Kit"]
 script = ExtResource("3_kit")

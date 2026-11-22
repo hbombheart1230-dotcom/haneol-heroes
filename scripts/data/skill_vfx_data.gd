@@ -126,6 +126,9 @@ func glow_for(level: int) -> float:
 @export var piece_flash: float = 0.9
 ## 1 = 시계 방향, -1 = 반대.
 @export var piece_dir: float = 1.0
+## 조각 모양: RADIAL = 부채꼴로 휘감음, SCROLL = 세로 띠가 가운데에서 양옆으로 (두루마리 펼침).
+enum PieceMode { RADIAL, SCROLL }
+@export var piece_mode: PieceMode = PieceMode.RADIAL
 
 @export_group("연출 · 바늘과 눈금 (해시계)")
 ## true면 조각과 함께 그림자 바늘이 한 바퀴 돈다 (붓 획 그림).
@@ -136,6 +139,8 @@ func glow_for(level: int) -> float:
 @export var tick_count: int = 0
 @export var tick_color: Color = Color(1.0, 0.85, 0.35)
 @export var tick_size: float = 70.0
+## 눈금마다 울리는 소리 (SoundBank 종류).
+@export var tick_sfx: StringName = &"mat_glyph"
 
 @export_group("연출 · 예고와 자국")
 ## 0보다 크면 이 시간(초) 동안 기운이 가운데로 모인다 (지연 기술의 예고: 유성·화폭·벽력돌파).
@@ -153,3 +158,54 @@ func glow_for(level: int) -> float:
 @export var hit_mark_size: float = 0.0
 @export var hit_mark_time: float = 0.22
 @export var hit_mark_color: Color = Color(1, 1, 1, 0.95)
+
+@export_group("연출 · 그림 속 움직임")
+## 떠 있는 동안 그림 속이 일렁이는 세기 (0~1, 물·불·먹). 0이면 정지 그림.
+@export var flicker: float = 0.0
+## 사라지는 동안 가운데가 감겨 드는 각도(라디안, 소용돌이 흐름). 0이면 없음. 최대 4.
+@export var twist: float = 0.0
+
+@export_group("연출 · 판정 크기 맞춤")
+## true면 기술이 판정 반경을 알려 줄 때 그림 지름을 판정에 맞춘다 (강화로 판정이 커지면 그림도). 강화 단계의 크기 배율은 쓰지 않는다.
+@export var fit_to_hit: bool = true
+## 그림 네모 안에서 칠해진 부분의 반지름 비율 (가장자리 투명 여백 제외, tools/art 측정값).
+@export var art_fill: float = 0.88
+
+@export_group("연출 · 움직이는 그림 (프레임 시트)")
+## 비어 있지 않으면 decal 대신 이 시트를 프레임으로 재생한다 (docs/skill_vfx_sheets.md 규격). strip_sheet는 띠용.
+@export var sheet: Texture2D
+@export var strip_sheet: Texture2D
+## 시트 칸 수 (가로 × 세로), 쓸 장 수 (0 = 전부), 초당 장 수, 끝나면 처음으로 (false면 마지막 장에 멈춤).
+@export var sheet_cols: int = 4
+@export var sheet_rows: int = 2
+@export var sheet_count: int = 0
+@export var sheet_fps: float = 16.0
+@export var sheet_loop: bool = false
+
+
+## 판정 반경(px)에 맞춘 그림 지름.
+func fitted_size(radius: float) -> float:
+	return 2.0 * radius / maxf(art_fill, 0.1)
+
+
+## 정점 색: r = 밝기, g = 일렁임, b = 감김/4, a = 남은 수명 (shaders/ink_decal.gdshader).
+func ink_color(bright: float, life: float) -> Color:
+	return Color(bright, clampf(flicker, 0.0, 1.0), clampf(twist / 4.0, 0.0, 1.0), life)
+
+
+## t초 때 그릴 그림 (시트가 있으면 그 장, 없으면 decal).
+func decal_at(t: float) -> Texture2D:
+	if sheet:
+		return VfxSheets.frame_at(sheet, sheet_cols, sheet_rows, sheet_count, sheet_fps, t, sheet_loop)
+	return decal
+
+
+func strip_at(t: float) -> Texture2D:
+	if strip_sheet:
+		return VfxSheets.frame_at(strip_sheet, sheet_cols, sheet_rows, sheet_count, sheet_fps, t, sheet_loop)
+	return strip
+
+
+## 그림이 있는지 (정지 그림 또는 시트).
+func has_decal() -> bool:
+	return decal != null or sheet != null

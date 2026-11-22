@@ -32,7 +32,7 @@ func strike(ctx: SkillContext, at: Vector2, dmg: int, r: float) -> int:
 		if ctx.hit(en, dmg):
 			en.stun(stun_time)
 			n += 1
-	ctx.impact(at)
+	ctx.impact(at, Vector2.ZERO, r)
 	if ctx.fx:
 		if fall_art == null:
 			ctx.fx.add_slash(at + Vector2(-120, -420), at, 12.0, 0.25, fx_color)

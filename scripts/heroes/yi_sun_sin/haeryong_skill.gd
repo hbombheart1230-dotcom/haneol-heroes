@@ -17,7 +17,7 @@ extends SkillDef
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	var center := ctx.player.global_position
 	var targets := ctx.enemies_in_radius(center, radius)  # 대상은 누르는 순간 정해진다
-	ctx.impact(center)
+	ctx.impact(center, Vector2.ZERO, radius)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.35, fx_color)
 	if whirl_time > 0.0:

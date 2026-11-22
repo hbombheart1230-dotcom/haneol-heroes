@@ -32,3 +32,4 @@ gather_time = 0.3
 gather_count = 10
 gather_radius = 200.0
 gather_color = Color(1, 0.95, 0.6, 0.9)
+flicker = 0.8

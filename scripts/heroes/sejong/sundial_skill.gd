@@ -23,7 +23,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		if freeze_time > 0.0:
 			en.stun(freeze_time)
 		targets.append(en)
-	ctx.impact(center)
+	ctx.impact(center, Vector2.ZERO, radius)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.6, fx_color)
 	# 명중 멈춤은 SkillHitStop 공통 규칙 (피해 비례, D3)

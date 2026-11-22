@@ -39,3 +39,6 @@ tick_color = Color(1, 0.85, 0.35, 1)
 ground_time = 1.4
 ground_size = 360.0
 ground_color = Color(0.3, 0.2, 0.04, 0.4)
+flicker = 0.25
+art_fill = 0.81
+tick_sfx = &"gugak_pyeon"

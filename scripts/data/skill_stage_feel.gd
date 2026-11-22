@@ -48,6 +48,17 @@ const PATH := "res://data/feel/skill_stage.tres"
 @export var strip_head_swell: float = 0.3
 @export var strip_tail_lead: float = 0.6
 
+@export_group("컷인 (큰 기술)")
+## 컷인 전체 시간(실제 초), 게임을 느리게 하는 시간·배율, 다음 컷인까지 최소 간격(초, 연속 발동에 과하지 않게).
+@export var cutin_time: float = 0.5
+@export var cutin_slow: float = 0.26
+@export var cutin_slow_scale: float = 0.25
+@export var cutin_min_gap: float = 8.0
+## 먹 띠 높이(화면 높이 비율)와 세로 자리(0 = 위, 1 = 아래), 이름 글자 크기(px).
+@export var cutin_band: float = 0.2
+@export var cutin_y: float = 0.36
+@export var cutin_font_px: int = 84
+
 @export_group("명중 밀림 (기술)")
 ## 기술이 맞을 때마다 화면을 맞은 방향으로 민다: 피해 × per_damage px (최대 cap).
 @export var kick_per_damage: float = 0.12

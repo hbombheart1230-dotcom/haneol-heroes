@@ -27,6 +27,7 @@ func cast(ctx: SkillContext, charge: float) -> SkillRun:
 		if en.health.is_alive():
 			en.stun(lerpf(min_hold, max_hold, c))
 			trapped.append(en)
+	ctx.impact(center, Vector2.ZERO, r)  # 두루마리가 가두는 동안 가운데부터 양옆으로 펼쳐진다 (판정 크기)
 	if ctx.fx:
 		ctx.fx.add_ring(center, r, delay + 0.3, fx_color)
 		ctx.fx.add_ring(center, r * 0.97, delay + 0.3, Color(Ink.INK, 0.6))
@@ -55,7 +56,7 @@ class TrapRun extends SkillRun:
 			for en in trapped:
 				if is_instance_valid(en) and ctx.hit(en, roundi(skill.damage * skill.damage_mult)):
 					hits += 1
-			ctx.impact(center)
+			Feedback.impact_haptic()  # 그림은 펼칠 때 이미 나왔다 (다시 펼치지 않음)
 			if ctx.fx:
 				ctx.fx.add_ring(center, r, 0.3, Color(1, 1, 1))
 			ctx.shake(0.25)

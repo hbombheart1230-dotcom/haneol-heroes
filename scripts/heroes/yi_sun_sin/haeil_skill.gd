@@ -16,6 +16,11 @@ extends SkillDef
 @export var wave_launch: float = 0.12
 @export var wave_surge: float = 0.08
 @export var wave_wake: SkillVfxData
+@export var wave_flicker: float = 0.9
+## 움직이는 물결 시트 (있으면 wave_art 대신 되풀이 재생, docs/skill_vfx_sheets.md) 와 칸 수·초당 장 수.
+@export var wave_sheet: Texture2D
+@export var wave_sheet_grid: Vector2i = Vector2i(4, 2)
+@export var wave_sheet_fps: float = 14.0
 @export_group("큰 변형 · 세 갈래")
 ## 양옆으로 더 쏘는 물결 수 (0이면 한 줄기). 쌍으로 퍼진다.
 @export var extra_waves: int = 0
@@ -36,19 +41,28 @@ func cast(ctx: SkillContext, charge: float) -> SkillRun:
 
 
 func _wave(ctx: SkillContext, dir: Vector2, c: float) -> Projectile:
-	return ctx.spawn_projectile_configured(func(pr: Projectile) -> void:
-		pr.direction = dir
-		pr.speed = speed
-		pr.lifetime = lifetime
-		pr.pierce = true
-		pr.wave_style = true
-		pr.damage = roundi(lerpf(min_damage, max_damage, c))
-		pr.size_scale = lerpf(min_scale, max_scale, c)
-		if wave_art:
-			pr.art = wave_art
-			pr.art_size = wave_art_size
-			pr.ghosts = wave_ghosts
-			pr.ghost_gap = wave_art_size.x * 0.22
-			pr.launch_stretch = wave_launch
-			pr.surge = wave_surge
-			pr.wake = wave_wake)
+	return ctx.spawn_projectile_configured(func(pr: Projectile) -> void: _wave_configure(pr, dir, c))
+
+
+## 물결 하나 꾸미기 (트리에 들어가기 전). c = 충전 0~1.
+func _wave_configure(pr: Projectile, dir: Vector2, c: float) -> void:
+	pr.direction = dir
+	pr.speed = speed
+	pr.lifetime = lifetime
+	pr.pierce = true
+	pr.wave_style = true
+	pr.damage = roundi(lerpf(min_damage, max_damage, c))
+	pr.size_scale = lerpf(min_scale, max_scale, c)
+	if wave_sheet:
+		pr.art_sheet = wave_sheet
+		pr.art_sheet_grid = wave_sheet_grid
+		pr.art_sheet_fps = wave_sheet_fps
+	if wave_art or wave_sheet:
+		pr.art = wave_art
+		pr.art_size = wave_art_size
+		pr.ghosts = wave_ghosts
+		pr.ghost_gap = wave_art_size.x * 0.22
+		pr.launch_stretch = wave_launch
+		pr.surge = wave_surge
+		pr.wake = wave_wake
+		pr.flicker = wave_flicker

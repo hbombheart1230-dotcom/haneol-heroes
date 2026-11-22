@@ -32,3 +32,6 @@ piece_flash = 0.6
 ground_time = 1.6
 ground_size = 300.0
 ground_color = Color(0.45, 0.12, 0.18, 0.25)
+flicker = 0.4
+twist = 1.0
+art_fill = 0.87

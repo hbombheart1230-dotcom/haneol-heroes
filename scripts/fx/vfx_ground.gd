@@ -19,10 +19,12 @@ func count() -> int:
 	return _items.size()
 
 
-func mark(d: SkillVfxData, pos: Vector2, level: int) -> void:
+## size_k: 그림을 판정에 맞춰 줄이거나 키운 배율 (자국도 같이).
+func mark(d: SkillVfxData, pos: Vector2, level: int, size_k: float = 1.0) -> void:
 	if d == null or d.ground_time <= 0.0:
 		return
-	_items.append({"pos": pos, "rot": randf() * TAU, "size": d.ground_size * d.size_mult(level), "color": d.ground_color,
+	_items.append({"pos": pos, "rot": randf() * TAU, "size": d.ground_size * d.size_mult(level) * size_k,
+		"color": d.ground_color,
 		"t": 0.0, "life": d.ground_time})
 	while _items.size() > maxi(stage.max_ground, 0):
 		_items.pop_front()

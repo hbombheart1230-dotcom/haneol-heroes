@@ -22,3 +22,4 @@ strip = ExtResource("3_strip")
 strip_width = 130.0
 strip_time = 0.55
 strip_reveal = 0.18
+flicker = 0.9

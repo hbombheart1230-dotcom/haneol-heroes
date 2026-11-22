@@ -21,9 +21,15 @@ var _marks: Array[Dictionary] = []
 ## 모이는 기운 {from, to, size, color, t, life}
 var _gather: Array[Dictionary] = []
 var _glow: Node2D
+## 색을 입히는 붓 그림 층 (베인 자국·바늘·금빛 고리): 같은 수묵 셰이더의 tinted 판.
+var _ink: Node2D
 var _pts := PackedVector2Array()
 var _uvs := PackedVector2Array()
 var _cols := PackedColorArray()
+## 두루마리 띠 하나 (네모 4점) 버퍼.
+var _qpts := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
+var _quvs := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
+var _qcols := PackedColorArray([Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE])
 
 
 func _init(p_stage: SkillStageFeel = null) -> void:
@@ -39,6 +45,17 @@ func _init(p_stage: SkillStageFeel = null) -> void:
 	_glow.material = add
 	_glow.draw.connect(_draw_glow)
 	add_child(_glow)
+	_ink = Node2D.new()
+	_ink.draw.connect(_draw_ink)
+	add_child(_ink)
+
+
+func set_ink_material(m: Material) -> void:
+	_ink.material = m
+
+
+func ink_node() -> Node2D:
+	return _ink
 
 
 func set_count() -> int:
@@ -68,19 +85,22 @@ static func _cap(list: Array[Dictionary], n: int) -> void:
 
 
 ## 그림을 조각으로 펼친다. dir = 시작 방향 (없으면 위).
-func pieces(d: SkillVfxData, pos: Vector2, dir: Vector2, level: int) -> void:
-	if d == null or d.decal == null or d.piece_count <= 0:
+## size > 0이면 그 지름 (판정에 맞춘 크기), 아니면 데이터 크기 × 강화 배율.
+func pieces(d: SkillVfxData, pos: Vector2, dir: Vector2, level: int, size: float = 0.0) -> void:
+	if d == null or not d.has_decal() or d.piece_count <= 0:
 		return
+	if size <= 0.0:
+		size = d.decal_size * d.size_mult(level)
 	var start := dir.angle() if dir.length_squared() > 0.0001 else -PI * 0.5
 	var rot := start - deg_to_rad(d.decal_angle_deg) if d.decal_align else randf() * TAU
 	if d.decal_upright:
 		rot = 0.0
 	var life := maxf(d.decal_time, d.piece_sweep + stage.piece_settle + 0.25)
-	_sets.append({"data": d, "pos": pos, "rot": rot, "start": start, "size": d.decal_size * d.size_mult(level),
+	_sets.append({"data": d, "pos": pos, "rot": rot, "start": start, "size": size,
 		"t": 0.0, "life": life, "bright": 1.0 + d.level_glow * d.level_of(level), "glow": d.glow_for(level)})
 	_cap(_sets, stage.max_piece_sets)
 	if d.sweep_hand:
-		_hands.append({"data": d, "pos": pos, "start": start, "r": d.decal_size * d.size_mult(level) * 0.42,
+		_hands.append({"data": d, "pos": pos, "start": start, "r": size * 0.42,
 			"t": 0.0, "sweep": maxf(d.piece_sweep, 0.01), "life": d.piece_sweep + stage.hand_linger})
 		_cap(_hands, stage.max_hands)
 
@@ -126,6 +146,7 @@ func _process(delta: float) -> void:
 	step(delta)
 	queue_redraw()
 	_glow.queue_redraw()
+	_ink.queue_redraw()
 
 
 func step(delta: float) -> void:
@@ -157,6 +178,9 @@ static func piece_progress(t: float, i: int, n: int, sweep: float, settle: float
 func _draw() -> void:
 	for st in _sets:
 		_draw_set(st)
+
+
+func _draw_ink() -> void:
 	var needle := VfxTextures.get_texture(SkillVfxData.Shape.SHARD)  # 양끝이 가는 그림자 바늘 (먹 셰이더가 갉음)
 	for h in _hands:
 		_draw_hand(h, needle)
@@ -168,10 +192,10 @@ func _draw() -> void:
 		var drawn := minf(k / maxf(stage.hit_mark_draw, 0.01), 1.0)
 		var s := float(m["size"])
 		var c: Color = m["color"]
-		draw_set_transform(m["pos"], float(m["rot"]), Vector2(lerpf(0.25, 1.1, 1.0 - pow(1.0 - drawn, 3.0)), 1.0))
-		draw_texture_rect(cres, Rect2(-s * 0.5, -s * stage.hit_mark_thickness * 0.5, s, s * stage.hit_mark_thickness),
+		_ink.draw_set_transform(m["pos"], float(m["rot"]), Vector2(lerpf(0.25, 1.1, 1.0 - pow(1.0 - drawn, 3.0)), 1.0))
+		_ink.draw_texture_rect(cres, Rect2(-s * 0.5, -s * stage.hit_mark_thickness * 0.5, s, s * stage.hit_mark_thickness),
 			false, Color(c.r, c.g, c.b, c.a * (1.0 - k)))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	_ink.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _draw_set(st: Dictionary) -> void:
@@ -187,6 +211,12 @@ func _draw_set(st: Dictionary) -> void:
 	var b := float(st["bright"])
 	var center: Vector2 = st["pos"]
 	var radius := size * 0.53
+	var tex := d.decal_at(t)
+	if tex == null:
+		return
+	if d.piece_mode == SkillVfxData.PieceMode.SCROLL:
+		_draw_scroll(st, d, tex, t, k, size)
+		return
 	var steps := _pts.size() - 2
 	var wedge := TAU / float(n)
 	for i in n:
@@ -198,7 +228,7 @@ func _draw_set(st: Dictionary) -> void:
 		var mid := Vector2.from_angle(a0 + d.piece_dir * wedge * 0.5)
 		var shift := mid * (d.piece_push * (1.0 - ease) + scatter)
 		var grow := 1.0 + d.piece_pop * (1.0 - ease)
-		var col := Color(b, b, b, (1.0 - k) * minf(p * 2.0, 1.0))
+		var col := d.ink_color(b, (1.0 - k) * minf(p * 2.0, 1.0))
 		_pts[0] = center + shift
 		_uvs[0] = Vector2(0.5, 0.5)
 		_cols[0] = col
@@ -212,7 +242,48 @@ func _draw_set(st: Dictionary) -> void:
 			_uvs[j + 1] = off.rotated(-rot) / size + Vector2(0.5, 0.5)
 			var edge := clampf(minf(s + f, 1.0 + f - s) / f, 0.0, 1.0)
 			_cols[j + 1] = Color(col.r, col.g, col.b, col.a * edge)
-		draw_polygon(_pts, _cols, _uvs, d.decal)
+		draw_polygon(_pts, _cols, _uvs, tex)
+
+
+## 두루마리 펼침: 세로 띠가 가운데부터 양옆으로 차례로 펼쳐진다 (바깥 가장자리는 투명 → 먹으로 갉힘).
+func _draw_scroll(st: Dictionary, d: SkillVfxData, tex: Texture2D, t: float, k: float, size: float) -> void:
+	var n := maxi(d.piece_count, 2)
+	var center: Vector2 = st["pos"]
+	var b := float(st["bright"])
+	var half := (n - 1) * 0.5
+	var slice := size / float(n)
+	var scatter := d.piece_scatter * maxf((k - 0.55) / 0.45, 0.0)
+	for i in n:
+		var rank := int(round(absf(i - half)))
+		var p := piece_progress(t, rank, int(ceil(half)) + 1, d.piece_sweep, stage.piece_settle)
+		if p <= 0.0:
+			continue
+		var ease := 1.0 - pow(1.0 - p, 3.0)
+		var side := signf(i - half)
+		var x0 := -size * 0.5 + slice * i
+		var w := slice * (ease if side != 0.0 else 1.0)
+		if side < 0.0:
+			x0 += slice - w  # 왼쪽은 오른쪽 가장자리에서 펼쳐 나간다
+		var lift := Vector2(side * scatter, scatter * 0.3 * sin(i * 1.7))
+		var hh := size * 0.5 * (1.0 + d.piece_pop * (1.0 - ease) * 0.3)
+		var col := d.ink_color(b, (1.0 - k) * minf(p * 2.0, 1.0))
+		var outer := Color(col.r, col.g, col.b, col.a * (0.1 + 0.6 * ease))  # 펼쳐지는 끝은 먹으로 갉힘
+		_qpts[0] = center + lift + Vector2(x0, -hh)
+		_qpts[1] = center + lift + Vector2(x0 + w + 1.0, -hh)
+		_qpts[2] = center + lift + Vector2(x0 + w + 1.0, hh)
+		_qpts[3] = center + lift + Vector2(x0, hh)
+		var u0 := (x0 + size * 0.5) / size
+		var u1 := (x0 + w + size * 0.5) / size
+		_quvs[0] = Vector2(u0, 0.0)
+		_quvs[1] = Vector2(u1, 0.0)
+		_quvs[2] = Vector2(u1, 1.0)
+		_quvs[3] = Vector2(u0, 1.0)
+		var left_outer := side < 0.0
+		_qcols[0] = outer if left_outer else col
+		_qcols[3] = outer if left_outer else col
+		_qcols[1] = col if left_outer or side == 0.0 else outer
+		_qcols[2] = col if left_outer or side == 0.0 else outer
+		draw_polygon(_qpts, _qcols, _quvs, tex)
 
 
 func _draw_hand(h: Dictionary, stroke: Texture2D) -> void:
@@ -227,10 +298,10 @@ func _draw_hand(h: Dictionary, stroke: Texture2D) -> void:
 	for g in range(stage.hand_ghosts, -1, -1):  # 잔상(옅게) → 바늘(진하게)
 		var ga := a - d.piece_dir * stage.hand_ghost_gap * g
 		var alpha := d.hand_color.a * fade * (1.0 - float(g) / float(stage.hand_ghosts + 1))
-		draw_set_transform(h["pos"], ga, Vector2.ONE)
-		draw_texture_rect(stroke, Rect2(-r * 0.15, -d.hand_width * 0.5, r * 1.15, d.hand_width), false,
+		_ink.draw_set_transform(h["pos"], ga, Vector2.ONE)
+		_ink.draw_texture_rect(stroke, Rect2(-r * 0.15, -d.hand_width * 0.5, r * 1.15, d.hand_width), false,
 			Color(d.hand_color.r, d.hand_color.g, d.hand_color.b, alpha))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	_ink.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
 func _draw_glow() -> void:

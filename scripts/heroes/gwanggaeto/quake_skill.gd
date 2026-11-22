@@ -33,7 +33,7 @@ func strike(ctx: SkillContext, center: Vector2, dmg: int) -> int:
 		if ctx.hit(en, dmg):
 			en.stun(stun_time)
 		hits += 1
-	ctx.impact(center)
+	ctx.impact(center, Vector2.ZERO, radius)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.4, fx_color)
 		ctx.fx.add_ring(center, radius * 0.5, 0.25, Color(1, 1, 1))

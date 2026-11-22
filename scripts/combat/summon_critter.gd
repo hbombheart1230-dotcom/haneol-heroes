@@ -59,22 +59,41 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 
+## 붓으로 그려지듯 등장: 부위 j가 그려진 정도 (몸통 → 날개·다리 차례). 순수 계산.
+static func part_progress(age: float, j: int, step: float = 0.09, stroke: float = 0.14) -> float:
+	return clampf((age - step * j) / maxf(stroke, 0.01), 0.0, 1.0)
+
+
 func _draw() -> void:
 	var a := clampf((lifetime - _age) / 0.5, 0.0, 1.0)
 	var flap := sin(_age * 22.0)
 	var petal := VfxTextures.get_texture(SkillVfxData.Shape.PETAL)
-	if kind == Kind.BUTTERFLY:  # 꽃잎 날개 두 쌍이 팔랑인다
+	var blot := Feedback.feel_data().splat_art
+	if blot and _age < 0.45:  # 화폭에서 붓이 찍히는 먹 자국
+		var bk := _age / 0.45
+		var bs := 90.0 * (0.6 + 0.6 * bk)
+		draw_texture_rect(blot, Rect2(-Vector2.ONE * bs * 0.5, Vector2.ONE * bs), false, Color(0.08, 0.07, 0.06, 0.6 * (1.0 - bk)))
+	if kind == Kind.BUTTERFLY:  # 꽃잎 날개 두 쌍이 팔랑인다 (윗날개 → 아랫날개 순으로 그려진다)
 		for side in [-1.0, 1.0]:
+			var p0 := part_progress(_age, 0 if side < 0.0 else 1)
+			var p1 := part_progress(_age, 2 if side < 0.0 else 3)
 			var w := 26.0 * (0.55 + 0.45 * absf(flap))
-			draw_set_transform(Vector2(side * 10.0, -2.0), side * 0.6, Vector2(w / 26.0, 1.0))
-			draw_texture_rect(petal, Rect2(-13, -16, 26, 32), false, Color(color, 0.9 * a))
-			draw_set_transform(Vector2(side * 8.0, 9.0), side * 1.1, Vector2.ONE)
-			draw_texture_rect(petal, Rect2(-8, -10, 16, 20), false, Color(color.darkened(0.2), 0.85 * a))
+			if p0 > 0.0:
+				draw_set_transform(Vector2(side * 10.0, -2.0), side * 0.6, Vector2(w / 26.0, 1.0) * p0)
+				draw_texture_rect(petal, Rect2(-13, -16, 26, 32), false, Color(color, 0.9 * a * p0))
+			if p1 > 0.0:
+				draw_set_transform(Vector2(side * 8.0, 9.0), side * 1.1, Vector2.ONE * p1)
+				draw_texture_rect(petal, Rect2(-8, -10, 16, 20), false, Color(color.darkened(0.2), 0.85 * a * p1))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	else:  # 방아깨비: 길쭉한 풀잎 몸 + 뛰는 다리 잎
-		draw_set_transform(Vector2.ZERO, PI * 0.5, Vector2(1.0, 0.45))
-		draw_texture_rect(petal, Rect2(-14, -26, 28, 52), false, Color(0.35, 0.6, 0.25, 0.95 * a))
+	else:  # 방아깨비: 몸통 → 뒷다리 차례
+		var pb := part_progress(_age, 0)
+		if pb > 0.0:
+			draw_set_transform(Vector2.ZERO, PI * 0.5, Vector2(1.0 * pb, 0.45))
+			draw_texture_rect(petal, Rect2(-14, -26, 28, 52), false, Color(0.35, 0.6, 0.25, 0.95 * a * pb))
 		for side in [-1.0, 1.0]:
-			draw_set_transform(Vector2(side * 14.0, 10.0 + flap * side * 3.0), side * 0.9, Vector2(0.5, 0.9))
-			draw_texture_rect(petal, Rect2(-8, -14, 16, 28), false, Color(0.3, 0.5, 0.2, 0.9 * a))
+			var pl := part_progress(_age, 1 if side < 0.0 else 2)
+			if pl <= 0.0:
+				continue
+			draw_set_transform(Vector2(side * 14.0, 10.0 + flap * side * 3.0), side * 0.9, Vector2(0.5, 0.9) * pl)
+			draw_texture_rect(petal, Rect2(-8, -14, 16, 28), false, Color(0.3, 0.5, 0.2, 0.9 * a * pl))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

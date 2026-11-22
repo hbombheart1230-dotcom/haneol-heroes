@@ -228,6 +228,7 @@ func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
 	ctx.skill = d
 	if d.vfx_cast:
 		Feedback.vfx_burst(d.vfx_cast, player.global_position, player.facing, d.vfx_level)
+	SkillStageFx.on_cast(get_tree() if is_inside_tree() else null, d, player.hero)  # 컷인 + 소리 층
 	var run := d.cast(ctx, charge)
 	if run.finished:
 		skill_cast.emit(slot, run.hits if run.announce_hits < 0 else run.announce_hits)
