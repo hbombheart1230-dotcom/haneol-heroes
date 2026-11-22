@@ -222,7 +222,7 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 	_swing_time = 0.12
 	var heavy := is_heavy()  # 연계 마지막: 피해·넉백 배율, 잡몹 넘어짐 (B4·B8)
 	var dmg := roundi(d.melee_damage * (d.heavy_damage_mult if heavy else 1.0))
-	var kb := d.melee_knockback * (d.heavy_knockback_mult if heavy else 1.0)
+	var kb := d.melee_knockback * (d.heavy_knockback_mult if heavy else 1.0) * ComboSteps.at(d.step_knockback_mults, chain_step, 1.0)
 	_since_strike = 0.0
 	var hits := Targeting.in_arc(enemy_list, from, _swing_dir, d.melee_range * ComboSteps.at(d.step_range_mults, chain_step, 1.0),
 		d.melee_arc_degrees * ComboSteps.at(d.step_arc_mults, chain_step, 1.0))  # 타별 모양 (3타 좁고 길게)
@@ -235,8 +235,10 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 			h.damage(dmg)
 		if en:
 			en.heavy_pending = false
-			en.apply_knockback((e.global_position - from).normalized() * kb)  # 피격 반응: 살짝 밀려남
+			en.apply_knockback((e.global_position - from).normalized() * kb)  # 피격 반응: 툭 밀려남 (타별 배율)
+			HitImpact.on_enemy(en, from, chain_step, d.swing_color)  # 닿는 자리 섬광·튐 줄기 (한 타 충격)
 	if not hits.is_empty():
+		HitImpact.on_swing(chain_step)  # 퍽 소리 (타마다 음높이) + 짧은 진동
 		ImpactFx.melee_hit(from + _swing_dir * d.melee_range * 0.5, _swing_dir, d, heavy)  # 무기 소리·강타 흔들림
 		if d.melee_recoil > 0.0:  # 칼이 닿은 반동 (Hollow Knight식)
 			player.apply_recoil(-_swing_dir * d.melee_recoil)

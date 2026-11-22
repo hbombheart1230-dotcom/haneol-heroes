@@ -184,11 +184,15 @@ extends Resource
 @export var reaction: HitReactionData
 ## 던파식 타격감 (반격·뒤치기·끊김·넘어짐·영웅 멈춤·3타째·피해 숫자·마무리 확대).
 @export var impact: ImpactFeelData
+## 한 타 충격 (닿는 자리 섬광·튐 줄기·퍽 소리·진동, HitImpact).
+@export var hit_impact: HitImpactData
 ## 기술 명중 멈춤 (D3, SkillHitStop): 길이 = base + 피해 × per_damage (최대 cap, 최소 min),
 ## 한 번에 맞힌 적이 하나 늘 때마다 × multi, 멈춤 사이 최소 간격(초), 멈춤 중 게임 속도.
 @export var skill_stop_base: float = 0.03
 @export var skill_stop_per_damage: float = 0.0015
 @export var skill_stop_cap: float = 0.12
+## 휘감는 기술(해룡참·해시계): 적마다 멈추지 않고, 휘감기가 끝날 때 skill_stop_cap × 이 값으로 한 번 크게 (0이면 예전처럼 적마다).
+@export var sweep_final_stop: float = 1.0
 @export var skill_stop_min: float = 0.03
 @export var skill_stop_multi: float = 0.85
 @export var skill_stop_min_gap: float = 0.2
@@ -220,6 +224,12 @@ func drops_for(damage: int) -> int:
 ## 마지막 피해로 날아갈 거리 (적 종류 배율 포함).
 func launch_distance(last_damage: int, scale: float = 1.0) -> float:
 	return minf(launch_base + maxf(last_damage, 0) * launch_per_damage, launch_max) * scale
+
+
+func hit_impact_data() -> HitImpactData:
+	if hit_impact == null:
+		hit_impact = HitImpactData.new()
+	return hit_impact
 
 
 func impact_data() -> ImpactFeelData:

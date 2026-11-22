@@ -26,6 +26,8 @@ extends Resource
 @export var chain_window: float = 1.2
 @export var heavy_damage_mult: float = 1.6
 @export var heavy_knockback_mult: float = 2.0
+## 타별 넉백 배율 (1타부터, 3타 강타는 heavy_knockback_mult와 곱). 1·2타를 "툭 밀리고 멈춤"으로 (약 35px).
+@export var step_knockback_mults: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.0])
 
 @export_group("연타 흐름 (타별, 1타부터)")
 ## 손 평타(탭) 간격 배율: 이 타를 치기 전 최소 간격 = 평타 간격 × 값 (빠름·빠름·묵직). 비면 kit.tap_min_gap_mult.
