@@ -27,6 +27,7 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/geobukseon.png" id="p_geobukseon"]
 
+[ext_resource type="Resource" path="res://data/stages/looks/hansan_1592.tres" id="look"]
 [ext_resource type="Script" path="res://scripts/data/wave_data.gd" id="w_wave"]
 [ext_resource type="Script" path="res://scripts/data/wave_set_data.gd" id="w_set"]
 
@@ -77,9 +78,9 @@ boss = ExtResource("e_waegun_commander")
 card_art = ExtResource("p_geobukseon")
 floor_base = Color(0.490, 0.459, 0.429, 1)
 floor_stain = Color(0.25, 0.18, 0.12, 1)
-floor_value = 0.68
-floor_saturation = 0.48
 vignette = 0.4
+look = ExtResource("look")
+camera_zoom = 1.09
 waves = SubResource("Waves")
 grass_per_mpx = 0.0
 grass_color = Color(0.2, 0.16, 0.12, 0.0)

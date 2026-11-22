@@ -104,3 +104,16 @@ func test_camera_zoom_defaults_to_one_off_hansan() -> void:
 	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
 		var st: StageTheme = load("res://data/stages/%s.tres" % id)
 		assert_float(st.camera_zoom).override_failure_message(id).is_equal(1.0)
+
+
+func test_arena_applies_stage_zoom_to_camera() -> void:
+	var arena: Arena = auto_free(Arena.new())
+	add_child(arena)
+	arena.apply_theme(HANSAN)
+	var cam: Camera2D = auto_free(Camera2D.new())
+	arena.clamp_camera(cam)
+	assert_vector(cam.zoom).is_equal_approx(Vector2.ONE * HANSAN.camera_zoom, Vector2.ONE * 0.001)
+	assert_vector(cam.get_meta(&"base_zoom")).is_equal(cam.zoom)
+	arena.apply_theme(load("res://data/stages/manchuria_395.tres"))
+	arena.clamp_camera(cam)
+	assert_vector(cam.zoom).is_equal(Vector2.ONE)

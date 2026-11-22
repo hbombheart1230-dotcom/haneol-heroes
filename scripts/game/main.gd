@@ -146,11 +146,7 @@ func _apply_stage(st: StageTheme) -> void:
 	var arena := get_node_or_null("Arena") as Arena
 	if arena:
 		arena.apply_theme(st)
-		var cam := get_node_or_null("Player/Camera2D") as Camera2D
-		arena.clamp_camera(cam)
-		if cam:  # 무대 확대 (마무리 줌이 돌아올 기준 base_zoom도 같이)
-			cam.zoom = Vector2.ONE * st.camera_zoom
-			cam.set_meta(&"base_zoom", cam.zoom)
+		arena.clamp_camera(get_node_or_null("Player/Camera2D") as Camera2D)
 		if arena.lights:
 			arena.lights.follow(get_node_or_null("Player") as Node2D)
 		if spawner and arena.obstacles:

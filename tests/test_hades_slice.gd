@@ -95,29 +95,56 @@ func test_only_hansan_has_slice_data() -> void:
 	assert_object(HANSAN.waves).is_not_null()
 	assert_int(HANSAN.waves.waves.size()).is_equal(3)
 	assert_int(HANSAN.waves.max_alive).is_equal(8)
-	assert_float(HANSAN.floor_value).is_less(1.0)
+	assert_object(HANSAN.look).is_not_null()
+	assert_float(HANSAN.camera_zoom).is_greater(1.0)
 	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
 		var st: StageTheme = load("res://data/stages/%s.tres" % id)
 		assert_object(st.waves).override_failure_message(id).is_null()
 		assert_float(st.floor_value).is_equal(1.0)
 
 
-## 바닥 명도·채도 (그림 평균, 셰이더와 같은 식): 밝기 ≤ 0.36, 채도 ≤ 0.21.
-func test_hansan_floor_is_darker_and_duller() -> void:
+## 바닥 색 보정 (floor_grade.gdshader와 같은 식, 빛 웅덩이 빼고): 하데스처럼 어둡지만 명암 폭이 넓고 색이 있다.
+## 측정 근거: 하데스 화면 밝기 편차 0.16~0.19, 한얼 예전 바닥 0.10 (tools/shots/measure_look.py).
+func test_hansan_floor_is_dark_but_contrasty_and_coloured() -> void:
+	var l: StageLook = HANSAN.look
 	var img := (load(HANSAN.background_path) as Texture2D).get_image()
 	img.resize(64, 64)
-	var lum := 0.0
+	var ys := PackedFloat32Array()
 	var sat := 0.0
 	for y in 64:
 		for x in 64:
-			var c := img.get_pixel(x, y)
-			var l := c.r * 0.2126 + c.g * 0.7152 + c.b * 0.0722
-			var g: Color = Color(l + (c.r - l) * HANSAN.floor_saturation, l + (c.g - l) * HANSAN.floor_saturation,
-				l + (c.b - l) * HANSAN.floor_saturation) * HANSAN.floor_value
-			lum += g.r * 0.2126 + g.g * 0.7152 + g.b * 0.0722
+			var g := _grade(img.get_pixel(x, y), l)
+			ys.append(_luma(g))
 			sat += g.s
-	assert_float(lum / 4096.0).is_less_equal(0.36)
-	assert_float(sat / 4096.0).is_less_equal(0.21)
+	var mean := 0.0
+	for v in ys:
+		mean += v
+	mean /= ys.size()
+	var var_sum := 0.0
+	for v in ys:
+		var_sum += (v - mean) * (v - mean)
+	assert_float(mean).is_less_equal(0.3)
+	assert_float(sqrt(var_sum / ys.size())).is_greater_equal(0.1)
+	assert_float(sat / 4096.0).is_greater_equal(0.4)
+
+
+static func _luma(c: Color) -> float:
+	return c.r * 0.2126 + c.g * 0.7152 + c.b * 0.0722
+
+
+## shaders/floor_grade.gdshader fragment()를 그대로 옮긴 것.
+static func _grade(c: Color, l: StageLook) -> Color:
+	var y := _luma(c)
+	var v := Vector3(c.r, c.g, c.b)
+	v = (Vector3(y, y, y).lerp(v, l.saturation)) * l.value_mult
+	v = ((v - Vector3.ONE * l.pivot) * l.contrast + Vector3.ONE * l.pivot).max(Vector3.ZERO)
+	var y2 := v.x * 0.2126 + v.y * 0.7152 + v.z * 0.0722
+	var t := clampf((y2 - l.tint_split * 0.4) / (l.tint_split * 1.4), 0.0, 1.0)
+	t = t * t * (3.0 - 2.0 * t)
+	var tc := l.shadow_tint.lerp(l.light_tint, t)
+	var tv := Vector3(tc.r, tc.g, tc.b) * (y2 / maxf(_luma(tc), 0.02))
+	v = v.lerp(tv, l.tint_mix)
+	return Color(v.x, v.y, v.z)
 
 
 ## 공통 예고 규칙: 모든 적 공격 예고 ≥ min_windup, 마지막 strike_flash_time초 번쩍, 예고음 하나.

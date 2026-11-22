@@ -84,9 +84,12 @@ func apply_theme(t: StageTheme) -> void:
 
 
 ## 카메라가 지도 밖(맨바닥)을 보지 않게 지도 영역으로 묶는다. 지도가 없으면 풀어 둔다.
+## 무대 확대(theme.camera_zoom)도 여기서 (마무리 줌이 돌아올 기준 base_zoom도 같이).
 func clamp_camera(cam: Camera2D) -> void:
 	if cam == null:
 		return
+	cam.zoom = Vector2.ONE * (theme.camera_zoom if theme else 1.0)
+	cam.set_meta(&"base_zoom", cam.zoom)
 	var r: Rect2 = map.rect if has_map() else Rect2(-10000000, -10000000, 20000000, 20000000)
 	cam.limit_left = int(r.position.x)
 	cam.limit_top = int(r.position.y)
