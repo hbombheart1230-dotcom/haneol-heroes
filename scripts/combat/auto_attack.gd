@@ -106,12 +106,12 @@ func tick(delta: float, enemy_list: Array) -> void:
 	var to_nearest := nearest.global_position - from
 	var d := stats()
 	var dist := to_nearest.length()
-	if dist <= d.melee_range:
+	if dist <= d.melee_range and d.use_melee:
 		_hold = 0.0
 		if _melee_cd <= 0.0:
 			_melee(from, to_nearest, enemy_list)
-	elif _ranged_cd <= 0.0:
-		if dist <= d.melee_range * d.engage_mult and _hold < d.engage_hold_max:
+	elif d.use_ranged and _ranged_cd <= 0.0:
+		if d.use_melee and dist <= d.melee_range * d.engage_mult and _hold < d.engage_hold_max:
 			_hold += delta  # 곧 붙는다: 원거리를 참고 칼을 기다린다
 			return
 		_hold = 0.0
