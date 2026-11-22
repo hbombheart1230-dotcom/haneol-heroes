@@ -137,10 +137,14 @@ enum PieceMode { RADIAL, SCROLL }
 @export var sweep_hand: bool = false
 @export var hand_color: Color = Color(0.1, 0.08, 0.06, 0.85)
 @export var hand_width: float = 34.0
+## 바늘 길이 (그림 지름 대비, 축에서 끝까지). 그림 바늘(hand_art)은 이 길이의 15%만큼 축 뒤로 나온다.
+@export var hand_length: float = 0.42
 ## 0보다 크면 바늘이 지날 때마다 테두리 눈금이 하나씩 번쩍인다 (눈금 수).
 @export var tick_count: int = 0
 @export var tick_color: Color = Color(1.0, 0.85, 0.35)
 @export var tick_size: float = 70.0
+## 눈금이 번쩍이는 고리의 반지름 (그림 지름 대비: 판의 시각 눈금 자리).
+@export var tick_ring: float = 0.4
 ## 눈금마다 울리는 소리 (SoundBank 종류).
 @export var tick_sfx: StringName = &"mat_glyph"
 

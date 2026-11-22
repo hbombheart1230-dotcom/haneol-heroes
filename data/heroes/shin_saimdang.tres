@@ -27,6 +27,7 @@
 [ext_resource type="Texture2D" path="res://assets/vfx/proj_ink.png" id="proj_art"]
 [ext_resource type="Resource" path="res://data/vfx/skill/shin_saimdang_critter_hit.tres" id="vs_critter_hit"]
 [ext_resource type="Resource" path="res://data/heroes/charge/shin_saimdang.tres" id="charge_marker"]
+[ext_resource type="Texture2D" path="res://assets/vfx/butterfly.png" id="art_butterfly"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -69,6 +70,8 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_critter_hit")
 sfx_layers = Array[StringName]([&"gugak_gaya"])
 cast_anim = &"cast_tap"
+butterfly_art = ExtResource("art_butterfly")
+critter_size = 72.0
 cast_lead = -1.0
 
 [sub_resource type="Resource" id="Skill_dash"]
