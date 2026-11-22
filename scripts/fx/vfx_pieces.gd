@@ -24,6 +24,11 @@ var _glow: Node2D
 ## 색을 입히는 붓 그림 층 (베인 자국·바늘·금빛 고리): 같은 수묵 셰이더의 tinted 판.
 var _ink: Node2D
 var _pts := PackedVector2Array()
+## 조각을 가운데에서 펼친 부채꼴 삼각형으로 그리는 순서 (0, j+1, j+2). draw_polygon은 제멋대로 삼각형을 나눠서
+## 양 끝의 투명한 꼭짓점이 안쪽 띠까지 번져, 고리 모양 그림(가운데가 빈 용)이 통째로 갉혔다.
+var _fan := PackedInt32Array()
+var _none_i := PackedInt32Array()
+var _none_f := PackedFloat32Array()
 var _uvs := PackedVector2Array()
 var _cols := PackedColorArray()
 ## 두루마리 띠 하나 (네모 4점) 버퍼.
@@ -37,6 +42,10 @@ func _init(p_stage: SkillStageFeel = null) -> void:
 	use_parent_material = true
 	var n := maxi(stage.piece_arc_steps, 1) + 2
 	_pts.resize(n)
+	for j in n - 2:
+		_fan.append(0)
+		_fan.append(j + 1)
+		_fan.append(j + 2)
 	_uvs.resize(n)
 	_cols.resize(n)
 	_glow = Node2D.new()
@@ -242,7 +251,7 @@ func _draw_set(st: Dictionary) -> void:
 			_uvs[j + 1] = off.rotated(-rot) / size + Vector2(0.5, 0.5)
 			var edge := clampf(minf(s + f, 1.0 + f - s) / f, 0.0, 1.0)
 			_cols[j + 1] = Color(col.r, col.g, col.b, col.a * edge)
-		draw_polygon(_pts, _cols, _uvs, tex)
+		RenderingServer.canvas_item_add_triangle_array(get_canvas_item(), _fan, _pts, _cols, _uvs, _none_i, _none_f, tex.get_rid())
 
 
 ## 두루마리 펼침: 세로 띠가 가운데부터 양옆으로 차례로 펼쳐진다 (바깥 가장자리는 투명 → 먹으로 갉힘).
