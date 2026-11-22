@@ -98,3 +98,9 @@ func test_swing_crescent_is_bigger_and_third_hit_biggest() -> void:
 	var s3 := ComboSteps.at(feel.crescent_step_scales, 3, 1.0)
 	assert_float(s3).is_greater(s1)
 	assert_float(feel.crescent_core_alpha).is_greater(0.0)
+
+
+func test_camera_zoom_defaults_to_one_off_hansan() -> void:
+	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
+		var st: StageTheme = load("res://data/stages/%s.tres" % id)
+		assert_float(st.camera_zoom).override_failure_message(id).is_equal(1.0)
