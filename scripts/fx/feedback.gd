@@ -154,7 +154,7 @@ func play(kind: StringName, min_gap: float = 0.04, pitch: float = 1.0) -> void:
 		p.stream = _sounds[kind]
 		p.volume_db = sfx_volume_db
 		p.pitch_scale = 1.0
-	p.pitch_scale *= pitch
+	p.pitch_scale = maxf(p.pitch_scale * pitch, 1.0) if pitch >= 1.0 else p.pitch_scale * pitch  # 1 이상을 달라면 무작위 폭으로 1 밑으로 내려가지 않게 (낮은 음 끊김)
 	p.play()
 
 
