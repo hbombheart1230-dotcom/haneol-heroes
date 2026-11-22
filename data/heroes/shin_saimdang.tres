@@ -32,10 +32,11 @@
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
-melee_interval = 0.6
+melee_interval = 0.66
 melee_range = 120.0
 melee_arc_degrees = 170.0
-melee_damage = 10
+melee_damage = 11
+step_gap_mults = PackedFloat32Array(0.909, 0.606, 0.636)
 melee_knockback = 100.0
 swing_color = Color(0.62, 0.2, 0.7, 0.95)
 melee_recoil = 3.0

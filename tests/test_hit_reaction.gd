@@ -82,9 +82,20 @@ func test_shake_starts_big_and_fades_over_freeze() -> void:
 
 func test_flash_amount_peaks_white_then_fades() -> void:
 	var r := _react(HitReaction.Tier.TRASH)
+	r.data = r.data.duplicate() as HitReactionData
+	r.data.flash_blinks = 1  # 한 번 번쩍 방식 (예전)
 	assert_float(r.flash_amount(0.08, 0.08, 0.03)).is_equal(r.data.flash_white)
 	assert_float(r.flash_amount(0.025, 0.08, 0.03)).is_equal_approx(r.data.flash_white_tail * 0.5, 0.001)
 	assert_float(r.flash_amount(0.0, 0.08, 0.03)).is_equal(0.0)
+
+
+## 두 번 번쩍 (GDQuest juicy-attack): 0.15초를 켜짐 · 꺼짐 · 켜짐 세 칸으로.
+func test_flash_blinks_twice() -> void:
+	var r := _react(HitReaction.Tier.TRASH)
+	assert_int(r.data.flash_blinks).is_equal(2)
+	assert_float(r.flash_amount(0.15, 0.15, 0.05)).is_equal(r.data.flash_white)  # 첫 칸
+	assert_float(r.flash_amount(0.075, 0.15, 0.05)).is_equal(0.0)  # 가운데 꺼짐
+	assert_float(r.flash_amount(0.02, 0.15, 0.05)).is_equal(r.data.flash_white)  # 둘째 번쩍
 
 
 ## R1: 맞으면 구운 hit 동작 첫 프레임에서 멈춘 채 떨고, 멈춤 뒤 나머지 프레임이 이어진다 (예전: 첫 프레임만 스침).

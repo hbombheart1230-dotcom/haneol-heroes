@@ -9,7 +9,7 @@
 [sub_resource type="Resource" id="Attack_shoot"]
 script = ExtResource("2_attack")
 kind = 1
-trigger_range = 420.0
+trigger_range = 300.0
 windup = 0.95
 damage = 12
 cooldown = 1.6
@@ -33,7 +33,7 @@ contact_damage = 5
 body_radius = 18.0
 color = Color(0.35, 0.75, 0.4, 1)
 attack = SubResource("Attack_shoot")
-preferred_range = 320.0
+preferred_range = 260.0
 knockback_scale = 1.0
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.33

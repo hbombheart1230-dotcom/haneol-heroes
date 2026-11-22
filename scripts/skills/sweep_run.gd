@@ -8,6 +8,8 @@ extends SkillRun
 var strike: Callable
 ## 눈금이 지날 때마다 on_tick.call(i) (해시계 눈금 번쩍임·소리). 비면 없음.
 var on_tick: Callable
+## 끝날 때 한 번 on_done.call(hits) (마지막 큰 멈춤). 비면 없음.
+var on_done: Callable
 var _targets: Array[Enemy] = []
 var _delays: PackedFloat32Array = PackedFloat32Array()
 var _done: PackedByteArray = PackedByteArray()
@@ -29,9 +31,10 @@ static func delay_of(center: Vector2, pos: Vector2, start_angle: float, dir_sign
 
 
 func _init(p_strike: Callable, center: Vector2, targets: Array[Enemy], start_angle: float, dir_sign: float,
-		sweep: float, ticks: int = 0, p_on_tick: Callable = Callable()) -> void:
+		sweep: float, ticks: int = 0, p_on_tick: Callable = Callable(), p_on_done: Callable = Callable()) -> void:
 	strike = p_strike
 	on_tick = p_on_tick
+	on_done = p_on_done
 	_sweep = maxf(sweep, 0.0)
 	_tick_count = maxi(ticks, 0)
 	_targets = targets
@@ -66,4 +69,8 @@ func tick(delta: float) -> bool:
 			if is_instance_valid(en) and strike.call(en):
 				hits += 1
 	finished = _t >= _sweep and _next_tick >= _tick_count and pending() == 0
+	if finished and on_done.is_valid():
+		var cb := on_done
+		on_done = Callable()
+		cb.call(hits)
 	return finished

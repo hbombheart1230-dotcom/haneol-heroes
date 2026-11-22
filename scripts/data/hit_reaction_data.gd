@@ -29,6 +29,9 @@ extends Resource
 ## 처음 아주 밝은 구간(CombatFeelData.flash_peak_time)에 흰색을 섞는 비율, 그 뒤 시작 비율 (0으로 줄어듦).
 @export var flash_white: float = 0.85
 @export var flash_white_tail: float = 0.45
+## 번쩍임 횟수 (GDQuest juicy-attack: 0.15초에 2번). 2 이상이면 CombatFeelData.flash_time을 켜짐·꺼짐 칸으로
+## 고르게 나눠 켜진 칸마다 flash_white로 (1이면 예전처럼 한 번 밝았다 줄어듦).
+@export var flash_blinks: int = 2
 
 @export_group("영웅 피격")
 ## 맞은 순간 붉은 번쩍임 시간(초)과 색 (스프라이트 modulate).
