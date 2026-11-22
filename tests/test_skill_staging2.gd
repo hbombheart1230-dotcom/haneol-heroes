@@ -258,8 +258,8 @@ func test_part_art_replaces_particle_shapes() -> void:
 
 func test_critter_art_slot_reaches_summons() -> void:
 	var s: CritterSkill = _hero("shin_saimdang").kit.tap.duplicate()
-	assert_object(s.butterfly_art).is_not_null()  # 나비는 그린 그림 (GPT), 방아깨비는 아직 꽃잎 모양
-	assert_object(s.grasshopper_art).is_null()
+	assert_object(s.butterfly_art).is_not_null()  # 나비·방아깨비 모두 위에서 본 그린 그림 (GPT)
+	assert_object(s.grasshopper_art).is_not_null()
 	var c := SummonCritter.new()
 	c.art = _sheet(1, 1)
 	c.lifetime = 1.0

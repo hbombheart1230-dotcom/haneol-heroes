@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="SkillVfxData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="1_vfx"]
-[ext_resource type="Texture2D" path="res://assets/vfx/scroll_unfold.png" id="2_tex"]
+[ext_resource type="Texture2D" path="res://assets/vfx/scroll_band.png" id="2_tex"]
 
 [resource]
 script = ExtResource("1_vfx")
@@ -20,7 +20,7 @@ color = Color(0.92, 0.42, 0.58, 1)
 color_end = Color(0.9, 0.7, 0.78, 0)
 decal = ExtResource("2_tex")
 decal_size = 440.0
-decal_spin = 1.2
+decal_spin = 0.0
 decal_layers = 2
 glow = 0.35
 glow_color = Color(1, 0.55, 0.75, 1)
@@ -36,7 +36,7 @@ ground_time = 1.6
 ground_size = 380.0
 ground_color = Color(0.08, 0.08, 0.1, 0.4)
 flicker = 0.3
-art_fill = 0.87
+art_fill = 0.98
 piece_mode = 1
 decal_time = 1.1
 decal_upright = true
