@@ -217,3 +217,53 @@ func test_canvas_unrolls_as_scroll_and_draws() -> void:
 		await get_tree().process_frame
 		v._process(0.08)
 	assert_int(v.pieces.set_count()).is_greater_equal(1)
+
+
+# --- B안 부품 그림 슬롯 (비면 지금 그대로) ---
+
+func test_layer_slots_used_when_filled_and_fallback_when_empty() -> void:
+	var v := VfxDecals.new()
+	add_child(v)
+	var d := SkillVfxData.new()
+	d.decal = PlaceholderTexture2D.new()
+	d.piece_count = 6
+	d.sweep_hand = true
+	d.ground_time = 1.0
+	v.burst(d, Vector2.ZERO, Vector2.RIGHT, 0)
+	assert_object(v.ground._items[0]["tex"]).is_null()  # 공용 웅덩이로
+	d.ground_art = _sheet(1, 1)
+	d.hand_art = _sheet(4, 1)
+	v.burst(d, Vector2.ZERO, Vector2.RIGHT, 0)
+	assert_object(v.ground._items[1]["tex"]).is_same(d.ground_art)
+	for i in 3:
+		await get_tree().process_frame
+		v._process(0.05)
+	assert_int(v.pieces.hand_count()).is_equal(2)
+
+
+func test_part_art_replaces_particle_shapes() -> void:
+	var p := SkillVfx.new()
+	add_child(p)
+	var d := SkillVfxData.new()
+	d.count = 4
+	p.burst(d, Vector2.ZERO)
+	assert_object(p._parts[0]["tex"]).is_null()
+	d.part_art = [_sheet(1, 1), _sheet(2, 1)] as Array[Texture2D]
+	p.burst(d, Vector2.ZERO)
+	assert_object(p._parts[4]["tex"]).is_same(d.part_art[0])
+	assert_object(p._parts[5]["tex"]).is_same(d.part_art[1])
+	await get_tree().process_frame
+	p.free()
+
+
+func test_critter_art_slot_reaches_summons() -> void:
+	var s: CritterSkill = _hero("shin_saimdang").kit.tap.duplicate()
+	assert_object(s.butterfly_art).is_null()  # 지금은 꽃잎 모양 그대로
+	var c := SummonCritter.new()
+	c.art = _sheet(1, 1)
+	c.lifetime = 1.0
+	add_child(c)
+	await get_tree().process_frame
+	c.queue_redraw()
+	await get_tree().process_frame
+	c.free()

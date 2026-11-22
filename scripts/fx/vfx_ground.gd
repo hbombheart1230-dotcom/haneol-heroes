@@ -24,7 +24,7 @@ func mark(d: SkillVfxData, pos: Vector2, level: int, size_k: float = 1.0) -> voi
 	if d == null or d.ground_time <= 0.0:
 		return
 	_items.append({"pos": pos, "rot": randf() * TAU, "size": d.ground_size * d.size_mult(level) * size_k,
-		"color": d.ground_color,
+		"color": d.ground_color if d.ground_art == null else Color(1, 1, 1, d.ground_color.a), "tex": d.ground_art,
 		"t": 0.0, "life": d.ground_time})
 	while _items.size() > maxi(stage.max_ground, 0):
 		_items.pop_front()
@@ -45,10 +45,11 @@ func step(delta: float) -> void:
 
 
 func _draw() -> void:
-	var tex := Feedback.feel_data().pool_art
-	if tex == null:
-		return
+	var pool := Feedback.feel_data().pool_art
 	for it in _items:
+		var tex: Texture2D = it["tex"] if it["tex"] != null else pool  # 그려 넣은 바닥 자국, 없으면 공용 웅덩이
+		if tex == null:
+			continue
 		var t := float(it["t"])
 		var k := t / float(it["life"])
 		var appear := minf(t / maxf(stage.ground_fade_in, 0.001), 1.0)

@@ -265,7 +265,8 @@ func _draw_scroll(st: Dictionary, d: SkillVfxData, tex: Texture2D, t: float, k: 
 		if side < 0.0:
 			x0 += slice - w  # 왼쪽은 오른쪽 가장자리에서 펼쳐 나간다
 		var lift := Vector2(side * scatter, scatter * 0.3 * sin(i * 1.7))
-		var hh := size * 0.5 * (1.0 + d.piece_pop * (1.0 - ease) * 0.3)
+		var aspect := tex.get_height() / maxf(tex.get_width(), 1.0)  # 가로로 긴 두루마리 띠 그림도 비율대로
+		var hh := size * 0.5 * aspect * (1.0 + d.piece_pop * (1.0 - ease) * 0.3)
 		var col := d.ink_color(b, (1.0 - k) * minf(p * 2.0, 1.0))
 		var outer := Color(col.r, col.g, col.b, col.a * (0.1 + 0.6 * ease))  # 펼쳐지는 끝은 먹으로 갉힘
 		_qpts[0] = center + lift + Vector2(x0, -hh)
@@ -295,12 +296,15 @@ func _draw_hand(h: Dictionary, stroke: Texture2D) -> void:
 	var fade := 1.0 - maxf(t - float(h["sweep"]), 0.0) / maxf(stage.hand_linger, 0.01)
 	var a := float(h["start"]) + d.piece_dir * TAU * swept
 	var r := float(h["r"])
+	var art := d.hand_art  # 그려 넣은 바늘이 있으면 그것 (색 그대로), 없으면 코드 바늘을 그림자 색으로
+	var tex := art if art else stroke
+	var hw := r * 1.15 * art.get_height() / maxf(art.get_width(), 1.0) if art else d.hand_width
+	var tint := Color.WHITE if art else d.hand_color
 	for g in range(stage.hand_ghosts, -1, -1):  # 잔상(옅게) → 바늘(진하게)
 		var ga := a - d.piece_dir * stage.hand_ghost_gap * g
 		var alpha := d.hand_color.a * fade * (1.0 - float(g) / float(stage.hand_ghosts + 1))
 		_ink.draw_set_transform(h["pos"], ga, Vector2.ONE)
-		_ink.draw_texture_rect(stroke, Rect2(-r * 0.15, -d.hand_width * 0.5, r * 1.15, d.hand_width), false,
-			Color(d.hand_color.r, d.hand_color.g, d.hand_color.b, alpha))
+		_ink.draw_texture_rect(tex, Rect2(-r * 0.15, -hw * 0.5, r * 1.15, hw), false, Color(tint.r, tint.g, tint.b, alpha))
 	_ink.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 

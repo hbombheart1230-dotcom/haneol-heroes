@@ -183,6 +183,17 @@ enum PieceMode { RADIAL, SCROLL }
 @export var sheet_loop: bool = false
 
 
+@export_group("연출 · 부품 그림 (층별 슬롯, B안)")
+## 층마다 따로 그린 정지 그림 (docs/skill_vfx_sheets.md B안). 비어 있으면 지금처럼 코드·공용 붓 그림을 쓴다.
+## 본체 원판은 decal (예: 바늘 없는 해시계 판), 띠는 strip 슬롯을 그대로 쓴다.
+## 바늘 (오른쪽을 가리키는 가로 그림, 왼쪽 끝이 돌리는 축). 비면 코드 바늘.
+@export var hand_art: Texture2D
+## 바닥 자국 (금 간 바닥·물자국·불탄 자국). 비면 공용 먹 웅덩이를 ground_color로 물들여 씀.
+@export var ground_art: Texture2D
+## 흩어지는 조각 (물보라 덩어리·돌 조각·꽃잎…). 여러 장이면 번갈아. 비면 shape 모양 입자.
+@export var part_art: Array[Texture2D] = []
+
+
 ## 판정 반경(px)에 맞춘 그림 지름.
 func fitted_size(radius: float) -> float:
 	return 2.0 * radius / maxf(art_fill, 0.1)

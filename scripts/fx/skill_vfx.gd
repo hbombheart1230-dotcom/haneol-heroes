@@ -48,7 +48,8 @@ func burst(data: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level:
 		_parts.append({"data": data, "pos": pos + Vector2.from_angle(randf() * TAU) * randf() * data.spawn_radius,
 			"vel": v, "t": 0.0, "life": randf_range(data.life.x, data.life.y),
 			"size": randf_range(data.size.x, data.size.y) * size_k, "rot": randf() * TAU,
-			"spin": randf_range(-data.spin, data.spin), "glyph": glyph})
+			"spin": randf_range(-data.spin, data.spin), "glyph": glyph,
+			"tex": data.part_art[i % data.part_art.size()] if not data.part_art.is_empty() else null})
 	while _parts.size() > maxi(feel.max_vfx_particles, 0):
 		_parts.pop_front()
 
@@ -94,6 +95,10 @@ func _draw() -> void:
 			var fs := int(maxf(s, 8.0))
 			draw_string(UiStyle.TITLE_FONT, Vector2(-s * 0.5, s * 0.35), p["glyph"], HORIZONTAL_ALIGNMENT_LEFT,
 				-1, fs, col)
+		elif p["tex"] != null:  # 부품 그림 조각 (색은 그림 그대로, 투명도만 따라감)
+			var tex: Texture2D = p["tex"]
+			var h := s * tex.get_height() / maxf(tex.get_width(), 1.0)
+			draw_texture_rect(tex, Rect2(-s * 0.5, -h * 0.5, s, h), false, Color(1, 1, 1, col.a))
 		else:
 			draw_texture_rect(VfxTextures.get_texture(d.shape), Rect2(Vector2(-s, -s) * 0.5, Vector2(s, s)), false, col)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
