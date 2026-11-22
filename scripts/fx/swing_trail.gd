@@ -23,7 +23,7 @@ var _f := PackedFloat32Array()
 var _quad := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
 var _uv := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
 var _cols := PackedColorArray([Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE])
-var _glow := Glow.new()
+var _glow: Glow
 
 
 ## 이 플레이어의 평타를 궤적이 그리는지 (그러면 AutoAttack은 초승달을 그리지 않는다).
@@ -41,6 +41,7 @@ func _ready() -> void:
 	_outer.resize(n)
 	_inner.resize(n)
 	_f.resize(n)
+	_glow = Glow.new()  # 트리에 들어올 때 만든다 (장면만 불러 놓고 버리면 남는 노드가 없게)
 	_glow.trail = self
 	var add := CanvasItemMaterial.new()
 	add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
@@ -94,7 +95,8 @@ func _draw() -> void:
 	if data.ink_alpha > 0.0:  # 먹 외곽선 (조금 넓게 먼저)
 		_band(self, 0, 1.0, data.ink_px)
 	_band(self, 1, 1.0, 0.0)  # 몸: 꼬리 먹 → 영웅색 → 머리 흰빛
-	_glow.queue_redraw()
+	if _glow:
+		_glow.queue_redraw()
 
 
 ## 꼬리(f 0) → 머리(f 1) 색: 먹 → 영웅색 → 흰빛 (하데스 평타 섬광처럼 앞머리는 거의 흰색).
