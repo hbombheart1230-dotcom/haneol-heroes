@@ -25,6 +25,9 @@ extends Resource
 @export var interrupt_cooldown: float = 0.6
 ## 한 번 끊긴 적의 다음 예고는 이 시간(초) 동안 끊기지 않는다 (계속 묶여 위협이 사라지지 않게).
 @export var interrupt_rearm: float = 1.5
+## 맞아서 공격 대기를 처음부터 다시 셀 때(EnemyData.hit_resets_attack)의 상한: 마지막 공격(또는 등장) 뒤
+## cooldown × 이 값 안에는 다시 준비된다. 연타로 붙잡아도 공격이 영영 안 나오지 않게 (실측: open_data_benchmark.md).
+@export var reset_max_gap_mult: float = 1.3
 
 @export_group("넘어짐 (B8)")
 ## 3타째 강타에 맞은 잡몹: 떠올랐다 누웠다 일어나는 시간(초). 그동안 움직이지도 치지도 않는다.
@@ -49,6 +52,12 @@ extends Resource
 @export var heavy_kick_px: float = 8.0
 ## 3타째 흔들림은 지금 흔들림(trauma)이 이 값보다 크면 더하지 않는다 (기술·처치 흔들림과 겹쳐 과해지지 않게).
 @export var trauma_cap: float = 0.55
+## 3타 강타의 늦은 감속 (하데스 SwordWeapon3 HitSimSlowParameters): 닿고 delay초(실제) 뒤 게임 속도 scale,
+## hold초 머문 뒤 back초에 걸쳐 돌아온다. hold 0이면 끔. 맞은 적 멈춤·영웅 멈춤과 함께 걸린다.
+@export var heavy_slow_delay: float = 0.05
+@export var heavy_slow_scale: float = 0.1
+@export var heavy_slow_hold: float = 0.05
+@export var heavy_slow_back: float = 0.07
 ## 3타째 국악 덧소리 (꽹과리 한 타, 파일이 없으면 조용히 건너뜀)와 최소 간격(초).
 @export var heavy_gugak: StringName = &"gugak_big"
 @export var heavy_gugak_gap: float = 0.5

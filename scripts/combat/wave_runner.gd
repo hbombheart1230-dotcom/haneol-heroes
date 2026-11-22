@@ -1,6 +1,7 @@
 class_name WaveRunner
 extends RefCounted
-## 물결 진행 (순수 로직, 하데스식): 숨 고르기 → 물결 (먼저 first_count, 남은 적이 next_when_left 이하일 때 이어서)
+## 물결 진행 (순수 로직, 하데스식): 숨 고르기 → 물결 (먼저 first_count, 남은 적이 next_when_left 이하일 때 이어서;
+## refill_each면 물결 상한까지 채우고 한 마리 죽을 때마다 한 마리)
 ## → 다 죽으면 물결 끝 → … → 마지막 물결 뒤 보스. 강화 고르는 동안(hold)은 다음 물결을 기다린다.
 
 enum Phase { GAP, RUN, BOSS_WAIT, BOSS }
@@ -58,13 +59,24 @@ func tick(delta: float, alive: int, hold: bool) -> Event:
 	return Event.NONE
 
 
-## 지금 내보낼 적 하나: [EnemyData] (null이면 정예), 없으면 빈 배열. cap = 화면 최대.
+## 지금 내보낼 적 하나: [EnemyData] (null이면 정예), 없으면 빈 배열. cap = 화면 최대 (난이도 추가 포함).
 func next_spawn(alive: int, cap: int) -> Array:
-	if phase != Phase.RUN or _budget <= 0 or _queue.is_empty() or _stagger > 0.0 or alive >= cap:
+	if phase != Phase.RUN or _queue.is_empty() or _stagger > 0.0 or alive >= wave_cap(cap):
 		return []
-	_budget -= 1
+	if not data.refill_each:
+		if _budget <= 0:
+			return []
+		_budget -= 1
 	_stagger = data.spawn_stagger
 	return [_queue.pop_front()]
+
+
+## 이번 물결의 화면 최대: 물결 값(있으면) + 난이도 추가분 (cap − 무대 기본 최대), cap을 넘지 않게.
+func wave_cap(cap: int) -> int:
+	if index < 0 or index >= data.waves.size():
+		return cap
+	var w: WaveData = data.waves[index]
+	return cap if w.max_alive <= 0 else mini(cap, w.max_alive + maxi(cap - data.max_alive, 0))
 
 
 func _start(i: int) -> void:

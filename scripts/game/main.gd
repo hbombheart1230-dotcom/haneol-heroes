@@ -334,7 +334,7 @@ func _on_enemy_killed(e: Enemy) -> void:
 func _on_breather(slowmo: bool) -> void:
 	if slowmo and is_inside_tree():
 		var f := Feedback.feel_data()
-		GameTime.stop(get_tree(), f.wave_end_slow_time, f.wave_end_slow_scale)
+		GameTime.stop(get_tree(), f.wave_end_slow_time + f.wave_end_slow_back, f.wave_end_slow_scale, f.wave_end_slow_back)
 	if state.is_playing() and not is_choosing():
 		break_picks = 1
 		_offer_next()

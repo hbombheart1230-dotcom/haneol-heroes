@@ -31,6 +31,8 @@ var _timer: float = 0.0
 ## 이번 회복 전체 길이 (빗나간 돌진은 더 길다).
 var _recover_total: float = 0.0
 var _cooldown: float = 0.0
+## 마지막 공격(또는 처음) 뒤 지난 시간: 맞아서 대기를 다시 셀 때의 상한 기준.
+var _since_strike: float = 0.0
 ## 이번 예고에서 이미 회피 처리됐는지 (타격 때 다시 처리하지 않음).
 var _evaded: bool = false
 var _was_inside: bool = false
@@ -81,6 +83,7 @@ func windup_ratio() -> float:
 ## 반환: 이번 틱의 결과 (타격이 일어난 틱에만 NONE 이외).
 func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 	_cooldown = maxf(_cooldown - delta, 0.0)
+	_since_strike += delta
 	_armor_left = maxf(_armor_left - delta, 0.0)
 	match state:
 		State.READY:
@@ -112,6 +115,7 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 					_timer = data.miss_recovery
 				_recover_total = _timer
 				_cooldown = data.cooldown
+				_since_strike = 0.0
 				return r
 		State.RECOVER:
 			_timer -= delta
@@ -186,6 +190,15 @@ func interrupt(cooldown: float, rearm: float) -> void:
 	cancel()
 	_cooldown = maxf(_cooldown, cooldown)
 	_armor_left = rearm
+
+
+## 맞아서 공격 대기를 처음부터 (디아1·Flare식, 기다리는 중일 때만). 마지막 공격 뒤 cooldown × max_gap_mult
+## 안에는 다시 준비된다 (연타로 붙잡아도 공격이 영영 안 나오지 않게).
+func restart_wait(max_gap_mult: float) -> void:
+	if state != State.READY:
+		return
+	var room := maxf(data.cooldown * max_gap_mult - _since_strike, 0.0)
+	_cooldown = maxf(_cooldown, minf(data.cooldown, room))
 
 
 ## 적이 죽거나 사라질 때 예고 슬롯을 돌려준다.

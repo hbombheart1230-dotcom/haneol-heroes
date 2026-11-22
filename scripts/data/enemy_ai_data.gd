@@ -49,6 +49,9 @@ extends Resource
 ## (비율이 아니라 남은 시간이라 예고 길이와 상관없이 같은 박자). 예고는 min_windup초 이상 (데이터 검사).
 @export var strike_flash_time: float = 0.15
 @export var min_windup: float = 0.6
+## 예고 끝 몸 떨림 (하데스 PreAttackEndShake): 번쩍이는 동안 좌우로 이만큼(px) 이 빠르기(Hz)로 떤다. 0이면 끔.
+@export var windup_shake_px: float = 3.0
+@export var windup_shake_hz: float = 28.0
 @export var strike_flash: float = 1.6
 
 @export_group("일제 사격")

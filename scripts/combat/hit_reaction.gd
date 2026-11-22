@@ -10,6 +10,8 @@ var tier: Tier = Tier.TRASH
 ## 맞는 동작을 더 보여 줄 시간, 경직 남은 시간(초).
 var anim_left: float = 0.0
 var stagger_left: float = 0.0
+## 적별 경직 길이 (EnemyData.stagger_time, 음수 = 공통값).
+var stagger_override: float = -1.0
 ## 마지막 움찔 뒤 흐른 시간 (개별 멈춤 중에는 흐르지 않음 → 멈춤 동안 가장 크게 젖힌 채 떤다).
 var _age: float = INF
 ## 맞은 방향 (때린 쪽 → 적)과 움찔 크기 배율.
@@ -46,7 +48,7 @@ func on_hit(applied: int, max_hp: int, dir: Vector2) -> bool:
 		_dir = dir.normalized()
 	_k = 1.0 if tier == Tier.TRASH else data.heavy_flinch_scale
 	if tier == Tier.TRASH:
-		stagger_left = maxf(stagger_left, data.stagger_time)
+		stagger_left = maxf(stagger_left, stagger_time())
 	var plays := tier == Tier.TRASH \
 		or (tier == Tier.ELITE and applied >= maxi(max_hp, 1) * data.elite_flinch_hp_frac) \
 		or (tier == Tier.BOSS and data.boss_flinch)
@@ -58,7 +60,12 @@ func on_hit(applied: int, max_hp: int, dir: Vector2) -> bool:
 ## 밀쳐짐 (영웅의 숨 돌릴 틈 등): 잡몹만 잠깐 경직.
 func on_shove() -> void:
 	if tier == Tier.TRASH:
-		stagger_left = maxf(stagger_left, data.stagger_time)
+		stagger_left = maxf(stagger_left, stagger_time())
+
+
+## 잡몹 경직 길이: 적 데이터 값(0 이상)이 있으면 그것, 없으면 공통값.
+func stagger_time() -> float:
+	return stagger_override if stagger_override >= 0.0 else data.stagger_time
 
 
 func tick(delta: float) -> void:
