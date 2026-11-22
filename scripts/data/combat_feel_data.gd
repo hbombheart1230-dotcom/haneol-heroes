@@ -38,9 +38,10 @@ extends Resource
 @export var burst: InkBurstData
 
 @export_group("처치 반응")
-## 일반 처치 흔들림(trauma)과 방향 밀림(px).
-@export var kill_trauma: float = 0.12
-@export var kill_kick_px: float = 6.0
+## 일반 처치 흔들림(trauma)과 방향 밀림(px). 하데스는 평타·일반 처치에 화면 흔들림이 없다 (영상 분당 약 5번,
+## 한얼 약 130번, docs/research/hades_data.md §8) → 둘 다 0. 강타·정예/보스 처치·기술·피격·반격·보스 단계에만.
+@export var kill_trauma: float = 0.0
+@export var kill_kick_px: float = 0.0
 ## 일반 처치 전체 멈춤(초). 연속 처치로 화면이 끊기지 않게 min_gap마다 한 번만.
 @export var kill_freeze: float = 0.03
 @export var kill_freeze_min_gap: float = 0.25
@@ -48,6 +49,10 @@ extends Resource
 @export var finisher_time_scale: float = 0.25
 @export var finisher_time: float = 0.35
 @export var finisher_trauma: float = 0.6
+## 정예·보스 마무리 방향 밀림(px, 예전 일반 처치 밀림의 두 배).
+@export var finisher_kick_px: float = 12.0
+## 영웅이 맞았을 때 흔들림.
+@export var hurt_trauma: float = 0.4
 
 @export_group("카메라")
 ## true면 흔들림이 맞은 방향으로 밀리는 쪽으로 치우친다 (무작위 대신).
@@ -56,6 +61,11 @@ extends Resource
 @export var shake_side_ratio: float = 0.3
 ## 방향 밀림이 돌아오는 빠르기(초당 감쇠율).
 @export var kick_return: float = 14.0
+## 카메라 따라가기 빠르기 (Camera2D position_smoothing_speed): 평소, 대시 중 (하데스는 대시의 약 80%를 0.17초 안에
+## 따라감, 한얼 8에서는 약 45%), 대시 뒤 평소로 돌아오는 속도 (초당 줄어드는 양, 연속 대시에서 출렁이지 않게).
+@export var follow_speed: float = 8.0
+@export var dash_follow_speed: float = 14.0
+@export var follow_return_rate: float = 15.0
 ## 흔들림 크기 = trauma^exponent × 최대. 2면 작은 값(처치·작은 기술)이 1px도 안 돼 사라져서 1.5.
 @export var shake_exponent: float = 1.5
 ## 기술 시전 흔들림: 맞힘·헛침·반격 (기술마다 정한 소리가 있는 영웅도 같음).

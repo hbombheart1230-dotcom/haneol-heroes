@@ -97,6 +97,15 @@ func _process(delta: float) -> void:
 		_kick = Vector2.ZERO
 	if camera:
 		camera.offset = shake_offset() + _kick
+		camera.position_smoothing_speed = follow_speed(camera.position_smoothing_speed,
+			player != null and player.is_dashing(), feel, delta)
+
+
+## 카메라 따라가기 빠르기 (순수 계산): 대시 중엔 바로 dash_follow_speed, 끝나면 follow_return_rate로 평소 값까지.
+static func follow_speed(now: float, dashing: bool, f: CombatFeelData, delta: float) -> float:
+	if dashing:
+		return maxf(now, f.dash_follow_speed)
+	return move_toward(now, f.follow_speed, f.follow_return_rate * delta)
 
 
 ## 이번 프레임 흔들림 오프셋. 방향 흔들림이면 마지막 방향으로 주로 떨리고 옆으로는 조금만.
@@ -336,7 +345,7 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 		play(&"gugak_kill", 0.0)  # 국악 북·징 (파일이 있을 때만)
 		haptic(feel.haptic_finisher_ms, feel.haptic_finisher_amp)
 		add_trauma(feel.finisher_trauma, dir)
-		kick(dir, feel.kill_kick_px * 2.0)
+		kick(dir, feel.finisher_kick_px)
 		if is_inside_tree():
 			GameTime.stop(get_tree(), feel.finisher_time, feel.finisher_time_scale)
 			ImpactFx.finisher(self)  # 확대·흰 번쩍임 (B7)
@@ -358,5 +367,5 @@ static func ui() -> void:
 static func player_hurt() -> void:
 	if instance:
 		instance.play(&"hurt", 0.0)
-		instance.add_trauma(0.4)
+		instance.add_trauma(instance.feel.hurt_trauma)
 		instance.haptic(instance.feel.haptic_hurt_ms, instance.feel.haptic_hurt_amp)
