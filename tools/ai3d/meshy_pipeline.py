@@ -60,7 +60,7 @@ def resolve_actions(cfg: dict) -> list:
     picked = []
     everything = api.library() if any("action_id" in a for a in cfg["anims"]) else []
     for anim in cfg["anims"]:
-        if "clip_of" in anim:
+        if is_free(anim):
             continue
         if "action_id" in anim:
             entry = next((e for e in everything if e.get("action_id") == anim["action_id"]), None)
@@ -134,7 +134,13 @@ def new_anims(cfg: dict, state: dict) -> list:
     done = {a["key"] for a in state.get("actions", [])}
     for extra in state.get("extras", []):
         done |= {a["key"] for a in extra["actions"]}
-    return [a for a in cfg["anims"] if a["key"] not in done and "clip_of" not in a]  # clip_of: 다른 동작을 잘라 씀 (무료)
+    return [a for a in cfg["anims"] if a["key"] not in done and not is_free(a)]
+
+
+def is_free(anim: dict) -> bool:
+    """돈 드는 요청이 없는 동작: clip_of(받은 동작을 다시 자름), reuse(이미 PC에 있는 .glb의 동작을 씀 —
+    받은 파일에 덤으로 든 동작이나 같은 Meshy 뼈대인 다른 캐릭터의 동작)."""
+    return "clip_of" in anim or "reuse" in anim
 
 
 def add_anims(cfg: dict, args: argparse.Namespace) -> None:
@@ -200,8 +206,9 @@ def download_all(state: dict, out_dir: str) -> None:
             api.download(state[key], dest)
 
 
-## 굽기 구간·맞닿는 순간 (초, 동작 원본 기준). 설정의 동작에 있으면 굽기 작업으로 그대로 넘긴다 (bake_sprites.gd).
-TRIM_KEYS = ("start", "end", "strike")
+## 굽기 구간·맞닿는 순간 (초, 동작 원본 기준), 칸마다 시각 times, 몸 더 돌리기 yaw(도).
+## 설정의 동작에 있으면 굽기 작업으로 그대로 넘긴다 (bake_sprites.gd·bake_tip.gd).
+TRIM_KEYS = ("start", "end", "strike", "times", "yaw")
 
 
 def write_bake_job(cfg: dict, state: dict) -> str:
@@ -219,6 +226,12 @@ def write_bake_job(cfg: dict, state: dict) -> str:
             extra_file.pop(a["key"], None)
             if a["clip_of"] in got_file:
                 extra_file[a["key"]] = got_file[a["clip_of"]]
+    for a in cfg["anims"]:  # reuse: {"src": 동작 이름, "from": res://...glb (없거나 ""면 이 캐릭터의 animated.glb)}
+        if "reuse" in a:
+            names[a["key"]] = a["reuse"]["src"]
+            extra_file.pop(a["key"], None)
+            if a["reuse"].get("from"):
+                extra_file[a["key"]] = a["reuse"]["from"]
     job = {
         "name": cfg["name"],
         "model": f"res://assets/models/meshy/{cfg['name']}/animated.glb",
@@ -284,7 +297,7 @@ def apply_to_hero(cfg: dict) -> None:
 
 def plan(cfg: dict, state: dict) -> int:
     todo = [s for s in STAGES if not state.get(f"{s}_done")]
-    paid = [a for a in cfg["anims"] if "clip_of" not in a]
+    paid = [a for a in cfg["anims"] if not is_free(a)]
     credits = sum(COST["anim_each"] * len(paid) if s == "anim" else COST[s] for s in todo)
     print(f"[{cfg['name']}] 남은 단계: {', '.join(todo) or '없음 (굽기만)'} / 예상 약 {credits} 크레딧")
     return credits

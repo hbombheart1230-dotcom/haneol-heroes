@@ -23,10 +23,11 @@
     },
     {
       "key": "run",
-      "src": "Run 2",
-      "frames": 6,
-      "fps": 10.0,
-      "loop": true
+      "src": "Walk_Fight_Forward",
+      "frames": 8,
+      "fps": 5.5,
+      "loop": true,
+      "from": "res://assets/models/meshy/waegun_heavy/animated.glb"
     },
     {
       "key": "attack",
@@ -35,16 +36,27 @@
       "fps": 10.0,
       "loop": false,
       "from": "res://assets/models/meshy/waegun_elite/animated_extra1.glb",
-      "start": 0.1,
-      "end": 1.1,
-      "strike": 0.55
+      "strike": 0.6,
+      "times": [
+        0.1,
+        0.3,
+        0.45,
+        0.6,
+        0.85,
+        1.25
+      ]
     },
     {
       "key": "hit",
       "src": "Hit Reaction",
       "frames": 3,
       "fps": 12.0,
-      "loop": false
+      "loop": false,
+      "times": [
+        0.15,
+        0.35,
+        0.6
+      ]
     }
   ]
 }

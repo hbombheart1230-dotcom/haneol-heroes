@@ -22,8 +22,8 @@
     {
       "key": "run",
       "src": "Walk Fight Forward",
-      "frames": 6,
-      "fps": 10.0,
+      "frames": 8,
+      "fps": 4.5,
       "loop": true
     },
     {
@@ -32,16 +32,45 @@
       "frames": 6,
       "fps": 10.0,
       "loop": false,
-      "start": 0.5,
-      "end": 1.83,
-      "strike": 1.45
+      "strike": 1.47,
+      "times": [
+        0.5,
+        0.83,
+        1.0,
+        1.16,
+        1.47,
+        1.83
+      ]
     },
     {
       "key": "hit",
       "src": "Hit Reaction",
       "frames": 3,
       "fps": 12.0,
-      "loop": false
+      "loop": false,
+      "times": [
+        0.15,
+        0.35,
+        0.6
+      ]
+    },
+    {
+      "key": "down",
+      "src": "Rightward_Spin",
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/waegun_soldier/animated_extra2.glb",
+      "times": [
+        0.9,
+        1.1,
+        1.35,
+        1.6,
+        2.6,
+        4.2,
+        5.4,
+        6.3
+      ]
     }
   ]
 }
