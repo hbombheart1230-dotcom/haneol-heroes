@@ -110,6 +110,73 @@
       "start": 0.2,
       "end": 1.3,
       "strike": 1.0
+    },
+    {
+      "key": "spell_a",
+      "match": "",
+      "action_id": 126,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "spell_b",
+      "match": "",
+      "action_id": 127,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "spell_c",
+      "match": "",
+      "action_id": 131,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "cast_tap",
+      "clip_of": "spell_a",
+      "frames": 8,
+      "fps": 18.0,
+      "loop": false,
+      "start": 1.5,
+      "end": 3.3,
+      "strike": 1.75
+    },
+    {
+      "key": "cast_dash",
+      "clip_of": "spell_c",
+      "frames": 7,
+      "fps": 18.0,
+      "loop": false,
+      "start": 0.6,
+      "end": 1.7,
+      "strike": 1.4
+    },
+    {
+      "key": "cast_charge",
+      "clip_of": "attack",
+      "frames": 8,
+      "fps": 18.0,
+      "loop": false,
+      "start": 0.72,
+      "end": 2.3,
+      "strike": 2.0
+    },
+    {
+      "key": "cast_counter",
+      "clip_of": "spell_b",
+      "frames": 8,
+      "fps": 16.0,
+      "loop": false,
+      "start": 1.2,
+      "end": 2.5,
+      "strike": 1.62
     }
   ]
 }

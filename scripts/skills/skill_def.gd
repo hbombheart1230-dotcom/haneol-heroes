@@ -14,6 +14,16 @@ extends Resource
 @export var icon: Texture2D
 ## 발동 소리 (SoundBank 종류). 비우면 칸에 따라 기본 (베기·반격).
 @export var sfx: StringName = &""
+@export_group("시전 동작")
+## 영웅 시트의 시전 동작 이름 (비거나 시트에 없으면 연타 1타 "attack"). 피해는 지금처럼 누르는 순간 나가므로,
+## 동작은 맞닿는 칸(시트 strike_frames) cast_lead초 앞에서 시작해 칼이 닿는 그림이 피해와 거의 같이 보인다.
+@export var cast_anim: StringName = &""
+## 맞닿는 칸 앞에서 보여 줄 시간(초). 음수면 첫 칸부터 (휘감는 기술: 도는 동안이 곧 베기).
+@export var cast_lead: float = 0.06
+## 재생 속도 배율.
+@export var cast_speed: float = 1.0
+## 충전 기술만: 모으는 동안 시전 동작 첫 칸(모으는 자세)을 붙잡는다 (서 있을 때).
+@export var charge_pose: bool = true
 @export_group("조준 보정")
 ## 방향 기술만: 바라보는 방향 ± 이 각도의 절반 안에 적이 있으면 그쪽으로 (0이면 끔). 사거리(px),
 ## 부채꼴 안에 없을 때 가장 가까운 적 쪽으로 돌릴지.

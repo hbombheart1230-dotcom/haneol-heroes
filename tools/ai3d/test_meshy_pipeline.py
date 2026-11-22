@@ -221,6 +221,27 @@ class PipelineTest(unittest.TestCase):
         self.assertEqual(keys["attack3"]["start"], 2.0)
         self.assertTrue(keys["attack3"]["from"].endswith("animated_extra1.glb"))
 
+    def test_clip_of_uses_received_clip_even_when_key_is_recut(self):
+        """attack을 연타 동작 자르기로 바꿔도 clip_of "attack"은 처음 받은 Attack 동작 (기술 시전 동작 재사용)."""
+        self._ran_once()
+        self.cfg["anims"] += [
+            {"key": "combo", "search": "kick", "frames": 6, "fps": 16.0, "loop": False, "skip_bake": True}]
+        self._add({"status": "SUCCEEDED", "expires_at": 0})
+        for a in self.cfg["anims"]:
+            if a["key"] == "attack":
+                a["clip_of"] = "combo"
+        self.cfg["anims"].append({"key": "cast_dash", "clip_of": "attack", "frames": 6, "fps": 16.0,
+                                  "loop": False, "start": 0.4, "end": 1.0, "strike": 0.6})
+        state = mp.load_state(os.path.join(self.tmp, "assets/models/meshy/hero_t"))
+        mp.write_bake_job(self.cfg, state)
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        keys = {a["key"]: a for a in job["anims"]}
+        self.assertEqual(keys["attack"]["src"], "Kick")
+        self.assertTrue(keys["attack"]["from"].endswith("animated_extra1.glb"))
+        self.assertEqual(keys["cast_dash"]["src"], "Attack")
+        self.assertNotIn("from", keys["cast_dash"])
+        self.assertEqual(keys["cast_dash"]["strike"], 0.6)
+
     def test_add_anims_rerigs_from_saved_model_after_expiry(self):
         self._ran_once()
         fake = self._add(api.MeshyError("404"))

@@ -1,6 +1,7 @@
 extends "res://tools/bake/bake_sprites.gd"
 ## 동작 미리보기: 굽기 작업의 동작 하나를 실제 모델로 여러 시각에 찍어 한 줄로 저장한다 (from·to·strike 고르기용).
 ## godot --path . -s res://tools/bake/clip_sheet.gd -- --job=<이름> --anim=<키> --out=<png> [--samples=16] [--dir=1] [--src=<동작 이름>]
+##   [--from=<초> --to=<초>] (그 구간만 촘촘히) [--file=<res://...glb>] (작업에 없는 추가 동작 파일)
 ## 출력 png 옆에 <png>.txt로 시각(초) 목록과 동작 길이를 쓴다. --src를 주면 작업의 src 대신 그 동작 (Meshy 후보 비교).
 
 
@@ -27,7 +28,8 @@ func _run() -> void:
 		return
 	var ap := _setup(job)
 	var src: String = args.get("src", anim["src"])
-	var name := import_anim(ap, anim["from"], src, anim["key"]) if anim.has("from") else find_anim(ap, src)
+	var file: String = args.get("file", anim.get("from", ""))
+	var name := import_anim(ap, file, src, anim["key"]) if file != "" else find_anim(ap, src)
 	var a: Animation = ap.get_animation(name)
 	var n := int(args.get("samples", "16"))
 	var d := int(args.get("dir", "1"))
@@ -37,7 +39,9 @@ func _run() -> void:
 	var strip := Image.create(frame * n, frame, false, Image.FORMAT_RGBA8)
 	var times := PackedStringArray()
 	for i in n:
-		var t := a.length * i / float(maxi(n - 1, 1))
+		var t0 := float(args.get("from", "0"))
+		var t1 := minf(float(args.get("to", str(a.length))), a.length)
+		var t := t0 + (t1 - t0) * i / float(maxi(n - 1, 1))
 		ap.play(name)
 		ap.seek(t, true)
 		ap.pause()
