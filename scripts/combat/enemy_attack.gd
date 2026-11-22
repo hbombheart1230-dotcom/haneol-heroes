@@ -46,8 +46,10 @@ var start_check: Callable
 var hold_left: float = 0.0
 ## 이어치기 대기 중 (거리 검사 없이 나간다).
 var _chained: bool = false
-## 바로 전에 친 공격 종류 (-1 = 아직 없음).
+## 바로 전에 실제로 친 공격 종류 (-1 = 아직 없음, 끊긴 예고는 세지 않음).
 var last_kind: int = -1
+## 마지막 틱의 영웅 거리 (끊길 때 다음 공격 고르기에 쓴다).
+var _last_dist: float = INF
 
 
 func _init(p_data: EnemyAttackData, initial_cooldown: float = 0.0) -> void:
@@ -104,6 +106,8 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 	_since_strike += delta
 	_armor_left = maxf(_armor_left - delta, 0.0)
 	hold_left = maxf(hold_left - delta, 0.0)
+	if player:
+		_last_dist = self_pos.distance_to(player.global_position)
 	match state:
 		State.READY:
 			if player and not player.is_dead() and _cooldown <= 0.0 and hold_left <= 0.0 \
@@ -137,6 +141,7 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 				_recover_total = _timer
 				_cooldown = data.follow_gap if data.follow_up else data.cooldown
 				_since_strike = 0.0
+				last_kind = int(data.kind)
 				return r
 		State.RECOVER:
 			_timer -= delta
@@ -146,10 +151,9 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 	return Result.NONE
 
 
-## 다음 공격: 이어치기가 있으면 그것, 아니면 고르기(보스) 또는 차례.
-func _next_pattern(dist: float) -> void:
-	last_kind = int(data.kind)
-	_chained = data.follow_up != null
+## 다음 공격: 이어치기가 있으면 그것(chain), 아니면 고르기(보스) 또는 차례.
+func _next_pattern(dist: float, chain: bool = true) -> void:
+	_chained = chain and data.follow_up != null
 	if _chained:
 		data = data.follow_up
 	elif pick_by_range and not patterns.is_empty():
@@ -233,10 +237,14 @@ func restart_wait(max_gap_mult: float) -> void:
 	_cooldown = maxf(_cooldown, minf(data.cooldown, room))
 
 
-## 적이 죽거나 사라질 때 예고 슬롯을 돌려준다.
+## 적이 죽거나 사라질 때 예고 슬롯을 돌려준다. 고르는 보스가 회복 중 끊기면(휘청) 이어치기 없이 다음 공격을 고른다
+## (이미 친 공격을 다시 내지 않게).
 func cancel() -> void:
+	var was_recover := state == State.RECOVER
 	_end_windup()
 	state = State.READY
+	if was_recover and pick_by_range:
+		_next_pattern(_last_dist, false)
 
 
 func _end_windup() -> void:

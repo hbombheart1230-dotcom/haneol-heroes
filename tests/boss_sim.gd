@@ -6,7 +6,7 @@ extends RefCounted
 ##   TAP    : 보스에게 붙어 탭 연타만 (피하지 않음)
 ##   DODGE  : 예고를 보고 대시로 빠지고, 보스가 치지 않는 틈에 붙어 탭 연타
 ## 결과 사전: time, won, lost, damage, by (공격 종류별 받은 피해), boss_hp, phase, windups (보스 예고 시작 [시각, 종류]),
-## gaps (보스 타격 → 다음 예고 간격), max_minions (동시 부하 최대).
+## strikes (실제로 친 공격 종류 차례), gaps (보스 타격 → 다음 예고 간격), max_minions (동시 부하 최대).
 
 enum Bot { IDLE, TAP, DODGE }
 
@@ -92,7 +92,7 @@ func enemies() -> Array:
 ## limit초 동안 (또는 승패까지) 굴린다.
 func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 	var res := {"time": 0.0, "won": false, "lost": false, "damage": 0, "by": {}, "boss_hp": 0, "phase": 0,
-		"windups": [], "gaps": [], "max_minions": 0, "max_threats": 0}
+		"windups": [], "strikes": [], "gaps": [], "max_minions": 0, "max_threats": 0}
 	var t := 0.0
 	var tap_t := 0.0
 	var boss_state := EnemyAttack.State.READY
@@ -121,6 +121,7 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 				res["gaps"].append(snappedf(t - last_strike, 0.01))
 		if st == EnemyAttack.State.RECOVER and boss_state == EnemyAttack.State.WINDUP:
 			last_strike = t
+			res["strikes"].append(boss.attack.data.kind)
 		boss_state = st
 		var minions := list.size() - 1
 		res["max_minions"] = maxi(res["max_minions"], minions)

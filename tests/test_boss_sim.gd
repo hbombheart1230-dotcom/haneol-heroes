@@ -43,6 +43,11 @@ func test_tapping_without_dodging_loses() -> void:
 func test_dodging_and_punishing_wins() -> void:
 	var rs := _trials("dodge", BossSim.Bot.DODGE)
 	assert_int(_count(rs, "won")).is_equal(SEEDS.size())
+	for r: Dictionary in rs:
+		assert_float(r["time"]).is_between(35.0, 65.0)  # 목표 약 50초
+		var w: Array = r["strikes"]  # 끊긴 예고(경직)는 다시 낼 수 있다: 실제로 친 차례만 본다
+		for i in range(1, w.size()):
+			assert_int(w[i]).override_failure_message("same attack twice: %s" % str(w)).is_not_equal(w[i - 1])
 
 
 ## 접촉 피해 없이 예고 공격만 (보고용: 공격 박자가 받는 피해).
