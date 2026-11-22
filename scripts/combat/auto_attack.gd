@@ -58,6 +58,7 @@ func _ready() -> void:
 		data = player.hero.attack
 	if data == null:
 		data = BasicAttackData.new()
+	RangedFeel.attach(self)  # 원거리 한 발의 타격감 (scripts/fx/ranged_feel.gd)
 
 
 ## 사용 중인 수치 (테스트 등에서 _ready 전에 호출돼도 기본값을 준다).
