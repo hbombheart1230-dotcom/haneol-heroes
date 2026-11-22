@@ -91,7 +91,7 @@ func _all_attacks(d: EnemyData) -> Array:
 func test_commander_rhythm_data() -> void:
 	var ai := Enemy.ai_data()
 	for a: EnemyAttackData in _all_attacks(COMMANDER):
-		assert_float(a.windup).is_greater_equal(maxf(ai.min_windup, 0.8))  # 보스 예고 0.8초 이상 (메가이라 0.82~1.0)
+		assert_float(a.windup).is_greater_equal(maxf(ai.min_windup, 0.8))  # 보스 예고 0.8초 이상 (한 손 세로 화면에서 읽히는 길이)
 		if a.follow_up == null:
 			assert_float(a.recovery).is_greater_equal(0.9)  # 조합 끝·홑공격 뒤엔 반드시 때릴 틈
 			assert_float(maxf(a.cooldown, a.recovery)).is_greater_equal(1.6)  # 타격 → 다음 예고
