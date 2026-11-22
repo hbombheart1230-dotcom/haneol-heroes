@@ -14,10 +14,10 @@ extends Resource
 @export var lead: float = 0.1
 @export var follow: float = 0.06
 ## 꼬리 길이 (초): 머리가 지나간 뒤 이만큼 남았다 사라진다. 빠른 구간일수록 띠가 길다.
-@export var life: float = 0.12
+@export var life: float = 0.14
 ## 띠 바깥 반지름 = 사거리 × reach. 굵기(px)는 머리에서 가장 굵고 꼬리로 갈수록 가늘다.
-@export var reach: float = 1.0
-@export var width: float = 48.0
+@export var reach: float = 1.05
+@export var width: float = 72.0
 @export var step_widths: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.5])
 ## 꼬리 굵기 곡선 (1 = 일정하게 가늘어짐, 클수록 머리 쪽만 굵다).
 @export var taper: float = 1.3
@@ -27,10 +27,14 @@ extends Resource
 @export var squash: float = 0.85
 ## 띠 마디 수 (고정, 매 프레임 새 배열 없음).
 @export var segments: int = 14
-## 영웅색을 흰빛 쪽으로 섞는 비율 (어두운 바닥에서 보이게), 먹 외곽선 진하기·두께, 밝은 심 (바깥쪽 가장자리를 따라 가늘게).
-@export var lighten: float = 0.45
-@export var ink_alpha: float = 0.85
-@export var ink_px: float = 4.0
+## 색: 꼬리는 먹 → (ink_tail까지) 영웅색(흰빛 쪽으로 lighten만큼) → white_from부터 머리로 갈수록 흰빛(core_white).
+@export var lighten: float = 0.35
+@export var ink_tail: float = 0.45
+@export var white_from: float = 0.55
 @export var core_white: float = 0.9
-@export var core_alpha: float = 1.0
-@export var core_width: float = 0.3
+## 먹 외곽선 진하기·두께 (px).
+@export var ink_alpha: float = 0.8
+@export var ink_px: float = 4.0
+## 더하기 빛 한 겹: 진하기와 굵기 비율 (바깥 가장자리부터). 어두운 바닥에서 띠가 빛나 보이게.
+@export var glow_alpha: float = 0.8
+@export var glow_width: float = 0.7
