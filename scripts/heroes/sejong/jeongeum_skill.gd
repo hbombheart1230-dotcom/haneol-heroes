@@ -7,6 +7,8 @@ extends SkillDef
 @export var duration: float = 4.0
 @export var damage: int = 10
 @export var hit_interval: float = 0.5
+## 0보다 크면 펼쳐지는 순간 고리 안 적을 이만큼(px) 바깥으로 날린다 (큰 기술 = 크게 날림, EnemyLaunch).
+@export var launch_px: float = 0.0
 ## 고리 밑에 깔리는 정음 자모 그림 (함께 돈다).
 @export var ring_art: Texture2D
 @export_group("큰 변형 · 두 겹 고리")
@@ -15,6 +17,9 @@ extends SkillDef
 
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
+	if launch_px > 0.0:  # 글자 고리가 퍼지며 밀어낸다
+		for en in ctx.enemies_in_radius(ctx.player.global_position, radius):
+			ComboSteps.push_out(en, ctx.player.global_position, launch_px, 0.0)
 	_ring(ctx, radius, 3.2)
 	if outer_radius > 0.0:
 		_ring(ctx, outer_radius, -2.4)

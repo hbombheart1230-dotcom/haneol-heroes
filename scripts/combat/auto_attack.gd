@@ -58,6 +58,7 @@ func _ready() -> void:
 		data = player.hero.attack
 	if data == null:
 		data = BasicAttackData.new()
+	RangedFeel.attach(self)  # 원거리 한 발의 타격감 (scripts/fx/ranged_feel.gd)
 
 
 ## 사용 중인 수치 (테스트 등에서 _ready 전에 호출돼도 기본값을 준다).
@@ -98,7 +99,7 @@ func tick(delta: float, enemy_list: Array) -> void:
 	if _release_left >= 0.0:
 		_release_left -= delta
 		if _release_left < 0.0:
-			_release(enemy_list)
+			RangedShot.release(self, enemy_list)
 	var from := player.global_position
 	var nearest := Targeting.nearest(enemy_list, from, stats().ranged_range)
 	if nearest == null:
@@ -106,12 +107,12 @@ func tick(delta: float, enemy_list: Array) -> void:
 	var to_nearest := nearest.global_position - from
 	var d := stats()
 	var dist := to_nearest.length()
-	if dist <= d.melee_range:
+	if dist <= d.melee_range and d.use_melee:
 		_hold = 0.0
 		if _melee_cd <= 0.0:
 			_melee(from, to_nearest, enemy_list)
-	elif _ranged_cd <= 0.0:
-		if dist <= d.melee_range * d.engage_mult and _hold < d.engage_hold_max:
+	elif d.use_ranged and _ranged_cd <= 0.0:
+		if d.use_melee and dist <= d.melee_range * d.engage_mult and _hold < d.engage_hold_max:
 			_hold += delta  # 곧 붙는다: 원거리를 참고 칼을 기다린다
 			return
 		_hold = 0.0
@@ -121,6 +122,11 @@ func tick(delta: float, enemy_list: Array) -> void:
 ## 손 평타를 지금 낼 수 있는지: min_gap초가 지났고, 휘두르던 칼·손에 든 탄이 없다.
 func can_manual(min_gap: float) -> bool:
 	return player != null and not player.is_dead() and _since_manual >= min_gap and _melee_left < 0.0 		and _release_left < 0.0 and _since_strike >= stats().cancel_after  # 앞 타가 닿은 뒤에야 끊고 들어간다
+
+
+## 휘두른 칼이 아직 닿기 전인지 (대시로 끊기면 false).
+func swing_pending() -> bool:
+	return _melee_left >= 0.0
 
 
 ## 손 평타 (탭): 가장 가까운 적(원거리 사거리 안) 쪽으로, 없으면 바라보는 쪽으로 헛스윙.
@@ -140,6 +146,7 @@ func manual_strike(step: int, ranged: bool, enemy_list: Array = []) -> void:
 	else:
 		_step_in(to, list, step)
 		_melee(from, to, list, step)
+		player.slow_for(stats().swing_slow_time, stats().swing_move_mult)  # 휘두르는 동안 느리게 (M1)
 	last_manual = false
 
 
@@ -235,7 +242,7 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 			h.damage(dmg)
 		if en:
 			en.heavy_pending = false
-			en.apply_knockback((e.global_position - from).normalized() * kb)  # 피격 반응: 툭 밀려남 (타별 배율)
+			ComboSteps.push(en, from, kb, heavy, d)  # 피격 반응: 툭 밀려남 (타별 배율), 3타 크게 날리기 (있으면)
 			HitImpact.on_enemy(en, from, chain_step, d.swing_color)  # 닿는 자리 섬광·튐 줄기 (한 타 충격)
 	if not hits.is_empty():
 		HitImpact.on_swing(chain_step)  # 퍽 소리 (타마다 음높이) + 짧은 진동
@@ -261,7 +268,7 @@ func _fire(from: Vector2, dir: Vector2) -> void:
 		_release_data = d.duplicate()
 		_release_src = data
 		return
-	_spawn_step(from, dir, d)
+	RangedShot.spawn_step(self, from, dir, d)
 
 
 ## 이번 원거리 동작: 연타 2·3번이고 시트에 throw2·throw3가 있으면 그것, 아니면 ranged_anim.
@@ -270,21 +277,6 @@ func ranged_anim_now() -> String:
 	var sheet := player.hero.sprite_sheet if player and player.hero else null
 	var alt := "throw%d" % ranged_step
 	return alt if ranged_step >= 2 and sheet and sheet.has_anim(alt) else base
-
-
-## 원거리 연타 번호대로 탄 여러 개(퍼짐)·큰 글자 (세종: 하나 → 둘 → 큰 하나).
-func _spawn_step(from: Vector2, dir: Vector2, d: BasicAttackData) -> void:
-	var n := maxi(roundi(ComboSteps.at(d.ranged_step_count, _release_step, 1.0)), 1)
-	var k := ComboSteps.at(d.ranged_step_scale, _release_step, 1.0)
-	var dd := d
-	if not is_equal_approx(k, 1.0):
-		dd = d.duplicate()
-		dd.glyph_px = roundi(d.glyph_px * k)
-		dd.proj_size = d.proj_size * k
-		dd.ranged_damage = roundi(d.ranged_damage * k)
-	for i in n:
-		var off := (i - (n - 1) * 0.5) * deg_to_rad(d.ranged_step_spread)
-		_spawn(from, dir.rotated(off), dd)
 
 
 ## 손을 떠나기까지(초): 데이터, 음수면 시트 던지는 동작의 맞닿는 프레임 (근접 melee_delay와 같은 방식).
@@ -299,55 +291,6 @@ func release_delay() -> float:
 		return feel.release_delay_min
 	var i := sheet.anim_names.find(anim)
 	return AttackTiming.melee_delay(-1.0, sheet.strike_frame(anim), sheet.fps[i], feel.release_delay_min, feel.release_delay_max)
-
-
-## 손을 떠나는 순간: 가장 가까운 적으로 다시 겨눈다. 그사이 적이 다 사라졌으면 던지지 않는다.
-func _release(enemy_list: Array) -> void:
-	var d := _release_data
-	_release_data = null
-	if d == null or _release_src != data:  # 영웅·데이터가 바뀌었으면 손에 든 탄은 버린다
-		return
-	var from := player.global_position
-	var nearest: Node2D = null
-	var best := d.ranged_range * d.ranged_range
-	for n in enemy_list:  # 막 죽어 아직 지워지기 전인 적은 겨누지 않는다 (Codex 88d3160)
-		var node := n as Node2D
-		if node == null or not is_instance_valid(node) or node.is_queued_for_deletion():
-			continue
-		var h := node.get_node_or_null("Health") as Health
-		if h and not h.is_alive():
-			continue
-		var d2 := from.distance_squared_to(node.global_position)
-		if d2 <= best:
-			best = d2
-			nearest = node
-	if nearest == null:
-		return
-	var to := nearest.global_position - from
-	_spawn_step(from, to.normalized() if to.length_squared() > 1.0 else _release_dir, d)
-
-
-func _spawn(from: Vector2, dir: Vector2, d: BasicAttackData) -> void:
-	if projectile_scene == null:
-		return
-	var p := projectile_scene.instantiate() as Projectile
-	p.direction = dir
-	p.damage = d.ranged_damage
-	p.speed = d.ranged_speed
-	p.lifetime = d.ranged_lifetime
-	p.knockback = d.ranged_knockback
-	p.art = d.proj_art
-	p.art_size = d.proj_size
-	p.glyph_px = d.glyph_px
-	p.trail_color = d.proj_trail_color
-	p.trail_len = d.proj_trail_len
-	if d.ranged_glyphs != "":
-		p.glyph = d.ranged_glyphs[_glyph_i % d.ranged_glyphs.length()]
-		_glyph_i += 1
-	p.global_position = from + release_point(dir, d)  # 손·무기 끝에서
-	var parent := projectile_parent if projectile_parent else player.get_parent()
-	parent.add_child(p)
-	projectile_fired.emit(p)
 
 
 ## 탄이 나가는 자리 (영웅 기준 오프셋): 시트에 무기 끝이 기록돼 있으면 던지는 동작의 맞닿는 프레임에서

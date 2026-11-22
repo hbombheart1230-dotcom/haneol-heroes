@@ -39,8 +39,8 @@
       "key": "run",
       "match": "run|walk",
       "action_id": 21,
-      "frames": 6,
-      "fps": 10.0,
+      "frames": 8,
+      "fps": 5.0,
       "loop": true
     },
     {
@@ -50,9 +50,15 @@
       "frames": 6,
       "fps": 10.0,
       "loop": false,
-      "start": 0.9,
-      "end": 2.67,
-      "strike": 2.1
+      "strike": 2.35,
+      "times": [
+        0.9,
+        1.45,
+        1.75,
+        1.95,
+        2.35,
+        2.67
+      ]
     },
     {
       "key": "hit",
@@ -60,7 +66,12 @@
       "action_id": 178,
       "frames": 3,
       "fps": 12.0,
-      "loop": false
+      "loop": false,
+      "times": [
+        0.15,
+        0.35,
+        0.6
+      ]
     },
     {
       "key": "attack2",
@@ -69,9 +80,18 @@
       "frames": 6,
       "fps": 10.0,
       "loop": false,
-      "start": 0.1,
-      "end": 1.1,
-      "strike": 0.55
+      "strike": 0.6,
+      "reuse": {
+        "src": "Charged_Slash"
+      },
+      "times": [
+        0.0,
+        0.2,
+        0.39,
+        0.6,
+        0.9,
+        1.4
+      ]
     }
   ]
 }

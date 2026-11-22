@@ -77,13 +77,13 @@ func test_haeryong_cuts_in_sweep_order_with_same_damage() -> void:
 	var run := s.cast(ctx, 0.0)
 	assert_object(run).is_instanceof(SweepRun)
 	assert_int(front.health.current).is_equal(1000 - s.damage)  # 누르는 순간
-	assert_float(front.knockback.x).is_greater(0.0)
+	assert_float(front.knockback.x + (front.launch._dir.x if front.launch.active() else 0.0)).is_greater(0.0)
 	assert_int(back.health.current).is_equal(1000)  # 붓이 아직 안 왔다
 	assert_bool(run.finished).is_false()
 	_run(run, 1.0)
 	assert_bool(run.finished).is_true()
 	assert_int(back.health.current).is_equal(1000 - s.damage)
-	assert_float(back.knockback.x).is_less(0.0)
+	assert_float(back.knockback.x + (back.launch._dir.x if back.launch.active() else 0.0)).is_less(0.0)
 	assert_int(far.health.current).is_equal(1000)  # 범위 밖은 그대로
 	assert_int(run.hits).is_equal(2)
 	assert_float(s.vfx_impact.piece_sweep).is_less_equal(0.2)  # 휘감기가 반응을 늦추지 않게 짧게

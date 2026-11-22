@@ -96,6 +96,9 @@ static func pose(e: Enemy, shake_px: float) -> void:
 	if e.sprite.material:
 		var feel := Feedback.feel_data()
 		e.sprite.set_instance_shader_parameter(&"flash", r.flash_amount(e.flash_left(), feel.flash_time, feel.flash_peak_time) if r else 0.0)
+		if r:
+			e.sprite.set_instance_shader_parameter(&"flash_color", r.data.flash_body())
+			e.sprite.set_instance_shader_parameter(&"flash_rim", r.data.flash_rim())
 
 
 ## 피격 번쩍임 > 곧 친다는 번쩍임 > 원래 색. 매복 중이면 흐릿하게.

@@ -8,6 +8,8 @@ signal finished
 var data: TutorialData
 var index: int = 0
 var progress: float = 0.0
+## finished를 이미 알렸는지 (advanced 처리 안에서 다시 notify해 끝나도 한 번만).
+var _finished_sent := false
 
 
 func _init(d: TutorialData) -> void:
@@ -39,8 +41,7 @@ func notify(event: StringName, amount: float = 1.0) -> bool:
 	index += 1
 	progress = 0.0
 	advanced.emit(index)
-	if is_done():
-		finished.emit()
+	_send_finished()
 	return true
 
 
@@ -49,4 +50,10 @@ func skip() -> void:
 		return
 	index = data.steps.size()
 	progress = 0.0
-	finished.emit()
+	_send_finished()
+
+
+func _send_finished() -> void:
+	if is_done() and not _finished_sent:
+		_finished_sent = true
+		finished.emit()

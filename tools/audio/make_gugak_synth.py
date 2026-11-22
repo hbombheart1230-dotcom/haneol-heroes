@@ -1,14 +1,16 @@
 """기술 소리 층용 국악기 소리를 합성한다 (녹음 없음 → 라이선스 걱정 없음, 저장소가 만든 자산).
 
-  python tools/audio/make_gugak_synth.py
+  python tools/audio/make_gugak_synth.py [종류 ...]   (종류를 주면 그것만, 예: gugak_bang)
 결과: assets/audio/sfx/
   gugak_buk_<n>.ogg   북 (낮은 가죽 울림: 음높이가 떨어지는 사인 + 짧은 잡음 "둥")
   gugak_jing_<n>.ogg  징 (비조화 배음, 느린 감쇠, 살짝 올라가는 "웅")
   gugak_pyeon_<n>.ogg 편경 (돌 경쇠: 높은 비조화 배음, 맑게 짧게)
   gugak_gaya_<n>.ogg  가야금 (카플러스-스트롱 뜯음 + 뒤에 농현 떨림)
+  gugak_bang_<n>.ogg  방울 (작은 놋방울 여러 개를 흔든 "찰랑": 높은 비조화 배음이 짧게 몇 번)
 녹음된 국악기(공유마당 장구·꽹과리)는 tools/audio/cut_gugak.py. 이건 그 녹음이 없는 악기를 채우는 임시 소리다.
 """
 import os
+import sys
 
 import numpy as np
 import soundfile as sf
@@ -79,6 +81,21 @@ def gaya(f0: float) -> np.ndarray:
     return np.interp(idx, np.arange(n), out)
 
 
+def bang(f0: float, hits: int) -> np.ndarray:
+    t = t_axis(0.55)
+    out = np.zeros_like(t)
+    for h in range(hits):  # 방울 여러 개가 조금씩 어긋나 울린다
+        at = 0.035 * h + RNG.uniform(0.0, 0.012)
+        tt = np.clip(t - at, 0.0, None)
+        on = (t >= at).astype(float)
+        f = f0 * RNG.uniform(0.97, 1.04)
+        amp = 1.0 - 0.18 * h
+        for ratio, a, dec in [(1.0, 1.0, 0.16), (2.43, 0.55, 0.09), (3.91, 0.3, 0.06), (5.37, 0.15, 0.04)]:
+            out += on * amp * a * np.sin(2 * np.pi * f * ratio * tt) * np.exp(-tt / dec)
+    click = RNG.standard_normal(len(t)) * env(t, 0.0005, 0.003) * 0.2
+    return out * np.clip(t / 0.001, 0.0, 1.0) + click
+
+
 def finish(x: np.ndarray, gain: float) -> np.ndarray:
     x = x / (np.abs(x).max() + 1e-9) * gain
     fade = min(len(x), int(0.04 * RATE))
@@ -91,13 +108,17 @@ JOBS = {
     "gugak_jing": [lambda: jing(196.0)],
     "gugak_pyeon": [lambda: pyeon(784.0), lambda: pyeon(880.0)],
     "gugak_gaya": [lambda: gaya(293.7), lambda: gaya(392.0)],
+    "gugak_bang": [lambda: bang(2350.0, 3), lambda: bang(2640.0, 4)],
 }
-GAIN = {"gugak_buk": 0.95, "gugak_jing": 0.85, "gugak_pyeon": 0.7, "gugak_gaya": 0.8}
+GAIN = {"gugak_buk": 0.95, "gugak_jing": 0.85, "gugak_pyeon": 0.7, "gugak_gaya": 0.8, "gugak_bang": 0.6}
 
 
 def main() -> None:
     os.makedirs(OUT, exist_ok=True)
+    only = set(sys.argv[1:])
     for kind, makers in JOBS.items():
+        if only and kind not in only:
+            continue
         for n, make in enumerate(makers, 1):
             path = os.path.join(OUT, f"{kind}_{n}.ogg")
             sf.write(path, finish(make(), GAIN[kind]), RATE, format="OGG", subtype="VORBIS")

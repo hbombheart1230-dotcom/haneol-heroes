@@ -52,7 +52,8 @@ static func assist_dir(nodes: Array, from: Vector2, facing: Vector2, cone_deg: f
 static func in_arc(nodes: Array, from: Vector2, facing: Vector2, radius: float, arc_degrees: float) -> Array[Node2D]:
 	var out: Array[Node2D] = []
 	var dir := facing.normalized() if facing.length_squared() > 0.0001 else Vector2.DOWN
-	var cos_half := cos(deg_to_rad(arc_degrees * 0.5))
+	# 360° 이상은 둘레 전체: cos(>180°)는 -1보다 커져 바로 뒤의 적을 놓친다.
+	var cos_half := -2.0 if arc_degrees >= 360.0 else cos(deg_to_rad(arc_degrees * 0.5))
 	for n in nodes:
 		var node := n as Node2D
 		if node == null or not is_instance_valid(node):

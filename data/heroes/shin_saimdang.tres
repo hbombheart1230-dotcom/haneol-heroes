@@ -32,10 +32,17 @@
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
-melee_interval = 0.6
-melee_range = 120.0
-melee_arc_degrees = 170.0
-melee_damage = 10
+melee_interval = 0.66
+melee_range = 230.0
+melee_damage = 11
+heavy_launch_px = 110.0
+use_ranged = false
+melee_arc_degrees = 110.0
+step_arc_mults = PackedFloat32Array(1.0, 0.4, 3.3)
+step_range_mults = PackedFloat32Array(1.0, 1.13, 1.0)
+step_in_px = PackedFloat32Array(4, 8, 0)
+lunge_px = PackedFloat32Array(8, 12, 6)
+step_gap_mults = PackedFloat32Array(0.909, 0.606, 0.636)
 melee_knockback = 100.0
 swing_color = Color(0.62, 0.2, 0.7, 0.95)
 melee_recoil = 3.0
@@ -138,6 +145,7 @@ full_charge_time = 1.0
 [resource]
 script = ExtResource("1_hero")
 id = &"shin_saimdang"
+impact_style = 4
 story = ExtResource("story")
 home_stage = &"chochungdo"
 display_name = "사임당"

@@ -33,6 +33,10 @@ var _lunge := Vector2.ZERO
 var _lunge_t := 0.0
 var _lunge_out := 0.07
 var _lunge_back := 0.2
+## 지금 그림 내딛기 위치와 이번 타가 시작한 위치 (연타 동안 유지, lunge_hold_combo).
+var _lunge_now := Vector2.ZERO
+var _lunge_from := Vector2.ZERO
+var _blend: AnimBlend
 var _had_input: bool = false
 var _attack: AutoAttack
 ## 기술 시전 동작: 시작 칸·재생 속도 (CastAnim), 충전 중 모으는 자세를 붙잡는지.
@@ -40,6 +44,7 @@ var _oneshot_from: int = 0
 var _oneshot_speed: float = 1.0
 var _caster: SkillCaster
 var _posing: bool = false
+var _over_hurt: bool = false
 
 
 func _ready() -> void:
@@ -58,6 +63,9 @@ func refresh() -> void:
 		if _sprite:
 			_sprite.queue_free()
 			_sprite = null
+		if _blend:  # 겹침 그림도 같이 (반쯤 흐린 채 남지 않게, 다시 만들 때 둘이 되지 않게)
+			_blend.queue_free()
+			_blend = null
 		_sheet = null
 		return
 	if _sprite == null:
@@ -75,6 +83,8 @@ func _setup_sprite(h: HeroData) -> void:
 	_sprite.sprite_frames = _sheet.build_sprite_frames()
 	_sprite.scale = Vector2.ONE * h.sprite_scale
 	_sprite.position = h.sprite_offset
+	_blend = AnimBlend.new()
+	add_child(_blend)  # 스프라이트 뒤: 앞 자세가 새 자세 밖으로만 잠깐 남는다
 	add_child(_sprite)
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
 	_attack = attack
@@ -102,7 +112,7 @@ func _on_skill_started(_slot: SkillCaster.Slot, def: SkillDef) -> void:
 ## 자동 공격 동작은 서 있을 때만. 달리는 중엔 다리를 멈추지 않고 검기 이펙트만 보인다
 ## (0.55초마다 달리기가 끊겨 끊겨 보이던 원인).
 func _on_auto_swing(_d: Vector2, _h: int) -> void:
-	if not is_moving():
+	if not is_moving() or (_attack and _attack.last_manual):  # 손으로 친 타는 움직이는 중에도 보인다 (M1)
 		var anim := _attack.chain_anim() if _attack else "attack"  # 연계 2·3타 동작 (B4)
 		play_oneshot(anim, anim_seconds(anim, 0.35))
 		var pause := _attack.step_pause() if _attack else 0.0
@@ -110,6 +120,7 @@ func _on_auto_swing(_d: Vector2, _h: int) -> void:
 			_hitstop_left = maxf(_hitstop_left, pause)
 		var st := _attack.stats() if _attack else null
 		if st and _d.length_squared() > 0.0001:  # 내딛는 그림: 모으기가 끝난 뒤 치는 쪽으로
+			_lunge_from = _lunge_now
 			_lunge = _d.normalized() * ComboSteps.at(st.lunge_px, _attack.chain_step, 0.0)
 			_lunge_t = -pause
 			_lunge_out = st.lunge_out
@@ -157,6 +168,7 @@ func play_oneshot(anim: String, seconds: float) -> void:
 	_hold_left = 0.0
 	_oneshot_from = 0
 	_oneshot_speed = 1.0
+	_over_hurt = player != null and player.hurt_time_left() > 0.0
 	_restart = true  # 같은 이름 동작이 연달아 와도 처음부터
 
 
@@ -167,7 +179,7 @@ func current_anim() -> String:
 		return "death"
 	if player.is_dashing():
 		return "dash"
-	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time:
+	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time 			and not (_oneshot_left > 0.0 and _over_hurt):  # 맞는 중에 친 타는 보인다
 		return "hit"
 	if _oneshot_left > 0.0:
 		return _oneshot
@@ -204,13 +216,18 @@ func _update_sprite(delta: float) -> void:
 	_dir = _sheet.dir_index_sticky(player.facing, _dir, Feedback.feel_data().dir_margin_deg)
 	var dir := _dir
 	var anim_name := StringName("%s_%d" % [available_anim(current_anim()), dir])
+	var feel := Feedback.feel_data()
+	_blend.tick(delta)
 	if _restart and current_anim() == _oneshot:
 		_restart = false
+		_blend.snapshot(_sprite, feel.anim_blend_time, feel.anim_blend_alpha)
 		_sprite.play(anim_name)
 		_sprite.frame = mini(_oneshot_from, _sprite.sprite_frames.get_frame_count(anim_name) - 1)
 	elif _sprite.animation != anim_name:
 		var frame := _sprite.frame
-		var same_anim := String(_sprite.animation).get_slice("_", 0) == String(anim_name).get_slice("_", 0)
+		var same_anim := _base(_sprite.animation) == _base(anim_name)
+		if not same_anim:
+			_blend.snapshot(_sprite, feel.anim_blend_time, feel.anim_blend_alpha)
 		_sprite.play(anim_name)
 		if same_anim:  # 방향만 바뀌면 프레임 이어서
 			_sprite.frame = mini(frame, _sprite.sprite_frames.get_frame_count(anim_name) - 1)
@@ -230,26 +247,18 @@ func _update_sprite(delta: float) -> void:
 	if _hitstop_left > 0.0 and current_anim() == _oneshot:
 		_sprite.speed_scale = 0.0
 	if player.hero:
-		_pose(delta)
+		PlayerPose.tick(self, delta)
 
 
 ## 대시 착지 (무게감): 발 기준 눌림, 그림 잠깐 멈칫, 발밑 먹 튐, 무거운 영웅은 흔들림·화면 밀림.
 func on_land() -> void:
-	var h := player.hero if player else null
-	if h == null:
-		return
-	_land_left = h.land_time
-	_land_hold_left = h.land_hold
-	var fb := Feedback.instance
-	if fb == null:
-		return
-	var dir := player.get_dash_direction()
-	if fb.kill_fx and h.land_drops > 0:
-		fb.kill_fx.drops(player.global_position, dir, h.land_drops)
-	if h.land_trauma > 0.0:
-		fb.add_trauma(ImpactFx.capped_trauma(fb.trauma, h.land_trauma, fb.feel.impact_data().trauma_cap), dir)
-	if h.land_kick_px > 0.0:
-		fb.kick(dir, h.land_kick_px)
+	PlayerPose.land(self)
+
+
+## 방향 번호를 뗀 동작 이름 ("cast_tap_3" → "cast_tap").
+static func _base(n: StringName) -> String:
+	var s := String(n)
+	return s.substr(0, s.rfind("_"))
 
 
 ## 내딛기 곡선 (순수 계산): 0 → out초에 1(빠르게 나감) → back초에 걸쳐 0. 음수 시간(모으는 중)은 0.
@@ -259,33 +268,6 @@ static func lunge_curve(t: float, out: float, back: float) -> float:
 	if t < out:
 		return 1.0 - pow(1.0 - t / maxf(out, 0.001), 2.0)
 	return clampf(1.0 - (t - out) / maxf(back, 0.001), 0.0, 1.0)
-
-
-## 그림 자세 (무게감, 판정·이동은 그대로): 착지 눌림 + 멈출 때 앞쏠림. 발(원점)은 제자리.
-func _pose(delta: float) -> void:
-	var h := player.hero
-	_land_left = maxf(_land_left - delta, 0.0)
-	_land_hold_left = maxf(_land_hold_left - delta, 0.0)
-	var has_input := player.move_input.length() > 0.1
-	var v := player.walk_velocity()
-	if _had_input and not has_input and v.length() > player.move_speed * 0.5 and h.stop_slide_time > 0.0:
-		_slide_left = h.stop_slide_time
-		_slide_dir = v.normalized()
-	_had_input = has_input
-	_slide_left = maxf(_slide_left - delta, 0.0)
-	var k := _land_left / maxf(h.land_time, 0.001)
-	var sq := Vector2.ONE.lerp(h.land_squash, k * k)
-	_sprite.scale = Vector2.ONE * h.sprite_scale * sq
-	var lean := _slide_dir * h.stop_slide_px * sin(PI * (1.0 - _slide_left / maxf(h.stop_slide_time, 0.001))) 		if _slide_left > 0.0 else Vector2.ZERO
-	_sprite.position = Vector2(h.sprite_offset.x, h.sprite_offset.y * sq.y) + lean
-	if _lunge != Vector2.ZERO:
-		_lunge_t += delta
-		var k2 := lunge_curve(_lunge_t, _lunge_out, _lunge_back)
-		_sprite.position += _lunge * k2
-		if _lunge_t >= _lunge_out + _lunge_back or is_moving():
-			_lunge = Vector2.ZERO
-	if _land_hold_left > 0.0:
-		_sprite.speed_scale = 0.0
 
 
 ## 피격 표시 (R3): 맞은 순간 붉게, 무적 동안 깜빡임 (대시 중에는 대시 색 그대로).

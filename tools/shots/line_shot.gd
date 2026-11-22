@@ -15,12 +15,7 @@ func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	var hero: HeroData = load("res://data/heroes/%s.tres" % args[0])
 	var st: StageTheme = load("res://data/stages/%s.tres" % STAGE[args[0]])
-	var bg := Sprite2D.new()
-	bg.texture = load(st.background_path)
-	bg.centered = false
-	bg.region_enabled = true
-	bg.region_rect = Rect2(bg.texture.get_size() * 0.5 - Vector2(360, 640), Vector2(720, 1280))
-	root.add_child(bg)
+	ShotStage.backdrop(self, st)  # 실제 바닥 (floor_grade·빛 웅덩이·비네트·무대 확대)
 	var fx := FxLayer.new()
 	root.add_child(fx)
 	fx.set_process(false)

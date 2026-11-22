@@ -117,3 +117,16 @@ func test_bake_name_normalisation_matches_import_renames() -> void:
 func test_bake_root_lock_returns_to_rest_horizontally_keeps_height() -> void:
 	var bake := preload("res://tools/bake/bake_sprites.gd")
 	assert_vector(bake.locked_root_position(Vector3(3, 0, 4), Vector3(9, 5, 7))).is_equal(Vector3(3, 5, 4))
+
+
+## 넘어질 수 없는 적(슈퍼아머·정예·보스)은 넘어짐 시트를 싣지 않는다 (APK 용량: 보이지 않는 그림).
+func test_unfallable_enemies_ship_no_down_sheet() -> void:
+	for file in DirAccess.get_files_at("res://data/enemies"):
+		if not file.ends_with(".tres"):
+			continue
+		var d := load("res://data/enemies/" + file) as EnemyData
+		if d == null or d.sprite_sheet == null:
+			continue
+		var falls := HitReaction.tier_of(d, false) == HitReaction.Tier.TRASH and not d.super_armor
+		if not falls:
+			assert_bool(d.sprite_sheet.has_anim("down")).override_failure_message(file + " never falls but has a down sheet").is_false()

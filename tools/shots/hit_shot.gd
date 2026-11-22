@@ -14,12 +14,7 @@ func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	var data: EnemyData = load("res://data/enemies/%s.tres" % args[0])
 	var st: StageTheme = load("res://data/stages/manchuria_395.tres")
-	var bg := Sprite2D.new()
-	bg.texture = load(st.background_path)
-	bg.centered = false
-	bg.region_enabled = true
-	bg.region_rect = Rect2(bg.texture.get_size() * 0.5 - Vector2(360, 640), Vector2(720, 1280))
-	root.add_child(bg)
+	ShotStage.backdrop(self, st)  # 실제 바닥 (floor_grade·빛 웅덩이·비네트·무대 확대)
 	var target := Node2D.new()
 	root.add_child(target)
 	target.position = Vector2(360, 1200)

@@ -19,6 +19,8 @@ const AI := preload("res://data/enemies/enemy_ai.tres")
 @export var separation_strength: float = 0.6
 @export var body_radius: float = 20.0
 
+## 0 이상이면 AI 버릇(우회 방향·뜀 등)의 씨앗 (보통 -1 = 인스턴스 id).
+var ai_seed: int = -1
 var target: Node2D
 @onready var health: Health = $Health
 
@@ -29,6 +31,7 @@ var sprite: AnimatedSprite2D
 var attack: EnemyAttack
 ## 넉백 속도 (매 프레임 감쇠).
 var knockback: Vector2 = Vector2.ZERO
+var launch := EnemyLaunch.new()  # 큰 기술의 크게 날리기 (정해진 곡선)
 var _stun_left: float = 0.0
 ## 장애물 돌아가기: 남은 시간, 부딪힌 면의 법선, 정면일 때 도는 쪽 (적마다 고정).
 var _detour_left: float = 0.0
@@ -70,6 +73,11 @@ var phase_invuln: float = 0.0
 
 static func ai_data() -> EnemyAIData:
 	return AI
+
+
+## AI 버릇 씨앗: ai_seed(0 이상)이 있으면 그것, 없으면 인스턴스 id (헤드리스 시뮬레이션이 실행마다 같게).
+func _seed_id() -> int:
+	return ai_seed if ai_seed >= 0 else get_instance_id()
 
 
 func apply_knockback(impulse: Vector2) -> void:
@@ -117,7 +125,7 @@ func speed_scale() -> float:
 
 
 func _ready() -> void:
-	_detour_side = 1.0 if get_instance_id() % 2 == 0 else -1.0
+	_detour_side = 1.0 if _seed_id() % 2 == 0 else -1.0
 	if data:
 		move_speed = data.move_speed
 		contact_damage = data.contact_damage
@@ -133,11 +141,11 @@ func _ready() -> void:
 			attack.set_patterns(pats)
 		elif atk:
 			# 첫 공격 시점을 흩어 놓아 한꺼번에 예고하지 않게 한다.
-			attack = EnemyAttack.new(atk, randf_range(0.3, 1.5))
+			attack = EnemyAttack.new(atk, EnemyAttack.first_wait(ai_seed))
 		if attack:
 			attack.ai = AI
 		var melee := data.preferred_range <= 0.0 and not data.is_boss and not data.is_elite
-		brain = EnemyBrain.new(AI, beh, get_instance_id(), melee)
+		brain = EnemyBrain.new(AI, beh, _seed_id(), melee)
 		if has_meta(&"sweep"):  # 휩쓸기 무리: 한쪽으로 곧장 지나간다
 			brain.sweep_dir = get_meta(&"sweep")
 			brain.sweep_left = AI.wall_time
@@ -153,37 +161,9 @@ func _ready() -> void:
 	health.died.connect(_on_died)
 
 
-## 이번 프레임 이동 속도. neighbors는 분리 계산용 주변 적 목록.
+## 이번 프레임 이동 속도. neighbors는 분리 계산용 주변 적 목록 (EnemySteer).
 func compute_velocity(neighbors: Array) -> Vector2:
-	if target == null or not is_instance_valid(target) or health.is_dead():
-		return Vector2.ZERO
-	var to_target := target.global_position - global_position
-	var dir := to_target.normalized() if to_target.length_squared() > 1.0 else Vector2.ZERO
-	var speed_k := 1.0
-	# 거리 유지형(궁수): 너무 가까우면 물러나고, 적당하면 멈춘다.
-	if data and data.preferred_range > 0.0:
-		var d := to_target.length()
-		if d < data.preferred_range - 40.0:
-			dir = -dir
-		elif d <= data.preferred_range + 40.0:
-			dir = Vector2.ZERO
-	if brain:
-		dir = brain.steer(dir, to_target.length())
-		speed_k = brain.speed_k
-		if brain.sweep_left <= 0.0 and AI.stand_off_band > 0.0:
-			var stop: float = body_radius * size_mult + ((target as Player).body_radius if target is Player else 22.0) \
-				+ AI.stand_off_margin + (data.reach_px if data else 0.0)
-			dir = EnemyBrain.stand_off(dir, to_target.normalized(), to_target.length(), stop, AI.stand_off_band)
-	var push := Vector2.ZERO
-	for n in neighbors:
-		var other := n as Node2D
-		if other == null or other == self or not is_instance_valid(other):
-			continue
-		var off := global_position - other.global_position
-		var d := off.length()
-		if d > 0.001 and d < separation_radius:
-			push += off / d * (1.0 - d / separation_radius)
-	return (dir + push * separation_strength).limit_length(1.0) * move_speed * speed_scale() * speed_k
+	return EnemySteer.chase(self, neighbors)
 
 
 ## 맞은 적만 seconds초 멈추고 떨린다 (Smash식 개별 히트스톱). 더 긴 쪽 유지.
@@ -240,50 +220,39 @@ func _physics_process(delta: float) -> void:
 			queue_redraw()
 			if brain:
 				brain.revealed = true  # 숨은 채로 치지 않는다 (예고는 늘 보이게, Codex de7556d)
-	var chase := _busy_velocity() if busy else compute_velocity(get_tree().get_nodes_in_group(GROUP))
+	var chase := EnemySteer.busy(self) if busy else compute_velocity(get_tree().get_nodes_in_group(GROUP))
 	if brain:
 		brain.tick_sweep(delta)
-		var hop := brain.tick_hop(delta, _dir_to_target(), busy)
+		var hop := brain.tick_hop(delta, EnemySteer.dir_to_target(self), busy)
 		if hop != Vector2.ZERO:
 			chase = hop
 		_update_damage_mult()
 	if _detour_left > 0.0:
 		_detour_left -= delta
 		chase = Obstacles.steer_around(chase, _detour_normal, _detour_side)
-	if reaction and reaction.is_staggered():
-		chase = Vector2.ZERO  # 잡몹 경직: 넉백만 (공격 예고는 그대로 흘러 공격권을 붙잡지 않는다)
-	velocity = chase + knockback
+	if (reaction and reaction.is_staggered()) or launch.active():
+		chase = Vector2.ZERO  # 잡몹 경직·날아가는 중: 밀림만 (공격 예고는 그대로 흘러 공격권을 붙잡지 않는다)
+	velocity = chase + knockback + launch.tick(delta)
 	if sprite:
 		EnemySprite.update(self, busy)
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
 	move_and_slide()
-	_note_obstacle()
+	EnemySteer.note_obstacle(self)
 	if _flash > 0.0:
 		_flash = maxf(_flash - delta, 0.0)
 		queue_redraw()
 
 
-## 기절: 쫓지도 치지도 않고 넉백만 받는다.
+## 기절·넘어짐: 쫓지도 치지도 않고 넉백·크게 날리기만 받는다 (기절시키는 큰 기술도 바로 날아간다).
 func _drift(delta: float) -> void:
 	_update_damage_mult()
-	velocity = knockback
+	velocity = knockback + launch.tick(delta)
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
 	move_and_slide()
 	_flash = maxf(_flash - delta, 0.0)
 	if sprite:
 		EnemySprite.update(self, false)
 	queue_redraw()
-
-
-## 장애물에 부딪혔으면 잠시 가장자리를 따라 돈다 (길 찾기 없이 직진하는 적이 끼지 않게).
-func _note_obstacle() -> void:
-	for i in get_slide_collision_count():
-		var col := get_slide_collision(i)
-		var body := col.get_collider() as Node
-		if body and body.is_in_group(Obstacles.GROUP):
-			_detour_normal = col.get_normal()
-			_detour_left = 0.4
-			return
 
 
 func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc: int, _mul: float, applied: int) -> void:
@@ -309,27 +278,13 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 	queue_redraw()
 
 
-## 공격 중 움직임 (물러나며 쏘기만, 나머지는 제자리).
-func _busy_velocity() -> Vector2:
-	if brain == null:
-		return Vector2.ZERO
-	return brain.busy_dir(attack, _dir_to_target()) * move_speed * speed_scale()
-
-
-func _dir_to_target() -> Vector2:
-	if target == null or not is_instance_valid(target):
-		return Vector2.ZERO
-	var d := target.global_position - global_position
-	return d.normalized() if d.length_squared() > 1.0 else Vector2.ZERO
-
-
 ## 받는 피해 배율 (경직 처벌 × 정면 방패 × 변종 × 반격·뒤치기)을 체력 애드온의 modifier로. 바뀔 때만 새로 만든다.
 func _update_damage_mult() -> void:
 	if brain == null:
 		return
-	var facing := attack.aim_dir if attack and attack.is_busy() else _dir_to_target()
+	var facing := attack.aim_dir if attack and attack.is_busy() else EnemySteer.dir_to_target(self)
 	_bonus = EnemyHits.bonus_flags(self)
-	var m := brain.damage_mult(attack, facing, _dir_to_target(), affix.damage_taken_mult if affix else 1.0) 		* HitBonus.mult(_bonus, EnemyHits.impact()) * (0.0 if phase_invuln > 0.0 else 1.0)
+	var m := brain.damage_mult(attack, facing, EnemySteer.dir_to_target(self), affix.damage_taken_mult if affix else 1.0) 		* HitBonus.mult(_bonus, EnemyHits.impact()) * (0.0 if phase_invuln > 0.0 else 1.0)
 	if is_equal_approx(m, _damage_mult):
 		return
 	_damage_mult = m

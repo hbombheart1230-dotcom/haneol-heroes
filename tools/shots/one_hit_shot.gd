@@ -1,7 +1,7 @@
 extends SceneTree
 ## 한 타 충격 확인용 프레임 띠: 실제 main 장면 (순신 · 한산)에 왜군 병사를 세우고 1타 / 1·2·3타 / 해룡참을 낸 뒤
 ## 영웅 둘레를 프레임마다 잘라 한 장에 늘어놓는다 (왼쪽 위 → 오른쪽 아래, 칸마다 경과 ms).
-## godot --path . --resolution 720x1280 -s res://tools/shots/one_hit_shot.gd -- <hit1|combo|haeryong> <출력 png>
+## godot --path . --resolution 720x1280 -s res://tools/shots/one_hit_shot.gd -- <hit1|combo|haeryong> <출력 png> [맞은 몸 색 0·1·2]
 
 const FRAMES := 18
 const EVERY := 2
@@ -26,6 +26,8 @@ func _run() -> void:
 	GameSettings.hero_picked = true
 	GameSettings.opening_seen = true
 	GameSettings.story_enabled = false
+	if args.size() > 2:  # 맞은 순간 몸 색 비교안 (0 흰색 · 1 붉은 실루엣 · 2 먹빛 + 인주 테두리)
+		Feedback.feel_data().reaction_data().hit_flash_style = int(args[2])
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	for i in 10:

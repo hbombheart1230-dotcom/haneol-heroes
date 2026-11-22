@@ -36,12 +36,7 @@ func _run() -> void:
 	elif def.get_script().get_global_name() in FIT:
 		r = float(def.get("radius"))
 	var st: StageTheme = load("res://data/stages/%s.tres" % STAGE[args[0]])
-	var bg := Sprite2D.new()
-	bg.texture = load(st.background_path)
-	bg.position = Vector2(360, 640)
-	var ts := bg.texture.get_size()
-	bg.scale = Vector2.ONE * maxf(720.0 / ts.x, 1280.0 / ts.y)  # 화면을 다 덮게
-	root.add_child(bg)
+	ShotStage.backdrop(self, st)  # 실제 바닥 (floor_grade·빛 웅덩이·비네트·무대 확대)
 	var center := Vector2(360, 700)
 	var en: EnemyData = load("res://data/enemies/%s.tres" % ENEMY[args[0]])
 	for i in 6:

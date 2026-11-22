@@ -120,7 +120,7 @@ func _sweep_done(hits: int) -> void:
 	defer_stop = false
 	var f := Feedback.feel_data()
 	if was and hits > 0 and hit_stop_enabled and player and player.is_inside_tree():
-		GameTime.stop(player.get_tree(), f.skill_stop_cap * clampf(f.sweep_final_stop, 0.0, 1.0), f.skill_stop_scale)
+		GameTime.stop(player.get_tree(), f.skill_stop_cap * clampf(f.sweep_final_stop, 0.0, 1.0), f.sweep_final_scale)
 
 
 ## 직선 기술 경로 a→b에 그림 띠 (vfx_impact.strip). 띠가 없으면 아무것도 안 한다.

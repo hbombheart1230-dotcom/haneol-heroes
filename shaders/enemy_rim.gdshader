@@ -25,6 +25,9 @@ uniform float ghost_rim_mix = 1.0;
 uniform float halo_alpha = 0.0;
 // 피격 흰 번쩍임 (적마다 다름 → instance uniform, EnemySprite가 매 프레임 넣는다). 0이면 원래 색, 1이면 흰색.
 instance uniform float flash = 0.0;
+// 맞은 순간 몸을 덮는 색 (기본 흰색)과 테두리 색 (알파 0이면 테두리는 그대로). HitReactionData.hit_flash_style.
+instance uniform vec4 flash_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+instance uniform vec4 flash_rim : source_color = vec4(0.0, 0.0, 0.0, 0.0);
 
 // 노드 modulate (피격 번쩍임 등). fragment의 COLOR는 텍스처가 이미 곱해져 있을 수 있어 vertex에서 따로 받는다.
 varying vec4 node_color;
@@ -71,7 +74,7 @@ void fragment() {
 	float halo = clamp(far * 0.5, 0.0, 1.0) * (1.0 - tex.a) * (1.0 - outside) * halo_alpha;
 	vec3 body = (tex.rgb - 0.5) * body_contrast + 0.5 + body_lift;
 	body = mix(body, body * army_tint.rgb * 1.25, tint_mix);
-	body = mix(body, vec3(1.0), clamp(flash, 0.0, 1.0));
+	body = mix(body, flash_color.rgb, clamp(flash, 0.0, 1.0));
 	float g = ghost_color.a;
 	float y = (UV.y - lo.y) / max(hi.y - lo.y, 1e-5);  // 칸 안 세로 위치 (0 위, 1 아래)
 	float foot = smoothstep(1.0 - ghost_fade - 0.12, 1.0, y) * g;  // 발쪽일수록 1
@@ -82,6 +85,9 @@ void fragment() {
 	// 망령이면 테두리 색을 망령 색 쪽으로 반쯤 섞고 일렁이게 (진하기는 rim_color 그대로 → 어두운 바닥에서도 보인다)
 	vec3 rim_rgb = mix(rim_color.rgb, ghost_color.rgb, g * ghost_rim_mix);
 	float rim_a = rim_color.a * mix(1.0, wave, g);
+	float fr = clamp(flash, 0.0, 1.0) * flash_rim.a;  // 맞은 순간 테두리 (먹 실루엣 + 인주색 테두리 안)
+	rim_rgb = mix(rim_rgb, flash_rim.rgb, fr);
+	rim_a = max(rim_a, fr);
 	vec4 rim = vec4(rim_rgb, max(rim_a * outside, rim_color.a * halo) * node_color.a);
 	// 몸 위에 테두리를 깔고 (몸이 있는 곳은 몸이 이긴다)
 	COLOR = mix(rim, col, a);

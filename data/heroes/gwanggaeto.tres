@@ -29,10 +29,12 @@
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
-melee_interval = 0.8
+melee_interval = 0.76
 melee_range = 175.0
 melee_arc_degrees = 100.0
-melee_damage = 22
+melee_damage = 21
+use_ranged = false
+step_gap_mults = PackedFloat32Array(0.921, 0.592, 0.658)
 melee_knockback = 220.0
 swing_color = Color(0.95, 0.55, 0.1, 0.95)
 melee_recoil = 6.0
@@ -56,6 +58,7 @@ melee_hit_sfx = &"w_spear"
 heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_quake"]
 script = ExtResource("4_quake")
+launch_px = 110.0
 icon = ExtResource("i_quake")
 id = &"quake"
 display_name = "뇌진격"
@@ -111,6 +114,7 @@ cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_conq"]
 script = ExtResource("7_conq")
+launch_px = 120.0
 icon = ExtResource("i_conqueror")
 id = &"conqueror"
 display_name = "정복자의 일격"
@@ -143,6 +147,7 @@ full_charge_time = 1.1
 [resource]
 script = ExtResource("1_hero")
 id = &"gwanggaeto"
+impact_style = 2
 story = ExtResource("story")
 home_stage = &"manchuria_395"
 display_name = "광개토"

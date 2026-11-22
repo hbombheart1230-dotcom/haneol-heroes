@@ -7,31 +7,61 @@
 [ext_resource type="Resource" path="res://data/enemies/waegun_soldier.tres" id="5_soldier"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_gunner.tres" id="6_gunner"]
 [ext_resource type="Texture2D" path="res://assets/vfx/boss_phase_seal.png" id="art_boss_phase_seal_1"]
+[ext_resource type="Script" path="res://scripts/data/boss_feel_data.gd" id="7_feel"]
+
+[sub_resource type="Resource" id="Boss_charge_follow"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"run"
+trigger_range = 300.0
+windup = 0.9
+length = 460.0
+width = 110.0
+miss_overshoot = 60.0
+miss_recovery = 1.7
+damage = 25
+cooldown = 2.0
+recovery = 1.4
+bypass_cap = true
+
+[sub_resource type="Resource" id="Boss_shock_follow"]
+script = ExtResource("2_attack")
+kind = 2
+anim = &"attack"
+trigger_range = 260.0
+windup = 0.9
+radius = 250.0
+damage = 20
+cooldown = 2.0
+recovery = 1.3
+bypass_cap = true
 
 [sub_resource type="Resource" id="Boss_cone"]
 script = ExtResource("2_attack")
 kind = 3
 anim = &"attack2"
 trigger_range = 220.0
-windup = 0.8
+windup = 0.85
 radius = 240.0
 angle_degrees = 110.0
 damage = 20
-cooldown = 0.6
-recovery = 0.5
+cooldown = 1.6
+recovery = 0.9
 bypass_cap = true
 
 [sub_resource type="Resource" id="Boss_charge"]
 script = ExtResource("2_attack")
 kind = 4
 anim = &"run"
-trigger_range = 520.0
+trigger_range = 300.0
 windup = 0.9
 length = 460.0
 width = 110.0
+miss_overshoot = 60.0
+miss_recovery = 1.5
 damage = 25
-cooldown = 0.6
-recovery = 0.7
+cooldown = 1.8
+recovery = 1.1
 bypass_cap = true
 
 [sub_resource type="Resource" id="Boss_shockwave"]
@@ -42,28 +72,61 @@ trigger_range = 260.0
 windup = 1.0
 radius = 250.0
 damage = 20
-cooldown = 0.6
-recovery = 0.8
+cooldown = 1.7
+recovery = 0.9
 bypass_cap = true
+
+[sub_resource type="Resource" id="Boss_cone_combo"]
+script = ExtResource("2_attack")
+kind = 3
+anim = &"attack2"
+trigger_range = 220.0
+windup = 0.85
+radius = 240.0
+angle_degrees = 110.0
+damage = 20
+cooldown = 1.6
+recovery = 0.35
+bypass_cap = true
+follow_up = SubResource("Boss_charge_follow")
+follow_gap = 0.35
+
+[sub_resource type="Resource" id="Boss_charge_combo"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"run"
+trigger_range = 300.0
+windup = 0.9
+length = 460.0
+width = 110.0
+damage = 25
+cooldown = 1.8
+recovery = 0.4
+bypass_cap = true
+follow_up = SubResource("Boss_shock_follow")
+follow_gap = 0.4
 
 [sub_resource type="Resource" id="Phase_2"]
 script = ExtResource("4_phase")
 hp_frac = 0.66
-patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge"), SubResource("Boss_shockwave")])
-summon = Array[ExtResource("1_enemy")]([ExtResource("6_gunner"), ExtResource("6_gunner"), ExtResource("5_soldier"), ExtResource("5_soldier")])
-invuln_time = 1.0
+patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone_combo"), SubResource("Boss_charge"), SubResource("Boss_shockwave")])
+summon = Array[ExtResource("1_enemy")]([ExtResource("5_soldier"), ExtResource("6_gunner")])
+invuln_time = 1.8
 seal_label = "진격!"
 seal_art = ExtResource("art_boss_phase_seal_1")
 
 [sub_resource type="Resource" id="Phase_3"]
 script = ExtResource("4_phase")
 hp_frac = 0.33
-patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge"), SubResource("Boss_shockwave")])
-cooldown_mult = 0.66
-summon = Array[ExtResource("1_enemy")]([ExtResource("5_soldier"), ExtResource("5_soldier"), ExtResource("5_soldier"), ExtResource("6_gunner")])
-invuln_time = 1.0
+patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone_combo"), SubResource("Boss_charge_combo"), SubResource("Boss_shockwave")])
+cooldown_mult = 0.8
+summon = Array[ExtResource("1_enemy")]([ExtResource("5_soldier"), ExtResource("5_soldier"), ExtResource("6_gunner")])
+invuln_time = 1.8
 seal_label = "총공격!"
 seal_art = ExtResource("art_boss_phase_seal_1")
+
+[sub_resource type="Resource" id="Boss_feel"]
+script = ExtResource("7_feel")
 
 [resource]
 script = ExtResource("1_enemy")
@@ -72,14 +135,16 @@ display_name = "왜군 망령 수군 장수"
 max_hp = 1400
 xp = 0
 move_speed = 85.0
-contact_damage = 20
+contact_damage = 0
 body_radius = 46.0
+reach_px = 26.0
 color = Color(0.7, 0.55, 0.2, 1)
 knockback_scale = 0.1
 stun_scale = 0.3
 patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge")])
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
+boss_feel = SubResource("Boss_feel")
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.35
 sprite_offset = Vector2(0, -65)

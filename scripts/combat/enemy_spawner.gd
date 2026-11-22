@@ -134,6 +134,7 @@ func spawn_boss() -> Enemy:
 	var e := _spawn_special(boss_data)
 	if e:
 		boss_spawned_once = true
+		BossStaging.attach(self, e)  # 박자·연출 (boss_feel이 있는 보스만)
 		boss_spawned.emit(e)
 	return e
 

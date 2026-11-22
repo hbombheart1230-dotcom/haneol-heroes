@@ -130,7 +130,7 @@ func _draw() -> void:
 				var np: Vector2 = (f["pos"] as Vector2) + Vector2(-80, -im.number_rise * k - 30.0)
 				var fs := int(f["size"])
 				draw_string_outline(UiStyle.TITLE_FONT, np, f["text"], HORIZONTAL_ALIGNMENT_CENTER, 160, fs,
-					im.number_outline, Color(Ink.PAPER, 1.0 - k))
+					im.number_outline, Color(im.number_outline_color, 1.0 - k))
 				draw_string(UiStyle.TITLE_FONT, np, f["text"], HORIZONTAL_ALIGNMENT_CENTER, 160, fs, Color(c, 1.0 - k))
 			"spark":  # 타격 튐: 물보라 붓 그림
 				var p3: Vector2 = f["pos"]

@@ -103,6 +103,11 @@ func is_ready(slot: Slot) -> bool:
 	return def_of(slot) != null and float(_cd[slot]) <= 0.0
 
 
+## 쿨타임을 바로 끝낸다 (조작 안내가 그 기술 단계를 열 때: 앞서 쓴 쿨타임에 막혀 기다리지 않게).
+func reset_cooldown(slot: Slot) -> void:
+	_cd[slot] = 0.0
+
+
 ## 0~1, 남은 쿨타임 비율.
 func cooldown_ratio(slot: Slot) -> float:
 	var d := def_of(slot)
@@ -227,30 +232,14 @@ func is_gesture_charging() -> bool:
 
 # --- 탭 연타 (A안) ---
 
-## 제자리 탭 하나: 평타 한 타, 연계가 찼으면 tap 기술 마무리, 너무 빠르면 잠깐 기억. 반환: 마무리면 TAP.
+## 제자리 탭 하나 (TapChain): 평타 한 타, 연계가 찼으면 tap 기술 마무리, 너무 빠르면 잠깐 기억.
 func combo_tap() -> Slot:
-	var atk := auto_attack()
-	var can := atk != null and atk.can_manual(tap_gap())
-	match combo.decide(kit.combo_hits, can, is_ready(Slot.TAP)):
-		TapCombo.Action.FINISH:
-			combo.on_finish()
-			cast(Slot.TAP, 0.0, kit.combo_finisher_mult, kit.tap.cooldown * kit.combo_finisher_cd_ratio)
-			return Slot.TAP
-		TapCombo.Action.HIT:
-			atk.manual_strike(combo.on_hit(kit.combo_hits, atk.stats().chain_len), kit.ranged_taps)
-		TapCombo.Action.BUFFERED:
-			combo.buffer(kit.tap_buffer)
-	return Slot.NONE
+	return TapChain.tap(self)
 
 
-## 손 평타 최소 간격(초): 평타 간격 × tap_min_gap_mult (공격속도 강화를 따른다).
+## 손 평타 최소 간격(초) (TapChain).
 func tap_gap() -> float:
-	var atk := auto_attack()
-	if atk == null or kit == null:
-		return 0.0
-	var d := atk.stats()
-	var next := combo.step % maxi(d.chain_len, 1) + 1  # 다음 타 번호의 박자 (빠름·빠름·묵직)
-	return (d.ranged_interval if kit.ranged_taps else d.melee_interval) * ComboSteps.at(d.step_gap_mults, next, kit.tap_min_gap_mult)
+	return TapChain.gap(self)
 
 
 func auto_attack() -> AutoAttack:
@@ -259,6 +248,7 @@ func auto_attack() -> AutoAttack:
 		if _attack:  # 자동 평타를 연계 수에 넣을지는 kit.combo_auto_counts
 			_attack.melee_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
 			_attack.ranged_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
+			player.dash_started.connect(func(_d: Vector2) -> void: ComboSteps.cancel_swing(_attack))
 	return _attack
 
 
@@ -299,7 +289,7 @@ func tick(delta: float, time: float) -> void:
 	_counter_left = maxf(_counter_left - delta, 0.0)
 	if kit:
 		combo.tick(delta, kit.combo_window)
-		_flush_tap_buffer()
+		TapChain.flush(self)
 	# 선입력: 버튼을 누른 채(탭 판정 전) 대시가 시작되거나 반격 시간이 열리면 그 기술로 (반격 우선, Codex e593772 지적).
 	if input.is_from(SkillInput.Source.BUTTON) and input.state == SkillInput.State.PRESSED \
 			and player and (player.is_dashing() or is_counter_open()):
@@ -314,21 +304,6 @@ func tick(delta: float, time: float) -> void:
 			_runs.erase(entry)
 			if run.announce_hits < 0:
 				skill_cast.emit(entry[0], run.hits)
-
-
-## 기억해 둔 탭: 칠 수 있게 되면(또는 마무리가 준비되면) 바로 낸다.
-func _flush_tap_buffer() -> void:
-	if not combo.has_buffer() or player == null or player.is_dead():
-		return
-	var instant := _instant_slot()  # 기억해 둔 탭도 반격·대시 연계가 열리면 그쪽이 먼저 (Codex 41741bc 지적)
-	if instant != Slot.NONE:
-		combo.buffer(0.0)
-		cast(instant)
-		return
-	var atk := auto_attack()
-	var finish := combo.streak >= kit.combo_hits and is_ready(Slot.TAP)
-	if finish or (atk and atk.can_manual(tap_gap())):
-		combo_tap()
 
 
 func _context() -> SkillContext:

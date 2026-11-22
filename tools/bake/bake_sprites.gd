@@ -64,6 +64,8 @@ var _pivot: Node3D
 var _post: SubViewport
 var _skel: Skeleton3D
 var _cam: Camera3D
+## 지금 칸이 바라보는 방향(라디안, 동작별 yaw를 더하기 전). 무기 끝 찾기는 이 방향으로 걷는다.
+var _face := 0.0
 
 
 func _initialize() -> void:
@@ -288,10 +290,11 @@ func _bake(job: Dictionary) -> void:
 		for d in DIRS:
 			# 방향 d: 화면 오른쪽(0)부터 시계 방향 45도씩 (화면 y는 아래)
 			var sd := Vector2.from_angle(d * TAU / DIRS)
-			_pivot.rotation.y = atan2(sd.x, sd.y)
+			_face = atan2(sd.x, sd.y)
+			_pivot.rotation.y = _face + BakeTip.yaw_offset(anim)
 			for f in frames:
 				ap.play(src)
-				var t := BakeTip.frame_time(win, f, frames, anim["loop"])
+				var t := BakeTip.sample_time(anim, win, f, frames, anim["loop"])
 				ap.seek(minf(t, a.length), true)
 				ap.pause()
 				_lock_root(job)
@@ -319,7 +322,7 @@ func _bake(job: Dictionary) -> void:
 ## 무기 끝 (칸 가운데 기준 px): 오른손에서 모델 앞쪽(+Z)으로 걸어 마지막 불투명 픽셀.
 func _tip(img: Image) -> Vector2:
 	var hand := _skel.global_transform * _skel.get_bone_global_pose(BakeTip.hand_bone(_skel)).origin
-	var fwd := _pivot.global_transform.basis * Vector3(0, 0, 1)
+	var fwd := Basis(Vector3.UP, _face) * Vector3(0, 0, 1)
 	var pr := BakeTip.project(_cam, hand, fwd, Vector2.ONE)
 	return BakeTip.find_tip(img, pr[0], pr[1])
 

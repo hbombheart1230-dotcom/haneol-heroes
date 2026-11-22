@@ -6,6 +6,8 @@ extends SkillDef
 @export var damage: int = 70
 @export var stun_time: float = 1.2
 @export var knockback: float = 380.0
+## 0보다 크면 넉백 대신 이만큼(px) 바깥으로 크게 날린다 (큰 기술 = 크게 날림, EnemyLaunch).
+@export var launch_px: float = 0.0
 @export_group("큰 변형 · 천둥 군림")
 ## 0보다 크면 내리찍은 자리에 이 시간(초) 천둥 지대가 남는다.
 @export var field_time: float = 0.0
@@ -18,8 +20,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	for en in ctx.enemies_in_radius(center, radius):
 		if not en.health.is_alive():
 			continue  # 죽어서 지워지기 전인 적은 밀지도 세지도 않는다
-		var off := en.global_position - center
-		en.apply_knockback((off.normalized() if off.length_squared() > 0.01 else Vector2.RIGHT) * knockback)
+		ComboSteps.push_out(en, center, launch_px, knockback)
 		if ctx.hit(en, damage):
 			en.stun(stun_time)
 		hits += 1

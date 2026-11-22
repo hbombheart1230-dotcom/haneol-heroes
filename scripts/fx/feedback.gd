@@ -133,7 +133,7 @@ func kick(dir: Vector2, px: float) -> void:
 
 
 ## pitch = 음높이 배율 (연타 1 → 2 → 3타로 올라가는 퍽 소리 등).
-func play(kind: StringName, min_gap: float = 0.04, pitch: float = 1.0) -> void:
+func play(kind: StringName, min_gap: float = 0.04, pitch: float = 1.0, min_pitch: float = 0.0) -> void:
 	if not sfx_enabled or not (_sounds.has(kind) or (bank and bank.has(kind))):
 		return
 	var now := Time.get_ticks_msec() / 1000.0
@@ -154,7 +154,7 @@ func play(kind: StringName, min_gap: float = 0.04, pitch: float = 1.0) -> void:
 		p.stream = _sounds[kind]
 		p.volume_db = sfx_volume_db
 		p.pitch_scale = 1.0
-	p.pitch_scale *= pitch
+	p.pitch_scale = maxf(p.pitch_scale * pitch, min_pitch)  # min_pitch: 무작위 폭으로 이 밑으로 내려가지 않게 (낮은 음 끊김)
 	p.play()
 
 
@@ -335,13 +335,14 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 	play(&"die")
 	var d := e.data
 	var finisher := d != null and (d.is_boss or d.is_elite)
+	var elem := DeathCause.burst(self, e, last_damage, finisher)  # 처치한 영웅의 속성 모습 (물·번개·글자·먹)
 	if kill_fx:
 		var tex: Texture2D = null
 		if e.sprite and e.sprite.sprite_frames:
 			tex = e.sprite.sprite_frames.get_frame_texture(e.sprite.animation, e.sprite.frame)
 		kill_fx.launch(e.global_position, dir, last_damage, tex, d.sprite_scale if d else 1.0,
 			d.sprite_offset if d else Vector2.ZERO, d.sprite_tint if d else Color.WHITE,
-			d.death_style if d else &"smoke", d.launch_scale if d else 1.0, finisher)
+			&"none" if elem else (d.death_style if d else &"smoke"), d.launch_scale if d else 1.0, finisher)
 	if finisher:
 		play(&"confirm_kill", 0.0)
 		play(&"gugak_kill", 0.0)  # 국악 북·징 (파일이 있을 때만)

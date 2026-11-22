@@ -54,6 +54,7 @@
 [ext_resource type="Script" path="res://scripts/ui/boss_banner.gd" id="71_boss_banner"]
 [ext_resource type="Script" path="res://scripts/ui/hurt_vignette.gd" id="72_hurt_vignette"]
 [ext_resource type="Script" path="res://scripts/world/ghost_fire.gd" id="73_ghost_fire"]
+[ext_resource type="Script" path="res://scripts/fx/swing_trail.gd" id="74_swing_trail"]
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 22.0
 
@@ -96,6 +97,10 @@ reward_fx = NodePath("../RewardFx")
 [node name="FxLayer" type="Node2D" parent="."]
 z_index = 5
 script = ExtResource("11_fx")
+
+[node name="SwingTrail" type="Node2D" parent="." node_paths=PackedStringArray("attack")]
+script = ExtResource("74_swing_trail")
+attack = NodePath("../Player/AutoAttack")
 
 [node name="RewardFx" type="Node2D" parent="."]
 z_index = 7
