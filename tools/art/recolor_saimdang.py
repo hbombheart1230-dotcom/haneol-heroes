@@ -1,9 +1,9 @@
 """사임당 색 고치기 (사용자 의견 2026-11-21: "보라가 너무 유치하다, 뒤(치마)는 흰색, 나머지는 분홍에 가깝게").
 
   python tools/art/recolor_saimdang.py
-구운 스프라이트(assets/sprites/shin_saimdang/*.png)와 영웅 카드(assets/ui/heroes/shin_saimdang.png)를 고친다.
-진한 보라(치마 겉) → 미색, 옅은 보라·분홍(저고리 등) → 은은한 분홍. 명암은 남긴다.
-다시 굽거나(meshy_pipeline) 카드를 다시 만들면(make_hero_cards.py) 그 뒤에 이것을 다시 돌린다.
+구운 스프라이트(assets/sprites/shin_saimdang/*.png)를 고친다. 영웅 카드는 make_hero_cards.py가 같은 함수(soften)로 고친다.
+진한 보라(치마 겉) → 미색, 옅은 보라·분홍(저고리 등) → 은은한 분홍, 가장 진한 보라(고름·띠) → 진분홍. 명암은 남긴다.
+보라색 원본으로 다시 구우면(meshy_pipeline) 그 뒤에 이것을 다시 돌린다.
 이미 고친 파일은 지문(recolor_saimdang.done.json)으로 알아보고 건너뛴다.
 """
 import glob
@@ -16,7 +16,7 @@ from PIL import Image
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-def soften(img, deep_s=0.30, white=(0.70, 0.30), pink_hue=345.0, pink_cap=0.33):
+def soften(img, deep_s=0.30, white=(0.64, 0.33), pink_hue=345.0, pink_cap=0.33, sash_s=0.66):
     """보라·분홍 계열(240~355도): 진한 보라(채도 > deep_s, 치마 겉) → 미색, 옅은 보라·분홍 → 은은한 분홍. 명암은 남긴다."""
     rgba = img.convert("RGBA")
     a = np.asarray(rgba).astype(np.float32) / 255.0
@@ -36,6 +36,10 @@ def soften(img, deep_s=0.30, white=(0.70, 0.30), pink_hue=345.0, pink_cap=0.33):
     w_rgb = to_rgb(wh_h, wh_s, wh_v)
     p_rgb = to_rgb(pk_h, pk_s, pk_v)
     tgt = p_rgb * (1 - deep[..., None]) + w_rgb * deep[..., None]
+    # 가장 진한 보라(고름·띠)는 진분홍으로 남긴다: 전부 희면 그림이 떠 보인다
+    sash = (np.clip((s - sash_s) / 0.08, 0, 1) * purple)[..., None]
+    r_rgb = to_rgb(pink_hue, np.clip(s * 0.62, 0.35, 0.55), v * 0.97)
+    tgt = tgt * (1 - sash) + r_rgb * sash
     w = np.clip((s - 0.04) / 0.08, 0, 1) * band
     res = a[..., :3] * (1 - w[..., None]) + tgt * w[..., None]
     return Image.fromarray(np.uint8(np.clip(np.dstack([res, a[..., 3:]]), 0, 1) * 255), "RGBA")
@@ -53,7 +57,6 @@ def sha(path: str) -> str:
 
 def main() -> None:
     files = sorted(glob.glob(os.path.join(ROOT, "assets/sprites/shin_saimdang/*.png")))
-    files.append(os.path.join(ROOT, "assets/ui/heroes/shin_saimdang.png"))
     done = json.load(open(DONE_FILE, encoding="utf-8")) if os.path.exists(DONE_FILE) else {}
     for f in files:
         key = os.path.relpath(f, ROOT).replace("\\", "/")

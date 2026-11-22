@@ -8,10 +8,14 @@
 """
 import argparse
 import os
+import sys
 
 import numpy as np
 from PIL import Image, ImageEnhance, ImageFilter
 from scipy import ndimage
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from recolor_saimdang import soften  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 HEROES = ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]
@@ -68,6 +72,8 @@ def main() -> None:
         if not os.path.exists(src):
             src = os.path.join(ROOT, f"assets/concept/redesign/heroes/{h}.png")  # 없으면 A자세 (3D용)
         img = cut_out(Image.open(src))
+        if h == "shin_saimdang":  # 보라 → 연분홍·미색·진분홍 (수묵톤으로 색을 빼기 전에 해야 진한 띠가 가려진다)
+            img = soften(img)
         if a.ink:
             img = ink_tone(img)
         img = img.resize((WIDTH, round(img.height * WIDTH / img.width)), Image.LANCZOS)
