@@ -25,7 +25,8 @@ func _init(p_data: HitImpactData = null) -> void:
 	_seed.resize(n)
 	for i in n:
 		_t[i] = -1.0
-	z_index = 5
+	z_as_relative = false
+	z_index = data.draw_z  # 검기(영웅 쪽) 위에 그린다
 
 
 ## 충격 하나 (dir = 맞은 쪽으로 밀리는 방향, step = 1~3타).
@@ -92,4 +93,4 @@ func _draw_one(i: int) -> void:
 	# 밝은 심: 앞 core_share 동안 크게 번쩍, 그 뒤 줄어듦
 	var ck := clampf(k / maxf(data.core_share, 0.001), 0.0, 1.0)
 	if ck < 1.0:
-		draw_circle(p, core * (1.0 - 0.6 * ck), Color(data.core_color, 1.0 - ck))
+		draw_circle(p, core * (1.0 - 0.6 * ck), Color(data.core_color.lerp(_color[i], data.core_tint), 1.0 - ck))

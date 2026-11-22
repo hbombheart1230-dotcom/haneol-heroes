@@ -21,6 +21,10 @@ extends Resource
 @export var duration: float = 0.16
 @export var core_share: float = 0.45
 @export var core_color: Color = Color(1.0, 0.98, 0.9, 1.0)
+## 심을 영웅색 쪽으로 물들이는 비율 (검기의 흰빛 심과 묻히지 않게).
+@export var core_tint: float = 0.3
+## 그리는 높이 (절대 z): 검기·영웅·적 위.
+@export var draw_z: int = 20
 @export var ink_color: Color = Color(0.08, 0.06, 0.05, 0.85)
 ## 영웅색을 이만큼 밝혀 줄기·고리에 쓴다 (어두운 바닥에서 묻히지 않게).
 @export var color_lighten: float = 0.45
