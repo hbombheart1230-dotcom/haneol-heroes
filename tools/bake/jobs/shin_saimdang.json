@@ -24,8 +24,7 @@
       "src": "Walking Woman",
       "frames": 8,
       "fps": 16.0,
-      "loop": true,
-      "from": "res://assets/models/meshy/shin_saimdang/animated_extra1.glb"
+      "loop": true
     },
     {
       "key": "dash",

@@ -282,6 +282,7 @@ def run(cfg: dict, args: argparse.Namespace) -> None:
         for s in STAGES[STAGES.index(args.restart):]:
             state.pop(f"{s}_done", None)
         clear_downloads(out_dir, args.restart)
+        state.pop("extras", None)  # 옛 뼈대에 붙여 둔 추가 동작은 새 모델과 맞지 않는다 (설정의 동작은 이번에 다 다시 만든다)
     if plan(cfg, state) > 0 and not args.yes:
         raise SystemExit("유료 작업입니다. 확인했으면 --yes를 붙여 다시 실행하세요.")
     for s, fn in zip(STAGES, (stage_model, stage_rig, stage_anim)):
