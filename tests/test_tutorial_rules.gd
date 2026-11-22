@@ -141,3 +141,31 @@ func test_counter_banner_does_not_cover_the_counter_prompt() -> void:
 	assert_bool(b.position.y > o.skip_rect().end.y).is_true()
 	TutorialDriver.skip_to(p, &"upgrade")
 	assert_float(o.banner_rect().position.y).is_greater(prompt_y - 200.0)  # 다른 단계는 아래쪽 그대로
+
+
+func test_finished_is_sent_once_when_the_last_step_is_skipped_inside_advanced() -> void:
+	var p := TutorialProgress.new(DATA)
+	var n := [0]
+	p.finished.connect(func() -> void: n[0] += 1)  # 한 번만 (CONNECT_ONE_SHOT 없이도)
+	p.advanced.connect(func(_i: int) -> void:
+		if not p.is_done() and p.current().event == &"upgrade":
+			p.notify(&"upgrade"))  # 고를 강화가 없는 영웅처럼 마지막 단계를 안에서 넘긴다
+	TutorialDriver.skip_to(p, &"skill_counter")
+	p.notify(&"skill_counter")
+	assert_bool(p.is_done()).is_true()
+	assert_int(n[0]).is_equal(1)
+	p.skip()
+	assert_int(n[0]).is_equal(1)
+
+
+func test_combo_step_is_skipped_for_a_hero_without_tap_combo() -> void:
+	var main := _main(&"gwanggaeto")
+	await get_tree().process_frame
+	var sc := main.player.get_node("SkillCaster") as SkillCaster
+	sc.kit = sc.kit.duplicate()
+	sc.kit.tap_combo = false
+	var run: TutorialProgress = main.tutorial_director.run
+	run.notify(&"move", 400.0)
+	assert_str(String(run.current().event)).is_equal("skill_tap")  # 연타 단계를 넘김
+	assert_object(main.tutorial_director.sparring.enemy).is_not_null()  # 마무리 단계의 허수아비는 선다
+	_cleanup(main)

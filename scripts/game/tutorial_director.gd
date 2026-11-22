@@ -78,10 +78,10 @@ func tick(delta: float) -> void:
 ## 단계가 바뀌면: 연습 상대를 세우거나 치우고, 반격이 없는 영웅은 반격 단계를 넘긴다 (막히지 않게).
 func _on_step_changed() -> void:
 	var s := run.current() if run else null
-	sparring.sync(s)
 	if s and not can_do(s.event):
-		run.notify(s.event, s.amount)
+		run.notify(s.event, s.amount)  # 다음 단계의 advanced가 상대를 맞춘다
 		return
+	sparring.sync(s)
 	var sc := _caster()
 	if s and sc and SKILL_SLOTS.has(s.event):
 		sc.reset_cooldown(SKILL_SLOTS[s.event])  # 앞서 써서 쿨타임이면 기다리지 않게
