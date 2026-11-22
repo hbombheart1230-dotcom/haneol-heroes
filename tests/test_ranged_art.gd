@@ -22,6 +22,7 @@ func test_hero_ranged_art_and_release_from_hand() -> void:
 	a.player = p
 	a.projectile_scene = proj
 	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.data.use_ranged = true  # 던지기 구조만 본다 (광개토는 이제 근접만)
 	a.data.engage_mult = 1.0  # 던지기만 본다 (근접 우선 대기 없이)
 	a.projectile_parent = self
 	add_child(a)
@@ -78,6 +79,7 @@ func test_release_reaims_and_keeps_windup_stats() -> void:
 	a.player = p
 	a.projectile_scene = preload("res://scenes/projectile.tscn")
 	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.data.use_ranged = true  # 던지기 구조만 본다 (광개토는 이제 근접만)
 	a.data.engage_mult = 1.0  # 던지기만 본다 (근접 우선 대기 없이)
 	a.projectile_parent = self
 	add_child(a)
@@ -115,6 +117,7 @@ func test_data_swap_during_windup_drops_the_shot() -> void:
 	a.player = p
 	a.projectile_scene = preload("res://scenes/projectile.tscn")
 	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.data.use_ranged = true  # 던지기 구조만 본다 (광개토는 이제 근접만)
 	a.data.engage_mult = 1.0  # 던지기만 본다 (근접 우선 대기 없이)
 	a.projectile_parent = self
 	add_child(a)
@@ -139,6 +142,7 @@ func test_release_ignores_an_enemy_that_just_died() -> void:
 	a.player = p
 	a.projectile_scene = preload("res://scenes/projectile.tscn")
 	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.data.use_ranged = true  # 던지기 구조만 본다 (광개토는 이제 근접만)
 	a.data.engage_mult = 1.0  # 던지기만 본다 (근접 우선 대기 없이)
 	a.projectile_parent = self
 	add_child(a)

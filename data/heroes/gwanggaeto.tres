@@ -33,6 +33,7 @@ melee_interval = 0.76
 melee_range = 175.0
 melee_arc_degrees = 100.0
 melee_damage = 21
+use_ranged = false
 step_gap_mults = PackedFloat32Array(0.921, 0.592, 0.658)
 melee_knockback = 220.0
 swing_color = Color(0.95, 0.55, 0.1, 0.95)
