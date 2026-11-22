@@ -41,8 +41,8 @@ practice_enemy = ExtResource("3_practice")
 [sub_resource type="Resource" id="tap"]
 script = ExtResource("2_step")
 caption = "첫째 기술"
-hint = "화면을 가볍게 톡 치면
-첫째 기술이 나갑니다"
+hint = "화면을 톡톡톡 치면 연달아 베고
+넷째 톡에 첫째 기술로 마무리합니다"
 button_hint = "오른쪽 아래 기술 단추를 톡 누르면
 첫째 기술이 나갑니다"
 event = &"skill_tap"

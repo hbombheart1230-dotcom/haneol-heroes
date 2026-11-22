@@ -40,6 +40,9 @@ var chain_step: int = 0
 var _since_melee: float = INF
 ## 마지막으로 칼이 닿은 근접이 강타(연계 마지막)였는지 (PlayerView 멈춤 길이).
 var last_heavy: bool = false
+## 탭 연타 (A안): 마지막 손 평타 뒤 흐른 시간, 지금 나가는 평타가 손으로 낸 것인지 (신호 받는 쪽이 구분).
+var _since_manual: float = INF
+var last_manual: bool = false
 
 
 func _ready() -> void:
@@ -66,6 +69,7 @@ func tick(delta: float, enemy_list: Array) -> void:
 	_ranged_cd = maxf(_ranged_cd - delta, 0.0)
 	_swing_time = maxf(_swing_time - delta, 0.0)
 	_since_melee += delta
+	_since_manual += delta
 	if player == null:
 		return
 	if player.is_dead():  # 죽으면 손에 든 탄·휘두르던 칼은 버린다
@@ -100,11 +104,33 @@ func tick(delta: float, enemy_list: Array) -> void:
 		_fire(from, to_nearest.normalized())
 
 
-func _melee(from: Vector2, toward: Vector2, enemy_list: Array) -> void:
+## 손 평타를 지금 낼 수 있는지: min_gap초가 지났고, 휘두르던 칼·손에 든 탄이 없다.
+func can_manual(min_gap: float) -> bool:
+	return player != null and not player.is_dead() and _since_manual >= min_gap and _melee_left < 0.0 		and _release_left < 0.0
+
+
+## 손 평타 (탭): 가장 가까운 적(원거리 사거리 안) 쪽으로, 없으면 바라보는 쪽으로 헛스윙.
+## step: 근접 연계 동작 번호 (3 = 강타). ranged면 원거리 한 발 (세종 글자).
+func manual_strike(step: int, ranged: bool, enemy_list: Array = []) -> void:
+	var list := enemy_list if not enemy_list.is_empty() else enemies()
+	var from := player.global_position
+	var nearest := Targeting.nearest(list, from, stats().ranged_range)
+	var to: Vector2 = nearest.global_position - from if nearest else player.facing
+	_since_manual = 0.0
+	_hold = 0.0
+	last_manual = true
+	if ranged:
+		_fire(from, to.normalized() if to.length_squared() > 0.0001 else player.facing)
+	else:
+		_melee(from, to, list, step)
+	last_manual = false
+
+
+func _melee(from: Vector2, toward: Vector2, enemy_list: Array, step: int = -1) -> void:
 	var d := stats()
 	_melee_cd = d.melee_interval
 	_swing_dir = toward.normalized() if toward.length_squared() > 0.0001 else player.facing
-	chain_step = next_chain_step(chain_step, _since_melee, d)
+	chain_step = step if step > 0 else next_chain_step(chain_step, _since_melee, d)
 	_since_melee = 0.0
 	melee_windup.emit(_swing_dir)
 	var delay := melee_delay()
