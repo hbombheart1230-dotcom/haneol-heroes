@@ -60,7 +60,7 @@ func test_step_knockback_distances() -> void:
 
 ## 밀림이 커져도 연타가 헛치지 않는다: 1·2타가 맞은 뒤 이어지는 2·3타가 (전진으로 따라가) 닿는다.
 func test_tapping_one_soldier_keeps_connecting() -> void:
-	var r := _tap_soldier(YI.attack)
+	var r: Array = await _tap_soldier(YI.attack)
 	print("[reach] new knockback: follow-up hits %d, connected %d" % r)
 	assert_int(r[0]).is_greater_equal(3)
 	assert_float(float(r[1]) / r[0]).is_greater_equal(0.9)  # 밀려도 다음 타가 닿는다 (전진이 밀림을 따라간다)
@@ -72,18 +72,21 @@ func test_reach_baseline_old_knockback() -> void:
 	old.step_in_px = PackedFloat32Array([10.0, 14.0, 26.0])
 	old.step_in_max = 30.0
 	old.step_range_mults = PackedFloat32Array([1.0, 1.0, 1.2])
-	var r := _tap_soldier(old)
+	var r: Array = await _tap_soldier(old)
 	print("[reach] old knockback: follow-up hits %d, connected %d" % r)
 
 
 ## 병사 하나 (안 죽게, 공격 안 함)에게 0.35초마다 1 → 2 → 3타를 차례로 (마무리 기술 없이, 밀림·전진만 본다).
 ## [앞 타가 맞은 뒤 이어진 2·3타 수, 그중 닿은 수]
 func _tap_soldier(d: BasicAttackData) -> Array:
+	Engine.time_scale = 1.0
+	await get_tree().physics_frame  # 물리 프레임 안에서 고정 DT로 (move_and_slide가 밖에서는 실제 프레임 delta를 쓴다)
 	seed(11)
 	atk.data = d
 	var e: Enemy = ENEMY_SCENE.instantiate()
 	e.data = SOLDIER
 	e.target = player
+	e.ai_seed = 1
 	add_child(auto_free(e))
 	e.set_physics_process(false)
 	e.global_position = Vector2(75, 0)
