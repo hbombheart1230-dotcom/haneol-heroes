@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="SwingTrailData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/swing_trail_data.gd" id="1_data"]
+[ext_resource type="Texture2D" path="res://assets/vfx/trail_band.png" id="2_band"]
+
+[resource]
+script = ExtResource("1_data")
+band = ExtResource("2_band")

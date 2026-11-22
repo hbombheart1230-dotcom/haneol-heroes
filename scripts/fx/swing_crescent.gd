@@ -8,6 +8,9 @@ extends RefCounted
 ## 원점(영웅)에서 오른쪽(dir 각도)으로 벤다. r = 사거리, half = 반각(라디안), flip = 위아래 뒤집기(2타 -1).
 static func draw(ci: CanvasItem, art: Texture2D, angle: float, r: float, half: float, flip: float,
 		col: Color, alpha: float, step: int, feel: CombatFeelData) -> void:
+	var aa := ci as AutoAttack
+	if aa and SwingTrail.covers(aa.player):  # 궤적(SwingTrail)이 대신 그린다
+		return
 	var k := feel.crescent_scale * ComboSteps.at(feel.crescent_step_scales, step, 1.0)
 	var h := r * maxf(sin(half), 0.35)
 	var cr := Rect2(r * 0.15 * k, -h * 0.9 * k, r * 0.95 * k, h * 1.8 * k)
