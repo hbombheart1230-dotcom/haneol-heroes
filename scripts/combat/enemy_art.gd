@@ -9,7 +9,10 @@ static func draw(e: Enemy) -> void:
 	var r := e.body_radius
 	var id: StringName = e.data.id if e.data else &"chaser"
 	var seed := float(e.get_instance_id() % 97)
-	Ink.shadow(e, Vector2(0, r * 0.7), r * 1.05)
+	var feel := Feedback.feel_data()  # 큰 적일수록 넓고 진한 먹 그림자 (무게감)
+	var rr := r * e.size_mult
+	var big := clampf((rr - 18.0) / maxf(feel.enemy_shadow_big_radius - 18.0, 1.0), 0.0, 1.0)
+	Ink.weight_shadow(e, Vector2(0, r * 0.7), rr * feel.enemy_shadow_scale, lerpf(feel.enemy_shadow_alpha, feel.enemy_shadow_alpha_big, big))
 	if e.sprite:
 		return  # 몸은 구워진 스프라이트가 그린다
 	var body := Color(1, 1, 1) if e.flash_left() > 0.0 else Ink.INK

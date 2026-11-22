@@ -43,6 +43,21 @@ extends Resource
 @export var dash_shove_radius: float = 70.0
 ## 영웅마다 다른 회피 생김새·도착 효과 (없으면 기본 대시).
 @export var dash_style: DashStyleData
+
+@export_group("무게감 (보이는 무게, 조작은 그대로)")
+## 발밑 먹 그림자: 몸 반지름 배율·속 진하기.
+@export var shadow_scale: float = 1.15
+@export var shadow_alpha: float = 0.34
+## 대시 착지: 눌림(발 기준 가로·세로 배율)·되돌아오는 시간(초)·그림 멈칫(초, 이동은 그대로)·먹 튐 방울 수·흔들림·화면 밀림(px).
+@export var land_squash: Vector2 = Vector2(1.1, 0.88)
+@export var land_time: float = 0.12
+@export var land_hold: float = 0.04
+@export var land_drops: int = 4
+@export var land_trauma: float = 0.0
+@export var land_kick_px: float = 0.0
+## 달리다 멈출 때 몸이 앞으로 쏠렸다 돌아오는 거리(px)·시간(초) (그림만).
+@export var stop_slide_px: float = 6.0
+@export var stop_slide_time: float = 0.14
 ## 명중 재질 소리 겹 (SoundBank 종류, 공통 몸통 "hit" 위에 같이 울린다). 예: 순신 물·칼.
 @export var hit_sfx: Array[StringName] = []
 ## 궁극기를 모으는 동안 발밑 표시 (없으면 공통 붓 고리).
