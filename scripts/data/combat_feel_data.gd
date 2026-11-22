@@ -75,6 +75,8 @@ extends Resource
 @export var release_delay_max: float = 0.25
 ## 근접 반동이 이어지는 시간(초).
 @export var recoil_time: float = 0.06
+## 연타 흐름: 공격 동작이 끝난 뒤 마지막 자세를 이만큼(초) 붙잡는다 (다음 타 전에 대기 자세로 돌아가 튀지 않게).
+@export var combo_hold_time: float = 0.35
 ## 달리기 ↔ 대기 전환 문턱 (최고 속도 대비). 들어갈 때와 나올 때를 다르게 해 깜빡임 방지.
 @export var run_enter: float = 0.2
 @export var run_exit: float = 0.08

@@ -126,6 +126,7 @@ func test_third_hit_is_heavy_and_knocks_down_trash() -> void:
 	d.melee_interval = 0.1
 	d.chain_window = 1.0
 	d.melee_damage = 5  # 셋 다 맞아도 살아 있게 (병사 체력 30)
+	d.step_windup_pause = PackedFloat32Array()  # 3타 모으기 없이 (강타 판정만 본다)
 	var a := _attack(p, d)
 	var e := _enemy(SOLDIER, Vector2(50, 0))
 	var armored := _enemy(HEAVY, Vector2(50, 20))

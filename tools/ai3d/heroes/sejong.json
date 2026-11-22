@@ -88,6 +88,28 @@
       "start": 0.0,
       "end": 2.2,
       "strike": 0.85
+    },
+    {
+      "key": "throw2",
+      "match": "cast",
+      "action_id": 132,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "start": 0.4,
+      "end": 1.4,
+      "strike": 1.05
+    },
+    {
+      "key": "throw3",
+      "match": "cast",
+      "action_id": 135,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "start": 0.2,
+      "end": 1.3,
+      "strike": 1.0
     }
   ]
 }

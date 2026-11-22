@@ -43,6 +43,11 @@ var last_heavy: bool = false
 ## 탭 연타 (A안): 마지막 손 평타 뒤 흐른 시간, 지금 나가는 평타가 손으로 낸 것인지 (신호 받는 쪽이 구분).
 var _since_manual: float = INF
 var last_manual: bool = false
+## 연타 흐름: 마지막으로 칼이 닿은 뒤 흐른 시간 (캔슬 구간), 이번 원거리 연타 번호와 손에 든 탄의 번호·동작.
+var _since_strike: float = INF
+var ranged_step: int = 0
+var _release_step: int = 0
+var _release_anim: String = ""
 
 
 func _ready() -> void:
@@ -70,6 +75,7 @@ func tick(delta: float, enemy_list: Array) -> void:
 	_swing_time = maxf(_swing_time - delta, 0.0)
 	_since_melee += delta
 	_since_manual += delta
+	_since_strike += delta
 	if player == null:
 		return
 	if player.is_dead():  # 죽으면 손에 든 탄·휘두르던 칼은 버린다
@@ -106,7 +112,7 @@ func tick(delta: float, enemy_list: Array) -> void:
 
 ## 손 평타를 지금 낼 수 있는지: min_gap초가 지났고, 휘두르던 칼·손에 든 탄이 없다.
 func can_manual(min_gap: float) -> bool:
-	return player != null and not player.is_dead() and _since_manual >= min_gap and _melee_left < 0.0 		and _release_left < 0.0
+	return player != null and not player.is_dead() and _since_manual >= min_gap and _melee_left < 0.0 		and _release_left < 0.0 and _since_strike >= stats().cancel_after  # 앞 타가 닿은 뒤에야 끊고 들어간다
 
 
 ## 손 평타 (탭): 가장 가까운 적(원거리 사거리 안) 쪽으로, 없으면 바라보는 쪽으로 헛스윙.
@@ -120,10 +126,31 @@ func manual_strike(step: int, ranged: bool, enemy_list: Array = []) -> void:
 	_hold = 0.0
 	last_manual = true
 	if ranged:
+		ranged_step = step
 		_fire(from, to.normalized() if to.length_squared() > 0.0001 else player.facing)
+		ranged_step = 0
 	else:
+		_step_in(to, list, step)
 		_melee(from, to, list, step)
 	last_manual = false
+
+
+## 타별 짧은 전진 (손 평타만): 앞 적 몸 안으로는 안 들어가고, 적 예고가 영웅을 덮으면 생략.
+func _step_in(toward: Vector2, list: Array, step: int) -> void:
+	var d := stats()
+	if not d.step_in_enabled or toward.length_squared() < 0.0001:
+		return
+	var dir := toward.normalized()
+	var from := player.global_position
+	var px := ComboSteps.step_in(ComboSteps.at(d.step_in_px, step, 0.0), d.step_in_max,
+		ComboSteps.gap_ahead(list, from, dir, player.body_radius) - 4.0, ComboSteps.in_windup(list, from))
+	if px > 0.0:
+		player.apply_recoil(dir * px, d.step_in_time)
+
+
+## 이번 타의 모으기(초): 휘두르기 전 첫 칸에서 멈춤 (PlayerView가 그림을 멈춘다).
+func step_pause() -> float:
+	return ComboSteps.at(stats().step_windup_pause, chain_step, 0.0)
 
 
 func _melee(from: Vector2, toward: Vector2, enemy_list: Array, step: int = -1) -> void:
@@ -133,7 +160,7 @@ func _melee(from: Vector2, toward: Vector2, enemy_list: Array, step: int = -1) -
 	chain_step = step if step > 0 else next_chain_step(chain_step, _since_melee, d)
 	_since_melee = 0.0
 	melee_windup.emit(_swing_dir)
-	var delay := melee_delay()
+	var delay := melee_delay() + step_pause()
 	if delay > 0.0:
 		_melee_left = delay
 		_melee_src = data
@@ -182,7 +209,9 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 	var heavy := is_heavy()  # 연계 마지막: 피해·넉백 배율, 잡몹 넘어짐 (B4·B8)
 	var dmg := roundi(d.melee_damage * (d.heavy_damage_mult if heavy else 1.0))
 	var kb := d.melee_knockback * (d.heavy_knockback_mult if heavy else 1.0)
-	var hits := Targeting.in_arc(enemy_list, from, _swing_dir, d.melee_range, d.melee_arc_degrees)
+	_since_strike = 0.0
+	var hits := Targeting.in_arc(enemy_list, from, _swing_dir, d.melee_range * ComboSteps.at(d.step_range_mults, chain_step, 1.0),
+		d.melee_arc_degrees * ComboSteps.at(d.step_arc_mults, chain_step, 1.0))  # 타별 모양 (3타 좁고 길게)
 	for e in hits:
 		var h := e.get_node_or_null("Health") as Health
 		var en := e as Enemy
@@ -206,6 +235,8 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 func _fire(from: Vector2, dir: Vector2) -> void:
 	var d := stats()
 	_ranged_cd = d.ranged_interval
+	_release_step = maxi(ranged_step, 1)
+	_release_anim = ranged_anim_now()
 	ranged_windup.emit(dir)
 	var delay := release_delay()
 	if delay > 0.0:
@@ -214,7 +245,30 @@ func _fire(from: Vector2, dir: Vector2) -> void:
 		_release_data = d.duplicate()
 		_release_src = data
 		return
-	_spawn(from, dir, d)
+	_spawn_step(from, dir, d)
+
+
+## 이번 원거리 동작: 연타 2·3번이고 시트에 throw2·throw3가 있으면 그것, 아니면 ranged_anim.
+func ranged_anim_now() -> String:
+	var base := String(stats().ranged_anim)
+	var sheet := player.hero.sprite_sheet if player and player.hero else null
+	var alt := "throw%d" % ranged_step
+	return alt if ranged_step >= 2 and sheet and sheet.has_anim(alt) else base
+
+
+## 원거리 연타 번호대로 탄 여러 개(퍼짐)·큰 글자 (세종: 하나 → 둘 → 큰 하나).
+func _spawn_step(from: Vector2, dir: Vector2, d: BasicAttackData) -> void:
+	var n := maxi(roundi(ComboSteps.at(d.ranged_step_count, _release_step, 1.0)), 1)
+	var k := ComboSteps.at(d.ranged_step_scale, _release_step, 1.0)
+	var dd := d
+	if not is_equal_approx(k, 1.0):
+		dd = d.duplicate()
+		dd.glyph_px = roundi(d.glyph_px * k)
+		dd.proj_size = d.proj_size * k
+		dd.ranged_damage = roundi(d.ranged_damage * k)
+	for i in n:
+		var off := (i - (n - 1) * 0.5) * deg_to_rad(d.ranged_step_spread)
+		_spawn(from, dir.rotated(off), dd)
 
 
 ## 손을 떠나기까지(초): 데이터, 음수면 시트 던지는 동작의 맞닿는 프레임 (근접 melee_delay와 같은 방식).
@@ -224,7 +278,7 @@ func release_delay() -> float:
 		return d.release_delay
 	var sheet := player.hero.sprite_sheet if player and player.hero else null
 	var feel := Feedback.feel_data()
-	var anim := String(d.ranged_anim)
+	var anim := _release_anim if _release_anim != "" else String(d.ranged_anim)
 	if sheet == null or not sheet.has_anim(anim):
 		return feel.release_delay_min
 	var i := sheet.anim_names.find(anim)
@@ -254,7 +308,7 @@ func _release(enemy_list: Array) -> void:
 	if nearest == null:
 		return
 	var to := nearest.global_position - from
-	_spawn(from, to.normalized() if to.length_squared() > 1.0 else _release_dir, d)
+	_spawn_step(from, to.normalized() if to.length_squared() > 1.0 else _release_dir, d)
 
 
 func _spawn(from: Vector2, dir: Vector2, d: BasicAttackData) -> void:
@@ -287,7 +341,7 @@ func release_point(dir: Vector2, d: BasicAttackData) -> Vector2:
 	var h := player.hero if player else null
 	if h == null or h.sprite_sheet == null or d.ranged_anim == &"":
 		return fallback
-	var anim := String(d.ranged_anim)
+	var anim := _release_anim if _release_anim != "" else String(d.ranged_anim)
 	var sheet := h.sprite_sheet
 	var px := sheet.tip(anim, sheet.dir_index(dir), sheet.strike_frame(anim))
 	return AttackTiming.tip_offset(px, h.sprite_offset, Vector2.ONE * h.sprite_scale, fallback)
@@ -302,13 +356,15 @@ func _draw() -> void:
 	if _swing_time <= 0.0:
 		return
 	var a := _swing_dir.angle()
-	var half := deg_to_rad(stats().melee_arc_degrees * 0.5)
+	var sd := stats()
+	var half := deg_to_rad(sd.melee_arc_degrees * ComboSteps.at(sd.step_arc_mults, chain_step, 1.0) * 0.5)
+	var flip := ComboSteps.at(sd.step_trail_flip, chain_step, 1.0)  # 2타는 반대쪽에서
 	var alpha := _swing_time / 0.12
 	var art := Feedback.feel_data().crescent_art
 	var col := stats().swing_color
 	if art:  # 붓으로 그린 초승달 베기 (오른쪽 = 베는 방향)
-		var r := stats().melee_range
-		draw_set_transform(Vector2.ZERO, a, Vector2.ONE)
+		var r := sd.melee_range * ComboSteps.at(sd.step_range_mults, chain_step, 1.0)
+		draw_set_transform(Vector2.ZERO, a, Vector2(1.0, flip))
 		draw_texture_rect(art, Rect2(r * 0.2, -r * sin(half) * 0.9, r * 0.95, r * sin(half) * 1.8), false,
 			Color(col, col.a * alpha))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

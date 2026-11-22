@@ -94,11 +94,10 @@ func test_finisher_def_scales_damage_only() -> void:
 ## 탭 셋 = 근접 1·2·3타 (셋째 강타), 넷째 = 해룡참 마무리, 쿨타임은 절반.
 func test_four_taps_hit_hit_heavy_finisher() -> void:
 	_setup(YI)
-	var gap := caster.tap_gap()
-	assert_float(gap).is_equal_approx(YI.attack.melee_interval * YI.kit.tap_min_gap_mult, 0.001)
+	assert_float(caster.tap_gap()).is_equal_approx(YI.attack.melee_interval * YI.attack.step_gap_mults[0], 0.001)
 	for i in 3:
 		_tap()
-		_wait(gap)
+		_wait(caster.tap_gap() + 0.12)  # 타별 박자 (빠름·빠름·묵직) + 3타 모으기
 	assert_array(swings).is_equal([1, 2, 3])
 	assert_array(casts).is_empty()
 	_tap()
@@ -124,7 +123,7 @@ func test_fast_taps_are_buffered_and_rate_capped() -> void:
 func test_combo_breaks_after_window() -> void:
 	_setup(YI)
 	_tap()
-	_wait(caster.tap_gap())
+	_wait(caster.tap_gap() + 0.12)
 	_tap()
 	_wait(YI.kit.combo_window + 0.1)
 	_tap()
@@ -136,7 +135,7 @@ func test_combo_breaks_after_window() -> void:
 func test_counter_still_wins() -> void:
 	_setup(YI)
 	_tap()
-	_wait(caster.tap_gap())
+	_wait(caster.tap_gap() + 0.12)
 	caster.on_evade()
 	_tap()
 	assert_array(casts).is_equal([SkillCaster.Slot.COUNTER])
@@ -148,7 +147,7 @@ func test_sejong_taps_throw_then_finish() -> void:
 	assert_bool(SEJONG.kit.ranged_taps).is_true()
 	for i in 3:
 		_tap()
-		_wait(caster.tap_gap())
+		_wait(caster.tap_gap() + 0.12)
 	assert_int(shots[0]).is_greater_equal(0)  # 적이 없으면 던지는 동작만 (헛손)
 	assert_int(caster.combo.streak).is_equal(3)
 	_tap()

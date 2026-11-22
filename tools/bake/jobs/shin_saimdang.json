@@ -64,14 +64,14 @@
     },
     {
       "key": "attack",
-      "src": "Reaping Swing",
+      "src": "Double Combo Attack",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/models/meshy/shin_saimdang/animated_extra1.glb",
-      "start": 1.98,
-      "end": 4.35,
-      "strike": 3.56
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra4.glb",
+      "start": 0.0,
+      "end": 0.65,
+      "strike": 0.5
     },
     {
       "key": "hit",
@@ -89,25 +89,25 @@
     },
     {
       "key": "attack2",
-      "src": "Triple Combo Attack",
+      "src": "Double Combo Attack",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/models/meshy/shin_saimdang/animated_extra2.glb",
-      "start": 0.85,
-      "end": 1.6,
-      "strike": 1.15
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra4.glb",
+      "start": 0.62,
+      "end": 1.25,
+      "strike": 1.0
     },
     {
       "key": "attack3",
-      "src": "Triple Combo Attack",
+      "src": "Double Combo Attack",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/models/meshy/shin_saimdang/animated_extra2.glb",
-      "start": 2.1,
-      "end": 3.4,
-      "strike": 3.0
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra4.glb",
+      "start": 1.25,
+      "end": 2.25,
+      "strike": 1.8
     },
     {
       "key": "throw",

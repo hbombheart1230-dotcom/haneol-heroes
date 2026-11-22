@@ -54,13 +54,13 @@
     {
       "key": "attack",
       "match": "attack|slash|punch",
-      "action_id": 219,
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "start": 0.1,
-      "end": 1.1,
-      "strike": 0.55
+      "start": 0.15,
+      "end": 0.85,
+      "strike": 0.6,
+      "clip_of": "combo"
     },
     {
       "key": "hit",
@@ -103,7 +103,7 @@
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "start": 2.1,
+      "start": 2.25,
       "end": 3.4,
       "strike": 3.0
     },
