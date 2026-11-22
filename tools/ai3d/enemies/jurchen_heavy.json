@@ -4,7 +4,7 @@
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
-    "pose_mode": "a-pose",
+    "pose_mode": "",
     "should_remesh": true,
     "topology": "triangle",
     "target_polycount": 20000,
