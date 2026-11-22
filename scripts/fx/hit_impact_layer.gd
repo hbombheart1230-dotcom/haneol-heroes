@@ -162,13 +162,13 @@ func _draw_one(i: int) -> void:
 func _stroke_color(style: int, hero: Color) -> Color:
 	match style:
 		Style.WATER:
-			return Color(0.75, 0.92, 1.0)
+			return data.water_color
 		Style.GOLD:
-			return Color(1.0, 0.82, 0.32)
+			return data.gold_color
 		Style.PETAL:
-			return Color(0.1, 0.07, 0.08)
+			return data.petal_stroke_color
 		Style.THUNDER:
-			return Color(1.0, 0.93, 0.6)
+			return data.thunder_color
 	return hero.lightened(data.color_lighten)
 
 
@@ -176,9 +176,9 @@ func _stroke_color(style: int, hero: Color) -> Color:
 func _draw_bits(style: int, at: Vector2, v: Vector2, w: float, fade: float, j: int) -> void:
 	match style:
 		Style.WATER:
-			draw_circle(at + v * w * 1.2, w * 0.55, Color(0.85, 0.96, 1.0, fade))
+			draw_circle(at + v * w * 1.2, w * 0.55, Color(data.water_drop_color, fade))
 		Style.THUNDER:
 			if j % 2 == 0:
-				draw_circle(at + v * w, w * 0.6, Color(0.38, 0.26, 0.16, fade))  # 흙덩이
+				draw_circle(at + v * w, w * 0.6, Color(data.earth_color, fade))  # 흙덩이
 		Style.PETAL:
-			draw_circle(at + v * w * 1.4, w * 0.6, Color(1.0, 0.62, 0.72, fade))  # 매화 꽃잎
+			draw_circle(at + v * w * 1.4, w * 0.6, Color(data.petal_color, fade))  # 매화 꽃잎

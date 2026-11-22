@@ -95,6 +95,8 @@ extends Resource
 ## 크게 날리기 곡선 (EnemyLaunch): 맞고 거의 제자리인 시간, 그 뒤 튀어 감속하는 시간(초). 하데스 실측 약 3칸 + 0.3초.
 @export var big_push_hold: float = 0.05
 @export var big_push_time: float = 0.3
+## 멈춤(hold) 동안 갈 거리 비율 (나머지는 튀어 감속하며).
+@export var big_push_hold_share: float = 0.04
 
 @export_group("하데스 슬라이스")
 ## 물결 마지막 처치 슬로모션 (실제 초·게임 속도).

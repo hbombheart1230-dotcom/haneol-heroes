@@ -247,26 +247,12 @@ func _update_sprite(delta: float) -> void:
 	if _hitstop_left > 0.0 and current_anim() == _oneshot:
 		_sprite.speed_scale = 0.0
 	if player.hero:
-		_pose(delta)
+		PlayerPose.tick(self, delta)
 
 
 ## 대시 착지 (무게감): 발 기준 눌림, 그림 잠깐 멈칫, 발밑 먹 튐, 무거운 영웅은 흔들림·화면 밀림.
 func on_land() -> void:
-	var h := player.hero if player else null
-	if h == null:
-		return
-	_land_left = h.land_time
-	_land_hold_left = h.land_hold
-	var fb := Feedback.instance
-	if fb == null:
-		return
-	var dir := player.get_dash_direction()
-	if fb.kill_fx and h.land_drops > 0:
-		fb.kill_fx.drops(player.global_position, dir, h.land_drops)
-	if h.land_trauma > 0.0:
-		fb.add_trauma(ImpactFx.capped_trauma(fb.trauma, h.land_trauma, fb.feel.impact_data().trauma_cap), dir)
-	if h.land_kick_px > 0.0:
-		fb.kick(dir, h.land_kick_px)
+	PlayerPose.land(self)
 
 
 ## 방향 번호를 뗀 동작 이름 ("cast_tap_3" → "cast_tap").
@@ -282,39 +268,6 @@ static func lunge_curve(t: float, out: float, back: float) -> float:
 	if t < out:
 		return 1.0 - pow(1.0 - t / maxf(out, 0.001), 2.0)
 	return clampf(1.0 - (t - out) / maxf(back, 0.001), 0.0, 1.0)
-
-
-## 그림 자세 (무게감, 판정·이동은 그대로): 착지 눌림 + 멈출 때 앞쏠림. 발(원점)은 제자리.
-func _pose(delta: float) -> void:
-	var h := player.hero
-	_land_left = maxf(_land_left - delta, 0.0)
-	_land_hold_left = maxf(_land_hold_left - delta, 0.0)
-	var has_input := player.move_input.length() > 0.1
-	var v := player.walk_velocity()
-	if _had_input and not has_input and v.length() > player.move_speed * 0.5 and h.stop_slide_time > 0.0:
-		_slide_left = h.stop_slide_time
-		_slide_dir = v.normalized()
-	_had_input = has_input
-	_slide_left = maxf(_slide_left - delta, 0.0)
-	var k := _land_left / maxf(h.land_time, 0.001)
-	var sq := Vector2.ONE.lerp(h.land_squash, k * k)
-	_sprite.scale = Vector2.ONE * h.sprite_scale * sq
-	var lean := _slide_dir * h.stop_slide_px * sin(PI * (1.0 - _slide_left / maxf(h.stop_slide_time, 0.001))) 		if _slide_left > 0.0 else Vector2.ZERO
-	_sprite.position = Vector2(h.sprite_offset.x, h.sprite_offset.y * sq.y) + lean
-	if _lunge != Vector2.ZERO or _lunge_now != Vector2.ZERO:  # 내딛기 0인 타에서도 남은 위치는 돌아온다
-		_lunge_t += delta
-		if is_moving():
-			_lunge = Vector2.ZERO
-			_lunge_now = Vector2.ZERO
-		elif Feedback.feel_data().lunge_hold_combo and (_oneshot_left > 0.0 or _hold_left > 0.0):
-			_lunge_now = _lunge_from.lerp(_lunge, lunge_curve(_lunge_t, _lunge_out, INF))  # 나가서 연타 동안 유지
-		else:  # 연타가 끝나면 제자리로
-			_lunge_now = _lunge_now.move_toward(Vector2.ZERO, maxf(_lunge.length(), _lunge_now.length()) / maxf(_lunge_back, 0.001) * delta)
-			if _lunge_now == Vector2.ZERO:
-				_lunge = Vector2.ZERO
-		_sprite.position += _lunge_now
-	if _land_hold_left > 0.0:
-		_sprite.speed_scale = 0.0
 
 
 ## 피격 표시 (R3): 맞은 순간 붉게, 무적 동안 깜빡임 (대시 중에는 대시 색 그대로).

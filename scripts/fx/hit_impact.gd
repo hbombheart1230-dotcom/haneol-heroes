@@ -68,9 +68,9 @@ static func tip_spark(atk: AutoAttack, dir: Vector2) -> void:
 		return
 	var d := data()
 	var wait := maxf(atk.melee_delay() + atk.step_pause() - d.spark_lead, 0.0)
-	var at := dir.normalized() * atk.stats().melee_range * 0.55 + Vector2(0, -40)
+	var at := dir.normalized() * atk.stats().melee_range * d.spark_reach + Vector2(0, -d.spark_lift)
 	atk.get_tree().create_timer(wait, false).timeout.connect(func() -> void:
 		var l := layer()
-		if l and is_instance_valid(atk) and atk.player:
+		if l and is_instance_valid(atk) and atk.player and atk.swing_pending():  # 대시로 끊긴 휘두름엔 없다
 			l.add_spark(atk.player.global_position + at))
 

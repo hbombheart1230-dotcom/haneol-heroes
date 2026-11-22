@@ -294,6 +294,7 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 		return false
 	_dash_dir = dir.normalized()
 	_dash_time_left = dash_duration
+	_swing_left = 0.0  # 대시가 휘두름을 끊으면 느려짐도 끝 (대시 뒤에 남지 않게)
 	_glide_left = 0.0
 	_since_dash_start = 0.0
 	_dash_start_pos = global_position
