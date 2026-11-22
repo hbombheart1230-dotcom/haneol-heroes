@@ -18,6 +18,9 @@ var _oneshot_left: float = 0.0
 var _dir: int = -1
 ## 문턱·재생 속도 범위는 CombatFeelData("영웅 동작")에 있다.
 var _running: bool = false
+## 칼이 닿은 순간 영웅 동작도 멈춘다 (역경직, B3): 남은 시간.
+var _hitstop_left: float = 0.0
+var _attack: AutoAttack
 
 
 func _ready() -> void:
@@ -55,8 +58,10 @@ func _setup_sprite(h: HeroData) -> void:
 	_sprite.position = h.sprite_offset
 	add_child(_sprite)
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
+	_attack = attack
 	if attack:
 		attack.melee_windup.connect(_on_auto_swing.bind(0))  # 휘두르기 시작에 동작, 피해는 칼이 닿을 때
+		attack.melee_swung.connect(_on_melee_contact)  # 칼이 닿은 순간 멈춤
 		attack.ranged_windup.connect(_on_ranged_windup)  # 던지는 동작
 	var caster := player.get_node_or_null("SkillCaster") as SkillCaster
 	if caster:
@@ -67,7 +72,22 @@ func _setup_sprite(h: HeroData) -> void:
 ## (0.55초마다 달리기가 끊겨 끊겨 보이던 원인).
 func _on_auto_swing(_d: Vector2, _h: int) -> void:
 	if not is_moving():
-		play_oneshot("attack", 0.35)
+		var anim := _attack.chain_anim() if _attack else "attack"  # 연계 2·3타 동작 (B4)
+		play_oneshot(anim, anim_seconds(anim, 0.35))
+
+
+## 칼이 닿은 순간: 맞았으면 지금 보여 주는 공격 동작을 잠깐 멈춘다 (달리는 중엔 다리를 멈추지 않는다).
+func _on_melee_contact(_d: Vector2, hits: int) -> void:
+	if _oneshot_left > 0.0 and _oneshot.begins_with("attack") and not GameTime.is_stopped():  # 기술 멈춤·마무리 슬로우와 겹치지 않게
+		_hitstop_left = Feedback.feel_data().impact_data().hero_hitstop(hits, _attack != null and _attack.last_heavy)
+
+
+## 동작 한 번 길이(초) = 칸 수 ÷ fps (시트에 없으면 fallback).
+func anim_seconds(anim: String, fallback: float) -> float:
+	if _sheet == null or not _sheet.has_anim(anim):
+		return fallback
+	var i := _sheet.anim_names.find(anim)
+	return _sheet.frame_count(anim) / maxf(_sheet.fps[i], 1.0)
 
 
 ## 실제 걷기 속도 기준으로 달리는 중인지 (문턱 두 개로 깜빡임 방지).
@@ -119,7 +139,10 @@ func available_anim(anim: String) -> String:
 
 
 func _update_sprite(delta: float) -> void:
-	_oneshot_left = maxf(_oneshot_left - delta, 0.0)
+	if _hitstop_left > 0.0:  # 멈춘 동안은 공격 동작 시간도 흐르지 않는다
+		_hitstop_left = maxf(_hitstop_left - delta, 0.0)
+	else:
+		_oneshot_left = maxf(_oneshot_left - delta, 0.0)
 	_dir = _sheet.dir_index_sticky(player.facing, _dir, Feedback.feel_data().dir_margin_deg)
 	var dir := _dir
 	var anim_name := StringName("%s_%d" % [available_anim(current_anim()), dir])
@@ -138,6 +161,8 @@ func _update_sprite(delta: float) -> void:
 		tint.a = ds.body_alpha if ds else 1.0  # 광개토 번개 순간이동·사임당 먹으로 흩어짐
 	_sprite.modulate = hurt_tint(tint)
 	_sprite.speed_scale = run_anim_speed() if current_anim() == "run" else 1.0
+	if _hitstop_left > 0.0 and current_anim() == _oneshot:
+		_sprite.speed_scale = 0.0
 
 
 ## 피격 표시 (R3): 맞은 순간 붉게, 무적 동안 깜빡임 (대시 중에는 대시 색 그대로).

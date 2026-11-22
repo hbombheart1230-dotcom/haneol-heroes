@@ -60,6 +60,8 @@ def resolve_actions(cfg: dict) -> list:
     picked = []
     everything = api.library() if any("action_id" in a for a in cfg["anims"]) else []
     for anim in cfg["anims"]:
+        if "clip_of" in anim:
+            continue
         if "action_id" in anim:
             entry = next((e for e in everything if e.get("action_id") == anim["action_id"]), None)
         else:
@@ -132,7 +134,7 @@ def new_anims(cfg: dict, state: dict) -> list:
     done = {a["key"] for a in state.get("actions", [])}
     for extra in state.get("extras", []):
         done |= {a["key"] for a in extra["actions"]}
-    return [a for a in cfg["anims"] if a["key"] not in done]
+    return [a for a in cfg["anims"] if a["key"] not in done and "clip_of" not in a]  # clip_of: 다른 동작을 잘라 씀 (무료)
 
 
 def add_anims(cfg: dict, args: argparse.Namespace) -> None:
@@ -210,6 +212,11 @@ def write_bake_job(cfg: dict, state: dict) -> str:
         for a in extra["actions"]:
             names[a["key"]] = a["name"]
             extra_file[a["key"]] = f"res://assets/models/meshy/{cfg['name']}/{extra['file']}"
+    for a in cfg["anims"]:  # clip_of: 이미 받은 동작의 다른 구간 (연계 2·3타를 한 동작에서 자르기)
+        if "clip_of" in a and a["clip_of"] in names:
+            names[a["key"]] = names[a["clip_of"]]
+            if a["clip_of"] in extra_file:
+                extra_file[a["key"]] = extra_file[a["clip_of"]]
     job = {
         "name": cfg["name"],
         "model": f"res://assets/models/meshy/{cfg['name']}/animated.glb",
@@ -219,7 +226,7 @@ def write_bake_job(cfg: dict, state: dict) -> str:
                         "fps": a["fps"], "loop": a["loop"]}, **({"from": extra_file[a["key"]]}
                                                                  if a["key"] in extra_file else {}),
                        **{k: a[k] for k in TRIM_KEYS if k in a})
-                  for a in cfg["anims"] if a["key"] in names],
+                  for a in cfg["anims"] if a["key"] in names and not a.get("skip_bake")],  # skip_bake: 자르기 원본만
     }
     path = rel(f"tools/bake/jobs/{cfg['name']}.json")
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -275,7 +282,8 @@ def apply_to_hero(cfg: dict) -> None:
 
 def plan(cfg: dict, state: dict) -> int:
     todo = [s for s in STAGES if not state.get(f"{s}_done")]
-    credits = sum(COST["anim_each"] * len(cfg["anims"]) if s == "anim" else COST[s] for s in todo)
+    paid = [a for a in cfg["anims"] if "clip_of" not in a]
+    credits = sum(COST["anim_each"] * len(paid) if s == "anim" else COST[s] for s in todo)
     print(f"[{cfg['name']}] 남은 단계: {', '.join(todo) or '없음 (굽기만)'} / 예상 약 {credits} 크레딧")
     return credits
 

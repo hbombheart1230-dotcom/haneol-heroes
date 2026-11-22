@@ -48,9 +48,14 @@ proj_art = ExtResource("proj_art")
 proj_size = Vector2(130, 69)
 proj_trail_color = Color(0.4, 0.75, 1, 0.55)
 proj_trail_len = 70.0
-release_delay = 0.12
+release_delay = -1.0
+ranged_anim = &"throw"
+ranged_anim_time = 0.375
 release_offset = Vector2(34, 40)
 melee_delay = -1.0
+engage_mult = 1.8
+melee_hit_sfx = &"w_sword"
+heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_haeryong"]
 script = ExtResource("4_haeryong")
 id = &"haeryong"

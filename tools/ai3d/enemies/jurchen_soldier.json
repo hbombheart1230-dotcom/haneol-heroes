@@ -61,6 +61,16 @@
       "frames": 3,
       "fps": 12.0,
       "loop": false
+    },
+    {
+      "key": "down",
+      "match": "down",
+      "action_id": 100,
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "start": 0.55,
+      "end": 6.3
     }
   ]
 }

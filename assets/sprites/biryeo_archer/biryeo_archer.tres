@@ -5,15 +5,16 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/biryeo_archer/run.png" id="t1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/biryeo_archer/attack.png" id="t2"]
 [ext_resource type="Texture2D" path="res://assets/sprites/biryeo_archer/hit.png" id="t3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/biryeo_archer/down.png" id="t4"]
 
 [resource]
 script = ExtResource("1_set")
 frame_size = 160
 directions = 8
-anim_names = PackedStringArray("idle", "run", "attack", "hit")
-textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3")])
-frame_counts = PackedInt32Array(4, 6, 6, 3)
-fps = PackedFloat32Array(6.0, 10.0, 10.0, 12.0)
-loops = Array[bool]([true, true, false, false])
-strike_frames = PackedInt32Array(-1, -1, 5, -1)
-tips = Array[PackedVector2Array]([PackedVector2Array(), PackedVector2Array(), PackedVector2Array(24.5, 17.8, 48.7, 4.9, 29.1, -41.4, 35.3, -27.8, 30.0, -30.3, 22.2, -25.9, 24.3, 39.8, 24.9, 26.7, 23.5, -28.1, 32.3, -12.8, 31.6, -13.8, 18.3, -14.2, -31.4, 21.8, -29.4, 12.2, 2.1, 35.6, 16.8, 2.0, 8.7, 41.5, -3.6, 32.2, -50.7, 3.0, -51.8, -6.4, -33.5, -18.7, -27.6, 12.3, -18.4, -7.1, -26.8, -15.2, -29.5, -19.2, -43.7, -29.8, -35.1, -38.9, -33.3, -8.0, -32.0, -20.1, -25.2, -30.1, -23.5, -40.7, -12.8, -44.5, -22.7, -51.7, -35.8, -25.0, -28.1, -34.6, -16.6, -40.7, 31.4, -22.2, 29.4, -41.1, -2.1, -58.9, -16.8, -36.8, -8.7, -47.9, 3.6, -47.1, 39.5, 2.3, 57.0, -21.5, 19.7, -53.5, 19.8, -43.5, 17.6, -42.8, 19.9, -36.7), PackedVector2Array()])
+anim_names = PackedStringArray("idle", "run", "attack", "hit", "down")
+textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3"), ExtResource("t4")])
+frame_counts = PackedInt32Array(4, 6, 6, 3, 8)
+fps = PackedFloat32Array(6.0, 10.0, 10.0, 12.0, 10.0)
+loops = Array[bool]([true, true, false, false, false])
+strike_frames = PackedInt32Array(-1, -1, 5, -1, -1)
+tips = Array[PackedVector2Array]([PackedVector2Array(), PackedVector2Array(), PackedVector2Array(24.5, 17.8, 48.7, 4.9, 29.1, -41.4, 35.3, -27.8, 30.0, -30.3, 22.2, -25.9, 24.3, 39.8, 24.9, 26.7, 23.5, -28.1, 32.3, -12.8, 31.6, -13.8, 18.3, -14.2, -31.4, 21.8, -29.4, 12.2, 2.1, 35.6, 16.8, 2.0, 8.7, 41.5, -3.6, 32.2, -50.7, 3.0, -51.8, -6.4, -33.5, -18.7, -27.6, 12.3, -18.4, -7.1, -26.8, -15.2, -29.5, -19.2, -43.7, -29.8, -35.1, -38.9, -33.3, -8.0, -32.0, -20.1, -25.2, -30.1, -23.5, -40.7, -12.8, -44.5, -22.7, -51.7, -35.8, -25.0, -28.1, -34.6, -16.6, -40.7, 31.4, -22.2, 29.4, -41.1, -2.1, -58.9, -16.8, -36.8, -8.7, -47.9, 3.6, -47.1, 39.5, 2.3, 57.0, -21.5, 19.7, -53.5, 19.8, -43.5, 17.6, -42.8, 19.9, -36.7), PackedVector2Array(), PackedVector2Array()])

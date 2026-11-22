@@ -209,12 +209,14 @@ func skill_trauma_for(slot: SkillCaster.Slot, hits: int) -> float:
 
 # --- 게임 로직에서 부르는 static 진입점 ---
 
-## dir: 맞은 방향 (공격자 → 적). 먹물이 그쪽으로 튄다.
-static func enemy_hit(pos: Vector2, amount: int, dir: Vector2 = Vector2.ZERO) -> void:
+## dir: 맞은 방향 (공격자 → 적). 먹물이 그쪽으로 튄다. style: 피해 숫자 모양 (EnemyHits.number_style),
+## bonus: 반격·뒤치기 글자 (HitBonus 깃발).
+static func enemy_hit(pos: Vector2, amount: int, dir: Vector2 = Vector2.ZERO, style: int = -1, bonus: int = 0) -> void:
 	if instance == null:
 		return
 	if instance.fx:
-		instance.fx.add_number(pos, amount, amount >= instance.feel.big_hit_damage)
+		instance.fx.add_number(pos, amount, style if style >= 0 else int(amount >= instance.feel.big_hit_damage))
+		ImpactFx.hit_label(instance, pos, bonus)
 	if instance.kill_fx:
 		instance.kill_fx.drops(pos, dir, instance.feel.drops_for(amount))
 	instance._play_hit(amount)
@@ -335,6 +337,7 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 		kick(dir, feel.kill_kick_px * 2.0)
 		if is_inside_tree():
 			GameTime.stop(get_tree(), feel.finisher_time, feel.finisher_time_scale)
+			ImpactFx.finisher(self)  # 확대·흰 번쩍임 (B7)
 		return
 	add_trauma(feel.kill_trauma, dir)
 	kick(dir, feel.kill_kick_px)

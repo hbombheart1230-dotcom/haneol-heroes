@@ -52,6 +52,9 @@ ranged_anim_time = 0.44
 release_offset = Vector2(30, 52)
 ranged_glyphs = "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ"
 melee_delay = -1.0
+engage_mult = 1.0
+melee_hit_sfx = &"w_scroll"
+heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
 sfx = &"magic"

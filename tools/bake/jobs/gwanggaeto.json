@@ -94,6 +94,39 @@
       "frames": 6,
       "fps": 10.0,
       "loop": false
+    },
+    {
+      "key": "attack2",
+      "src": "Triple Combo Attack",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/gwanggaeto/animated_extra2.glb",
+      "start": 0.85,
+      "end": 1.6,
+      "strike": 1.15
+    },
+    {
+      "key": "attack3",
+      "src": "Triple Combo Attack",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/gwanggaeto/animated_extra2.glb",
+      "start": 2.1,
+      "end": 3.4,
+      "strike": 3.0
+    },
+    {
+      "key": "throw",
+      "src": "Over Shoulder Throw",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/gwanggaeto/animated_extra3.glb",
+      "start": 2.6,
+      "end": 3.8,
+      "strike": 3.5
     }
   ]
 }

@@ -15,6 +15,12 @@ var _age: float = INF
 ## 맞은 방향 (때린 쪽 → 적)과 움찔 크기 배율.
 var _dir: Vector2 = Vector2.ZERO
 var _k: float = 1.0
+## 넘어짐 (B8): 남은 시간·전체 시간·떠오르는 높이·그 시간, 다시 넘어지지 않는 남은 시간.
+var down_left: float = 0.0
+var down_total: float = 0.0
+var _down_lift_px: float = 0.0
+var _down_lift_time: float = 0.0
+var _down_guard: float = 0.0
 
 
 func _init(p_data: HitReactionData = null, p_tier: Tier = Tier.TRASH) -> void:
@@ -58,7 +64,50 @@ func on_shove() -> void:
 func tick(delta: float) -> void:
 	anim_left = maxf(anim_left - delta, 0.0)
 	stagger_left = maxf(stagger_left - delta, 0.0)
+	if down_left > 0.0:
+		down_left = maxf(down_left - delta, 0.0)
+	else:
+		_down_guard = maxf(_down_guard - delta, 0.0)
 	_age += delta
+
+
+## 넘어뜨리기 (잡몹만, 일어난 직후는 아님). 넘어졌으면 true.
+func knock_down(d: ImpactFeelData) -> bool:
+	if tier != Tier.TRASH or down_left > 0.0 or _down_guard > 0.0 or d.down_time <= 0.0:
+		return false
+	down_left = d.down_time
+	down_total = d.down_time
+	_down_lift_px = d.down_lift_px
+	_down_lift_time = minf(d.down_lift_time, d.down_time)
+	_down_guard = d.down_rearm
+	return true
+
+
+func is_down() -> bool:
+	return down_left > 0.0
+
+
+## 0~1 넘어짐 진행 (넘어져 있지 않으면 0).
+func down_progress() -> float:
+	return clampf(1.0 - down_left / maxf(down_total, 0.001), 0.0, 1.0) if down_left > 0.0 else 0.0
+
+
+## 넘어짐 동작이 없을 때 눕히는 기울기(라디안): 맞은 방향 쪽으로 처음 20% 동안 넘어가 누웠다가 마지막 20%에 일어난다.
+func down_tilt(max_deg: float) -> float:
+	if down_left <= 0.0:
+		return 0.0
+	var k := down_progress()
+	var env := minf(minf(k / 0.2, (1.0 - k) / 0.2), 1.0)
+	return deg_to_rad(max_deg) * (1.0 if _dir.x >= 0.0 else -1.0) * env
+
+
+## 떠오른 높이(px): 처음 lift_time 동안 포물선.
+func down_lift() -> float:
+	var t := down_total - down_left
+	if down_left <= 0.0 or _down_lift_time <= 0.0 or t >= _down_lift_time:
+		return 0.0
+	var k := t / _down_lift_time
+	return 4.0 * _down_lift_px * k * (1.0 - k)
 
 
 func is_staggered() -> bool:
