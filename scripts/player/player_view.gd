@@ -63,6 +63,9 @@ func refresh() -> void:
 		if _sprite:
 			_sprite.queue_free()
 			_sprite = null
+		if _blend:  # 겹침 그림도 같이 (반쯤 흐린 채 남지 않게, 다시 만들 때 둘이 되지 않게)
+			_blend.queue_free()
+			_blend = null
 		_sheet = null
 		return
 	if _sprite == null:
@@ -298,7 +301,7 @@ func _pose(delta: float) -> void:
 	_sprite.scale = Vector2.ONE * h.sprite_scale * sq
 	var lean := _slide_dir * h.stop_slide_px * sin(PI * (1.0 - _slide_left / maxf(h.stop_slide_time, 0.001))) 		if _slide_left > 0.0 else Vector2.ZERO
 	_sprite.position = Vector2(h.sprite_offset.x, h.sprite_offset.y * sq.y) + lean
-	if _lunge != Vector2.ZERO:
+	if _lunge != Vector2.ZERO or _lunge_now != Vector2.ZERO:  # 내딛기 0인 타에서도 남은 위치는 돌아온다
 		_lunge_t += delta
 		if is_moving():
 			_lunge = Vector2.ZERO
@@ -306,7 +309,7 @@ func _pose(delta: float) -> void:
 		elif Feedback.feel_data().lunge_hold_combo and (_oneshot_left > 0.0 or _hold_left > 0.0):
 			_lunge_now = _lunge_from.lerp(_lunge, lunge_curve(_lunge_t, _lunge_out, INF))  # 나가서 연타 동안 유지
 		else:  # 연타가 끝나면 제자리로
-			_lunge_now = _lunge_now.move_toward(Vector2.ZERO, _lunge.length() / maxf(_lunge_back, 0.001) * delta)
+			_lunge_now = _lunge_now.move_toward(Vector2.ZERO, maxf(_lunge.length(), _lunge_now.length()) / maxf(_lunge_back, 0.001) * delta)
 			if _lunge_now == Vector2.ZERO:
 				_lunge = Vector2.ZERO
 		_sprite.position += _lunge_now

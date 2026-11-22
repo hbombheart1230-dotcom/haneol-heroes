@@ -2,13 +2,12 @@ class_name BasicAttackData
 extends Resource
 ## 자동 기본 공격 수치 (근접 부채꼴 + 원거리 투사체).
 
-@export_group("근접")
 @export_group("평타 종류")
 ## 영웅 역할 (사용자: "근접은 근접만 원거리는 세종만", 사임당은 중거리): 근접 평타를 쓰는지, 원거리 평타를 쓰는지.
 ## 근접만이면 사거리 밖 적에게는 자동으로 아무것도 안 한다 (다가가야 한다). 원거리만이면 붙은 적에게도 쏜다.
 @export var use_melee: bool = true
 @export var use_ranged: bool = true
-@export_group("")
+@export_group("근접")
 @export var melee_interval: float = 0.55
 @export var melee_range: float = 110.0
 @export var melee_arc_degrees: float = 140.0
