@@ -141,6 +141,19 @@ func test_counter_still_wins() -> void:
 	assert_array(casts).is_equal([SkillCaster.Slot.COUNTER])
 
 
+## 너무 빨라서 기억해 둔 탭도, 그 사이 반격 시간이 열리면 평타·마무리가 아니라 반격으로 나간다.
+func test_buffered_tap_yields_to_counter() -> void:
+	_setup(YI)
+	_tap()
+	_tap()  # 간격 안: 기억됨
+	assert_bool(caster.combo.has_buffer()).is_true()
+	caster.on_evade()
+	_wait(caster.tap_gap())
+	assert_array(casts).is_equal([SkillCaster.Slot.COUNTER])
+	assert_bool(caster.combo.has_buffer()).is_false()
+	assert_int(swings.size()).is_equal(1)  # 기억된 탭이 평타로 새지 않음
+
+
 ## 세종: 탭 = 글자 던지기 연사, 넷째 = 정음진.
 func test_sejong_taps_throw_then_finish() -> void:
 	_setup(SEJONG)
