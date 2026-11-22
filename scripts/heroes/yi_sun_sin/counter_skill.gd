@@ -6,6 +6,8 @@ extends SkillDef
 @export var radius: float = 230.0
 @export var damage: int = 60
 @export var knockback: float = 520.0
+## 0보다 크면 넉백 대신 이만큼(px) 바깥으로 크게 날린다 (큰 기술 = 크게 날림, EnemyLaunch).
+@export var launch_px: float = 0.0
 ## 히트스톱 길이(실시간 초).
 @export_group("큰 변형 · 사방 검기")
 ## 반격과 함께 사방으로 날리는 관통 검기 수 (0이면 없음).
@@ -17,9 +19,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	var center := ctx.player.global_position
 	var hits := 0
 	for en in ctx.enemies_in_radius(center, radius):
-		var off := en.global_position - center
-		var dir := off.normalized() if off.length_squared() > 0.01 else Vector2.RIGHT
-		en.apply_knockback(dir * knockback)
+		ComboSteps.push_out(en, center, launch_px, knockback)
 		ctx.hit(en, damage)
 		hits += 1
 	ctx.impact(center, Vector2.ZERO, radius)

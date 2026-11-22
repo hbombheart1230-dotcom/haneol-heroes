@@ -25,6 +25,20 @@ static func frame_time(win: Vector2, f: int, frames: int, loop: bool) -> float:
 	return win.x + (win.y - win.x) * f / div
 
 
+## f번째 프레임의 시각. 작업의 "times"(칸 수만큼의 초 목록)가 있으면 그 값 — 예고는 치켜든 자세에 오래,
+## 맞닿는 칸은 정확한 순간에 둘 수 있다 (고른 간격으로는 들어 올린 꼭대기·맞닿는 순간을 놓친다).
+static func sample_time(anim: Dictionary, win: Vector2, f: int, frames: int, loop: bool) -> float:
+	var times: Array = anim.get("times", [])
+	if times.size() == frames:
+		return float(times[f])
+	return frame_time(win, f, frames, loop)
+
+
+## 이 동작만 몸을 더 돌려 굽는 각도(라디안, 작업의 "yaw" 도). 옆이나 뒤로 겨누는 동작을 대상 쪽으로 돌린다.
+static func yaw_offset(anim: Dictionary) -> float:
+	return deg_to_rad(float(anim.get("yaw", 0.0)))
+
+
 ## 맞닿는 순간(strike, 초)에 가장 가까운 프레임 번호. strike가 없으면 -1.
 static func strike_frame(anim: Dictionary, win: Vector2, frames: int, loop: bool) -> int:
 	if not anim.has("strike") or frames <= 0:
@@ -32,7 +46,7 @@ static func strike_frame(anim: Dictionary, win: Vector2, frames: int, loop: bool
 	var best := 0
 	var best_d := INF
 	for f in frames:
-		var d := absf(frame_time(win, f, frames, loop) - float(anim["strike"]))
+		var d := absf(sample_time(anim, win, f, frames, loop) - float(anim["strike"]))
 		if d < best_d:
 			best_d = d
 			best = f

@@ -22,8 +22,8 @@
     {
       "key": "run",
       "src": "Walk Fight Forward",
-      "frames": 6,
-      "fps": 10.0,
+      "frames": 8,
+      "fps": 5.0,
       "loop": true
     },
     {
@@ -33,27 +33,43 @@
       "fps": 10.0,
       "loop": false,
       "from": "res://assets/models/meshy/waegun_commander/animated_extra1.glb",
-      "start": 0.9,
-      "end": 2.67,
-      "strike": 2.1
+      "strike": 2.35,
+      "times": [
+        0.9,
+        1.45,
+        1.75,
+        1.95,
+        2.35,
+        2.67
+      ]
     },
     {
       "key": "hit",
       "src": "Hit Reaction",
       "frames": 3,
       "fps": 12.0,
-      "loop": false
+      "loop": false,
+      "times": [
+        0.15,
+        0.35,
+        0.6
+      ]
     },
     {
       "key": "attack2",
-      "src": "Right-hand Sword Slash",
+      "src": "Charged_Slash",
       "frames": 6,
       "fps": 10.0,
       "loop": false,
-      "from": "res://assets/models/meshy/waegun_commander/animated_extra1.glb",
-      "start": 0.1,
-      "end": 1.1,
-      "strike": 0.55
+      "strike": 0.6,
+      "times": [
+        0.0,
+        0.2,
+        0.39,
+        0.6,
+        0.9,
+        1.4
+      ]
     }
   ]
 }

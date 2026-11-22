@@ -153,6 +153,8 @@ static func shake_px(base_px: float, freeze_left: float, freeze_total: float) ->
 func flash_amount(flash_left: float, flash_time: float, peak_time: float) -> float:
 	if flash_left <= 0.0 or flash_time <= 0.0:
 		return 0.0
+	if data.hit_flash_style != 0:  # 실루엣: 맞은 첫 칸만 꽉 차게
+		return 1.0 if flash_time - flash_left < data.flash_frame_time else 0.0
 	if data.flash_blinks > 1:  # 켜짐 · 꺼짐 · 켜짐 … (마지막 칸까지)
 		var seg := flash_time / float(2 * data.flash_blinks - 1)
 		var idx := int((flash_time - flash_left) / maxf(seg, 0.001))
