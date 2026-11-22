@@ -90,15 +90,17 @@ func burst(d: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: in
 		base_rot = 0.0
 	elif d.decal_align and dir.length_squared() > 0.0001:
 		base_rot = dir.angle() - deg_to_rad(d.decal_angle_deg)
-	var size := fit_size(d, level, fit_radius)
+	var pl := FxCoverage.plan(d, level, fit_radius, pieces.stage, FxCoverage.view_width(self))  # 화면 덮기 상한
+	var size := float(pl["size"])
 	var bright := 1.0 + d.level_glow * d.level_of(level)
-	ground.mark(d, pos, level, size / maxf(d.decal_size * d.size_mult(level), 1.0))
+	ground.mark(d, pos, level, float(pl["ground_k"]))
 	if d.piece_count > 0:  # 조각으로 펼침 (한 장 통째 대신)
-		pieces.pieces(d, pos, dir, level, size)
+		pieces.pieces(d, pos, dir, level, size, pl)
 	for i in (0 if d.piece_count > 0 else d.layers_for(level)):
 		_items.append({"data": d, "pos": pos, "rot": base_rot + feel.decal_layer_turn * i,
 			"spin": d.decal_spin * (1.0 if i % 2 == 0 else -1.0), "size": size * pow(feel.decal_layer_shrink, i),
-			"t": 0.0, "life": d.decal_time, "bright": bright, "glow": d.glow_for(level) if i == 0 else 0.0})
+			"t": 0.0, "life": d.decal_time * float(pl["time"]), "bright": bright, "grow": pl["grow"],
+			"glow_k": pl["glow_k"], "glow": d.glow_for(level) * float(pl["light"]) if i == 0 else 0.0})
 	if d.level_of(level) >= d.ring_level:
 		_rings.append({"pos": pos, "r": size * feel.flourish_ring_scale, "t": 0.0, "life": feel.flourish_ring_time})
 		while _rings.size() > maxi(feel.max_flourish_rings, 0):
@@ -148,7 +150,7 @@ func step(delta: float) -> void:
 func _shape(it: Dictionary) -> Vector3:
 	var d: SkillVfxData = it["data"]
 	var k := float(it["t"]) / float(it["life"])
-	var s := float(it["size"]) * lerpf(1.0, d.decal_grow, 1.0 - pow(1.0 - k, 2.0))
+	var s := float(it["size"]) * lerpf(1.0, float(it.get("grow", d.decal_grow)), 1.0 - pow(1.0 - k, 2.0))
 	var appear := minf(float(it["t"]) / maxf(d.decal_fade_in, 0.001), 1.0)
 	return Vector3(k, s * lerpf(0.6, 1.0, appear), (1.0 - k) * appear)
 
@@ -220,6 +222,6 @@ func _draw_glow() -> void:
 			continue
 		var d: SkillVfxData = it["data"]
 		var sh := _shape(it)
-		var s := sh.y * d.glow_size
+		var s := sh.y * float(it.get("glow_k", d.glow_size))
 		_glow.draw_texture_rect(dot, Rect2(it["pos"] - Vector2.ONE * s * 0.5, Vector2.ONE * s), false,
 			Color(d.glow_color, g * sh.z))

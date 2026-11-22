@@ -87,6 +87,8 @@ func has_bolt() -> bool:
 @export var ring_level: int = 4
 ## 단계 상한 (이 이상은 더 커지지 않음).
 @export var max_level: int = 6
+## 강화로 커지는 크기 배율의 상한 (최대 단계에서도 화면을 다 덮지 않게, 띠 두께·입자도).
+@export var max_size_mult: float = 1.4
 
 
 func level_of(level: int) -> int:
@@ -94,7 +96,7 @@ func level_of(level: int) -> int:
 
 
 func size_mult(level: int) -> float:
-	return 1.0 + level_size * level_of(level)
+	return minf(1.0 + level_size * level_of(level), maxf(max_size_mult, 1.0))
 
 
 func count_for(level: int) -> int:
