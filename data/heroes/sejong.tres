@@ -143,6 +143,7 @@ full_charge_time = 1.1
 [resource]
 script = ExtResource("1_hero")
 id = &"sejong"
+impact_style = 3
 story = ExtResource("story")
 home_stage = &"gyeongbokgung_1433"
 display_name = "세종"

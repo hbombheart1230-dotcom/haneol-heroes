@@ -163,6 +163,7 @@ full_charge_time = 1.0
 [resource]
 script = ExtResource("1_hero")
 id = &"yi_sun_sin"
+impact_style = 1
 story = ExtResource("story")
 home_stage = &"hansan_1592"
 display_name = "순신"

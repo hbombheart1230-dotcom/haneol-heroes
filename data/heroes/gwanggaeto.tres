@@ -147,6 +147,7 @@ full_charge_time = 1.1
 [resource]
 script = ExtResource("1_hero")
 id = &"gwanggaeto"
+impact_style = 2
 story = ExtResource("story")
 home_stage = &"manchuria_395"
 display_name = "광개토"

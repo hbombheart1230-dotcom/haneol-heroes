@@ -11,6 +11,8 @@ extends Resource
 @export var card_art: Texture2D
 ## false면 고르기 화면에 "준비 중"으로만 보인다 (아직 기술·모델이 없는 영웅).
 @export var playable: bool = true
+## 3타·큰 기술의 한 타 충격 줄기 모양 (HitImpactLayer.Style): 순신 물보라, 광개토 번개와 흙, 세종 금빛 획, 사임당 먹과 꽃잎.
+@export_enum("ink", "water", "thunder", "gold", "petal") var impact_style: int = 0
 ## 이 영웅이 처음 서는 무대 (StageTheme.id). 이기면 무대 순서대로 다음 전장으로 이어간다.
 @export var home_stage: StringName = &""
 ## 이 영웅을 처음 고르면 무대 전에 보여 줄 영웅 이야기 (data/intro/story_<영웅>.tres). 비우면 없음.

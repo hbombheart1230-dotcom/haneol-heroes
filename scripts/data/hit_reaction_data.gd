@@ -32,6 +32,23 @@ extends Resource
 ## 번쩍임 횟수 (GDQuest juicy-attack: 0.15초에 2번). 2 이상이면 CombatFeelData.flash_time을 켜짐·꺼짐 칸으로
 ## 고르게 나눠 켜진 칸마다 flash_white로 (1이면 예전처럼 한 번 밝았다 줄어듦).
 @export var flash_blinks: int = 2
+## 맞은 순간 몸 색 (사용자가 고를 비교안): 0 = 흰 번쩍임 (flash_blinks), 1 = 붉은 실루엣 한 칸 (하데스식),
+## 2 = 먹빛 실루엣 + 인주색 테두리 한 칸 (수묵 톤). 1·2는 flash_frame_time초 동안만 꽉 차게.
+@export_enum("white", "red", "ink_seal") var hit_flash_style: int = 0
+@export var flash_frame_time: float = 0.035
+@export var red_silhouette: Color = Color(0.86, 0.08, 0.05)
+@export var ink_silhouette: Color = Color(0.07, 0.05, 0.05)
+@export var seal_rim: Color = Color(0.82, 0.16, 0.1, 1.0)
+
+
+## 맞은 순간 몸 색 (셰이더 flash_color). 배열을 만들지 않게 색 하나씩.
+func flash_body() -> Color:
+	return red_silhouette if hit_flash_style == 1 else (ink_silhouette if hit_flash_style == 2 else Color.WHITE)
+
+
+## 맞은 순간 테두리 색 (셰이더 flash_rim, 알파 0 = 그대로).
+func flash_rim() -> Color:
+	return seal_rim if hit_flash_style == 2 else Color(0, 0, 0, 0)
 
 @export_group("영웅 피격")
 ## 맞은 순간 붉은 번쩍임 시간(초)과 색 (스프라이트 modulate).

@@ -145,6 +145,7 @@ full_charge_time = 1.0
 [resource]
 script = ExtResource("1_hero")
 id = &"shin_saimdang"
+impact_style = 4
 story = ExtResource("story")
 home_stage = &"chochungdo"
 display_name = "사임당"
