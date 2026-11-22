@@ -19,6 +19,7 @@ func _main() -> Node:
 	GameSettings.stage_picked = false
 	GameSettings.hero_stages = {}
 	GameSettings.hero_clears = {}
+	GameSettings.save_settings()  # TouchController가 판을 열 때 설정 파일을 다시 읽는다 (앞 묶음이 남긴 영웅이 섞이지 않게)
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(auto_free(main))
 	return main

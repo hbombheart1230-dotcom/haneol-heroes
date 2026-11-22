@@ -6,7 +6,7 @@ const DATA := preload("res://data/tutorial/controls.tres")
 
 func test_data_steps_cover_controls() -> void:
 	var evs := DATA.steps.map(func(s: TutorialStep) -> StringName: return s.event)
-	assert_array(evs).is_equal([&"move", &"dash", &"evade", &"skill_counter", &"skill_tap", &"skill_dash", &"skill_charge", &"upgrade", &"wait"])
+	assert_array(evs).is_equal([&"move", &"combo", &"skill_tap", &"skill_dash", &"skill_charge", &"evade", &"skill_counter", &"upgrade"])
 	for s in DATA.steps:
 		assert_str(s.caption).is_not_empty()
 		assert_str(s.hint).is_not_empty()
@@ -19,14 +19,12 @@ func test_progress_advances_only_on_matching_event() -> void:
 	assert_float(p.ratio()).is_equal_approx(200.0 / 320.0, 0.001)
 	assert_bool(p.notify(&"move", 200.0)).is_true()
 	assert_int(p.index).is_equal(1)
-	p.notify(&"dash")
-	assert_int(p.index).is_equal(1)  # 두 번 해야 넘어감
-	p.notify(&"dash")
-	for ev in [&"evade", &"skill_counter", &"skill_tap", &"skill_dash", &"skill_charge", &"upgrade"]:
+	assert_bool(p.notify(&"skill_tap")).is_false()  # 연타 단계에선 마무리를 세지 않는다
+	for ev in [&"combo", &"skill_tap", &"skill_dash", &"skill_charge", &"evade", &"skill_counter"]:
 		assert_bool(p.notify(ev)).is_true()
 	var done := [false]
 	p.finished.connect(func() -> void: done[0] = true)
-	p.notify(&"wait", 4.1)
+	p.notify(&"upgrade")
 	assert_bool(p.is_done()).is_true()
 	assert_bool(done[0]).is_true()
 
@@ -113,15 +111,11 @@ func test_upgrade_step_drops_practice_seals_and_picking_one_advances() -> void:
 	add_child(main)
 	await get_tree().process_frame
 	var run: TutorialProgress = main.tutorial_director.run
-	run.notify(&"move", 400.0)
-	run.notify(&"dash")
-	run.notify(&"dash")
-	for ev in [&"evade", &"skill_counter", &"skill_tap", &"skill_dash", &"skill_charge"]:
-		run.notify(ev)
+	TutorialDriver.skip_to(run, &"upgrade")
 	assert_str(String(run.current().event)).is_equal("upgrade")
 	assert_bool(main.seal_choice.is_open()).is_true()  # 연습 카드가 나왔다
 	main.seal_choice.pick(0)
-	assert_str(String(run.current().event)).is_equal("wait")  # 하나 먹으면 다음 단계
+	assert_bool(run.is_done()).is_true()  # 하나 고르면 끝 (마지막 단계)
 	run.skip()
 	main.queue_free()
 	GameSettings.tutorial_done = true
@@ -144,11 +138,7 @@ func _main_at_upgrade_step() -> Node:
 
 
 func _advance_to_upgrade(run: TutorialProgress) -> void:
-	run.notify(&"move", 400.0)
-	run.notify(&"dash")
-	run.notify(&"dash")
-	for ev in [&"evade", &"skill_counter", &"skill_tap", &"skill_dash", &"skill_charge"]:
-		run.notify(ev)
+	TutorialDriver.skip_to(run, &"upgrade")
 
 
 func _cleanup(main: Node) -> void:
@@ -178,5 +168,5 @@ func test_hero_without_upgrades_does_not_get_stuck_on_upgrade_step() -> void:
 	main.build.hero.upgrade_pool = null
 	_advance_to_upgrade(main.tutorial_director.run)
 	assert_bool(main.seal_choice.is_open()).is_false()
-	assert_str(String(main.tutorial_director.run.current().event)).is_equal("wait")  # 넘어감
+	assert_bool(main.tutorial_director.run.is_done()).is_true()  # 넘어감 (마지막 단계)
 	_cleanup(main)

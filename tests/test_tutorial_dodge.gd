@@ -20,9 +20,7 @@ func _main() -> Node:
 
 
 func _to_evade(run: TutorialProgress) -> void:
-	run.notify(&"move", 400.0)
-	run.notify(&"dash")
-	run.notify(&"dash")
+	TutorialDriver.skip_to(run, &"evade")
 
 
 func _cleanup(main: Node) -> void:
@@ -34,10 +32,16 @@ func _cleanup(main: Node) -> void:
 
 func test_dodge_steps_follow_dash_and_use_the_practice_enemy() -> void:
 	var evs := DATA.steps.map(func(s: TutorialStep) -> StringName: return s.event)
-	assert_int(evs.find(&"evade")).is_equal(evs.find(&"dash") + 1)
+	assert_int(evs.find(&"evade")).is_greater(evs.find(&"skill_dash"))
 	assert_int(evs.find(&"skill_counter")).is_equal(evs.find(&"evade") + 1)
-	for s in DATA.steps:
-		assert_bool(s.practice_enemy != null).is_equal(s.event in [&"evade", &"skill_counter"])
+	for s in DATA.steps:  # 회피·반격은 공격하는 상대, 연타·기술은 허수아비
+		if s.event in [&"evade", &"skill_counter"]:
+			assert_object(s.practice_enemy).is_same(PRACTICE)
+		elif s.event in [&"combo", &"skill_tap", &"skill_dash", &"skill_charge"]:
+			assert_object(s.practice_enemy).is_not_null()
+			assert_object(s.practice_enemy.attack).is_null()
+		else:
+			assert_object(s.practice_enemy).is_null()
 
 
 func test_practice_enemy_is_harmless_and_gives_no_xp() -> void:
@@ -47,11 +51,9 @@ func test_practice_enemy_is_harmless_and_gives_no_xp() -> void:
 	assert_bool(PRACTICE.is_elite or PRACTICE.is_boss).is_false()
 
 
-func test_new_hint_lines_fit_the_banner() -> void:
+func test_every_hint_line_fits_the_banner() -> void:
 	for s in DATA.steps:
-		if s.practice_enemy == null:
-			continue
-		for hint in [s.hint, s.button_hint]:
+		for hint in [s.hint, s.button_hint, s.wave_hint] + s.hero_hints.values():
 			for line in (hint as String).split("\n"):
 				var w := UiStyle.BODY_FONT.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 24).x
 				assert_float(w).override_failure_message("너무 긴 줄: %s (%d px)" % [line, w]).is_less_equal(440.0)
@@ -76,7 +78,7 @@ func test_evade_then_counter_advances_and_practice_enemy_comes_and_goes() -> voi
 	sc.skill_cast.emit(SkillCaster.Slot.TAP, 0)
 	assert_str(String(run.current().event)).is_equal("skill_counter")  # 그냥 톡은 반격이 아니다
 	sc.skill_cast.emit(SkillCaster.Slot.COUNTER, 1)
-	assert_str(String(run.current().event)).is_equal("skill_tap")
+	assert_str(String(run.current().event)).is_equal("upgrade")
 	assert_object(dir.sparring.enemy).is_null()
 	assert_bool(e.is_queued_for_deletion()).is_true()
 	run.skip()
@@ -122,7 +124,7 @@ func test_hero_without_counter_skips_counter_step() -> void:
 	var run: TutorialProgress = main.tutorial_director.run
 	_to_evade(run)
 	main.player.register_evade()
-	assert_str(String(run.current().event)).is_equal("skill_tap")  # 막히지 않는다
+	assert_str(String(run.current().event)).is_equal("upgrade")  # 막히지 않는다
 	assert_object(main.tutorial_director.sparring.enemy).is_null()
 	run.skip()
 	_cleanup(main)
