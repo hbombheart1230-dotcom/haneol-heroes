@@ -44,6 +44,7 @@ var _oneshot_from: int = 0
 var _oneshot_speed: float = 1.0
 var _caster: SkillCaster
 var _posing: bool = false
+var _over_hurt: bool = false
 
 
 func _ready() -> void:
@@ -108,7 +109,7 @@ func _on_skill_started(_slot: SkillCaster.Slot, def: SkillDef) -> void:
 ## 자동 공격 동작은 서 있을 때만. 달리는 중엔 다리를 멈추지 않고 검기 이펙트만 보인다
 ## (0.55초마다 달리기가 끊겨 끊겨 보이던 원인).
 func _on_auto_swing(_d: Vector2, _h: int) -> void:
-	if not is_moving():
+	if not is_moving() or (_attack and _attack.last_manual):  # 손으로 친 타는 움직이는 중에도 보인다 (M1)
 		var anim := _attack.chain_anim() if _attack else "attack"  # 연계 2·3타 동작 (B4)
 		play_oneshot(anim, anim_seconds(anim, 0.35))
 		var pause := _attack.step_pause() if _attack else 0.0
@@ -164,6 +165,7 @@ func play_oneshot(anim: String, seconds: float) -> void:
 	_hold_left = 0.0
 	_oneshot_from = 0
 	_oneshot_speed = 1.0
+	_over_hurt = player != null and player.hurt_time_left() > 0.0
 	_restart = true  # 같은 이름 동작이 연달아 와도 처음부터
 
 
@@ -174,7 +176,7 @@ func current_anim() -> String:
 		return "death"
 	if player.is_dashing():
 		return "dash"
-	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time:
+	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time 			and not (_oneshot_left > 0.0 and _over_hurt):  # 맞는 중에 친 타는 보인다
 		return "hit"
 	if _oneshot_left > 0.0:
 		return _oneshot

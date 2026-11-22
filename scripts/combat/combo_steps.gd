@@ -40,3 +40,16 @@ static func gap_ahead(enemy_list: Array, from: Vector2, dir: Vector2, my_radius:
 			continue
 		best = minf(best, d - e.body_radius * e.size_mult - my_radius)
 	return best
+
+
+## 마무리 기술을 지금 낼 수 있는지: 휘두르던 칼이 닿았고 after초가 지났다 (F1, 3타가 보이게).
+static func finisher_ready(atk: AutoAttack, after: float) -> bool:
+	return atk == null or (atk._melee_left < 0.0 and atk._since_strike >= after)
+
+
+## 대시가 휘두름을 끊는다: 닿기 전 칼·전진을 버린다 (하데스 RushWeapon CanCancelDisables).
+static func cancel_swing(atk: AutoAttack) -> void:
+	if atk:
+		atk._melee_left = -1.0
+		atk._stepin_left = -1.0
+

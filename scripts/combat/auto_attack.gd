@@ -141,6 +141,7 @@ func manual_strike(step: int, ranged: bool, enemy_list: Array = []) -> void:
 	else:
 		_step_in(to, list, step)
 		_melee(from, to, list, step)
+		player.slow_for(stats().swing_slow_time, stats().swing_move_mult)  # 휘두르는 동안 느리게 (M1)
 	last_manual = false
 
 
