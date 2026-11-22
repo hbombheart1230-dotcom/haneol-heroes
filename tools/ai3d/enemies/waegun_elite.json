@@ -41,9 +41,13 @@
       "key": "run",
       "match": "run|walk",
       "action_id": 14,
-      "frames": 6,
-      "fps": 10.0,
-      "loop": true
+      "frames": 8,
+      "fps": 5.5,
+      "loop": true,
+      "reuse": {
+        "src": "Walk_Fight_Forward",
+        "from": "res://assets/models/meshy/waegun_heavy/animated.glb"
+      }
     },
     {
       "key": "attack",
@@ -52,9 +56,15 @@
       "frames": 6,
       "fps": 10.0,
       "loop": false,
-      "start": 0.1,
-      "end": 1.1,
-      "strike": 0.55
+      "strike": 0.6,
+      "times": [
+        0.1,
+        0.3,
+        0.45,
+        0.6,
+        0.85,
+        1.25
+      ]
     },
     {
       "key": "hit",
@@ -62,7 +72,12 @@
       "action_id": 178,
       "frames": 3,
       "fps": 12.0,
-      "loop": false
+      "loop": false,
+      "times": [
+        0.15,
+        0.35,
+        0.6
+      ]
     }
   ]
 }
