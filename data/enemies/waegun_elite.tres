@@ -39,5 +39,5 @@ body_lift = 0.0
 body_contrast = 1.05
 army_tint = Color(1, 1, 1, 1)
 tint_mix = 0.0
-ghost_color = Color(1, 0.35, 0.85, 0.9)
+ghost_color = Color(0.78, 0.48, 0.7, 0.5)
 ghost_fire_scale = 1.25

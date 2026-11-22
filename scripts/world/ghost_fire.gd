@@ -6,7 +6,7 @@ extends Node2D
 
 ## 불꽃 혀 수, 기본 높이·폭(px, 몸 반지름 배율), 일렁임 빠르기.
 @export var tongues: int = 5
-@export var height: float = 2.0
+@export var height: float = 1.3
 @export var width: float = 0.32
 @export var speed: float = 7.0
 
@@ -42,7 +42,7 @@ func _draw() -> void:
 
 func _draw_fire(foot: Vector2, r: float, col: Color, phase: float) -> void:
 	draw_set_transform(foot, 0.0, Vector2(1.0, 0.38))  # 바닥 빛무리
-	draw_circle(Vector2.ZERO, r * 1.35, Color(col, 0.32 * col.a))
+	draw_circle(Vector2.ZERO, r * 1.35, Color(col, 0.28 * col.a))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	for k in tongues:
 		var u := (float(k) / maxf(tongues - 1, 1)) * 2.0 - 1.0  # -1 ~ 1
@@ -53,6 +53,6 @@ func _draw_fire(foot: Vector2, r: float, col: Color, phase: float) -> void:
 		var sway := sin(_t * speed * 0.6 + phase + k) * w * 0.8
 		var tip := base + Vector2(sway, -h)
 		draw_colored_polygon(PackedVector2Array([base - Vector2(w, 0), tip, base + Vector2(w, 0)]),
-			Color(col, 0.65 * col.a))
+			Color(col, 0.5 * col.a))
 		draw_colored_polygon(PackedVector2Array([base - Vector2(w * 0.45, 0), base.lerp(tip, 0.7), base + Vector2(w * 0.45, 0)]),
-			Color(col.lightened(0.5), 0.8 * col.a))
+			Color(col.lightened(0.4), 0.55 * col.a))
