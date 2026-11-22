@@ -128,3 +128,25 @@ func test_old_per_skill_hit_stops_are_gone() -> void:
 		var h: HeroData = load("res://data/heroes/%s.tres" % id)
 		for k in [h.kit.tap, h.kit.dash, h.kit.charge, h.kit.counter]:
 			assert_bool("hit_stop" in k).is_false()
+
+
+# --- 긴 느림(컷인) 안의 짧고 센 멈춤 (Codex b11a3b0) ---
+
+func test_short_strong_stop_applies_inside_a_long_slow_one() -> void:
+	GameTime.reset()
+	GameTime.stop(get_tree(), 0.5, 0.4)  # 컷인 느림
+	GameTime.stop(get_tree(), 0.05, 0.05)  # 그 안의 히트스톱
+	assert_float(Engine.time_scale).is_equal_approx(0.05, 0.0001)
+	var now := Time.get_ticks_msec()
+	assert_float(GameTime.current_scale(now + 100)).is_equal_approx(0.4, 0.0001)  # 히트스톱이 끝나면 느림으로
+	assert_float(GameTime.current_scale(now + 600)).is_equal(1.0)  # 느림도 끝남
+	GameTime.reset()
+	assert_float(Engine.time_scale).is_equal(1.0)
+
+
+func test_short_weak_stop_inside_a_long_strong_one_is_ignored() -> void:
+	GameTime.reset()
+	GameTime.stop(get_tree(), 0.5, 0.05)
+	GameTime.stop(get_tree(), 0.05, 0.4)
+	assert_float(Engine.time_scale).is_equal_approx(0.05, 0.0001)
+	GameTime.reset()

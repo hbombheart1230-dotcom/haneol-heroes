@@ -193,7 +193,7 @@ func test_short_stop_does_not_cut_finisher_short() -> void:
 	# Codex c6580b8 P1: 정예 슬로모션 중 일반 처치 멈춤이 슬로모션을 일찍 풀면 안 된다
 	GameTime.stop(get_tree(), 0.3, 0.25)
 	GameTime.stop(get_tree(), 0.03, 0.05)
-	assert_float(Engine.time_scale).is_equal_approx(0.25, 0.001)
+	assert_float(Engine.time_scale).is_equal_approx(0.05, 0.001)  # 더 센 멈춤은 그 안에서 잠깐만 걸린다 (b11a3b0)
 	await _wait_real(0.12)
 	assert_float(Engine.time_scale).is_equal_approx(0.25, 0.001)
 	await _wait_real(0.3)
