@@ -155,6 +155,46 @@
       "fps": 16.0,
       "loop": false,
       "skip_bake": true
+    },
+    {
+      "key": "cast_tap",
+      "clip_of": "combo",
+      "frames": 8,
+      "fps": 20.0,
+      "loop": false,
+      "start": 1.3,
+      "end": 2.4,
+      "strike": 1.9
+    },
+    {
+      "key": "cast_dash",
+      "clip_of": "combo",
+      "frames": 6,
+      "fps": 18.0,
+      "loop": false,
+      "start": 0.3,
+      "end": 1.1,
+      "strike": 0.7
+    },
+    {
+      "key": "cast_charge",
+      "clip_of": "attack",
+      "frames": 8,
+      "fps": 18.0,
+      "loop": false,
+      "start": 1.2,
+      "end": 2.6,
+      "strike": 2.2
+    },
+    {
+      "key": "cast_counter",
+      "clip_of": "attack",
+      "frames": 8,
+      "fps": 16.0,
+      "loop": false,
+      "start": 3.0,
+      "end": 4.6,
+      "strike": 3.96
     }
   ]
 }

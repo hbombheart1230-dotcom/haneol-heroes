@@ -9,6 +9,8 @@ extends Node2D
 ## 탭 연타 (kit.tap_combo, 한 손 제스처만): 제자리 탭 = 평타 한 타, combo_hits타 뒤 탭 = kit.tap 마무리 (TapCombo).
 
 signal skill_cast(slot: Slot, hits: int)
+## 누르는 순간 (여러 프레임 기술도 시작할 때 한 번): 영웅 시전 동작용. def = 실제로 쓰인 기술.
+signal skill_started(slot: Slot, def: SkillDef)
 
 enum Slot { NONE, TAP, DASH, CHARGE, COUNTER }
 
@@ -275,6 +277,7 @@ func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float 
 	d = TapCombo.scaled_def(d, damage_scale)
 	if slot == Slot.COUNTER:
 		_counter_left = 0.0
+	skill_started.emit(slot, d)
 	var ctx := _context()
 	ctx.skill = d
 	if d.vfx_cast:
@@ -337,6 +340,11 @@ func _context() -> SkillContext:
 	ctx.enemy_source = enemy_source
 	ctx.hit_stop_enabled = hit_stop_enabled
 	return ctx
+
+
+## 충전 중인지 (영웅 모으는 자세용).
+func is_charging() -> bool:
+	return _is_charging_alive()
 
 
 ## 살아서 모으는 중인지 (죽으면 손을 떼기 전이라도 표시·입자·번쩍임 없음).

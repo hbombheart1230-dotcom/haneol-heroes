@@ -35,6 +35,11 @@ var _lunge_out := 0.07
 var _lunge_back := 0.2
 var _had_input: bool = false
 var _attack: AutoAttack
+## 기술 시전 동작: 시작 칸·재생 속도 (CastAnim), 충전 중 모으는 자세를 붙잡는지.
+var _oneshot_from: int = 0
+var _oneshot_speed: float = 1.0
+var _caster: SkillCaster
+var _posing: bool = false
 
 
 func _ready() -> void:
@@ -80,8 +85,18 @@ func _setup_sprite(h: HeroData) -> void:
 	if not player.dash_ended.is_connected(on_land):
 		player.dash_ended.connect(on_land)
 	var caster := player.get_node_or_null("SkillCaster") as SkillCaster
+	_caster = caster
 	if caster:
-		caster.skill_cast.connect(func(_s: SkillCaster.Slot, _h: int) -> void: play_oneshot("attack", 0.35))
+		caster.skill_started.connect(_on_skill_started)
+
+
+## 기술 시전: 기술별 동작을 맞닿는 칸 바로 앞부터 (연타 자세 유지·3타 멈춤보다 우선).
+func _on_skill_started(_slot: SkillCaster.Slot, def: SkillDef) -> void:
+	var c := CastAnim.of(def, _sheet)
+	play_oneshot(c.anim, c.seconds)
+	_oneshot_from = c.from
+	_oneshot_speed = c.speed
+	_hitstop_left = 0.0
 
 
 ## 자동 공격 동작은 서 있을 때만. 달리는 중엔 다리를 멈추지 않고 검기 이펙트만 보인다
@@ -140,11 +155,14 @@ func play_oneshot(anim: String, seconds: float) -> void:
 	_oneshot = anim
 	_oneshot_left = seconds
 	_hold_left = 0.0
+	_oneshot_from = 0
+	_oneshot_speed = 1.0
 	_restart = true  # 같은 이름 동작이 연달아 와도 처음부터
 
 
 ## 지금 보여줄 애니메이션 이름 (상태 우선순위: 사망 > 대시 > 피격 > 공격 > 달리기 > 대기).
 func current_anim() -> String:
+	_posing = false
 	if player.is_dead():
 		return "death"
 	if player.is_dashing():
@@ -153,6 +171,11 @@ func current_anim() -> String:
 		return "hit"
 	if _oneshot_left > 0.0:
 		return _oneshot
+	if _caster and _caster.is_charging() and not is_moving():  # 충전: 시전 동작 첫 칸(모으는 자세)
+		var pose := CastAnim.charge_pose(_caster.def_of(SkillCaster.Slot.CHARGE), _sheet)
+		_posing = pose != ""
+		if _posing:
+			return pose
 	if _hold_left > 0.0 and not is_moving():  # 연타 사이: 대기 자세로 튀지 않고 마지막 자세 유지
 		return _oneshot
 	if is_moving():
@@ -174,7 +197,7 @@ func _update_sprite(delta: float) -> void:
 		_hitstop_left = maxf(_hitstop_left - delta, 0.0)
 	elif _oneshot_left > 0.0:
 		_oneshot_left = maxf(_oneshot_left - delta, 0.0)
-		if _oneshot_left <= 0.0 and (_oneshot.begins_with("attack") or _oneshot.begins_with("throw")):
+		if _oneshot_left <= 0.0 and (_oneshot.begins_with("attack") or _oneshot.begins_with("throw") 				or _oneshot.begins_with("cast")):
 			_hold_left = Feedback.feel_data().combo_hold_time
 	else:
 		_hold_left = maxf(_hold_left - delta, 0.0)
@@ -184,7 +207,7 @@ func _update_sprite(delta: float) -> void:
 	if _restart and current_anim() == _oneshot:
 		_restart = false
 		_sprite.play(anim_name)
-		_sprite.frame = 0
+		_sprite.frame = mini(_oneshot_from, _sprite.sprite_frames.get_frame_count(anim_name) - 1)
 	elif _sprite.animation != anim_name:
 		var frame := _sprite.frame
 		var same_anim := String(_sprite.animation).get_slice("_", 0) == String(anim_name).get_slice("_", 0)
@@ -200,7 +223,10 @@ func _update_sprite(delta: float) -> void:
 		tint.a = ds.body_alpha if ds else 1.0  # 광개토 번개 순간이동·사임당 먹으로 흩어짐
 	_sprite.modulate = hurt_tint(tint)
 	var cur := current_anim()
-	_sprite.speed_scale = run_anim_speed() if cur == "run" else (Feedback.feel_data().idle_anim_speed if cur == "idle" else 1.0)
+	_sprite.speed_scale = run_anim_speed() if cur == "run" else (Feedback.feel_data().idle_anim_speed if cur == "idle" 		else (_oneshot_speed if cur == _oneshot else 1.0))
+	if _posing and _oneshot_left <= 0.0:  # 모으는 자세: 첫 칸에 멈춤
+		_sprite.frame = 0
+		_sprite.speed_scale = 0.0
 	if _hitstop_left > 0.0 and current_anim() == _oneshot:
 		_sprite.speed_scale = 0.0
 	if player.hero:

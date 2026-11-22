@@ -212,11 +212,13 @@ def write_bake_job(cfg: dict, state: dict) -> str:
         for a in extra["actions"]:
             names[a["key"]] = a["name"]
             extra_file[a["key"]] = f"res://assets/models/meshy/{cfg['name']}/{extra['file']}"
-    for a in cfg["anims"]:  # clip_of: 이미 받은 동작의 다른 구간 (연계 2·3타를 한 동작에서 자르기)
-        if "clip_of" in a and a["clip_of"] in names:
-            names[a["key"]] = names[a["clip_of"]]
-            if a["clip_of"] in extra_file:
-                extra_file[a["key"]] = extra_file[a["clip_of"]]
+    got, got_file = dict(names), dict(extra_file)  # clip_of는 받은 동작 기준 (설정이 그 키를 다른 자르기로 바꿔도
+    for a in cfg["anims"]:  # 예: attack이 연타 동작 자르기여도 clip_of "attack" = 처음 받은 Attack 동작)
+        if "clip_of" in a and a["clip_of"] in got:  # clip_of: 이미 받은 동작의 다른 구간 (연계 2·3타를 한 동작에서 자르기)
+            names[a["key"]] = got[a["clip_of"]]
+            extra_file.pop(a["key"], None)
+            if a["clip_of"] in got_file:
+                extra_file[a["key"]] = got_file[a["clip_of"]]
     job = {
         "name": cfg["name"],
         "model": f"res://assets/models/meshy/{cfg['name']}/animated.glb",
