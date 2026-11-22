@@ -6,6 +6,7 @@ extends Node2D
 ##   짧게 눌렀다 뗌            → kit.tap
 ##   길게 눌러 충전 후 뗌      → kit.charge (이동하며 충전 가능)
 ##   회피 성공 후 counter_window 안 누름 → kit.counter (최우선, 기획서 §6.3)
+## 탭 연타 (kit.tap_combo, 한 손 제스처만): 제자리 탭 = 평타 한 타, combo_hits타 뒤 탭 = kit.tap 마무리 (TapCombo).
 
 signal skill_cast(slot: Slot, hits: int)
 
@@ -31,6 +32,9 @@ var _cd := {Slot.TAP: 0.0, Slot.DASH: 0.0, Slot.CHARGE: 0.0, Slot.COUNTER: 0.0}
 var _counter_left: float = 0.0
 ## 진행 중인 기술: [[slot, SkillRun], ...]
 var _runs: Array = []
+## 탭 연타 상태와 손 평타를 낼 자동 공격 (영웅의 AutoAttack).
+var combo := TapCombo.new()
+var _attack: AutoAttack
 
 
 func _ready() -> void:
@@ -136,6 +140,7 @@ func on_release(index: int, time: float) -> Slot:
 	if player == null or player.is_dead():
 		input.reset()
 		return Slot.NONE
+	var src := input.source
 	var r := input.release(index, time)
 	match r["kind"]:
 		"tap":
@@ -144,6 +149,8 @@ func on_release(index: int, time: float) -> Slot:
 			if instant != Slot.NONE:
 				cast(instant)
 				return instant
+			if src == SkillInput.Source.GESTURE and kit.tap_combo and auto_attack() != null:  # 평타가 없으면 예전대로
+				return combo_tap()
 			if is_ready(Slot.TAP):
 				cast(Slot.TAP)
 				return Slot.TAP
@@ -216,12 +223,55 @@ func is_gesture_charging() -> bool:
 	return input.is_from(SkillInput.Source.GESTURE) and input.state == SkillInput.State.CHARGING
 
 
+# --- 탭 연타 (A안) ---
+
+## 제자리 탭 하나: 평타 한 타, 연계가 찼으면 tap 기술 마무리, 너무 빠르면 잠깐 기억. 반환: 마무리면 TAP.
+func combo_tap() -> Slot:
+	var atk := auto_attack()
+	var can := atk != null and atk.can_manual(tap_gap())
+	match combo.decide(kit.combo_hits, can, is_ready(Slot.TAP)):
+		TapCombo.Action.FINISH:
+			combo.on_finish()
+			cast(Slot.TAP, 0.0, kit.combo_finisher_mult, kit.tap.cooldown * kit.combo_finisher_cd_ratio)
+			return Slot.TAP
+		TapCombo.Action.HIT:
+			atk.manual_strike(combo.on_hit(kit.combo_hits, atk.stats().chain_len), kit.ranged_taps)
+		TapCombo.Action.BUFFERED:
+			combo.buffer(kit.tap_buffer)
+	return Slot.NONE
+
+
+## 손 평타 최소 간격(초): 평타 간격 × tap_min_gap_mult (공격속도 강화를 따른다).
+func tap_gap() -> float:
+	var atk := auto_attack()
+	if atk == null or kit == null:
+		return 0.0
+	var d := atk.stats()
+	return (d.ranged_interval if kit.ranged_taps else d.melee_interval) * kit.tap_min_gap_mult
+
+
+func auto_attack() -> AutoAttack:
+	if _attack == null and player:
+		_attack = player.get_node_or_null("AutoAttack") as AutoAttack
+		if _attack:  # 자동 평타를 연계 수에 넣을지는 kit.combo_auto_counts
+			_attack.melee_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
+			_attack.ranged_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
+	return _attack
+
+
+func _on_auto_swing() -> void:
+	if kit and kit.combo_auto_counts and _attack and not _attack.last_manual:
+		combo.on_auto_hit(kit.combo_hits)
+
+
 ## 쿨타임을 걸고 기술을 발동한다. 반환: 진행 상태.
-func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
+## damage_scale: 피해 배율 (탭 연타 마무리), cd: 0 이상이면 이 쿨타임.
+func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float = -1.0) -> SkillRun:
 	var d := def_of(slot)
 	if d == null or player == null or player.is_dead():
 		return null
-	_cd[slot] = d.cooldown
+	_cd[slot] = cd if cd >= 0.0 else d.cooldown
+	d = TapCombo.scaled_def(d, damage_scale)
 	if slot == Slot.COUNTER:
 		_counter_left = 0.0
 	var ctx := _context()
@@ -240,6 +290,9 @@ func tick(delta: float, time: float) -> void:
 	for k in _cd.keys():
 		_cd[k] = maxf(float(_cd[k]) - delta, 0.0)
 	_counter_left = maxf(_counter_left - delta, 0.0)
+	if kit:
+		combo.tick(delta, kit.combo_window)
+		_flush_tap_buffer()
 	# 선입력: 버튼을 누른 채(탭 판정 전) 대시가 시작되거나 반격 시간이 열리면 그 기술로 (반격 우선, Codex e593772 지적).
 	if input.is_from(SkillInput.Source.BUTTON) and input.state == SkillInput.State.PRESSED \
 			and player and (player.is_dashing() or is_counter_open()):
@@ -253,6 +306,16 @@ func tick(delta: float, time: float) -> void:
 		if run.tick(delta):
 			_runs.erase(entry)
 			skill_cast.emit(entry[0], run.hits)
+
+
+## 기억해 둔 탭: 칠 수 있게 되면(또는 마무리가 준비되면) 바로 낸다.
+func _flush_tap_buffer() -> void:
+	if not combo.has_buffer() or player == null or player.is_dead():
+		return
+	var atk := auto_attack()
+	var finish := combo.streak >= kit.combo_hits and is_ready(Slot.TAP)
+	if finish or (atk and atk.can_manual(tap_gap())):
+		combo_tap()
 
 
 func _context() -> SkillContext:
