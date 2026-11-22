@@ -132,7 +132,8 @@ func kick(dir: Vector2, px: float) -> void:
 		_shake_dir = dir.normalized()
 
 
-func play(kind: StringName, min_gap: float = 0.04) -> void:
+## pitch = 음높이 배율 (연타 1 → 2 → 3타로 올라가는 퍽 소리 등).
+func play(kind: StringName, min_gap: float = 0.04, pitch: float = 1.0) -> void:
 	if not sfx_enabled or not (_sounds.has(kind) or (bank and bank.has(kind))):
 		return
 	var now := Time.get_ticks_msec() / 1000.0
@@ -153,6 +154,7 @@ func play(kind: StringName, min_gap: float = 0.04) -> void:
 		p.stream = _sounds[kind]
 		p.volume_db = sfx_volume_db
 		p.pitch_scale = 1.0
+	p.pitch_scale *= pitch
 	p.play()
 
 

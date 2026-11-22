@@ -11,6 +11,9 @@ var enemy_source: Callable
 var hit_stop_enabled: bool = true
 ## 지금 발동 중인 기술 (이펙트 데이터를 읽는다). 없으면 이펙트 없음.
 var skill: SkillDef
+## 휘감는 기술(sweep) 중: 적마다 멈추지 않고 휘감기가 끝날 때 한 번 크게 (CombatFeelData.sweep_final_stop).
+var defer_stop: bool = false
+var _thud_done: bool = false
 
 
 ## 히트스톱: 아주 짧게 게임 시간을 거의 멈춘다 (엔진 기본 time_scale + 실시간 타이머, GameTime 공용).
@@ -58,8 +61,13 @@ func hit(en: Enemy, dmg: int, stop: bool = true) -> bool:
 	if h == null or not h.is_alive():
 		return false
 	h.damage(dmg)
-	if stop and hit_stop_enabled and player and player.is_inside_tree():
+	if stop and not defer_stop and hit_stop_enabled and player and player.is_inside_tree():
 		SkillHitStop.request(player.get_tree(), dmg)
+	if stop and player:  # 한 번에 끊어 치는 명중: 닿는 자리 섬광·튐 줄기 + 퍽 소리 (평타와 같은 한 타 충격)
+		HitImpact.on_enemy(en, player.global_position, HitImpact.data().skill_step, spark_color())
+		if not _thud_done:  # 퍽 소리·진동은 발동 한 번에 한 번 (기술 소리 층과 겹쳐 한꺼번에 울리지 않게)
+			_thud_done = true
+			HitImpact.on_swing(HitImpact.data().skill_step)
 	if fx:
 		fx.add_spark(en.global_position, spark_color())  # 흰 불꽃 대신 영웅색 (밝은 바닥에서 묻히지 않게)
 	if skill and skill.vfx_hit and player:
@@ -102,7 +110,17 @@ func sweep(center: Vector2, targets: Array[Enemy], strike: Callable) -> SweepRun
 	var ticks := v.tick_count if v else 0
 	var level := skill.vfx_level if skill else 0
 	var on_tick := func(i: int) -> void: SkillStageFx.tick(v, center, start, i, level)
-	return SweepRun.new(strike, center, targets, start, dir_sign, t, ticks, on_tick if ticks > 0 else Callable())
+	defer_stop = t > 0.0 and Feedback.feel_data().sweep_final_stop > 0.0  # 시작 방향 적(누르는 순간)부터 미룬다
+	return SweepRun.new(strike, center, targets, start, dir_sign, t, ticks, on_tick if ticks > 0 else Callable(), _sweep_done)
+
+
+## 휘감기가 끝남: 맞힌 적이 있으면 한 번 크게 멈춤 (기술 멈춤 상한 skill_stop_cap × sweep_final_stop 안에서).
+func _sweep_done(hits: int) -> void:
+	var was := defer_stop
+	defer_stop = false
+	var f := Feedback.feel_data()
+	if was and hits > 0 and hit_stop_enabled and player and player.is_inside_tree():
+		GameTime.stop(player.get_tree(), f.skill_stop_cap * clampf(f.sweep_final_stop, 0.0, 1.0), f.skill_stop_scale)
 
 
 ## 직선 기술 경로 a→b에 그림 띠 (vfx_impact.strip). 띠가 없으면 아무것도 안 한다.
