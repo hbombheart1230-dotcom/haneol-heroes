@@ -47,9 +47,13 @@ func _draw() -> void:
 		_draw_result()
 
 
+## 조작 안내 중에는 무대 문구를 띄우지 않는다 (시간이 멈춰 있어 안 사라지고 연습 상대를 가린다). 끝나면 처음부터.
+var hold_stage_title: bool = false
+
+
 ## 무대 시작 문구: 연도 · 전장 이름 · 한 줄 설명. 처음 STAGE_TITLE_TIME초, 끝 1초 동안 흐려진다.
 func stage_title_alpha() -> float:
-	if stage == null or state == null or not state.is_playing():
+	if stage == null or state == null or not state.is_playing() or hold_stage_title:
 		return 0.0
 	return clampf(STAGE_TITLE_TIME - state.elapsed, 0.0, 1.0)
 
