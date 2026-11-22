@@ -8,6 +8,8 @@ var _start_pos: Vector2 = Vector2.ZERO
 var _dir: Vector2 = Vector2.RIGHT
 ## 마지막 도착 효과 시각(초, 실제 시간).
 var _last_effect: float = -INF
+## 시계 (비면 실제 시간). 헤드리스 시뮬레이션이 시뮬 시간을 넣는다 (EnemyAttack.clock과 같은 방식).
+static var clock: Callable
 
 
 func _init(p_style: DashStyleData) -> void:
@@ -42,12 +44,12 @@ func _draw_path(pos: Vector2) -> void:
 
 
 ## 도착: 이펙트 + 범위 안 적에게 작은 효과 (end_cooldown마다 한 번). 효과 받은 적 수를 돌려준다.
-## now_sec을 넘기지 않으면 실제 시간.
+## now_sec을 넘기지 않으면 clock (없으면 실제 시간).
 func on_end(pos: Vector2, enemies: Array, now_sec: float = -1.0) -> int:
 	if style == null:
 		return 0
 	_draw_path(pos)  # 지나간 길은 대시마다
-	var now := now_sec if now_sec >= 0.0 else Time.get_ticks_msec() / 1000.0
+	var now := now_sec if now_sec >= 0.0 else (float(clock.call()) if clock.is_valid() else Time.get_ticks_msec() / 1000.0)
 	if now - _last_effect < style.end_cooldown:
 		return 0  # 연속 대시: 도착 그림·효과 모두 간격마다 한 번 (자취는 계속)
 	_last_effect = now
