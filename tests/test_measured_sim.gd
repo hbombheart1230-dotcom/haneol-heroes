@@ -71,7 +71,7 @@ func _place(d: EnemyData, k: int, n: int) -> Vector2:
 
 
 ## 한 판: kinds 순서대로 늘 살아 있게 (죽으면 같은 종류로 보충). [버틴 시간, 처치 수, 받은 피해] — 판이 끝나면 다 지운다.
-func _run(kinds: Array, tap: bool, s: int) -> Array:
+func _run(kinds: Array, tap: bool, s: int, chase: bool = false) -> Array:
 	_reset_globals()
 	# 물리 프레임 안에서 돌린다: move_and_slide는 물리 프레임 밖에서 부르면 실제 화면 프레임 delta를 써서
 	# 기계·부하마다 이동량이 달라졌다 (실행마다 결과가 바뀌던 원인). 한 물리 프레임 안에서 고정 DT로 끝까지 돈다.
@@ -113,6 +113,16 @@ func _run(kinds: Array, tap: bool, s: int) -> Array:
 	while _t < LIMIT and not player.is_dead():
 		_t += DT
 		Engine.time_scale = 1.0
+		if chase:  # 쫓아가기: 걸어서 다가가고, 멀면 대시 (근접만인 영웅이 조총병에 닿는 방법)
+			var near: Enemy = null
+			for e0 in enemies:
+				if is_instance_valid(e0) and (near == null or player.global_position.distance_to(e0.global_position) < player.global_position.distance_to(near.global_position)):
+					near = e0
+			if near:
+				var to := near.global_position - player.global_position
+				player.move_input = to.normalized() if to.length() > 90.0 else Vector2.ZERO
+				if to.length() > 220.0:
+					player.request_dash(to.normalized())
 		player._physics_process(DT)
 		caster.tick(DT, _t)
 		tap_t -= DT
@@ -190,3 +200,19 @@ func test_before_values_for_the_record() -> void:
 	var tap : Array = await _avg([_old(SOLDIER), _old(SOLDIER), _old(GUNNER)], true, "before, tapping")
 	assert_bool(idle[3]).is_true()
 	assert_float(tap[0]).is_greater(0.0)
+
+
+## 조총병만 남았을 때 (근접만인 순신): 다가가고 대시하며 탭하면 잡을 수 있다 (원거리 평타 없이).
+func test_lone_gunner_is_solvable_by_chasing() -> void:
+	var t := 0.0
+	var kps := 0.0
+	var hurt := 0.0
+	for s in SEEDS:
+		var r: Array = await _run([GUNNER], true, s, true)
+		t += r[0]
+		kps += r[1] / maxf(r[0], 1.0)
+		hurt += r[2] / maxf(r[1], 1.0)
+	var n := float(SEEDS.size())
+	print("[sim] lone gunner, chase + tap: %.2f kills/s, %.1f damage per kill (%d seeds)" % [kps / n, hurt / n, SEEDS.size()])
+	assert_float(kps / n).is_greater(0.15)  # 조총병 하나를 약 6초 안에
+	assert_float(hurt / n).is_less(30.0)  # 하나 잡는 데 체력 30% 미만
