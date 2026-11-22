@@ -322,7 +322,7 @@ func restart() -> void:
 func _on_enemy_killed(e: Enemy) -> void:
 	state.add_kill()
 	if e.data and e.data.is_boss:
-		state.boss_defeated()
+		BossStaging.finish(e, state.boss_defeated)  # 처치 연출 뒤 승리 (연출 없는 보스는 바로)
 	if e.data == null or not state.is_playing():
 		return
 	if e.data.is_elite:

@@ -69,7 +69,7 @@ static func finisher(fb: Feedback) -> void:
 	if fb.camera and im.finisher_zoom > 1.0:
 		var base: Vector2 = fb.camera.get_meta(&"base_zoom", fb.camera.zoom)
 		fb.camera.set_meta(&"base_zoom", base)
-		var old: Tween = fb.camera.get_meta(&"zoom_tween", null)
+		var old: Tween = fb.camera.get_meta(&"zoom_tween") if fb.camera.has_meta(&"zoom_tween") else null
 		if old and old.is_valid():
 			old.kill()
 		var tw := fb.camera.create_tween().set_ignore_time_scale(true)

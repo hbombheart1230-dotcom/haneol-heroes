@@ -40,8 +40,11 @@ static func enter(e: Enemy, ph: BossPhaseData) -> void:
 		if not ph.patterns.is_empty():
 			e.attack.set_patterns(scaled_patterns(ph.patterns, ph.cooldown_mult))
 	e.phase_invuln = ph.invuln_time
+	var stg := BossStaging.of(e)
 	var sp := e.get_parent() as EnemySpawner
-	if sp:
+	if stg:
+		stg.on_phase(ph)  # 한 박자 쉬고 강화 → 부하 (BossFeelData)
+	elif sp:
 		for i in ph.summon.size():
 			var off := Vector2.from_angle(TAU * i / maxf(ph.summon.size(), 1)) * (e.body_radius * e.size_mult + 120.0)
 			var r := off.length()

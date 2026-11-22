@@ -20,6 +20,12 @@ extends Control
 var boss: Enemy
 var mood: float = 0.0
 var _t: float = INF
+## 처치 띠 ("적장 격파", BossFeelData가 있는 보스만): 이름 띠를 다시 띄우되 붉게 깜박이지 않는다.
+var defeated: bool = false
+var _len: float = 3.0
+## 띠 글자 (보스가 사라진 뒤에도 그리려고 들고 있는다).
+var _sub: String = ""
+var _name: String = "적장"
 var _tint: CanvasModulate
 
 
@@ -33,14 +39,29 @@ func _ready() -> void:
 func show_boss(b: Enemy) -> void:
 	boss = b
 	_t = 0.0
+	_len = banner_time
+	defeated = false
+	_sub = subtitle
+	_name = b.data.display_name if b and b.data and b.data.display_name != "" else "적장"
+	if b and b.data and b.data.boss_feel:
+		b.killed.connect(_on_boss_killed.bind(b.data.boss_feel), CONNECT_ONE_SHOT)
 	if Feedback.instance:
 		Feedback.instance.add_trauma(0.8)
 		Feedback.instance.haptic(120, 1.0)
 		Feedback.instance.play(&"counter")
 
 
+## 처치 띠: 승리 화면이 뜨기 조금 전에 빠지게 (승리하면 멈춘 채 남지 않도록).
+func _on_boss_killed(_e: Enemy, f: BossFeelData) -> void:
+	defeated = true
+	_t = 0.0
+	_len = maxf(f.finale_time - 0.25, 0.8)
+	_sub = f.finale_subtitle
+	mood = 0.0
+
+
 func banner_visible() -> bool:
-	return _t < banner_time
+	return _t < _len
 
 
 func boss_alive() -> bool:
@@ -49,7 +70,7 @@ func boss_alive() -> bool:
 
 func step(delta: float) -> void:
 	_t += delta
-	if _t < pulse_time and boss_alive():  # 0 → 1 → 0을 pulses번 (깜박임)
+	if _t < pulse_time and boss_alive() and not defeated:  # 0 → 1 → 0을 pulses번 (깜박임)
 		mood = 0.5 - 0.5 * cos(TAU * pulses * _t / maxf(pulse_time, 0.01))
 	else:
 		mood = move_toward(mood, 0.0, delta / maxf(mood_fade, 0.01))
@@ -113,16 +134,16 @@ static func draw_edge_glow(ci: CanvasItem, vp: Vector2, color: Color, a: float, 
 
 func _draw_banner(vp: Vector2) -> void:
 	var k_in := clampf(_t / 0.3, 0.0, 1.0)
-	var a := minf(k_in, clampf((banner_time - _t) / 0.5, 0.0, 1.0))
+	var a := minf(k_in, clampf((_len - _t) / 0.5, 0.0, 1.0))
 	var cy := vp.y * 0.34
 	var band := Rect2(0, cy - 100, vp.x, 200)
 	draw_rect(band, Color(0.05, 0.02, 0.02, 0.8 * a))
 	var half := vp.x * 0.42 * (1.0 - pow(1.0 - k_in, 3.0))
 	UiStyle.gold_rule(self, Vector2(vp.x * 0.5, band.position.y + 14), half, a)
 	UiStyle.gold_rule(self, Vector2(vp.x * 0.5, band.end.y - 14), half, a)
-	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, cy - 44), subtitle, 32, Color(UiStyle.PAPER, a), vp.x,
+	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, cy - 44), _sub, 40 if defeated else 32, Color(UiStyle.PAPER, a), vp.x,
 		Color(0, 0, 0, 0.8 * a), 6)
-	var name_text := boss.data.display_name if boss and is_instance_valid(boss) and boss.data else "적장"
+	var name_text := _name
 	var pop := 1.0 + 0.35 * (1.0 - k_in)
 	draw_set_transform(Vector2(vp.x * 0.5, cy + 46), 0.0, Vector2.ONE * pop)
 	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-vp.x * 0.5, 0), name_text, name_px,

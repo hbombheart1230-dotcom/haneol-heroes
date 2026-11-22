@@ -40,6 +40,18 @@ var _evaded: bool = false
 var _was_inside: bool = false
 ## 끊긴 뒤 다음 예고가 끊기지 않는 남은 시간 (B1).
 var _armor_left: float = 0.0
+## 보스: 켜면 다음 공격을 BossPatternPicker로 고른다 (끄면 차례대로).
+var pick_by_range: bool = false
+## 보스: 비어 있지 않으면 이 함수(자기 위치) → true일 때만 예고를 시작한다 (화면 안에서만).
+var start_check: Callable
+## 이 시간(초) 동안은 새 예고를 시작하지 않는다 (등장·단계 전환).
+var hold_left: float = 0.0
+## 이어치기 대기 중 (거리 검사 없이 나간다).
+var _chained: bool = false
+## 바로 전에 실제로 친 공격 종류 (-1 = 아직 없음, 끊긴 예고는 세지 않음).
+var last_kind: int = -1
+## 마지막 틱의 영웅 거리 (끊길 때 다음 공격 고르기에 쓴다).
+var _last_dist: float = INF
 
 
 func _init(p_data: EnemyAttackData, initial_cooldown: float = 0.0) -> void:
@@ -50,8 +62,16 @@ func _init(p_data: EnemyAttackData, initial_cooldown: float = 0.0) -> void:
 func set_patterns(p_patterns: Array) -> void:
 	patterns = p_patterns
 	_pattern_index = 0
+	_chained = false
 	if not patterns.is_empty():
 		data = patterns[0]
+		if pick_by_range:
+			data = BossPatternPicker.pick(patterns, last_kind, INF, randf())
+
+
+## seconds초 동안 새 예고를 시작하지 않는다 (더 긴 쪽 유지).
+func hold(seconds: float) -> void:
+	hold_left = maxf(hold_left, seconds)
 
 
 func is_shoot() -> bool:
@@ -87,12 +107,17 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 	_cooldown = maxf(_cooldown - delta, 0.0)
 	_since_strike += delta
 	_armor_left = maxf(_armor_left - delta, 0.0)
+	hold_left = maxf(hold_left - delta, 0.0)
+	if player:
+		_last_dist = self_pos.distance_to(player.global_position)
 	match state:
 		State.READY:
-			if player and not player.is_dead() and _cooldown <= 0.0 \
-					and self_pos.distance_to(player.global_position) <= data.trigger_range \
+			if player and not player.is_dead() and _cooldown <= 0.0 and hold_left <= 0.0 \
+					and (_chained or self_pos.distance_to(player.global_position) <= data.trigger_range) \
+					and (not start_check.is_valid() or bool(start_check.call(self_pos))) \
 					and (data.bypass_cap or data.volley or active_windups < max_concurrent) 					and (not data.volley or EnemyBrain.volley_open(ai, now_sec())):
 				state = State.WINDUP
+				_chained = false
 				active_windups += 1
 				_timer = data.windup
 				target_point = player.global_position
@@ -116,17 +141,28 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 				if r != Result.HIT and data.miss_recovery > 0.0:  # 빗나간 돌진: 크게 미끄러져 빈틈
 					_timer = data.miss_recovery
 				_recover_total = _timer
-				_cooldown = data.cooldown
+				_cooldown = data.follow_gap if data.follow_up else data.cooldown
 				_since_strike = 0.0
+				last_kind = int(data.kind)
 				return r
 		State.RECOVER:
 			_timer -= delta
 			if _timer <= 0.0:
 				state = State.READY
-				if patterns.size() > 1:
-					_pattern_index = (_pattern_index + 1) % patterns.size()
-					data = patterns[_pattern_index]
+				_next_pattern(self_pos.distance_to(player.global_position) if player else INF)
 	return Result.NONE
+
+
+## 다음 공격: 이어치기가 있으면 그것(chain), 아니면 고르기(보스) 또는 차례.
+func _next_pattern(dist: float, chain: bool = true) -> void:
+	_chained = chain and data.follow_up != null
+	if _chained:
+		data = data.follow_up
+	elif pick_by_range and not patterns.is_empty():
+		data = BossPatternPicker.pick(patterns, last_kind, dist, randf())
+	elif patterns.size() > 1:
+		_pattern_index = (_pattern_index + 1) % patterns.size()
+		data = patterns[_pattern_index]
 
 
 ## 예고 중 원 밖으로 대시해 나가는 순간 바로 회피 처리.
@@ -217,10 +253,14 @@ func restart_wait(max_gap_mult: float) -> void:
 	_cooldown = maxf(_cooldown, minf(data.cooldown, room))
 
 
-## 적이 죽거나 사라질 때 예고 슬롯을 돌려준다.
+## 적이 죽거나 사라질 때 예고 슬롯을 돌려준다. 고르는 보스가 회복 중 끊기면(휘청) 이어치기 없이 다음 공격을 고른다
+## (이미 친 공격을 다시 내지 않게).
 func cancel() -> void:
+	var was_recover := state == State.RECOVER
 	_end_windup()
 	state = State.READY
+	if was_recover and pick_by_range:
+		_next_pattern(_last_dist, false)
 
 
 func _end_windup() -> void:
