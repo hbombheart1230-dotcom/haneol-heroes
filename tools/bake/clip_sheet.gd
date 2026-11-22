@@ -1,7 +1,7 @@
 extends "res://tools/bake/bake_sprites.gd"
 ## 동작 미리보기: 굽기 작업의 동작 하나를 실제 모델로 여러 시각에 찍어 한 줄로 저장한다 (from·to·strike 고르기용).
 ## godot --path . -s res://tools/bake/clip_sheet.gd -- --job=<이름> --anim=<키> --out=<png> [--samples=16] [--dir=1] [--src=<동작 이름>]
-##   [--from=<초> --to=<초>] (그 구간만 촘촘히) [--file=<res://...glb>] (작업에 없는 추가 동작 파일)
+##   [--yaw=<도>] (몸을 더 돌림, 기본 = 작업의 yaw) [--from=<초> --to=<초>] (그 구간만 촘촘히) [--size=<px>] (칸 크기, 크게 보기) [--file=<res://...glb>] (작업에 없는 추가 동작 파일)
 ## 출력 png 옆에 <png>.txt로 시각(초) 목록과 동작 길이를 쓴다. --src를 주면 작업의 src 대신 그 동작 (Meshy 후보 비교).
 
 
@@ -26,6 +26,8 @@ func _run() -> void:
 		push_error("job/anim not found")
 		quit(1)
 		return
+	if args.has("size"):
+		job["frame"] = int(args["size"])
 	var ap := _setup(job)
 	var src: String = args.get("src", anim["src"])
 	var file: String = args.get("file", anim.get("from", ""))
@@ -34,7 +36,7 @@ func _run() -> void:
 	var n := int(args.get("samples", "16"))
 	var d := int(args.get("dir", "1"))
 	var sd := Vector2.from_angle(d * TAU / DIRS)
-	_pivot.rotation.y = atan2(sd.x, sd.y)
+	_pivot.rotation.y = atan2(sd.x, sd.y) + deg_to_rad(float(args.get("yaw", str(anim.get("yaw", 0.0)))))
 	var frame := int(job["frame"])
 	var strip := Image.create(frame * n, frame, false, Image.FORMAT_RGBA8)
 	var times := PackedStringArray()

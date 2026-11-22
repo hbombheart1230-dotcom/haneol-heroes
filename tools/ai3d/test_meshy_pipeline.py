@@ -242,6 +242,33 @@ class PipelineTest(unittest.TestCase):
         self.assertNotIn("from", keys["cast_dash"])
         self.assertEqual(keys["cast_dash"]["strike"], 0.6)
 
+    def test_reuse_bakes_clip_already_on_disk_without_paying(self):
+        """reuse: 받은 파일에 덤으로 든 동작·다른 캐릭터(같은 뼈대)의 동작을 쓴다. 새 요청 없음, times·yaw는 그대로 넘김."""
+        self._ran_once()
+        self.cfg["anims"] = [a for a in self.cfg["anims"] if a["key"] != "kick"]  # 유료 새 동작 없이
+        other = "res://assets/models/meshy/other/animated.glb"
+        self.cfg["anims"] += [
+            {"key": "down", "reuse": {"src": "Spin", "from": other}, "frames": 8, "fps": 10.0, "loop": False,
+             "times": [0.9, 1.2, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0]}]
+        for a in self.cfg["anims"]:
+            if a["key"] == "attack":
+                a["reuse"] = {"src": "Left_Slash"}
+                a["yaw"] = 180
+        self.assertEqual([a["key"] for a in mp.new_anims(self.cfg, mp.load_state(
+            os.path.join(self.tmp, "assets/models/meshy/hero_t")))], [])
+        fake = self._add({"status": "SUCCEEDED", "expires_at": 0})
+        self.assertEqual(fake.created, [])  # 돈 드는 요청 없음
+        state = mp.load_state(os.path.join(self.tmp, "assets/models/meshy/hero_t"))
+        mp.write_bake_job(self.cfg, state)
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        keys = {a["key"]: a for a in job["anims"]}
+        self.assertEqual(keys["down"]["src"], "Spin")
+        self.assertEqual(keys["down"]["from"], other)
+        self.assertEqual(keys["down"]["times"][0], 0.9)
+        self.assertEqual(keys["attack"]["src"], "Left_Slash")
+        self.assertNotIn("from", keys["attack"])
+        self.assertEqual(keys["attack"]["yaw"], 180)
+
     def test_add_anims_rerigs_from_saved_model_after_expiry(self):
         self._ran_once()
         fake = self._add(api.MeshyError("404"))
