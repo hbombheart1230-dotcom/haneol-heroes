@@ -45,6 +45,11 @@ extends Resource
 @export var step_in_time: float = 0.1
 ## 끄면 전진 없음.
 @export var step_in_enabled: bool = true
+## 타별 내딛는 그림 (px): 휘두를 때 영웅 그림이 치는 쪽으로 나갔다 돌아온다 (판정·위치는 그대로, 자동 평타에도).
+@export var lunge_px: PackedFloat32Array = PackedFloat32Array([14.0, 18.0, 30.0])
+## 나가는 시간·돌아오는 시간 (초).
+@export var lunge_out: float = 0.07
+@export var lunge_back: float = 0.2
 ## 원거리 연타 (세종): 타별 탄 수·퍼짐(도)·글자 크기 배율. 시트에 throw2·throw3가 있으면 그 동작.
 @export var ranged_step_count: PackedFloat32Array = PackedFloat32Array([1.0, 2.0, 1.0])
 @export var ranged_step_spread: float = 10.0

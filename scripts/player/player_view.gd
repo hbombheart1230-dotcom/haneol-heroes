@@ -28,6 +28,11 @@ var _land_left: float = 0.0
 var _land_hold_left: float = 0.0
 var _slide_left: float = 0.0
 var _slide_dir: Vector2 = Vector2.ZERO
+## 내딛는 그림: 방향 × px, 지난 시간(음수 = 모으는 중), 나가는·돌아오는 시간.
+var _lunge := Vector2.ZERO
+var _lunge_t := 0.0
+var _lunge_out := 0.07
+var _lunge_back := 0.2
 var _had_input: bool = false
 var _attack: AutoAttack
 
@@ -88,6 +93,12 @@ func _on_auto_swing(_d: Vector2, _h: int) -> void:
 		var pause := _attack.step_pause() if _attack else 0.0
 		if pause > 0.0:  # 3타 앞 모으기: 첫 칸에서 잠깐 멈춤
 			_hitstop_left = maxf(_hitstop_left, pause)
+		var st := _attack.stats() if _attack else null
+		if st and _d.length_squared() > 0.0001:  # 내딛는 그림: 모으기가 끝난 뒤 치는 쪽으로
+			_lunge = _d.normalized() * ComboSteps.at(st.lunge_px, _attack.chain_step, 0.0)
+			_lunge_t = -pause
+			_lunge_out = st.lunge_out
+			_lunge_back = st.lunge_back
 
 
 ## 칼이 닿은 순간: 맞았으면 지금 보여 주는 공격 동작을 잠깐 멈춘다 (달리는 중엔 다리를 멈추지 않는다).
@@ -215,6 +226,15 @@ func on_land() -> void:
 		fb.kick(dir, h.land_kick_px)
 
 
+## 내딛기 곡선 (순수 계산): 0 → out초에 1(빠르게 나감) → back초에 걸쳐 0. 음수 시간(모으는 중)은 0.
+static func lunge_curve(t: float, out: float, back: float) -> float:
+	if t <= 0.0:
+		return 0.0
+	if t < out:
+		return 1.0 - pow(1.0 - t / maxf(out, 0.001), 2.0)
+	return clampf(1.0 - (t - out) / maxf(back, 0.001), 0.0, 1.0)
+
+
 ## 그림 자세 (무게감, 판정·이동은 그대로): 착지 눌림 + 멈출 때 앞쏠림. 발(원점)은 제자리.
 func _pose(delta: float) -> void:
 	var h := player.hero
@@ -232,6 +252,12 @@ func _pose(delta: float) -> void:
 	_sprite.scale = Vector2.ONE * h.sprite_scale * sq
 	var lean := _slide_dir * h.stop_slide_px * sin(PI * (1.0 - _slide_left / maxf(h.stop_slide_time, 0.001))) 		if _slide_left > 0.0 else Vector2.ZERO
 	_sprite.position = Vector2(h.sprite_offset.x, h.sprite_offset.y * sq.y) + lean
+	if _lunge != Vector2.ZERO:
+		_lunge_t += delta
+		var k2 := lunge_curve(_lunge_t, _lunge_out, _lunge_back)
+		_sprite.position += _lunge * k2
+		if _lunge_t >= _lunge_out + _lunge_back or is_moving():
+			_lunge = Vector2.ZERO
 	if _land_hold_left > 0.0:
 		_sprite.speed_scale = 0.0
 

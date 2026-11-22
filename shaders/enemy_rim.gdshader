@@ -17,8 +17,8 @@ uniform float tint_mix = 0.0;
 uniform float cell_px = 0.0;
 uniform vec4 ghost_color : source_color = vec4(0.0);
 // 망령 몸 불투명도 (1 = 안 비침), 칸 아래에서 사라지는 비율.
-uniform float ghost_body_alpha = 0.88;
-uniform float ghost_fade = 0.22;
+uniform float ghost_body_alpha = 1.0;
+uniform float ghost_fade = 0.1;
 // 피격 흰 번쩍임 (적마다 다름 → instance uniform, EnemySprite가 매 프레임 넣는다). 0이면 원래 색, 1이면 흰색.
 instance uniform float flash = 0.0;
 
@@ -64,7 +64,7 @@ void fragment() {
 	float y = (UV.y - lo.y) / max(hi.y - lo.y, 1e-5);  // 칸 안 세로 위치 (0 위, 1 아래)
 	float foot = smoothstep(1.0 - ghost_fade - 0.12, 1.0, y) * g;  // 발쪽일수록 1
 	body = mix(body, ghost_color.rgb * 1.2, foot * 0.6);
-	float a = tex.a * mix(1.0, ghost_body_alpha, g) * (1.0 - foot * 0.85);
+	float a = tex.a * mix(1.0, ghost_body_alpha, g) * (1.0 - foot * 0.5);
 	vec4 col = vec4(clamp(body, 0.0, 1.0), a) * node_color;
 	float wave = 0.7 + 0.3 * sin(TIME * 5.0 + UV.y * 60.0 + UV.x * 25.0);  // 일렁이는 테두리
 	vec3 rim_rgb = mix(rim_color.rgb, ghost_color.rgb, g);

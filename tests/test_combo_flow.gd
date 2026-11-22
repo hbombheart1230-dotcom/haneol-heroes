@@ -224,3 +224,13 @@ func test_step_in_waits_for_windup_pause() -> void:
 	for i in ceili(pause / DT) + 1:
 		a.tick(DT, [])
 	assert_float(p._recoil_left).is_greater(0.0)
+
+
+## 내딛는 그림: 모으는 동안 0, 빠르게 끝까지 나갔다가 돌아온다 (판정·위치는 그대로).
+func test_lunge_curve_goes_out_then_back() -> void:
+	assert_float(PlayerView.lunge_curve(-0.05, 0.07, 0.2)).is_equal(0.0)
+	assert_float(PlayerView.lunge_curve(0.07, 0.07, 0.2)).is_equal_approx(1.0, 0.001)
+	assert_float(PlayerView.lunge_curve(0.17, 0.07, 0.2)).is_equal_approx(0.5, 0.001)
+	assert_float(PlayerView.lunge_curve(0.5, 0.07, 0.2)).is_equal(0.0)
+	var d := BasicAttackData.new()
+	assert_float(d.lunge_px[2]).is_greater(d.lunge_px[0])
