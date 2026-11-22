@@ -19,12 +19,7 @@ func _run() -> void:
 	var level := int(args[3]) if args.size() > 3 else 0
 	var v: SkillVfxData = def.vfx_impact
 	var st: StageTheme = load("res://data/stages/%s.tres" % STAGE[args[0]])
-	var bg := Sprite2D.new()
-	bg.texture = load(st.background_path)
-	bg.centered = false
-	bg.region_enabled = true
-	bg.region_rect = Rect2(bg.texture.get_size() * 0.5 - Vector2(360, 640), Vector2(720, 1280))
-	root.add_child(bg)
+	ShotStage.backdrop(self, st)  # 실제 바닥 (floor_grade·빛 웅덩이·비네트·무대 확대)
 	var feel: CombatFeelData = load("res://data/feel/combat_feel.tres")
 	var cells: Array[VfxDecals] = []
 	for i in TIMES.size():
