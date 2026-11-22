@@ -29,6 +29,7 @@ static func attach(a: AutoAttack) -> void:
 	if a == null or a.has_meta(&"ranged_feel"):
 		return
 	a.set_meta(&"ranged_feel", true)
+	BrushFlick.attach(a)  # 사임당 중거리 먹 털기 (같은 연결 지점)
 	a.projectile_fired.connect(func(p: Projectile) -> void: on_fired(a, p))
 
 
