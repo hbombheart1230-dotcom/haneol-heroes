@@ -77,3 +77,45 @@ func test_saimdang_third_flick_launches() -> void:
 	ComboSteps.push(f, Vector2(-10, 0), 200.0, false, sa.attack)  # 1·2타는 넉백
 	assert_bool(f.launch.active()).is_false()
 	assert_float(f.knockback.length()).is_greater(0.0)
+
+
+## 검증 지적 1: 기절·넘어짐 중에도 바로 날아간다 (광개토 지진·정복은 밀고 기절시킨다).
+func test_launch_moves_while_stunned() -> void:
+	var e: Enemy = ENEMY_SCENE.instantiate()
+	e.data = SOLDIER
+	add_child(auto_free(e))
+	e.set_physics_process(false)
+	e.global_position = Vector2(60, 0)
+	ComboSteps.push_out(e, Vector2.ZERO, 120.0, 0.0)
+	e.stun(1.2)
+	await get_tree().physics_frame
+	for i in 30:  # 0.5초 (기절은 아직)
+		e._physics_process(DT)
+	assert_float(e._stun_left).is_greater(0.0)
+	assert_float(e.global_position.x - 60.0).is_greater(120.0 * SOLDIER.knockback_scale * 0.8)
+
+
+## 검증 지적 2: 보스·갑옷 정예는 넉백처럼 날아가지 않고 (poise), 돌진도 멈추지 않는다.
+func test_boss_and_armored_not_launched() -> void:
+	for d in [load("res://data/enemies/waegun_commander.tres"), ELITE]:
+		var e: Enemy = ENEMY_SCENE.instantiate()
+		e.data = d
+		add_child(auto_free(e))
+		e.global_position = Vector2(60, 0)
+		if e.poise == null or e.poise.knockback_mult() > 0.0:
+			continue
+		ComboSteps.push_out(e, Vector2.ZERO, 120.0, 0.0)
+		assert_bool(e.launch.active()).is_false()
+
+
+## 검증 지적 3: 대시가 휘두름 느려짐을 지운다.
+func test_dash_clears_swing_slow() -> void:
+	var p: Player = auto_free(Player.new())
+	var h := Health.new()
+	h.name = "Health"
+	p.add_child(h)
+	p.hero = load("res://data/heroes/yi_sun_sin.tres")
+	add_child(p)
+	p.slow_for(0.2, 0.35)
+	assert_bool(p.request_dash(Vector2.RIGHT)).is_true()
+	assert_float(p._swing_left).is_equal(0.0)

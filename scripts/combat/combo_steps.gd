@@ -63,12 +63,14 @@ static func push(en: Enemy, from: Vector2, kb: float, heavy: bool, d: BasicAttac
 		en.apply_knockback(dir * kb)
 
 
-## 크게 날리기: 적의 넉백 배율(정예·보스·중장은 작게)을 곱한 거리.
+## 크게 날리기: 넉백과 같은 배율 (적 knockback_scale × 갑옷 poise — 보스·갑옷 정예는 0이라 안 날아가고
+## 돌진도 멈추지 않는다).
 static func launch(en: Enemy, dir: Vector2, px: float) -> void:
 	if en == null or not is_instance_valid(en):
 		return
 	var f := Feedback.feel_data()
-	en.launch.start(dir, px * (en.data.knockback_scale if en.data else 1.0), f.big_push_hold, f.big_push_time)
+	var k := (en.data.knockback_scale if en.data else 1.0) * (en.poise.knockback_mult() if en.poise else 1.0)
+	en.launch.start(dir, px * k, f.big_push_hold, f.big_push_time, f.big_push_hold_share)
 
 
 ## 큰 기술의 바깥 밀림: launch_px가 있으면 크게 날리기, 없으면 knockback 넉백 (center에서 바깥으로).

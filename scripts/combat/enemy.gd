@@ -271,10 +271,10 @@ func _physics_process(delta: float) -> void:
 		queue_redraw()
 
 
-## 기절: 쫓지도 치지도 않고 넉백만 받는다.
+## 기절·넘어짐: 쫓지도 치지도 않고 넉백·크게 날리기만 받는다 (기절시키는 큰 기술도 바로 날아간다).
 func _drift(delta: float) -> void:
 	_update_damage_mult()
-	velocity = knockback
+	velocity = knockback + launch.tick(delta)
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
 	move_and_slide()
 	_flash = maxf(_flash - delta, 0.0)

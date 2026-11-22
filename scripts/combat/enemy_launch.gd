@@ -10,16 +10,18 @@ var _dist: float = 0.0
 var _hold: float = 0.0
 var _time: float = 0.3
 var _t: float = -1.0
+var _hold_share: float = 0.04
 
 
-## dir 쪽으로 dist px. 이미 날아가는 중이면 더 먼 쪽으로 다시.
-func start(dir: Vector2, dist: float, hold: float = 0.05, time: float = 0.3) -> void:
+## dir 쪽으로 dist px (hold_share = 멈춤 동안 갈 비율). 이미 날아가는 중이면 새 것으로 처음부터 다시.
+func start(dir: Vector2, dist: float, hold: float = 0.05, time: float = 0.3, hold_share: float = 0.04) -> void:
 	if dist <= 0.0 or dir.length_squared() < 0.0001:
 		return
 	_dir = dir.normalized()
 	_dist = dist
 	_hold = maxf(hold, 0.0)
 	_time = maxf(time, 0.02)
+	_hold_share = clampf(hold_share, 0.0, 1.0)
 	_t = 0.0
 
 
@@ -39,9 +41,9 @@ func tick(delta: float) -> Vector2:
 	return _dir * ((after - before) / maxf(delta, 0.0001))
 
 
-## 지금까지 간 거리 (멈춤 구간엔 전체의 4%만).
+## 지금까지 간 거리 (멈춤 구간엔 전체의 _hold_share만).
 func _covered(t: float) -> float:
 	if t <= _hold:
-		return _dist * 0.04 * (t / maxf(_hold, 0.001))
+		return _dist * _hold_share * (t / maxf(_hold, 0.001))
 	var u := clampf((t - _hold) / _time, 0.0, 1.0)
-	return _dist * (0.04 + 0.96 * (1.0 - pow(1.0 - u, 3.0)))
+	return _dist * (_hold_share + (1.0 - _hold_share) * (1.0 - pow(1.0 - u, 3.0)))

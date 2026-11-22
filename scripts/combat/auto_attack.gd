@@ -124,6 +124,11 @@ func can_manual(min_gap: float) -> bool:
 	return player != null and not player.is_dead() and _since_manual >= min_gap and _melee_left < 0.0 		and _release_left < 0.0 and _since_strike >= stats().cancel_after  # 앞 타가 닿은 뒤에야 끊고 들어간다
 
 
+## 휘두른 칼이 아직 닿기 전인지 (대시로 끊기면 false).
+func swing_pending() -> bool:
+	return _melee_left >= 0.0
+
+
 ## 손 평타 (탭): 가장 가까운 적(원거리 사거리 안) 쪽으로, 없으면 바라보는 쪽으로 헛스윙.
 ## step: 근접 연계 동작 번호 (3 = 강타). ranged면 원거리 한 발 (세종 글자).
 func manual_strike(step: int, ranged: bool, enemy_list: Array = []) -> void:

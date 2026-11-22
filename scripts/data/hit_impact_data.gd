@@ -42,6 +42,19 @@ extends Resource
 ## 몸 접점 높이: 적 sprite_offset의 이 비율만큼 위 (가슴께).
 @export var body_height_ratio: float = 0.6
 
+## 칼끝 불꽃 자리: 사거리의 몇 배 앞, 몇 px 위.
+@export var spark_reach: float = 0.55
+@export var spark_lift: float = 40.0
+
+@export_group("3타·큰 기술 줄기 색")
+@export var water_color: Color = Color(0.75, 0.92, 1.0)
+@export var water_drop_color: Color = Color(0.85, 0.96, 1.0)
+@export var gold_color: Color = Color(1.0, 0.82, 0.32)
+@export var petal_stroke_color: Color = Color(0.1, 0.07, 0.08)
+@export var petal_color: Color = Color(1.0, 0.62, 0.72)
+@export var thunder_color: Color = Color(1.0, 0.93, 0.6)
+@export var earth_color: Color = Color(0.38, 0.26, 0.16)
+
 @export_group("소리 · 진동")
 ## 낮은 "퍽" 층 (SoundBank 종류)과 타마다 음높이 배율 (1 → 2 → 3타로 올라감).
 @export var thud_sfx: StringName = &"thud"
