@@ -170,3 +170,52 @@ func test_windup_end_shake_only_while_flashing() -> void:
 	assert_float(absf(EnemySprite.windup_shake(e))).is_less_equal(ai.windup_shake_px)
 	e.attack._timer = 0.5
 	assert_float(EnemySprite.windup_shake(e)).is_equal(0.0)
+
+
+## 영상 분석 적용: 평타·일반 처치는 화면 흔들림 없음, 강타·정예/보스 처치·기술·피격·반격·보스 단계는 남김.
+func test_shake_only_on_big_moments() -> void:
+	var f := Feedback.feel_data()
+	assert_float(f.kill_trauma).is_equal(0.0)
+	assert_float(f.kill_kick_px).is_equal(0.0)
+	assert_float(f.finisher_trauma).is_greater(0.0)
+	assert_float(f.finisher_kick_px).is_greater(0.0)
+	assert_float(f.hurt_trauma).is_greater(0.0)
+	assert_float(f.skill_trauma).is_greater(0.0)
+	assert_float(f.counter_trauma).is_greater(0.0)
+	assert_float(f.poise_trauma).is_greater(0.0)  # 정예 갑옷 깨짐 · 보스 휘청 · 보스 단계
+	assert_float(f.impact_data().heavy_trauma).is_greater(0.0)  # 3타 강타
+
+
+## 대시 중 카메라: 바로 빠르게, 끝나면 천천히 평소로 (연속 대시 중엔 빠른 값 유지 → 출렁임 없음).
+func test_dash_camera_follow() -> void:
+	var f := Feedback.feel_data()
+	var s := f.follow_speed
+	s = Feedback.follow_speed(s, true, f, DT)
+	assert_float(s).is_equal(f.dash_follow_speed)
+	s = Feedback.follow_speed(s, false, f, 0.1)
+	assert_float(s).is_between(f.follow_speed, f.dash_follow_speed)
+	s = Feedback.follow_speed(s, true, f, DT)  # 다음 대시: 다시 빠르게, 튀지 않음
+	assert_float(s).is_equal(f.dash_follow_speed)
+	for i in 60:
+		s = Feedback.follow_speed(s, false, f, DT)
+	assert_float(s).is_equal(f.follow_speed)
+
+
+## 물결 등장 자리는 보이는 화면(줌 반영) 안: 줌 1.26에서도 가로로 화면 밖에 나가지 않는다.
+func test_wave_spawn_points_stay_on_screen_with_zoom() -> void:
+	var cam := Camera2D.new()
+	cam.zoom = Vector2.ONE * 1.26
+	add_child(auto_free(cam))
+	cam.make_current()
+	var sp: EnemySpawner = auto_free(EnemySpawner.new())
+	add_child(sp)
+	sp.set_physics_process(false)
+	sp.set_waves(HANSAN.waves)
+	var half := sp.view_half()
+	var m := HANSAN.waves.spawn_screen_margin
+	for i in 200:
+		var p := sp.near_point(Vector2.ZERO, HANSAN.waves.spawn_min, HANSAN.waves.spawn_max)
+		assert_float(absf(p.x)).is_less_equal(half.x - m + 0.5)
+		assert_float(absf(p.y)).is_less_equal(half.y - m + 0.5)
+	sp.set_waves(null)
+	assert_float(sp.view_margin).is_less(0.0)  # 떼 모드는 그대로 (화면 밖 고리)

@@ -55,6 +55,8 @@ var blocked_check: Callable
 @export var spawn_point_tries: int = 8
 ## 등장 자리와 장애물 사이 여유 (px, 몸 반지름쯤).
 @export var spawn_clearance: float = 24.0
+## 0 이상이면 near_point가 보이는 화면(카메라 줌 반영) 안 여유 px에 들게 타원으로 줄인다 (물결 모드).
+var view_margin: float = -1.0
 ## 물결 적 데이터에 난이도를 입힌다 (Main이 넣는다, 비면 그대로).
 var data_scaler: Callable
 ## 장면에 정해 둔 무리 이벤트 켜짐 (물결 무대에서 물결 없는 무대로 바꾸면 되돌린다).
@@ -220,6 +222,7 @@ func start_horde(kind: int) -> int:
 ## 물결 모드 켜기·끄기 (새 판마다 처음부터).
 func set_waves(d: WaveSetData) -> void:
 	waves = WaveRunner.new(d) if d else null
+	view_margin = d.spawn_screen_margin if d else -1.0
 	_warnings = 0
 	horde_enabled = false if d else _horde_default
 
@@ -254,12 +257,31 @@ func _tick_waves(delta: float) -> void:
 func near_point(center: Vector2, dmin: float, dmax: float) -> Vector2:
 	var p := center
 	for i in maxi(spawn_point_tries, 1):  # 장애물 속이면 다시 뽑는다 (Codex e423e86 지적)
-		p = center + Vector2.from_angle(rng.randf_range(0.0, TAU)) * rng.randf_range(dmin, dmax)
+		p = center + fit_view(Vector2.from_angle(rng.randf_range(0.0, TAU)) * rng.randf_range(dmin, dmax), dmax)
 		if arena_rect.has_area():
 			p = p.clamp(arena_rect.position, arena_rect.end)
 		if not blocked_check.is_valid() or not bool(blocked_check.call(p, spawn_clearance)):
 			break
 	return p
+
+
+## 화면 안에 들게 줄인 등장 오프셋: 가로·세로를 각각 (보이는 반폭·반높이 − 여유) ÷ dmax 배까지 (줄일 때만).
+func fit_view(off: Vector2, dmax: float) -> Vector2:
+	if view_margin < 0.0 or not is_inside_tree():
+		return off
+	var half := view_half()
+	if half == Vector2.INF:
+		return off
+	return Vector2(off.x * clampf((half.x - view_margin) / maxf(dmax, 1.0), 0.2, 1.0),
+		off.y * clampf((half.y - view_margin) / maxf(dmax, 1.0), 0.2, 1.0))
+
+
+## 보이는 화면의 반폭·반높이 (월드 px, 카메라 줌 반영). 카메라가 없으면 INF.
+func view_half() -> Vector2:
+	var cam := get_viewport().get_camera_2d()
+	if cam == null:
+		return Vector2.INF
+	return get_viewport().get_visible_rect().size / cam.zoom * 0.5
 
 
 ## at이 장애물 속이거나 전장 밖이면 around 둘레에서 다시 뽑은 자리 (보스 부하 소환).

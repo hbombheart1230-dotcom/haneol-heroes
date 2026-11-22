@@ -14,6 +14,8 @@ extends Resource
 @export var spawn_max: float = 420.0
 @export var warn_time: float = 0.6
 @export var spawn_stagger: float = 0.12
+## 등장 자리를 보이는 화면 안에 두는 여유(px, 카메라 줌 반영): 원 대신 화면 비율 타원으로 줄인다. 음수면 끔.
+@export var spawn_screen_margin: float = 40.0
 ## 물결 사이 숨 고르기(초, 강화 고르기가 끝난 뒤부터)와 마지막 물결 뒤 보스까지(초).
 @export var gap_time: float = 1.2
 @export var boss_delay: float = 1.5
