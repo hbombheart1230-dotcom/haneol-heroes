@@ -6,6 +6,8 @@ extends SkillDef
 @export var damage: int = 30
 @export var stun_time: float = 0.5
 @export var knockback: float = 160.0
+## 0보다 크면 넉백 대신 이만큼(px) 바깥으로 크게 날린다 (큰 기술 = 크게 날림, EnemyLaunch).
+@export var launch_px: float = 0.0
 @export_group("큰 변형 · 여진")
 ## 0보다 크면 이 시간(초) 뒤 같은 자리에 한 번 더 충격파 (피해 aftershock_ratio배).
 @export var aftershock_delay: float = 0.0
@@ -28,8 +30,7 @@ func strike(ctx: SkillContext, center: Vector2, dmg: int) -> int:
 	for en in ctx.enemies_in_radius(center, radius):
 		if not en.health.is_alive():
 			continue  # 죽어서 지워지기 전인 적은 밀지도 세지도 않는다
-		var off := en.global_position - center
-		en.apply_knockback((off.normalized() if off.length_squared() > 0.01 else Vector2.RIGHT) * knockback)
+		ComboSteps.push_out(en, center, launch_px, knockback)
 		if ctx.hit(en, dmg):
 			en.stun(stun_time)
 		hits += 1

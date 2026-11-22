@@ -237,7 +237,7 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 			h.damage(dmg)
 		if en:
 			en.heavy_pending = false
-			en.apply_knockback((e.global_position - from).normalized() * kb)  # 피격 반응: 툭 밀려남 (타별 배율)
+			ComboSteps.push(en, from, kb, heavy, d)  # 피격 반응: 툭 밀려남 (타별 배율), 3타 크게 날리기 (있으면)
 			HitImpact.on_enemy(en, from, chain_step, d.swing_color)  # 닿는 자리 섬광·튐 줄기 (한 타 충격)
 	if not hits.is_empty():
 		HitImpact.on_swing(chain_step)  # 퍽 소리 (타마다 음높이) + 짧은 진동

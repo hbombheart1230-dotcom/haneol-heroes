@@ -48,13 +48,13 @@ func after_test() -> void:
 	SkillHitStop.reset()
 
 
-## 1·2타는 약 35px "툭" (감쇠 8 기준 거리 = 속도/감쇠), 3타는 그대로 (넘어짐이 맡음).
+## 1·2타는 거의 안 밀림 (약 15px, 움찔 위주 — 3타에 크게 날리면 넷째 탭 기술이 허공을 쳐서), 3타는 넘어짐 (약 35px).
 func test_step_knockback_distances() -> void:
 	var d := YI.attack
 	var damping := 8.0
 	var d1 := d.melee_knockback * ComboSteps.at(d.step_knockback_mults, 1, 1.0) / damping
 	var d3 := d.melee_knockback * d.heavy_knockback_mult * ComboSteps.at(d.step_knockback_mults, 3, 1.0) / damping
-	assert_float(d1).is_between(30.0, 40.0)
+	assert_float(d1).is_between(12.0, 18.0)
 	assert_float(d3).is_equal_approx(140.0 * 2.0 / damping, 0.01)  # 예전 3타와 같음
 
 

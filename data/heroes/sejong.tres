@@ -59,6 +59,7 @@ melee_hit_sfx = &"w_scroll"
 heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
+launch_px = 100.0
 sfx = &"magic"
 icon = ExtResource("i_jeongeum")
 id = &"jeongeum"

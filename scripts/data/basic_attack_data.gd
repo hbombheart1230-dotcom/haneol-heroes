@@ -32,6 +32,8 @@ extends Resource
 @export var chain_window: float = 1.2
 @export var heavy_damage_mult: float = 1.6
 @export var heavy_knockback_mult: float = 2.0
+## 0보다 크면 3타 강타는 넉백 대신 이만큼(px) 크게 날린다 (사임당 중거리 3타 원 붓질). 0이면 넉백·넘어짐.
+@export var heavy_launch_px: float = 0.0
 ## 타별 넉백 배율 (1타부터, 3타 강타는 heavy_knockback_mult와 곱). 1·2타를 "툭 밀리고 멈춤"으로 (약 35px).
 @export var step_knockback_mults: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.0])
 

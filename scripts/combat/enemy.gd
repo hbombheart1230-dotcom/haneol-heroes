@@ -31,6 +31,7 @@ var sprite: AnimatedSprite2D
 var attack: EnemyAttack
 ## 넉백 속도 (매 프레임 감쇠).
 var knockback: Vector2 = Vector2.ZERO
+var launch := EnemyLaunch.new()  # 큰 기술의 크게 날리기 (정해진 곡선)
 var _stun_left: float = 0.0
 ## 장애물 돌아가기: 남은 시간, 부딪힌 면의 법선, 정면일 때 도는 쪽 (적마다 고정).
 var _detour_left: float = 0.0
@@ -257,9 +258,9 @@ func _physics_process(delta: float) -> void:
 	if _detour_left > 0.0:
 		_detour_left -= delta
 		chase = Obstacles.steer_around(chase, _detour_normal, _detour_side)
-	if reaction and reaction.is_staggered():
-		chase = Vector2.ZERO  # 잡몹 경직: 넉백만 (공격 예고는 그대로 흘러 공격권을 붙잡지 않는다)
-	velocity = chase + knockback
+	if (reaction and reaction.is_staggered()) or launch.active():
+		chase = Vector2.ZERO  # 잡몹 경직·날아가는 중: 밀림만 (공격 예고는 그대로 흘러 공격권을 붙잡지 않는다)
+	velocity = chase + knockback + launch.tick(delta)
 	if sprite:
 		EnemySprite.update(self, busy)
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
