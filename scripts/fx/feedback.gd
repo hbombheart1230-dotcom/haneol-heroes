@@ -335,13 +335,14 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 	play(&"die")
 	var d := e.data
 	var finisher := d != null and (d.is_boss or d.is_elite)
+	var elem := DeathCause.burst(self, e, last_damage, finisher)  # 처치한 영웅의 속성 모습 (물·번개·글자·먹)
 	if kill_fx:
 		var tex: Texture2D = null
 		if e.sprite and e.sprite.sprite_frames:
 			tex = e.sprite.sprite_frames.get_frame_texture(e.sprite.animation, e.sprite.frame)
 		kill_fx.launch(e.global_position, dir, last_damage, tex, d.sprite_scale if d else 1.0,
 			d.sprite_offset if d else Vector2.ZERO, d.sprite_tint if d else Color.WHITE,
-			d.death_style if d else &"smoke", d.launch_scale if d else 1.0, finisher)
+			&"none" if elem else (d.death_style if d else &"smoke"), d.launch_scale if d else 1.0, finisher)
 	if finisher:
 		play(&"confirm_kill", 0.0)
 		play(&"gugak_kill", 0.0)  # 국악 북·징 (파일이 있을 때만)

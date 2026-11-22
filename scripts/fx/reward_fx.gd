@@ -14,6 +14,10 @@ extends Node2D
 @export var pillar_height: float = 420.0
 @export var pillar_width: float = 46.0
 @export var land_time: float = 0.6
+## 국악 소리: 일반 보상(떨어질 때·먹을 때) = 방울, 강화 고르기는 부르는 쪽이 북(일반)·징(큰 변형)을 넘긴다.
+## 같은 소리가 이 간격(실제 초)보다 자주 나면 생략 (연속으로 떨어져도 타격음을 덮지 않게).
+@export var reward_sfx: StringName = &"gugak_bang"
+@export var sfx_gap: float = 0.25
 
 var _fx: Array[Dictionary] = []
 
@@ -24,14 +28,22 @@ func _ready() -> void:
 
 
 ## 먹었다: pos에서 터지고 title(크게)·sub(작게)가 떠오른다.
-func pickup(pos: Vector2, color: Color, title: String, sub: String = "") -> void:
+func pickup(pos: Vector2, color: Color, title: String, sub: String = "", sfx: StringName = &"_") -> void:
+	sound(reward_sfx if sfx == &"_" else sfx)
 	_fx.append({"kind": "burst", "pos": pos, "color": color, "t": 0.0, "dur": maxf(burst_time, text_time),
 		"title": title, "sub": sub})
 
 
 ## 바닥에 떨어졌다: 빛기둥이 내려꽂히고 착지 고리가 퍼진다.
 func land(pos: Vector2, color: Color) -> void:
+	sound(reward_sfx)
 	_fx.append({"kind": "land", "pos": pos, "color": color, "t": 0.0, "dur": land_time})
+
+
+## 보상 소리 (빈 이름이면 없음).
+func sound(kind: StringName) -> void:
+	if kind != &"" and Feedback.instance:
+		Feedback.instance.play(kind, sfx_gap)
 
 
 func count() -> int:
