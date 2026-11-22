@@ -11,11 +11,7 @@ func _run() -> void:
 	await process_frame
 	var args := OS.get_cmdline_user_args()
 	var st: StageTheme = load("res://data/stages/hansan_1592.tres")
-	var bg := Sprite2D.new()
-	bg.texture = load(st.background_path)
-	bg.position = Vector2(360, 640)
-	bg.scale = Vector2.ONE * maxf(720.0 / bg.texture.get_size().x, 1280.0 / bg.texture.get_size().y)
-	root.add_child(bg)
+	ShotStage.backdrop(self, st)  # 실제 바닥 (floor_grade·빛 웅덩이·비네트·무대 확대)
 	var boss: EnemyData = load("res://data/enemies/waegun_commander.tres")
 	var seal: Texture2D = load("res://assets/vfx/boss_phase_seal.png")
 	var fx := FxLayer.new()

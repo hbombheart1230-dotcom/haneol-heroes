@@ -11,10 +11,7 @@ func _run() -> void:
 	await process_frame
 	var args := OS.get_cmdline_user_args()
 	var hero: HeroData = load("res://data/heroes/%s.tres" % args[0])
-	var bg := Sprite2D.new()
-	bg.texture = load("res://assets/backgrounds/hansan_1592.png") if ResourceLoader.exists("res://assets/backgrounds/hansan_1592.png") else null
-	bg.centered = false
-	root.add_child(bg)
+	ShotStage.backdrop(self, load("res://data/stages/hansan_1592.tres"))  # 실제 바닥
 	var c := SkillCutin.new()
 	c.def = hero.kit.counter
 	c.hero = hero
