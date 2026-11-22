@@ -158,3 +158,21 @@
 | 발묵 · 바닥 | `ink_pool.png` → `shin_saimdang_ink_bleed.ground_art` | A spreading pool of black and violet ink seen from above, wet bleeding edges. |
 | ★ 화폭 · 두루마리 띠 | `scroll_band.png` → `shin_saimdang_canvas.decal` | A wide horizontal hanging-scroll painting fully unrolled, wooden rollers at the left and right ends, an ink-wash landscape with plum blossoms in the middle, 3:1 wide, centred. |
 | 매화 · 조각 | `plum_petal_1~6.png` → `shin_saimdang_plum.part_art` | A single pink plum blossom petal or small blossom. (6장) |
+
+## 6. 하데스 슬라이스 (순신 · 한산 · 왜군 지휘관) — 필요한 그림
+
+슬라이스를 끝내려면 아래 그림이 있으면 된다. 순서대로 그리면 된다. 공통 앞부분(B안)은 위와 같다.
+슬롯이 비어 있으면 지금 그림이나 코드 그림이 그대로 쓰인다 (`ring_art`, 글자 낙인).
+
+| 순위 | 그림 · 파일 → 자리 | 프롬프트 (공통 앞부분 뒤에) |
+|---|---|---|
+| 1 | ★ 해룡참 · 원판 `sea_dragon_ring.png` → `yi_sun_sin_haeryong.decal` | (위 B안 표와 같음) |
+| 2 | ★ 몹 등장 먹 번짐 원 `spawn_ink_bloom.png` → `data/feel/combat_feel.tres`의 `spawn_warn_art` | A dark ink blot spreading on rice paper seen exactly from above, a rough circular bloom of black ink with feathered bleeding edges and a faint dull-red seal-ink tint at the centre, empty soft middle, perfectly centred, 1:1. |
+| 3 | ★ 보스 단계 낙인 `boss_phase_seal.png` → 왜군 지휘관 `Phase_2`·`Phase_3`의 `seal_art` | A square red Korean seal stamp (dojang) impression with bold carved strokes of a war drum emblem, cinnabar red ink on transparent background, slightly uneven pressed edges, 1:1, no readable text. |
+| 4 | 반격 · 바닥 `scorch.png`, 반격 · 조각 `ember_1~6.png` | (위 B안 표와 같음) |
+| 5 | 파도격 · 띠 `wave_band.png` | (위 B안 표와 같음) |
+| 6 | 해일검기 · 물마루 `tidal_crest.png`, 물보라 `spray_1~6.png` | (위 B안 표와 같음) |
+| 7 | 해룡참 · 조각 `water_clump_1~6.png`, 바닥 `water_stain.png` | (위 B안 표와 같음) |
+
+- 바닥이 어두워졌기 때문에 (명도 ×0.68, 채도 ×0.48), 그림은 **밝은 색 + 진한 먹 외곽선**이 잘 읽힌다. 게임도 붓 효과에 먹 외곽선을 한 겹 깐다 (`fx_ink_outline`).
+- 등장 원은 게임이 세로로 눌러(0.55배) 바닥에 눕혀 그린다. 완전한 원으로 그리면 된다.

@@ -10,14 +10,14 @@ kind = 0
 trigger_range = 160.0
 windup = 1.0
 radius = 150.0
-damage = 40
+damage = 30
 cooldown = 2.4
 recovery = 0.6
 
 [resource]
 script = ExtResource("1_enemy")
 id = &"waegun_elite"
-max_hp = 520
+max_hp = 400
 xp = 12
 move_speed = 80.0
 contact_damage = 25

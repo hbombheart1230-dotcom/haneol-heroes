@@ -50,6 +50,14 @@ extends Resource
 @export_group("바닥")
 @export var floor_base: Color = Color(0.92, 0.88, 0.79)
 @export var floor_stain: Color = Color(0.09, 0.09, 0.11)
+## 배경 지도 명도·채도 배율 (하데스식 대비, 1이면 그대로)과 화면 가장자리 먹 비네트 진하기 (0이면 없음).
+@export var floor_value: float = 1.0
+@export var floor_saturation: float = 1.0
+@export var vignette: float = 0.0
+
+@export_group("물결·보스 (하데스 슬라이스)")
+## 있으면 시간 따라 계속 나오는 대신 물결 모드 (WaveSetData). 없으면 지금 방식 그대로.
+@export var waves: WaveSetData
 
 @export_group("소품 (코드로 그리는 수묵)")
 ## 바닥 1000×1000px당 풀포기·바위 수.

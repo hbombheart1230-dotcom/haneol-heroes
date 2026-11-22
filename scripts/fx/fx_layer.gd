@@ -63,6 +63,10 @@ func _tex_draw(tex: Texture2D, pos: Vector2, size: float, rot: float, col: Color
 	if tex == null:
 		return false
 	draw_set_transform(pos, rot, Vector2.ONE)
+	var feel := Feedback.feel_data()
+	if feel.fx_ink_outline > 0.0:  # 먹 외곽선: 같은 그림을 조금 크게 먹색으로 먼저 (밝은 바닥에서 테두리)
+		var o := size * feel.fx_ink_outline_scale
+		draw_texture_rect(tex, Rect2(-o * 0.5, -o * 0.5, o, o), false, Color(Ink.INK, col.a * feel.fx_ink_outline))
 	draw_texture_rect(tex, Rect2(-size * 0.5, -size * 0.5, size, size), false, col)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	return true

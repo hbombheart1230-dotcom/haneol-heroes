@@ -77,6 +77,17 @@ extends Resource
 @export var recoil_time: float = 0.06
 ## 연타 흐름: 공격 동작이 끝난 뒤 마지막 자세를 이만큼(초) 붙잡는다 (다음 타 전에 대기 자세로 돌아가 튀지 않게).
 @export var combo_hold_time: float = 0.35
+
+@export_group("하데스 슬라이스")
+## 물결 마지막 처치 슬로모션 (실제 초·게임 속도).
+@export var wave_end_slow_time: float = 0.35
+@export var wave_end_slow_scale: float = 0.3
+## 적 등장 예고 그림 (먹 번짐 원, 비면 붓 고리 ring_art)과 크기(px).
+@export var spawn_warn_art: Texture2D
+@export var spawn_warn_size: float = 150.0
+## 붓 효과 그림의 먹 외곽선 (같은 그림을 조금 크게·먹색으로 먼저 깐다). 0이면 끔.
+@export var fx_ink_outline: float = 0.55
+@export var fx_ink_outline_scale: float = 1.12
 ## 적 발밑 먹 그림자 (무게감): 몸 반지름 배율, 보통·큰 적 진하기, 큰 적 기준 반지름(px, 몸 × 크기 배율).
 @export var enemy_shadow_scale: float = 1.1
 @export var enemy_shadow_alpha: float = 0.26

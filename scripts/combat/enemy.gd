@@ -61,6 +61,9 @@ var _damage_mult: float = 1.0
 var _bonus: int = 0
 ## 영웅 3타째 강타가 이번 피해인지 (AutoAttack이 피해 직전에 켜고 바로 끈다).
 var heavy_pending: bool = false
+## 보스 단계 (BossPhases): 들어간 단계 수, 단계가 바뀐 순간 무적 남은 시간.
+var phase_index: int = 0
+var phase_invuln: float = 0.0
 ## 넉백 감쇠율(초당). 클수록 빨리 멈춘다.
 @export var knockback_damping: float = 8.0
 
@@ -214,6 +217,7 @@ func _physics_process(delta: float) -> void:
 		return
 	var busy := false
 	_slow_left = maxf(_slow_left - delta, 0.0)
+	phase_invuln = maxf(phase_invuln - delta, 0.0)
 	if reaction:
 		reaction.tick(delta)
 	if poise and poise.armor_max > 0.0 and not poise.is_armored():
@@ -295,6 +299,7 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 		if reaction and reaction.is_staggered():
 			_stop_charge()  # 잡몹 돌진은 맞으면 멈춘다 (정예·보스는 그대로 밀고 온다)
 		EnemyHits.on_hit(self, heavy_pending)  # 잡몹 예고 끊김 · 강타 멈춤·넘어짐
+		BossPhases.on_damaged(self)  # 보스 단계 (66%·33%)
 		if poise:
 			EnemyHits.on_poise(self, poise.on_damage(applied))
 	Feedback.enemy_hit(global_position, applied, _last_hit_dir, EnemyHits.number_style(applied, heavy_pending),
@@ -323,7 +328,7 @@ func _update_damage_mult() -> void:
 		return
 	var facing := attack.aim_dir if attack and attack.is_busy() else _dir_to_target()
 	_bonus = EnemyHits.bonus_flags(self)
-	var m := brain.damage_mult(attack, facing, _dir_to_target(), affix.damage_taken_mult if affix else 1.0) 		* HitBonus.mult(_bonus, EnemyHits.impact())
+	var m := brain.damage_mult(attack, facing, _dir_to_target(), affix.damage_taken_mult if affix else 1.0) 		* HitBonus.mult(_bonus, EnemyHits.impact()) * (0.0 if phase_invuln > 0.0 else 1.0)
 	if is_equal_approx(m, _damage_mult):
 		return
 	_damage_mult = m

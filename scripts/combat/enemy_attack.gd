@@ -63,6 +63,16 @@ func recover_ratio() -> float:
 	return clampf(1.0 - _timer / maxf(_recover_total, 0.001), 0.0, 1.0) if state == State.RECOVER else 0.0
 
 
+## 예고가 끝나기까지 남은 시간(초, 예고 중이 아니면 INF).
+func windup_left() -> float:
+	return _timer if state == State.WINDUP else INF
+
+
+## 마지막 번쩍임 구간인지 (공통 예고 규칙: 맞기 flash_time초 전부터).
+func is_flashing(flash_time: float) -> bool:
+	return windup_left() <= flash_time
+
+
 ## 0~1 예고 진행률 (예고 중이 아니면 0).
 func windup_ratio() -> float:
 	return clampf(1.0 - _timer / maxf(data.windup, 0.001), 0.0, 1.0) if state == State.WINDUP else 0.0

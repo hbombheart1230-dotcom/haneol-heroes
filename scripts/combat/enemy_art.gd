@@ -65,13 +65,15 @@ static func _telegraph(e: Enemy) -> void:
 	if a == null or a.state != EnemyAttack.State.WINDUP:
 		return
 	var k := a.windup_ratio()
-	var fill := Color(Ink.SEAL, 0.12 + 0.3 * k)
-	var edge := Color(Ink.SEAL, 0.85)
+	# 공통 예고 규칙: 붉은 먹 채움이 진해지고 (fill), 테두리는 처음부터 (edge), 맞기 직전엔 번쩍 (밝고 두껍게).
+	var flash := a.is_flashing(Enemy.ai_data().strike_flash_time)
+	var fill := Color(Ink.SEAL, (0.12 + 0.3 * k) + (0.2 if flash else 0.0))
+	var edge := Color(Ink.SEAL.lightened(0.45), 1.0) if flash else Color(Ink.SEAL, 0.85)
 	var origin := e.to_local(a.aim_origin)
 	match a.data.kind:
 		EnemyAttackData.Kind.SHOOT:
 			var end := a.aim_dir * a.data.projectile_range
-			Ink.stroke(e, Vector2.ZERO, end, 3.0 + 7.0 * k, Color(Ink.SEAL, 0.2 + 0.4 * k))
+			Ink.stroke(e, Vector2.ZERO, end, 3.0 + 7.0 * k + (4.0 if flash else 0.0), edge if flash else Color(Ink.SEAL, 0.2 + 0.4 * k))
 		EnemyAttackData.Kind.CONE:
 			var half := deg_to_rad(a.data.angle_degrees * 0.5)
 			var a0 := a.aim_dir.angle()

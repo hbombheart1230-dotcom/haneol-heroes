@@ -11,7 +11,7 @@ kind = 0
 trigger_range = 160.0
 windup = 1.0
 radius = 120.0
-damage = 35
+damage = 25
 cooldown = 3.0
 recovery = 0.6
 

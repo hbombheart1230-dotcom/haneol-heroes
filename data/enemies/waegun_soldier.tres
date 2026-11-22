@@ -7,7 +7,7 @@
 [sub_resource type="Resource" id="Attack_slam"]
 script = ExtResource("2_attack")
 trigger_range = 170.0
-windup = 0.5
+windup = 0.6
 radius = 80.0
 damage = 20
 cooldown = 2.5
@@ -20,7 +20,7 @@ width = 50.0
 script = ExtResource("1_enemy")
 id = &"waegun_soldier"
 display_name = "왜군 망령 졸병"
-max_hp = 30
+max_hp = 45
 xp = 1
 move_speed = 120.0
 contact_damage = 10

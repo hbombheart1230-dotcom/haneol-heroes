@@ -17,7 +17,6 @@ recovery = 0.55
 projectile_speed = 780.0
 projectile_range = 650.0
 projectile_radius = 14.0
-windup_sfx = &"e_gun_windup"
 strike_sfx = &"e_gun"
 fire_vfx = ExtResource("muzzle")
 
@@ -25,7 +24,7 @@ fire_vfx = ExtResource("muzzle")
 script = ExtResource("1_enemy")
 id = &"waegun_gunner"
 display_name = "왜군 망령 철포병"
-max_hp = 20
+max_hp = 25
 xp = 2
 move_speed = 100.0
 contact_damage = 5
