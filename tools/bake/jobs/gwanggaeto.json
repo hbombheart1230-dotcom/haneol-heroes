@@ -72,14 +72,14 @@
     },
     {
       "key": "attack",
-      "src": "Thrust Slash",
+      "src": "Double Blade Spin",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/models/meshy/gwanggaeto/animated_extra1.glb",
+      "from": "res://assets/models/meshy/gwanggaeto/animated_extra4.glb",
       "start": 0.0,
-      "end": 1.0,
-      "strike": 0.55
+      "end": 0.8,
+      "strike": 0.5
     },
     {
       "key": "hit",
@@ -97,25 +97,25 @@
     },
     {
       "key": "attack2",
-      "src": "Triple Combo Attack",
+      "src": "Double Blade Spin",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/models/meshy/gwanggaeto/animated_extra2.glb",
-      "start": 0.85,
-      "end": 1.6,
-      "strike": 1.15
+      "from": "res://assets/models/meshy/gwanggaeto/animated_extra4.glb",
+      "start": 0.75,
+      "end": 1.55,
+      "strike": 1.24
     },
     {
       "key": "attack3",
-      "src": "Triple Combo Attack",
+      "src": "Double Blade Spin",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/models/meshy/gwanggaeto/animated_extra2.glb",
-      "start": 2.1,
-      "end": 3.4,
-      "strike": 3.0
+      "from": "res://assets/models/meshy/gwanggaeto/animated_extra4.glb",
+      "start": 3.85,
+      "end": 4.9,
+      "strike": 4.46
     },
     {
       "key": "throw",

@@ -20,6 +20,9 @@ var _dir: int = -1
 var _running: bool = false
 ## 칼이 닿은 순간 영웅 동작도 멈춘다 (역경직, B3): 남은 시간.
 var _hitstop_left: float = 0.0
+## 연타 흐름: 공격 동작이 끝난 뒤 마지막 자세를 붙잡는 남은 시간, 같은 동작을 처음부터 다시 틀지.
+var _hold_left: float = 0.0
+var _restart: bool = false
 var _attack: AutoAttack
 
 
@@ -74,6 +77,9 @@ func _on_auto_swing(_d: Vector2, _h: int) -> void:
 	if not is_moving():
 		var anim := _attack.chain_anim() if _attack else "attack"  # 연계 2·3타 동작 (B4)
 		play_oneshot(anim, anim_seconds(anim, 0.35))
+		var pause := _attack.step_pause() if _attack else 0.0
+		if pause > 0.0:  # 3타 앞 모으기: 첫 칸에서 잠깐 멈춤
+			_hitstop_left = maxf(_hitstop_left, pause)
 
 
 ## 칼이 닿은 순간: 맞았으면 지금 보여 주는 공격 동작을 잠깐 멈춘다 (달리는 중엔 다리를 멈추지 않는다).
@@ -95,8 +101,10 @@ func anim_seconds(anim: String, fallback: float) -> float:
 func _on_ranged_windup(_d: Vector2) -> void:
 	var atk := player.hero.attack if player.hero else null
 	var anim := String(atk.ranged_anim) if atk else "attack"
+	if _attack and anim != "":
+		anim = _attack.ranged_anim_now()  # 연타 2·3번은 throw2·throw3
 	if anim != "" and not is_moving():
-		play_oneshot(anim, atk.ranged_anim_time if atk else 0.35)
+		play_oneshot(anim, anim_seconds(anim, atk.ranged_anim_time if atk else 0.35))
 
 
 func is_moving() -> bool:
@@ -112,6 +120,8 @@ func is_moving() -> bool:
 func play_oneshot(anim: String, seconds: float) -> void:
 	_oneshot = anim
 	_oneshot_left = seconds
+	_hold_left = 0.0
+	_restart = true  # 같은 이름 동작이 연달아 와도 처음부터
 
 
 ## 지금 보여줄 애니메이션 이름 (상태 우선순위: 사망 > 대시 > 피격 > 공격 > 달리기 > 대기).
@@ -123,6 +133,8 @@ func current_anim() -> String:
 	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time:
 		return "hit"
 	if _oneshot_left > 0.0:
+		return _oneshot
+	if _hold_left > 0.0 and not is_moving():  # 연타 사이: 대기 자세로 튀지 않고 마지막 자세 유지
 		return _oneshot
 	if is_moving():
 		return "run"
@@ -141,12 +153,20 @@ func available_anim(anim: String) -> String:
 func _update_sprite(delta: float) -> void:
 	if _hitstop_left > 0.0:  # 멈춘 동안은 공격 동작 시간도 흐르지 않는다
 		_hitstop_left = maxf(_hitstop_left - delta, 0.0)
-	else:
+	elif _oneshot_left > 0.0:
 		_oneshot_left = maxf(_oneshot_left - delta, 0.0)
+		if _oneshot_left <= 0.0 and (_oneshot.begins_with("attack") or _oneshot.begins_with("throw")):
+			_hold_left = Feedback.feel_data().combo_hold_time
+	else:
+		_hold_left = maxf(_hold_left - delta, 0.0)
 	_dir = _sheet.dir_index_sticky(player.facing, _dir, Feedback.feel_data().dir_margin_deg)
 	var dir := _dir
 	var anim_name := StringName("%s_%d" % [available_anim(current_anim()), dir])
-	if _sprite.animation != anim_name:
+	if _restart and current_anim() == _oneshot:
+		_restart = false
+		_sprite.play(anim_name)
+		_sprite.frame = 0
+	elif _sprite.animation != anim_name:
 		var frame := _sprite.frame
 		var same_anim := String(_sprite.animation).get_slice("_", 0) == String(anim_name).get_slice("_", 0)
 		_sprite.play(anim_name)

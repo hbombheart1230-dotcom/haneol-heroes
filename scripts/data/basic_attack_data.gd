@@ -26,6 +26,29 @@ extends Resource
 @export var chain_window: float = 1.2
 @export var heavy_damage_mult: float = 1.6
 @export var heavy_knockback_mult: float = 2.0
+
+@export_group("연타 흐름 (타별, 1타부터)")
+## 손 평타(탭) 간격 배율: 이 타를 치기 전 최소 간격 = 평타 간격 × 값 (빠름·빠름·묵직). 비면 kit.tap_min_gap_mult.
+@export var step_gap_mults: PackedFloat32Array = PackedFloat32Array([0.55, 0.6, 1.0])
+## 앞 타가 맞닿은 뒤 이만큼(초) 지나면 다음 탭이 그 동작의 회복을 끊고 들어간다 (캔슬 구간).
+@export var cancel_after: float = 0.06
+## 타별 모으기(초): 휘두르기 전 첫 칸에서 잠깐 멈춘다 (3타 앞).
+@export var step_windup_pause: PackedFloat32Array = PackedFloat32Array([0.0, 0.0, 0.08])
+## 타별 판정 모양: 부채꼴 각도·사거리 배율 (3타 = 좁고 길게).
+@export var step_arc_mults: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 0.6])
+@export var step_range_mults: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.2])
+## 타별 궤적 방향 (1 = 그대로, -1 = 뒤집어 반대쪽에서 베기).
+@export var step_trail_flip: PackedFloat32Array = PackedFloat32Array([1.0, -1.0, 1.0])
+## 타별 전진(px, 손 평타만). 앞 적 몸 안으로는 들어가지 않고, 적 예고가 영웅을 덮고 있으면 생략.
+@export var step_in_px: PackedFloat32Array = PackedFloat32Array([10.0, 14.0, 26.0])
+@export var step_in_max: float = 30.0
+@export var step_in_time: float = 0.1
+## 끄면 전진 없음.
+@export var step_in_enabled: bool = true
+## 원거리 연타 (세종): 타별 탄 수·퍼짐(도)·글자 크기 배율. 시트에 throw2·throw3가 있으면 그 동작.
+@export var ranged_step_count: PackedFloat32Array = PackedFloat32Array([1.0, 2.0, 1.0])
+@export var ranged_step_spread: float = 10.0
+@export var ranged_step_scale: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.5])
 ## 무기 타격음 (B9): 근접이 맞을 때 겹치는 소리, 강타에 더 겹치는 소리 (사운드 뱅크 이름, 비면 없음).
 @export var melee_hit_sfx: StringName = &""
 @export var heavy_hit_sfx: StringName = &""

@@ -66,6 +66,28 @@
       "start": 0.0,
       "end": 2.2,
       "strike": 0.85
+    },
+    {
+      "key": "throw2",
+      "src": "Mage Soell Cast 3",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/sejong/animated_extra1.glb",
+      "start": 0.4,
+      "end": 1.4,
+      "strike": 1.05
+    },
+    {
+      "key": "throw3",
+      "src": "Mage Soell Cast 6",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/sejong/animated_extra1.glb",
+      "start": 0.2,
+      "end": 1.3,
+      "strike": 1.0
     }
   ]
 }

@@ -247,7 +247,8 @@ func tap_gap() -> float:
 	if atk == null or kit == null:
 		return 0.0
 	var d := atk.stats()
-	return (d.ranged_interval if kit.ranged_taps else d.melee_interval) * kit.tap_min_gap_mult
+	var next := combo.step % maxi(d.chain_len, 1) + 1  # 다음 타 번호의 박자 (빠름·빠름·묵직)
+	return (d.ranged_interval if kit.ranged_taps else d.melee_interval) * ComboSteps.at(d.step_gap_mults, next, kit.tap_min_gap_mult)
 
 
 func auto_attack() -> AutoAttack:

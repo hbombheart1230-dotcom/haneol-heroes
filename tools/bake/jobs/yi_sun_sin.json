@@ -35,14 +35,14 @@
     },
     {
       "key": "attack",
-      "src": "Right-hand Sword Slash",
+      "src": "Triple Combo Attack",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra1.glb",
-      "start": 0.1,
-      "end": 1.1,
-      "strike": 0.55
+      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
+      "start": 0.15,
+      "end": 0.85,
+      "strike": 0.6
     },
     {
       "key": "hit",
@@ -76,7 +76,7 @@
       "fps": 16.0,
       "loop": false,
       "from": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
-      "start": 2.1,
+      "start": 2.25,
       "end": 3.4,
       "strike": 3.0
     },

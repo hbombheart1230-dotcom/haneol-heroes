@@ -83,13 +83,13 @@
     {
       "key": "attack",
       "match": "cast|spell|attack",
-      "action_id": 99,
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "start": 1.98,
-      "end": 4.35,
-      "strike": 3.56
+      "clip_of": "combo2",
+      "start": 0.0,
+      "end": 0.65,
+      "strike": 0.5
     },
     {
       "key": "hit",
@@ -118,23 +118,23 @@
     },
     {
       "key": "attack2",
-      "clip_of": "combo",
+      "clip_of": "combo2",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "start": 0.85,
-      "end": 1.6,
-      "strike": 1.15
+      "start": 0.62,
+      "end": 1.25,
+      "strike": 1.0
     },
     {
       "key": "attack3",
-      "clip_of": "combo",
+      "clip_of": "combo2",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "start": 2.1,
-      "end": 3.4,
-      "strike": 3.0
+      "start": 1.25,
+      "end": 2.25,
+      "strike": 1.8
     },
     {
       "key": "throw",
@@ -146,6 +146,15 @@
       "start": 0.3,
       "end": 1.0,
       "strike": 0.6
+    },
+    {
+      "key": "combo2",
+      "match": "combo",
+      "action_id": 92,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "skip_bake": true
     }
   ]
 }
