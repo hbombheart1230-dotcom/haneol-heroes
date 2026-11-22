@@ -19,7 +19,8 @@ def measure(path, top=0.0, bottom=0.0):
     mx = a.max(2)
     mn = a.min(2)
     s = np.where(mx > 0.02, (mx - mn) / np.maximum(mx, 1e-6), 0.0)
-    return {"mean": y.mean(), "std": y.std(), "p95": np.percentile(y, 95), "sat": s.mean()}
+    return {"mean": y.mean(), "std": y.std(), "p95": np.percentile(y, 95), "sat": s.mean(),
+            "dark": (y < 0.1).mean(), "sat95": np.percentile(s, 95)}
 
 
 def main(argv):
@@ -33,10 +34,11 @@ def main(argv):
             continue
         paths.append(argv[i])
         i += 1
-    print("file\tmean\tstd\tp95\tsat")
+    keys = ["mean", "std", "p95", "sat", "dark", "sat95"]
+    print("file\t" + "\t".join(keys))
     for p in paths:
         m = measure(p, top, bottom)
-        print("%s\t%.3f\t%.3f\t%.3f\t%.3f" % (p, m["mean"], m["std"], m["p95"], m["sat"]))
+        print(p + "".join("\t%.3f" % m[k] for k in keys))
 
 
 if __name__ == "__main__":
