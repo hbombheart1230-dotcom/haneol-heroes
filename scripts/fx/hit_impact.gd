@@ -52,5 +52,5 @@ static func on_swing(step: int) -> void:
 		return
 	var d := data()
 	if d.thud_sfx != &"":
-		fb.play(d.thud_sfx, 0.03, HitImpactData.at_f(d.pitch, step, 1.0))
+		fb.play(d.thud_sfx, 0.03, HitImpactData.at_f(d.pitch, step, 1.0), 1.0)  # 퍽 소리는 1 밑으로 내리지 않는다
 	fb.haptic(HitImpactData.at_i(d.haptic_ms, step, 12), HitImpactData.at_f(d.haptic_amp, step, 0.35))
