@@ -27,5 +27,7 @@ static func material_for(d: EnemyData, affix: EliteAffixData = null) -> ShaderMa
 		m.set_shader_parameter("ghost_color", d.ghost_color)
 		m.set_shader_parameter("ghost_body_alpha", d.ghost_body_alpha)
 		m.set_shader_parameter("ghost_fade", d.ghost_fade)
+		m.set_shader_parameter("halo_alpha", d.rim_halo)
+		m.set_shader_parameter("ghost_rim_mix", d.ghost_rim_mix)
 		_cache[key] = m
 	return _cache[key]

@@ -376,14 +376,8 @@ func _draw() -> void:
 	var alpha := _swing_time / 0.12
 	var art := Feedback.feel_data().crescent_art
 	var col := stats().swing_color
-	if art:  # 붓으로 그린 초승달 베기 (오른쪽 = 베는 방향)
+	if art:  # 붓으로 그린 초승달 베기 (오른쪽 = 베는 방향, scripts/fx/swing_crescent.gd)
 		var r := sd.melee_range * ComboSteps.at(sd.step_range_mults, chain_step, 1.0)
-		draw_set_transform(Vector2.ZERO, a, Vector2(1.0, flip))
-		var cr := Rect2(r * 0.2, -r * sin(half) * 0.9, r * 0.95, r * sin(half) * 1.8)
-		var ink := Feedback.feel_data().fx_ink_outline
-		if ink > 0.0:  # 먹 외곽선 (조금 크게 먼저)
-			draw_texture_rect(art, cr.grow(r * 0.05), false, Color(Ink.INK, col.a * alpha * ink))
-		draw_texture_rect(art, cr, false, Color(col, col.a * alpha))
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		SwingCrescent.draw(self, art, a, r, half, flip, col, alpha, chain_step, Feedback.feel_data())
 		return
 	draw_arc(Vector2.ZERO, stats().melee_range * 0.85, a - half, a + half, 20, Color(col, col.a * alpha), 10.0)

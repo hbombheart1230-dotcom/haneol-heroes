@@ -147,6 +147,8 @@ func _apply_stage(st: StageTheme) -> void:
 	if arena:
 		arena.apply_theme(st)
 		arena.clamp_camera(get_node_or_null("Player/Camera2D") as Camera2D)
+		if arena.lights:
+			arena.lights.follow(get_node_or_null("Player") as Node2D)
 		if spawner and arena.obstacles:
 			spawner.blocked_check = arena.obstacles.blocks
 		if breakables:

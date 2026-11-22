@@ -54,6 +54,13 @@ extends Resource
 @export var floor_value: float = 1.0
 @export var floor_saturation: float = 1.0
 @export var vignette: float = 0.0
+## 조명 한 벌 (바닥 색 보정 + 빛 웅덩이). 있으면 floor_value·floor_saturation 대신 쓴다.
+@export var look: StageLook
+
+@export_group("카메라")
+## 카메라 확대 (1 = 기본). 영웅이 화면 높이에서 차지하는 비율을 키운다 (하데스 13%, 한얼 기본 9.5%).
+## 스프라이트 배율 대신 카메라로 맞춰 판정·그림자·이펙트 비율은 그대로. 시야가 1/zoom로 줄어든다.
+@export var camera_zoom: float = 1.0
 
 @export_group("물결·보스 (하데스 슬라이스)")
 ## 있으면 시간 따라 계속 나오는 대신 물결 모드 (WaveSetData). 없으면 지금 방식 그대로.

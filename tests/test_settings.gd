@@ -72,6 +72,16 @@ func test_toggles_flip_and_persist() -> void:
 	assert_bool(GameSettings.tutorial_enabled).is_false()  # 조작 안내 끔이 저장됨
 
 
+func test_dev_stats_start_off_and_ignore_old_key() -> void:
+	# 화면 아래 "대시 미달…" 같은 개발용 글자는 처음엔 끔. 예전 키(처음 값 켬)로 저장된 폰도 꺼진 채로.
+	var cfg := ConfigFile.new()
+	cfg.set_value("display", "show_stats", true)
+	cfg.save(GameSettings.settings_path)
+	GameSettings.show_stats = true
+	GameSettings.load_settings()
+	assert_bool(GameSettings.show_stats).is_false()
+
+
 func test_tutorial_setting_starts_on_and_turning_on_shows_it_again() -> void:
 	var fresh := ConfigFile.new()  # 저장 파일에 값이 없으면 (처음 설치) 켬
 	fresh.save(GameSettings.settings_path)

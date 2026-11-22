@@ -141,6 +141,13 @@ extends Resource
 @export var splat_art: Texture2D
 @export var pool_art: Texture2D
 @export var crescent_art: Texture2D
+## 평타 검기 크기 배율 (전체, 타별 곱). 3타는 더 크게.
+@export var crescent_scale: float = 1.5
+@export var crescent_step_scales: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.35])
+## 검기 영웅색을 밝히는 정도, 밝은 심의 진하기와 흰빛 섞는 비율 (어두운 바닥에서 보이게).
+@export var crescent_lighten: float = 0.25
+@export var crescent_core_alpha: float = 0.85
+@export var crescent_core_white: float = 0.6
 @export var decal_edge: float = 0.12
 ## 수명이 이 비율 아래로 내려가면 번지기 시작한다.
 @export var decal_dissolve_from: float = 0.5
