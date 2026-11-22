@@ -3,7 +3,7 @@ extends GdUnitTestSuite
 ## 적 움직임이 인스턴스 번호를 씨앗으로 써서 판마다 조금 다르다 → 씨앗 셋으로 세 판씩 굴린다.
 ## 결과는 로그([boss-sim])에 남긴다: 걸린 시간, 받은 피해(종류별), 보스 타격 → 다음 예고 간격.
 
-const BOSS := preload("res://data/enemies/waegun_commander.tres")
+const BOSS_PATH := "res://data/enemies/waegun_commander.tres"
 const SEEDS := [11, 23, 37]
 
 
@@ -16,7 +16,7 @@ func _trials(name: String, bot: BossSim.Bot, contact: bool = true, miss: float =
 	for s in SEEDS:
 		seed(s)
 		var sim := BossSim.new(self)
-		sim.setup(BOSS)
+		sim.setup(ResourceLoader.load(BOSS_PATH, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as EnemyData)
 		sim.contact = contact
 		sim.miss_rate = miss
 		var r := sim.run(bot)

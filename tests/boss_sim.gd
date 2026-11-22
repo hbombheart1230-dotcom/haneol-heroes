@@ -12,7 +12,8 @@ enum Bot { IDLE, TAP, DODGE }
 
 const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
 const PROJECTILE_SCENE := preload("res://scenes/projectile.tscn")
-const YI := preload("res://data/heroes/yi_sun_sin.tres")
+## 다른 시험이 같은 리소스를 바꿔 놓아도 영향받지 않게 매번 디스크에서 새로 읽는다.
+const YI_PATH := "res://data/heroes/yi_sun_sin.tres"
 const DT := 1.0 / 60.0
 const TAP_GAP := 0.2
 ## 사람 반응: 예고가 이만큼 남았을 때 대시 (예고 0.8~1.0초 중 앞 0.5초는 보고 판단하는 시간).
@@ -39,25 +40,26 @@ func _init(p_suite: Node) -> void:
 
 func setup(boss_data: EnemyData, boss_at: Vector2 = Vector2(0, -300)) -> void:
 	EnemyAttack.active_windups = 0
+	var yi := ResourceLoader.load(YI_PATH, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as HeroData
 	player = Player.new()
 	var h := Health.new()
 	h.name = "Health"
 	player.add_child(h)
-	player.hero = YI
+	player.hero = yi
 	suite.add_child(player)
 	player.global_position = Vector2.ZERO
 	player.set_physics_process(false)
 	atk = AutoAttack.new()
 	atk.name = "AutoAttack"
 	atk.player = player
-	atk.data = YI.attack
+	atk.data = yi.attack
 	atk.projectile_scene = PROJECTILE_SCENE
 	atk.projectile_parent = suite
 	player.add_child(atk)
 	atk.set_physics_process(false)
 	caster = SkillCaster.new()
 	caster.player = player
-	caster.kit = YI.kit
+	caster.kit = yi.kit
 	caster.projectile_scene = PROJECTILE_SCENE
 	caster.world = suite
 	caster.enemy_source = func() -> Array: return enemies()
