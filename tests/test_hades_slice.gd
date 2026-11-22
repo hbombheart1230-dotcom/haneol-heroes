@@ -211,7 +211,7 @@ func test_boss_enters_phase_two_and_summons() -> void:
 	assert_int(boss.phase_index).is_equal(1)
 	assert_int(boss.attack.patterns.size()).is_equal(3)
 	assert_float(boss.phase_invuln).is_greater(0.0)
-	assert_int(sp._warnings).is_equal(4)
+	assert_int(sp._warnings).is_equal(COMMANDER.phases[0].summon.size())  # 연출 없이(spawn_at) 부르면 바로 소환
 	var hp := boss.health.current
 	boss._update_damage_mult()
 	boss.health.damage(50)

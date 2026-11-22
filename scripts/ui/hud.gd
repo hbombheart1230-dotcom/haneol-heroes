@@ -21,14 +21,38 @@ var stage: StageTheme
 ## 이겼을 때 "다음 전장" 무대 (결과 화면에 이름).
 var next_stage: StageTheme
 const STAGE_TITLE_TIME := 3.2
+## 보스 막대의 방금 깎인 자국 (비율): CHIP_DELAY초 뒤 CHIP_SPEED/초로 따라 내려간다.
+var _boss_chip: float = 1.0
+var _chip_wait: float = 0.0
+const CHIP_DELAY := 0.45
+const CHIP_SPEED := 0.6
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_tick_boss_chip(delta)
 	queue_redraw()
+
+
+func _tick_boss_chip(delta: float) -> void:
+	var b := _boss()
+	var pct := b.health.percent() if b else 1.0
+	if _boss_chip <= pct:
+		_boss_chip = pct
+		_chip_wait = CHIP_DELAY
+	elif _chip_wait > 0.0:
+		_chip_wait -= delta
+	else:
+		_boss_chip = move_toward(_boss_chip, pct, CHIP_SPEED * delta)
+
+
+func _boss() -> Enemy:
+	var bosses: Array = get_tree().get_nodes_in_group(Enemy.BOSS_GROUP) if is_inside_tree() else []
+	var b := bosses[0] as Enemy if not bosses.is_empty() else null
+	return b if b and is_instance_valid(b) and not b.health.is_dead() else null
 
 
 func _draw() -> void:
@@ -100,19 +124,9 @@ func _draw_status() -> void:
 
 ## 보스 체력 막대 (보스가 살아 있을 때 화면 위).
 func _draw_boss_bar() -> void:
-	var bosses := get_tree().get_nodes_in_group(Enemy.BOSS_GROUP)
-	if bosses.is_empty():
-		return
-	var b := bosses[0] as Enemy
-	if b == null or not is_instance_valid(b) or b.health.is_dead():
-		return
-	var r := Rect2(70, 176, size.x - 140, 18)
-	UiStyle.panel(self, r.grow(8.0), UiStyle.LACQUER, UiStyle.GOLD)
-	draw_rect(Rect2(r.position, Vector2(r.size.x * b.health.percent(), r.size.y)), Color(0.78, 0.16, 0.12))
-	draw_rect(Rect2(r.position, Vector2(r.size.x * b.health.percent(), 4)), Color(1, 0.6, 0.45, 0.5))
-	var name_text := b.data.display_name if b.data.display_name != "" else "보스"
-	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, r.position.y - 14), name_text, 46, EnemyNameTag.BOSS_COLOR, size.x,
-		Color(0, 0, 0, 0.85), 8)
+	var b := _boss()
+	if b:
+		BossBarDrawer.draw(self, b, _boss_chip, size.x)  # 단계 눈금·자국·전환 무적
 
 
 func _draw_dash_pips() -> void:

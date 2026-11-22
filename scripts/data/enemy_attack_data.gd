@@ -34,6 +34,12 @@ enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE, PULL, THRUST }
 ## 타격 후 경직(초). 이 동안 움직이지 않는다.
 @export var recovery: float = 0.3
 
+@export_group("이어치기 (보스 조합)")
+## 있으면 이 공격 뒤 바로 이어 쓰는 공격 (쓸기 → 돌진). 이어치기는 거리와 상관없이 나간다.
+## 이 공격의 cooldown 대신 follow_gap초 뒤 이어치기 예고가 시작된다 (recovery가 더 길면 그 뒤).
+@export var follow_up: EnemyAttackData
+@export var follow_gap: float = 0.3
+
 @export_group("소리·이펙트 (타격감 2차 E1)")
 ## 예고 시작·타격(발사) 순간 소리 (SoundBank 종류). 비우면 EnemyAIData.attack_sfx의 종류별 기본값.
 @export var windup_sfx: StringName = &""
