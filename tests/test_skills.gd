@@ -81,7 +81,7 @@ func test_tap_casts_haeryong_damage_and_knockback_in_radius() -> void:
 	assert_int(caster.on_release(0, 0.1)).is_equal(SkillCaster.Slot.TAP)
 	caster.tick(0.3, 0.4)  # 해룡 붓이 한 바퀴 휘감는 동안 차례로 베인다 (SweepRun)
 	assert_int(near.health.current).is_equal(near.health.max - caster.kit.tap.damage)
-	assert_float(near.knockback.x).is_greater(0.0)
+	assert_float(near.knockback.x + (near.launch._dir.x if near.launch.active() else 0.0)).is_greater(0.0)  # 바깥으로 (크게 날리기)
 	assert_int(far.health.current).is_equal(far.health.max)
 
 

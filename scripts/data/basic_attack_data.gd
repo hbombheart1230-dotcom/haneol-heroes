@@ -2,13 +2,12 @@ class_name BasicAttackData
 extends Resource
 ## 자동 기본 공격 수치 (근접 부채꼴 + 원거리 투사체).
 
-@export_group("근접")
 @export_group("평타 종류")
 ## 영웅 역할 (사용자: "근접은 근접만 원거리는 세종만", 사임당은 중거리): 근접 평타를 쓰는지, 원거리 평타를 쓰는지.
 ## 근접만이면 사거리 밖 적에게는 자동으로 아무것도 안 한다 (다가가야 한다). 원거리만이면 붙은 적에게도 쏜다.
 @export var use_melee: bool = true
 @export var use_ranged: bool = true
-@export_group("")
+@export_group("근접")
 @export var melee_interval: float = 0.55
 @export var melee_range: float = 110.0
 @export var melee_arc_degrees: float = 140.0
@@ -32,6 +31,8 @@ extends Resource
 @export var chain_window: float = 1.2
 @export var heavy_damage_mult: float = 1.6
 @export var heavy_knockback_mult: float = 2.0
+## 0보다 크면 3타 강타는 넉백 대신 이만큼(px) 크게 날린다 (사임당 중거리 3타 원 붓질). 0이면 넉백·넘어짐.
+@export var heavy_launch_px: float = 0.0
 ## 타별 넉백 배율 (1타부터, 3타 강타는 heavy_knockback_mult와 곱). 1·2타를 "툭 밀리고 멈춤"으로 (약 35px).
 @export var step_knockback_mults: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.0])
 
@@ -40,6 +41,10 @@ extends Resource
 @export var step_gap_mults: PackedFloat32Array = PackedFloat32Array([0.55, 0.6, 1.0])
 ## 앞 타가 맞닿은 뒤 이만큼(초) 지나면 다음 탭이 그 동작의 회복을 끊고 들어간다 (캔슬 구간).
 @export var cancel_after: float = 0.06
+## 손 평타를 휘두르는 동안 이동 속도 배율과 시간(초) (하데스 SwordSelfSlowFire: 12프레임 동안 35%). 움직이며 쳐도
+## 휘두르는 동작이 보이고 발이 미끄러지지 않게 (M1). 대시는 언제든 휘두름을 끊고 나간다.
+@export var swing_move_mult: float = 0.35
+@export var swing_slow_time: float = 0.2
 ## 타별 모으기(초): 휘두르기 전 첫 칸에서 잠깐 멈춘다 (3타 앞).
 @export var step_windup_pause: PackedFloat32Array = PackedFloat32Array([0.0, 0.0, 0.08])
 ## 타별 판정 모양: 부채꼴 각도·사거리 배율 (3타 = 좁고 길게).

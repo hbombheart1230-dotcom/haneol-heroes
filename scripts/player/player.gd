@@ -29,6 +29,8 @@ signal hurt(amount: int)
 @export var contact_sensor: Area2D
 
 var move_input: Vector2 = Vector2.ZERO
+var _swing_left: float = 0.0
+var _swing_mult: float = 1.0
 var facing: Vector2 = Vector2.DOWN
 var dash: DashCharges
 ## health_hitbox_hurtbox 애드온의 Health. 씬에서 자식 "Health"로 둔다.
@@ -304,13 +306,20 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 
 
 ## 이번 물리 프레임의 속도를 계산하고 대시·충전 타이머를 진행한다.
+## 손 평타 휘두르는 동안 걷기 속도 배율 (AutoAttack.manual_strike, M1).
+func slow_for(seconds: float, mult: float) -> void:
+	_swing_left = maxf(_swing_left, seconds)
+	_swing_mult = mult
+
+
 func compute_velocity(delta: float) -> Vector2:
 	dash.update(delta)
 	_since_dash_start += delta
 	_skill_invuln = maxf(_skill_invuln - delta, 0.0)
 	if not is_dashing():
 		_since_dash_end += delta
-		var v_move := _walk_velocity(delta)
+		var v_move := _walk_velocity(delta) * (_swing_mult if _swing_left > 0.0 else 1.0)
+		_swing_left = maxf(_swing_left - delta, 0.0)
 		if _recoil_left > 0.0:
 			v_move += _recoil_vel * (minf(delta, _recoil_left) / delta if delta > 0.0 else 0.0)
 			_recoil_left = maxf(_recoil_left - delta, 0.0)

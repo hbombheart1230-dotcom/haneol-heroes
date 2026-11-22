@@ -92,6 +92,9 @@ extends Resource
 @export var anim_blend_time: float = 0.08
 @export var anim_blend_alpha: float = 0.6
 @export var lunge_hold_combo: bool = true
+## 크게 날리기 곡선 (EnemyLaunch): 맞고 거의 제자리인 시간, 그 뒤 튀어 감속하는 시간(초). 하데스 실측 약 3칸 + 0.3초.
+@export var big_push_hold: float = 0.05
+@export var big_push_time: float = 0.3
 
 @export_group("하데스 슬라이스")
 ## 물결 마지막 처치 슬로모션 (실제 초·게임 속도).

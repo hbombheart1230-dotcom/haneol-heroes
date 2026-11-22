@@ -45,3 +45,6 @@ extends Resource
 @export var combo_window: float = 1.2
 ## 자동 평타도 연계 수에 넣을지 (기본 끔: 마무리는 손으로 연타한 보상).
 @export var combo_auto_counts: bool = false
+## 마무리 탭은 3타가 닿고 이만큼(초) 지난 뒤에 나간다 (그 전 탭은 finisher_buffer초 기억, F1): 3타 내려베기가 보이게.
+@export var finisher_after_strike: float = 0.1
+@export var finisher_buffer: float = 0.5
