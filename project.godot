@@ -14,6 +14,10 @@ boot_splash/image="res://assets/ui/splash.png"
 boot_splash/stretch_mode=1
 boot_splash/bg_color=Color(0.04, 0.035, 0.05, 1)
 
+[autoload]
+
+Live3DSwitch="*res://scripts/art/live3d/live3d_switch.gd"
+
 [display]
 
 window/size/viewport_width=720
@@ -39,6 +43,11 @@ enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg", "res://addons/healt
 [gui]
 
 theme/custom_font="res://assets/fonts/DeogonPrincess.ttf"
+
+[hh]
+
+; 영웅 그림: false = 구운 스프라이트 (기본), true = 실시간 3D 시험 (docs/research/live3d_spike.md)
+art/live3d=false
 
 [input_devices]
 

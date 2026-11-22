@@ -1,0 +1,96 @@
+[gd_resource type="Resource" script_class="Live3DHeroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/art/live3d/live3d_hero_data.gd" id="1_k6t00"]
+
+[resource]
+script = ExtResource("1_k6t00")
+model_path = "res://assets/models/meshy/yi_sun_sin/animated.glb"
+clips = Array[Dictionary]([{
+"file": "",
+"key": "idle",
+"loop": true,
+"src": "Idle"
+}, {
+"file": "",
+"key": "run",
+"loop": true,
+"src": "Run 2"
+}, {
+"file": "",
+"key": "dash",
+"loop": false,
+"src": "Roll Dodge"
+}, {
+"end": 0.85,
+"file": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
+"key": "attack",
+"loop": false,
+"src": "Triple Combo Attack",
+"start": 0.15
+}, {
+"file": "",
+"key": "hit",
+"loop": false,
+"src": "Hit Reaction"
+}, {
+"file": "",
+"key": "death",
+"loop": false,
+"src": "Dead"
+}, {
+"end": 1.6,
+"file": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
+"key": "attack2",
+"loop": false,
+"src": "Triple Combo Attack",
+"start": 0.85
+}, {
+"end": 3.4,
+"file": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
+"key": "attack3",
+"loop": false,
+"src": "Triple Combo Attack",
+"start": 2.25
+}, {
+"end": 1.3,
+"file": "res://assets/models/meshy/yi_sun_sin/animated_extra3.glb",
+"key": "throw",
+"loop": false,
+"src": "Charged Upward Slash",
+"start": 0.3
+}, {
+"end": 2.45,
+"file": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
+"key": "cast_tap",
+"loop": false,
+"src": "Triple Combo Attack",
+"start": 1.35
+}, {
+"end": 1.1,
+"file": "res://assets/models/meshy/yi_sun_sin/animated_extra1.glb",
+"key": "cast_dash",
+"loop": false,
+"src": "Right-hand Sword Slash",
+"start": 0.45
+}, {
+"end": 2.2,
+"file": "res://assets/models/meshy/yi_sun_sin/animated_extra3.glb",
+"key": "cast_charge",
+"loop": false,
+"src": "Charged Upward Slash",
+"start": 0.6
+}, {
+"end": 1.85,
+"file": "res://assets/models/meshy/yi_sun_sin/animated_extra4.glb",
+"key": "cast_counter",
+"loop": false,
+"src": "Double Blade Spin",
+"start": 1.12
+}])
+ink = {
+"grain": 0.0,
+"inner_line": 0.0,
+"line_px": 1.6,
+"wash_amount": 0.25
+}
+upper_bones = PackedStringArray("Spine02", "Spine01", "Spine", "neck", "Head", "head_end", "headfront", "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand", "RightShoulder", "RightArm", "RightForeArm", "RightHand")
