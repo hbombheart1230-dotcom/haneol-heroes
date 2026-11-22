@@ -78,7 +78,7 @@ func _ready() -> void:
 		player.change_hero(saved)
 	if spawner and run_config:
 		spawner.elite_times = run_config.elite_times
-	_apply_stage(run_config.stage if run_config else null)
+	StageApply.stage(self, run_config.stage if run_config else null)
 	if seal_choice:
 		seal_choice.chosen.connect(_on_upgrade_chosen)
 	state = GameState.new(survive_time)
@@ -106,7 +106,7 @@ func _start_flow() -> void:
 
 ## 이번 판 시작: 무대 적용, 성장 준비, 멈춤 풀기, 무대 곡.
 func begin_run() -> void:
-	_apply_stage(stage_by_id(run_stage_id()))
+	StageApply.stage(self, stage_by_id(run_stage_id()))
 	_begin_build()
 	waiting_pick = false
 	get_tree().paused = false
@@ -137,38 +137,6 @@ func playable_heroes() -> Array[HeroData]:
 	return out
 
 
-## 무대 바꾸기: 바닥·소품, 적 구성. 고르기 화면과 시작 때 부른다.
-func _apply_stage(st: StageTheme) -> void:
-	if st == null:
-		return
-	if run_config:
-		run_config.stage = st
-	var arena := get_node_or_null("Arena") as Arena
-	if arena:
-		arena.apply_theme(st)
-		arena.clamp_camera(get_node_or_null("Player/Camera2D") as Camera2D)
-		if arena.lights:
-			arena.lights.follow(get_node_or_null("Player") as Node2D)
-		if spawner and arena.obstacles:
-			spawner.blocked_check = arena.obstacles.blocks
-		if breakables:
-			breakables.obstacles = arena.obstacles
-			breakables.setup(st.breakable, arena.rect.grow(-maxf(st.prop_inset, 160.0)), st.seed)
-	if spawner and not st.spawn_table.is_empty():
-		spawner.spawn_table = st.spawn_table
-		spawner.spawn_weights = st.spawn_weights
-		spawner.unlock_times = st.unlock_times
-	if spawner and st.elite:
-		spawner.elite_data = st.elite
-	if spawner and st.boss:
-		spawner.boss_data = st.boss
-	if spawner:
-		spawner.set_waves(st.waves)  # 하데스 슬라이스: 물결 모드 (데이터가 없으면 지금 방식)
-	_apply_difficulty(st)
-	if hud:
-		hud.stage = st
-
-
 ## 이번 판 무대: 영웅의 무대 순서에서 지금 차례 (GameSettings.stage_picked는 테스트·디버그용 강제 지정).
 func run_stage_id() -> StringName:
 	if GameSettings.stage_picked and HeroRoute.index_of(stages, GameSettings.stage_id) >= 0:
@@ -192,25 +160,6 @@ func advance_stage() -> void:
 func difficulty_tier() -> int:
 	var hid := String(player.hero.id) if player and player.hero else ""
 	return int(GameSettings.hero_clears.get(hid, 0))
-
-
-## 무대 적 구성에 난이도를 입힌다 (적 데이터 사본, 나오는 간격·최대 수). 여러 번 불러도 겹치지 않게 원래 값에서.
-func _apply_difficulty(st: StageTheme) -> void:
-	if spawner == null or difficulty == null:
-		return
-	if _base_spawn.is_empty():
-		_base_spawn = {"start": spawner.interval_start, "min": spawner.interval_min, "alive": spawner.max_alive}
-	var tier := difficulty_tier()
-	var table: Array[EnemyData] = []
-	for e in (st.spawn_table if not st.spawn_table.is_empty() else spawner.spawn_table):
-		table.append(difficulty.scaled(e, tier))
-	spawner.spawn_table = table
-	spawner.elite_data = difficulty.scaled(st.elite if st.elite else spawner.elite_data, tier)
-	spawner.boss_data = difficulty.scaled(st.boss if st.boss else spawner.boss_data, tier)
-	spawner.interval_start = _base_spawn["start"] * difficulty.interval(tier)
-	spawner.interval_min = _base_spawn["min"] * difficulty.interval(tier)
-	spawner.max_alive = (st.waves.max_alive if st.waves else _base_spawn["alive"]) + difficulty.alive_add(tier)
-	spawner.data_scaler = func(e: EnemyData) -> EnemyData: return difficulty.scaled(e, tier)
 
 
 func stage_by_id(id: StringName) -> StageTheme:

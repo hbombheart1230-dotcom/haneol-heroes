@@ -99,7 +99,7 @@ func tick(delta: float, enemy_list: Array) -> void:
 	if _release_left >= 0.0:
 		_release_left -= delta
 		if _release_left < 0.0:
-			_release(enemy_list)
+			RangedShot.release(self, enemy_list)
 	var from := player.global_position
 	var nearest := Targeting.nearest(enemy_list, from, stats().ranged_range)
 	if nearest == null:
@@ -268,7 +268,7 @@ func _fire(from: Vector2, dir: Vector2) -> void:
 		_release_data = d.duplicate()
 		_release_src = data
 		return
-	_spawn_step(from, dir, d)
+	RangedShot.spawn_step(self, from, dir, d)
 
 
 ## 이번 원거리 동작: 연타 2·3번이고 시트에 throw2·throw3가 있으면 그것, 아니면 ranged_anim.
@@ -277,21 +277,6 @@ func ranged_anim_now() -> String:
 	var sheet := player.hero.sprite_sheet if player and player.hero else null
 	var alt := "throw%d" % ranged_step
 	return alt if ranged_step >= 2 and sheet and sheet.has_anim(alt) else base
-
-
-## 원거리 연타 번호대로 탄 여러 개(퍼짐)·큰 글자 (세종: 하나 → 둘 → 큰 하나).
-func _spawn_step(from: Vector2, dir: Vector2, d: BasicAttackData) -> void:
-	var n := maxi(roundi(ComboSteps.at(d.ranged_step_count, _release_step, 1.0)), 1)
-	var k := ComboSteps.at(d.ranged_step_scale, _release_step, 1.0)
-	var dd := d
-	if not is_equal_approx(k, 1.0):
-		dd = d.duplicate()
-		dd.glyph_px = roundi(d.glyph_px * k)
-		dd.proj_size = d.proj_size * k
-		dd.ranged_damage = roundi(d.ranged_damage * k)
-	for i in n:
-		var off := (i - (n - 1) * 0.5) * deg_to_rad(d.ranged_step_spread)
-		_spawn(from, dir.rotated(off), dd)
 
 
 ## 손을 떠나기까지(초): 데이터, 음수면 시트 던지는 동작의 맞닿는 프레임 (근접 melee_delay와 같은 방식).
@@ -306,59 +291,6 @@ func release_delay() -> float:
 		return feel.release_delay_min
 	var i := sheet.anim_names.find(anim)
 	return AttackTiming.melee_delay(-1.0, sheet.strike_frame(anim), sheet.fps[i], feel.release_delay_min, feel.release_delay_max)
-
-
-## 손을 떠나는 순간: 가장 가까운 적으로 다시 겨눈다. 그사이 적이 다 사라졌으면 던지지 않는다.
-func _release(enemy_list: Array) -> void:
-	var d := _release_data
-	_release_data = null
-	if d == null or _release_src != data:  # 영웅·데이터가 바뀌었으면 손에 든 탄은 버린다
-		return
-	var from := player.global_position
-	var nearest: Node2D = null
-	var best := d.ranged_range * d.ranged_range
-	for n in enemy_list:  # 막 죽어 아직 지워지기 전인 적은 겨누지 않는다 (Codex 88d3160)
-		var node := n as Node2D
-		if node == null or not is_instance_valid(node) or node.is_queued_for_deletion():
-			continue
-		var h := node.get_node_or_null("Health") as Health
-		if h and not h.is_alive():
-			continue
-		var d2 := from.distance_squared_to(node.global_position)
-		if d2 <= best:
-			best = d2
-			nearest = node
-	if nearest == null:
-		return
-	var to := nearest.global_position - from
-	var dir := to.normalized() if to.length_squared() > 1.0 else _release_dir
-	var hand := from + release_point(dir, d)
-	var aim := nearest.global_position - hand  # 손에서 적으로 (바로 앞 적 위로 날아가지 않게), 나가는 자리는 그대로 손
-	var a := aim.normalized() if aim.length_squared() > 1.0 else dir
-	_spawn_step(hand - release_point(a, d), a, d)
-
-
-func _spawn(from: Vector2, dir: Vector2, d: BasicAttackData) -> void:
-	if projectile_scene == null:
-		return
-	var p := projectile_scene.instantiate() as Projectile
-	p.direction = dir
-	p.damage = d.ranged_damage
-	p.speed = d.ranged_speed
-	p.lifetime = d.ranged_lifetime
-	p.knockback = d.ranged_knockback
-	p.art = d.proj_art
-	p.art_size = d.proj_size
-	p.glyph_px = d.glyph_px
-	p.trail_color = d.proj_trail_color
-	p.trail_len = d.proj_trail_len
-	if d.ranged_glyphs != "":
-		p.glyph = d.ranged_glyphs[_glyph_i % d.ranged_glyphs.length()]
-		_glyph_i += 1
-	p.global_position = from + release_point(dir, d)  # 손·무기 끝에서
-	var parent := projectile_parent if projectile_parent else player.get_parent()
-	parent.add_child(p)
-	projectile_fired.emit(p)
 
 
 ## 탄이 나가는 자리 (영웅 기준 오프셋): 시트에 무기 끝이 기록돼 있으면 던지는 동작의 맞닿는 프레임에서

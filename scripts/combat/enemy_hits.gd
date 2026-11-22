@@ -14,13 +14,13 @@ static func body_facing(e: Enemy) -> Vector2:
 		return e.attack.aim_dir
 	if e.velocity.length_squared() > 100.0:
 		return e.velocity.normalized()
-	return e._dir_to_target()
+	return EnemySteer.dir_to_target(e)
 
 
 ## 지금 맞으면 반격·뒤치기인지 (HitBonus 깃발). 적 → 영웅 방향으로 판정한다 (때리는 쪽은 늘 영웅).
 static func bonus_flags(e: Enemy) -> int:
 	var windup := e.attack != null and e.attack.state == EnemyAttack.State.WINDUP
-	return HitBonus.flags(windup, body_facing(e), e._dir_to_target(), impact().back_arc_deg)
+	return HitBonus.flags(windup, body_facing(e), EnemySteer.dir_to_target(e), impact().back_arc_deg)
 
 
 ## 슈퍼아머 (중장병) 또는 잡몹이 아님: 끊기지도 넘어지지도 않는다.

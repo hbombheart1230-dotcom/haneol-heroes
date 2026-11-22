@@ -161,37 +161,9 @@ func _ready() -> void:
 	health.died.connect(_on_died)
 
 
-## 이번 프레임 이동 속도. neighbors는 분리 계산용 주변 적 목록.
+## 이번 프레임 이동 속도. neighbors는 분리 계산용 주변 적 목록 (EnemySteer).
 func compute_velocity(neighbors: Array) -> Vector2:
-	if target == null or not is_instance_valid(target) or health.is_dead():
-		return Vector2.ZERO
-	var to_target := target.global_position - global_position
-	var dir := to_target.normalized() if to_target.length_squared() > 1.0 else Vector2.ZERO
-	var speed_k := 1.0
-	# 거리 유지형(궁수): 너무 가까우면 물러나고, 적당하면 멈춘다.
-	if data and data.preferred_range > 0.0:
-		var d := to_target.length()
-		if d < data.preferred_range - 40.0:
-			dir = -dir
-		elif d <= data.preferred_range + 40.0:
-			dir = Vector2.ZERO
-	if brain:
-		dir = brain.steer(dir, to_target.length())
-		speed_k = brain.speed_k
-		if brain.sweep_left <= 0.0 and AI.stand_off_band > 0.0:
-			var stop: float = body_radius * size_mult + ((target as Player).body_radius if target is Player else 22.0) \
-				+ AI.stand_off_margin + (data.reach_px if data else 0.0)
-			dir = EnemyBrain.stand_off(dir, to_target.normalized(), to_target.length(), stop, AI.stand_off_band)
-	var push := Vector2.ZERO
-	for n in neighbors:
-		var other := n as Node2D
-		if other == null or other == self or not is_instance_valid(other):
-			continue
-		var off := global_position - other.global_position
-		var d := off.length()
-		if d > 0.001 and d < separation_radius:
-			push += off / d * (1.0 - d / separation_radius)
-	return (dir + push * separation_strength).limit_length(1.0) * move_speed * speed_scale() * speed_k
+	return EnemySteer.chase(self, neighbors)
 
 
 ## 맞은 적만 seconds초 멈추고 떨린다 (Smash식 개별 히트스톱). 더 긴 쪽 유지.
@@ -248,10 +220,10 @@ func _physics_process(delta: float) -> void:
 			queue_redraw()
 			if brain:
 				brain.revealed = true  # 숨은 채로 치지 않는다 (예고는 늘 보이게, Codex de7556d)
-	var chase := _busy_velocity() if busy else compute_velocity(get_tree().get_nodes_in_group(GROUP))
+	var chase := EnemySteer.busy(self) if busy else compute_velocity(get_tree().get_nodes_in_group(GROUP))
 	if brain:
 		brain.tick_sweep(delta)
-		var hop := brain.tick_hop(delta, _dir_to_target(), busy)
+		var hop := brain.tick_hop(delta, EnemySteer.dir_to_target(self), busy)
 		if hop != Vector2.ZERO:
 			chase = hop
 		_update_damage_mult()
@@ -265,7 +237,7 @@ func _physics_process(delta: float) -> void:
 		EnemySprite.update(self, busy)
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
 	move_and_slide()
-	_note_obstacle()
+	EnemySteer.note_obstacle(self)
 	if _flash > 0.0:
 		_flash = maxf(_flash - delta, 0.0)
 		queue_redraw()
@@ -281,17 +253,6 @@ func _drift(delta: float) -> void:
 	if sprite:
 		EnemySprite.update(self, false)
 	queue_redraw()
-
-
-## 장애물에 부딪혔으면 잠시 가장자리를 따라 돈다 (길 찾기 없이 직진하는 적이 끼지 않게).
-func _note_obstacle() -> void:
-	for i in get_slide_collision_count():
-		var col := get_slide_collision(i)
-		var body := col.get_collider() as Node
-		if body and body.is_in_group(Obstacles.GROUP):
-			_detour_normal = col.get_normal()
-			_detour_left = 0.4
-			return
 
 
 func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc: int, _mul: float, applied: int) -> void:
@@ -317,27 +278,13 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 	queue_redraw()
 
 
-## 공격 중 움직임 (물러나며 쏘기만, 나머지는 제자리).
-func _busy_velocity() -> Vector2:
-	if brain == null:
-		return Vector2.ZERO
-	return brain.busy_dir(attack, _dir_to_target()) * move_speed * speed_scale()
-
-
-func _dir_to_target() -> Vector2:
-	if target == null or not is_instance_valid(target):
-		return Vector2.ZERO
-	var d := target.global_position - global_position
-	return d.normalized() if d.length_squared() > 1.0 else Vector2.ZERO
-
-
 ## 받는 피해 배율 (경직 처벌 × 정면 방패 × 변종 × 반격·뒤치기)을 체력 애드온의 modifier로. 바뀔 때만 새로 만든다.
 func _update_damage_mult() -> void:
 	if brain == null:
 		return
-	var facing := attack.aim_dir if attack and attack.is_busy() else _dir_to_target()
+	var facing := attack.aim_dir if attack and attack.is_busy() else EnemySteer.dir_to_target(self)
 	_bonus = EnemyHits.bonus_flags(self)
-	var m := brain.damage_mult(attack, facing, _dir_to_target(), affix.damage_taken_mult if affix else 1.0) 		* HitBonus.mult(_bonus, EnemyHits.impact()) * (0.0 if phase_invuln > 0.0 else 1.0)
+	var m := brain.damage_mult(attack, facing, EnemySteer.dir_to_target(self), affix.damage_taken_mult if affix else 1.0) 		* HitBonus.mult(_bonus, EnemyHits.impact()) * (0.0 if phase_invuln > 0.0 else 1.0)
 	if is_equal_approx(m, _damage_mult):
 		return
 	_damage_mult = m
