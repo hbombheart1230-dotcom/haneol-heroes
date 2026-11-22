@@ -28,7 +28,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		z.damage = 6
 		z.color = fx_color
 		ctx.add_to_world(z, center)
-	ctx.impact(center)
+	ctx.impact(center, Vector2.ZERO, radius)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.5, fx_color)
 		for i in 10:

@@ -69,6 +69,7 @@ knockback = 160.0
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_quake")
+impact_sfx = &"gugak_buk"
 
 [sub_resource type="Resource" id="Skill_trail"]
 script = ExtResource("5_trail")
@@ -84,6 +85,7 @@ damage = 35
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_thunder_trail")
+impact_sfx = &"gugak_big"
 
 [sub_resource type="Resource" id="Skill_bolt"]
 script = ExtResource("6_bolt")
@@ -99,6 +101,7 @@ damage = 40
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_lightning")
+impact_sfx = &"gugak_big"
 
 [sub_resource type="Resource" id="Skill_conq"]
 script = ExtResource("7_conq")
@@ -114,6 +117,9 @@ stun_time = 1.2
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_conqueror")
+cutin = true
+sfx_layers = Array[StringName]([&"gugak_jing"])
+impact_sfx = &"gugak_buk"
 
 [sub_resource type="Resource" id="Kit_gw"]
 script = ExtResource("3_kit")

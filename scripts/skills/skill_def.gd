@@ -29,6 +29,15 @@ extends Resource
 @export var vfx_impact: SkillVfxData
 ## 강화 단계 (이번 판 성장으로 오른다: 보통 +1, 큰 변형 +UpgradeDef.vfx_level_gain). 클수록 이펙트가 크고 화려하다.
 @export var vfx_level: int = 0
+@export_group("연출 · 컷인과 소리 층")
+## true면 발동할 때 먹 띠 + 영웅 그림 + 기술 이름 컷인 (큰 기술: 반격 계열). 간격 상한은 SkillStageFeel.
+@export var cutin: bool = false
+## 발동 순간 더 겹쳐 울리는 소리 (국악기 등, SoundBank 종류).
+@export var sfx_layers: Array[StringName] = []
+## 내리꽂히는 순간(SkillContext.impact) 울리는 소리.
+@export var impact_sfx: StringName = &""
+## 이 기술이 적을 맞힐 때마다 더 겹치는 소리 (영웅 공통 재질음 위에).
+@export var hit_layer_sfx: StringName = &""
 
 
 ## 발동. charge는 0~1 (충전 기술에만 의미).

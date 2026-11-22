@@ -265,11 +265,13 @@ static func impact_haptic() -> void:
 
 ## 기술 이펙트 터뜨리기 (Feedback이 없으면 아무 일도 안 함 → 테스트 안전).
 ## level = 기술 강화 단계 (SkillDef.vfx_level).
-static func vfx_burst(data: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: int = 0) -> void:
+## fit_radius > 0이면 그림 지름을 그 판정 반경에 맞춘다.
+static func vfx_burst(data: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: int = 0,
+		fit_radius: float = 0.0) -> void:
 	if instance == null or data == null:
 		return
 	if instance.decals:
-		instance.decals.burst(data, pos, dir, level)
+		instance.decals.burst(data, pos, dir, level, fit_radius)
 	if instance.skill_vfx:
 		instance.skill_vfx.burst(data, pos, dir, level)
 

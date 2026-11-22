@@ -4,6 +4,9 @@ extends RefCounted
 
 var finished: bool = false
 var hits: int = 0
+## 0 이상이면 누르는 순간 이 맞힐 수로 발동을 알린다 (휘감는 기술: 소리·흔들림이 붓보다 늦지 않게).
+## 끝날 때 다시 알리지 않는다.
+var announce_hits: int = -1
 
 
 static func instant(p_hits: int) -> SkillRun:

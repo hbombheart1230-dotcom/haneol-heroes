@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/heroes/dash/yi_sun_sin.tres" id="dash_style"]
 [ext_resource type="Texture2D" path="res://assets/vfx/proj_water.png" id="proj_art"]
 [ext_resource type="Texture2D" path="res://assets/vfx/tidal_blade.png" id="wave_art"]
+[ext_resource type="Resource" path="res://data/vfx/skill/yi_sun_sin_haeil_wake.tres" id="vs_haeil_wake"]
 [ext_resource type="Resource" path="res://data/heroes/charge/yi_sun_sin.tres" id="charge_marker"]
 
 [sub_resource type="Resource" id="Attack_yi"]
@@ -69,6 +70,7 @@ knockback = 420.0
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_haeryong")
+sfx_layers = Array[StringName]([&"gugak_buk"])
 
 [sub_resource type="Resource" id="Skill_pado"]
 script = ExtResource("5_pado")
@@ -86,6 +88,7 @@ hit_interval = 0.07
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_pado")
+sfx_layers = Array[StringName]([&"gugak_kill"])
 
 [sub_resource type="Resource" id="Skill_haeil"]
 script = ExtResource("6_haeil")
@@ -105,9 +108,11 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vfx_impact")
 wave_art = ExtResource("wave_art")
 wave_art_size = Vector2(150, 100)
+wave_wake = ExtResource("vs_haeil_wake")
 aim_assist_deg = 80.0
 aim_assist_range = 600.0
 aim_fallback_nearest = true
+sfx_layers = Array[StringName]([&"gugak_buk"])
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("7_counter")
@@ -123,6 +128,8 @@ knockback = 520.0
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_counter")
+cutin = true
+sfx_layers = Array[StringName]([&"gugak_buk", &"gugak_big"])
 
 [sub_resource type="Resource" id="Kit_yi"]
 script = ExtResource("3_kit")

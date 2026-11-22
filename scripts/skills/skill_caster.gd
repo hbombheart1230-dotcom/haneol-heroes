@@ -278,10 +278,13 @@ func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float 
 	ctx.skill = d
 	if d.vfx_cast:
 		Feedback.vfx_burst(d.vfx_cast, player.global_position, player.facing, d.vfx_level)
+	SkillStageFx.on_cast(get_tree() if is_inside_tree() else null, d, player.hero)  # 컷인 + 소리 층
 	var run := d.cast(ctx, charge)
 	if run.finished:
-		skill_cast.emit(slot, run.hits)
+		skill_cast.emit(slot, run.hits if run.announce_hits < 0 else run.announce_hits)
 	else:
+		if run.announce_hits >= 0:
+			skill_cast.emit(slot, run.announce_hits)
 		_runs.append([slot, run])
 	return run
 
@@ -305,7 +308,8 @@ func tick(delta: float, time: float) -> void:
 		var run: SkillRun = entry[1]
 		if run.tick(delta):
 			_runs.erase(entry)
-			skill_cast.emit(entry[0], run.hits)
+			if run.announce_hits < 0:
+				skill_cast.emit(entry[0], run.hits)
 
 
 ## 기억해 둔 탭: 칠 수 있게 되면(또는 마무리가 준비되면) 바로 낸다.

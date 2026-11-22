@@ -18,6 +18,7 @@ extends SkillDef
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	var at := ctx.player.global_position
+	ctx.foretell(at)  # 떨어질 자리로 불기운이 모인다
 	if ctx.fx:
 		ctx.fx.add_ring(at, radius, delay, Color(fx_color, 0.4))  # 떨어질 자리 예고
 		ctx.fx.add_fall(fall_art, at + fall_from, at, delay, fall_size, fall_angle_deg)  # 하늘에서 내려오는 유성
@@ -31,7 +32,7 @@ func strike(ctx: SkillContext, at: Vector2, dmg: int, r: float) -> int:
 		if ctx.hit(en, dmg):
 			en.stun(stun_time)
 			n += 1
-	ctx.impact(at)
+	ctx.impact(at, Vector2.ZERO, r)
 	if ctx.fx:
 		if fall_art == null:
 			ctx.fx.add_slash(at + Vector2(-120, -420), at, 12.0, 0.25, fx_color)
