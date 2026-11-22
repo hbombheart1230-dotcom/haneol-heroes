@@ -111,6 +111,7 @@ run_enter = 0.2
 run_exit = 0.08
 run_anim_min = 0.6
 run_anim_max = 1.15
+idle_anim_speed = 0.35
 dir_margin_deg = 10.0
 max_vfx_particles = 160
 vfx_roughness = 0.35

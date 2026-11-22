@@ -81,6 +81,8 @@ extends Resource
 ## 달리기 동작 재생 속도 = 실제 속도 비율, 이 범위로 제한 (발이 미끄러져 보이지 않게).
 @export var run_anim_min: float = 0.6
 @export var run_anim_max: float = 1.15
+## 서 있는 동작(숨쉬기) 재생 속도 배율. 1 = 구운 그대로, 낮출수록 덜 껄떡인다, 0 = 멈춤.
+@export var idle_anim_speed: float = 0.35
 ## 방향 그림을 바꾸려면 칸 경계를 이만큼(도) 넘어야 한다.
 @export var dir_margin_deg: float = 10.0
 

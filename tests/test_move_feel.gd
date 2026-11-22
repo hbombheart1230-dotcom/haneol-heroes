@@ -118,3 +118,11 @@ func test_run_anim_speed_follows_real_speed() -> void:
 	for i in 30:
 		player.compute_velocity(DT)
 	assert_float(v.run_anim_speed()).is_equal_approx(1.0, 0.01)
+
+
+func test_idle_anim_plays_slower_than_baked() -> void:
+	var v := _view()
+	assert_str(v.current_anim()).is_equal("idle")
+	v._update_sprite(DT)
+	assert_float(v._sprite.speed_scale).is_equal_approx(Feedback.feel_data().idle_anim_speed, 0.001)
+	assert_float(Feedback.feel_data().idle_anim_speed).is_less(1.0)

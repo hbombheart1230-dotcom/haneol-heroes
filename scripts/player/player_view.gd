@@ -160,7 +160,8 @@ func _update_sprite(delta: float) -> void:
 		tint = ds.body_tint if ds else Color(0.75, 0.9, 1.0)
 		tint.a = ds.body_alpha if ds else 1.0  # 광개토 번개 순간이동·사임당 먹으로 흩어짐
 	_sprite.modulate = hurt_tint(tint)
-	_sprite.speed_scale = run_anim_speed() if current_anim() == "run" else 1.0
+	var cur := current_anim()
+	_sprite.speed_scale = run_anim_speed() if cur == "run" else (Feedback.feel_data().idle_anim_speed if cur == "idle" else 1.0)
 	if _hitstop_left > 0.0 and current_anim() == _oneshot:
 		_sprite.speed_scale = 0.0
 
