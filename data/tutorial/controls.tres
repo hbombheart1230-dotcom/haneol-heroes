@@ -16,13 +16,17 @@ amount = 320.0
 [sub_resource type="Resource" id="combo"]
 script = ExtResource("2_step")
 caption = "연타"
-hint = "제자리에서 톡톡톡 치면
-가까운 적을 세 번 이어 벱니다"
+hint = "제자리에서 톡톡톡 치면 세 번 이어 칩니다
+셋째 타는 적을 넘어뜨립니다"
 hero_hints = {
-"sejong": "제자리에서 톡톡톡 치면
-글자를 연달아 던집니다",
-"shin_saimdang": "제자리에서 톡톡톡 치면
-붓을 털어 먹을 짧게 날립니다"
+"gwanggaeto": "제자리에서 톡톡톡 치면 창으로 세 번 찌릅니다
+셋째 타는 적을 넘어뜨립니다",
+"sejong": "제자리에서 톡톡톡 치면 글자를 연달아 던집니다
+셋째 글자는 크고 세게 날아갑니다",
+"shin_saimdang": "제자리에서 톡톡톡 치면 붓을 털어 먹을 날립니다
+셋째는 둘레에 먹을 크게 뿌립니다",
+"yi_sun_sin": "제자리에서 톡톡톡 치면 칼로 세 번 벱니다
+셋째 타는 적을 넘어뜨립니다"
 }
 event = &"combo"
 practice_enemy = ExtResource("4_dummy")

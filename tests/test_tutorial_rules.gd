@@ -42,9 +42,9 @@ func _cleanup(main: Node) -> void:
 
 func test_combo_text_differs_by_hero_role() -> void:
 	var s := _step(&"combo")
-	var melee := s.text_for(&"yi_sun_sin", false, false)
-	assert_str(melee).is_equal(s.hint)
-	assert_str(s.text_for(&"gwanggaeto", false, false)).is_equal(melee)  # 근접
+	assert_str(s.text_for(&"yi_sun_sin", false, false)).contains("칼")  # 근접 (검)
+	assert_str(s.text_for(&"gwanggaeto", false, false)).contains("창")  # 근접 (창)
+	assert_str(s.text_for(&"nobody", false, false)).is_equal(s.hint)  # 새 영웅은 기본 설명
 	assert_str(s.text_for(&"sejong", false, false)).contains("글자")  # 원거리
 	assert_str(s.text_for(&"shin_saimdang", false, false)).contains("붓")  # 중거리
 	assert_str(s.text_for(&"sejong", true, true)).contains("글자")  # 단추·물결 설명이 없으면 영웅별 그대로
@@ -68,6 +68,7 @@ func test_wave_hint_matches_wave_data() -> void:
 func test_practice_partners() -> void:
 	assert_bool(PRACTICE.super_armor).is_true()  # 대시 기술에 맞아도 예고가 끊기지 않는다 (회피를 배울 수 있게)
 	assert_float(PRACTICE.stun_scale).is_equal(0.0)
+	assert_float(PRACTICE.knockback_scale).is_equal(0.0)  # 세종 글자에 밀려 공격 거리 밖으로 나가지 않게
 	assert_object(DUMMY.attack).is_null()
 	assert_int(DUMMY.contact_damage).is_equal(0)
 	assert_int(DUMMY.xp).is_equal(0)
