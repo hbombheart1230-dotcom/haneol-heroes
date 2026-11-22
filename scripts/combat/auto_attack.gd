@@ -138,8 +138,8 @@ func manual_strike(step: int, ranged: bool, enemy_list: Array = []) -> void:
 ## 타별 짧은 전진 (손 평타만): 앞 적 몸 안으로는 안 들어가고, 적 예고가 영웅을 덮으면 생략.
 func _step_in(toward: Vector2, list: Array, step: int) -> void:
 	var d := stats()
-	if not d.step_in_enabled or toward.length_squared() < 0.0001:
-		return
+	if not d.step_in_enabled or toward.length_squared() < 0.0001 or player.is_dashing() or player.hurt_time_left() > 0.0:
+		return  # 대시 중·맞아서 밀리는 중에는 전진을 얹지 않는다 (Codex 0f4456f 지적)
 	var dir := toward.normalized()
 	var from := player.global_position
 	var px := ComboSteps.step_in(ComboSteps.at(d.step_in_px, step, 0.0), d.step_in_max,

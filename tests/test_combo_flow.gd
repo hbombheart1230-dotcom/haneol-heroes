@@ -194,3 +194,17 @@ func test_hits_are_contiguous_cuts_of_one_combo() -> void:
 		assert_str(cut["attack"]["clip_of"]).is_equal(cut["attack2"]["clip_of"])
 		assert_str(cut["attack2"]["clip_of"]).is_equal(cut["attack3"]["clip_of"])
 		assert_float(absf(float(cut["attack"]["end"]) - float(cut["attack2"]["start"]))).is_less(0.06)
+
+
+## 대시 중에는 탭 전진을 얹지 않는다 (Codex 0f4456f).
+func test_no_step_in_while_dashing() -> void:
+	var p := _player()
+	var d := BasicAttackData.new()
+	d.step_in_enabled = true
+	var a := _attack(p, d)
+	a._step_in(Vector2.RIGHT * 200.0, [], 3)
+	assert_float(p._recoil_left).is_greater(0.0)  # 평소엔 전진
+	p._recoil_left = 0.0
+	assert_bool(p.request_dash(Vector2.RIGHT)).is_true()
+	a._step_in(Vector2.RIGHT * 200.0, [], 3)
+	assert_float(p._recoil_left).is_equal(0.0)

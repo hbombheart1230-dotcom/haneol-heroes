@@ -71,6 +71,7 @@ class PipelineTest(unittest.TestCase):
                                               {"action_id": 4}, {"search": "hit"}, {"search": "death"}]):
             a.pop("action_id", None)
             a.pop("search", None)
+            a.pop("clip_of", None)  # 실제 설정의 attack은 연타 동작에서 잘라 쓴다 (여기서는 제 동작으로 시험)
             a.update(how)
         self.root = mock.patch.object(mp, "ROOT", self.tmp)
         self.root.start()
