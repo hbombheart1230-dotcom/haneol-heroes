@@ -17,13 +17,18 @@ static func index_at(count: int, fps: float, t: float, loop: bool) -> int:
 static func frames(sheet: Texture2D, cols: int, rows: int, count: int = 0) -> Array:
 	if sheet == null:
 		return []
-	var key := "%d:%d:%d:%d" % [sheet.get_instance_id(), cols, rows, count]
-	if _cache.has(key):
-		return _cache[key]
+	# 열쇠는 숫자만 (그릴 때마다 문자열을 만들지 않게, Codex de074ce 지적): 시트 → 칸 구성 → 장 목록.
+	var id := sheet.get_instance_id()
+	var key := (cols * 1000 + rows) * 1000 + count
+	if not _cache.has(id):
+		_cache[id] = {}
+	var per: Dictionary = _cache[id]
+	if per.has(key):
+		return per[key]
 	var out: Array = []
 	var img := sheet.get_image()
 	if img == null or cols <= 0 or rows <= 0:
-		_cache[key] = out
+		per[key] = out
 		return out
 	if img.is_compressed():
 		img.decompress()
@@ -33,7 +38,7 @@ static func frames(sheet: Texture2D, cols: int, rows: int, count: int = 0) -> Ar
 	for i in n:
 		var r := img.get_region(Rect2i((i % cols) * cw, (i / cols) * ch, cw, ch))
 		out.append(ImageTexture.create_from_image(r))
-	_cache[key] = out
+	per[key] = out
 	return out
 
 
