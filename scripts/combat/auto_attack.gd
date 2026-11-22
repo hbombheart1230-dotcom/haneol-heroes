@@ -33,6 +33,9 @@ var _release_data: BasicAttackData
 var _release_src: BasicAttackData
 ## 휘두르는 중: 칼이 닿기까지 남은 시간 (-1 = 없음)과 그때의 데이터 (바뀌면 버린다).
 var _melee_left: float = -1.0
+## 모으기(step_windup_pause)가 끝난 뒤로 미룬 전진 (모으는 동안에는 제자리).
+var _stepin_left: float = -1.0
+var _stepin_vec := Vector2.ZERO
 var _melee_src: BasicAttackData
 ## 근접 우선 (A1): 원거리를 참은 시간. 평타 연계 (B4): 몇 번째 근접인지와 마지막 근접 뒤 흐른 시간.
 var _hold: float = 0.0
@@ -81,8 +84,13 @@ func tick(delta: float, enemy_list: Array) -> void:
 	if player.is_dead():  # 죽으면 손에 든 탄·휘두르던 칼은 버린다
 		_release_left = -1.0
 		_melee_left = -1.0
+		_stepin_left = -1.0
 		_release_data = null
 		return
+	if _stepin_left >= 0.0:
+		_stepin_left -= delta
+		if _stepin_left < 0.0 and not player.is_dashing() and player.hurt_time_left() <= 0.0:
+			player.apply_recoil(_stepin_vec, stats().step_in_time)
 	if _melee_left >= 0.0:  # 휘두르는 중: 칼이 닿는 순간 피해
 		_melee_left -= delta
 		if _melee_left < 0.0 and _melee_src == data:
@@ -144,7 +152,13 @@ func _step_in(toward: Vector2, list: Array, step: int) -> void:
 	var from := player.global_position
 	var px := ComboSteps.step_in(ComboSteps.at(d.step_in_px, step, 0.0), d.step_in_max,
 		ComboSteps.gap_ahead(list, from, dir, player.body_radius) - 4.0, ComboSteps.in_windup(list, from))
-	if px > 0.0:
+	if px <= 0.0:
+		return
+	var pause := ComboSteps.at(d.step_windup_pause, step, 0.0)
+	if pause > 0.0:  # 모은 뒤에 내딛는다 (Codex 22d062c 지적)
+		_stepin_left = pause
+		_stepin_vec = dir * px
+	else:
 		player.apply_recoil(dir * px, d.step_in_time)
 
 

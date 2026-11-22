@@ -70,7 +70,7 @@ func test_manual_hit_steps_in_unless_in_danger() -> void:
 	var d := BasicAttackData.new()
 	var a := _attack(p, d)
 	var far := _enemy(Vector2(200, 0))
-	a.manual_strike(3, false, [far])
+	a.manual_strike(1, false, [far])  # 1타는 바로 내딛는다 (3타는 모은 뒤: 아래 테스트)
 	assert_float(p._recoil_vel.length()).is_greater(0.0)
 	assert_float(p._recoil_vel.normalized().x).is_greater(0.9)
 	var p2 := _player()
@@ -202,9 +202,25 @@ func test_no_step_in_while_dashing() -> void:
 	var d := BasicAttackData.new()
 	d.step_in_enabled = true
 	var a := _attack(p, d)
+	d.step_windup_pause = PackedFloat32Array()
 	a._step_in(Vector2.RIGHT * 200.0, [], 3)
 	assert_float(p._recoil_left).is_greater(0.0)  # 평소엔 전진
 	p._recoil_left = 0.0
 	assert_bool(p.request_dash(Vector2.RIGHT)).is_true()
 	a._step_in(Vector2.RIGHT * 200.0, [], 3)
 	assert_float(p._recoil_left).is_equal(0.0)
+
+
+## 3타 모으기 동안에는 제자리, 모으기가 끝나면 내딛는다 (Codex 22d062c).
+func test_step_in_waits_for_windup_pause() -> void:
+	var p := _player()
+	var d := BasicAttackData.new()
+	d.step_in_enabled = true
+	var a := _attack(p, d)
+	var pause := ComboSteps.at(d.step_windup_pause, 3, 0.0)
+	assert_float(pause).is_greater(0.0)
+	a._step_in(Vector2.RIGHT * 200.0, [], 3)
+	assert_float(p._recoil_left).is_equal(0.0)
+	for i in ceili(pause / DT) + 1:
+		a.tick(DT, [])
+	assert_float(p._recoil_left).is_greater(0.0)
