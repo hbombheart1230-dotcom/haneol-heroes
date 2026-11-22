@@ -12,6 +12,8 @@ extends Node2D
 var stage: SkillStageFeel
 ## 조각 묶음 {data, pos, rot, start, size, t, life, bright}
 var _sets: Array[Dictionary] = []
+## 데이터별 마지막으로 그린 판 지름 (눈금 고리를 실제 판에 맞춘다).
+var _last_size: Dictionary = {}
 ## 바늘 {data, pos, start, r, t, sweep, life}
 var _hands: Array[Dictionary] = []
 ## 눈금·번쩍임 빛 {pos, size, color, t, life, star}
@@ -112,8 +114,9 @@ func pieces(d: SkillVfxData, pos: Vector2, dir: Vector2, level: int, size: float
 		"flash": d.piece_flash * light, "core": pl.get("core", 1.0),
 		"t": 0.0, "life": life, "bright": 1.0 + d.level_glow * d.level_of(level), "glow": d.glow_for(level) * light})
 	_cap(_sets, stage.max_piece_sets)
+	_last_size[d] = size
 	if d.sweep_hand:
-		_hands.append({"data": d, "pos": pos, "start": start, "r": size * 0.42,
+		_hands.append({"data": d, "pos": pos, "start": start, "r": size * d.hand_length,
 			"t": 0.0, "sweep": maxf(d.piece_sweep, 0.01), "life": d.piece_sweep + stage.hand_linger})
 		_cap(_hands, stage.max_hands)
 
@@ -123,7 +126,7 @@ func tick_glint(d: SkillVfxData, center: Vector2, start: float, i: int, level: i
 	if d == null or d.tick_count <= 0:
 		return
 	var a := start + d.piece_dir * TAU * float(i) / float(d.tick_count)
-	var r := d.decal_size * d.size_mult(level) * 0.4
+	var r := float(_last_size.get(d, d.decal_size * d.size_mult(level))) * d.tick_ring  # 실제로 그린 판 크기 (화면 상한 반영)
 	glint(center + Vector2.from_angle(a) * r, d.tick_size * d.size_mult(level), d.tick_color, true)
 
 

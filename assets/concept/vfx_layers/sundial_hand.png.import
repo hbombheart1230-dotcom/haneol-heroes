@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c5u4v4g7axmy4"
-path="res://.godot/imported/sejong_saimdang_mixed.png-16d6be31349c573edafa8ed9fe2a23a4.ctex"
+uid="uid://bld5j25mdcfd"
+path="res://.godot/imported/sundial_hand.png-0356a4473b803aca950017d545a0310e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/concept/vfx_layers/sejong_saimdang_mixed.png"
-dest_files=["res://.godot/imported/sejong_saimdang_mixed.png-16d6be31349c573edafa8ed9fe2a23a4.ctex"]
+source_file="res://assets/concept/vfx_layers/sundial_hand.png"
+dest_files=["res://.godot/imported/sundial_hand.png-0356a4473b803aca950017d545a0310e.ctex"]
 
 [params]
 

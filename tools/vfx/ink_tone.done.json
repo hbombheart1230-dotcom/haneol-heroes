@@ -1,4 +1,5 @@
 {
+ "butterfly.png": "a9c814f1d0b02148563781934eca4a4da21755512d67203d1deda540b2c8e236",
  "constellation.png": "7a3452ecc37c9a7a90de15fa06b5c21b44a4c7a4e61b6939e768439108d739fe",
  "critter_swarm.png": "7effe01a6aafda84889d8120bd8a56b84de42b517f097774b0d20294857b72cd",
  "dash_glyph.png": "9525f4bffb21fbf9cdeb15f9272d814327f47f8d0e936462e9a8d46be959547d",
@@ -42,8 +43,10 @@
  "scroll_unfold.png": "41764cd4a3eb058b4b766f6084833576c57b92b4085f62d0ee724cc6db047989",
  "sea_dragon.png": "f82c54547b85d848d1d7e94c369a5e1ab2dc5df489ecee537061ead34f5f2dba",
  "sea_dragon_ring.png": "7c252f628ad33068cfa1e906c1c71a992f88f54744c3eef5a633e2666843b52b",
- "star_burst.png": "4617f0435bb3d59072718a758ef9db5aae15cb4c3d66ffc44722f077a1cb141e",
+ "star_burst.png": "f8c6e5624017119627134682fedae79dfcff3db4b087cd4b7bf8dadb136eaa0f",
  "sundial.png": "1f1dc9913413a2876207f05268425674c5f435d53c3ae0ae186e93d0b433b9e9",
+ "sundial_hand.png": "4c78bb1e360ed126dc40071031a8edcb93c3e1fc0c25b713cac47d014ac8953a",
+ "sundial_plate.png": "e4a1bcc5758eb05a26445dbd4c0a55e3a7bdc6428beda55ff0faa908c11ec09c",
  "tidal_blade.png": "b123ea38568a730581e79d52f999e05a01e3014aecce6feb53f809bec1fed172",
  "tidal_crest.png": "894a44882745c3a11013913b548edbe4dd1ef558c89cc434dbbdb9c0a410b628",
  "water_stain.png": "dcb4d2f3a2491e5e82045e0e842e8211c5e0d30bdb41a6c5ad8c27ed2e82a910",
