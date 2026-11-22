@@ -1,6 +1,8 @@
 class_name SundialSkill
 extends SkillDef
 ## 세종 · 해시계 멈춤(가칭, 앙부일구): 회피 직후 주변 적의 시간을 크게 느리게 하고 피해.
+## 느려짐·멈춤은 누르는 순간 모두에게 (지키는 힘 그대로). 해시계 판이 조각으로 펼쳐지는 동안 그림자 바늘이
+## 한 바퀴 돌며 눈금마다 번쩍이고, 바늘이 지나는 적부터 차례로 피해 (SweepRun).
 
 @export var radius: float = 300.0
 @export var damage: int = 30
@@ -13,19 +15,16 @@ extends SkillDef
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	var center := ctx.player.global_position
-	var hits := 0
+	var targets: Array[Enemy] = []
 	for en in ctx.enemies_in_radius(center, radius):
 		if not en.health.is_alive():
 			continue
 		en.slow(slow_factor, slow_time)
 		if freeze_time > 0.0:
 			en.stun(freeze_time)
-		if ctx.hit(en, damage):
-			hits += 1
+		targets.append(en)
 	ctx.impact(center)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.6, fx_color)
-		for i in 12:  # 해시계 눈금
-			var d := Vector2.from_angle(TAU * i / 12.0)
-			ctx.fx.add_slash(center + d * radius * 0.8, center + d * radius, 4.0, 0.6, fx_color)
-	return SkillRun.instant(hits)  # 명중 멈춤은 SkillHitStop 공통 규칙 (피해 비례, D3)
+	# 명중 멈춤은 SkillHitStop 공통 규칙 (피해 비례, D3)
+	return ctx.sweep(center, targets, func(en: Enemy) -> bool: return ctx.hit(en, damage))

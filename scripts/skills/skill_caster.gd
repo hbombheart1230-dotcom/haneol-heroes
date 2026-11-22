@@ -230,8 +230,10 @@ func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
 		Feedback.vfx_burst(d.vfx_cast, player.global_position, player.facing, d.vfx_level)
 	var run := d.cast(ctx, charge)
 	if run.finished:
-		skill_cast.emit(slot, run.hits)
+		skill_cast.emit(slot, run.hits if run.announce_hits < 0 else run.announce_hits)
 	else:
+		if run.announce_hits >= 0:
+			skill_cast.emit(slot, run.announce_hits)
 		_runs.append([slot, run])
 	return run
 
@@ -252,7 +254,8 @@ func tick(delta: float, time: float) -> void:
 		var run: SkillRun = entry[1]
 		if run.tick(delta):
 			_runs.erase(entry)
-			skill_cast.emit(entry[0], run.hits)
+			if run.announce_hits < 0:
+				skill_cast.emit(entry[0], run.hits)
 
 
 func _context() -> SkillContext:

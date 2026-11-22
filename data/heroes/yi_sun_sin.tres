@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/heroes/dash/yi_sun_sin.tres" id="dash_style"]
 [ext_resource type="Texture2D" path="res://assets/vfx/proj_water.png" id="proj_art"]
 [ext_resource type="Texture2D" path="res://assets/vfx/tidal_blade.png" id="wave_art"]
+[ext_resource type="Resource" path="res://data/vfx/skill/yi_sun_sin_haeil_wake.tres" id="vs_haeil_wake"]
 [ext_resource type="Resource" path="res://data/heroes/charge/yi_sun_sin.tres" id="charge_marker"]
 
 [sub_resource type="Resource" id="Attack_yi"]
@@ -100,6 +101,7 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vfx_impact")
 wave_art = ExtResource("wave_art")
 wave_art_size = Vector2(150, 100)
+wave_wake = ExtResource("vs_haeil_wake")
 aim_assist_deg = 80.0
 aim_assist_range = 600.0
 aim_fallback_nearest = true

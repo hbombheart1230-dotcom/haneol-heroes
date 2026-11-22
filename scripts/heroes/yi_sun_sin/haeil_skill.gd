@@ -11,6 +11,11 @@ extends SkillDef
 ## 물결 그림 (오른쪽 = 진행 방향)과 크기(px, size_scale 배율 적용). 비면 코드로 그린 물결 호.
 @export var wave_art: Texture2D
 @export var wave_art_size: Vector2 = Vector2(150, 60)
+## 연출: 물결 잔상 수, 나갈 때 늘어나는 시간(초), 출렁임, 뒤로 흩뿌리는 물보라 (Projectile "물결 연출").
+@export var wave_ghosts: int = 3
+@export var wave_launch: float = 0.12
+@export var wave_surge: float = 0.08
+@export var wave_wake: SkillVfxData
 @export_group("큰 변형 · 세 갈래")
 ## 양옆으로 더 쏘는 물결 수 (0이면 한 줄기). 쌍으로 퍼진다.
 @export var extra_waves: int = 0
@@ -41,4 +46,9 @@ func _wave(ctx: SkillContext, dir: Vector2, c: float) -> Projectile:
 		pr.size_scale = lerpf(min_scale, max_scale, c)
 		if wave_art:
 			pr.art = wave_art
-			pr.art_size = wave_art_size)
+			pr.art_size = wave_art_size
+			pr.ghosts = wave_ghosts
+			pr.ghost_gap = wave_art_size.x * 0.22
+			pr.launch_stretch = wave_launch
+			pr.surge = wave_surge
+			pr.wake = wave_wake)

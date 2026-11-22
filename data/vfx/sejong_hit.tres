@@ -17,3 +17,6 @@ size_end = 0.8
 spin = 1.0
 color = Color(0.8, 0.5, 0.05, 1)
 color_end = Color(0.95, 0.7, 0.2, 0)
+hit_mark_size = 96.0
+hit_mark_time = 0.25
+hit_mark_color = Color(1, 0.86, 0.42, 0.95)

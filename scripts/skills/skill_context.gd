@@ -63,7 +63,10 @@ func hit(en: Enemy, dmg: int, stop: bool = true) -> bool:
 	if fx:
 		fx.add_spark(en.global_position)
 	if skill and skill.vfx_hit and player:
-		Feedback.vfx_burst(skill.vfx_hit, en.global_position, en.global_position - player.global_position, skill.vfx_level)
+		var dir := en.global_position - player.global_position
+		Feedback.vfx_burst(skill.vfx_hit, en.global_position, dir, skill.vfx_level)
+		if stop:  # 한 번에 끊어 치는 명중만 (계속 닿는 장판·글자는 자국·밀림 없음)
+			SkillStageFx.on_hit(skill.vfx_hit, en.global_position, dir, dmg, skill.vfx_level)
 	return true
 
 
@@ -75,8 +78,29 @@ func impact(pos: Vector2, dir: Vector2 = Vector2.ZERO) -> void:
 	if v.has_bolt() and fx:
 		fx.add_bolt(pos + Vector2(0, -v.bolt_height), pos, v.bolt_width, v.bolt_time, v.bolt_color, v.bolt_segments,
 			v.bolt_jitter)
+	if dir.length_squared() < 0.0001 and v.piece_count > 0 and player:
+		dir = player.facing  # 조각은 바라보는 방향부터 휘감는다 (SweepRun과 같은 시작)
 	Feedback.vfx_burst(v, pos, dir, skill.vfx_level)
 	Feedback.impact_haptic()
+
+
+## 지연 기술의 예고 (vfx_impact.gather_*): 떨어질·펼쳐질 자리로 기운이 모인다.
+func foretell(pos: Vector2) -> void:
+	if skill and skill.vfx_impact:
+		SkillStageFx.gather(skill.vfx_impact, pos, skill.vfx_level)
+
+
+## 휘감는 기술: 바라보는 방향부터 vfx_impact.piece_sweep초에 한 바퀴 돌며 targets를 차례로 strike.
+## 그림(조각 등장·바늘)도 같은 방향·같은 시간으로 펼친다. 눈금이 있으면 지날 때마다 번쩍.
+func sweep(center: Vector2, targets: Array[Enemy], strike: Callable) -> SweepRun:
+	var v := skill.vfx_impact if skill else null
+	var start := player.facing.angle() if player and player.facing.length_squared() > 0.0001 else -PI * 0.5
+	var dir_sign := v.piece_dir if v else 1.0
+	var t := v.piece_sweep if v and v.piece_count > 0 else 0.0
+	var ticks := v.tick_count if v else 0
+	var level := skill.vfx_level if skill else 0
+	var on_tick := func(i: int) -> void: SkillStageFx.tick(v, center, start, i, level)
+	return SweepRun.new(strike, center, targets, start, dir_sign, t, ticks, on_tick if ticks > 0 else Callable())
 
 
 ## 직선 기술 경로 a→b에 그림 띠 (vfx_impact.strip). 띠가 없으면 아무것도 안 한다.

@@ -107,3 +107,49 @@ func layers_for(level: int) -> int:
 
 func glow_for(level: int) -> float:
 	return glow * (1.0 + level_glow * level_of(level)) if glow > 0.0 else 0.0
+
+
+@export_group("연출 · 조각 등장")
+## 0보다 크면 그림을 통째로 내보내지 않고 이만큼의 부채꼴 조각으로 잘라, 시작 방향부터 차례로 휘감아 펼친다
+## (조각마다 튀어나왔다 자리 잡음 → 다 모이면 번쩍 → 먹으로 번지며 조각이 흩어짐). 0이면 예전처럼 한 장.
+@export var piece_count: int = 0
+## 조각이 모두 나타나는 시간(초). 휘감는 기술은 이 시간에 맞춰 적을 차례로 벤다 (SweepOrder).
+@export var piece_sweep: float = 0.18
+## 조각이 처음 나타날 때 커지는 배율(튀어나옴)과 바깥으로 밀려 나왔다 들어오는 거리(px).
+@export var piece_pop: float = 0.3
+@export var piece_push: float = 26.0
+## 그림 전체가 이만큼(라디안) 감겨 들어오며 멈춘다 (등속 회전 대신 감속).
+@export var piece_spin_in: float = 0.9
+## 사라질 때 조각이 바깥으로 흩어지는 거리(px).
+@export var piece_scatter: float = 40.0
+## 다 모인 순간 번쩍임 (더하기 빛 세기, 0이면 없음).
+@export var piece_flash: float = 0.9
+## 1 = 시계 방향, -1 = 반대.
+@export var piece_dir: float = 1.0
+
+@export_group("연출 · 바늘과 눈금 (해시계)")
+## true면 조각과 함께 그림자 바늘이 한 바퀴 돈다 (붓 획 그림).
+@export var sweep_hand: bool = false
+@export var hand_color: Color = Color(0.1, 0.08, 0.06, 0.85)
+@export var hand_width: float = 34.0
+## 0보다 크면 바늘이 지날 때마다 테두리 눈금이 하나씩 번쩍인다 (눈금 수).
+@export var tick_count: int = 0
+@export var tick_color: Color = Color(1.0, 0.85, 0.35)
+@export var tick_size: float = 70.0
+
+@export_group("연출 · 예고와 자국")
+## 0보다 크면 이 시간(초) 동안 기운이 가운데로 모인다 (지연 기술의 예고: 유성·화폭·벽력돌파).
+@export var gather_time: float = 0.0
+@export var gather_count: int = 10
+@export var gather_radius: float = 220.0
+@export var gather_color: Color = Color(1, 1, 1, 0.9)
+## 0보다 크면 터진 자리 바닥에 먹 자국이 이 시간(초) 남는다 (적·영웅 아래).
+@export var ground_time: float = 0.0
+@export var ground_size: float = 260.0
+@export var ground_color: Color = Color(0.08, 0.08, 0.1, 0.55)
+
+@export_group("연출 · 맞은 자리")
+## 0보다 크면 맞은 적마다 베인 자국(초승달 붓 획)이 맞은 방향에 가로로 긋는다 (크기 px).
+@export var hit_mark_size: float = 0.0
+@export var hit_mark_time: float = 0.22
+@export var hit_mark_color: Color = Color(1, 1, 1, 0.95)

@@ -24,10 +24,21 @@ extends HitBox2D
 ## 뒤 자취 자취 색과 길이(px). 길이 0이면 없음.
 @export var trail_color: Color = Color(0.3, 0.55, 0.9, 0.6)
 @export var trail_len: float = 0.0
+@export_group("물결 연출 (해일검기)")
+## 그림 뒤에 끌리는 옅은 잔상 수와 간격(px). 0이면 없음.
+@export var ghosts: int = 0
+@export var ghost_gap: float = 30.0
+## 나갈 때 앞으로 늘어났다 자리 잡는 시간(초)과 출렁임 세기 (0이면 그림 그대로).
+@export var launch_stretch: float = 0.0
+@export var surge: float = 0.0
+## 날아가며 뒤로 흩뿌리는 물보라 (wake_interval초마다). 비면 없음.
+@export var wake: SkillVfxData
+@export var wake_interval: float = 0.06
 
 var direction: Vector2 = Vector2.RIGHT
 var hits: int = 0
 var _age: float = 0.0
+var _wake_left: float = 0.0
 
 
 func _ready() -> void:
@@ -44,7 +55,12 @@ func _physics_process(delta: float) -> void:
 	_age += delta
 	if _age >= lifetime:
 		queue_free()
-	if wave_style:
+	if wake:
+		_wake_left -= delta
+		if _wake_left <= 0.0:
+			_wake_left += wake_interval
+			Feedback.vfx_burst(wake, global_position - direction * art_size.x * 0.4 * size_scale, -direction)
+	if wave_style or ghosts > 0:
 		queue_redraw()
 
 
@@ -59,12 +75,29 @@ func _on_action_applied(hurt_box: HurtBox2D) -> void:
 	queue_free()
 
 
+## 나갈 때 앞으로 쭉 늘었다 자리 잡고, 날아가며 물마루가 출렁인다 (그림 한 장이 그대로 밀려 나가지 않게).
+func _surge_scale() -> Vector2:
+	var sx := 1.0
+	if launch_stretch > 0.0 and _age < launch_stretch:
+		var k := _age / launch_stretch
+		sx = lerpf(0.45, 1.0, 1.0 - pow(1.0 - k, 3.0)) + 0.25 * sin(k * PI)
+	var sy := 1.0 + surge * sin(_age * 17.0)
+	return Vector2(sx - surge * 0.5 * sin(_age * 17.0), sy)
+
+
 func _draw() -> void:
 	if trail_len > 0.0:  # 뒤 자취: 뒤로 갈수록 가늘고 옅게
 		var w := art_size.y * 0.45 if art else float(glyph_px) * 0.22  # 자모는 글자 칸 안에 작게 그려진다
 		Ink.stroke(self, Vector2(-trail_len, 0), Vector2(-4, 0), w, trail_color)
 	if art:
-		draw_texture_rect(art, Rect2(-art_size.x * 0.6, -art_size.y * 0.5, art_size.x, art_size.y), false)
+		var rect := Rect2(-art_size.x * 0.6, -art_size.y * 0.5, art_size.x, art_size.y)
+		for g in range(ghosts, 0, -1):  # 잔상: 뒤로 갈수록 옅고 가늘게
+			var f := 1.0 - float(g) / float(ghosts + 1)
+			draw_set_transform(Vector2(-ghost_gap * g, 0.0), 0.0, Vector2(1.0, lerpf(0.6, 1.0, f)))
+			draw_texture_rect(art, rect, false, Color(0.75, 0.9, 1.0, 0.45 * f * f))
+		draw_set_transform(Vector2.ZERO, 0.0, _surge_scale())
+		draw_texture_rect(art, rect, false)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		return
 	if glyph != "":
 		draw_set_transform(Vector2.ZERO, -rotation, Vector2.ONE)  # 글자는 똑바로

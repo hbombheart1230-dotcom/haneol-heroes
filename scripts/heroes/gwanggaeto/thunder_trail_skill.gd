@@ -18,6 +18,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	var a := ctx.player.dash_start_position()
 	if a.distance_to(b) < min_length:
 		a = b - ctx.player.facing * min_length
+	ctx.foretell((a + b) * 0.5)  # 예고: 길 가운데로 번개 기운이 모인다
 	if ctx.fx:
 		ctx.fx.add_slash(a, b, width * 0.15, delay, Color(fx_color, 0.5))  # 예고: 옅은 번개 길
 	return TrailRun.new(self, ctx, a, b)

@@ -14,6 +14,9 @@ var _rings: Array[Dictionary] = []
 ## 직선 기술 띠 {tex, a, b, w, t, life, reveal, bright}
 var _strips: Array[Dictionary] = []
 var _glow: Node2D
+## 조각 등장·바늘·눈금·베인 자국·모이는 기운 (같은 수묵 셰이더), 바닥 자국 (적 아래).
+var pieces: VfxPieces
+var ground: VfxGround
 
 
 func _init(p_feel: CombatFeelData = null) -> void:
@@ -36,6 +39,10 @@ func _init(p_feel: CombatFeelData = null) -> void:
 	_glow.material = add
 	_glow.draw.connect(_draw_glow)
 	add_child(_glow)
+	pieces = VfxPieces.new()
+	add_child(pieces)
+	ground = VfxGround.new()
+	add_child(ground)
 
 
 func count() -> int:
@@ -79,7 +86,10 @@ func burst(d: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: in
 		base_rot = dir.angle() - deg_to_rad(d.decal_angle_deg)
 	var size := d.decal_size * d.size_mult(level)
 	var bright := 1.0 + d.level_glow * d.level_of(level)
-	for i in d.layers_for(level):
+	ground.mark(d, pos, level)
+	if d.piece_count > 0:  # 조각으로 펼침 (한 장 통째 대신)
+		pieces.pieces(d, pos, dir, level)
+	for i in (0 if d.piece_count > 0 else d.layers_for(level)):
 		_items.append({"data": d, "pos": pos, "rot": base_rot + feel.decal_layer_turn * i,
 			"spin": d.decal_spin * (1.0 if i % 2 == 0 else -1.0), "size": size * pow(feel.decal_layer_shrink, i),
 			"t": 0.0, "life": d.decal_time, "bright": bright, "glow": d.glow_for(level) if i == 0 else 0.0})
@@ -137,18 +147,8 @@ func _draw() -> void:
 		var b := float(it["bright"])
 		draw_set_transform(it["pos"], float(it["rot"]), Vector2.ONE)
 		draw_texture_rect(d.decal, Rect2(Vector2.ONE * -sh.y * 0.5, Vector2.ONE * sh.y), false, Color(b, b, b, sh.z))
-	for s in _strips:  # 앞으로 펼쳐지는 띠: 그림의 앞부분부터 보인다
-		var tex: Texture2D = s["tex"]
-		var a: Vector2 = s["a"]
-		var d: Vector2 = (s["b"] as Vector2) - a
-		var t := float(s["t"])
-		var k := minf(t / float(s["reveal"]), 1.0)
-		var life := 1.0 - t / float(s["life"])
-		var w := float(s["w"])
-		var br := float(s["bright"])
-		draw_set_transform(a, d.angle(), Vector2.ONE)
-		draw_texture_rect_region(tex, Rect2(0.0, -w * 0.5, d.length() * k, w),
-			Rect2(tex.get_width() * (1.0 - k), 0.0, tex.get_width() * k, tex.get_height()), Color(br, br, br, life))
+	for s in _strips:
+		_draw_strip(s)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	for r in _rings:  # 엔진 draw_arc (GDScript 배열을 매 프레임 만들지 않음), 세로로 눌러 바닥에 깐 고리
 		var k := float(r["t"]) / float(r["life"])
@@ -156,6 +156,35 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, float(r["r"]) * (0.5 + k), 0.0, TAU, 40, Color(Ink.GOLD, 1.0 - k),
 			feel.flourish_ring_width * (1.0 - k) + 2.0)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## 앞으로 펼쳐지는 띠를 조각으로: 펼쳐지는 머리는 굵게 부풀고, 꼬리부터 먹으로 번져 사라진다
+## (한 장이 통째로 밀려 나가 보이지 않게). 조각 수는 SkillStageFeel.strip_slices.
+func _draw_strip(s: Dictionary) -> void:
+	var st := pieces.stage
+	var tex: Texture2D = s["tex"]
+	var a: Vector2 = s["a"]
+	var d: Vector2 = (s["b"] as Vector2) - a
+	var t := float(s["t"])
+	var k := minf(t / float(s["reveal"]), 1.0)
+	var life := 1.0 - t / float(s["life"])
+	var w := float(s["w"])
+	var br := float(s["bright"])
+	var n := maxi(st.strip_slices, 1)
+	var shown := d.length() * k
+	var tw := float(tex.get_width())
+	draw_set_transform(a, d.angle(), Vector2.ONE)
+	for i in n:
+		var u0 := float(i) / n  # 보이는 길이 중 이 조각의 시작 (0 = 꼬리)
+		var u1 := float(i + 1) / n
+		var head := u1  # 머리 쪽일수록 늦게 사라지고 펼쳐질 때 부푼다
+		var alpha := clampf(life * (1.0 + st.strip_tail_lead) - (1.0 - head) * st.strip_tail_lead, 0.0, 1.0)
+		if alpha <= 0.0:
+			continue
+		var swell := 1.0 + st.strip_head_swell * (1.0 - k) * head
+		var sw := w * swell * lerpf(0.75, 1.0, head)
+		draw_texture_rect_region(tex, Rect2(shown * u0, -sw * 0.5, shown * (u1 - u0) + 1.0, sw),
+			Rect2(tw * (1.0 - k) + tw * k * u0, 0.0, tw * k * (u1 - u0), tex.get_height()), Color(br, br, br, alpha))
 
 
 func _draw_glow() -> void:

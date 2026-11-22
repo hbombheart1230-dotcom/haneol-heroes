@@ -21,6 +21,7 @@ func cast(ctx: SkillContext, charge: float) -> SkillRun:
 	var c := clampf(charge, 0.0, 1.0)
 	var center := ctx.player.global_position
 	var r := radius_for(c)
+	ctx.foretell(center)  # 펼쳐질 화폭으로 먹 기운이 모인다
 	var trapped: Array[Enemy] = []
 	for en in ctx.enemies_in_radius(center, r):
 		if en.health.is_alive():
