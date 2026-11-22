@@ -20,8 +20,10 @@ static var sfx_volume: float = 0.8
 static var music_volume: float = 0.8
 static var haptics_enabled: bool = true
 static var story_enabled: bool = true
-## 왼쪽 아래 수치 (초당 장면 수·적 수), 적 머리 위 체력 막대.
-static var show_stats: bool = true
+## 왼쪽 아래 개발용 수치 (초당 장면 수·적 수·대시 판정 글자). 처음엔 끔 (설정 "개발 수치"로 켬).
+## 예전 저장 키(show_stats, 처음 값 켬)는 읽지 않는다 → 이미 깐 폰에서도 꺼진 채로 시작.
+static var show_stats: bool = false
+## 적 머리 위 체력 막대.
 static var enemy_hp_bars: bool = true
 ## 조작 안내 (설정 "조작 안내", 저장, 처음엔 켬): 켜 두면 앱을 켤 때마다 첫 판에 한 번 나온다.
 static var tutorial_enabled: bool = true
@@ -83,7 +85,7 @@ static func load_settings(path: String = "") -> void:
 	music_volume = clampf(float(cfg.get_value("sound", "music_volume", music_volume)), 0.0, 1.0)
 	haptics_enabled = bool(cfg.get_value("sound", "haptics", haptics_enabled))
 	story_enabled = bool(cfg.get_value("game", "story_enabled", story_enabled))
-	show_stats = bool(cfg.get_value("display", "show_stats", show_stats))
+	show_stats = bool(cfg.get_value("display", "dev_stats", false))
 	enemy_hp_bars = bool(cfg.get_value("display", "enemy_hp_bars", enemy_hp_bars))
 	tutorial_enabled = bool(cfg.get_value("game", "tutorial_enabled", true))  # 값이 없으면 (처음·예전 저장) 켬
 	apply_audio()
@@ -105,7 +107,7 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("sound", "music_volume", music_volume)
 	cfg.set_value("sound", "haptics", haptics_enabled)
 	cfg.set_value("game", "story_enabled", story_enabled)
-	cfg.set_value("display", "show_stats", show_stats)
+	cfg.set_value("display", "dev_stats", show_stats)
 	cfg.set_value("display", "enemy_hp_bars", enemy_hp_bars)
 	cfg.set_value("game", "tutorial_enabled", tutorial_enabled)
 	cfg.set_value("game", "hero_id", String(hero_id))

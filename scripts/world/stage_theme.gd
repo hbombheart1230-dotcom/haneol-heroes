@@ -54,6 +54,8 @@ extends Resource
 @export var floor_value: float = 1.0
 @export var floor_saturation: float = 1.0
 @export var vignette: float = 0.0
+## 조명 한 벌 (바닥 색 보정 + 빛 웅덩이). 있으면 floor_value·floor_saturation 대신 쓴다.
+@export var look: StageLook
 
 @export_group("물결·보스 (하데스 슬라이스)")
 ## 있으면 시간 따라 계속 나오는 대신 물결 모드 (WaveSetData). 없으면 지금 방식 그대로.

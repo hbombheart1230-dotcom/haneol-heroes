@@ -19,6 +19,10 @@ uniform vec4 ghost_color : source_color = vec4(0.0);
 // 망령 몸 불투명도 (1 = 안 비침), 칸 아래에서 사라지는 비율.
 uniform float ghost_body_alpha = 1.0;
 uniform float ghost_fade = 0.1;
+// 망령 테두리에 망령 색을 섞는 비율 (1이면 예전처럼 망령 색만).
+uniform float ghost_rim_mix = 1.0;
+// 테두리 바깥 옅은 번짐 진하기 (0이면 없음).
+uniform float halo_alpha = 0.0;
 // 피격 흰 번쩍임 (적마다 다름 → instance uniform, EnemySprite가 매 프레임 넣는다). 0이면 원래 색, 1이면 흰색.
 instance uniform float flash = 0.0;
 
@@ -57,6 +61,14 @@ void fragment() {
 		+ texture(TEXTURE, p5).a * in_cell(p5, lo, hi) + texture(TEXTURE, p6).a * in_cell(p6, lo, hi)
 		+ texture(TEXTURE, p7).a * in_cell(p7, lo, hi) + texture(TEXTURE, p8).a * in_cell(p8, lo, hi);
 	float outside = clamp(n * 0.25, 0.0, 1.0) * (1.0 - tex.a);
+	// 바깥 번짐 (두 배 거리 네 점): 어두운 바닥에서 몸이 떠 보이게 테두리 밖으로 옅은 빛.
+	vec2 q1 = UV + vec2(o.x * 2.0, 0.0);
+	vec2 q2 = UV - vec2(o.x * 2.0, 0.0);
+	vec2 q3 = UV + vec2(0.0, o.y * 2.0);
+	vec2 q4 = UV - vec2(0.0, o.y * 2.0);
+	float far = texture(TEXTURE, q1).a * in_cell(q1, lo, hi) + texture(TEXTURE, q2).a * in_cell(q2, lo, hi)
+		+ texture(TEXTURE, q3).a * in_cell(q3, lo, hi) + texture(TEXTURE, q4).a * in_cell(q4, lo, hi);
+	float halo = clamp(far * 0.5, 0.0, 1.0) * (1.0 - tex.a) * (1.0 - outside) * halo_alpha;
 	vec3 body = (tex.rgb - 0.5) * body_contrast + 0.5 + body_lift;
 	body = mix(body, body * army_tint.rgb * 1.25, tint_mix);
 	body = mix(body, vec3(1.0), clamp(flash, 0.0, 1.0));
@@ -67,9 +79,10 @@ void fragment() {
 	float a = tex.a * mix(1.0, ghost_body_alpha, g) * (1.0 - foot * 0.5);
 	vec4 col = vec4(clamp(body, 0.0, 1.0), a) * node_color;
 	float wave = 0.7 + 0.3 * sin(TIME * 5.0 + UV.y * 60.0 + UV.x * 25.0);  // 일렁이는 테두리
-	vec3 rim_rgb = mix(rim_color.rgb, ghost_color.rgb, g);
-	float rim_a = mix(rim_color.a, ghost_color.a * wave, g);
-	vec4 rim = vec4(rim_rgb, rim_a * outside * node_color.a);
+	// 망령이면 테두리 색을 망령 색 쪽으로 반쯤 섞고 일렁이게 (진하기는 rim_color 그대로 → 어두운 바닥에서도 보인다)
+	vec3 rim_rgb = mix(rim_color.rgb, ghost_color.rgb, g * ghost_rim_mix);
+	float rim_a = rim_color.a * mix(1.0, wave, g);
+	vec4 rim = vec4(rim_rgb, max(rim_a * outside, rim_color.a * halo) * node_color.a);
 	// 몸 위에 테두리를 깔고 (몸이 있는 곳은 몸이 이긴다)
 	COLOR = mix(rim, col, a);
 	COLOR.a = max(col.a, rim.a);

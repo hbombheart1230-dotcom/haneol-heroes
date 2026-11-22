@@ -62,6 +62,10 @@ extends Resource
 @export var rim_color: Color = Color(0, 0, 0, 0)
 ## 테두리 두께 (구운 텍스처 픽셀). 정예·보스는 더 크게.
 @export var rim_width: float = 3.0
+## 테두리 바깥 옅은 번짐 진하기 (두 배 거리, 0이면 없음). 어두운 바닥에서 몸이 떠 보이게.
+@export var rim_halo: float = 0.55
+## 망령이면 테두리 색에 망령 색을 섞는 비율 (1 = 망령 색만). 진하기는 rim_color 알파를 따른다.
+@export var ghost_rim_mix: float = 0.45
 ## 몸 밝기 더하기와 대비 배율 (칙칙한 회색 망령을 바닥에서 띄운다).
 @export var body_lift: float = 0.0
 @export var body_contrast: float = 1.0

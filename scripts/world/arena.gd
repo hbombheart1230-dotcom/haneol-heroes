@@ -11,6 +11,8 @@ const FLOOR_GRADE := preload("res://shaders/floor_grade.gdshader")
 
 var props: StageProps
 var map: MapLayer
+## 바닥 빛 웅덩이 (무대 look이 있을 때만).
+var lights: LightPools
 var border: Node2D
 var obstacles: Obstacles
 ## 화면 가장자리 먹 비네트 (HUD 아래, 무대 vignette가 0이면 숨김).
@@ -34,6 +36,8 @@ func _ready() -> void:
 	map = MapLayer.new()
 	map.use_parent_material = false
 	add_child(map)
+	lights = LightPools.new()
+	add_child(lights)
 	props = StageProps.new()
 	props.use_parent_material = false
 	add_child(props)
@@ -59,7 +63,7 @@ func apply_theme(t: StageTheme) -> void:
 	if t.background_path != "" and ResourceLoader.exists(t.background_path):
 		tex = load(t.background_path) as Texture2D
 	if map:
-		map.grade(t.floor_value, t.floor_saturation)
+		map.grade(t.floor_value, t.floor_saturation, t.look)
 		map.texture = tex
 		map.rect = t.background_rect if t.background_rect.has_area() else rect
 		map.queue_redraw()
@@ -69,6 +73,8 @@ func apply_theme(t: StageTheme) -> void:
 		border.visible = tex == null  # 지도에는 벽·난간·물가가 그려져 있다
 	if props:
 		props.setup(t, rect.grow(-t.prop_inset))
+	if lights:
+		lights.setup(t.look, map.rect if map else rect, props.items if props else [], t.prop_textures, t.seed)
 	if obstacles:
 		var list := t.map_blockers.duplicate() if tex else PackedVector3Array()
 		if props:
@@ -102,14 +108,21 @@ class MapLayer extends Node2D:
 	var texture: Texture2D
 	var rect: Rect2
 
-	func grade(value: float, sat: float) -> void:
-		if is_equal_approx(value, 1.0) and is_equal_approx(sat, 1.0):
+	func grade(value: float, sat: float, look: StageLook = null) -> void:
+		if look == null and is_equal_approx(value, 1.0) and is_equal_approx(sat, 1.0):
 			material = null
 			return
 		var m := ShaderMaterial.new()
 		m.shader = FLOOR_GRADE
-		m.set_shader_parameter("value_mult", value)
-		m.set_shader_parameter("saturation", sat)
+		m.set_shader_parameter("value_mult", look.value_mult if look else value)
+		m.set_shader_parameter("saturation", look.saturation if look else sat)
+		if look:
+			m.set_shader_parameter("contrast", look.contrast)
+			m.set_shader_parameter("pivot", look.pivot)
+			m.set_shader_parameter("shadow_tint", look.shadow_tint)
+			m.set_shader_parameter("light_tint", look.light_tint)
+			m.set_shader_parameter("tint_mix", look.tint_mix)
+			m.set_shader_parameter("tint_split", look.tint_split)
 		material = m
 
 	func _draw() -> void:
