@@ -55,4 +55,4 @@ static func enter(e: Enemy, ph: BossPhaseData) -> void:
 		if fb.fx:
 			fb.fx.add_label(e.global_position + Vector2(0, -e.body_radius * 2.0), ph.seal_label, Ink.SEAL)
 			if ph.seal_art:
-				fb.fx.add_fall(ph.seal_art, e.global_position + Vector2(0, -260), e.global_position, 0.3, 180.0)
+				fb.fx.add_fall(ph.seal_art, e.global_position + Vector2(0, -260), e.global_position, 0.3, 180.0, 90.0)  # 낙인은 똑바로 선 채 떨어진다
