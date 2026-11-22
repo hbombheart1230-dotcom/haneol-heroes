@@ -24,7 +24,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 DST = os.path.join(ROOT, "assets/vfx")
 SRC = os.path.join(ROOT, "assets/concept/vfx_src")
 DONE = os.path.join(ROOT, "tools/vfx/ink_tone.done.json")
-SKIP_PREFIX = ("brush_",)
+SKIP_PREFIX = ("brush_", "boss_", "spawn_")  # 흰 붓 질감, 인주 낙인, 먹 번짐은 그대로
 TARGET_SAT = 0.36
 LINE = 0.62
 WASH = 0.55
@@ -69,7 +69,8 @@ def sha(path: str) -> str:
 
 
 def targets() -> list:
-    return [p for p in sorted(glob.glob(os.path.join(DST, "*.png"))) if not os.path.basename(p).startswith(SKIP_PREFIX)]
+    paths = sorted(glob.glob(os.path.join(DST, "*.png"))) + sorted(glob.glob(os.path.join(DST, "parts", "*.png")))
+    return [p for p in paths if not os.path.basename(p).startswith(SKIP_PREFIX)]
 
 
 def run(check: bool = False) -> int:
@@ -77,8 +78,9 @@ def run(check: bool = False) -> int:
     os.makedirs(SRC, exist_ok=True)
     changed = 0
     for path in targets():
-        name = os.path.basename(path)
+        name = os.path.relpath(path, DST).replace(os.sep, "/")
         src = os.path.join(SRC, name)
+        os.makedirs(os.path.dirname(src), exist_ok=True)
         if not os.path.exists(src) or done.get(name) != sha(path):  # 처음이거나 새 그림이 들어왔다
             if check:
                 changed += 1

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="1_vfx"]
 [ext_resource type="Texture2D" path="res://assets/vfx/sea_dragon_ring.png" id="2_tex"]
+[ext_resource type="Texture2D" path="res://assets/vfx/water_stain.png" id="art_water_stain_1"]
 
 [resource]
 script = ExtResource("1_vfx")
@@ -37,3 +38,4 @@ ground_color = Color(0.12, 0.3, 0.45, 0.35)
 flicker = 0.8
 twist = 0.5
 art_fill = 0.95
+ground_art = ExtResource("art_water_stain_1")

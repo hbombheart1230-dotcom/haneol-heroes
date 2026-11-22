@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" path="res://assets/vfx/brush_splat.png" id="b_splat"]
 [ext_resource type="Texture2D" path="res://assets/vfx/brush_pool.png" id="b_pool"]
 [ext_resource type="Texture2D" path="res://assets/vfx/brush_crescent.png" id="b_crescent"]
+[ext_resource type="Texture2D" path="res://assets/vfx/spawn_ink_bloom.png" id="art_spawn_ink_bloom_1"]
 
 [sub_resource type="Resource" id="Burst"]
 script = ExtResource("2_burst")
@@ -164,3 +165,4 @@ skill_stop_multi = 0.85
 skill_stop_min_gap = 0.2
 skill_stop_scale = 0.05
 poise_trauma = 0.4
+spawn_warn_art = ExtResource("art_spawn_ink_bloom_1")

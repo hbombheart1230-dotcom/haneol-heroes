@@ -2,6 +2,13 @@
 
 [ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="1_vfx"]
 [ext_resource type="Texture2D" path="res://assets/vfx/fire_counter.png" id="2_tex"]
+[ext_resource type="Texture2D" path="res://assets/vfx/scorch.png" id="art_scorch_1"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_1.png" id="art_ember_1_2"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_2.png" id="art_ember_2_3"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_3.png" id="art_ember_3_4"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_4.png" id="art_ember_4_5"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_5.png" id="art_ember_5_6"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_6.png" id="art_ember_6_7"]
 
 [resource]
 script = ExtResource("1_vfx")
@@ -37,3 +44,5 @@ ground_color = Color(0.14, 0.07, 0.04, 0.45)
 flicker = 1.0
 twist = 1.2
 art_fill = 0.91
+ground_art = ExtResource("art_scorch_1")
+part_art = Array[Texture2D]([ExtResource("art_ember_1_2"), ExtResource("art_ember_2_3"), ExtResource("art_ember_3_4"), ExtResource("art_ember_4_5"), ExtResource("art_ember_5_6"), ExtResource("art_ember_6_7")])
