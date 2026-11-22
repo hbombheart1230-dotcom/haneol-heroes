@@ -13,6 +13,9 @@ extends Resource
 @export var melee_knockback: float = 140.0
 ## 근접 적중 시 플레이어가 반대로 살짝 밀리는 거리(px). 칼이 닿은 반동 (Hollow Knight식).
 @export var melee_recoil: float = 0.0
+## 휘두르기 시작부터 피해까지(초): 칼이 닿는 프레임에 맞는다 (W2). 0이면 바로, 음수면 시트의
+## 맞닿는 프레임 ÷ fps를 CombatFeelData.melee_delay_min~max로.
+@export var melee_delay: float = 0.0
 
 @export_group("원거리")
 @export var ranged_interval: float = 0.8

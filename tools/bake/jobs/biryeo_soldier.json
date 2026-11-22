@@ -28,10 +28,14 @@
     },
     {
       "key": "attack",
-      "src": "Left Slash",
+      "src": "Right-hand Sword Slash",
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "from": "res://assets/models/meshy/biryeo_soldier/animated_extra1.glb",
+      "start": 0.1,
+      "end": 1.1,
+      "strike": 0.55
     },
     {
       "key": "hit",

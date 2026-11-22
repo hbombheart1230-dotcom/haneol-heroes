@@ -17,7 +17,9 @@
       "src": "Idle",
       "frames": 4,
       "fps": 6.0,
-      "loop": true
+      "loop": true,
+      "start": 0.0,
+      "end": 0.8
     },
     {
       "key": "run",
@@ -28,10 +30,14 @@
     },
     {
       "key": "attack",
-      "src": "Thrust Slash",
+      "src": "Right-hand Sword Slash",
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "from": "res://assets/models/meshy/waegun_elite/animated_extra1.glb",
+      "start": 0.1,
+      "end": 1.1,
+      "strike": 0.55
     },
     {
       "key": "hit",

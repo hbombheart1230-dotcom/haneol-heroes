@@ -28,6 +28,8 @@ var target_point: Vector2 = Vector2.ZERO
 var aim_dir: Vector2 = Vector2.RIGHT
 var aim_origin: Vector2 = Vector2.ZERO
 var _timer: float = 0.0
+## 이번 회복 전체 길이 (빗나간 돌진은 더 길다).
+var _recover_total: float = 0.0
 var _cooldown: float = 0.0
 ## 이번 예고에서 이미 회피 처리됐는지 (타격 때 다시 처리하지 않음).
 var _evaded: bool = false
@@ -52,6 +54,11 @@ func is_shoot() -> bool:
 
 func is_busy() -> bool:
 	return state != State.READY
+
+
+## 0~1 회복 진행률 (회복 중이 아니면 0). 공격 동작의 맞닿은 뒤 프레임을 고른다.
+func recover_ratio() -> float:
+	return clampf(1.0 - _timer / maxf(_recover_total, 0.001), 0.0, 1.0) if state == State.RECOVER else 0.0
 
 
 ## 0~1 예고 진행률 (예고 중이 아니면 0).
@@ -90,6 +97,7 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 				_timer = data.recovery
 				if r != Result.HIT and data.miss_recovery > 0.0:  # 빗나간 돌진: 크게 미끄러져 빈틈
 					_timer = data.miss_recovery
+				_recover_total = _timer
 				_cooldown = data.cooldown
 				return r
 		State.RECOVER:
@@ -142,7 +150,7 @@ func contains(pos: Vector2) -> bool:
 			if d > data.radius:
 				return false
 			return d < 1.0 or aim_dir.dot(off / d) >= cos(deg_to_rad(data.angle_degrees * 0.5))
-		EnemyAttackData.Kind.CHARGE, EnemyAttackData.Kind.PULL:
+		EnemyAttackData.Kind.CHARGE, EnemyAttackData.Kind.PULL, EnemyAttackData.Kind.THRUST:
 			var off := pos - aim_origin
 			var along := off.dot(aim_dir)
 			var side := absf(off.dot(aim_dir.orthogonal()))

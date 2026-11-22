@@ -67,6 +67,9 @@ extends Resource
 
 
 @export_group("영웅 동작")
+## 근접 피해 지연 자동값의 범위(초): 맞닿는 프레임까지 기다리되 손맛이 둔해지지 않게.
+@export var melee_delay_min: float = 0.05
+@export var melee_delay_max: float = 0.15
 ## 근접 반동이 이어지는 시간(초).
 @export var recoil_time: float = 0.06
 ## 달리기 ↔ 대기 전환 문턱 (최고 속도 대비). 들어갈 때와 나올 때를 다르게 해 깜빡임 방지.

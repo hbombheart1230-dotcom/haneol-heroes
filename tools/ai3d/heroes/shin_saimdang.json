@@ -54,10 +54,13 @@
     {
       "key": "attack",
       "match": "cast|spell|attack",
-      "action_id": 129,
+      "action_id": 99,
       "frames": 6,
       "fps": 16.0,
-      "loop": false
+      "loop": false,
+      "start": 1.98,
+      "end": 4.35,
+      "strike": 3.56
     },
     {
       "key": "hit",

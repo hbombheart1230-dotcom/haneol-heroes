@@ -198,6 +198,10 @@ def download_all(state: dict, out_dir: str) -> None:
             api.download(state[key], dest)
 
 
+## 굽기 구간·맞닿는 순간 (초, 동작 원본 기준). 설정의 동작에 있으면 굽기 작업으로 그대로 넘긴다 (bake_sprites.gd).
+TRIM_KEYS = ("start", "end", "strike")
+
+
 def write_bake_job(cfg: dict, state: dict) -> str:
     """tools/bake/jobs/<name>.json — bake_sprites.gd가 읽는 굽기 설정."""
     names = {a["key"]: a["name"] for a in state["actions"]}
@@ -213,7 +217,8 @@ def write_bake_job(cfg: dict, state: dict) -> str:
         **{k: cfg["bake"][k] for k in ("style", "ink", "lossy_quality") if k in cfg["bake"]},  # 수묵·압축
         "anims": [dict({"key": a["key"], "src": names[a["key"]], "frames": a["frames"],
                         "fps": a["fps"], "loop": a["loop"]}, **({"from": extra_file[a["key"]]}
-                                                                 if a["key"] in extra_file else {}))
+                                                                 if a["key"] in extra_file else {}),
+                       **{k: a[k] for k in TRIM_KEYS if k in a})
                   for a in cfg["anims"] if a["key"] in names],
     }
     path = rel(f"tools/bake/jobs/{cfg['name']}.json")

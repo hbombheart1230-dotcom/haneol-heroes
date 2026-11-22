@@ -31,8 +31,8 @@
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
 melee_interval = 0.6
-melee_range = 110.0
-melee_arc_degrees = 150.0
+melee_range = 120.0
+melee_arc_degrees = 170.0
 melee_damage = 10
 melee_knockback = 100.0
 swing_color = Color(0.85, 0.45, 0.9, 0.9)
@@ -49,7 +49,7 @@ proj_trail_color = Color(0.4, 0.2, 0.55, 0.55)
 proj_trail_len = 70.0
 release_delay = 0.12
 release_offset = Vector2(30, 44)
-
+melee_delay = -1.0
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
 sfx = &"magic"

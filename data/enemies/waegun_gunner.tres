@@ -4,18 +4,22 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
 [ext_resource type="Resource" path="res://assets/sprites/waegun_gunner/waegun_gunner.tres" id="3_sheet"]
 [ext_resource type="Resource" path="res://data/enemies/behaviour/waegun_volley.tres" id="beh"]
+[ext_resource type="Resource" path="res://data/vfx/enemy_muzzle.tres" id="muzzle"]
 
 [sub_resource type="Resource" id="Attack_shoot"]
 script = ExtResource("2_attack")
 kind = 1
 trigger_range = 420.0
-windup = 0.7
+windup = 0.95
 damage = 12
 cooldown = 2.2
-recovery = 0.3
-projectile_speed = 520.0
+recovery = 0.55
+projectile_speed = 780.0
 projectile_range = 650.0
 projectile_radius = 14.0
+windup_sfx = &"e_gun_windup"
+strike_sfx = &"e_gun"
+fire_vfx = ExtResource("muzzle")
 
 [resource]
 script = ExtResource("1_enemy")

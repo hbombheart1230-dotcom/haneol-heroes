@@ -63,6 +63,7 @@ var _pivot: Node3D
 ## "style": "ink"이면 3D 렌더를 수묵 후처리 셰이더로 한 번 더 그린 화면 (없으면 null).
 var _post: SubViewport
 var _skel: Skeleton3D
+var _cam: Camera3D
 
 
 func _initialize() -> void:
@@ -168,6 +169,7 @@ func _setup(job: Dictionary) -> AnimationPlayer:
 	cam.transform = Transform3D(Basis.looking_at(Vector3(0, 0.9, 0) - cam_pos, Vector3.UP), cam_pos)
 	world.add_child(cam)
 	cam.current = true
+	_cam = cam
 	# 조명 (작업의 "light"로 바꿀 수 있다): 주광 + 주변광 + 뒤쪽 테두리 빛. 기본값은 예전 그대로.
 	var light: Dictionary = job.get("light", {})
 	var sun := DirectionalLight3D.new()
@@ -278,13 +280,16 @@ func _bake(job: Dictionary) -> void:
 		if src == "":
 			continue
 		var a: Animation = ap.get_animation(src)
+		var win := BakeTip.window(anim, a.length)  # 굽기 구간 (start~end, 없으면 전체)
+		var want_tips := BakeTip.wants_tips(anim["key"]) and BakeTip.hand_bone(_skel) >= 0
+		var tips := PackedVector2Array()
 		for d in DIRS:
 			# 방향 d: 화면 오른쪽(0)부터 시계 방향 45도씩 (화면 y는 아래)
 			var sd := Vector2.from_angle(d * TAU / DIRS)
 			_pivot.rotation.y = atan2(sd.x, sd.y)
 			for f in frames:
 				ap.play(src)
-				var t := a.length * f / float(frames if anim["loop"] else maxi(frames - 1, 1))
+				var t := BakeTip.frame_time(win, f, frames, anim["loop"])
 				ap.seek(minf(t, a.length), true)
 				ap.pause()
 				_lock_root(job)
@@ -294,16 +299,27 @@ func _bake(job: Dictionary) -> void:
 					await RenderingServer.frame_post_draw
 				var img := (_post if _post else _vp).get_texture().get_image()
 				img.convert(Image.FORMAT_RGBA8)
+				if want_tips:
+					tips.append(_tip(img))
 				sheet.blit_rect(img, Rect2i(0, 0, FRAME, FRAME), Vector2i(f * FRAME, d * FRAME))
 		var png := "%s/%s.png" % [out_dir, anim["key"]]
 		sheet.save_png(ProjectSettings.globalize_path(png))
 		_write_import(png, float(job.get("lossy_quality", 0.5 if _post else 0.75)))
-		meta.append({"key": anim["key"], "png": png, "frames": frames, "fps": float(anim["fps"]), "loop": anim["loop"]})
+		meta.append({"key": anim["key"], "png": png, "frames": frames, "fps": float(anim["fps"]), "loop": anim["loop"],
+			"strike": BakeTip.strike_frame(anim, win, frames, anim["loop"]), "tips": tips})
 		print("baked ", png)
 	_write_set(job["name"], out_dir, meta, FRAME)
 	_vp.queue_free()
 	if _post:
 		_post.queue_free()
+
+
+## 무기 끝 (칸 가운데 기준 px): 오른손에서 모델 앞쪽(+Z)으로 걸어 마지막 불투명 픽셀.
+func _tip(img: Image) -> Vector2:
+	var hand := _skel.global_transform * _skel.get_bone_global_pose(BakeTip.hand_bone(_skel)).origin
+	var fwd := _pivot.global_transform.basis * Vector3(0, 0, 1)
+	var pr := BakeTip.project(_cam, hand, fwd, Vector2.ONE)
+	return BakeTip.find_tip(img, pr[0], pr[1])
 
 
 ## 처음 구운 시트는 손실 압축으로 가져오게 한다 (APK 30 MiB 제한). 이미 있으면 그대로 둔다.
@@ -334,7 +350,14 @@ func _write_set(name: String, out_dir: String, meta: Array, frame_px: int) -> vo
 	var counts: Array = []
 	var fps: Array = []
 	var loops: Array = []
+	var strikes: Array = []
+	var tips: Array = []
 	for i in meta.size():
+		strikes.append(str(meta[i].get("strike", -1)))
+		var pts := PackedStringArray()
+		for v in (meta[i].get("tips", PackedVector2Array()) as PackedVector2Array):
+			pts.append("%.1f, %.1f" % [v.x, v.y])
+		tips.append("PackedVector2Array(%s)" % ", ".join(pts))
 		keys.append('"%s"' % meta[i]["key"])
 		tex.append('ExtResource("t%d")' % i)
 		counts.append(str(meta[i]["frames"]))
@@ -345,6 +368,8 @@ func _write_set(name: String, out_dir: String, meta: Array, frame_px: int) -> vo
 	lines.append("frame_counts = PackedInt32Array(%s)" % ", ".join(counts))
 	lines.append("fps = PackedFloat32Array(%s)" % ", ".join(fps))
 	lines.append("loops = Array[bool]([%s])" % ", ".join(loops))
+	lines.append("strike_frames = PackedInt32Array(%s)" % ", ".join(strikes))
+	lines.append("tips = Array[PackedVector2Array]([%s])" % ", ".join(tips))
 	var f := FileAccess.open("%s/%s.tres" % [out_dir, name], FileAccess.WRITE)
 	f.store_string("\n".join(lines) + "\n")
 	f.close()

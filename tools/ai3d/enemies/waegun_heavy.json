@@ -49,7 +49,10 @@
       "action_id": 128,
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "start": 0.5,
+      "end": 1.83,
+      "strike": 1.45
     },
     {
       "key": "hit",

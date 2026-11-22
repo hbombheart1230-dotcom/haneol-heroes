@@ -10,6 +10,10 @@ extends Resource
 @export var frame_counts: PackedInt32Array = PackedInt32Array()
 @export var fps: PackedFloat32Array = PackedFloat32Array()
 @export var loops: Array[bool] = []
+## 동작마다 맞닿는 프레임 (피해·멈춤·소리가 나는 칸, 없으면 -1). 굽기 작업의 strike(초)에서.
+@export var strike_frames: PackedInt32Array = PackedInt32Array()
+## 동작마다 무기 끝 위치 (칸 가운데 기준 px, [방향 × 프레임 수 + 프레임]). 공격·던지기만, 나머지는 빈 배열.
+@export var tips: Array[PackedVector2Array] = []
 
 
 ## 같은 시트는 SpriteFrames를 한 번만 만든다 (적 30마리가 공유).
@@ -25,6 +29,30 @@ func shared_sprite_frames() -> SpriteFrames:
 
 func has_anim(anim: String) -> bool:
 	return anim_names.has(anim)
+
+
+func frame_count(anim: String) -> int:
+	var i := anim_names.find(anim)
+	return frame_counts[i] if i >= 0 else 0
+
+
+## 맞닿는 프레임 번호. 기록이 없으면 마지막 프레임의 앞 (가운데보다 조금 뒤).
+func strike_frame(anim: String) -> int:
+	var i := anim_names.find(anim)
+	if i < 0:
+		return 0
+	if i < strike_frames.size() and strike_frames[i] >= 0:
+		return strike_frames[i]
+	return clampi(int(frame_counts[i] * 0.6), 0, frame_counts[i] - 1)
+
+
+## 무기 끝 (칸 가운데 기준 px). 기록이 없으면 Vector2.INF.
+func tip(anim: String, dir: int, frame: int) -> Vector2:
+	var i := anim_names.find(anim)
+	if i < 0 or i >= tips.size() or tips[i].is_empty():
+		return Vector2.INF
+	var k := dir * frame_counts[i] + clampi(frame, 0, frame_counts[i] - 1)
+	return tips[i][k] if k >= 0 and k < tips[i].size() else Vector2.INF
 
 
 ## "<anim>_<dir>" 이름의 애니메이션들을 가진 SpriteFrames를 만든다.

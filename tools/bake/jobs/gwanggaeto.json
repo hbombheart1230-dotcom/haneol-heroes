@@ -35,10 +35,14 @@
     },
     {
       "key": "attack",
-      "src": "Charged Slash",
+      "src": "Thrust Slash",
       "frames": 6,
       "fps": 16.0,
-      "loop": false
+      "loop": false,
+      "from": "res://assets/models/meshy/gwanggaeto/animated_extra1.glb",
+      "start": 0.0,
+      "end": 1.0,
+      "strike": 0.55
     },
     {
       "key": "hit",

@@ -28,10 +28,14 @@
     },
     {
       "key": "attack",
-      "src": "Charged Axe Chop",
+      "src": "Heavy Hammer Swing",
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "from": "res://assets/models/meshy/jurchen_heavy/animated_extra1.glb",
+      "start": 0.5,
+      "end": 1.83,
+      "strike": 1.45
     },
     {
       "key": "hit",

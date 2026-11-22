@@ -31,7 +31,10 @@
       "src": "Axe Spin Attack",
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "start": 0.33,
+      "end": 1.83,
+      "strike": 1.17
     },
     {
       "key": "hit",
@@ -42,10 +45,14 @@
     },
     {
       "key": "attack2",
-      "src": "Charged Axe Chop",
+      "src": "Reaping Swing",
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "from": "res://assets/models/meshy/biryeo_chieftain/animated_extra1.glb",
+      "start": 1.98,
+      "end": 4.35,
+      "strike": 3.56
     }
   ]
 }
