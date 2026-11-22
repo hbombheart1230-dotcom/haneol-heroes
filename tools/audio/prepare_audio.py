@@ -38,6 +38,13 @@ SFX = {
     # 확인음: 큰 타격 "팅", 정예·보스 처치 "쿵" (낮게)
     "confirm_big": [("RPG Sound Pack/inventory/metal-ringing.wav", 0.35, 0.8)],
     "confirm_kill": [("hits/hit35.mp3.flac", 0.6, 1.0, 0.7), ("hits/hit19.mp3.flac", 0.6, 1.0, 0.7)],
+    # 적 공격 (타격감 2차 E1): 예고 "스릉", 휘두름 "휙", 무거운 내려침 "쿵", 조총 "철컥"·"탕", 활 "팅"
+    "e_windup": [("RPG Sound Pack/battle/sword-unsheathe.wav", 0.3, 0.7), ("RPG Sound Pack/battle/sword-unsheathe3.wav", 0.3, 0.7)],
+    "e_swing": [("RPG Sound Pack/battle/swing2.wav", 0.25, 0.9, 0.85), ("RPG Sound Pack/battle/swing3.wav", 0.25, 0.9, 0.85)],
+    "e_heavy": [("rpg80/stones_02.ogg", 0.4, 1.0, 0.8), ("hits/hit35.mp3.flac", 0.45, 1.0, 0.6)],
+    "e_gun_windup": [("rpg80/lock_01.ogg", 0.25, 0.8)],
+    "e_gun": [("scifi/explosion_01.ogg", 0.5, 1.0, 0.85), ("scifi/explosion_02.ogg", 0.5, 1.0, 0.85)],
+    "e_bow": [("rpg80/misc_02.ogg", 0.2, 0.9), ("rpg80/misc_03.ogg", 0.2, 0.9)],
     "dash": [("RPG Sound Pack/battle/swing.wav", 0.25, 0.9), ("RPG Sound Pack/battle/swing2.wav", 0.2, 0.9)],
     "evade": [("RPG Sound Pack/battle/swing3.wav", 0.2, 1.0)],
     "counter": [("sword_clash.1.ogg", 0.8, 1.0)],

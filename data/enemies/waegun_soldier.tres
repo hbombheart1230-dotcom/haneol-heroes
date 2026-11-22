@@ -6,12 +6,15 @@
 
 [sub_resource type="Resource" id="Attack_slam"]
 script = ExtResource("2_attack")
-trigger_range = 130.0
-windup = 0.6
+trigger_range = 170.0
+windup = 0.5
 radius = 80.0
 damage = 20
 cooldown = 2.5
-recovery = 0.3
+recovery = 0.35
+kind = 6
+length = 170.0
+width = 50.0
 
 [resource]
 script = ExtResource("1_enemy")
@@ -35,3 +38,4 @@ army_tint = Color(1, 1, 1, 1)
 tint_mix = 0.0
 ghost_color = Color(0.78, 0.48, 0.7, 0.5)
 ghost_fire_scale = 1.0
+reach_px = 30.0

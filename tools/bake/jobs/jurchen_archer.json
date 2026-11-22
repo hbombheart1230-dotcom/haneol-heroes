@@ -28,10 +28,14 @@
     },
     {
       "key": "attack",
-      "src": "Archery Shot",
+      "src": "Archery Shot 1",
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "from": "res://assets/models/meshy/jurchen_archer/animated_extra1.glb",
+      "start": 0.0,
+      "end": 1.03,
+      "strike": 0.95
     },
     {
       "key": "hit",

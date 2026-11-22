@@ -35,10 +35,14 @@
     },
     {
       "key": "attack",
-      "src": "Mage Soell Cast",
+      "src": "Reaping Swing",
       "frames": 6,
       "fps": 16.0,
-      "loop": false
+      "loop": false,
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra1.glb",
+      "start": 1.98,
+      "end": 4.35,
+      "strike": 3.56
     },
     {
       "key": "hit",

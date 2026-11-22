@@ -36,7 +36,21 @@ static func update(e: Enemy, busy: bool) -> void:
 	if e.sprite.animation != name_dir:
 		e.sprite.play(name_dir)
 	e.sprite.speed_scale = 1.0
+	if busy and a and anim != "hit" and anim != "run":  # 무기와 피해 시점 맞추기 (W2): 예고·회복에 맞춰 칸을 직접 고른다
+		e.sprite.speed_scale = 0.0
+		e.sprite.frame = AttackTiming.enemy_frame(a.state == EnemyAttack.State.RECOVER, a.windup_ratio(),
+			a.recover_ratio(), sheet.strike_frame(anim), sheet.frame_count(anim))
 	pose(e, 0.0)
+
+
+## 공격 동작의 맞닿는 프레임에서 무기 끝 (월드 좌표). 기록이 없으면 몸 가운데 + 겨눈 방향 × 몸 반경.
+static func weapon_tip(e: Enemy, anim: String, dir: Vector2) -> Vector2:
+	var fallback := dir.normalized() * e.body_radius * e.size_mult
+	if e.sprite == null or e.data == null or e.data.sprite_sheet == null:
+		return e.global_position + fallback
+	var sheet := e.data.sprite_sheet
+	var px := sheet.tip(anim, sheet.dir_index(dir), sheet.strike_frame(anim))
+	return e.global_position + AttackTiming.tip_offset(px, e.sprite.position, e.sprite.scale, fallback)
 
 
 ## 맞는 동작을 첫 프레임부터 (개별 멈춤 동안은 이 프레임에 멈춘 채 떤다).

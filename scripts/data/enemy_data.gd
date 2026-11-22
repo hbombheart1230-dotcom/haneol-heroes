@@ -8,6 +8,8 @@ extends Resource
 ## 플레이어 접촉 시 피해량.
 @export var contact_damage: int = 10
 @export var body_radius: float = 20.0
+## 무기 길이(px): 거리 유지 고리에서 이만큼 더 떨어져 선다 (창·두 손 무기, 타격감 2차).
+@export var reach_px: float = 0.0
 ## 처치 시 얻는 경험치.
 @export var xp: int = 1
 @export var color: Color = Color(0.75, 0.2, 0.25)

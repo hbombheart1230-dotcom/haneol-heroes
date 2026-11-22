@@ -56,7 +56,7 @@ func _setup_sprite(h: HeroData) -> void:
 	add_child(_sprite)
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
 	if attack:
-		attack.melee_swung.connect(_on_auto_swing)
+		attack.melee_windup.connect(_on_auto_swing.bind(0))  # 휘두르기 시작에 동작, 피해는 칼이 닿을 때
 		attack.ranged_windup.connect(_on_ranged_windup)  # 던지는 동작
 	var caster := player.get_node_or_null("SkillCaster") as SkillCaster
 	if caster:

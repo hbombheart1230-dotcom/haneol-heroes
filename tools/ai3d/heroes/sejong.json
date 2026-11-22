@@ -57,7 +57,10 @@
       "action_id": 125,
       "frames": 6,
       "fps": 16.0,
-      "loop": false
+      "loop": false,
+      "start": 0.9,
+      "end": 2.67,
+      "strike": 2.1
     },
     {
       "key": "hit",
@@ -81,7 +84,10 @@
       "action_id": 133,
       "frames": 8,
       "fps": 18.0,
-      "loop": false
+      "loop": false,
+      "start": 0.0,
+      "end": 2.2,
+      "strike": 0.85
     }
   ]
 }

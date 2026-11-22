@@ -31,7 +31,10 @@
       "src": "Axe Spin Attack",
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "start": 0.33,
+      "end": 1.83,
+      "strike": 1.17
     },
     {
       "key": "hit",
@@ -42,10 +45,14 @@
     },
     {
       "key": "attack2",
-      "src": "Charged Slash",
+      "src": "Heavy Hammer Swing",
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "from": "res://assets/models/meshy/jurchen_chieftain/animated_extra1.glb",
+      "start": 0.5,
+      "end": 1.87,
+      "strike": 1.62
     }
   ]
 }

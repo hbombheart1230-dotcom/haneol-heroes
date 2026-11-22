@@ -38,7 +38,10 @@
       "src": "Charged Spell Cast",
       "frames": 6,
       "fps": 16.0,
-      "loop": false
+      "loop": false,
+      "start": 0.9,
+      "end": 2.67,
+      "strike": 2.1
     },
     {
       "key": "hit",
@@ -59,7 +62,10 @@
       "src": "Mage Soell Cast 4",
       "frames": 8,
       "fps": 18.0,
-      "loop": false
+      "loop": false,
+      "start": 0.0,
+      "end": 2.2,
+      "strike": 0.85
     }
   ]
 }

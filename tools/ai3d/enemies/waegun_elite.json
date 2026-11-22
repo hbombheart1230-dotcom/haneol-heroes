@@ -33,7 +33,9 @@
       "action_id": 0,
       "frames": 4,
       "fps": 6.0,
-      "loop": true
+      "loop": true,
+      "start": 0.0,
+      "end": 0.8
     },
     {
       "key": "run",
@@ -46,10 +48,13 @@
     {
       "key": "attack",
       "match": "attack|slash|shoot|swing|thrust",
-      "action_id": 240,
+      "action_id": 219,
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "start": 0.1,
+      "end": 1.1,
+      "strike": 0.55
     },
     {
       "key": "hit",

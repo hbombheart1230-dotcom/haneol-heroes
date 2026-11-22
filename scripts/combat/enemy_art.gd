@@ -78,7 +78,7 @@ static func _telegraph(e: Enemy) -> void:
 			e.draw_colored_polygon(pts, fill)
 			pts.append(origin)
 			e.draw_polyline(pts, edge, 4.0)
-		EnemyAttackData.Kind.CHARGE, EnemyAttackData.Kind.PULL:
+		EnemyAttackData.Kind.CHARGE, EnemyAttackData.Kind.PULL, EnemyAttackData.Kind.THRUST:
 			var d := a.aim_dir
 			var n := d.orthogonal() * a.data.width * 0.5
 			var back := origin - d * a.data.width * 0.5

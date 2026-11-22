@@ -54,10 +54,13 @@
     {
       "key": "attack",
       "match": "slash|attack",
-      "action_id": 242,
+      "action_id": 240,
       "frames": 6,
       "fps": 16.0,
-      "loop": false
+      "loop": false,
+      "start": 0.0,
+      "end": 1.0,
+      "strike": 0.55
     },
     {
       "key": "hit",

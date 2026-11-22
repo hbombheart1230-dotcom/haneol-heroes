@@ -7,8 +7,9 @@ extends Resource
 ##   CONE  : 플레이어 방향 부채꼴 → 베기
 ##   CHARGE: 플레이어 방향 직사각형 → 그 끝까지 돌진
 ##   PULL  : 플레이어 방향 직사각형 → 맞으면 적 쪽으로 끌어당김 (개구리 혀)
+##   THRUST: 플레이어 방향 좁고 긴 직사각형 → 제자리 찌르기 (창, 타격감 2차 E3)
 
-enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE, PULL }
+enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE, PULL, THRUST }
 
 @export var kind: Kind = Kind.SLAM
 ## 예고·공격 중 보여 줄 스프라이트 동작 (시트에 없으면 "attack"). 보스 패턴마다 다르게.
@@ -32,6 +33,13 @@ enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE, PULL }
 @export var cooldown: float = 2.5
 ## 타격 후 경직(초). 이 동안 움직이지 않는다.
 @export var recovery: float = 0.3
+
+@export_group("소리·이펙트 (타격감 2차 E1)")
+## 예고 시작·타격(발사) 순간 소리 (SoundBank 종류). 비우면 EnemyAIData.attack_sfx의 종류별 기본값.
+@export var windup_sfx: StringName = &""
+@export var strike_sfx: StringName = &""
+## 발사 순간 무기 끝에서 터지는 이펙트 (조총 불꽃·연기). 비우면 없음.
+@export var fire_vfx: SkillVfxData
 
 @export_group("사격 (SHOOT)")
 @export var projectile_speed: float = 520.0

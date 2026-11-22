@@ -6,6 +6,8 @@ extends Node2D
 ## 이동 중에도 계속 발동한다.
 
 signal melee_swung(direction: Vector2, hits: int)
+## 근접: 휘두르는 동작 시작 (피해는 melee_delay 뒤 칼이 닿을 때, PlayerView가 동작을 맞춘다).
+signal melee_windup(direction: Vector2)
 signal projectile_fired(projectile: Projectile)
 ## 원거리: 던지는 동작 시작 (손을 떠나기 전, PlayerView가 동작을 맞춘다).
 signal ranged_windup(direction: Vector2)
@@ -29,6 +31,9 @@ var _release_dir: Vector2 = Vector2.ZERO
 ## 그때의 데이터 (영웅이 바뀌어 data가 다른 것으로 바뀌면 던지지 않는다).
 var _release_data: BasicAttackData
 var _release_src: BasicAttackData
+## 휘두르는 중: 칼이 닿기까지 남은 시간 (-1 = 없음)과 그때의 데이터 (바뀌면 버린다).
+var _melee_left: float = -1.0
+var _melee_src: BasicAttackData
 
 
 func _ready() -> void:
@@ -56,10 +61,15 @@ func tick(delta: float, enemy_list: Array) -> void:
 	_swing_time = maxf(_swing_time - delta, 0.0)
 	if player == null:
 		return
-	if player.is_dead():  # 죽으면 손에 든 탄은 버린다
+	if player.is_dead():  # 죽으면 손에 든 탄·휘두르던 칼은 버린다
 		_release_left = -1.0
+		_melee_left = -1.0
 		_release_data = null
 		return
+	if _melee_left >= 0.0:  # 휘두르는 중: 칼이 닿는 순간 피해
+		_melee_left -= delta
+		if _melee_left < 0.0 and _melee_src == data:
+			_strike(player.global_position, enemy_list)
 	if _release_left >= 0.0:
 		_release_left -= delta
 		if _release_left < 0.0:
@@ -80,6 +90,31 @@ func _melee(from: Vector2, toward: Vector2, enemy_list: Array) -> void:
 	var d := stats()
 	_melee_cd = d.melee_interval
 	_swing_dir = toward.normalized() if toward.length_squared() > 0.0001 else player.facing
+	melee_windup.emit(_swing_dir)
+	var delay := melee_delay()
+	if delay > 0.0:
+		_melee_left = delay
+		_melee_src = data
+		return
+	_strike(from, enemy_list)
+
+
+## 이 영웅의 근접 피해 지연 (데이터 또는 시트의 맞닿는 프레임).
+func melee_delay() -> float:
+	var d := stats()
+	if d.melee_delay >= 0.0:
+		return d.melee_delay
+	var sheet := player.hero.sprite_sheet if player and player.hero else null
+	var feel := Feedback.feel_data()
+	if sheet == null or not sheet.has_anim("attack"):
+		return feel.melee_delay_min
+	var i := sheet.anim_names.find("attack")
+	return AttackTiming.melee_delay(-1.0, sheet.strike_frame("attack"), sheet.fps[i], feel.melee_delay_min, feel.melee_delay_max)
+
+
+## 칼이 닿는 순간: 그때 부채꼴 안의 적에게 피해·넉백.
+func _strike(from: Vector2, enemy_list: Array) -> void:
+	var d := stats()
 	_swing_time = 0.12
 	var hits := Targeting.in_arc(enemy_list, from, _swing_dir, d.melee_range, d.melee_arc_degrees)
 	for e in hits:
@@ -151,10 +186,23 @@ func _spawn(from: Vector2, dir: Vector2, d: BasicAttackData) -> void:
 	if d.ranged_glyphs != "":
 		p.glyph = d.ranged_glyphs[_glyph_i % d.ranged_glyphs.length()]
 		_glyph_i += 1
-	p.global_position = from + dir * d.release_offset.x + Vector2(0, -d.release_offset.y)  # 손에서
+	p.global_position = from + release_point(dir, d)  # 손·무기 끝에서
 	var parent := projectile_parent if projectile_parent else player.get_parent()
 	parent.add_child(p)
 	projectile_fired.emit(p)
+
+
+## 탄이 나가는 자리 (영웅 기준 오프셋): 시트에 무기 끝이 기록돼 있으면 던지는 동작의 맞닿는 프레임에서
+## (T2, 방향마다 다름), 없으면 release_offset (앞으로 x, 위로 y).
+func release_point(dir: Vector2, d: BasicAttackData) -> Vector2:
+	var fallback := dir * d.release_offset.x + Vector2(0, -d.release_offset.y)
+	var h := player.hero if player else null
+	if h == null or h.sprite_sheet == null or d.ranged_anim == &"":
+		return fallback
+	var anim := String(d.ranged_anim)
+	var sheet := h.sprite_sheet
+	var px := sheet.tip(anim, sheet.dir_index(dir), sheet.strike_frame(anim))
+	return AttackTiming.tip_offset(px, h.sprite_offset, Vector2.ONE * h.sprite_scale, fallback)
 
 
 func _physics_process(delta: float) -> void:

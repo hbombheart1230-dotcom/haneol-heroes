@@ -30,8 +30,8 @@
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
 melee_interval = 0.8
-melee_range = 140.0
-melee_arc_degrees = 180.0
+melee_range = 175.0
+melee_arc_degrees = 100.0
 melee_damage = 22
 melee_knockback = 220.0
 swing_color = Color(1, 0.8, 0.3, 0.9)
@@ -48,7 +48,7 @@ proj_trail_color = Color(1, 0.85, 0.3, 0.6)
 proj_trail_len = 90.0
 release_delay = 0.12
 release_offset = Vector2(36, 44)
-
+melee_delay = -1.0
 [sub_resource type="Resource" id="Skill_quake"]
 script = ExtResource("4_quake")
 icon = ExtResource("i_quake")

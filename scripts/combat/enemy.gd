@@ -162,7 +162,8 @@ func compute_velocity(neighbors: Array) -> Vector2:
 		dir = brain.steer(dir, to_target.length())
 		speed_k = brain.speed_k
 		if brain.sweep_left <= 0.0 and AI.stand_off_band > 0.0:
-			var stop: float = body_radius * size_mult + ((target as Player).body_radius if target is Player else 22.0) + AI.stand_off_margin
+			var stop: float = body_radius * size_mult + ((target as Player).body_radius if target is Player else 22.0) \
+				+ AI.stand_off_margin + (data.reach_px if data else 0.0)
 			dir = EnemyBrain.stand_off(dir, to_target.normalized(), to_target.length(), stop, AI.stand_off_band)
 	var push := Vector2.ZERO
 	for n in neighbors:
@@ -218,7 +219,10 @@ func _physics_process(delta: float) -> void:
 		_drift(delta)
 		return
 	if attack:
+		var was_ready := attack.state == EnemyAttack.State.READY
 		var r := attack.tick(delta, global_position, target as Player)
+		if was_ready and attack.state == EnemyAttack.State.WINDUP:
+			EnemyActions.play_sfx(attack.data, true)  # 예고 소리 (E1)
 		if r != EnemyAttack.Result.NONE:
 			EnemyActions.on_attack_result(self, r)
 		busy = attack.is_busy()

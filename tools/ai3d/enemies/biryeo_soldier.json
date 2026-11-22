@@ -46,10 +46,13 @@
     {
       "key": "attack",
       "match": "attack|slash|shot|swing|thrust",
-      "action_id": 97,
+      "action_id": 219,
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "start": 0.1,
+      "end": 1.1,
+      "strike": 0.55
     },
     {
       "key": "hit",
