@@ -1,0 +1,72 @@
+extends SceneTree
+## 평타 한 번을 시간 순서로 잘라 가로 띠 한 장에 (검기 궤적 비교용). 순신 + 앞에 왜군 하나.
+## godot --path . --resolution 450x1050 -s res://tools/shots/swing_strip.gd -- <출력 png> <타 1~3> <trail|crescent>
+## crescent면 궤적을 끄고 예전 초승달로.
+
+const SHOTS := 8
+const GAP := 0.035
+const CELL := 230
+
+
+func _initialize() -> void:
+	_run()
+
+
+func _run() -> void:
+	var args := OS.get_cmdline_user_args()
+	GameSettings.settings_path = OS.get_user_data_dir() + "/probe_settings.cfg"
+	GameSettings.hero_picked = true
+	GameSettings.title_seen = true
+	GameSettings.intro_seen = true
+	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
+	GameSettings.stage_picked = true
+	GameSettings.stage_id = &"hansan_1592"
+	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.tutorial_enabled = false
+	GameSettings.show_stats = false
+	var main: Node = load("res://scenes/main.tscn").instantiate()
+	root.add_child(main)
+	var spawner := main.get_node("EnemySpawner") as EnemySpawner
+	spawner.set_process(false)
+	spawner.set_physics_process(false)
+	var end := Time.get_ticks_msec() + 3800  # 무대 이름 띠가 사라질 때까지
+	while Time.get_ticks_msec() < end:
+		await process_frame
+	var player := main.get_node("Player") as Player
+	var atk := player.get_node("AutoAttack") as AutoAttack
+	if args[2] == "crescent":
+		player.remove_meta(&"swing_trail")
+	var dir := Vector2(1, -0.25).normalized()
+	player.facing = dir
+	for o in root.get_tree().get_nodes_in_group(Enemy.GROUP):
+		o.queue_free()
+	var e: Node2D = spawner._spawn_special(spawner.spawn_table[0])
+	e.global_position = player.global_position + dir * 95
+	e.set_physics_process(false)
+	await process_frame
+	var step := int(args[1])
+	atk.chain_step = step - 1
+	atk._melee(player.global_position, dir, [], step)
+	var t0 := Time.get_ticks_msec()
+	var first := (atk.step_pause() + atk.melee_delay() - 0.12) * 1000.0
+	var cells: Array[Image] = []
+	var k := 0
+	while k < SHOTS:
+		for o in root.get_tree().get_nodes_in_group(Enemy.GROUP):  # 다른 적(물결)은 치운다
+			if o != e:
+				o.queue_free()
+		var dt := Time.get_ticks_msec() - t0
+		if dt >= first + k * GAP * 1000.0:
+			await RenderingServer.frame_post_draw
+			var img := root.get_texture().get_image()
+			var sc := img.get_width() / root.get_visible_rect().size.x
+			var p := (root.get_canvas_transform() * player.global_position) * sc + Vector2(0, -30) * sc
+			var r := Rect2i(Vector2i(p) - Vector2i(CELL, CELL) / 2, Vector2i(CELL, CELL))
+			cells.append(img.get_region(r))
+			k += 1
+		await process_frame
+	var strip := Image.create(CELL * SHOTS, CELL, false, cells[0].get_format())
+	for i in cells.size():
+		strip.blit_rect(cells[i], Rect2i(0, 0, CELL, CELL), Vector2i(i * CELL, 0))
+	strip.save_png(args[0])
+	quit()
