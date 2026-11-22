@@ -35,6 +35,8 @@ static func on_hit(e: Enemy, heavy: bool) -> void:
 		e.attack.interrupt(d.interrupt_cooldown, d.interrupt_rearm)
 		e.reaction.stagger_left = maxf(e.reaction.stagger_left, d.interrupt_stagger)
 		e._stop_charge()
+	if not is_armored(e) and e.data and e.data.hit_resets_attack and e.attack and e.reaction.is_staggered():
+		e.attack.restart_wait(d.reset_max_gap_mult)
 	if heavy:
 		e.freeze(d.heavy_freeze)
 		knock_down(e)

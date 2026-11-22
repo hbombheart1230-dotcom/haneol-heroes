@@ -73,6 +73,14 @@ static func start_hit(e: Enemy) -> void:
 
 
 ## 그림 자세: 발 기준 눌림·젖힘·기울기 (판정은 그대로) + 멈춤 떨림(shake_px) + 뛰기 높이 + 색.
+## 예고 끝 몸 떨림 (px, 번쩍이는 동안만): 맞기 직전임을 몸으로도 알린다.
+static func windup_shake(e: Enemy) -> float:
+	var ai := Enemy.ai_data()
+	if ai.windup_shake_px <= 0.0 or e.attack == null or not e.attack.is_flashing(ai.strike_flash_time):
+		return 0.0
+	return sin(Time.get_ticks_msec() * 0.001 * TAU * ai.windup_shake_hz) * ai.windup_shake_px
+
+
 static func pose(e: Enemy, shake_px: float) -> void:
 	var r := e.reaction
 	var sq := r.squash_mult() if r else Vector2.ONE
@@ -83,7 +91,7 @@ static func pose(e: Enemy, shake_px: float) -> void:
 	var off := e.data.sprite_offset * e.size_mult
 	off.y *= sq.y  # 발(원점)은 제자리에 두고 몸만 눌린다
 	var lift := (e.brain.hop_lift() if e.brain else 0.0) + (r.down_lift() if r else 0.0)
-	e.sprite.position = off + (r.lean_offset() if r else Vector2.ZERO) + Vector2(shake_px, -lift)
+	e.sprite.position = off + (r.lean_offset() if r else Vector2.ZERO) + Vector2(shake_px + windup_shake(e), -lift)
 	e.sprite.modulate = flash_color(e)
 	if e.sprite.material:
 		var feel := Feedback.feel_data()

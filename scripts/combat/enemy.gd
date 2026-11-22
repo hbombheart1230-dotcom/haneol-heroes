@@ -146,6 +146,7 @@ func _ready() -> void:
 		if data.sprite_sheet:
 			sprite = EnemySprite.setup(self)
 	reaction = HitReaction.new(Feedback.feel_data().reaction_data(), HitReaction.tier_of(data, affix != null, hp_mult))
+	reaction.stagger_override = data.stagger_time if data else -1.0
 	poise = EnemyPoise.new(reaction.tier, health.max, AI)
 	add_to_group(GROUP)
 	health.damaged.connect(_on_damaged)

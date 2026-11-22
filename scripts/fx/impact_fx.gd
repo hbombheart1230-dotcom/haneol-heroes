@@ -37,11 +37,23 @@ static func melee_hit(pos: Vector2, dir: Vector2, d: BasicAttackData, heavy: boo
 		fb.play(d.heavy_hit_sfx, 0.0)
 	fb.add_trauma(capped_trauma(fb.trauma, im.heavy_trauma, im.trauma_cap), dir)  # 겹친 흔들림 상한
 	fb.kick(dir, im.heavy_kick_px)
+	heavy_slow(fb.get_tree(), im)
 	if im.heavy_gugak != &"":
 		fb.play(im.heavy_gugak, im.heavy_gugak_gap)  # 꽹과리 한 타
 	fb.haptic(fb.feel.haptic_impact_ms, fb.feel.haptic_impact_amp)
 	if fb.kill_fx:
 		fb.kill_fx.drops(pos, dir, fb.feel.hit_drops_heavy)
+
+
+## 3타 강타의 늦은 감속: 닿고 heavy_slow_delay초(실제 시간) 뒤 GameTime으로 (겹침 규칙은 GameTime이 맡는다).
+static func heavy_slow(tree: SceneTree, im: ImpactFeelData) -> void:
+	if tree == null or im.heavy_slow_hold <= 0.0:
+		return
+	var go := func() -> void: GameTime.stop(tree, im.heavy_slow_hold + im.heavy_slow_back, im.heavy_slow_scale, im.heavy_slow_back)
+	if im.heavy_slow_delay <= 0.0:
+		go.call()
+	else:
+		tree.create_timer(im.heavy_slow_delay, true, false, true).timeout.connect(go)
 
 
 ## 지금 흔들림 now에 amount를 더하되 cap을 넘기지 않게 줄인 양.

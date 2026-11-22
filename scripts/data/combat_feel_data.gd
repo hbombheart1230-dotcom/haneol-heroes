@@ -80,8 +80,10 @@ extends Resource
 
 @export_group("하데스 슬라이스")
 ## 물결 마지막 처치 슬로모션 (실제 초·게임 속도).
-@export var wave_end_slow_time: float = 0.35
-@export var wave_end_slow_scale: float = 0.3
+## 하데스 LastKillPresentation: 35% 속도로 0.6초, 0.4초에 걸쳐 복귀 (wave_end_slow_time은 복귀 포함 전체가 아니라 머무는 시간).
+@export var wave_end_slow_time: float = 0.6
+@export var wave_end_slow_scale: float = 0.35
+@export var wave_end_slow_back: float = 0.4
 ## 적 등장 예고 그림 (먹 번짐 원, 비면 붓 고리 ring_art)과 크기(px).
 @export var spawn_warn_art: Texture2D
 @export var spawn_warn_size: float = 150.0
