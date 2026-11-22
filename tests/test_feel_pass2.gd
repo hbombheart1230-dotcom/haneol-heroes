@@ -26,6 +26,17 @@ func test_bake_window_and_strike_frame() -> void:
 	assert_bool(BakeTip.wants_tips("run")).is_false()
 
 
+## 칸마다 시각(times): 치켜든 자세·맞닿는 순간을 고른 간격 대신 직접. 칸 수가 다르면 무시. yaw는 도 → 라디안.
+func test_bake_times_and_yaw() -> void:
+	var anim := {"times": [1.45, 1.65, 1.8, 2.1, 2.3, 2.6], "strike": 2.1, "yaw": 180}
+	var win := BakeTip.window(anim, 3.0)
+	assert_float(BakeTip.sample_time(anim, win, 2, 6, false)).is_equal(1.8)
+	assert_int(BakeTip.strike_frame(anim, win, 6, false)).is_equal(3)
+	assert_float(BakeTip.sample_time(anim, win, 2, 5, false)).is_equal_approx(1.5, 0.0001)  # 칸 수 불일치 → 고른 간격
+	assert_float(BakeTip.yaw_offset(anim)).is_equal_approx(PI, 0.0001)
+	assert_float(BakeTip.yaw_offset({})).is_equal(0.0)
+
+
 ## 손에서 앞쪽으로 걸어 마지막 불투명 픽셀 (작은 틈은 건너뜀).
 func test_find_tip_walks_to_weapon_end() -> void:
 	var img := Image.create(100, 100, false, Image.FORMAT_RGBA8)

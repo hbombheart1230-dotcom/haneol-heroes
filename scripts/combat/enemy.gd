@@ -19,6 +19,8 @@ const AI := preload("res://data/enemies/enemy_ai.tres")
 @export var separation_strength: float = 0.6
 @export var body_radius: float = 20.0
 
+## 0 이상이면 AI 버릇(우회 방향·뜀 등)의 씨앗 (보통 -1 = 인스턴스 id).
+var ai_seed: int = -1
 var target: Node2D
 @onready var health: Health = $Health
 
@@ -29,6 +31,7 @@ var sprite: AnimatedSprite2D
 var attack: EnemyAttack
 ## 넉백 속도 (매 프레임 감쇠).
 var knockback: Vector2 = Vector2.ZERO
+var launch := EnemyLaunch.new()  # 큰 기술의 크게 날리기 (정해진 곡선)
 var _stun_left: float = 0.0
 ## 장애물 돌아가기: 남은 시간, 부딪힌 면의 법선, 정면일 때 도는 쪽 (적마다 고정).
 var _detour_left: float = 0.0
@@ -70,6 +73,11 @@ var phase_invuln: float = 0.0
 
 static func ai_data() -> EnemyAIData:
 	return AI
+
+
+## AI 버릇 씨앗: ai_seed(0 이상)이 있으면 그것, 없으면 인스턴스 id (헤드리스 시뮬레이션이 실행마다 같게).
+func _seed_id() -> int:
+	return ai_seed if ai_seed >= 0 else get_instance_id()
 
 
 func apply_knockback(impulse: Vector2) -> void:
@@ -117,7 +125,7 @@ func speed_scale() -> float:
 
 
 func _ready() -> void:
-	_detour_side = 1.0 if get_instance_id() % 2 == 0 else -1.0
+	_detour_side = 1.0 if _seed_id() % 2 == 0 else -1.0
 	if data:
 		move_speed = data.move_speed
 		contact_damage = data.contact_damage
@@ -133,11 +141,11 @@ func _ready() -> void:
 			attack.set_patterns(pats)
 		elif atk:
 			# 첫 공격 시점을 흩어 놓아 한꺼번에 예고하지 않게 한다.
-			attack = EnemyAttack.new(atk, randf_range(0.3, 1.5))
+			attack = EnemyAttack.new(atk, EnemyAttack.first_wait(ai_seed))
 		if attack:
 			attack.ai = AI
 		var melee := data.preferred_range <= 0.0 and not data.is_boss and not data.is_elite
-		brain = EnemyBrain.new(AI, beh, get_instance_id(), melee)
+		brain = EnemyBrain.new(AI, beh, _seed_id(), melee)
 		if has_meta(&"sweep"):  # 휩쓸기 무리: 한쪽으로 곧장 지나간다
 			brain.sweep_dir = get_meta(&"sweep")
 			brain.sweep_left = AI.wall_time
@@ -250,9 +258,9 @@ func _physics_process(delta: float) -> void:
 	if _detour_left > 0.0:
 		_detour_left -= delta
 		chase = Obstacles.steer_around(chase, _detour_normal, _detour_side)
-	if reaction and reaction.is_staggered():
-		chase = Vector2.ZERO  # 잡몹 경직: 넉백만 (공격 예고는 그대로 흘러 공격권을 붙잡지 않는다)
-	velocity = chase + knockback
+	if (reaction and reaction.is_staggered()) or launch.active():
+		chase = Vector2.ZERO  # 잡몹 경직·날아가는 중: 밀림만 (공격 예고는 그대로 흘러 공격권을 붙잡지 않는다)
+	velocity = chase + knockback + launch.tick(delta)
 	if sprite:
 		EnemySprite.update(self, busy)
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)

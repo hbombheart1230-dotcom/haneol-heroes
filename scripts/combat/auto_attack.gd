@@ -58,6 +58,7 @@ func _ready() -> void:
 		data = player.hero.attack
 	if data == null:
 		data = BasicAttackData.new()
+	RangedFeel.attach(self)  # 원거리 한 발의 타격감 (scripts/fx/ranged_feel.gd)
 
 
 ## 사용 중인 수치 (테스트 등에서 _ready 전에 호출돼도 기본값을 준다).
@@ -106,12 +107,12 @@ func tick(delta: float, enemy_list: Array) -> void:
 	var to_nearest := nearest.global_position - from
 	var d := stats()
 	var dist := to_nearest.length()
-	if dist <= d.melee_range:
+	if dist <= d.melee_range and d.use_melee:
 		_hold = 0.0
 		if _melee_cd <= 0.0:
 			_melee(from, to_nearest, enemy_list)
-	elif _ranged_cd <= 0.0:
-		if dist <= d.melee_range * d.engage_mult and _hold < d.engage_hold_max:
+	elif d.use_ranged and _ranged_cd <= 0.0:
+		if d.use_melee and dist <= d.melee_range * d.engage_mult and _hold < d.engage_hold_max:
 			_hold += delta  # 곧 붙는다: 원거리를 참고 칼을 기다린다
 			return
 		_hold = 0.0
@@ -140,6 +141,7 @@ func manual_strike(step: int, ranged: bool, enemy_list: Array = []) -> void:
 	else:
 		_step_in(to, list, step)
 		_melee(from, to, list, step)
+		player.slow_for(stats().swing_slow_time, stats().swing_move_mult)  # 휘두르는 동안 느리게 (M1)
 	last_manual = false
 
 
@@ -235,7 +237,7 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 			h.damage(dmg)
 		if en:
 			en.heavy_pending = false
-			en.apply_knockback((e.global_position - from).normalized() * kb)  # 피격 반응: 툭 밀려남 (타별 배율)
+			ComboSteps.push(en, from, kb, heavy, d)  # 피격 반응: 툭 밀려남 (타별 배율), 3타 크게 날리기 (있으면)
 			HitImpact.on_enemy(en, from, chain_step, d.swing_color)  # 닿는 자리 섬광·튐 줄기 (한 타 충격)
 	if not hits.is_empty():
 		HitImpact.on_swing(chain_step)  # 퍽 소리 (타마다 음높이) + 짧은 진동
@@ -324,7 +326,11 @@ func _release(enemy_list: Array) -> void:
 	if nearest == null:
 		return
 	var to := nearest.global_position - from
-	_spawn_step(from, to.normalized() if to.length_squared() > 1.0 else _release_dir, d)
+	var dir := to.normalized() if to.length_squared() > 1.0 else _release_dir
+	var hand := from + release_point(dir, d)
+	var aim := nearest.global_position - hand  # 손에서 적으로 (바로 앞 적 위로 날아가지 않게), 나가는 자리는 그대로 손
+	var a := aim.normalized() if aim.length_squared() > 1.0 else dir
+	_spawn_step(hand - release_point(a, d), a, d)
 
 
 func _spawn(from: Vector2, dir: Vector2, d: BasicAttackData) -> void:

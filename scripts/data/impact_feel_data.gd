@@ -63,14 +63,16 @@ extends Resource
 @export var heavy_gugak_gap: float = 0.5
 
 @export_group("피해 숫자 (B6)")
-@export var number_time: float = 0.6
-@export var number_rise: float = 50.0
+@export var number_time: float = 0.9
+@export var number_rise: float = 60.0
 @export var number_size: int = 26
 @export var number_size_big: int = 42
 @export var number_size_heavy: int = 50
 @export var label_size: int = 30
 @export var number_outline: int = 6
-@export var number_color: Color = Color(0.1, 0.08, 0.07)
+@export var number_color: Color = Color(0.96, 0.93, 0.86)
+## 숫자 외곽선 색 (한지색 숫자에 먹 테두리: 어두워진 바닥에서 읽히게).
+@export var number_outline_color: Color = Color(0.1, 0.08, 0.07)
 @export var number_color_big: Color = Color(0.72, 0.13, 0.1)
 @export var number_color_heavy: Color = Color(0.9, 0.55, 0.08)
 ## 화면에 동시에 떠 있는 숫자·글자 최대 (떼거리에서 숫자가 화면을 덮지 않게, 넘으면 새 숫자는 생략).

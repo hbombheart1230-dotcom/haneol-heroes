@@ -33,6 +33,8 @@ var _recover_total: float = 0.0
 var _cooldown: float = 0.0
 ## 마지막 공격(또는 처음) 뒤 지난 시간: 맞아서 대기를 다시 셀 때의 상한 기준.
 var _since_strike: float = 0.0
+## 시계 (비면 실제 시간): 헤드리스 시뮬레이션이 고정 틱 시간을 넣는다 (실행마다 결과가 바뀌지 않게).
+static var clock: Callable
 ## 이번 예고에서 이미 회피 처리됐는지 (타격 때 다시 처리하지 않음).
 var _evaded: bool = false
 var _was_inside: bool = false
@@ -113,7 +115,7 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 			if player and not player.is_dead() and _cooldown <= 0.0 and hold_left <= 0.0 \
 					and (_chained or self_pos.distance_to(player.global_position) <= data.trigger_range) \
 					and (not start_check.is_valid() or bool(start_check.call(self_pos))) \
-					and (data.bypass_cap or data.volley or active_windups < max_concurrent) 					and (not data.volley or EnemyBrain.volley_open(ai, Time.get_ticks_msec() / 1000.0)):
+					and (data.bypass_cap or data.volley or active_windups < max_concurrent) 					and (not data.volley or EnemyBrain.volley_open(ai, now_sec())):
 				state = State.WINDUP
 				_chained = false
 				active_windups += 1
@@ -226,6 +228,20 @@ func interrupt(cooldown: float, rearm: float) -> void:
 	cancel()
 	_cooldown = maxf(_cooldown, cooldown)
 	_armor_left = rearm
+
+
+## 등장 뒤 첫 공격 대기 (0.3~1.5초 무작위). seed_id가 0 이상이면 그 씨앗으로 (헤드리스 시뮬레이션이 실행마다 같게).
+static func first_wait(seed_id: int) -> float:
+	if seed_id < 0:
+		return randf_range(0.3, 1.5)
+	var r := RandomNumberGenerator.new()
+	r.seed = seed_id
+	return r.randf_range(0.3, 1.5)
+
+
+## 지금 시각(초): 보통은 실제 시간, 시뮬레이션·테스트는 clock으로 고정 틱 시간을 넣는다.
+static func now_sec() -> float:
+	return float(clock.call()) if clock.is_valid() else Time.get_ticks_msec() / 1000.0
 
 
 ## 맞아서 공격 대기를 처음부터 (디아1·Flare식, 기다리는 중일 때만). 마지막 공격 뒤 cooldown × max_gap_mult

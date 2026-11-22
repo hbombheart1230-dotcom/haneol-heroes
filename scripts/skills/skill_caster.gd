@@ -233,6 +233,9 @@ func combo_tap() -> Slot:
 	var can := atk != null and atk.can_manual(tap_gap())
 	match combo.decide(kit.combo_hits, can, is_ready(Slot.TAP)):
 		TapCombo.Action.FINISH:
+			if not ComboSteps.finisher_ready(atk, kit.finisher_after_strike):
+				combo.buffer(kit.finisher_buffer)  # 3타가 닿을 때까지 기억 (F1)
+				return Slot.NONE
 			combo.on_finish()
 			cast(Slot.TAP, 0.0, kit.combo_finisher_mult, kit.tap.cooldown * kit.combo_finisher_cd_ratio)
 			return Slot.TAP
@@ -259,6 +262,7 @@ func auto_attack() -> AutoAttack:
 		if _attack:  # 자동 평타를 연계 수에 넣을지는 kit.combo_auto_counts
 			_attack.melee_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
 			_attack.ranged_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
+			player.dash_started.connect(func(_d: Vector2) -> void: ComboSteps.cancel_swing(_attack))
 	return _attack
 
 

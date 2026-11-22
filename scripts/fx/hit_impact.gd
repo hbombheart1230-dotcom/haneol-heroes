@@ -18,6 +18,10 @@ static func layer() -> HitImpactLayer:
 	if _layer == null or not is_instance_valid(_layer) or _layer.get_parent() != fb.fx:
 		_layer = HitImpactLayer.new(data())
 		fb.fx.add_child(_layer)
+		var atk := fb.player.get_node_or_null("AutoAttack") as AutoAttack if fb.player else null
+		if atk and not atk.has_meta(&"tip_spark"):  # 닿기 직전 칼끝 불꽃
+			atk.set_meta(&"tip_spark", true)
+			atk.melee_windup.connect(func(dir: Vector2) -> void: tip_spark(atk, dir))
 	return _layer
 
 
@@ -38,8 +42,10 @@ static func on_enemy(e: Enemy, from: Vector2, step: int, color: Color) -> void:
 	var p := contact_point(e, from)
 	var dir := (e.global_position - from)
 	var l := layer()
+	var fb0 := Feedback.instance
+	var style := fb0.player.hero.impact_style if fb0 and fb0.player and fb0.player.hero else 0
 	if l:
-		l.add(p, dir, step, color)
+		l.add(p, dir, step, color, style)
 	var fb := Feedback.instance
 	if fb and fb.kill_fx:
 		fb.kill_fx.drops(p, dir, HitImpactData.at_i(d.drops, step, 4))
@@ -52,5 +58,19 @@ static func on_swing(step: int) -> void:
 		return
 	var d := data()
 	if d.thud_sfx != &"":
-		fb.play(d.thud_sfx, 0.03, HitImpactData.at_f(d.pitch, step, 1.0))
+		fb.play(d.thud_sfx, 0.03, HitImpactData.at_f(d.pitch, step, 1.0), 1.0)  # 퍽 소리는 1 밑으로 내리지 않는다
 	fb.haptic(HitImpactData.at_i(d.haptic_ms, step, 12), HitImpactData.at_f(d.haptic_amp, step, 0.35))
+
+
+## 닿기 spark_lead초 전에 칼끝(사거리 앞쪽, 가슴 높이)에 작은 흰 불꽃 (게임 시간 기준).
+static func tip_spark(atk: AutoAttack, dir: Vector2) -> void:
+	if atk == null or not atk.is_inside_tree() or atk.player == null:
+		return
+	var d := data()
+	var wait := maxf(atk.melee_delay() + atk.step_pause() - d.spark_lead, 0.0)
+	var at := dir.normalized() * atk.stats().melee_range * 0.55 + Vector2(0, -40)
+	atk.get_tree().create_timer(wait, false).timeout.connect(func() -> void:
+		var l := layer()
+		if l and is_instance_valid(atk) and atk.player:
+			l.add_spark(atk.player.global_position + at))
+

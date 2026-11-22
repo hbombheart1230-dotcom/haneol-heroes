@@ -34,6 +34,8 @@ melee_interval = 0.7
 melee_range = 90.0
 melee_arc_degrees = 120.0
 melee_damage = 8
+use_melee = false
+step_gap_mults = PackedFloat32Array(0.764, 0.655, 0.727)
 melee_knockback = 100.0
 swing_color = Color(0.9, 0.6, 0.15, 0.95)
 melee_recoil = 3.0
@@ -57,6 +59,7 @@ melee_hit_sfx = &"w_scroll"
 heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
+launch_px = 100.0
 sfx = &"magic"
 icon = ExtResource("i_jeongeum")
 id = &"jeongeum"
@@ -140,6 +143,7 @@ full_charge_time = 1.1
 [resource]
 script = ExtResource("1_hero")
 id = &"sejong"
+impact_style = 3
 story = ExtResource("story")
 home_stage = &"gyeongbokgung_1433"
 display_name = "세종"
