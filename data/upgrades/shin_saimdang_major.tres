@@ -3,10 +3,10 @@
 [ext_resource type="Script" path="res://scripts/run/upgrade_pool.gd" id="1_pool"]
 [ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="2_up"]
 [ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="3_mod"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/canvas.png" id="i_canvas"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/critters.png" id="i_critters"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/ink_bleed.png" id="i_ink_bleed"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/plum.png" id="i_plum"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/major_butterflies.png" id="icon_major_butterflies"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/major_cloud.png" id="icon_major_cloud"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/major_screen.png" id="icon_major_screen"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/major_petals.png" id="icon_major_petals"]
 
 [sub_resource type="Resource" id="Mod_major_butterflies_0"]
 script = ExtResource("3_mod")
@@ -19,9 +19,9 @@ value = 3.0
 script = ExtResource("2_up")
 vfx_level_gain = 3
 id = &"major_butterflies"
-icon = ExtResource("i_critters")
 title = "풀벌레 · 화접도"
 description = "나비 셋이 더 날아온다"
+icon = ExtResource("icon_major_butterflies")
 color = Color(0.85, 0.4, 0.55, 1)
 max_stacks = 1
 weight = 1.0
@@ -38,9 +38,9 @@ value = 40.0
 script = ExtResource("2_up")
 vfx_level_gain = 3
 id = &"major_cloud"
-icon = ExtResource("i_ink_bleed")
 title = "발묵 · 먹구름"
 description = "번진 먹이 끝날 때 터진다"
+icon = ExtResource("icon_major_cloud")
 color = Color(0.2, 0.2, 0.25, 1)
 max_stacks = 1
 weight = 1.0
@@ -57,9 +57,9 @@ value = 1.0
 script = ExtResource("2_up")
 vfx_level_gain = 3
 id = &"major_screen"
-icon = ExtResource("i_canvas")
 title = "화폭 · 병풍"
 description = "가둔 적에게 두 배 피해"
+icon = ExtResource("icon_major_screen")
 color = Color(0.55, 0.3, 0.62, 1)
 max_stacks = 1
 weight = 1.0
@@ -76,9 +76,9 @@ value = 3.0
 script = ExtResource("2_up")
 vfx_level_gain = 3
 id = &"major_petals"
-icon = ExtResource("i_plum")
 title = "매화 · 꽃비"
 description = "꽃잎이 3초간 남아 계속 피해"
+icon = ExtResource("icon_major_petals")
 color = Color(0.85, 0.4, 0.55, 1)
 max_stacks = 1
 weight = 1.0
