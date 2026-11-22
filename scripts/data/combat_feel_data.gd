@@ -77,6 +77,11 @@ extends Resource
 @export var recoil_time: float = 0.06
 ## 연타 흐름: 공격 동작이 끝난 뒤 마지막 자세를 이만큼(초) 붙잡는다 (다음 타 전에 대기 자세로 돌아가 튀지 않게).
 @export var combo_hold_time: float = 0.35
+## 적 발밑 먹 그림자 (무게감): 몸 반지름 배율, 보통·큰 적 진하기, 큰 적 기준 반지름(px, 몸 × 크기 배율).
+@export var enemy_shadow_scale: float = 1.1
+@export var enemy_shadow_alpha: float = 0.26
+@export var enemy_shadow_alpha_big: float = 0.42
+@export var enemy_shadow_big_radius: float = 34.0
 ## 달리기 ↔ 대기 전환 문턱 (최고 속도 대비). 들어갈 때와 나올 때를 다르게 해 깜빡임 방지.
 @export var run_enter: float = 0.2
 @export var run_exit: float = 0.08

@@ -61,3 +61,9 @@ static func splash(canvas: CanvasItem, center: Vector2, radius: float, color: Co
 ## 바닥 그림자 (옅은 먹 번짐).
 static func shadow(canvas: CanvasItem, center: Vector2, radius: float) -> void:
 	blob(canvas, center, radius, Color(INK, 0.18), 1.3, 0.08, 0.4)
+
+
+## 무게감 그림자: 번진 옅은 가장자리 + 진한 먹 속 (발이 땅을 누르는 느낌). alpha = 속 진하기.
+static func weight_shadow(canvas: CanvasItem, center: Vector2, radius: float, alpha: float) -> void:
+	blob(canvas, center, radius, Color(INK, alpha * 0.5), 1.3, 0.1, 0.4)
+	blob(canvas, center, radius * 0.66, Color(INK, alpha), 2.1, 0.08, 0.36)

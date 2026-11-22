@@ -23,6 +23,12 @@ var _hitstop_left: float = 0.0
 ## 연타 흐름: 공격 동작이 끝난 뒤 마지막 자세를 붙잡는 남은 시간, 같은 동작을 처음부터 다시 틀지.
 var _hold_left: float = 0.0
 var _restart: bool = false
+## 무게감 (그림만): 대시 착지 눌림·멈칫 남은 시간, 멈출 때 앞쏠림 남은 시간·방향, 지난 프레임 걷기 입력.
+var _land_left: float = 0.0
+var _land_hold_left: float = 0.0
+var _slide_left: float = 0.0
+var _slide_dir: Vector2 = Vector2.ZERO
+var _had_input: bool = false
 var _attack: AutoAttack
 
 
@@ -66,6 +72,8 @@ func _setup_sprite(h: HeroData) -> void:
 		attack.melee_windup.connect(_on_auto_swing.bind(0))  # 휘두르기 시작에 동작, 피해는 칼이 닿을 때
 		attack.melee_swung.connect(_on_melee_contact)  # 칼이 닿은 순간 멈춤
 		attack.ranged_windup.connect(_on_ranged_windup)  # 던지는 동작
+	if not player.dash_ended.is_connected(on_land):
+		player.dash_ended.connect(on_land)
 	var caster := player.get_node_or_null("SkillCaster") as SkillCaster
 	if caster:
 		caster.skill_cast.connect(func(_s: SkillCaster.Slot, _h: int) -> void: play_oneshot("attack", 0.35))
@@ -184,6 +192,48 @@ func _update_sprite(delta: float) -> void:
 	_sprite.speed_scale = run_anim_speed() if cur == "run" else (Feedback.feel_data().idle_anim_speed if cur == "idle" else 1.0)
 	if _hitstop_left > 0.0 and current_anim() == _oneshot:
 		_sprite.speed_scale = 0.0
+	if player.hero:
+		_pose(delta)
+
+
+## 대시 착지 (무게감): 발 기준 눌림, 그림 잠깐 멈칫, 발밑 먹 튐, 무거운 영웅은 흔들림·화면 밀림.
+func on_land() -> void:
+	var h := player.hero if player else null
+	if h == null:
+		return
+	_land_left = h.land_time
+	_land_hold_left = h.land_hold
+	var fb := Feedback.instance
+	if fb == null:
+		return
+	var dir := player.get_dash_direction()
+	if fb.kill_fx and h.land_drops > 0:
+		fb.kill_fx.drops(player.global_position, dir, h.land_drops)
+	if h.land_trauma > 0.0:
+		fb.add_trauma(ImpactFx.capped_trauma(fb.trauma, h.land_trauma, fb.feel.impact_data().trauma_cap), dir)
+	if h.land_kick_px > 0.0:
+		fb.kick(dir, h.land_kick_px)
+
+
+## 그림 자세 (무게감, 판정·이동은 그대로): 착지 눌림 + 멈출 때 앞쏠림. 발(원점)은 제자리.
+func _pose(delta: float) -> void:
+	var h := player.hero
+	_land_left = maxf(_land_left - delta, 0.0)
+	_land_hold_left = maxf(_land_hold_left - delta, 0.0)
+	var has_input := player.move_input.length() > 0.1
+	var v := player.walk_velocity()
+	if _had_input and not has_input and v.length() > player.move_speed * 0.5 and h.stop_slide_time > 0.0:
+		_slide_left = h.stop_slide_time
+		_slide_dir = v.normalized()
+	_had_input = has_input
+	_slide_left = maxf(_slide_left - delta, 0.0)
+	var k := _land_left / maxf(h.land_time, 0.001)
+	var sq := Vector2.ONE.lerp(h.land_squash, k * k)
+	_sprite.scale = Vector2.ONE * h.sprite_scale * sq
+	var lean := _slide_dir * h.stop_slide_px * sin(PI * (1.0 - _slide_left / maxf(h.stop_slide_time, 0.001))) 		if _slide_left > 0.0 else Vector2.ZERO
+	_sprite.position = Vector2(h.sprite_offset.x, h.sprite_offset.y * sq.y) + lean
+	if _land_hold_left > 0.0:
+		_sprite.speed_scale = 0.0
 
 
 ## 피격 표시 (R3): 맞은 순간 붉게, 무적 동안 깜빡임 (대시 중에는 대시 색 그대로).
@@ -233,7 +283,12 @@ func _draw() -> void:
 	for i in (_trail.size() if player.hero == null or player.hero.dash_style == null else 0):  # 회피 띠가 있으면 동그라미 자취 없음
 		var a := float(i + 1) / float(_trail.size() + 1)
 		Ink.blob(self, to_local(_trail[i]) + Vector2(0, -r * 0.4), r * (0.5 + 0.4 * a), Color(_trail_color(), 0.28 * a), i)
-	Ink.shadow(self, Vector2(0, r * 0.8), r * 1.1)
+	var hd := player.hero
+	if hd:  # 무게감 먹 그림자 (착지 순간 살짝 넓게)
+		var spread := 1.0 + 0.25 * (_land_left / maxf(hd.land_time, 0.001))
+		Ink.weight_shadow(self, Vector2(0, r * 0.8), r * hd.shadow_scale * spread, hd.shadow_alpha)
+	else:
+		Ink.shadow(self, Vector2(0, r * 0.8), r * 1.1)
 	if _sprite:
 		return  # 몸은 스프라이트가 그린다
 	var robe := player.hero.body_color if player.hero else Ink.INDIGO
