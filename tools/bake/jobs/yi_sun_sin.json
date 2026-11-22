@@ -10,6 +10,7 @@
     "wash_amount": 0.25,
     "grain": 0.0
   },
+  "lossy_quality": 0.58,
   "anims": [
     {
       "key": "idle",
@@ -21,8 +22,8 @@
     {
       "key": "run",
       "src": "Run 2",
-      "frames": 12,
-      "fps": 21.0,
+      "frames": 8,
+      "fps": 14.0,
       "loop": true
     },
     {
@@ -53,6 +54,5 @@
       "fps": 10.0,
       "loop": false
     }
-  ],
-  "lossy_quality": 0.58
+  ]
 }
