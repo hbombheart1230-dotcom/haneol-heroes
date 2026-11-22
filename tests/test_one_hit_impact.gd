@@ -74,6 +74,8 @@ func test_reach_baseline_old_knockback() -> void:
 	old.step_range_mults = PackedFloat32Array([1.0, 1.0, 1.2])
 	var r: Array = await _tap_soldier(old)
 	print("[reach] old knockback: follow-up hits %d, connected %d" % r)
+	assert_int(r[0]).is_greater_equal(3)
+	assert_float(float(r[1]) / r[0]).is_greater_equal(0.75)  # 기준선: 예전 값도 이어지는 타가 닿는다
 
 
 ## 병사 하나 (안 죽게, 공격 안 함)에게 0.35초마다 1 → 2 → 3타를 차례로 (마무리 기술 없이, 밀림·전진만 본다).
