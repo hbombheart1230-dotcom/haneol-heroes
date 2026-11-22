@@ -69,7 +69,8 @@ func pick(i: int) -> void:
 	if fx:
 		fx.add_ring(where, 100.0, 0.35, Ink.GOLD if was_major else u.color)
 	if reward_fx:
-		reward_fx.pickup(where, Ink.GOLD if was_major else u.color, u.title, u.description.split("\n")[0])
+		reward_fx.pickup(where, Ink.GOLD if was_major else u.color, u.title, u.description.split("\n")[0],
+			&"gugak_jing" if was_major else &"gugak_buk")  # 강화 고르기 = 북 한 번, 큰 변형(정예·보스 보상) = 징
 	if Feedback.instance:
 		Feedback.instance.play(&"magic")
 		Feedback.instance.haptic(60, 0.8)

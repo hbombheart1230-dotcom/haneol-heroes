@@ -36,6 +36,7 @@ melee_interval = 0.64
 melee_range = 120.0
 melee_arc_degrees = 150.0
 melee_damage = 14
+use_ranged = false
 step_gap_mults = PackedFloat32Array(0.9375, 0.625, 0.656)
 melee_knockback = 140.0
 step_knockback_mults = PackedFloat32Array(1.8, 1.8, 1.0)

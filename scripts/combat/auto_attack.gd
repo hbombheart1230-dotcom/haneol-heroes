@@ -107,12 +107,12 @@ func tick(delta: float, enemy_list: Array) -> void:
 	var to_nearest := nearest.global_position - from
 	var d := stats()
 	var dist := to_nearest.length()
-	if dist <= d.melee_range:
+	if dist <= d.melee_range and d.use_melee:
 		_hold = 0.0
 		if _melee_cd <= 0.0:
 			_melee(from, to_nearest, enemy_list)
-	elif _ranged_cd <= 0.0:
-		if dist <= d.melee_range * d.engage_mult and _hold < d.engage_hold_max:
+	elif d.use_ranged and _ranged_cd <= 0.0:
+		if d.use_melee and dist <= d.melee_range * d.engage_mult and _hold < d.engage_hold_max:
 			_hold += delta  # 곧 붙는다: 원거리를 참고 칼을 기다린다
 			return
 		_hold = 0.0
@@ -325,7 +325,11 @@ func _release(enemy_list: Array) -> void:
 	if nearest == null:
 		return
 	var to := nearest.global_position - from
-	_spawn_step(from, to.normalized() if to.length_squared() > 1.0 else _release_dir, d)
+	var dir := to.normalized() if to.length_squared() > 1.0 else _release_dir
+	var hand := from + release_point(dir, d)
+	var aim := nearest.global_position - hand  # 손에서 적으로 (바로 앞 적 위로 날아가지 않게), 나가는 자리는 그대로 손
+	var a := aim.normalized() if aim.length_squared() > 1.0 else dir
+	_spawn_step(hand - release_point(a, d), a, d)
 
 
 func _spawn(from: Vector2, dir: Vector2, d: BasicAttackData) -> void:

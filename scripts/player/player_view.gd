@@ -33,6 +33,10 @@ var _lunge := Vector2.ZERO
 var _lunge_t := 0.0
 var _lunge_out := 0.07
 var _lunge_back := 0.2
+## 지금 그림 내딛기 위치와 이번 타가 시작한 위치 (연타 동안 유지, lunge_hold_combo).
+var _lunge_now := Vector2.ZERO
+var _lunge_from := Vector2.ZERO
+var _blend: AnimBlend
 var _had_input: bool = false
 var _attack: AutoAttack
 ## 기술 시전 동작: 시작 칸·재생 속도 (CastAnim), 충전 중 모으는 자세를 붙잡는지.
@@ -75,6 +79,8 @@ func _setup_sprite(h: HeroData) -> void:
 	_sprite.sprite_frames = _sheet.build_sprite_frames()
 	_sprite.scale = Vector2.ONE * h.sprite_scale
 	_sprite.position = h.sprite_offset
+	_blend = AnimBlend.new()
+	add_child(_blend)  # 스프라이트 뒤: 앞 자세가 새 자세 밖으로만 잠깐 남는다
 	add_child(_sprite)
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
 	_attack = attack
@@ -110,6 +116,7 @@ func _on_auto_swing(_d: Vector2, _h: int) -> void:
 			_hitstop_left = maxf(_hitstop_left, pause)
 		var st := _attack.stats() if _attack else null
 		if st and _d.length_squared() > 0.0001:  # 내딛는 그림: 모으기가 끝난 뒤 치는 쪽으로
+			_lunge_from = _lunge_now
 			_lunge = _d.normalized() * ComboSteps.at(st.lunge_px, _attack.chain_step, 0.0)
 			_lunge_t = -pause
 			_lunge_out = st.lunge_out
@@ -204,13 +211,18 @@ func _update_sprite(delta: float) -> void:
 	_dir = _sheet.dir_index_sticky(player.facing, _dir, Feedback.feel_data().dir_margin_deg)
 	var dir := _dir
 	var anim_name := StringName("%s_%d" % [available_anim(current_anim()), dir])
+	var feel := Feedback.feel_data()
+	_blend.tick(delta)
 	if _restart and current_anim() == _oneshot:
 		_restart = false
+		_blend.snapshot(_sprite, feel.anim_blend_time, feel.anim_blend_alpha)
 		_sprite.play(anim_name)
 		_sprite.frame = mini(_oneshot_from, _sprite.sprite_frames.get_frame_count(anim_name) - 1)
 	elif _sprite.animation != anim_name:
 		var frame := _sprite.frame
-		var same_anim := String(_sprite.animation).get_slice("_", 0) == String(anim_name).get_slice("_", 0)
+		var same_anim := _base(_sprite.animation) == _base(anim_name)
+		if not same_anim:
+			_blend.snapshot(_sprite, feel.anim_blend_time, feel.anim_blend_alpha)
 		_sprite.play(anim_name)
 		if same_anim:  # 방향만 바뀌면 프레임 이어서
 			_sprite.frame = mini(frame, _sprite.sprite_frames.get_frame_count(anim_name) - 1)
@@ -252,6 +264,12 @@ func on_land() -> void:
 		fb.kick(dir, h.land_kick_px)
 
 
+## 방향 번호를 뗀 동작 이름 ("cast_tap_3" → "cast_tap").
+static func _base(n: StringName) -> String:
+	var s := String(n)
+	return s.substr(0, s.rfind("_"))
+
+
 ## 내딛기 곡선 (순수 계산): 0 → out초에 1(빠르게 나감) → back초에 걸쳐 0. 음수 시간(모으는 중)은 0.
 static func lunge_curve(t: float, out: float, back: float) -> float:
 	if t <= 0.0:
@@ -280,10 +298,16 @@ func _pose(delta: float) -> void:
 	_sprite.position = Vector2(h.sprite_offset.x, h.sprite_offset.y * sq.y) + lean
 	if _lunge != Vector2.ZERO:
 		_lunge_t += delta
-		var k2 := lunge_curve(_lunge_t, _lunge_out, _lunge_back)
-		_sprite.position += _lunge * k2
-		if _lunge_t >= _lunge_out + _lunge_back or is_moving():
+		if is_moving():
 			_lunge = Vector2.ZERO
+			_lunge_now = Vector2.ZERO
+		elif Feedback.feel_data().lunge_hold_combo and (_oneshot_left > 0.0 or _hold_left > 0.0):
+			_lunge_now = _lunge_from.lerp(_lunge, lunge_curve(_lunge_t, _lunge_out, INF))  # 나가서 연타 동안 유지
+		else:  # 연타가 끝나면 제자리로
+			_lunge_now = _lunge_now.move_toward(Vector2.ZERO, _lunge.length() / maxf(_lunge_back, 0.001) * delta)
+			if _lunge_now == Vector2.ZERO:
+				_lunge = Vector2.ZERO
+		_sprite.position += _lunge_now
 	if _land_hold_left > 0.0:
 		_sprite.speed_scale = 0.0
 

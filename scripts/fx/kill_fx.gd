@@ -74,7 +74,7 @@ func death_burst(pos: Vector2, style: StringName, finisher: bool = false) -> voi
 				"vel": Vector2(randf_range(-_b.paper_speed_x, _b.paper_speed_x), _rand(_b.paper_speed_y)),
 				"life": _rand(_b.paper_life), "r": _rand(_b.paper_size), "rot": randf() * TAU,
 				"spin": randf_range(-_b.paper_spin, _b.paper_spin)})
-	else:
+	elif style != &"none":  # none = 속성 모습(DeathFx)이 대신함
 		drops(pos, Vector2.UP, n / 2, _b.smoke_color.darkened(0.4))
 		for i in _b.smoke_count * mul:
 			_bits.append({"kind": "smoke", "pos": pos + _jitter(), "t": 0.0,

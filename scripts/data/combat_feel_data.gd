@@ -87,6 +87,11 @@ extends Resource
 @export var recoil_time: float = 0.06
 ## 연타 흐름: 공격 동작이 끝난 뒤 마지막 자세를 이만큼(초) 붙잡는다 (다음 타 전에 대기 자세로 돌아가 튀지 않게).
 @export var combo_hold_time: float = 0.35
+## 연계 흐름 (사용자: "연계가 뚝뚝 끊어지는것"): 동작이 바뀔 때 앞 그림을 겹쳐 흐리게 지우는 시간(초)·처음 진하기,
+## 타 사이에 내딛은 그림 위치를 유지할지 (예전: 타마다 제자리로 돌아왔다 다시 나가 덜컥거림).
+@export var anim_blend_time: float = 0.08
+@export var anim_blend_alpha: float = 0.6
+@export var lunge_hold_combo: bool = true
 
 @export_group("하데스 슬라이스")
 ## 물결 마지막 처치 슬로모션 (실제 초·게임 속도).
@@ -193,6 +198,8 @@ extends Resource
 @export var skill_stop_cap: float = 0.12
 ## 휘감는 기술(해룡참·해시계): 적마다 멈추지 않고, 휘감기가 끝날 때 skill_stop_cap × 이 값으로 한 번 크게 (0이면 예전처럼 적마다).
 @export var sweep_final_stop: float = 1.0
+## 그 마지막 멈춤의 게임 속도 (멈춤 대신 느리게: 회전 동작이 한 칸에 서 있지 않게).
+@export var sweep_final_scale: float = 0.3
 @export var skill_stop_min: float = 0.03
 @export var skill_stop_multi: float = 0.85
 @export var skill_stop_min_gap: float = 0.2
