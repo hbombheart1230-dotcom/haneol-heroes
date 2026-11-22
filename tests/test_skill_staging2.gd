@@ -111,8 +111,8 @@ func test_fitted_burst_sizes_pieces() -> void:
 	var d := SkillVfxData.new()
 	d.decal = PlaceholderTexture2D.new()
 	d.piece_count = 6
-	v.burst(d, Vector2.ZERO, Vector2.RIGHT, 0, 300.0)
-	assert_float(float(v.pieces._sets[0]["size"])).is_equal_approx(d.fitted_size(300.0), 0.01)
+	v.burst(d, Vector2.ZERO, Vector2.RIGHT, 0, 150.0)  # 화면 상한(FxCoverage) 안쪽 크기
+	assert_float(float(v.pieces._sets[0]["size"])).is_equal_approx(d.fitted_size(150.0), 0.01)
 
 
 func test_sundial_plum_canvas_art_no_smaller_than_hit() -> void:

@@ -50,14 +50,26 @@ const PATH := "res://data/feel/skill_stage.tres"
 
 @export_group("컷인 (큰 기술)")
 ## 컷인 전체 시간(실제 초), 게임을 느리게 하는 시간·배율, 다음 컷인까지 최소 간격(초, 연속 발동에 과하지 않게).
-@export var cutin_time: float = 0.5
+@export var cutin_time: float = 0.42
 @export var cutin_slow: float = 0.26
 @export var cutin_slow_scale: float = 0.25
 @export var cutin_min_gap: float = 8.0
 ## 먹 띠 높이(화면 높이 비율)와 세로 자리(0 = 위, 1 = 아래), 이름 글자 크기(px).
-@export var cutin_band: float = 0.2
+@export var cutin_band: float = 0.16
 @export var cutin_y: float = 0.36
 @export var cutin_font_px: int = 84
+
+@export_group("화면 덮기 (큰 기술)")
+## 그림·빛·바닥 자국의 지름 상한 (보이는 화면 너비 비율, 카메라 줌 반영). 0이면 상한 없음. 판정은 그대로.
+@export var screen_cap: float = 0.58
+## 판정에 맞춘 그림이 수명 동안 커지는 최대 배율 (커지면 판정보다 넓어 보이고 화면을 더 가린다).
+@export var fit_grow: float = 1.08
+## 화면 너비의 이 비율 이상을 덮으면 "큰" 이펙트: 보이는 시간 × big_time, 빛·번쩍 × big_light,
+## 조각 그림의 가운데 수명 × big_core (가운데부터 먼저 먹으로 번져 영웅·적이 일찍 드러남).
+@export var big_from: float = 0.45
+@export var big_time: float = 0.75
+@export var big_light: float = 0.6
+@export var big_core: float = 0.25
 
 @export_group("명중 밀림 (기술)")
 ## 기술이 맞을 때마다 화면을 맞은 방향으로 민다: 피해 × per_damage px (최대 cap).

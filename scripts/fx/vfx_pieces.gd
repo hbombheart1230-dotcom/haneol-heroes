@@ -95,7 +95,8 @@ static func _cap(list: Array[Dictionary], n: int) -> void:
 
 ## 그림을 조각으로 펼친다. dir = 시작 방향 (없으면 위).
 ## size > 0이면 그 지름 (판정에 맞춘 크기), 아니면 데이터 크기 × 강화 배율.
-func pieces(d: SkillVfxData, pos: Vector2, dir: Vector2, level: int, size: float = 0.0) -> void:
+## pl: FxCoverage.plan (화면 덮기 상한: 커지는 배율·빛·시간·가운데 비움). 비면 데이터 그대로.
+func pieces(d: SkillVfxData, pos: Vector2, dir: Vector2, level: int, size: float = 0.0, pl: Dictionary = {}) -> void:
 	if d == null or not d.has_decal() or d.piece_count <= 0:
 		return
 	if size <= 0.0:
@@ -104,9 +105,12 @@ func pieces(d: SkillVfxData, pos: Vector2, dir: Vector2, level: int, size: float
 	var rot := start - deg_to_rad(d.decal_angle_deg) if d.decal_align else randf() * TAU
 	if d.decal_upright:
 		rot = 0.0
-	var life := maxf(d.decal_time, d.piece_sweep + stage.piece_settle + 0.25)
-	_sets.append({"data": d, "pos": pos, "rot": rot, "start": start, "size": size,
-		"t": 0.0, "life": life, "bright": 1.0 + d.level_glow * d.level_of(level), "glow": d.glow_for(level)})
+	var light := float(pl.get("light", 1.0))
+	var life := maxf(d.decal_time * float(pl.get("time", 1.0)), d.piece_sweep + stage.piece_settle + 0.25)
+	_sets.append({"data": d, "pos": pos, "rot": rot, "start": start, "size": size, "grow": pl.get("grow", d.decal_grow),
+		"glow_k": pl.get("glow_k", d.glow_size), "flash_k": pl.get("flash_k", stage.flash_scale * 1.3),
+		"flash": d.piece_flash * light, "core": pl.get("core", 1.0),
+		"t": 0.0, "life": life, "bright": 1.0 + d.level_glow * d.level_of(level), "glow": d.glow_for(level) * light})
 	_cap(_sets, stage.max_piece_sets)
 	if d.sweep_hand:
 		_hands.append({"data": d, "pos": pos, "start": start, "r": size * 0.42,
@@ -215,7 +219,7 @@ func _draw_set(st: Dictionary) -> void:
 	var settle := stage.piece_settle
 	var all_in := clampf(t / maxf(d.piece_sweep + settle, 0.001), 0.0, 1.0)
 	var rot := float(st["rot"]) - d.piece_dir * d.piece_spin_in * pow(1.0 - all_in, 3.0)
-	var size := float(st["size"]) * lerpf(1.0, d.decal_grow, 1.0 - pow(1.0 - k, 2.0))
+	var size := float(st["size"]) * lerpf(1.0, float(st["grow"]), 1.0 - pow(1.0 - k, 2.0))
 	var scatter := d.piece_scatter * maxf((k - 0.55) / 0.45, 0.0)
 	var b := float(st["bright"])
 	var center: Vector2 = st["pos"]
@@ -240,7 +244,7 @@ func _draw_set(st: Dictionary) -> void:
 		var col := d.ink_color(b, (1.0 - k) * minf(p * 2.0, 1.0))
 		_pts[0] = center + shift
 		_uvs[0] = Vector2(0.5, 0.5)
-		_cols[0] = col
+		_cols[0] = Color(col.r, col.g, col.b, col.a * float(st["core"]))  # 가운데 수명을 줄이면 가운데부터 번져 비워짐
 		# 양옆 조각 쪽으로 겹쳐 뻗고 양 끝은 투명 → 곧은 칼선 대신 셰이더가 붓 자국처럼 갉는다
 		var f := maxf(stage.piece_feather, 0.001)
 		for j in steps + 1:
@@ -276,7 +280,7 @@ func _draw_scroll(st: Dictionary, d: SkillVfxData, tex: Texture2D, t: float, k: 
 		var lift := Vector2(side * scatter, scatter * 0.3 * sin(i * 1.7))
 		var aspect := tex.get_height() / maxf(tex.get_width(), 1.0)  # 가로로 긴 두루마리 띠 그림도 비율대로
 		var hh := size * 0.5 * aspect * (1.0 + d.piece_pop * (1.0 - ease) * 0.3)
-		var col := d.ink_color(b, (1.0 - k) * minf(p * 2.0, 1.0))
+		var col := d.ink_color(b, (1.0 - k) * minf(p * 2.0, 1.0) * (float(st["core"]) if rank == 0 else 1.0))
 		var outer := Color(col.r, col.g, col.b, col.a * (0.1 + 0.6 * ease))  # 펼쳐지는 끝은 먹으로 갉힘
 		_qpts[0] = center + lift + Vector2(x0, -hh)
 		_qpts[1] = center + lift + Vector2(x0 + w + 1.0, -hh)
@@ -328,10 +332,10 @@ func _draw_glow() -> void:
 		var gathered := clampf(t / maxf(d.piece_sweep, 0.001), 0.0, 1.0)
 		var since := t - d.piece_sweep
 		var f := 1.0 - since / stage.flash_time if since >= 0.0 and since <= stage.flash_time else 0.0
-		var a := float(st["glow"]) * gathered * (1.0 - k) + d.piece_flash * f
+		var a := float(st["glow"]) * gathered * (1.0 - k) + float(st["flash"]) * f
 		if a <= 0.0:
 			continue
-		var s := float(st["size"]) * lerpf(d.glow_size, stage.flash_scale * 1.3, f)
+		var s := float(st["size"]) * lerpf(float(st["glow_k"]), float(st["flash_k"]), f)
 		_glow.draw_texture_rect(dot, Rect2(st["pos"] - Vector2.ONE * s * 0.5, Vector2.ONE * s), false,
 			Color(d.glow_color, minf(a, 1.0)))
 	for g in _glints:
