@@ -316,6 +316,11 @@ func tick(delta: float, time: float) -> void:
 func _flush_tap_buffer() -> void:
 	if not combo.has_buffer() or player == null or player.is_dead():
 		return
+	var instant := _instant_slot()  # 기억해 둔 탭도 반격·대시 연계가 열리면 그쪽이 먼저 (Codex 41741bc 지적)
+	if instant != Slot.NONE:
+		combo.buffer(0.0)
+		cast(instant)
+		return
 	var atk := auto_attack()
 	var finish := combo.streak >= kit.combo_hits and is_ready(Slot.TAP)
 	if finish or (atk and atk.can_manual(tap_gap())):

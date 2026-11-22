@@ -13,6 +13,8 @@ var casts: Array = []
 
 
 func before_test() -> void:
+	GameTime.reset()
+	SkillCutin.reset()
 	EnemyAttack.active_windups = 0
 	enemies = []
 	casts = []
@@ -33,7 +35,8 @@ func before_test() -> void:
 
 
 func after_test() -> void:
-	Engine.time_scale = 1.0
+	GameTime.reset()  # 반격 컷인의 느린 시간이 다음 테스트로 새지 않게 (Codex 41741bc 지적)
+	SkillCutin.reset()
 	EnemyAttack.active_windups = 0
 
 
