@@ -103,6 +103,11 @@ func is_ready(slot: Slot) -> bool:
 	return def_of(slot) != null and float(_cd[slot]) <= 0.0
 
 
+## 쿨타임을 바로 끝낸다 (조작 안내가 그 기술 단계를 열 때: 앞서 쓴 쿨타임에 막혀 기다리지 않게).
+func reset_cooldown(slot: Slot) -> void:
+	_cd[slot] = 0.0
+
+
 ## 0~1, 남은 쿨타임 비율.
 func cooldown_ratio(slot: Slot) -> float:
 	var d := def_of(slot)

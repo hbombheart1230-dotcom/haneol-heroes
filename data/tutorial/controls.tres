@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/data/tutorial_data.gd" id="1_data"]
 [ext_resource type="Script" path="res://scripts/data/tutorial_step.gd" id="2_step"]
 [ext_resource type="Resource" path="res://data/tutorial/practice_enemy.tres" id="3_practice"]
+[ext_resource type="Resource" path="res://data/tutorial/practice_dummy.tres" id="4_dummy"]
 
 [sub_resource type="Resource" id="move"]
 script = ExtResource("2_step")
@@ -12,74 +13,84 @@ hint = "화면에 손가락을 대고 끌면
 event = &"move"
 amount = 320.0
 
+[sub_resource type="Resource" id="combo"]
+script = ExtResource("2_step")
+caption = "연타"
+hint = "제자리에서 톡톡톡 치면 세 번 이어 칩니다
+셋째 타는 적을 넘어뜨립니다"
+hero_hints = {
+"gwanggaeto": "제자리에서 톡톡톡 치면 창으로 세 번 찌릅니다
+셋째 타는 적을 넘어뜨립니다",
+"sejong": "제자리에서 톡톡톡 치면 글자를 연달아 던집니다
+셋째 글자는 크고 세게 날아갑니다",
+"shin_saimdang": "제자리에서 톡톡톡 치면 붓을 털어 먹을 날립니다
+셋째는 둘레에 먹을 크게 뿌립니다",
+"yi_sun_sin": "제자리에서 톡톡톡 치면 칼로 세 번 벱니다
+셋째 타는 적을 넘어뜨립니다"
+}
+event = &"combo"
+practice_enemy = ExtResource("4_dummy")
+practice_distance = 130.0
+
+[sub_resource type="Resource" id="finisher"]
+script = ExtResource("2_step")
+caption = "마무리"
+hint = "세 번 이은 뒤 한 번 더 톡 치면
+첫째 기술로 마무리합니다"
+button_hint = "기술 단추를 톡 누르면
+첫째 기술이 바로 나갑니다"
+event = &"skill_tap"
+practice_enemy = ExtResource("4_dummy")
+practice_distance = 130.0
+
 [sub_resource type="Resource" id="dash"]
 script = ExtResource("2_step")
 caption = "대시"
-hint = "화면을 빠르게 튕기면 그 방향으로 돌진합니다
-돌진하는 동안은 맞지 않습니다"
-event = &"dash"
-amount = 2.0
+hint = "화면을 빠르게 튕기면 그쪽으로 돌진하고
+손을 떼는 순간 둘째 기술이 나갑니다"
+event = &"skill_dash"
+practice_enemy = ExtResource("4_dummy")
+practice_distance = 130.0
+
+[sub_resource type="Resource" id="charge"]
+script = ExtResource("2_step")
+caption = "모아 치기"
+hint = "화면을 꾹 누르고 있다가 떼면
+힘을 모은 셋째 기술이 나갑니다"
+button_hint = "기술 단추를 꾹 누르고 있다가 떼면
+힘을 모은 셋째 기술이 나갑니다"
+event = &"skill_charge"
+practice_enemy = ExtResource("4_dummy")
+practice_distance = 130.0
 
 [sub_resource type="Resource" id="evade"]
 script = ExtResource("2_step")
 caption = "회피"
-hint = "적이 붉은 원을 그리면
-대시로 원 밖으로 빠져나가세요"
+hint = "바닥에 붉은 먹이 번지면 곧 칩니다
+번쩍이기 전에 대시로 빠져나가세요"
 event = &"evade"
 practice_enemy = ExtResource("3_practice")
 
 [sub_resource type="Resource" id="counter"]
 script = ExtResource("2_step")
 caption = "반격"
-hint = "피한 뒤 1초 안에 화면을 톡 치면
+hint = "피한 뒤 1초 안에 톡 치면
 강한 반격이 나갑니다"
 button_hint = "피한 뒤 1초 안에 기술 단추를 누르면
 강한 반격이 나갑니다"
 event = &"skill_counter"
 practice_enemy = ExtResource("3_practice")
-
-[sub_resource type="Resource" id="tap"]
-script = ExtResource("2_step")
-caption = "첫째 기술"
-hint = "화면을 톡톡톡 치면 연달아 베고
-넷째 톡에 첫째 기술로 마무리합니다"
-button_hint = "오른쪽 아래 기술 단추를 톡 누르면
-첫째 기술이 나갑니다"
-event = &"skill_tap"
-
-[sub_resource type="Resource" id="dash_skill"]
-script = ExtResource("2_step")
-caption = "둘째 기술"
-hint = "대시한 뒤 바로 손을 떼면
-둘째 기술이 나갑니다"
-button_hint = "대시한 뒤 기술 단추를 누르면
-둘째 기술이 나갑니다"
-event = &"skill_dash"
-
-[sub_resource type="Resource" id="charge"]
-script = ExtResource("2_step")
-caption = "셋째 기술"
-hint = "화면을 꾹 누르고 있다가 떼면
-힘을 모은 셋째 기술이 나갑니다"
-button_hint = "기술 단추를 꾹 누르고 있다가 떼면
-힘을 모은 셋째 기술이 나갑니다"
-event = &"skill_charge"
+banner_top = true
 
 [sub_resource type="Resource" id="upgrade"]
 script = ExtResource("2_step")
 caption = "강화 고르기"
-hint = "적을 쓰러뜨려 기운이 차면 강화 카드 셋이 나옵니다
-마음에 드는 카드를 눌러 고르세요"
+hint = "적을 쓰러뜨려 기운이 차면 강화 카드가 나옵니다
+셋 중 하나를 눌러 고르세요"
+wave_hint = "물결을 다 물리치면 강화 카드가 나옵니다
+하나를 고르면 한 번에 두 단계 오릅니다"
 event = &"upgrade"
-
-[sub_resource type="Resource" id="potion"]
-script = ExtResource("2_step")
-caption = "탕약"
-hint = "발밑에 금빛 고리가 있는 항아리를 대시로 깨면
-탕약이 나와 체력을 채웁니다"
-event = &"wait"
-amount = 4.0
 
 [resource]
 script = ExtResource("1_data")
-steps = Array[ExtResource("2_step")]([SubResource("move"), SubResource("dash"), SubResource("evade"), SubResource("counter"), SubResource("tap"), SubResource("dash_skill"), SubResource("charge"), SubResource("upgrade"), SubResource("potion")])
+steps = Array[ExtResource("2_step")]([SubResource("move"), SubResource("combo"), SubResource("finisher"), SubResource("dash"), SubResource("charge"), SubResource("evade"), SubResource("counter"), SubResource("upgrade")])

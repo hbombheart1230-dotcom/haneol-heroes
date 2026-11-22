@@ -6,6 +6,9 @@ extends Control
 signal skipped
 
 var run: TutorialProgress
+## 설명을 고르는 데 쓰는 영웅 id와 물결 모드 여부 (TutorialDirector가 연다).
+var hero_id: StringName = &""
+var waves: bool = false
 var _t: float = 0.0
 var _finish_left: float = 0.0
 var _press_index := -1
@@ -34,7 +37,10 @@ func _vp() -> Vector2:
 
 func banner_rect() -> Rect2:
 	var vp := _vp()
-	return Rect2(16.0, vp.y - 470.0, vp.x - 32.0, 210.0)  # 아래쪽 (위쪽은 무대 제목 자리)
+	var s := run.current() if run else null
+	if s and s.banner_top:  # 건너뛰기 단추 아래
+		return Rect2(16.0, skip_rect().end.y + 20.0, vp.x - 32.0, 210.0)
+	return Rect2(16.0, vp.y - 470.0, vp.x - 32.0, 210.0)  # 아래쪽 (무대 제목은 안내가 끝난 뒤에 나온다)
 
 
 func skip_rect() -> Rect2:
@@ -95,7 +101,7 @@ func _draw() -> void:
 	var text_x := b.position.x + 150.0
 	var text_w := b.size.x - 170.0
 	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(text_x, b.position.y + 70), s.caption, 52, UiStyle.GOLD, text_w)
-	var hint := s.button_hint if GameSettings.skill_button_enabled and s.button_hint != "" else s.hint
+	var hint := s.text_for(hero_id, GameSettings.skill_button_enabled, waves)
 	var lines := hint.split("\n")
 	for i in lines.size():
 		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(text_x, b.position.y + 116 + i * 34), lines[i], 24,
@@ -135,9 +141,18 @@ func _draw_gesture(event: StringName, c: Vector2) -> void:
 			draw_circle(c + Vector2(p, 18 - (p + 35) * 0.6), 12.0, finger)
 			if event == &"skill_dash" and t > 0.6:
 				draw_arc(c + Vector2(35, -24), 10.0 + (t - 0.6) * 60.0, 0.0, TAU, 24, Color(UiStyle.GOLD, 1.6 - t), 3.0)
-		&"skill_tap":
+		&"combo":  # 톡·톡·톡: 세 번 차례로 퍼지는 원과 1·2·3 점
+			var k := mini(int(t * 3.0), 2)
+			var tt := fmod(t * 3.0, 1.0)
 			draw_circle(c, 12.0, finger)
-			draw_arc(c, 14.0 + t * 30.0, 0.0, TAU, 24, Color(UiStyle.GOLD, 1.0 - t), 3.0)
+			draw_arc(c, 14.0 + tt * (20.0 + k * 8.0), 0.0, TAU, 24, Color(UiStyle.GOLD, 1.0 - tt), 3.0 + k)
+			for i in 3:
+				draw_circle(c + Vector2(-16 + i * 16, 34), 4.0, UiStyle.GOLD if i <= k else Color(UiStyle.GOLD_DIM, 0.5))
+		&"skill_tap":  # 세 점이 찬 뒤 넷째 톡: 크게 퍼지는 원
+			for i in 3:
+				draw_circle(c + Vector2(-16 + i * 16, 34), 4.0, UiStyle.GOLD)
+			draw_circle(c, 12.0, finger)
+			draw_arc(c, 14.0 + t * 40.0, 0.0, TAU, 28, Color(UiStyle.GOLD, 1.0 - t), 5.0)
 		&"skill_charge":
 			draw_circle(c, 12.0, finger)
 			draw_arc(c, 26.0, -PI * 0.5, -PI * 0.5 + TAU * t, 32, UiStyle.GOLD, 5.0)
