@@ -70,6 +70,9 @@ extends Resource
 ## 근접 피해 지연 자동값의 범위(초): 맞닿는 프레임까지 기다리되 손맛이 둔해지지 않게.
 @export var melee_delay_min: float = 0.05
 @export var melee_delay_max: float = 0.15
+## 원거리 손을 떠나는 시각 범위(초): release_delay가 음수인 영웅은 던지는 동작의 맞닿는 프레임에서.
+@export var release_delay_min: float = 0.06
+@export var release_delay_max: float = 0.25
 ## 근접 반동이 이어지는 시간(초).
 @export var recoil_time: float = 0.06
 ## 달리기 ↔ 대기 전환 문턱 (최고 속도 대비). 들어갈 때와 나올 때를 다르게 해 깜빡임 방지.
@@ -140,6 +143,8 @@ extends Resource
 @export var big_hit_damage: int = 40
 ## 적·영웅 맞는 반응 수치 (비우면 기본값).
 @export var reaction: HitReactionData
+## 던파식 타격감 (반격·뒤치기·끊김·넘어짐·영웅 멈춤·3타째·피해 숫자·마무리 확대).
+@export var impact: ImpactFeelData
 ## 기술 명중 멈춤 (D3, SkillHitStop): 길이 = base + 피해 × per_damage (최대 cap, 최소 min),
 ## 한 번에 맞힌 적이 하나 늘 때마다 × multi, 멈춤 사이 최소 간격(초), 멈춤 중 게임 속도.
 @export var skill_stop_base: float = 0.03
@@ -176,3 +181,9 @@ func drops_for(damage: int) -> int:
 ## 마지막 피해로 날아갈 거리 (적 종류 배율 포함).
 func launch_distance(last_damage: int, scale: float = 1.0) -> float:
 	return minf(launch_base + maxf(last_damage, 0) * launch_per_damage, launch_max) * scale
+
+
+func impact_data() -> ImpactFeelData:
+	if impact == null:
+		impact = ImpactFeelData.new()
+	return impact

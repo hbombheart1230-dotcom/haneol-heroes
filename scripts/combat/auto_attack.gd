@@ -34,6 +34,12 @@ var _release_src: BasicAttackData
 ## 휘두르는 중: 칼이 닿기까지 남은 시간 (-1 = 없음)과 그때의 데이터 (바뀌면 버린다).
 var _melee_left: float = -1.0
 var _melee_src: BasicAttackData
+## 근접 우선 (A1): 원거리를 참은 시간. 평타 연계 (B4): 몇 번째 근접인지와 마지막 근접 뒤 흐른 시간.
+var _hold: float = 0.0
+var chain_step: int = 0
+var _since_melee: float = INF
+## 마지막으로 칼이 닿은 근접이 강타(연계 마지막)였는지 (PlayerView 멈춤 길이).
+var last_heavy: bool = false
 
 
 func _ready() -> void:
@@ -59,6 +65,7 @@ func tick(delta: float, enemy_list: Array) -> void:
 	_melee_cd = maxf(_melee_cd - delta, 0.0)
 	_ranged_cd = maxf(_ranged_cd - delta, 0.0)
 	_swing_time = maxf(_swing_time - delta, 0.0)
+	_since_melee += delta
 	if player == null:
 		return
 	if player.is_dead():  # 죽으면 손에 든 탄·휘두르던 칼은 버린다
@@ -79,10 +86,17 @@ func tick(delta: float, enemy_list: Array) -> void:
 	if nearest == null:
 		return
 	var to_nearest := nearest.global_position - from
-	if to_nearest.length() <= stats().melee_range:
+	var d := stats()
+	var dist := to_nearest.length()
+	if dist <= d.melee_range:
+		_hold = 0.0
 		if _melee_cd <= 0.0:
 			_melee(from, to_nearest, enemy_list)
 	elif _ranged_cd <= 0.0:
+		if dist <= d.melee_range * d.engage_mult and _hold < d.engage_hold_max:
+			_hold += delta  # 곧 붙는다: 원거리를 참고 칼을 기다린다
+			return
+		_hold = 0.0
 		_fire(from, to_nearest.normalized())
 
 
@@ -90,6 +104,8 @@ func _melee(from: Vector2, toward: Vector2, enemy_list: Array) -> void:
 	var d := stats()
 	_melee_cd = d.melee_interval
 	_swing_dir = toward.normalized() if toward.length_squared() > 0.0001 else player.facing
+	chain_step = next_chain_step(chain_step, _since_melee, d)
+	_since_melee = 0.0
 	melee_windup.emit(_swing_dir)
 	var delay := melee_delay()
 	if delay > 0.0:
@@ -99,32 +115,63 @@ func _melee(from: Vector2, toward: Vector2, enemy_list: Array) -> void:
 	_strike(from, enemy_list)
 
 
-## 이 영웅의 근접 피해 지연 (데이터 또는 시트의 맞닿는 프레임).
+## 다음 연계 번호: window초 안에 이어지면 하나 더, 마지막 다음이나 끊기면 1 (chain_len 0 = 늘 1).
+static func next_chain_step(step: int, since: float, d: BasicAttackData) -> int:
+	if d.chain_len <= 0 or since > d.chain_window or step >= d.chain_len:
+		return 1
+	return step + 1
+
+
+## 이번 근접이 연계 마지막 강타인지.
+func is_heavy() -> bool:
+	var d := stats()
+	return d.chain_len > 1 and chain_step == d.chain_len
+
+
+## 이번 근접 동작 이름: 시트에 attack2·attack3가 있으면 연계 번호대로, 없으면 attack.
+func chain_anim() -> String:
+	var sheet := player.hero.sprite_sheet if player and player.hero else null
+	var anim := "attack%d" % chain_step if chain_step >= 2 else "attack"
+	return anim if sheet and sheet.has_anim(anim) else "attack"
+
+
+## 이 영웅의 근접 피해 지연 (데이터 또는 시트의 맞닿는 프레임, 연계 동작마다).
 func melee_delay() -> float:
 	var d := stats()
 	if d.melee_delay >= 0.0:
 		return d.melee_delay
 	var sheet := player.hero.sprite_sheet if player and player.hero else null
 	var feel := Feedback.feel_data()
-	if sheet == null or not sheet.has_anim("attack"):
+	var anim := chain_anim()
+	if sheet == null or not sheet.has_anim(anim):
 		return feel.melee_delay_min
-	var i := sheet.anim_names.find("attack")
-	return AttackTiming.melee_delay(-1.0, sheet.strike_frame("attack"), sheet.fps[i], feel.melee_delay_min, feel.melee_delay_max)
+	var i := sheet.anim_names.find(anim)
+	return AttackTiming.melee_delay(-1.0, sheet.strike_frame(anim), sheet.fps[i], feel.melee_delay_min, feel.melee_delay_max)
 
 
 ## 칼이 닿는 순간: 그때 부채꼴 안의 적에게 피해·넉백.
 func _strike(from: Vector2, enemy_list: Array) -> void:
 	var d := stats()
 	_swing_time = 0.12
+	var heavy := is_heavy()  # 연계 마지막: 피해·넉백 배율, 잡몹 넘어짐 (B4·B8)
+	var dmg := roundi(d.melee_damage * (d.heavy_damage_mult if heavy else 1.0))
+	var kb := d.melee_knockback * (d.heavy_knockback_mult if heavy else 1.0)
 	var hits := Targeting.in_arc(enemy_list, from, _swing_dir, d.melee_range, d.melee_arc_degrees)
 	for e in hits:
 		var h := e.get_node_or_null("Health") as Health
+		var en := e as Enemy
+		if en:
+			en.heavy_pending = heavy
 		if h:
-			h.damage(d.melee_damage)
-		if e is Enemy:  # 피격 반응: 살짝 밀려남
-			(e as Enemy).apply_knockback((e.global_position - from).normalized() * d.melee_knockback)
-	if not hits.is_empty() and d.melee_recoil > 0.0:  # 칼이 닿은 반동 (Hollow Knight식)
-		player.apply_recoil(-_swing_dir * d.melee_recoil)
+			h.damage(dmg)
+		if en:
+			en.heavy_pending = false
+			en.apply_knockback((e.global_position - from).normalized() * kb)  # 피격 반응: 살짝 밀려남
+	if not hits.is_empty():
+		ImpactFx.melee_hit(from + _swing_dir * d.melee_range * 0.5, _swing_dir, d, heavy)  # 무기 소리·강타 흔들림
+		if d.melee_recoil > 0.0:  # 칼이 닿은 반동 (Hollow Knight식)
+			player.apply_recoil(-_swing_dir * d.melee_recoil)
+	last_heavy = heavy
 	melee_swung.emit(_swing_dir, hits.size())
 	queue_redraw()
 
@@ -134,13 +181,28 @@ func _fire(from: Vector2, dir: Vector2) -> void:
 	var d := stats()
 	_ranged_cd = d.ranged_interval
 	ranged_windup.emit(dir)
-	if d.release_delay > 0.0:
-		_release_left = d.release_delay
+	var delay := release_delay()
+	if delay > 0.0:
+		_release_left = delay
 		_release_dir = dir
 		_release_data = d.duplicate()
 		_release_src = data
 		return
 	_spawn(from, dir, d)
+
+
+## 손을 떠나기까지(초): 데이터, 음수면 시트 던지는 동작의 맞닿는 프레임 (근접 melee_delay와 같은 방식).
+func release_delay() -> float:
+	var d := stats()
+	if d.release_delay >= 0.0:
+		return d.release_delay
+	var sheet := player.hero.sprite_sheet if player and player.hero else null
+	var feel := Feedback.feel_data()
+	var anim := String(d.ranged_anim)
+	if sheet == null or not sheet.has_anim(anim):
+		return feel.release_delay_min
+	var i := sheet.anim_names.find(anim)
+	return AttackTiming.melee_delay(-1.0, sheet.strike_frame(anim), sheet.fps[i], feel.release_delay_min, feel.release_delay_max)
 
 
 ## 손을 떠나는 순간: 가장 가까운 적으로 다시 겨눈다. 그사이 적이 다 사라졌으면 던지지 않는다.

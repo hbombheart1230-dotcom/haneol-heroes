@@ -43,6 +43,16 @@
       "frames": 3,
       "fps": 12.0,
       "loop": false
+    },
+    {
+      "key": "down",
+      "src": "Spin Down and Stand Up",
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/biryeo_archer/animated_extra2.glb",
+      "start": 0.55,
+      "end": 6.3
     }
   ]
 }

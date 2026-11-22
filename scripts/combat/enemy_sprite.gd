@@ -19,7 +19,10 @@ static func update(e: Enemy, busy: bool) -> void:
 	var sheet := e.data.sprite_sheet
 	var a := e.attack
 	var anim := "idle"
-	if e.reaction and e.reaction.shows_hit_anim() and sheet.has_anim("hit"):
+	var down := e.reaction != null and e.reaction.is_down()
+	if down:  # 넘어짐 (B8): 넘어짐 동작이 있으면 그것, 없으면 맞는 동작 마지막 칸을 눕힌다 (pose)
+		anim = "down" if sheet.has_anim("down") else ("hit" if sheet.has_anim("hit") else "idle")
+	elif e.reaction and e.reaction.shows_hit_anim() and sheet.has_anim("hit"):
 		anim = "hit"
 	elif busy and a and sheet.has_anim(String(a.data.anim)):
 		anim = String(a.data.anim)
@@ -36,7 +39,11 @@ static func update(e: Enemy, busy: bool) -> void:
 	if e.sprite.animation != name_dir:
 		e.sprite.play(name_dir)
 	e.sprite.speed_scale = 1.0
-	if busy and a and anim != "hit" and anim != "run":  # 무기와 피해 시점 맞추기 (W2): 예고·회복에 맞춰 칸을 직접 고른다
+	if down:
+		var n := sheet.frame_count(anim)
+		e.sprite.speed_scale = 0.0
+		e.sprite.frame = mini(int(e.reaction.down_progress() * n), n - 1) if anim == "down" else n - 1
+	elif busy and a and anim != "hit" and anim != "run":  # 무기와 피해 시점 맞추기 (W2): 예고·회복에 맞춰 칸을 직접 고른다
 		e.sprite.speed_scale = 0.0
 		e.sprite.frame = AttackTiming.enemy_frame(a.state == EnemyAttack.State.RECOVER, a.windup_ratio(),
 			a.recover_ratio(), sheet.strike_frame(anim), sheet.frame_count(anim))
@@ -71,9 +78,11 @@ static func pose(e: Enemy, shake_px: float) -> void:
 	var sq := r.squash_mult() if r else Vector2.ONE
 	e.sprite.scale = Vector2.ONE * e.data.sprite_scale * e.size_mult * sq
 	e.sprite.rotation = r.tilt() if r else 0.0
+	if r and r.is_down() and not e.data.sprite_sheet.has_anim("down"):
+		e.sprite.rotation = r.down_tilt(Feedback.feel_data().impact_data().down_tilt_deg)
 	var off := e.data.sprite_offset * e.size_mult
 	off.y *= sq.y  # 발(원점)은 제자리에 두고 몸만 눌린다
-	var lift := e.brain.hop_lift() if e.brain else 0.0
+	var lift := (e.brain.hop_lift() if e.brain else 0.0) + (r.down_lift() if r else 0.0)
 	e.sprite.position = off + (r.lean_offset() if r else Vector2.ZERO) + Vector2(shake_px, -lift)
 	e.sprite.modulate = flash_color(e)
 	if e.sprite.material:

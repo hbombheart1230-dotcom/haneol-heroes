@@ -47,9 +47,14 @@ proj_art = ExtResource("proj_art")
 proj_size = Vector2(150, 65)
 proj_trail_color = Color(0.4, 0.2, 0.55, 0.55)
 proj_trail_len = 70.0
-release_delay = 0.12
+release_delay = -1.0
+ranged_anim = &"throw"
+ranged_anim_time = 0.375
 release_offset = Vector2(30, 44)
 melee_delay = -1.0
+engage_mult = 1.8
+melee_hit_sfx = &"w_brush"
+heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
 sfx = &"magic"

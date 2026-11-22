@@ -34,6 +34,8 @@ var _cooldown: float = 0.0
 ## 이번 예고에서 이미 회피 처리됐는지 (타격 때 다시 처리하지 않음).
 var _evaded: bool = false
 var _was_inside: bool = false
+## 끊긴 뒤 다음 예고가 끊기지 않는 남은 시간 (B1).
+var _armor_left: float = 0.0
 
 
 func _init(p_data: EnemyAttackData, initial_cooldown: float = 0.0) -> void:
@@ -69,6 +71,7 @@ func windup_ratio() -> float:
 ## 반환: 이번 틱의 결과 (타격이 일어난 틱에만 NONE 이외).
 func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 	_cooldown = maxf(_cooldown - delta, 0.0)
+	_armor_left = maxf(_armor_left - delta, 0.0)
 	match state:
 		State.READY:
 			if player and not player.is_dead() and _cooldown <= 0.0 \
@@ -161,6 +164,18 @@ func contains(pos: Vector2) -> bool:
 ## 돌진(CHARGE) 끝 지점.
 func charge_end() -> Vector2:
 	return aim_origin + aim_dir * data.length
+
+
+## 맞아서 예고가 끊길 수 있는지 (예고 중이고, 막 끊긴 뒤가 아님).
+func can_interrupt() -> bool:
+	return state == State.WINDUP and _armor_left <= 0.0
+
+
+## 잡몹이 맞아 예고가 끊김 (B1): 예고를 버리고 cooldown초 쉬고, 다음 rearm초 동안은 끊기지 않는다.
+func interrupt(cooldown: float, rearm: float) -> void:
+	cancel()
+	_cooldown = maxf(_cooldown, cooldown)
+	_armor_left = rearm
 
 
 ## 적이 죽거나 사라질 때 예고 슬롯을 돌려준다.

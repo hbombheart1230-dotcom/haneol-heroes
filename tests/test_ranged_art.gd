@@ -12,7 +12,7 @@ func test_hero_ranged_art_and_release_from_hand() -> void:
 	var proj := preload("res://scenes/projectile.tscn")
 	for id in HEROES:
 		var h: HeroData = load("res://data/heroes/%s.tres" % id)
-		assert_float(h.attack.release_delay).override_failure_message(id).is_greater(0.0)
+		assert_float(h.attack.release_delay).override_failure_message(id).is_not_equal(0.0)  # 음수 = 시트 맞닿는 프레임
 		assert_float(h.attack.proj_trail_len).is_greater(0.0)
 		assert_bool(h.attack.proj_art != null or h.attack.ranged_glyphs != "").override_failure_message(id).is_true()
 	var p: Player = auto_free(Player.new())
@@ -22,6 +22,7 @@ func test_hero_ranged_art_and_release_from_hand() -> void:
 	a.player = p
 	a.projectile_scene = proj
 	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.data.engage_mult = 1.0  # 던지기만 본다 (근접 우선 대기 없이)
 	a.projectile_parent = self
 	add_child(a)
 	var fired: Array = []
@@ -55,6 +56,7 @@ func test_dead_player_drops_the_shot_in_hand() -> void:
 	a.player = p
 	a.projectile_scene = preload("res://scenes/projectile.tscn")
 	a.data = (load("res://data/heroes/sejong.tres") as HeroData).attack.duplicate()
+	a.data.engage_mult = 1.0  # 던지기만 본다 (근접 우선 대기 없이)
 	a.projectile_parent = self
 	add_child(a)
 	var fired: Array = []
@@ -76,6 +78,7 @@ func test_release_reaims_and_keeps_windup_stats() -> void:
 	a.player = p
 	a.projectile_scene = preload("res://scenes/projectile.tscn")
 	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.data.engage_mult = 1.0  # 던지기만 본다 (근접 우선 대기 없이)
 	a.projectile_parent = self
 	add_child(a)
 	var fired: Array = []
@@ -112,6 +115,7 @@ func test_data_swap_during_windup_drops_the_shot() -> void:
 	a.player = p
 	a.projectile_scene = preload("res://scenes/projectile.tscn")
 	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.data.engage_mult = 1.0  # 던지기만 본다 (근접 우선 대기 없이)
 	a.projectile_parent = self
 	add_child(a)
 	var fired: Array = []
@@ -135,6 +139,7 @@ func test_release_ignores_an_enemy_that_just_died() -> void:
 	a.player = p
 	a.projectile_scene = preload("res://scenes/projectile.tscn")
 	a.data = (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack.duplicate()
+	a.data.engage_mult = 1.0  # 던지기만 본다 (근접 우선 대기 없이)
 	a.projectile_parent = self
 	add_child(a)
 	var fired: Array = []

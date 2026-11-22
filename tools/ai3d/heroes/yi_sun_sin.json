@@ -77,6 +77,46 @@
       "fps": 10.0,
       "loop": false,
       "action_id": 8
+    },
+    {
+      "key": "combo",
+      "match": "combo",
+      "action_id": 105,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "attack2",
+      "clip_of": "combo",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "start": 0.85,
+      "end": 1.6,
+      "strike": 1.15
+    },
+    {
+      "key": "attack3",
+      "clip_of": "combo",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "start": 2.1,
+      "end": 3.4,
+      "strike": 3.0
+    },
+    {
+      "key": "throw",
+      "match": "throw|cast",
+      "action_id": 221,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "start": 0.3,
+      "end": 1.3,
+      "strike": 1.1
     }
   ]
 }

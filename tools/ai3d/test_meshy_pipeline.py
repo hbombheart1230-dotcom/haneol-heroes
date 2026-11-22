@@ -65,6 +65,7 @@ class PipelineTest(unittest.TestCase):
         with open(os.path.join(mp.ROOT, "tools/ai3d/heroes/yi_sun_sin.json"), encoding="utf-8") as f:
             self.cfg = json.load(f)
         self.cfg.update({"name": "hero_t", "image": "assets/concept/front.png", "hero_data": "data/heroes/h.tres"})
+        self.cfg["anims"] = self.cfg["anims"][:6]  # 기본 여섯 동작만 (연계 자르기는 따로 시험)
         # 실제 설정은 Meshy 동작 번호를 고정해 두므로, 테스트는 가짜 라이브러리(LIB)에 맞춘 동작 목록을 쓴다
         for a, how in zip(self.cfg["anims"], [{"search": "idle"}, {"search": "run"}, {"search": "dodge"},
                                               {"action_id": 4}, {"search": "hit"}, {"search": "death"}]):
@@ -203,6 +204,21 @@ class PipelineTest(unittest.TestCase):
         self.assertNotIn("from", job["anims"][0])
         again = self._add({"status": "SUCCEEDED", "expires_at": 0})  # 두 번째엔 새 동작 없음
         self.assertEqual(again.created, [])
+
+    def test_clip_of_reuses_one_paid_clip_for_several_cuts(self):
+        self._ran_once()
+        self.cfg["anims"] += [
+            {"key": "combo", "search": "kick", "frames": 6, "fps": 16.0, "loop": False, "skip_bake": True},
+            {"key": "attack2", "clip_of": "combo", "frames": 6, "fps": 16.0, "loop": False, "start": 0.8, "end": 1.6},
+            {"key": "attack3", "clip_of": "combo", "frames": 6, "fps": 16.0, "loop": False, "start": 2.0, "end": 3.4}]
+        fake = self._add({"status": "SUCCEEDED", "expires_at": 0})
+        self.assertEqual(fake.created[0][1]["action_ids"], [77, 77])  # kick + combo만 돈을 낸다 (자르기는 무료)
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        keys = {a["key"]: a for a in job["anims"]}
+        self.assertNotIn("combo", keys)  # 원본은 굽지 않는다
+        self.assertEqual(keys["attack2"]["src"], "Kick")
+        self.assertEqual(keys["attack3"]["start"], 2.0)
+        self.assertTrue(keys["attack3"]["from"].endswith("animated_extra1.glb"))
 
     def test_add_anims_rerigs_from_saved_model_after_expiry(self):
         self._ran_once()
