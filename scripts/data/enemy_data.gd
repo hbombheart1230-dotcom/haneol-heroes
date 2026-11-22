@@ -21,6 +21,8 @@ extends Resource
 @export var knockback_scale: float = 1.0
 ## 슈퍼아머 (던파식): 잡몹이어도 맞아서 예고가 끊기거나 넘어지지 않는다 (중장병).
 @export var super_armor: bool = false
+## 보스 단계 (체력 비율 내림차순). 비면 단계 없음.
+@export var phases: Array[BossPhaseData] = []
 ## 처치 때 날아가는 거리 배율 (무거운 적·보스는 작게).
 @export var launch_scale: float = 1.0
 ## 죽는 모양: &"smoke" (망령 → 푸른 연기), &"paper" (초충도 생물 → 조각난 종이 + 먹).

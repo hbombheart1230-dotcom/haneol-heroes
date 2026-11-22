@@ -134,7 +134,7 @@ func test_attack_sfx_defaults_and_overrides() -> void:
 	assert_str(String(EnemyActions.sfx_for(d, true))).is_equal("e_windup")
 	assert_str(String(EnemyActions.sfx_for(d, false))).is_equal("e_swing")
 	var g: EnemyAttackData = GUNNER.attack
-	assert_str(String(EnemyActions.sfx_for(g, true))).is_equal("e_gun_windup")
+	assert_str(String(EnemyActions.sfx_for(g, true))).is_equal("e_windup")  # 공통 예고 규칙: 예고음 하나 (하데스 슬라이스)
 	assert_str(String(EnemyActions.sfx_for(g, false))).is_equal("e_gun")
 	var bank: SoundBank = load("res://data/audio/sfx_bank.tres")
 	for k in [&"e_windup", &"e_swing", &"e_heavy", &"e_gun_windup", &"e_gun", &"e_bow"]:

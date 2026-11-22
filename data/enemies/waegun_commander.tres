@@ -3,6 +3,9 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
 [ext_resource type="Resource" path="res://assets/sprites/waegun_commander/waegun_commander.tres" id="3_sheet"]
+[ext_resource type="Script" path="res://scripts/data/boss_phase_data.gd" id="4_phase"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_soldier.tres" id="5_soldier"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_gunner.tres" id="6_gunner"]
 
 [sub_resource type="Resource" id="Boss_cone"]
 script = ExtResource("2_attack")
@@ -12,7 +15,7 @@ trigger_range = 220.0
 windup = 0.8
 radius = 240.0
 angle_degrees = 110.0
-damage = 30
+damage = 25
 cooldown = 0.6
 recovery = 0.5
 bypass_cap = true
@@ -25,7 +28,7 @@ trigger_range = 520.0
 windup = 0.9
 length = 460.0
 width = 110.0
-damage = 35
+damage = 30
 cooldown = 0.6
 recovery = 0.7
 bypass_cap = true
@@ -37,16 +40,33 @@ anim = &"attack"
 trigger_range = 260.0
 windup = 1.0
 radius = 250.0
-damage = 30
+damage = 25
 cooldown = 0.6
 recovery = 0.8
 bypass_cap = true
+
+[sub_resource type="Resource" id="Phase_2"]
+script = ExtResource("4_phase")
+hp_frac = 0.66
+patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge"), SubResource("Boss_shockwave")])
+summon = Array[ExtResource("1_enemy")]([ExtResource("6_gunner"), ExtResource("6_gunner"), ExtResource("5_soldier"), ExtResource("5_soldier")])
+invuln_time = 1.0
+seal_label = "진격!"
+
+[sub_resource type="Resource" id="Phase_3"]
+script = ExtResource("4_phase")
+hp_frac = 0.33
+patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge"), SubResource("Boss_shockwave")])
+cooldown_mult = 0.66
+summon = Array[ExtResource("1_enemy")]([ExtResource("5_soldier"), ExtResource("5_soldier"), ExtResource("5_soldier"), ExtResource("6_gunner")])
+invuln_time = 1.0
+seal_label = "총공격!"
 
 [resource]
 script = ExtResource("1_enemy")
 id = &"waegun_commander"
 display_name = "왜군 망령 수군 장수"
-max_hp = 600
+max_hp = 1400
 xp = 0
 move_speed = 85.0
 contact_damage = 25
@@ -54,7 +74,8 @@ body_radius = 46.0
 color = Color(0.7, 0.55, 0.2, 1)
 knockback_scale = 0.1
 stun_scale = 0.3
-patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge"), SubResource("Boss_shockwave")])
+patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge")])
+phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.35

@@ -40,9 +40,23 @@ var _cooldown: float = 0.0
 @export var horde_enabled: bool = true
 var horde := HordeDirector.new(Enemy.ai_data())
 signal horde_started(kind: int)
+## 숨 고르기 (물결 끝 = slowmo true, 보스 단계 바뀜 = false): Main이 쌓인 강화를 연다.
+signal breather(slowmo: bool)
+
+## 물결 모드 (무대 데이터 StageTheme.waves). null이면 시간 따라 계속 나오는 지금 방식.
+var waves: WaveRunner
+## 예고 중인 등장 자리 수 (화면 최대에 센다).
+var _warnings: int = 0
+## true면 다음 물결을 기다린다 (강화 고르는 중, Main이 넣는다).
+var hold_check: Callable
+## 물결 적 데이터에 난이도를 입힌다 (Main이 넣는다, 비면 그대로).
+var data_scaler: Callable
+## 장면에 정해 둔 무리 이벤트 켜짐 (물결 무대에서 물결 없는 무대로 바꾸면 되돌린다).
+var _horde_default: bool = true
 
 
 func _ready() -> void:
+	_horde_default = horde_enabled
 	AttackTokens.clear()  # 새 판: 지난 판의 공격권이 남지 않게
 
 
@@ -117,10 +131,10 @@ func spawn_boss() -> Enemy:
 
 
 ## 정예 한 마리 (동시 최대 수와 상관없이 나온다).
-func spawn_elite() -> Enemy:
+func spawn_elite(at: Vector2 = Vector2.INF) -> Enemy:
 	var affixes := Enemy.ai_data().elite_affixes
 	var af: EliteAffixData = affixes[rng.randi() % affixes.size()] if not affixes.is_empty() else null
-	var e := spawn_at(elite_data, Vector2.INF, func(en: Enemy) -> void: en.affix = af) if elite_data else null
+	var e := spawn_at(elite_data, at, func(en: Enemy) -> void: en.affix = af) if elite_data else null
 	if e:
 		elite_spawned.emit(e)
 	return e
@@ -197,10 +211,72 @@ func start_horde(kind: int) -> int:
 	return n
 
 
+## 물결 모드 켜기·끄기 (새 판마다 처음부터).
+func set_waves(d: WaveSetData) -> void:
+	waves = WaveRunner.new(d) if d else null
+	_warnings = 0
+	horde_enabled = false if d else _horde_default
+
+
+## 물결 모드에서 처치 경험치 배율 (아니면 1).
+func xp_mult() -> float:
+	return waves.data.xp_mult if waves else 1.0
+
+
+## 지금 강화를 열어도 되는지 (물결 싸움 중·보스전 중에는 숨 고르기까지 쌓아 둔다).
+func can_offer() -> bool:
+	return waves == null or waves.phase == WaveRunner.Phase.GAP or waves.phase == WaveRunner.Phase.BOSS_WAIT
+
+
+func _tick_waves(delta: float) -> void:
+	var hold := hold_check.is_valid() and bool(hold_check.call())
+	match waves.tick(delta, alive_count() + _warnings, hold):
+		WaveRunner.Event.CLEARED:
+			breather.emit(true)
+		WaveRunner.Event.BOSS:
+			spawn_boss()
+	while true:
+		var r := waves.next_spawn(alive_count() + _warnings, max_alive)
+		if r.is_empty():
+			break
+		var d: EnemyData = r[0]
+		warn_spawn(d if d else elite_data, near_point(target.global_position, waves.data.spawn_min, waves.data.spawn_max),
+			d == null)
+
+
+## 화면 안 등장 자리: center에서 min~max px (전장 안).
+func near_point(center: Vector2, dmin: float, dmax: float) -> Vector2:
+	var p := center + Vector2.from_angle(rng.randf_range(0.0, TAU)) * rng.randf_range(dmin, dmax)
+	return p.clamp(arena_rect.position, arena_rect.end) if arena_rect.has_area() else p
+
+
+## 먹 번짐 예고 뒤 등장 (물결·보스 부하). 예고 중에도 화면 최대에 센다.
+func warn_spawn(d: EnemyData, at: Vector2, elite: bool = false) -> void:
+	if d == null:
+		return
+	var w := SpawnWarning.new()
+	w.time = waves.data.warn_time if waves else 0.6
+	w.position = at - global_position
+	_warnings += 1
+	w.done = func() -> void:
+		_warnings = maxi(_warnings - 1, 0)
+		if not active:
+			return
+		var dd: EnemyData = data_scaler.call(d) if data_scaler.is_valid() else d
+		if elite:
+			spawn_elite(at)
+		else:
+			spawn_at(dd, at)
+	add_child(w)
+
+
 func tick(delta: float) -> void:
 	if not active:
 		return
 	elapsed += delta
+	if waves:
+		_tick_waves(delta)
+		return
 	if boss_data and not boss_spawned_once and elapsed >= boss_time:
 		spawn_boss()
 	while _elites_spawned < elite_times.size() and elapsed >= elite_times[_elites_spawned]:

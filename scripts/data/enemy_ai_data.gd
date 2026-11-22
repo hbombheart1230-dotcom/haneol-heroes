@@ -45,6 +45,10 @@ extends Resource
 @export var punish_mult: float = 1.3
 ## 예고 마지막 이 비율부터 몸이 번쩍인다 (곧 친다는 신호)와 그 밝기.
 @export var strike_flash_from: float = 0.8
+## 공통 예고 규칙 (하데스 슬라이스): 모든 적 예고는 붉은 먹으로 칠해 진해지다 맞기 strike_flash_time초 전부터 번쩍인다
+## (비율이 아니라 남은 시간이라 예고 길이와 상관없이 같은 박자). 예고는 min_windup초 이상 (데이터 검사).
+@export var strike_flash_time: float = 0.15
+@export var min_windup: float = 0.6
 @export var strike_flash: float = 1.6
 
 @export_group("일제 사격")

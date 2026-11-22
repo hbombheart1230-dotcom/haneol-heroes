@@ -86,6 +86,8 @@ func _ready() -> void:
 	if spawner:
 		spawner.enemy_killed.connect(_on_enemy_killed)
 		spawner.boss_spawned.connect(func(_b: Enemy) -> void: music_cue(&"boss"))
+		spawner.hold_check = is_choosing  # 물결 모드: 강화 고르는 동안 다음 물결을 기다린다
+		spawner.breather.connect(_on_breather)
 	if hud:
 		hud.state = state
 		hud.perf = perf
@@ -154,6 +156,8 @@ func _apply_stage(st: StageTheme) -> void:
 		spawner.elite_data = st.elite
 	if spawner and st.boss:
 		spawner.boss_data = st.boss
+	if spawner:
+		spawner.set_waves(st.waves)  # 하데스 슬라이스: 물결 모드 (데이터가 없으면 지금 방식)
 	_apply_difficulty(st)
 	if hud:
 		hud.stage = st
@@ -199,7 +203,8 @@ func _apply_difficulty(st: StageTheme) -> void:
 	spawner.boss_data = difficulty.scaled(st.boss if st.boss else spawner.boss_data, tier)
 	spawner.interval_start = _base_spawn["start"] * difficulty.interval(tier)
 	spawner.interval_min = _base_spawn["min"] * difficulty.interval(tier)
-	spawner.max_alive = _base_spawn["alive"] + difficulty.alive_add(tier)
+	spawner.max_alive = (st.waves.max_alive if st.waves else _base_spawn["alive"]) + difficulty.alive_add(tier)
+	spawner.data_scaler = func(e: EnemyData) -> EnemyData: return difficulty.scaled(e, tier)
 
 
 func stage_by_id(id: StringName) -> StageTheme:
@@ -316,8 +321,17 @@ func _on_enemy_killed(e: Enemy) -> void:
 		return
 	if e.data.is_elite:
 		major_pending += 1
-	progress.add_xp(e.data.xp)
-	if not is_choosing():
+	progress.add_xp(roundi(e.data.xp * (spawner.xp_mult() if spawner else 1.0)))
+	if not is_choosing() and (spawner == null or spawner.can_offer()):  # 물결 싸움 중엔 물결 끝까지 쌓아 둔다
+		_offer_next()
+
+
+## 숨 고르기 (물결 끝·보스 단계): 물결 끝이면 마지막 처치 슬로모션, 그리고 쌓인 강화.
+func _on_breather(slowmo: bool) -> void:
+	if slowmo and is_inside_tree():
+		var f := Feedback.feel_data()
+		GameTime.stop(get_tree(), f.wave_end_slow_time, f.wave_end_slow_scale)
+	if state.is_playing() and not is_choosing():
 		_offer_next()
 
 

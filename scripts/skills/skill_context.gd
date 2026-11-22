@@ -61,7 +61,7 @@ func hit(en: Enemy, dmg: int, stop: bool = true) -> bool:
 	if stop and hit_stop_enabled and player and player.is_inside_tree():
 		SkillHitStop.request(player.get_tree(), dmg)
 	if fx:
-		fx.add_spark(en.global_position)
+		fx.add_spark(en.global_position, spark_color())  # 흰 불꽃 대신 영웅색 (밝은 바닥에서 묻히지 않게)
 	if skill and skill.vfx_hit and player:
 		var dir := en.global_position - player.global_position
 		Feedback.vfx_burst(skill.vfx_hit, en.global_position, dir, skill.vfx_level)
@@ -144,3 +144,9 @@ func spawn_projectile_configured(configure: Callable) -> Projectile:
 	var parent := world if world else player.get_parent()
 	parent.add_child(p)
 	return p
+
+
+## 타격 불꽃 색: 영웅 근접 색 (없으면 흰색).
+func spark_color() -> Color:
+	var a := player.hero.attack if player and player.hero else null
+	return Color(a.swing_color, 1.0) if a else Color.WHITE

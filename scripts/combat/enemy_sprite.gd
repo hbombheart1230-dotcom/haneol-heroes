@@ -101,7 +101,7 @@ static func flash_color(e: Enemy) -> Color:
 	elif f > 0.0:
 		var v := 2.6 if f > feel.flash_time - feel.flash_peak_time else 1.8
 		c = Color(v, v, v)
-	elif e.attack and e.attack.windup_ratio() >= Enemy.ai_data().strike_flash_from:
+	elif e.attack and e.attack.is_flashing(Enemy.ai_data().strike_flash_time):  # 공통 규칙: 맞기 직전 번쩍
 		c = base * Enemy.ai_data().strike_flash
 	c.a = e.brain.alpha() if e.brain else 1.0
 	return c
