@@ -174,23 +174,14 @@
     },
     {
       "key": "cast_counter",
-      "src": "Weapon_Combo",
+      "src": "Double Blade Spin",
       "frames": 7,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo.res",
-      "start": 1.33,
-      "end": 2.53,
-      "strike": 2.3,
-      "times": [
-        1.33,
-        1.47,
-        1.6,
-        2.2,
-        2.3,
-        2.34,
-        2.53
-      ]
+      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra4.glb",
+      "start": 1.12,
+      "end": 1.85,
+      "strike": 1.5
     },
     {
       "key": "backstep",
