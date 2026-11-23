@@ -116,7 +116,7 @@ func _on_hero_story_finished(hero_id: StringName) -> void:
 	next()
 
 
-## 설정 "나가기"가 할 일: 판 전 화면(첫 화면·이야기·영웅 고르기)이면 게임 끄기, 판 중·결과 화면이면 첫 화면으로.
+## 설정 "나가기"가 할 일: 판 전 화면(첫 화면·이야기·영웅 고르기)이면 앱 끝내기, 판 중·결과 화면이면 첫 화면으로.
 func exit_mode() -> StringName:
 	return &"quit" if main.waiting_pick else &"title"
 

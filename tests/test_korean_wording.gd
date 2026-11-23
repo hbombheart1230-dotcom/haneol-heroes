@@ -88,3 +88,10 @@ func test_banned_list_has_the_agreed_words() -> void:
 	var b: Array = _rules()["banned"]
 	for w in ["레벨", "스킬", "대시", "보스", "카드", "콤보", "스테이지"]:
 		assert_bool(b.has(w)).is_true()
+
+
+func test_proper_names_are_not_banned() -> void:
+	# 사무라이는 고유한 이름이라 그대로 쓴다 (금지어 아님)
+	for w in _rules()["banned"]:
+		assert_bool("왜군 망령 사무라이 대장".contains(w)).is_false()
+	assert_bool(_rules()["banned"].has("게임")).is_true()
