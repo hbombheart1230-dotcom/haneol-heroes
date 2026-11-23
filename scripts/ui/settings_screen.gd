@@ -1,9 +1,9 @@
 class_name SettingsScreen
 extends Control
-## 설정 화면 (톱니 단추로 연다): 효과음·음악 크기(밀대), 타격 진동·이야기·스킬 단추(켬/끔), 닫기, 나가기.
+## 설정 화면 (톱니 단추로 연다): 효과음·음악 크기(밀대), 타격 진동·이야기·스킬 단추(켬/끔), 닫기, 전장 나가기(판 중)·끝내기(판 전).
 ## 바뀌면 바로 저장하고 changed를 알린다. 열려 있는 동안 게임은 멈춘다 (닫으면 원래대로).
 ## 나가기는 한 번 더 묻고 exit_confirmed(exit_mode)를 알린다. 무엇을 할지는 StartFlow가 정한다
-## (판 중: 첫 화면으로, 첫 화면·이야기·영웅 고르기: 게임 끄기). opened 때 exit_mode를 정해 둔다.
+## (판 중: 첫 화면으로, 첫 화면·이야기·영웅 고르기: 앱 끝내기). opened 때 exit_mode를 정해 둔다.
 
 signal changed
 signal closed
@@ -16,7 +16,7 @@ const LABELS := {&"sfx": "효과음", &"music": "음악", &"haptics": "타격 �
 const ROW_STEP := 92.0
 const SLIDERS: Array[StringName] = [&"sfx", &"music"]
 ## 나가기 방식별 [단추 글, 확인 물음 두 줄].
-const EXIT_TEXT := {&"title": ["나가기", "이번 판을 그만두고", "첫 화면으로 돌아갈까요?"],
+const EXIT_TEXT := {&"title": ["전장 나가기", "이 전장을 그만두고", "첫 화면으로 돌아갈까요?"],
 	&"quit": ["끝내기", "끝낼까요?", ""]}
 
 ## &"title"(첫 화면으로) 또는 &"quit"(앱 끄기).
@@ -97,7 +97,7 @@ func exit_rect() -> Rect2:
 	return Rect2(c.end.x + 20.0, c.position.y, c.size.x, c.size.y)
 
 
-## 나가기 확인 상자와 그 안의 [나가기]·[취소] (확인 중에는 줄 대신 이것만 받는다).
+## 나가기 확인 상자와 그 안의 [전장 나가기 또는 끝내기]·[취소] (확인 중에는 줄 대신 이것만 받는다).
 func confirm_rect() -> Rect2:
 	var p := panel_rect()
 	return Rect2(p.position.x + 32.0, p.get_center().y - 170.0, p.size.x - 64.0, 300.0)
