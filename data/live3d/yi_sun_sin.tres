@@ -33,19 +33,19 @@ clips = Array[Dictionary]([{
 "key": "death",
 "loop": false
 }, {
-"end": 1.2,
-"file": "res://assets/live3d/yi_sun_sin/anims/righthandswordslash.res",
+"end": 1.68,
+"file": "res://assets/live3d/yi_sun_sin/anims/triplecomboattack.res",
 "key": "attack2",
 "loop": false,
-"start": 0.74,
-"times": [0.74, 0.82, 0.9, 1.05, 1.09, 1.2]
+"start": 0.9,
+"times": [0.9, 1.2, 1.4, 1.56, 1.6, 1.68]
 }, {
 "end": 2.45,
 "file": "res://assets/live3d/yi_sun_sin/anims/triplecomboattack.res",
 "key": "attack3",
 "loop": false,
-"start": 1.55,
-"times": [1.55, 1.7, 1.85, 2.25, 2.29, 2.45]
+"start": 1.68,
+"times": [1.68, 1.75, 1.85, 2.25, 2.29, 2.45]
 }, {
 "end": 1.3,
 "file": "res://assets/live3d/yi_sun_sin/anims/chargedupwardslash.res",
