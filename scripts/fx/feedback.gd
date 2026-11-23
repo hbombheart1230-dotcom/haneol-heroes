@@ -4,6 +4,8 @@ extends Node
 ## 게임 로직은 static 함수만 호출한다 (씬에 Feedback 노드가 없으면 아무 일도 안 함 → 테스트 안전).
 
 static var instance: Feedback
+## 피해가 들어간 적 명중 수 (늘기만 한다, 칼·내닫기 타격·기술 모두): 연타 숫자(ComboCounter)가 늘어난 만큼 센다.
+static var hit_serial: int = 0
 const FEEL_PATH := "res://data/feel/combat_feel.tres"
 
 @export var camera: Camera2D
@@ -223,6 +225,8 @@ func skill_trauma_for(slot: SkillCaster.Slot, hits: int) -> float:
 ## dir: 맞은 방향 (공격자 → 적). 먹물이 그쪽으로 튄다. style: 피해 숫자 모양 (EnemyHits.number_style),
 ## bonus: 반격·뒤치기 글자 (HitBonus 깃발).
 static func enemy_hit(pos: Vector2, amount: int, dir: Vector2 = Vector2.ZERO, style: int = -1, bonus: int = 0) -> void:
+	if amount > 0:
+		hit_serial += 1
 	if instance == null:
 		return
 	if instance.fx:
