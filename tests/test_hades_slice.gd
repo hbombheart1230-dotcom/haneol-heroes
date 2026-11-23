@@ -94,7 +94,7 @@ func test_spawner_warns_then_spawns_on_screen() -> void:
 func test_slice_look_is_hansan_only_and_waves_everywhere() -> void:
 	assert_object(HANSAN.waves).is_not_null()
 	assert_int(HANSAN.waves.waves.size()).is_equal(3)
-	assert_int(HANSAN.waves.max_alive).is_equal(8)
+	assert_int(HANSAN.waves.max_alive).is_equal(10)
 	assert_object(HANSAN.look).is_not_null()
 	assert_float(HANSAN.camera_zoom).is_greater(1.0)
 	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo"]:  # 물결 방식은 네 무대 모두 (test_stage_waves)

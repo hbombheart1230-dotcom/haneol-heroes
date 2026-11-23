@@ -35,8 +35,8 @@ func test_every_stage_reaches_the_boss_without_stalling() -> void:
 		assert_int((r["cleared"] as Array).size()).override_failure_message(id).is_equal(3)
 		assert_float(r["stall"]).override_failure_message(id).is_less(1.0)  # 숨 고르기 뒤 다음 물결이 바로
 		assert_int(r["blocked"]).override_failure_message(id).is_equal(0)  # 장애물 속 등장 없음
-		assert_int(r["spawned"]).override_failure_message(id).is_equal(20)  # 6 + 3 + 정예 + 9 + 보스
-		assert_int(r["max_alive"]).override_failure_message(id).is_less_equal(5 + 1)  # 물결 상한 5 (+ 정예 한 마리)
+		assert_int(r["spawned"]).override_failure_message(id).is_equal(50)  # 14 + 10 + 정예 + 24 + 보스
+		assert_int(r["max_alive"]).override_failure_message(id).is_less_equal(10 + 1)  # 물결 상한 10 (+ 정예 한 마리)
 
 
 ## 무대 길이·받는 예고 공격 피해가 한산과 비슷하다 (물결만, 보스 전까지, 접촉 피해 빼고).

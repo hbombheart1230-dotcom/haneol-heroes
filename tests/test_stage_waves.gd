@@ -51,9 +51,9 @@ func _role(roles: Dictionary, enemy_id: StringName) -> String:
 	return "?" + String(enemy_id)
 
 
-## 역할별 값은 한산 왜군과 같다: 피해 15/20/25 급, 대기, 체력, 잡몹 경직 0.3초 + 맞으면 대기 다시.
+## 역할별 값은 한산 왜군과 같다 (근접 잡몹 체력만 무대 영웅 평타에 맞춤, 아래): 피해 15/20/25 급, 대기, 체력, 잡몹 경직 0.3초 + 맞으면 대기 다시.
 func test_role_values_match_hansan() -> void:
-	var keys := {"melee": ["max_hp", "contact_damage", "stagger_time", "hit_resets_attack"],
+	var keys := {"melee": ["contact_damage", "stagger_time", "hit_resets_attack"],
 		"ranged": ["max_hp", "stagger_time", "hit_resets_attack"],
 		"heavy": ["max_hp", "contact_damage", "super_armor"], "elite": ["max_hp", "contact_damage", "is_elite"]}
 	for id in STAGES.slice(1):
@@ -69,3 +69,25 @@ func test_role_values_match_hansan() -> void:
 			assert_float(mine.attack.windup).is_greater_equal(Enemy.ai_data().min_windup)
 			assert_float(mine.rim_color.a).override_failure_message(String(mine.id)).is_greater(0.0)  # 테두리 빛
 			assert_float(mine.ghost_body_alpha).is_equal(1.0)  # 불투명 몸
+
+
+## 잡몹 떼: 근접 잡몹은 그 무대 영웅의 평타 두 대(무거운 3타면 한 대)에 죽고, 한 대로는 안 죽는다.
+func test_trash_dies_in_one_or_two_hero_hits() -> void:
+	for id in STAGES:
+		var hero := load(StageSim.hero_of(_st(id))) as HeroData
+		var hit := maxi(hero.attack.melee_damage, hero.attack.ranged_damage)
+		var hp := _enemy(ROLES[id]["melee"]).max_hp
+		assert_int(hp).override_failure_message("%s: hp %d, hit %d" % [id, hp, hit]).is_between(hit + 1, hit * 2)
+
+
+## 떼는 근접 위주: 원거리는 한산 예전 수(2 · 1 · 3) 그대로, 물결 상한 6 · 8 · 10.
+func test_swarm_is_melee_heavy_and_ranged_stays_few() -> void:
+	for id in STAGES:
+		var w := _st(id).waves
+		var ranged := []
+		var caps := []
+		for wave: WaveData in w.waves:
+			ranged.append(wave.enemies.filter(func(e: EnemyData) -> bool: return String(e.id) == ROLES[id]["ranged"]).size())
+			caps.append(wave.max_alive)
+		assert_array(ranged).override_failure_message(id).is_equal([2, 1, 3])
+		assert_array(caps).override_failure_message(id).is_equal([6, 8, 10])

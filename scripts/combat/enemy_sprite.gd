@@ -57,7 +57,10 @@ static func weapon_tip(e: Enemy, anim: String, dir: Vector2) -> Vector2:
 		return e.global_position + fallback
 	var sheet := e.data.sprite_sheet
 	var px := sheet.tip(anim, sheet.dir_index(dir), sheet.strike_frame(anim))
-	return e.global_position + AttackTiming.tip_offset(px, e.sprite.position, e.sprite.scale, fallback)
+	# 그림 자세(떨림·눌림·젖힘)는 빼고 쉬는 자리에서 (판정은 그대로, pose 머리말): 예고 끝 떨림은 실제 시계라
+	# 같은 씨앗 시뮬에서도 탄이 나가는 자리가 달라졌다.
+	var rest := Vector2.ONE * e.data.sprite_scale * e.size_mult
+	return e.global_position + AttackTiming.tip_offset(px, e.data.sprite_offset * e.size_mult, rest, fallback)
 
 
 ## 맞는 동작을 첫 프레임부터 (개별 멈춤 동안은 이 프레임에 멈춘 채 떤다).
