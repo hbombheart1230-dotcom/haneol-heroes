@@ -24,7 +24,21 @@
       "wash_amount": 0.25,
       "grain": 0.0
     },
-    "lossy_quality": 0.58
+    "lossy_quality": 0.58,
+    "rigid": {
+      "bone": "RightHand",
+      "boxes": [
+        [
+          -0.58,
+          -0.02,
+          0.62,
+          -0.45,
+          0.95,
+          -0.27,
+          0.045
+        ]
+      ]
+    }
   },
   "anims": [
     {
@@ -54,21 +68,24 @@
     {
       "key": "attack",
       "match": "attack|slash|punch",
-      "clip_of": "combo",
+      "reuse": {
+        "src": "Weapon_Combo_1",
+        "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo1.res"
+      },
       "frames": 6,
       "fps": 16.0,
-      "loop": false,
-      "start": 0.34,
-      "end": 0.9,
-      "strike": 0.75,
+      "start": 0.33,
+      "end": 1.07,
+      "strike": 0.8,
       "times": [
-        0.34,
-        0.46,
-        0.58,
-        0.75,
-        0.79,
-        0.9
-      ]
+        0.33,
+        0.47,
+        0.73,
+        0.8,
+        0.84,
+        1.07
+      ],
+      "loop": false
     },
     {
       "key": "hit",
@@ -97,39 +114,45 @@
     },
     {
       "key": "attack2",
-      "clip_of": "combo",
+      "reuse": {
+        "src": "Weapon_Combo_1",
+        "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo1.res"
+      },
       "frames": 6,
       "fps": 16.0,
-      "loop": false,
-      "start": 0.9,
-      "end": 1.68,
-      "strike": 1.56,
+      "start": 1.07,
+      "end": 1.73,
+      "strike": 1.33,
       "times": [
-        0.9,
+        1.07,
         1.2,
-        1.4,
-        1.56,
-        1.6,
-        1.68
-      ]
+        1.27,
+        1.33,
+        1.37,
+        1.73
+      ],
+      "loop": false
     },
     {
       "key": "attack3",
-      "clip_of": "combo",
+      "reuse": {
+        "src": "Weapon_Combo_1",
+        "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo1.res"
+      },
       "frames": 6,
       "fps": 16.0,
-      "loop": false,
-      "start": 1.68,
-      "end": 2.45,
-      "strike": 2.25,
+      "start": 1.73,
+      "end": 2.6,
+      "strike": 2.47,
       "times": [
-        1.68,
-        1.75,
-        1.85,
-        2.25,
-        2.29,
-        2.45
-      ]
+        1.73,
+        2.07,
+        2.27,
+        2.47,
+        2.51,
+        2.6
+      ],
+      "loop": false
     },
     {
       "key": "throw",
@@ -153,23 +176,26 @@
     },
     {
       "key": "cast_tap",
-      "clip_of": "spin_src",
+      "reuse": {
+        "src": "Jump_and_Slam_Back_Down",
+        "from": "res://assets/live3d/yi_sun_sin/anims/web_jumpandslambackdown.res"
+      },
       "frames": 8,
       "fps": 20.0,
-      "loop": false,
-      "start": 0.45,
-      "end": 1.5,
-      "strike": 1.2,
+      "start": 0.67,
+      "end": 2.0,
+      "strike": 1.53,
       "times": [
-        0.45,
-        0.58,
-        0.7,
-        0.85,
-        1.0,
-        1.2,
-        1.35,
-        1.5
-      ]
+        0.67,
+        0.87,
+        1.07,
+        1.27,
+        1.4,
+        1.53,
+        1.57,
+        2.0
+      ],
+      "loop": false
     },
     {
       "key": "cast_dash",
@@ -193,13 +219,37 @@
     },
     {
       "key": "cast_counter",
-      "clip_of": "spin_src",
+      "reuse": {
+        "src": "Weapon_Combo",
+        "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo.res"
+      },
       "frames": 7,
       "fps": 16.0,
+      "start": 1.33,
+      "end": 2.53,
+      "strike": 2.3,
+      "times": [
+        1.33,
+        1.47,
+        1.6,
+        2.2,
+        2.3,
+        2.34,
+        2.53
+      ],
+      "loop": false
+    },
+    {
+      "key": "backstep",
+      "reuse": {
+        "src": "Sword_Parry_Backward",
+        "from": "res://assets/live3d/yi_sun_sin/anims/web_swordparrybackward.res"
+      },
+      "frames": 6,
+      "fps": 18.0,
       "loop": false,
-      "start": 1.12,
-      "end": 1.85,
-      "strike": 1.5
+      "start": 0.07,
+      "end": 0.73
     }
   ]
 }

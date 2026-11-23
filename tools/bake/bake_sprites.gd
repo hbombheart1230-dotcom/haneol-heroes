@@ -135,6 +135,11 @@ static func name_matches(anim_name: String, cand: String) -> bool:
 
 ## 동작이 다른 .glb에 따로 있으면 (웹에서 동작별로 받은 파일) 같은 뼈대로 보고 가져와 붙인다.
 static func import_anim(ap: AnimationPlayer, from_path: String, src: String, key: String) -> String:
+	if from_path.get_extension() in ["res", "tres"]:  # 다른 뼈대에서 이 뼈대로 옮겨 둔 동작 (tools/live3d/retarget_clip.gd)
+		if not ap.has_animation_library(&"ext"):
+			ap.add_animation_library(&"ext", AnimationLibrary.new())
+		ap.get_animation_library(&"ext").add_animation(key, (load(from_path) as Animation).duplicate(true))
+		return "ext/" + key
 	var other: Node = (load(from_path) as PackedScene).instantiate()
 	var oap := other.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	var found := ""
