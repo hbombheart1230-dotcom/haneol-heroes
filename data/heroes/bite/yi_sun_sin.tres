@@ -4,3 +4,7 @@
 
 [resource]
 script = ExtResource("1_bite")
+clip_contact = {
+&"attack": 0.25,
+&"attack2": 0.3125
+}
