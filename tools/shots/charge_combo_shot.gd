@@ -1,8 +1,9 @@
 extends SceneTree
 ## 실제 한산 장면(ShotStage)에서 순신 해일검기 모으기와 연타 글씨를 찍는다 (전·후 비교용: 예전 코드에서도 돈다).
 ##   charge: 오른쪽 위로 방향을 잡고 충전 0.2 / 0.6 / 1.0 — 세 칸을 세로로.
-##   combo : 왜군 병사 셋 앞에서 탭 네 번 (1·2·3타 + 넷째 탭 마무리) — 칸마다 친 직후를 2×2로.
-## godot --path . --resolution 720x1280 -s res://tools/shots/charge_combo_shot.gd -- <charge|combo> <출력 png>
+##   combo : 왜군 병사 셋 앞에서 탭 네 번 (1·2·3타 + 넷째 탭 마무리) — 칸마다 친 직후를 2×2로 (화톳불 빛 안).
+##   combo_dark: 같은 것을 빛 밖 어두운 바닥에서.
+## godot --path . --resolution 720x1280 -s res://tools/shots/charge_combo_shot.gd -- <charge|combo|combo_dark> <출력 png>
 
 const CROP := Vector2i(720, 600)
 
@@ -19,8 +20,8 @@ func _run() -> void:
 	if args[0] == "charge":
 		shots = await _charge(main)
 	else:
-		shots = await _combo(main)
-	_save(shots, args[0] == "combo", args[1])
+		shots = await _combo(main, args[0] == "combo_dark")
+	_save(shots, args[0] != "charge", args[1])
 	quit()
 
 
@@ -52,11 +53,11 @@ func _charge(main: Node) -> Array[Image]:
 	return out
 
 
-func _combo(main: Node) -> Array[Image]:
+func _combo(main: Node, dark: bool = false) -> Array[Image]:
 	var player := main.get_node("Player") as Player
 	var caster := player.get_node("SkillCaster") as SkillCaster
 	var atk := caster.auto_attack()
-	var spot := ShotStage.brazier_spot(main) + Vector2(0, 160)
+	var spot := ShotStage.dark_spot(main, 700.0) if dark else ShotStage.brazier_spot(main) + Vector2(0, 160)
 	ShotStage.move_hero(main, spot)
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	var data: EnemyData = load("res://data/enemies/waegun_soldier.tres")
