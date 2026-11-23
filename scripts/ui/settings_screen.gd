@@ -17,7 +17,7 @@ const ROW_STEP := 92.0
 const SLIDERS: Array[StringName] = [&"sfx", &"music"]
 ## 나가기 방식별 [단추 글, 확인 물음 두 줄].
 const EXIT_TEXT := {&"title": ["나가기", "이번 판을 그만두고", "첫 화면으로 돌아갈까요?"],
-	&"quit": ["게임 끄기", "게임을 끌까요?", ""]}
+	&"quit": ["끝내기", "끝낼까요?", ""]}
 
 ## &"title"(첫 화면으로) 또는 &"quit"(앱 끄기).
 var exit_mode: StringName = &"title"
