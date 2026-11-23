@@ -123,6 +123,13 @@ func test_full_charge_wave_and_path_length() -> void:
 	assert_float(h.aim_width(1.0)).is_greater(h.aim_width(0.0))
 
 
+## 길 폭 = 실제로 맞는 폭 (판정 지름 × 물결 크기). 성장 단계(시작 0.75배)에서도 그린 길과 판정이 같다.
+func test_path_width_matches_wave_with_growth() -> void:
+	for c in [0.0, 1.0]:
+		var p := caster.cast(SkillCaster.Slot.CHARGE, c).get_meta(&"projectile") as Projectile
+		assert_float(ChargeView.aim_width(caster, c)).is_equal_approx(HaeilSkill.HIT_DIAMETER * p.size_scale, 0.01)
+
+
 func test_stages() -> void:
 	var s := ChargeScaling.new()
 	s.stages = 3
