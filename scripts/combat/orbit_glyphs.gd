@@ -54,7 +54,7 @@ func _physics_process(delta: float) -> void:
 				if now - float(_last_hit.get(id, -INF)) < hit_interval:
 					continue
 				_last_hit[id] = now
-				if ctx.hit(en, damage, false):
+				if ctx.tick_hit(en, damage, now + hit_interval > duration):  # 마지막 한 바퀴는 크게
 					hits += 1
 	if _age >= duration:
 		queue_free()

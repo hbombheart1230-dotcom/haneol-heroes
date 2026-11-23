@@ -25,6 +25,7 @@ func _physics_process(delta: float) -> void:
 	if _next <= 0.0 and ctx:
 		_next += interval
 		ticks += 1
+		var last := _age + interval > duration  # 다음 틱 전에 사라진다 = 마지막 타 (크게 한 번)
 		for en in ctx.enemies_in_radius(global_position, radius):
 			if not en.health.is_alive():
 				continue  # 죽어서 지워지기 전인 적은 끌지 않는다
@@ -32,7 +33,7 @@ func _physics_process(delta: float) -> void:
 				en.slow(slow_factor, interval + 0.1)
 			if pull > 0.0:
 				en.apply_knockback((global_position - en.global_position).normalized() * pull)
-			ctx.hit(en, damage, false)
+			ctx.tick_hit(en, damage, last)
 	if _age >= duration:
 		queue_free()
 	queue_redraw()

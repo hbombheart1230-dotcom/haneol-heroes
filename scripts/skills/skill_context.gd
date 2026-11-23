@@ -78,6 +78,34 @@ func hit(en: Enemy, dmg: int, stop: bool = true) -> bool:
 	return true
 
 
+## 계속 닿는 장판·도는 글자·벌레·여러 번 치는 기술의 한 번 닿음 (SkillMultiHit): 평소엔 가벼운 타격(멈춤 없음),
+## last = 그 원천의 마지막 타 → 한 번에 끊어 치는 명중 + 큰 멈춤 한 번.
+func tick_hit(en: Enemy, dmg: int, last: bool = false) -> bool:
+	if last:
+		var ok := hit(en, dmg, true)
+		if ok:
+			SkillMultiHit.finale(self)
+		return ok
+	var ok2 := hit(en, dmg, false)
+	if ok2:
+		SkillMultiHit.tick(self, en)
+	return ok2
+
+
+## 기술 탄(해일검기·사방 검기)이 적에게 닿을 때마다 한 번에 끊어 치는 명중처럼 (섬광·자국·밀림·퍽). 피해는 탄이 넣었다.
+func on_projectile_hit(p: Projectile, hb: HurtBox2D) -> void:
+	var en := hb.get_parent() as Enemy if hb else null
+	if en == null or not is_instance_valid(en) or player == null:
+		return
+	var from := en.global_position - p.direction * 200.0
+	HitImpact.on_enemy(en, from, HitImpact.data().skill_step, spark_color())
+	if not _thud_done:
+		_thud_done = true
+		HitImpact.on_swing(HitImpact.data().skill_step)
+	if skill and skill.vfx_hit:  # 멈춤은 없다: 관통하는 물결이 적마다 끊기지 않고 밀고 나간다
+		SkillStageFx.on_hit(skill.vfx_hit, en.global_position, p.direction, p.damage, skill.vfx_level, skill.hit_layer_sfx)
+
+
 ## 기술이 내리꽂히는 자리: vfx_impact 입자 + (설정돼 있으면) 하늘에서 번개 줄기.
 ## radius > 0이면 그림을 그 판정 반경에 맞춘다 (판정과 그림 크기가 같아야 "맞을 것 같은" 대로 맞는다).
 func impact(pos: Vector2, dir: Vector2 = Vector2.ZERO, radius: float = 0.0) -> void:
@@ -158,6 +186,7 @@ func spawn_projectile_configured(configure: Callable) -> Projectile:
 		return null
 	var p := projectile_scene.instantiate() as Projectile
 	configure.call(p)
+	p.action_applied.connect(func(hb: HurtBox2D) -> void: on_projectile_hit(p, hb))  # 기술 탄도 맞을 때마다 타격감
 	p.global_position = player.global_position
 	var parent := world if world else player.get_parent()
 	parent.add_child(p)
