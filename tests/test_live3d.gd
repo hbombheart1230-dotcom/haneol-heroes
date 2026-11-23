@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
 ## 실시간 3D 시험 (docs/research/live3d_spike.md): 동작 자르기·길이 맞추기·뿌리 고정, 굽기 작업 → 설정,
-## 구운 시트 길이, 켜고 끄기 기본값. 모델(.glb)은 저장소에 없으므로 3D 그리기 자체는 tools/live3d 도구로 확인한다.
+## 구운 시트 길이, 켜고 끄기 기본값·영웅별 대체. 그림 자체는 tools/live3d 도구(비교 영상·동작 띠)로 확인한다.
 
 const Switch := preload("res://scripts/art/live3d/live3d_switch.gd")
 const View3D := preload("res://scripts/player/player_view_3d.gd")
@@ -67,6 +67,7 @@ func test_saved_data_matches_bake_job() -> void:
 	assert_int(d.clips.size()).is_equal((job["anims"] as Array).size())
 	assert_bool(d.upper_bones.has("RightArm")).is_true()
 	assert_bool(d.upper_bones.has("Hips")).is_false()  # 다리·뿌리는 달리기 그대로
+	assert_bool(d.clips.all(func(c: Dictionary) -> bool: return not c.has("src"))).is_true()
 
 
 func test_durations_equal_baked_sheet_timing() -> void:
@@ -78,6 +79,42 @@ func test_durations_equal_baked_sheet_timing() -> void:
 	assert_int(sf.get_frame_count(&"attack3_5")).is_equal(1)
 
 
-func test_switch_is_off_by_default() -> void:
-	assert_bool(bool(ProjectSettings.get_setting(Switch.SETTING, true))).is_false()
-	assert_bool(Switch.enabled()).is_false()
+func test_switch_is_on_by_default() -> void:
+	assert_bool(bool(ProjectSettings.get_setting(Switch.SETTING, false))).is_true()
+	assert_bool(Switch.enabled()).is_true()
+
+
+func test_packed_model_is_in_the_repo() -> void:
+	var d: Live3DHeroData = load(View3D.data_path(&"yi_sun_sin"))
+	assert_bool(d.model_path.begins_with("res://assets/live3d/")).is_true()  # Meshy 원본(gitignore)이 아니라 가공 리소스
+	assert_bool(ResourceLoader.exists(d.model_path)).is_true()
+	for c in d.clips:
+		assert_bool(ResourceLoader.exists(String(c["file"]))).is_true()
+
+
+## 순신은 3D, 3D 설정이 없는 영웅은 구운 그림, 설정을 끄면 예전 PlayerView 그대로.
+func test_ready_heroes_get_3d_others_keep_sprites() -> void:
+	assert_bool(_view(&"yi_sun_sin", true).get("rig") != null).is_true()
+	var gw := _view(&"gwanggaeto", true)
+	assert_bool(gw.get_script() == View3D).is_true()
+	assert_bool(gw.get("rig") == null).is_true()
+	assert_bool(gw._sprite != null).is_true()  # 구운 그림
+	var off := _view(&"yi_sun_sin", false)
+	assert_bool(off.get_script() == View3D).is_false()
+	assert_bool(off._sprite.material == null).is_true()
+
+
+func _view(id: StringName, live: bool) -> PlayerView:
+	var p: Player = auto_free(Player.new())
+	var h := Health.new()
+	h.name = "Health"
+	p.add_child(h)
+	p.hero = load("res://data/heroes/%s.tres" % id)
+	add_child(p)
+	var was: Variant = ProjectSettings.get_setting(Switch.SETTING, true)
+	ProjectSettings.set_setting(Switch.SETTING, live)
+	var v := PlayerView.new()
+	v.player = p
+	p.add_child(v)
+	ProjectSettings.set_setting(Switch.SETTING, was)
+	return v

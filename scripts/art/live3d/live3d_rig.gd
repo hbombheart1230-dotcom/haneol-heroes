@@ -14,6 +14,9 @@ var _yaw: float = 0.0
 var _body: String = ""
 var _upper: String = ""
 var _upper_w: float = 0.0
+## 마지막 요청 (테스트·확인용): 몸 재생 속도, 마지막 seek 시각(-1 = 없음).
+var _speed: float = 1.0
+var _seek: float = -1.0
 
 
 ## durations: 동작 키 → 초 (구운 시트와 같은 길이). own_world = false면 부모 세계를 같이 쓴다 (성능 비교용).
@@ -102,6 +105,8 @@ func play_body(anim: String, restart: bool, seek: float, speed: float) -> void:
 		_body = anim
 	if seek >= 0.0:
 		tree.set("parameters/body_seek/seek_request", seek)
+		_seek = seek
+	_speed = speed
 	tree.set("parameters/body_ts/scale", speed)
 
 
@@ -118,6 +123,14 @@ func set_upper(anim: String, restart: bool, on: bool, speed: float, delta: float
 
 func body_anim() -> String:
 	return _body
+
+
+func body_speed() -> float:
+	return _speed
+
+
+func last_seek() -> float:
+	return _seek
 
 
 func upper_weight() -> float:
