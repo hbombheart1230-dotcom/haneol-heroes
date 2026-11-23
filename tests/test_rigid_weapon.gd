@@ -31,3 +31,13 @@ func test_long_weapon_heroes_have_rigid_boxes_in_their_bake_jobs() -> void:
 		assert_bool(job.has("rigid")).is_true()
 		assert_str(String(job["rigid"]["bone"])).is_equal("RightHand")
 		assert_int((job["rigid"]["boxes"] as Array).size()).is_greater(0)
+
+
+## 캡슐(숫자 7개): 비스듬한 자루를 따라 r 안만 묶고, 자루 옆(소매)은 그대로.
+func test_capsule_follows_a_slanted_shaft() -> void:
+	var cap := [[0.0, 0.0, 0.0, 0.0, 2.0, 0.2, 0.03]]
+	assert_bool(RigidWeapon.inside(Vector3(0.0, 1.0, 0.1), cap)).is_true()  # 자루 가운데
+	assert_bool(RigidWeapon.inside(Vector3(0.02, 1.0, 0.1), cap)).is_true()
+	assert_bool(RigidWeapon.inside(Vector3(0.0, 1.0, 0.0), cap)).is_false()  # 10cm 옆 = 소매
+	assert_bool(RigidWeapon.inside(Vector3(0.0, 2.2, 0.2), cap)).is_false()  # 끝을 넘음
+	assert_bool(RigidWeapon.inside(Vector3(0.0, 1.0, 0.1), [[-1, -1, -1, 1, 1, 1]])).is_true()  # 상자는 그대로
