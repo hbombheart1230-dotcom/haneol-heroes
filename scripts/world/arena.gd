@@ -66,6 +66,8 @@ func apply_theme(t: StageTheme) -> void:
 		map.grade(t.floor_value, t.floor_saturation, t.look)
 		map.texture = tex
 		map.rect = t.background_rect if t.background_rect.has_area() else rect
+		if map.material:
+			(map.material as ShaderMaterial).set_shader_parameter("map_px", map.rect.size)
 		map.queue_redraw()
 	if vignette:
 		vignette.set_strength(t.vignette)
@@ -126,6 +128,10 @@ class MapLayer extends Node2D:
 			m.set_shader_parameter("light_tint", look.light_tint)
 			m.set_shader_parameter("tint_mix", look.tint_mix)
 			m.set_shader_parameter("tint_split", look.tint_split)
+			if look.detail_texture and look.detail_strength > 0.0:
+				m.set_shader_parameter("detail_tex", look.detail_texture)
+				m.set_shader_parameter("detail_strength", look.detail_strength)
+				m.set_shader_parameter("detail_px", look.detail_px)
 		material = m
 
 	func _draw() -> void:
