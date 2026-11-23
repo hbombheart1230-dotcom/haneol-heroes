@@ -2,7 +2,7 @@ extends GdUnitTestSuite
 ## 2단계 첫 보스: 영역 모양(부채꼴·돌진·충격파), 패턴 순환, 등장·처치 승리.
 
 const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
-const BOSS := preload("res://data/enemies/boss_general.tres")
+const BOSS := preload("res://tests/fixtures/legacy_boss.tres")  ## 옛 방식 보스 (쓸기·돌진·충격파 차례, boss_feel 없음)
 const CHASER := preload("res://data/enemies/chaser.tres")
 const DT := 1.0 / 60.0
 
@@ -171,8 +171,11 @@ func test_main_scene_boss_kill_ends_with_victory() -> void:
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	var boss := spawner.spawn_boss()
 	assert_object(boss).is_not_null()
+	var feel := boss.data.boss_feel
 	boss.health.kill()
 	await get_tree().physics_frame
+	if feel:  # 처치 연출(실제 시간) 뒤 승리
+		await get_tree().create_timer(feel.finale_time + 0.2, true, false, true).timeout
 	assert_int(main.state.result).is_equal(GameState.Result.VICTORY)
 	assert_bool(main.state.boss_killed).is_true()
 	get_tree().paused = false

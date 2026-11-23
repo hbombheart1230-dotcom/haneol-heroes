@@ -3,59 +3,146 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
 [ext_resource type="Resource" path="res://assets/sprites/jurchen_chieftain/jurchen_chieftain.tres" id="3_sheet"]
+[ext_resource type="Script" path="res://scripts/data/boss_phase_data.gd" id="4_phase"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_soldier.tres" id="5_soldier"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_archer.tres" id="6_archer"]
+[ext_resource type="Texture2D" path="res://assets/vfx/boss_phase_seal.png" id="7_seal"]
+[ext_resource type="Script" path="res://scripts/data/boss_feel_data.gd" id="8_feel"]
 
-[sub_resource type="Resource" id="Boss_cone"]
+[sub_resource type="Resource" id="Ju_slam_follow"]
 script = ExtResource("2_attack")
-kind = 3
-anim = &"attack2"
-trigger_range = 220.0
-windup = 0.8
-radius = 240.0
-angle_degrees = 110.0
-damage = 30
-cooldown = 0.6
-recovery = 0.5
+kind = 0
+anim = &"attack"
+trigger_range = 340.0
+windup = 0.9
+radius = 105.0
+damage = 20
+cooldown = 2.0
+recovery = 1.3
 bypass_cap = true
 
-[sub_resource type="Resource" id="Boss_charge"]
+[sub_resource type="Resource" id="Ju_charge_follow"]
 script = ExtResource("2_attack")
 kind = 4
 anim = &"run"
-trigger_range = 520.0
-windup = 0.9
-length = 460.0
-width = 110.0
-damage = 35
-cooldown = 0.6
-recovery = 0.7
+trigger_range = 380.0
+windup = 0.85
+length = 480.0
+width = 100.0
+miss_overshoot = 140.0
+miss_recovery = 1.8
+damage = 20
+cooldown = 2.0
+recovery = 1.3
 bypass_cap = true
 
-[sub_resource type="Resource" id="Boss_shockwave"]
+[sub_resource type="Resource" id="Ju_charge"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"run"
+trigger_range = 380.0
+windup = 0.85
+length = 480.0
+width = 100.0
+miss_overshoot = 140.0
+miss_recovery = 1.6
+damage = 20
+cooldown = 1.6
+recovery = 0.9
+bypass_cap = true
+
+[sub_resource type="Resource" id="Ju_slam"]
+script = ExtResource("2_attack")
+kind = 0
+anim = &"attack"
+trigger_range = 340.0
+windup = 0.9
+radius = 105.0
+damage = 20
+cooldown = 1.6
+recovery = 0.9
+bypass_cap = true
+
+[sub_resource type="Resource" id="Ju_shock"]
 script = ExtResource("2_attack")
 kind = 2
 anim = &"attack"
-trigger_range = 260.0
-windup = 1.0
-radius = 250.0
-damage = 30
-cooldown = 0.6
-recovery = 0.8
+trigger_range = 200.0
+windup = 0.9
+radius = 230.0
+damage = 20
+cooldown = 1.7
+recovery = 1.0
 bypass_cap = true
+
+[sub_resource type="Resource" id="Ju_charge_combo"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"run"
+trigger_range = 380.0
+windup = 0.85
+length = 480.0
+width = 100.0
+damage = 20
+cooldown = 1.6
+recovery = 0.4
+bypass_cap = true
+follow_up = SubResource("Ju_slam_follow")
+follow_gap = 0.45
+
+[sub_resource type="Resource" id="Ju_shock_combo"]
+script = ExtResource("2_attack")
+kind = 2
+anim = &"attack"
+trigger_range = 200.0
+windup = 0.9
+radius = 230.0
+damage = 20
+cooldown = 1.7
+recovery = 0.35
+bypass_cap = true
+follow_up = SubResource("Ju_charge_follow")
+follow_gap = 0.4
+
+[sub_resource type="Resource" id="Phase_2"]
+script = ExtResource("4_phase")
+hp_frac = 0.66
+patterns = Array[ExtResource("2_attack")]([SubResource("Ju_charge_combo"), SubResource("Ju_slam"), SubResource("Ju_shock")])
+summon = Array[ExtResource("1_enemy")]([ExtResource("5_soldier"), ExtResource("6_archer")])
+invuln_time = 1.8
+seal_art = ExtResource("7_seal")
+seal_label = "돌격!"
+
+[sub_resource type="Resource" id="Phase_3"]
+script = ExtResource("4_phase")
+hp_frac = 0.33
+patterns = Array[ExtResource("2_attack")]([SubResource("Ju_charge_combo"), SubResource("Ju_shock_combo"), SubResource("Ju_slam")])
+cooldown_mult = 0.85
+summon = Array[ExtResource("1_enemy")]([ExtResource("5_soldier"), ExtResource("5_soldier"), ExtResource("6_archer")])
+invuln_time = 1.8
+seal_art = ExtResource("7_seal")
+seal_label = "밀어붙여라!"
+
+[sub_resource type="Resource" id="Boss_feel"]
+script = ExtResource("8_feel")
 
 [resource]
 script = ExtResource("1_enemy")
 id = &"jurchen_chieftain"
 display_name = "여진 망령 추장"
-max_hp = 600
+max_hp = 2500
 xp = 0
 move_speed = 85.0
-contact_damage = 25
+contact_damage = 0
 body_radius = 46.0
+reach_px = 26.0
 color = Color(0.7, 0.55, 0.2, 1)
 knockback_scale = 0.1
 stun_scale = 0.3
-patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge"), SubResource("Boss_shockwave")])
+patterns = Array[ExtResource("2_attack")]([SubResource("Ju_charge"), SubResource("Ju_slam")])
+phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
+boss_feel = SubResource("Boss_feel")
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.35
 sprite_offset = Vector2(0, -64)

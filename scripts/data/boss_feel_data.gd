@@ -1,6 +1,7 @@
 class_name BossFeelData
 extends Resource
-## 보스전 박자·연출 (EnemyData.boss_feel). 부하를 부리고 군령("진격!"·"총공격!")으로 조합을 거는 지휘관다운 박자.
+## 보스전 박자·연출 (EnemyData.boss_feel). 네 무대 보스가 함께 쓴다: 부하를 부리고 단계마다 군령(BossPhaseData.seal_label)으로
+## 조합(EnemyAttackData.follow_up)을 거는 장수 박자. 공격 구성은 보스 데이터마다 다르다.
 ## 하데스 값은 예고·틈 비율과 한 방 피해가 터무니없지 않은지 보는 데만 썼다. 비어 있는 보스는 옛 방식 그대로
 ## (차례대로 돌기, 단계 바뀌면 바로 소환, 처치하면 바로 승리).
 ## 순서: 등장(intro_hold 동안 치지 않음) → 단계 전환(낙인·글자·북 → pick_delay 뒤 강화 → summon_delay 뒤 부하)
