@@ -65,13 +65,16 @@ func _stage2(job: Dictionary, out: String, n: String) -> void:
 	var saved := {}
 	for c in d.clips:
 		var f := String(c.get("file", ""))
-		var key := f if f != "" else "base:" + String(c["src"])
+		var key := f + ":" + String(c["src"])
 		if not saved.has(key):
 			saved[key] = _save_clip(ap, f, String(c["src"]), out)
 		c["file"] = saved[key]
 		c.erase("src")
 	ap.get_parent().remove_child(ap)
 	ap.free()
+	if not d.rigid.is_empty():  # 무기를 손뼈에만 묶어 저장 (게임은 다시 하지 않는다: tools/는 APK에 없다)
+		print("rigid weapon verts: ", RigidWeapon.apply(model, d.rigid))
+		d.rigid = {}
 	var mat := load(out + "/material.tres") as Material
 	for node in model.find_children("*", "MeshInstance3D", true, false):
 		var mi := node as MeshInstance3D
@@ -99,25 +102,31 @@ static func _plain_mesh(src: ArrayMesh, mat: Material) -> ArrayMesh:
 	return m
 
 
-## 동작 하나 → anims/<이름>.res. file이 비면 모델 안 동작, 아니면 그 .glb의 하나뿐인 동작.
+## 동작 하나 → anims/<이름>.res. file이 비면 모델 안 동작, 아니면 그 .glb의 동작 (여럿이면 src 이름으로).
 func _save_clip(ap: AnimationPlayer, file: String, src: String, out: String) -> String:
-	var a: Animation = null
-	var nm := ""
-	if file == "":
-		for x in ap.get_animation_list():
-			if x == src or Lib.norm(x) == Lib.norm(src):
-				a = ap.get_animation(x)
-				nm = Lib.norm(src)
-	else:
-		var s: Node = (load(file) as PackedScene).instantiate()
-		var oap := s.find_child("AnimationPlayer", true, false) as AnimationPlayer
-		var names := Array(oap.get_animation_list()).filter(func(x: StringName) -> bool: return x != &"RESET")
-		a = oap.get_animation(names[0])
-		nm = Lib.norm(String(names[0]).get_slice("|", 1) if "|" in names[0] else names[0])
-		s.free()
-	var path := "%s/anims/%s.res" % [out, nm]
+	var s: Node = null
+	if file != "":
+		s = (load(file) as PackedScene).instantiate()
+		ap = s.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	var names := Array(ap.get_animation_list()).filter(func(x: StringName) -> bool: return x != &"RESET")
+	var pick: String = names[0] if file != "" and names.size() == 1 else ""
+	for x in names:
+		if pick == "" and Lib.norm(_bare(x)) == Lib.norm(src):
+			pick = x
+	if pick == "":
+		push_error("clip not found: %s in %s %s" % [src, file, names])
+		return ""
+	var a := ap.get_animation(pick)
+	var path := "%s/anims/%s.res" % [out, Lib.norm(_bare(pick))]
 	print(path, " ", ResourceSaver.save(a.duplicate(true), path, ResourceSaver.FLAG_COMPRESS))
+	if s:
+		s.free()
 	return path
+
+
+## "Armature|Mage_Soell_Cast_3|baselayer" → "Mage_Soell_Cast_3"
+static func _bare(n: String) -> String:
+	return n.get_slice("|", 1) if "|" in n else n
 
 
 func _write(path: String, text: String) -> void:

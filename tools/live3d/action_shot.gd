@@ -1,9 +1,9 @@
 extends "res://tools/live3d/compare_shot.gd"
-## 순신 모든 동작 확인 (구운 그림 ↔ 실시간 3D 나란히): 실제 게임 입력 경로로 낸다.
+## 영웅 모든 동작 확인 (구운 그림 ↔ 실시간 3D 나란히): 실제 게임 입력 경로로 낸다.
 ## 대기(느린 대기) · 탭 연타 1→2→3→넷째 탭 마무리(해룡참) · 대시 연속 두 번(착지 멈춤) · 대시→파도격 ·
 ## 충전(모으는 자세 → 해일검기) · 회피→반격 · 피격 · 사망.
 ## compare_shot.gd와 같이 Movie Maker로 찍고 compare_video.py로 구간마다 띠를 만든다:
-##   godot --path . --fixed-fps 60 --write-movie <폴더>/f.png -s res://tools/live3d/action_shot.gd -- build/preview/live3d_actions.json
+##   godot --path . --fixed-fps 60 --write-movie <폴더>/f.png -s res://tools/live3d/action_shot.gd -- build/preview/live3d_actions.json [영웅 id]
 ##   python tools/live3d/compare_video.py <폴더> build/preview/live3d_actions.json build/preview/actions
 
 
