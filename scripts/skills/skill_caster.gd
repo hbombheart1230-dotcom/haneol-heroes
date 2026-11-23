@@ -41,6 +41,8 @@ var _runs: Array = []
 ## 탭 연타 상태와 손 평타를 낼 자동 공격 (영웅의 AutoAttack).
 var combo := TapCombo.new()
 var _attack: AutoAttack
+## 마지막으로 낸 충전 기술의 모은 정도 (0~1): 다 모아 맞히면 점수 (ScoreFeed).
+var last_charge: float = 0.0
 
 
 func _ready() -> void:
@@ -284,6 +286,7 @@ func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float 
 	ctx.skill = d
 	if slot == Slot.CHARGE:
 		ctx.aim_dir = aim.aim_dir()
+		last_charge = charge
 	if d.vfx_cast:
 		Feedback.vfx_burst(d.vfx_cast, d.cast_point(ctx), player.facing, d.vfx_level)  # 세종 정음진은 겨눈 적 자리
 	SkillStageFx.on_cast(get_tree() if is_inside_tree() else null, d, player.hero)  # 컷인 + 소리 층

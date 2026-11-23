@@ -305,7 +305,8 @@ func test_main_scene_level_up_shows_cards_and_pauses() -> void:
 	sc.pick(0)
 	assert_bool(sc.is_open()).is_false()
 	assert_bool(get_tree().paused).is_false()
-	assert_int(main.progress.stacks.get(u.id, 0)).is_equal(mini(2, u.max_stacks))  # 숨 고르기 한 번 = 2단계
+	assert_int(main.progress.stacks.get(u.id, 0)).is_equal(1)  # 적립 카드 1장 = 1단계 (LevelRules.plan)
+	assert_int(main.progress.pending).is_equal(0)
 	# 정예 처치 → 금빛 큰 변형 인장 (이것도 숨 고르기에)
 	var elite: Enemy = spawner.spawn_elite()
 	elite.health.kill()

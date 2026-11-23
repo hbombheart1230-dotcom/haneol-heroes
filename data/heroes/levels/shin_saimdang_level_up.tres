@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="UpgradeDef" format=3]
+
+[ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="1_up"]
+[ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="2_mod"]
+
+[sub_resource type="Resource" id="Mod_hp"]
+script = ExtResource("2_mod")
+target = &"hero"
+property = &"max_hp"
+op = 0
+value = 5.0
+
+[sub_resource type="Resource" id="Mod_melee"]
+script = ExtResource("2_mod")
+target = &"attack"
+property = &"melee_damage"
+op = 1
+value = 1.04
+
+[sub_resource type="Resource" id="Mod_ranged"]
+script = ExtResource("2_mod")
+target = &"attack"
+property = &"ranged_damage"
+op = 1
+value = 1.04
+
+[resource]
+script = ExtResource("1_up")
+id = &"level_up_shin_saimdang"
+title = "사임당 경지 오름"
+description = "최대 체력 +5 · 기본 공격 피해 +4%"
+max_stacks = 99
+weight = 0.0
+mods = Array[ExtResource("2_mod")]([SubResource("Mod_hp"), SubResource("Mod_melee"), SubResource("Mod_ranged")])
+vfx_level_gain = 0
