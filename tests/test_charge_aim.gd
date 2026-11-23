@@ -111,10 +111,13 @@ func test_full_charge_wave_and_path_length() -> void:
 	var h: HaeilSkill = HERO.kit.charge
 	var lo := caster.cast(SkillCaster.Slot.CHARGE, 0.0).get_meta(&"projectile") as Projectile
 	var hi := caster.cast(SkillCaster.Slot.CHARGE, 1.0).get_meta(&"projectile") as Projectile
-	assert_int(hi.damage).is_greater(lo.damage)
+	var rlo := WaveRake.of(lo)  # 긁기: 피해·넉백은 타마다 나뉜다 (합으로 비교)
+	var rhi := WaveRake.of(hi)
+	assert_int(rhi.total_damage()).is_greater(rlo.total_damage())
 	assert_float(hi.size_scale).is_greater(lo.size_scale)
 	assert_float(hi.lifetime).is_greater(lo.lifetime)
-	assert_float(hi.knockback).is_greater(lo.knockback)
+	assert_float(rhi.total_push()).is_greater(rlo.total_push())
+	assert_int(rhi.damages.size()).is_greater(rlo.damages.size())  # 모을수록 타수도
 	assert_float(h.aim_length(1.0)).is_equal_approx(hi.speed * hi.lifetime, 0.5)
 	assert_float(h.aim_length(0.0)).is_equal_approx(lo.speed * lo.lifetime, 0.5)
 	assert_float(h.aim_width(1.0)).is_greater(h.aim_width(0.0))
