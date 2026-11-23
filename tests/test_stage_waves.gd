@@ -30,12 +30,12 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 		for k in ["max_alive", "next_when_left", "refill_each", "warn_time", "one_pick_per_break", "pick_stacks"]:
 			assert_that(w.get(k)).override_failure_message("%s.%s" % [id, k]).is_equal(base.get(k))
 		assert_int(w.waves.size()).is_equal(base.waves.size())
-		var total := 0.0  # 판 전체 경험치(보정 후)는 무대마다 같다: 군대별 적 경험치 합이 달라 xp_mult만 다르다 (약 137, 레벨업 개편 전 기준)
+		var total := 0.0  # 판 전체 처치 점수(보정 후)는 무대마다 같다: 군대별 적 경험치 합이 달라 xp_mult만 다르다 (약 240, 새 레벨 곡선 기준, 레벨업 세션)
 		for wave: WaveData in w.waves:
 			for e: EnemyData in wave.enemies:
 				total += e.xp
 			total += _enemy(ROLES[id]["elite"]).xp if wave.elite_last else 0.0
-		assert_float(total * w.xp_mult).override_failure_message("%s total xp %.1f" % [id, total * w.xp_mult]).is_between(130.0, 145.0)
+		assert_float(total * w.xp_mult).override_failure_message("%s total xp %.1f" % [id, total * w.xp_mult]).is_between(232.0, 248.0)
 		var roles: Dictionary = ROLES[id]
 		var base_roles: Dictionary = ROLES["hansan_1592"]
 		for i in w.waves.size():

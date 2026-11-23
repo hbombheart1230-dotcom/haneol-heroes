@@ -61,7 +61,7 @@ waves = Array[ExtResource("w_wave")]([SubResource("Wave_1"), SubResource("Wave_2
 max_alive = 14
 next_when_left = 2
 refill_each = true
-xp_mult = 0.85
+xp_mult = 1.48
 
 [resource]
 script = ExtResource("1_theme")
