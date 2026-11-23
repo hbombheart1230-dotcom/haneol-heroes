@@ -28,19 +28,36 @@ func _run(id: String, s: int, contact: bool = true) -> Dictionary:
 	return r
 
 
+## 물결 흐름 (막힘·장애물 속 등장·화면 상한·적 수)은 접촉 피해 없이 세 씨앗 모두에서 본다 (봇 생존과 따로).
 func test_every_stage_reaches_the_boss_without_stalling() -> void:
 	for id in STAGES:
-		var r: Dictionary = await _run(id, SEEDS[0])
-		assert_bool(r["boss"]).override_failure_message("%s: %s" % [id, StageSim.stage_line(id, r)]).is_true()
-		assert_int((r["cleared"] as Array).size()).override_failure_message(id).is_equal(4)  # 물결 넷 (그 뒤 보스)
-		assert_float(r["stall"]).override_failure_message(id).is_less(1.0)  # 숨 고르기 뒤 다음 물결이 바로
-		assert_int(r["blocked"]).override_failure_message(id).is_equal(0)  # 장애물 속 등장 없음
-		var st: StageTheme = load("res://data/stages/%s.tres" % id)
-		var planned := 2  # 정예(중간 보스) + 보스
-		for w: WaveData in st.waves.waves:
-			planned += w.enemies.size()
-		assert_int(r["spawned"]).override_failure_message(id).is_greater_equal(planned)  # 물결 적 다 + 정예 + 보스 (중간 보스 소환은 더)
-		assert_int(r["max_alive"]).override_failure_message(id).is_less_equal(st.waves.max_alive + 1)  # 화면 상한 (+ 정예 한 마리)
+		for s in SEEDS:
+			var r: Dictionary = await _run(id, s, false)
+			var line := StageSim.stage_line("%s seed %d no-contact" % [id, s], r)
+			assert_bool(r["boss"]).override_failure_message(line).is_true()
+			assert_int((r["cleared"] as Array).size()).override_failure_message(line).is_equal(4)  # 물결 넷 (그 뒤 보스)
+			assert_float(r["stall"]).override_failure_message(line).is_less(1.0)  # 숨 고르기 뒤 다음 물결이 바로
+			assert_int(r["blocked"]).override_failure_message(line).is_equal(0)  # 장애물 속 등장 없음
+			var st: StageTheme = load("res://data/stages/%s.tres" % id)
+			var planned := 2  # 정예(중간 보스) + 보스
+			for w: WaveData in st.waves.waves:
+				planned += w.enemies.size()
+			assert_int(r["spawned"]).override_failure_message(line).is_greater_equal(planned)  # 물결 적 다 + 정예 + 보스 (중간 보스 소환은 더)
+			assert_int(r["max_alive"]).override_failure_message(line).is_less_equal(st.waves.max_alive + 1)  # 화면 상한 (+ 정예 한 마리)
+
+
+## 접촉 피해까지 켜면 봇(둘러싸여도 제자리)이 씨앗마다 크게 갈린다 (한산: 같은 코드에서 피해 0 ↔ 접촉 100이 씨앗만 바꿔 뒤집힘):
+## 한 씨앗으로 정하지 않고 세 씨앗 중 둘 이상에서 보스까지 산다.
+func test_hero_survives_contact_on_most_seeds() -> void:
+	for id in STAGES:
+		var alive := 0
+		var lines: PackedStringArray = []
+		for s in SEEDS:
+			var r: Dictionary = await _run(id, s)
+			alive += int(r["boss"])
+			lines.append(StageSim.stage_line("%s seed %d" % [id, s], r))
+		assert_int(alive).override_failure_message("
+".join(lines)).is_greater_equal(SEEDS.size() - 1)
 
 
 ## 무대 길이·받는 예고 공격 피해가 한산과 비슷하다 (물결만, 보스 전까지, 접촉 피해 빼고).
@@ -72,3 +89,19 @@ func test_same_seed_same_run() -> void:
 	_runs.clear()
 	var b: Dictionary = await _run("manchuria_395", 23)
 	assert_str(StageSim.stage_line("x", a)).is_equal(StageSim.stage_line("x", b))
+
+
+## 한산 순신 판도 같은 씨앗 = 같은 판: 멈춤(GameTime)·칼 박힘(BladeBite)이 실제 시각을 쓰면 기계 속도에 따라 갈렸다
+## (같은 실행 안에서 씨앗 11이 이김·짐·이김). 시뮬레이션은 GameTime.clock에 판 시각을 넣는다.
+func test_same_seed_same_run_with_hit_stops() -> void:
+	var a: Dictionary = await _run("hansan_1592", 11)
+	_runs.clear()
+	var b: Dictionary = await _run("hansan_1592", 11)
+	assert_str(StageSim.stage_line("x", a)).is_equal(StageSim.stage_line("x", b))
+	GameTime.clock = func() -> int: return 1000
+	GameTime.stop(get_tree(), 0.5)
+	assert_bool(GameTime.is_stopped()).is_true()
+	GameTime.clock = func() -> int: return 1600
+	assert_bool(GameTime.is_stopped()).is_false()  # 실제 시각이 아니라 넣은 시각으로 풀린다
+	GameTime.clock = Callable()
+	GameTime.reset()
