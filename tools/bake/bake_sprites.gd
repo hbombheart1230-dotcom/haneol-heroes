@@ -154,7 +154,9 @@ static func import_anim(ap: AnimationPlayer, from_path: String, src: String, key
 	if found != "":
 		if not ap.has_animation_library(&"ext"):
 			ap.add_animation_library(&"ext", AnimationLibrary.new())
-		ap.get_animation_library(&"ext").add_animation(key, oap.get_animation(found).duplicate(true))
+		var anim := oap.get_animation(found).duplicate(true) as Animation
+		ClipRetarget.apply(anim, ap, other)  # 다른 뼈대 파일(웹 SmartRigArmature)의 동작
+		ap.get_animation_library(&"ext").add_animation(key, anim)
 		result = "ext/" + key
 	other.free()
 	return result
