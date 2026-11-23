@@ -15,6 +15,7 @@ static func tap(c: SkillCaster) -> SkillCaster.Slot:
 				return SkillCaster.Slot.NONE
 			c.combo.on_finish()
 			c.cast(SkillCaster.Slot.TAP, 0.0, c.kit.combo_finisher_mult, c.kit.tap.cooldown * c.kit.combo_finisher_cd_ratio)
+			c.combo_count.emit(c.kit.combo_hits + 1)  # 마무리 = 4타
 			return SkillCaster.Slot.TAP
 		TapCombo.Action.HIT:
 			atk.manual_strike(c.combo.on_hit(c.kit.combo_hits, atk.stats().chain_len), c.kit.ranged_taps)

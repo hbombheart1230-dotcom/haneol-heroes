@@ -10,9 +10,9 @@ signal closed
 signal opened
 signal exit_confirmed(mode: StringName)
 
-const ROWS: Array[StringName] = [&"sfx", &"music", &"haptics", &"story", &"skill_button", &"enemy_hp", &"stats", &"tutorial"]
+const ROWS: Array[StringName] = [&"sfx", &"music", &"haptics", &"story", &"skill_button", &"enemy_hp", &"combo_text", &"stats", &"tutorial"]
 const LABELS := {&"sfx": "효과음", &"music": "음악", &"haptics": "타격 진동", &"story": "이야기",
-	&"skill_button": "스킬 단추", &"enemy_hp": "적 체력", &"stats": "개발 수치", &"tutorial": "조작 안내"}
+	&"skill_button": "스킬 단추", &"enemy_hp": "적 체력", &"combo_text": "연타 글씨", &"stats": "개발 수치", &"tutorial": "조작 안내"}
 const ROW_STEP := 92.0
 const SLIDERS: Array[StringName] = [&"sfx", &"music"]
 ## 나가기 방식별 [단추 글, 확인 물음 두 줄].
@@ -129,6 +129,7 @@ func value_of(row: StringName) -> Variant:
 		&"story": return GameSettings.story_enabled
 		&"skill_button": return GameSettings.skill_button_enabled
 		&"enemy_hp": return GameSettings.enemy_hp_bars
+		&"combo_text": return GameSettings.combo_text
 		&"stats": return GameSettings.show_stats
 		&"tutorial": return GameSettings.tutorial_enabled  # 켬(처음 값) = 앱을 켤 때마다 첫 판에 안내
 	return null
@@ -144,6 +145,7 @@ func set_value(row: StringName, v: Variant) -> void:
 		&"story": GameSettings.story_enabled = bool(v)
 		&"skill_button": GameSettings.skill_button_enabled = bool(v)
 		&"enemy_hp": GameSettings.enemy_hp_bars = bool(v)
+		&"combo_text": GameSettings.combo_text = bool(v)
 		&"stats": GameSettings.show_stats = bool(v)
 		&"tutorial":
 			GameSettings.tutorial_enabled = bool(v)

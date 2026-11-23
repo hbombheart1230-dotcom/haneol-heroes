@@ -25,6 +25,8 @@ static var story_enabled: bool = true
 static var show_stats: bool = false
 ## 적 머리 위 체력 막대.
 static var enemy_hp_bars: bool = true
+## 연타 글씨 ("1타"~"4타", ComboCounter).
+static var combo_text: bool = true
 ## 조작 안내 (설정 "조작 안내", 저장, 처음엔 켬): 켜 두면 앱을 켤 때마다 첫 판에 한 번 나온다.
 static var tutorial_enabled: bool = true
 ## 이번 실행에서 조작 안내를 마쳤는지 (저장 안 함).
@@ -87,6 +89,7 @@ static func load_settings(path: String = "") -> void:
 	story_enabled = bool(cfg.get_value("game", "story_enabled", story_enabled))
 	show_stats = bool(cfg.get_value("display", "dev_stats", false))
 	enemy_hp_bars = bool(cfg.get_value("display", "enemy_hp_bars", enemy_hp_bars))
+	combo_text = bool(cfg.get_value("display", "combo_text", combo_text))
 	tutorial_enabled = bool(cfg.get_value("game", "tutorial_enabled", true))  # 값이 없으면 (처음·예전 저장) 켬
 	apply_audio()
 	hero_id = StringName(cfg.get_value("game", "hero_id", String(hero_id)))
@@ -109,6 +112,7 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("game", "story_enabled", story_enabled)
 	cfg.set_value("display", "dev_stats", show_stats)
 	cfg.set_value("display", "enemy_hp_bars", enemy_hp_bars)
+	cfg.set_value("display", "combo_text", combo_text)
 	cfg.set_value("game", "tutorial_enabled", tutorial_enabled)
 	cfg.set_value("game", "hero_id", String(hero_id))
 	cfg.set_value("game", "stage_id", String(stage_id))

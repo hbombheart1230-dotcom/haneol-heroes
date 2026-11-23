@@ -11,6 +11,8 @@ extends Node2D
 signal skill_cast(slot: Slot, hits: int)
 ## 누르는 순간 (여러 프레임 기술도 시작할 때 한 번): 영웅 시전 동작용. def = 실제로 쓰인 기술.
 signal skill_started(slot: Slot, def: SkillDef)
+## 손 연타가 이어진 타 수 (평타가 적에 닿을 때 1·2·3, 원거리 평타는 쏠 때, 마무리 = combo_hits + 1): 연타 글씨용.
+signal combo_count(n: int)
 
 enum Slot { NONE, TAP, DASH, CHARGE, COUNTER }
 
@@ -250,8 +252,16 @@ func auto_attack() -> AutoAttack:
 		if _attack:  # 자동 평타를 연계 수에 넣을지는 kit.combo_auto_counts
 			_attack.melee_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
 			_attack.ranged_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
+			_attack.melee_swung.connect(func(_d: Vector2, hits: int) -> void: _on_manual_land(hits > 0 and _attack.swing_manual))
+			_attack.projectile_fired.connect(func(_p: Projectile) -> void: _on_manual_land(_attack.shot_manual))
 			player.dash_started.connect(func(_d: Vector2) -> void: ComboSteps.cancel_swing(_attack))
 	return _attack
+
+
+## 손 평타가 닿았다 (원거리는 쏘았다): 연타 글씨.
+func _on_manual_land(landed: bool) -> void:
+	if landed and combo.streak > 0:
+		combo_count.emit(combo.streak)
 
 
 func _on_auto_swing() -> void:

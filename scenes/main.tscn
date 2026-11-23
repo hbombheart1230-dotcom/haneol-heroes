@@ -53,6 +53,7 @@
 [ext_resource type="Script" path="res://scripts/fx/reward_fx.gd" id="70_reward_fx"]
 [ext_resource type="Script" path="res://scripts/ui/boss_banner.gd" id="71_boss_banner"]
 [ext_resource type="Script" path="res://scripts/ui/hurt_vignette.gd" id="72_hurt_vignette"]
+[ext_resource type="Script" path="res://scripts/ui/combo_counter.gd" id="73_combo_counter"]
 [ext_resource type="Script" path="res://scripts/world/ghost_fire.gd" id="73_ghost_fire"]
 [ext_resource type="Script" path="res://scripts/fx/swing_trail.gd" id="74_swing_trail"]
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
@@ -220,6 +221,17 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("72_hurt_vignette")
 player = NodePath("../../Player")
+
+[node name="ComboCounter" type="Control" parent="HUD" node_paths=PackedStringArray("caster")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("73_combo_counter")
+caster = NodePath("../../Player/SkillCaster")
 
 [node name="HeroSelect" type="Control" parent="HUD"]
 layout_mode = 3
