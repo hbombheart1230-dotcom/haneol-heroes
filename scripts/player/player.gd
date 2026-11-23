@@ -376,7 +376,7 @@ func _physics_process(delta: float) -> void:
 	if is_dashing() and hero and hero.dash_shove > 0.0:
 		shove_enemies(get_tree().get_nodes_in_group(Enemy.GROUP))
 	if is_dashing() and dash_strikes:
-		DashDirection.tick(self, get_tree().get_nodes_in_group(Enemy.GROUP))
+		DashDirection.tick(self, get_tree().get_nodes_in_group(Enemy.GROUP), delta)
 	apply_contact_damage(delta, _touching_damage())
 	move_and_slide()
 	if arena_rect.has_area():

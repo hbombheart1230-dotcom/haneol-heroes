@@ -52,7 +52,8 @@ static func begin(p: Player, list: Array, chained: bool) -> void:
 
 
 ## 대시 중 한 틱: 돌진 타격 (지나간 몹마다 한 번, 멈춤 없음: 처치 멈춤도 걸지 않는다).
-static func tick(p: Player, list: Array) -> void:
+## 이번 틱에 지나갈 선분(지금 자리 → 속도 × delta)과 몹 사이 거리로 본다 (빠른 대시가 몹을 건너뛰지 않게).
+static func tick(p: Player, list: Array, delta: float) -> void:
 	if not p.dash_strikes or p.hero == null or p.hero.dash_dir == null:
 		return
 	var d := p.hero.dash_dir
@@ -62,7 +63,8 @@ static func tick(p: Player, list: Array) -> void:
 		var en := e as Enemy
 		if en == null or not is_instance_valid(en) or en.health.is_dead() or p.dash_struck.has(en.get_instance_id()):
 			continue
-		if en.global_position.distance_to(p.global_position) > d.strike_radius + en.body_radius * en.size_mult:
+		var near := Geometry2D.get_closest_point_to_segment(en.global_position, p.global_position, p.global_position + p.velocity * delta)
+		if en.global_position.distance_to(near) > d.strike_radius + en.body_radius * en.size_mult:
 			continue
 		p.dash_struck[en.get_instance_id()] = true
 		striking = true

@@ -4,3 +4,5 @@
 
 [resource]
 script = ExtResource("1_dd")
+strike_extra_charge = 1
+strike_end_lag = 0.15
