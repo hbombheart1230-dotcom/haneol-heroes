@@ -8,6 +8,8 @@ extends GdUnitTestSuite
 const ALL_SEEDS := [11, 23, 37]
 static var SEEDS: Array = ALL_SEEDS if OS.get_environment("HH_SLOW") == "1" else [11]
 static var SLOPPY: bool = OS.get_environment("HH_SLOW") == "1"
+## HH_ONLY_HERO=<영웅 id>면 그 영웅 줄만 (수치를 맞출 때 빨리 다시 재기).
+static var ONLY: String = OS.get_environment("HH_ONLY_HERO")
 const BOSSES := {
 	"hansan": "res://data/enemies/waegun_commander.tres",
 	"manchuria": "res://data/enemies/boss_general.tres",
@@ -58,6 +60,8 @@ func test_sixteen_matchups_last_about_the_same() -> void:
 	var sloppy_runs := 0
 	for boss in BOSSES:
 		for hero in HEROES:
+			if ONLY != "" and hero != ONLY:
+				continue
 			var times: Array[float] = []
 			var wins := 0
 			for s in SEEDS:
