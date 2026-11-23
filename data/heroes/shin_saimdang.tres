@@ -29,6 +29,7 @@
 [ext_resource type="Resource" path="res://data/heroes/charge/shin_saimdang.tres" id="charge_marker"]
 [ext_resource type="Texture2D" path="res://assets/vfx/butterfly.png" id="art_butterfly"]
 [ext_resource type="Texture2D" path="res://assets/vfx/grasshopper.png" id="art_grasshopper"]
+[ext_resource type="Resource" path="res://data/heroes/levels/shin_saimdang_level_up.tres" id="lv_up"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -181,6 +182,7 @@ kit = SubResource("Kit")
 boss_hp_mult = 0.95
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+level_up = ExtResource("lv_up")
 dash_style = ExtResource("dash_style")
 charge_marker = ExtResource("charge_marker")
 hit_sfx = Array[StringName]([&"mat_ink", &"mat_brush"])

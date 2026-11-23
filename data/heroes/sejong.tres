@@ -27,6 +27,7 @@
 [ext_resource type="Texture2D" path="res://assets/vfx/meteor.png" id="fall_art"]
 [ext_resource type="Texture2D" path="res://assets/vfx/glyphs.png" id="ring_art"]
 [ext_resource type="Resource" path="res://data/heroes/charge/sejong.tres" id="charge_marker"]
+[ext_resource type="Resource" path="res://data/heroes/levels/sejong_level_up.tres" id="lv_up"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -182,6 +183,7 @@ kit = SubResource("Kit")
 boss_hp_mult = 2.2
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+level_up = ExtResource("lv_up")
 dash_style = ExtResource("dash_style")
 charge_marker = ExtResource("charge_marker")
 hit_sfx = Array[StringName]([&"mat_lightning", &"mat_glyph"])

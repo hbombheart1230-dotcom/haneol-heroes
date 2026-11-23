@@ -26,6 +26,7 @@
 [ext_resource type="Resource" path="res://data/heroes/dash/gwanggaeto.tres" id="dash_style"]
 [ext_resource type="Texture2D" path="res://assets/vfx/proj_spear.png" id="proj_art"]
 [ext_resource type="Resource" path="res://data/heroes/charge/gwanggaeto.tres" id="charge_marker"]
+[ext_resource type="Resource" path="res://data/heroes/levels/gwanggaeto_level_up.tres" id="lv_up"]
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
@@ -185,6 +186,7 @@ kit = SubResource("Kit_gw")
 boss_hp_mult = 1.9
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+level_up = ExtResource("lv_up")
 dash_style = ExtResource("dash_style")
 charge_marker = ExtResource("charge_marker")
 hit_sfx = Array[StringName]([&"mat_fire", &"mat_blunt"])

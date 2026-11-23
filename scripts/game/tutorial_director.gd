@@ -102,7 +102,7 @@ func _caster() -> SkillCaster:
 	return main.player.get_node_or_null("SkillCaster") as SkillCaster if main.player else null
 
 
-## 물결 모드 무대인지 (강화는 숨 고르기마다 한 번, 설명도 다르다).
+## 물결 모드 무대인지 (적립한 카드를 숨 고르기에서 고른다, 설명도 다르다).
 func _waves() -> bool:
 	return main.spawner != null and main.spawner.waves != null
 
@@ -112,8 +112,8 @@ func _maybe_offer_practice() -> void:
 	var s := run.current() if run else null
 	if s == null or s.event != &"upgrade" or main.seal_choice == null or main.seal_choice.is_open():
 		return
-	main.progress.pending += 1
-	main.break_picks = maxi(main.break_picks, 1)  # 물결 모드는 숨 고르기 몫이 있어야 카드를 연다
+	main.progress.pending += 1  # 연습 카드 한 장을 적립하고 숨 고르기처럼 고른다
+	main.break_picks = maxi(main.break_picks, main.levels.plan_break(false) if main.levels else 1)
 	main._offer_next()
 	if not main.seal_choice.is_open():  # 고를 강화가 없는 영웅: 막히지 않게 이 단계를 넘긴다
 		run.notify(&"upgrade")

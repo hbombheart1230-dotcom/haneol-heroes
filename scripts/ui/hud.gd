@@ -16,6 +16,8 @@ var state: GameState
 var perf: PerfStats
 ## 런 성장 진행 (경험치 막대·레벨 표시). 없으면 그리지 않는다.
 var progress: RunProgress
+## 레벨 띠 (레벨 도장·경험치·적립 카드·레벨업 연출).
+var band := LevelBand.new()
 ## 판 시작 때 띄우는 무대 이름 (연도 · 전장).
 var stage: StageTheme
 ## 이겼을 때 "다음 전장" 무대 (결과 화면에 이름).
@@ -34,6 +36,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_tick_boss_chip(delta)
+	band.tick(delta)
 	queue_redraw()
 
 
@@ -116,11 +119,8 @@ func _draw_status() -> void:
 	if state.survive_time <= 0.0:  # 런: 지난 시간 (분:초)
 		t = "%d:%02d" % [floori(state.elapsed / 60.0), floori(state.elapsed) % 60]
 	if progress:
-		var r := Rect2(16, 44, size.x - 32, 7)
-		draw_rect(r.grow(2.0), UiStyle.LACQUER)
-		draw_rect(Rect2(r.position, Vector2(r.size.x * progress.xp_ratio(), r.size.y)), UiStyle.GOLD)
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(16, 82), "단계 %d · 처치 %d" % [progress.level, state.kills], 26,
-			UiStyle.PAPER, -1, Color(0, 0, 0, 0.7), 5)
+		band.progress = progress
+		band.draw(self, size.x, state.kills)
 	else:
 		_ink_text(font, Vector2(16, 70), "처치 %d" % state.kills, HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
 	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, 112), t, 54, UiStyle.PAPER, size.x, Color(0, 0, 0, 0.85), 9)
@@ -167,3 +167,18 @@ func _draw_touch_debug() -> void:
 func _ink_text(font: Font, pos: Vector2, text: String, align: HorizontalAlignment, width: float, size_px: int) -> void:
 	draw_string_outline(font, pos, text, align, width, size_px, 5, Color(Ink.PAPER, 0.9))
 	draw_string(font, pos, text, align, width, size_px, Color(Ink.INK, 0.9))
+
+
+## 레벨업 순간 (RunProgress.leveled_up): 띠 번쩍 + "레벨 업" + "카드 +1". 싸움은 멈추지 않는다.
+func on_level_up(level: int) -> void:
+	band.on_level_up(level)
+
+
+## 점수가 들어옴 (RunProgress.scored): 띠 반짝, 행동 점수는 작은 글씨.
+func on_scored(kind: StringName, amount: int) -> void:
+	band.on_scored(kind, amount)
+
+
+## 숨 고르기에서 카드를 꺼냄.
+func cards_used(_n: int) -> void:
+	band.on_cards_used()

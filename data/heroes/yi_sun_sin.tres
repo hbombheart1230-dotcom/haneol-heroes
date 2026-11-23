@@ -33,6 +33,7 @@
 [ext_resource type="Script" path="res://scripts/data/charge_scaling.gd" id="cs_charge"]
 
 [ext_resource type="Resource" path="res://data/heroes/bite/yi_sun_sin.tres" id="blade_bite"]
+[ext_resource type="Resource" path="res://data/heroes/levels/yi_sun_sin_level_up.tres" id="lv_up"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -209,6 +210,7 @@ attack = SubResource("Attack_yi")
 kit = SubResource("Kit_yi")
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+level_up = ExtResource("lv_up")
 dash_style = ExtResource("dash_style")
 charge_marker = ExtResource("charge_marker")
 blade_bite = ExtResource("blade_bite")

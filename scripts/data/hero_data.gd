@@ -79,3 +79,5 @@ extends Resource
 @export var upgrade_pool: UpgradePool
 ## 정예 처치 보상: 기술 행동을 바꾸는 큰 변형.
 @export var major_pool: UpgradePool
+## 판 안 레벨이 오를 때마다 바로 적용하는 작은 능력치 상승 (UpgradeDef의 mods만 쓴다. 기술 모습은 LevelRules.vfx_every).
+@export var level_up: UpgradeDef

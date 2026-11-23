@@ -62,3 +62,19 @@ func apply(u: UpgradeDef) -> bool:
 	if caster:
 		caster.apply_kit(hero.kit)  # 입력 판정 시간(충전 등)은 캐시되므로 다시 읽힌다
 	return ok
+
+
+## 레벨이 올려 준 기술 모습 단계 (판 안 레벨 → LevelRules.vfx_bonus). 강화로 오른 단계와 더해진다.
+var level_vfx: int = 0
+
+
+## 레벨 보너스를 bonus로 맞춘다: 모든 기술의 모습 단계(SkillDef.vfx_level)에 차이만큼 더한다.
+func set_level_vfx(bonus: int) -> void:
+	var d := bonus - level_vfx
+	if d == 0 or hero == null or hero.kit == null:
+		return
+	level_vfx = bonus
+	for slot in [&"tap", &"dash", &"charge", &"counter"]:
+		var sk := hero.kit.get(slot) as SkillDef
+		if sk:
+			sk.vfx_level = maxi(sk.vfx_level + d, 0)
