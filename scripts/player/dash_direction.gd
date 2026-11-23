@@ -92,4 +92,6 @@ static func anim(p: Player, sheet: SpriteSheetSet) -> String:
 	if d == null or sheet == null:
 		return "dash"
 	var want := String(d.charge_anim if p.dash_kind == Kind.CHARGE else (d.back_anim if p.dash_kind == Kind.BACK else &"dash"))
+	if not sheet.has_anim(want) and p.dash_kind == Kind.BACK:
+		want = String(d.back_fallback)
 	return want if sheet.has_anim(want) else "dash"

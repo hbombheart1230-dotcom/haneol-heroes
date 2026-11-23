@@ -244,7 +244,7 @@ func _update_sprite(delta: float) -> void:
 	var tint := Color(1, 1, 1)
 	var ds := player.hero.dash_style if player.hero else null
 	if player.skill_invuln_left() > 0.0 and not player.is_dashing():
-		tint = Color(1.0, 0.9, 0.55)
+		tint = EvadeRim.body_tint()  # 무적: 옅은 금빛 (테두리가 주 표시, EvadeRimData)
 	elif player.is_dashing():
 		tint = ds.body_tint if ds else Color(0.75, 0.9, 1.0)
 		tint.a = ds.body_alpha if ds else 1.0  # 광개토 번개 순간이동·사임당 먹으로 흩어짐

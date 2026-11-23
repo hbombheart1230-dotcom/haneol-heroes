@@ -5,7 +5,9 @@ extends Resource
 
 const PATH := "res://data/feel/evade_rim.tres"
 
-@export var color: Color = Color(1.0, 0.82, 0.35, 0.85)
+@export var color: Color = Color(1.0, 0.82, 0.35, 0.9)
+## 무적 동안 몸 전체 색 (예전 진한 금빛 Color(1, 0.9, 0.55)이 테두리를 덮어 옅게).
+@export var body_tint: Color = Color(1.0, 0.96, 0.86)
 ## 테두리 두께(px, 화면): 실루엣을 둘레 8방향으로 이만큼 밀어 그린다.
 @export var width_px: float = 3.0
 ## 남은 시간 비율에 곱하는 곡선 지수 (1 = 고르게 옅어짐, 크면 끝에서 빨리).

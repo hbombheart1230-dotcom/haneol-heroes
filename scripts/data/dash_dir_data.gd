@@ -24,5 +24,7 @@ extends Resource
 ## 동작: 돌진 = 돌진 베기 (없으면 dash), 뒤로 빠지기 = 뒤로 뛰기 (없으면 dash를 적을 본 채로).
 @export var charge_anim: StringName = &"cast_dash"
 @export var back_anim: StringName = &"backstep"
+## 뒤로 뛰기 동작이 시트에 없을 때 대신 (맞고 물러나는 hit: 적을 본 채 뒤로 젖혀진다. dash는 앞구르기라 뒤로는 어색하다).
+@export var back_fallback: StringName = &"hit"
 ## 돌진 타격 소리 (SoundBank 종류).
 @export var strike_sfx: StringName = &"w_sword"

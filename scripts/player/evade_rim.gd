@@ -28,6 +28,16 @@ func _init(p: Player = null, s: AnimatedSprite2D = null) -> void:
 		player.evaded.connect(func() -> void: _total = maxf(player.evade_invuln_time, 0.001))
 
 
+static var _data: EvadeRimData
+
+
+## 무적 동안 몸 색 (PlayerView).
+static func body_tint() -> Color:
+	if _data == null:
+		_data = load(EvadeRimData.PATH) as EvadeRimData
+	return _data.body_tint if _data else Color.WHITE
+
+
 ## 0~1 진하기: 회피 무적 남은 시간 ÷ 전체 (회피로 켜진 무적만, 끝나기 직전 깜빡).
 func strength() -> float:
 	if player == null or _total <= 0.0:
