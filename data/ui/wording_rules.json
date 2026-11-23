@@ -1,0 +1,6 @@
+{
+  "banned": ["레벨", "스킬", "콤보", "대시", "보스", "스테이지", "웨이브", "카드", "업그레이드", "튜토리얼", "버튼", "스턴", "쿨타임", "데미지", "히트", "클리어", "포인트", "스코어", "탭"],
+  "scan_dirs": ["data", "scripts/ui", "scripts/game", "scripts/world", "scripts/fx"],
+  "skip_files": ["scripts/game/perf_stats.gd"],
+  "allow": []
+}
