@@ -14,6 +14,11 @@ static func tap(c: SkillCaster) -> SkillCaster.Slot:
 				c.combo.buffer(c.kit.finisher_buffer)  # 3타가 닿을 때까지 기억 (F1)
 				return SkillCaster.Slot.NONE
 			c.combo.on_finish()
+			if atk and atk.lock.active():  # 마무리도 연타 대상 쪽으로
+				var to := atk.lock.target.global_position - c.player.global_position
+				if to.length_squared() > 1.0:
+					c.player.facing = to.normalized()
+				atk.lock.release()
 			var bite := c.player.hero.blade_bite if c.player and c.player.hero else null
 			if bite and bite.enabled:  # 마무리 명중 멈춤 = 칼이 박히는 멈춤 길이 하나로 (풀릴 때 쉭)
 				SkillHitStop.force_next(bite.finisher_stop, bite.release_sfx, bite.release_pitch)

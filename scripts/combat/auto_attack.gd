@@ -49,6 +49,8 @@ var last_manual: bool = false
 ## 지금 닿을 칼·놓을 탄이 손 평타인지 (닿기·놓기가 늦게 와도: 연타 글씨).
 var swing_manual: bool = false
 var shot_manual: bool = false
+## 연타 대상 고정 (HeroData.combo_lock): 1타가 맞힌 몹을 연타 동안 겨냥.
+var lock := ComboLock.new()
 ## 연타 흐름: 마지막으로 칼이 닿은 뒤 흐른 시간 (캔슬 구간), 이번 원거리 연타 번호와 손에 든 탄의 번호·동작.
 var _since_strike: float = INF
 var ranged_step: int = 0
@@ -138,6 +140,8 @@ func manual_strike(step: int, ranged: bool, enemy_list: Array = []) -> void:
 	var list := enemy_list if not enemy_list.is_empty() else enemies()
 	var from := player.global_position
 	var nearest := Targeting.nearest(list, from, stats().ranged_range)
+	if not ranged and player.hero:  # 연타 중이면 처음 때린 몹 (ComboLock)
+		nearest = lock.pick(player.hero.combo_lock, player, step, stats().melee_range * ComboSteps.at(stats().step_range_mults, step, 1.0), nearest)
 	var to: Vector2 = nearest.global_position - from if nearest else player.facing
 	_since_manual = 0.0
 	_hold = 0.0
@@ -264,6 +268,8 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 			if e is Enemy and is_instance_valid(e):
 				(e as Enemy).bite(bite_t, player.hero.blade_bite.jitter_px)
 	last_heavy = heavy
+	if swing_manual and player.hero:
+		lock.on_contact(player.hero.combo_lock, player, hits, _swing_dir)  # 대상 잡기 · 살짝 끌려 붙기
 	melee_swung.emit(_swing_dir, hits.size())
 	queue_redraw()
 

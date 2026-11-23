@@ -52,6 +52,7 @@ static func cancel_swing(atk: AutoAttack) -> void:
 	if atk:
 		atk._melee_left = -1.0
 		atk._stepin_left = -1.0
+		atk.lock.release()  # 대시하면 연타 대상도 풀림
 
 
 ## 평타 밀림: 3타 강타이고 heavy_launch_px가 있으면 크게 날리기 (사임당 3타 원 붓질), 아니면 넉백 (적 배율 반영).
