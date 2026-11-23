@@ -219,25 +219,13 @@
     },
     {
       "key": "cast_counter",
-      "reuse": {
-        "src": "Weapon_Combo",
-        "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo.res"
-      },
+      "clip_of": "spin_src",
       "frames": 7,
       "fps": 16.0,
-      "start": 1.33,
-      "end": 2.53,
-      "strike": 2.3,
-      "times": [
-        1.33,
-        1.47,
-        1.6,
-        2.2,
-        2.3,
-        2.34,
-        2.53
-      ],
-      "loop": false
+      "loop": false,
+      "start": 1.12,
+      "end": 1.85,
+      "strike": 1.5
     },
     {
       "key": "backstep",
