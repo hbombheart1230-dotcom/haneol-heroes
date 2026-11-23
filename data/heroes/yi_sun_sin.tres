@@ -32,6 +32,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/charge_scaling.gd" id="cs_charge"]
 
+[ext_resource type="Resource" path="res://data/heroes/bite/yi_sun_sin.tres" id="blade_bite"]
+
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
 melee_interval = 0.64
@@ -209,4 +211,5 @@ upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
 dash_style = ExtResource("dash_style")
 charge_marker = ExtResource("charge_marker")
+blade_bite = ExtResource("blade_bite")
 hit_sfx = Array[StringName]([&"mat_water", &"mat_blade"])

@@ -337,9 +337,7 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 	var finisher := d != null and (d.is_boss or d.is_elite)
 	var elem := DeathCause.burst(self, e, last_damage, finisher)  # 처치한 영웅의 속성 모습 (물·번개·글자·먹)
 	if kill_fx:
-		var tex: Texture2D = null
-		if e.sprite and e.sprite.sprite_frames:
-			tex = e.sprite.sprite_frames.get_frame_texture(e.sprite.animation, e.sprite.frame)
+		var tex := EnemySprite3D.corpse_texture(e)  # 3D 적은 구운 칸 (화면 텍스처는 적과 함께 지워진다)
 		kill_fx.launch(e.global_position, dir, last_damage, tex, d.sprite_scale if d else 1.0,
 			d.sprite_offset if d else Vector2.ZERO, d.sprite_tint if d else Color.WHITE,
 			&"none" if elem else (d.death_style if d else &"smoke"), d.launch_scale if d else 1.0, finisher)
@@ -356,7 +354,8 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 	add_trauma(feel.kill_trauma, dir)
 	kick(dir, feel.kill_kick_px)
 	var now := Time.get_ticks_msec() / 1000.0
-	if feel.kill_freeze > 0.0 and now - _last_kill_freeze >= feel.kill_freeze_min_gap and is_inside_tree():
+	# 칼이 박힌 멈춤 중이면 처치 멈춤을 더 얹지 않는다 (휘두름 한 번에 멈춤 한 번, BladeBite)
+	if feel.kill_freeze > 0.0 and now - _last_kill_freeze >= feel.kill_freeze_min_gap and is_inside_tree() 			and not BladeBite.is_biting():
 		_last_kill_freeze = now
 		GameTime.stop(get_tree(), feel.kill_freeze)
 

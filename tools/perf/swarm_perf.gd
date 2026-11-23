@@ -1,7 +1,7 @@
 extends SceneTree
 ## 잡몹 떼 성능 재기: 실제 main 장면(무대·영웅 고름)에서 적 N마리를 영웅 둘레에 늘 채워 두고, 영웅이 탭 연타로 치고
 ## 죽이며(맞는 효과·처치 효과·먹 튐이 계속 생긴다) 프레임마다 처리 시간·그리기 호출·물체 수·메모리를 잰다.
-## godot --path . --resolution 720x1280 -s res://tools/perf/swarm_perf.gd -- [무대 id] [영웅 id] [N들, 쉼표] [적 id] [nofire|noshader]
+## godot --path . --resolution 720x1280 -s res://tools/perf/swarm_perf.gd -- [무대 id] [영웅 id] [N들, 쉼표] [적 id] [nofire|noshader|none] [--live=0|1] [--boss]
 ## 결과 줄 (수직 동기 끔): PERF <무대> n=<N> frame_ms avg/p99 physics_ms draw_calls objects nodes obj_growth/s mem_growth_kb/s
 
 const WARM := 60
@@ -20,7 +20,13 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var args := OS.get_cmdline_user_args()
+	var all := OS.get_cmdline_user_args()
+	var args := Array(all).filter(func(a: String) -> bool: return not a.begins_with("--"))
+	var flags := Array(all).filter(func(a: String) -> bool: return a.begins_with("--"))
+	# --live=0|1: 실시간 3D 끄고 켜기 (hh/art/live3d), --boss: 무대 보스 하나를 세워 둔다 (안 죽게)
+	for f in flags:
+		if f.begins_with("--live="):
+			ProjectSettings.set_setting("hh/art/live3d", f.ends_with("1"))
 	var stage := StringName(args[0] if args.size() > 0 else "hansan_1592")
 	GameSettings.settings_path = OS.get_user_data_dir() + "/probe_settings.cfg"  # 사용자 설정을 건드리지 않게
 	GameSettings.title_seen = true
@@ -55,6 +61,12 @@ func _run() -> void:
 		trash = load("res://data/enemies/%s.tres" % args[3])
 	await _wait(3.2)  # 무대 제목 띠
 	player.grant_invulnerability(9999.0)
+	if flags.has("--boss"):
+		var b := spawner.spawn_boss()
+		if b:
+			b.global_position = player.global_position + Vector2(0, -260)
+			b.health.max = 10000000
+			b.health.current = 10000000
 	await _measure(String(stage), trash, 10, false)  # 데우기 (셰이더·텍스처 첫 사용)
 	for n_s in (args[2] if args.size() > 2 else "5,10,20").split(","):
 		await _measure(String(stage), trash, int(n_s))

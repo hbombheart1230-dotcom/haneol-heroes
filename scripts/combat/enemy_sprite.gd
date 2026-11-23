@@ -11,6 +11,8 @@ static func setup(e: Enemy) -> AnimatedSprite2D:
 	s.modulate = e.data.sprite_tint
 	s.material = EnemyLook.material_for(e.data, e.affix)  # 군대별 테두리·밝기 (잘 보이게)
 	e.add_child(s)
+	e.sprite = s
+	EnemySprite3D.attach(e)  # 3D가 준비된 적(보스부터)은 3D 화면 한 칸으로 (끄면·없으면 구운 그림 그대로)
 	return s
 
 
@@ -47,6 +49,7 @@ static func update(e: Enemy, busy: bool) -> void:
 		e.sprite.speed_scale = 0.0
 		e.sprite.frame = AttackTiming.enemy_frame(a.state == EnemyAttack.State.RECOVER, a.windup_ratio(),
 			a.recover_ratio(), sheet.strike_frame(anim), sheet.frame_count(anim))
+	EnemySprite3D.sync(e, anim, face, busy and a != null and anim != "hit" and anim != "run" and not down)
 	pose(e, 0.0)
 
 
@@ -73,6 +76,7 @@ static func start_hit(e: Enemy) -> void:
 		face = e.target.global_position - e.global_position
 	e.sprite.play(StringName("hit_%d" % sheet.dir_index(face)))
 	e.sprite.frame = 0
+	EnemySprite3D.restart_hit(e)
 
 
 ## 그림 자세: 발 기준 눌림·젖힘·기울기 (판정은 그대로) + 멈춤 떨림(shake_px) + 뛰기 높이 + 색.

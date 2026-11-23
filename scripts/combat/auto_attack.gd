@@ -218,6 +218,11 @@ func melee_delay() -> float:
 	var d := stats()
 	if d.melee_delay >= 0.0:
 		return d.melee_delay
+	var bite := player.hero.blade_bite if player and player.hero else null
+	if bite and bite.enabled and player.contact:  # 칼이 몹 몸에 닿는 바로 그 장면 (HeroContact, 범위로 자르지 않는다)
+		var t := player.contact.contact_time(StringName(chain_anim()))
+		if t >= 0.0:
+			return clampf(t, bite.contact_min, bite.contact_max)
 	var sheet := player.hero.sprite_sheet if player and player.hero else null
 	var feel := Feedback.feel_data()
 	var anim := chain_anim()
@@ -237,6 +242,7 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 	_since_strike = 0.0
 	var hits := Targeting.in_arc(enemy_list, from, _swing_dir, d.melee_range * ComboSteps.at(d.step_range_mults, chain_step, 1.0),
 		d.melee_arc_degrees * ComboSteps.at(d.step_arc_mults, chain_step, 1.0))  # 타별 모양 (3타 좁고 길게)
+	var bite_t := _bite(hits)  # 휘두름 한 번에 멈춤 한 번 (피해·처치 멈춤보다 먼저 건다)
 	for e in hits:
 		var h := e.get_node_or_null("Health") as Health
 		var en := e as Enemy
@@ -253,9 +259,22 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 		ImpactFx.melee_hit(from + _swing_dir * d.melee_range * 0.5, _swing_dir, d, heavy)  # 무기 소리·강타 흔들림
 		if d.melee_recoil > 0.0:  # 칼이 닿은 반동 (Hollow Knight식)
 			player.apply_recoil(-_swing_dir * d.melee_recoil)
+	if bite_t > 0.0:
+		for e in hits:  # 맞은 몹도 같은 길이로 멈추고 떨다가 풀릴 때 밀린다 (피해 멈춤을 덮어씀)
+			if e is Enemy and is_instance_valid(e):
+				(e as Enemy).bite(bite_t, player.hero.blade_bite.jitter_px)
 	last_heavy = heavy
 	melee_swung.emit(_swing_dir, hits.size())
 	queue_redraw()
+
+
+## 칼이 박히는 멈춤 (BladeBiteData, 영웅에 있을 때만): 맞은 게 있으면 이번 타 길이로 한 번. 반환: 멈춤(초), 없으면 0.
+func _bite(hits: Array) -> float:
+	var b := player.hero.blade_bite if player and player.hero else null
+	if b == null or not b.enabled or hits.is_empty():
+		return 0.0
+	var t := b.stop_for(chain_step)
+	return t if player.bite.start(b, t) else 0.0
 
 
 ## 원거리: 던지는 동작을 시작하고 release_delay초 뒤 손에서 놓는다 (0이면 바로).

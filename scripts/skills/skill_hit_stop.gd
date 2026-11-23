@@ -8,6 +8,13 @@ static var _max_damage: int = 0
 static var _count: int = 0
 static var _scheduled: bool = false
 static var _last_ms: int = -1000000
+## 이번 프레임 명중 멈춤을 이 길이로 고정 (넷째 탭 마무리의 칼이 박히는 멈춤, BladeBiteData.finisher_stop):
+## 길이·건 시각(ms)·풀릴 때 소리. FORCE_WINDOW_MS 안의 명중에만 쓴다 (빗나간 마무리가 다음 기술에 남지 않게).
+static var _forced: float = 0.0
+static var _forced_ms: int = -1000000
+const FORCE_WINDOW_MS := 50
+static var _forced_sfx: StringName = &""
+static var _forced_pitch: float = 1.0
 
 
 ## 순수 계산: 이번 프레임 가장 큰 피해와 맞은 수 → 멈춤 길이(초).
@@ -30,9 +37,29 @@ static func request(tree: SceneTree, damage: int) -> void:
 		_flush.bind(tree).call_deferred()
 
 
+## 이번 프레임의 명중 멈춤을 seconds로 (간격 규칙 무시: 마무리는 늘 멈춘다), 풀릴 때 sfx.
+static func force_next(seconds: float, sfx: StringName = &"", pitch: float = 1.0) -> void:
+	_forced = seconds
+	_forced_ms = Time.get_ticks_msec()
+	_forced_sfx = sfx
+	_forced_pitch = pitch
+
+
 static func _flush(tree: SceneTree) -> void:
 	var f := Feedback.feel_data()
 	var now := Time.get_ticks_msec()
+	if _forced > 0.0 and now - _forced_ms <= FORCE_WINDOW_MS and is_instance_valid(tree):
+		GameTime.stop(tree, _forced, f.skill_stop_scale)
+		_last_ms = now
+		if _forced_sfx != &"" and Feedback.instance:
+			var kind := _forced_sfx
+			var pitch := _forced_pitch
+			tree.create_timer(_forced, true, false, true).timeout.connect(func() -> void:
+				if Feedback.instance:
+					Feedback.instance.play(kind, 0.03, pitch))
+		_forced = 0.0
+		reset_pending()
+		return
 	if now - _last_ms >= int(f.skill_stop_min_gap * 1000.0) and is_instance_valid(tree):
 		var t := duration(_max_damage, _count, f)
 		if t > 0.0:
@@ -50,4 +77,5 @@ static func reset_pending() -> void:
 ## 테스트용: 간격 기록까지 지운다.
 static func reset() -> void:
 	reset_pending()
+	_forced = 0.0
 	_last_ms = -1000000

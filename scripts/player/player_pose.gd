@@ -51,5 +51,6 @@ static func tick(v: PlayerView, delta: float) -> void:
 			if v._lunge_now == Vector2.ZERO:
 				v._lunge = Vector2.ZERO
 		v._sprite.position += v._lunge_now
+	v._sprite.position += v.player.bite.jitter()  # 칼이 박혀 멈춘 동안 잔떨림 (2D·3D 같은 _sprite)
 	if v._land_hold_left > 0.0:
 		v._sprite.speed_scale = 0.0

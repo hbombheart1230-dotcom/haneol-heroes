@@ -11,12 +11,15 @@ static func draw(ci: CanvasItem, art: Texture2D, angle: float, r: float, half: f
 	var aa := ci as AutoAttack
 	if aa and SwingTrail.covers(aa.player):  # 궤적(SwingTrail)이 대신 그린다
 		return
-	var k := feel.crescent_scale * ComboSteps.at(feel.crescent_step_scales, step, 1.0)
+	var ks := ComboSteps.at(feel.crescent_step_scales, step, 1.0)
+	var k := feel.crescent_scale * ks
 	var h := r * maxf(sin(half), 0.35)
-	var cr := Rect2(r * 0.15 * k, -h * 0.9 * k, r * 0.95 * k, h * 1.8 * k)
+	# 바깥 가장자리(물마루)를 판정 사거리에 맞춘다: 배율은 옆 폭과 두께에만 (예전엔 사거리의 1.65배까지 나가 실타격과 어긋남)
+	var depth := r * feel.crescent_depth * ks
+	var cr := Rect2(r * feel.crescent_reach - depth, -h * 0.9 * k, depth, h * 1.8 * k)
 	ci.draw_set_transform(Vector2.ZERO, angle, Vector2(1.0, flip))
 	if feel.fx_ink_outline > 0.0:  # 먹 외곽선 (조금 크게 먼저)
-		ci.draw_texture_rect(art, cr.grow(r * 0.06 * k), false, Color(Ink.INK, col.a * alpha * feel.fx_ink_outline))
+		ci.draw_texture_rect(art, cr.grow(r * 0.06), false, Color(Ink.INK, col.a * alpha * feel.fx_ink_outline))
 	ci.draw_texture_rect(art, cr, false, Color(col.lightened(feel.crescent_lighten), col.a * alpha))
 	if feel.crescent_core_alpha > 0.0:  # 밝은 심: 안쪽으로 줄여 한 번 더, 흰빛 쪽으로
 		var core := Rect2(cr.position + Vector2(cr.size.x * 0.12, cr.size.y * 0.1), cr.size * Vector2(0.86, 0.8))

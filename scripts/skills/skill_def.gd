@@ -69,6 +69,11 @@ func cast(_ctx: SkillContext, _charge: float) -> SkillRun:
 	return SkillRun.instant(0)
 
 
+## 시전 연출(vfx_cast)이 터지는 자리. 기본은 영웅 몸, 적 자리에 펼쳐지는 기술(세종 정음진)은 그 자리.
+func cast_point(ctx: SkillContext) -> Vector2:
+	return ctx.player.global_position
+
+
 ## 충전 조준 길 표시 (charge_aim 기술): 충전 c에서 닿는 거리(px)와 맞는 폭(px). 0이면 길을 그리지 않는다.
 func aim_length(_c: float) -> float:
 	return 0.0

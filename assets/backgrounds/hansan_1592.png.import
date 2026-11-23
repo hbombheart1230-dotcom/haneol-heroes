@@ -17,7 +17,7 @@ dest_files=["res://.godot/imported/hansan_1592.png-722a7521ff90e593f795862f1c6d6
 
 compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.85
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
