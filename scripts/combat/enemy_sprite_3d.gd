@@ -12,6 +12,8 @@ const SHADER := "res://shaders/enemy_live.gdshader"
 const META := &"live3d_rig"
 ## 영웅 3D 그림의 공용 계산 (시트 길이, 한 칸 SpriteFrames). class_name이 없어 경로로.
 const PV3D := preload("res://scripts/player/player_view_3d.gd")
+## 켜기 설정 (자동 로드 이름은 도구 스크립트(-s)에서 안 보여 경로로).
+const Switch := preload("res://scripts/art/live3d/live3d_switch.gd")
 
 
 static func data_path(id: StringName) -> String:
@@ -28,7 +30,7 @@ static func live_data(d: EnemyData) -> Live3DHeroData:
 
 ## EnemySprite.setup 뒤: 켜져 있고 3D가 준비된 적이면 리그를 붙이고 스프라이트를 3D 화면 한 칸으로 바꾼다.
 static func attach(e: Enemy) -> bool:
-	if not Live3DSwitch.enabled() or e.sprite == null:
+	if not Switch.enabled() or e.sprite == null:
 		return false
 	var d := live_data(e.data)
 	if d == null:
