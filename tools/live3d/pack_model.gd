@@ -108,6 +108,8 @@ func _sync(job: Dictionary, n: String) -> void:
 		var f := fresh.clip(String(c["key"]))
 		# 원본 동작이 바뀌었으면 (예: 2타를 다른 동작에서) 이미 꺼내 둔 anims/<이름>.res로. 없으면 stage 2부터 다시.
 		var res := "res://assets/live3d/%s/anims/%s.res" % [n, Lib.norm(String(f.get("src", "")))]
+		if String(f.get("file", "")).get_extension() == "res":  # 굽기도 쓰는 옮긴 동작 (reuse.from)
+			res = String(f["file"])
 		if ResourceLoader.exists(res):
 			c["file"] = res
 		else:
@@ -134,6 +136,8 @@ static func _plain_mesh(src: ArrayMesh, mat: Material) -> ArrayMesh:
 
 ## 동작 하나 → anims/<이름>.res. file이 비면 모델 안 동작, 아니면 그 .glb의 동작 (여럿이면 src 이름으로).
 func _save_clip(ap: AnimationPlayer, file: String, src: String, out: String) -> String:
+	if file.get_extension() == "res":  # 이미 이 뼈대로 옮겨 둔 동작 (retarget_clip.gd, 굽기도 같은 것을 쓴다)
+		return file
 	var s: Node = null
 	if file != "":
 		s = (load(file) as PackedScene).instantiate()
