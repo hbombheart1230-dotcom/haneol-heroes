@@ -159,7 +159,8 @@ func enemies() -> Array:
 ## limit초 동안 (또는 승패까지) 굴린다.
 func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 	var res := {"time": 0.0, "won": false, "lost": false, "damage": 0, "by": {}, "boss_hp": 0, "phase": 0,
-		"windups": [], "strikes": [], "struck": [], "gaps": [], "max_minions": 0, "max_threats": 0}
+		"windups": [], "strikes": [], "struck": [], "hits": {}, "boss_stun": 0.0, "boss_windup": 0.0,
+		"boss_recover": 0.0, "boss_idle": 0.0, "dist": 0.0, "gaps": [], "max_minions": 0, "max_threats": 0}
 	var tap_t := 0.0
 	var boss_state := EnemyAttack.State.READY
 	var last_strike := -1.0
@@ -195,6 +196,16 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 			res["strikes"].append(boss.attack.data.kind)
 			res["struck"].append(boss.attack.data)
 		boss_state = st
+		# 패턴 보고 (tests/test_boss_pattern_report.gd): 보스가 휘청·멈춤/예고/회복/쉼에 쓴 시간, 영웅과 거리
+		if boss.is_stunned():
+			res["boss_stun"] += DT
+		elif st == EnemyAttack.State.WINDUP:
+			res["boss_windup"] += DT
+		elif st == EnemyAttack.State.RECOVER:
+			res["boss_recover"] += DT
+		else:
+			res["boss_idle"] += DT
+		res["dist"] += player.global_position.distance_to(boss.global_position) * DT
 		var minions := list.size() - 1
 		res["max_minions"] = maxi(res["max_minions"], minions)
 		res["max_threats"] = maxi(res["max_threats"], EnemyAttack.active_windups)
@@ -254,6 +265,7 @@ func _tick_world(list: Array, res: Dictionary) -> void:
 			key = "arrow"
 		if player.health.current < before:
 			res["by"][key] = int(res["by"].get(key, 0)) + before - player.health.current
+			res["hits"][key] = int(res["hits"].get(key, 0)) + 1
 	# 접촉 피해 (시뮬레이션 영웅에는 감지 영역이 없어 손으로 잰다)
 	var touch := 0
 	for e in (list if contact else []):
