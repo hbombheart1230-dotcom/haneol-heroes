@@ -23,6 +23,9 @@ var down_total: float = 0.0
 var _down_lift_px: float = 0.0
 var _down_lift_time: float = 0.0
 var _down_guard: float = 0.0
+## 이어진 경직 시간과 다시 경직되지 않는 남은 시간 (HitReactionData.stagger_chain_max · stagger_guard).
+var _chain: float = 0.0
+var _stagger_guard: float = 0.0
 
 
 func _init(p_data: HitReactionData = null, p_tier: Tier = Tier.TRASH) -> void:
@@ -48,7 +51,7 @@ func on_hit(applied: int, max_hp: int, dir: Vector2) -> bool:
 		_dir = dir.normalized()
 	_k = 1.0 if tier == Tier.TRASH else data.heavy_flinch_scale
 	if tier == Tier.TRASH:
-		stagger_left = maxf(stagger_left, stagger_time())
+		add_stagger(stagger_time())
 	var plays := tier == Tier.TRASH \
 		or (tier == Tier.ELITE and applied >= maxi(max_hp, 1) * data.elite_flinch_hp_frac) \
 		or (tier == Tier.BOSS and data.boss_flinch)
@@ -60,7 +63,15 @@ func on_hit(applied: int, max_hp: int, dir: Vector2) -> bool:
 ## 밀쳐짐 (영웅의 숨 돌릴 틈 등): 잡몹만 잠깐 경직.
 func on_shove() -> void:
 	if tier == Tier.TRASH:
-		stagger_left = maxf(stagger_left, stagger_time())
+		add_stagger(stagger_time())
+
+
+## 경직 걸기 (이어진 경직이 다 차서 쉬는 중이면 걸리지 않는다). 걸렸으면 true.
+func add_stagger(seconds: float) -> bool:
+	if _stagger_guard > 0.0:
+		return false
+	stagger_left = maxf(stagger_left, seconds)
+	return true
 
 
 ## 잡몹 경직 길이: 적 데이터 값(0 이상)이 있으면 그것, 없으면 공통값.
@@ -70,7 +81,15 @@ func stagger_time() -> float:
 
 func tick(delta: float) -> void:
 	anim_left = maxf(anim_left - delta, 0.0)
+	if stagger_left > 0.0:
+		_chain += delta
+		if data.stagger_chain_max > 0.0 and _chain >= data.stagger_chain_max:
+			stagger_left = 0.0
+			_stagger_guard = data.stagger_guard
 	stagger_left = maxf(stagger_left - delta, 0.0)
+	if stagger_left <= 0.0:
+		_chain = 0.0
+	_stagger_guard = maxf(_stagger_guard - delta, 0.0)
 	if down_left > 0.0:
 		down_left = maxf(down_left - delta, 0.0)
 	else:

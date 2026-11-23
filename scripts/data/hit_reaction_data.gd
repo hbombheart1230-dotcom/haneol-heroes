@@ -13,6 +13,10 @@ extends Resource
 @export_group("잡몹 경직")
 ## 잡몹(정예·보스 아님)이 맞으면 이 시간 동안 쫓아오지 않고 넉백만 받는다 (Vampire Survivors 120ms).
 @export var stagger_time: float = 0.15
+## 경직이 이어서 이만큼(초) 쌓이면 풀리고, 그 뒤 stagger_guard초 동안은 맞아도 다시 경직되지 않는다
+## (넓은 범위로 계속 때려도 적이 움직이고 칠 틈이 생기게: 사임당 붓질에 묶여 아무것도 못 하던 것). 0이면 끔.
+@export var stagger_chain_max: float = 0.9
+@export var stagger_guard: float = 0.6
 
 @export_group("움찔 (그림만, 판정은 그대로)")
 ## 발 기준 눌림 (가로, 세로)과 원래대로 돌아오는 시간(초).
