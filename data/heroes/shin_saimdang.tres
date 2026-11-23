@@ -151,6 +151,7 @@ story = ExtResource("story")
 home_stage = &"chochungdo"
 display_name = "사임당"
 card_art = ExtResource("card_art")
+portrait_rect = Rect2(126, 22, 108, 108)
 tagline = "수묵의 술사\n그림 속 생명을 깨운다"
 playable = true
 body_color = Color(0.5, 0.3, 0.62, 1)

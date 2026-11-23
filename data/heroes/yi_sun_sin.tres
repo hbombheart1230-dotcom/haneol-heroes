@@ -180,6 +180,7 @@ story = ExtResource("story")
 home_stage = &"hansan_1592"
 display_name = "순신"
 card_art = ExtResource("card_art")
+portrait_rect = Rect2(126, 44, 108, 108)
 tagline = "푸른 해류의 검
 빠르게 누비며 벤다"
 body_color = Color(0.13, 0.27, 0.55, 1)

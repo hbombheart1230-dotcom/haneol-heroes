@@ -3,7 +3,7 @@
 점수(경험치)를 모아 레벨이 오르면 **그 자리에서 능력치·기술 모습이 오르고 카드 1장이 적립**된다. 싸움은 멈추지 않는다.
 카드는 물결 사이 숨 고르기에서 고른다. 판 안 레벨은 저장하지 않는다 (판마다 1부터).
 
-- 코드: `scripts/run/score_feed.gd`(점수원·상한), `level_rules.gd`(곡선·카드 계획), `run_levels.gd`(레벨업 보상·숨 고르기), `scripts/ui/level_band.gd`(HUD)
+- 코드: `scripts/run/score_feed.gd`(점수원·상한), `level_rules.gd`(곡선·카드 계획), `run_levels.gd`(레벨업 보상·숨 고르기), `scripts/ui/hero_badge.gd`(구석 초상·체력·경험치 고리 HUD)
 - 데이터: `data/runs/level_rules.tres`, `data/runs/score_table.tres`, `data/heroes/levels/<영웅>_level_up.tres`
 - 시뮬: `python tools/sim/level_curve_sim.py [--check]` (곡선을 바꾸면 다시 돌려 이 표를 갱신)
 

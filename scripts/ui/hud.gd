@@ -16,8 +16,10 @@ var state: GameState
 var perf: PerfStats
 ## 런 성장 진행 (경험치 막대·레벨 표시). 없으면 그리지 않는다.
 var progress: RunProgress
-## 레벨 띠 (레벨 도장·경험치·적립 카드·레벨업 연출).
-var band := LevelBand.new()
+## 구석 영웅 묶음 (초상·체력·경험치 고리·레벨 도장·적립 카드·레벨업 연출).
+var badge := HeroBadge.new()
+## 묶음 자리: 0 왼쪽 위, 1 왼쪽 아래, 2 왼쪽 위 + 위쪽 가운데는 보스 띠 전용 (HeroBadge).
+@export_enum("왼쪽 위", "왼쪽 아래", "위쪽 가운데 비움") var layout: int = 0
 ## 판 시작 때 띄우는 무대 이름 (연도 · 전장).
 var stage: StageTheme
 ## 이겼을 때 "다음 전장" 무대 (결과 화면에 이름).
@@ -36,7 +38,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_tick_boss_chip(delta)
-	band.tick(delta)
+	badge.player = player
+	badge.tick(delta)
 	queue_redraw()
 
 
@@ -60,7 +63,9 @@ func _boss() -> Enemy:
 
 func _draw() -> void:
 	if player:
-		_draw_health()
+		badge.player = player
+		badge.progress = progress
+		badge.draw(self, layout, size, state.kills if state else 0)
 		_draw_dash_pips()
 	if controller and controller.skill_caster:
 		SkillButtonDrawer.draw(self, controller, get_theme_default_font())
@@ -101,36 +106,27 @@ func _draw_stage_title() -> void:
 		Color(0, 0, 0, 0.6 * a), 4)
 
 
-func _draw_health() -> void:
-	if player.health == null:
-		return
-	var r := Rect2(16, 16, size.x - 32, 20)
-	draw_rect(r.grow(3.0), UiStyle.LACQUER)
-	var fill := r
-	fill.size.x *= player.health.percent()
-	draw_rect(fill, Color(0.72, 0.13, 0.12))
-	draw_rect(Rect2(fill.position, Vector2(fill.size.x, 5)), Color(1, 0.55, 0.45, 0.45))  # 윗빛
-	draw_rect(r.grow(3.0), UiStyle.GOLD, false, 2.0)
-
-
 func _draw_status() -> void:
 	var font := get_theme_default_font()
 	var t := "%d" % ceili(state.time_left())
 	if state.survive_time <= 0.0:  # 런: 지난 시간 (분:초)
 		t = "%d:%02d" % [floori(state.elapsed / 60.0), floori(state.elapsed) % 60]
-	if progress:
-		band.progress = progress
-		band.draw(self, size.x, state.kills)
+	if progress == null:
+		_ink_text(font, Vector2(16, 200), "처치 %d" % state.kills, HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
+	if layout == 2:  # 위쪽 가운데는 보스 띠 자리: 시간은 톱니 단추 아래
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(size.x - 112, 196), t, 34, UiStyle.PAPER, 120, Color(0, 0, 0, 0.85), 6)
+	elif layout == 0:  # 왼쪽 위: 시간은 체력 띠 오른쪽
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(HeroBadge.R * 2 + 38 + HeroBadge.HP_W + 8, 62), t, 34, UiStyle.PAPER,
+			-1, Color(0, 0, 0, 0.85), 6)
 	else:
-		_ink_text(font, Vector2(16, 70), "처치 %d" % state.kills, HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
-	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, 112), t, 54, UiStyle.PAPER, size.x, Color(0, 0, 0, 0.85), 9)
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, 112), t, 54, UiStyle.PAPER, size.x, Color(0, 0, 0, 0.85), 9)
 
 
 ## 보스 체력 막대 (보스가 살아 있을 때 화면 위).
 func _draw_boss_bar() -> void:
 	var b := _boss()
 	if b:
-		BossBarDrawer.draw(self, b, _boss_chip, size.x)  # 단계 눈금·자국·전환 무적
+		BossBarDrawer.draw(self, b, _boss_chip, size.x, 72.0 if layout == 2 else 178.0, 200.0 if layout == 2 else 70.0)  # 단계 눈금·자국·전환 무적
 
 
 func _draw_dash_pips() -> void:
@@ -171,14 +167,14 @@ func _ink_text(font: Font, pos: Vector2, text: String, align: HorizontalAlignmen
 
 ## 레벨업 순간 (RunProgress.leveled_up): 띠 번쩍 + "레벨 업" + "카드 +1". 싸움은 멈추지 않는다.
 func on_level_up(level: int) -> void:
-	band.on_level_up(level)
+	badge.on_level_up(level)
 
 
 ## 점수가 들어옴 (RunProgress.scored): 띠 반짝, 행동 점수는 작은 글씨.
 func on_scored(kind: StringName, amount: int) -> void:
-	band.on_scored(kind, amount)
+	badge.on_scored(kind, amount)
 
 
 ## 숨 고르기에서 카드를 꺼냄.
 func cards_used(_n: int) -> void:
-	band.on_cards_used()
+	badge.on_cards_used()

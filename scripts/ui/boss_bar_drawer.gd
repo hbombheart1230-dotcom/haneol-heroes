@@ -13,9 +13,10 @@ const BAR_H := 22.0
 const PIP_R := 6.0
 
 
-## chip = 자국이 남은 비율 (Hud가 천천히 줄인다).
-static func draw(c: CanvasItem, b: Enemy, chip: float, width: float) -> void:
-	var r := Rect2(70, 178, width - 140, BAR_H)
+## chip = 자국이 남은 비율 (Hud가 천천히 줄인다). top = 막대 윗변 y (HUD 배치에 따라).
+static func draw(c: CanvasItem, b: Enemy, chip: float, width: float, top: float = 178.0,
+		left: float = 70.0) -> void:
+	var r := Rect2(left, top, width - left - 70, BAR_H)
 	UiStyle.panel(c, r.grow(8.0), UiStyle.LACQUER, UiStyle.GOLD)
 	var pct := b.health.percent()
 	if chip > pct:
@@ -42,5 +43,5 @@ static func draw(c: CanvasItem, b: Enemy, chip: float, width: float) -> void:
 		else:
 			c.draw_arc(p, PIP_R - 1.0, 0.0, TAU, 16, Color(TICK, 0.7), 2.0)
 	var name_text := b.data.display_name if b.data and b.data.display_name != "" else "보스"
-	UiStyle.text(c, UiStyle.TITLE_FONT, Vector2(0, r.position.y - 16), name_text, 46, EnemyNameTag.BOSS_COLOR, width,
+	UiStyle.text(c, UiStyle.TITLE_FONT, Vector2(r.position.x, r.position.y - 16), name_text, 46, EnemyNameTag.BOSS_COLOR, r.size.x,
 		Color(0, 0, 0, 0.95), 10)

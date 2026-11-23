@@ -101,6 +101,6 @@ func test_level_up_in_a_run_raises_stats_and_skill_look_without_pausing() -> voi
 	assert_int(hero.kit.tap.vfx_level).is_equal(vfx0 + 1)
 	assert_int(main.build.level_vfx).is_equal(1)
 	assert_int(p.pending).is_equal(2)
-	assert_float(main.hud.band.level_t).is_greater(0.0)  # 레벨업 연출
+	assert_float(main.hud.badge.level_t).is_greater(0.0)  # 레벨업 연출
 	GameSettings.hero_stages = {}
 	GameSettings.hero_clears = {}
