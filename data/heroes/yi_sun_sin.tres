@@ -210,6 +210,7 @@ stop_slide_px = 5.0
 stop_slide_time = 0.12
 attack = SubResource("Attack_yi")
 kit = SubResource("Kit_yi")
+boss_hp_mult = 1.25
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
 dash_style = ExtResource("dash_style")

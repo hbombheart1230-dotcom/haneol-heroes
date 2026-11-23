@@ -79,7 +79,8 @@ func test_run_uses_hero_tier_and_victory_raises_it() -> void:
 	var st: StageTheme = main.run_config.stage
 	var base: EnemyData = st.spawn_table[0]
 	assert_int(main.spawner.spawn_table[0].max_hp).is_equal(roundi(base.max_hp * CURVE.hp(2)))  # 두 번 적용돼도 겹치지 않음
-	assert_int(main.spawner.boss_data.max_hp).is_equal(roundi(st.boss.max_hp * CURVE.hp(2)))
+	var hero_boss := BossHpScale.for_hero(st.boss, main.player.hero)  # 영웅 배율 (#78) → 단계
+	assert_int(main.spawner.boss_data.max_hp).is_equal(roundi(hero_boss.max_hp * CURVE.hp(2)))
 	main.advance_stage()
 	assert_int(int(GameSettings.hero_clears["yi_sun_sin"])).is_equal(3)
 	get_tree().paused = false
