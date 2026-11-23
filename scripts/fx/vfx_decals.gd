@@ -77,7 +77,7 @@ func strip(tex: Texture2D, a: Vector2, b: Vector2, width: float, time: float, re
 func strip_for(d: SkillVfxData, a: Vector2, b: Vector2, level: int = 0) -> void:
 	if d and (d.strip or d.strip_sheet):
 		strip(d.strip_at(0.0), a, b, d.strip_width, d.strip_time, d.strip_reveal, d.size_mult(level),
-			1.0 + d.level_glow * d.level_of(level), d)
+			d.bright_for(level), d)
 
 
 ## 그림 터뜨리기. level = 기술 강화 단계 (클수록 크고 밝고 겹이 많다).
@@ -92,7 +92,7 @@ func burst(d: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: in
 		base_rot = dir.angle() - deg_to_rad(d.decal_angle_deg)
 	var pl := FxCoverage.plan(d, level, fit_radius, pieces.stage, FxCoverage.view_width(self))  # 화면 덮기 상한
 	var size := float(pl["size"])
-	var bright := 1.0 + d.level_glow * d.level_of(level)
+	var bright := d.bright_for(level)
 	ground.mark(d, pos, level, float(pl["ground_k"]))
 	if d.piece_count > 0:  # 조각으로 펼침 (한 장 통째 대신)
 		pieces.pieces(d, pos, dir, level, size, pl)
@@ -101,7 +101,7 @@ func burst(d: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: in
 			"spin": d.decal_spin * (1.0 if i % 2 == 0 else -1.0), "size": size * pow(feel.decal_layer_shrink, i),
 			"t": 0.0, "life": d.decal_time * float(pl["time"]), "bright": bright, "grow": pl["grow"],
 			"glow_k": pl["glow_k"], "glow": d.glow_for(level) * float(pl["light"]) if i == 0 else 0.0})
-	if d.level_of(level) >= d.ring_level:
+	if d.ring_for(level):
 		_rings.append({"pos": pos, "r": size * feel.flourish_ring_scale, "t": 0.0, "life": feel.flourish_ring_time})
 		while _rings.size() > maxi(feel.max_flourish_rings, 0):
 			_rings.pop_front()
@@ -111,7 +111,7 @@ func burst(d: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: in
 
 ## 그릴 지름: 판정 반경을 알면 거기에 맞추고, 모르면 데이터 크기 × 강화 배율.
 static func fit_size(d: SkillVfxData, level: int, fit_radius: float) -> float:
-	if fit_radius > 0.0 and d.fit_to_hit:
+	if fit_radius > 0.0 and d.fit_to_hit:  # 성장 단계면 판정(반경)이 이미 단계 배율로 커져 있다 (SkillGrowthData.scaled_def)
 		return d.fitted_size(fit_radius)
 	return d.decal_size * d.size_mult(level)
 

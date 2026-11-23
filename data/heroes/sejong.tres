@@ -61,6 +61,7 @@ melee_hit_sfx = &"w_scroll"
 heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
+growth = true
 launch_px = 100.0
 sfx = &"magic"
 icon = ExtResource("i_jeongeum")
@@ -79,6 +80,7 @@ cast_lead = -1.0
 
 [sub_resource type="Resource" id="Skill_dash"]
 script = ExtResource("s1")
+growth = true
 sfx = &"magic"
 icon = ExtResource("i_meteor")
 id = &"meteor"
@@ -97,6 +99,7 @@ cast_lead = 0.08
 
 [sub_resource type="Resource" id="Skill_charge"]
 script = ExtResource("s2")
+growth = true
 sfx = &"magic"
 icon = ExtResource("i_constellation")
 id = &"constellation"
@@ -116,6 +119,7 @@ cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("s3")
+growth = true
 icon = ExtResource("i_sundial")
 id = &"sundial"
 display_name = "해시계 멈춤"

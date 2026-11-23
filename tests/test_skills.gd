@@ -195,7 +195,9 @@ func test_hold_release_fires_haeil_scaled_by_charge() -> void:
 	assert_object(proj).is_not_null()
 	assert_bool(proj.pierce).is_true()
 	assert_int(proj.damage).is_equal(caster.kit.charge.max_damage)
-	assert_float(proj.size_scale).is_equal_approx(caster.kit.charge.max_scale, 0.001)
+	var g := SkillGrowthData.get_default()  # 성장 단계: 판정(물결 크기)도 단계 배율
+	var k := g.size_at(caster.kit.charge.vfx_level) if SkillGrowthData.applies(caster.kit.charge) else 1.0
+	assert_float(proj.size_scale).is_equal_approx(caster.kit.charge.max_scale * k, 0.001)
 	proj.queue_free()
 
 

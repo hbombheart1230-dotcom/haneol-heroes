@@ -89,6 +89,12 @@ func has_bolt() -> bool:
 @export var max_level: int = 6
 ## 강화로 커지는 크기 배율의 상한 (최대 단계에서도 화면을 다 덮지 않게, 띠 두께·입자도).
 @export var max_size_mult: float = 1.4
+## 켜면 위 단계 값 대신 성장 단계(SkillGrowthData: 기본은 작게, 큰 강화는 크고 화려하게)를 쓴다.
+@export var growth: bool = false
+
+
+func _growth() -> SkillGrowthData:
+	return SkillGrowthData.get_default() if growth else null
 
 
 func level_of(level: int) -> int:
@@ -96,19 +102,47 @@ func level_of(level: int) -> int:
 
 
 func size_mult(level: int) -> float:
+	var g := _growth()
+	if g:
+		return g.size_at(level)
 	return minf(1.0 + level_size * level_of(level), maxf(max_size_mult, 1.0))
 
 
 func count_for(level: int) -> int:
-	return roundi(count * (1.0 + level_count * level_of(level)))
+	var g := _growth()
+	return roundi(count * (g.count_at(level) if g else 1.0 + level_count * level_of(level)))
 
 
 func layers_for(level: int) -> int:
+	var g := _growth()
+	if g:
+		return decal_layers + g.layers_at(level)
 	return decal_layers + (1 if level_of(level) >= flourish_level else 0)
 
 
 func glow_for(level: int) -> float:
-	return glow * (1.0 + level_glow * level_of(level)) if glow > 0.0 else 0.0
+	var g := _growth()
+	if glow <= 0.0:
+		return 0.0
+	return glow * (g.glow_at(level) if g else 1.0 + level_glow * level_of(level))
+
+
+## 밝기 배율 (조각·그림·띠).
+func bright_for(level: int) -> float:
+	var g := _growth()
+	return g.bright_at(level) if g else 1.0 + level_glow * level_of(level)
+
+
+## 금빛 고리를 두를 단계인지.
+func ring_for(level: int) -> bool:
+	var g := _growth()
+	return g.ring_at(level) if g else level_of(level) >= ring_level
+
+
+## 화면 너비 대비 상한 (성장 단계가 있으면 단계별, 없으면 base).
+func screen_cap_for(level: int, base: float) -> float:
+	var g := _growth()
+	return g.cap_at(level) if g and base > 0.0 else base
 
 
 @export_group("연출 · 조각 등장")
