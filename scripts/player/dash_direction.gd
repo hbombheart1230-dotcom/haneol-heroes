@@ -72,6 +72,9 @@ static func tick(p: Player, list: Array, delta: float) -> void:
 		en.health.damage(dmg)
 		striking = false
 		hit = true
+		var look := p.hero.dash_look
+		if look and look.strike_hit_fx:  # 평타와 같은 타격 효과 (섬광·튐 줄기·퍽)
+			HitImpact.on_enemy(en, p.global_position, 1, p.hero.attack.swing_color)
 	if hit and d.strike_sfx != &"" and Feedback.instance:
 		Feedback.instance.play(d.strike_sfx, 0.05)
 
@@ -89,6 +92,9 @@ static func end(p: Player) -> void:
 
 ## 이번 대시의 그림 (시트에 없으면 dash).
 static func anim(p: Player, sheet: SpriteSheetSet) -> String:
+	var look := DashLook.pose(p, sheet)  # 치는·피하는 내닫기 자세 (DashLookData)가 있으면 그것
+	if look.size() == 2:
+		return String(look[0])
 	var d := p.hero.dash_dir if p.hero else null
 	if d == null or sheet == null:
 		return "dash"

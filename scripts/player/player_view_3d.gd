@@ -97,6 +97,9 @@ func _update_sprite(delta: float) -> void:
 	var seek := frame_time(cur, from) if restart else -1.0
 	if _posing:
 		seek = 0.0  # 충전: 모으는 자세(첫 칸)에 멈춤
+	var hold := DashLook.pose_frame(player, _sheet)
+	if hold >= 0:
+		seek = frame_time(cur, hold)  # 내닫기 자세: 구운 칸과 같은 시각에 멈춤 (speed_scale 0)
 	rig.set_facing(player.facing, delta)
 	rig.play_body(cur, restart, seek, _sprite.speed_scale)
 	_update_upper(delta, cur)

@@ -40,6 +40,10 @@ static func body_tint() -> Color:
 
 ## 0~1 진하기: 회피 무적 남은 시간 ÷ 전체 (회피로 켜진 무적만, 끝나기 직전 깜빡).
 func strength() -> float:
+	if DashLook.is_strike(player):  # 치는 내닫기: 금테 없음
+		return 0.0
+	if DashLook.is_evade(player):  # 피하는 내닫기: 대시 동안 금테
+		return player.hero.dash_look.evade_rim
 	if player == null or _total <= 0.0:
 		return 0.0
 	var left := minf(player.skill_invuln_left(), _total)

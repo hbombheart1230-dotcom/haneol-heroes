@@ -52,8 +52,8 @@ func test_player_view_picks_animation_by_state() -> void:
 	assert_str(v.current_anim()).is_equal("run")
 	v.play_oneshot("attack", 0.3)
 	assert_str(v.current_anim()).is_equal("attack")
-	p.request_dash(Vector2.UP)
-	assert_str(v.current_anim()).is_equal("dash")
+	p.request_dash(Vector2.UP)  # 적 없음 = 피하는 내닫기: 낮춘 자세 (DashLookData), 없으면 dash
+	assert_str(v.current_anim()).is_equal(String(HERO.dash_look.evade_anim) if HERO.dash_look else "dash")
 	p.health.kill()
 	assert_str(v.current_anim()).is_equal("death")
 
