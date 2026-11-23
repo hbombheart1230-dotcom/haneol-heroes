@@ -4,6 +4,8 @@ extends SceneTree
 ## 폰 비율(논리 720×1680)로 보려면 --resolution 450x1050. 영웅 키 비율(화면 높이 대비)을 출력한다.
 ## none이면 무대 데이터 그대로 (지금 모습). plain이면 기술 없이 (바닥 측정용). 화톳불이 있으면 그 옆에 선다.
 
+const HERO := {"hansan_1592": "yi_sun_sin", "manchuria_395": "gwanggaeto", "gyeongbokgung_1433": "sejong",
+	"chochungdo": "shin_saimdang"}
 const SPOTS := [Vector2(-210, -150), Vector2(230, -90), Vector2(-160, 220), Vector2(250, 260), Vector2(30, -330)]
 
 
@@ -19,7 +21,8 @@ func _run() -> void:
 	GameSettings.intro_seen = true
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.stage_picked = true
-	GameSettings.stage_id = StringName(args[4]) if args.size() > 4 else &"hansan_1592"
+	var stage_id := StringName(args[4]) if args.size() > 4 else &"hansan_1592"
+	GameSettings.stage_id = stage_id
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.tutorial_enabled = false
 	GameSettings.show_stats = false
@@ -28,18 +31,27 @@ func _run() -> void:
 	for i in 10:
 		await process_frame
 	var arena := main.get_node("Arena") as Arena
+	if arena.theme == null or arena.theme.id != stage_id:  # 저장된 설정이 무대를 바꿨으면 되돌린다
+		StageApply.stage(main, load("res://data/stages/%s.tres" % stage_id))
+		await process_frame
 	if args[0] != "none":
 		var st := arena.theme.duplicate() as StageTheme
 		st.look = load(args[0]) as StageLook
 		arena.apply_theme(st)
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	var player := main.get_node("Player") as Node2D
+	var hero_id: String = HERO.get(String(stage_id), "yi_sun_sin")
+	if (player as Player).hero.id != StringName(hero_id):  # 무대 주인공으로
+		(player as Player).change_hero(load("res://data/heroes/%s.tres" % hero_id))
+		for i in 3:
+			await process_frame
 	var cam := player.get_node("Camera2D") as Camera2D
 	if args.size() > 3 and float(args[3]) > 0.0:
 		cam.zoom = Vector2.ONE * float(args[3])
 		cam.set_meta(&"base_zoom", cam.zoom)
-	for it in arena.props.items:  # 화톳불 빛이 화면에 들어오게 가장 가까운 화톳불 옆으로
-		if it[1] == 2 and arena.theme.prop_textures[it[3]].resource_path.get_file() == "brazier.png":
+	for it in arena.props.items:  # 소품 빛(화톳불·석등)이 화면에 들어오게 그 옆으로
+		var lit := arena.theme.look.lit_props if arena.theme.look else PackedStringArray(["brazier"])
+		if it[1] == 2 and lit.has(arena.theme.prop_textures[it[3]].resource_path.get_file().get_basename()):
 			player.global_position = (it[0] as Vector2) + Vector2(-150 if it[0].x > 0 else 150, 160)
 			break
 	var list: Array = [spawner.spawn_table[0], spawner.spawn_table[0], spawner.spawn_table[1],

@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Resource" path="res://data/breakables/manchuria_395.tres" id="b_manchuria_395"]
+[ext_resource type="Resource" path="res://data/stages/looks/manchuria_395.tres" id="look"]
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 [ext_resource type="Resource" path="res://data/enemies/chaser.tres" id="e_chaser"]
@@ -39,6 +40,9 @@ card_art = ExtResource("p_flags")
 subtitle = "광개토대왕릉비에 새겨진 비려 정벌의 전장"
 floor_base = Color(0.666, 0.560, 0.473, 1)
 floor_stain = Color(0.28, 0.3, 0.18, 1)
+vignette = 0.4
+look = ExtResource("look")
+camera_zoom = 1.09
 grass_per_mpx = 0.0
 rock_per_mpx = 0.0
 grass_color = Color(0.3, 0.31, 0.17, 0.75)

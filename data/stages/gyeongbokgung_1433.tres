@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="Resource" path="res://data/stages/looks/gyeongbokgung_1433.tres" id="look"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/gyeongbokgung_1433/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/arrows_a.png" id="p_arrows_a"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/arrows_b.png" id="p_arrows_b"]
@@ -43,6 +44,9 @@ boss = ExtResource("e_jurchen_chieftain")
 card_art = ExtResource("p_palace_gate")
 floor_base = Color(0.532, 0.461, 0.423, 1)
 floor_stain = Color(0.35, 0.34, 0.33, 1)
+vignette = 0.4
+look = ExtResource("look")
+camera_zoom = 1.09
 grass_per_mpx = 0.0
 grass_color = Color(0.32, 0.36, 0.22, 0.55)
 rock_per_mpx = 0.0
