@@ -90,6 +90,7 @@ card_art = ExtResource("p_watermelon")
 floor_base = Color(0.884, 0.746, 0.563, 1)
 floor_stain = Color(0.55, 0.5, 0.42, 1)
 vignette = 0.4
+prop_shadow = 0.35
 look = ExtResource("look")
 camera_zoom = 1.09
 grass_per_mpx = 0.0

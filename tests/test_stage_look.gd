@@ -176,3 +176,13 @@ func test_arena_passes_grain_layer_to_shader() -> void:
 	assert_float(float(m.get_shader_parameter("detail_strength"))).is_equal_approx((HANSAN.look as StageLook).detail_strength, 0.001)
 	assert_object(m.get_shader_parameter("detail_tex")).is_not_null()
 	assert_vector(m.get_shader_parameter("map_px")).is_equal(arena.map.rect.size)
+
+
+## 소품 그림자 농도: 밝은 한지 초충도만 낮춘다 (다른 무대는 그대로 1).
+func test_prop_shadow_lowered_only_on_bright_stage() -> void:
+	for id in STAGES:
+		var st: StageTheme = load("res://data/stages/%s.tres" % id)
+		if BRIGHT_STAGES.has(id):
+			assert_float(st.prop_shadow).override_failure_message(id).is_between(0.05, 0.6)
+		else:
+			assert_float(st.prop_shadow).override_failure_message(id).is_equal(1.0)

@@ -81,7 +81,8 @@ static func _rect_distance_to_origin(box: Rect2) -> float:
 func _picture(p: Vector2, scale: float, index: int) -> void:
 	var tex := theme.prop_textures[index]
 	var size := tex.get_size() * scale
-	Ink.shadow(self, p + Vector2(0, -4), size.x * 0.42)
+	if theme.prop_shadow > 0.0:
+		Ink.blob(self, p + Vector2(0, -4), size.x * 0.42, Color(Ink.INK, 0.18 * theme.prop_shadow), 1.3, 0.08, 0.4)
 	draw_texture_rect(tex, picture_rect(p, size), false)
 
 
