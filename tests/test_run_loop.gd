@@ -327,6 +327,7 @@ func test_main_scene_level_up_shows_cards_and_pauses() -> void:
 func _skip_hero_select() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.hero_picked = true
+	GameSettings.want_stage_list = false
 	GameSettings.title_seen = true
 	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true

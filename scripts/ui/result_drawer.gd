@@ -1,7 +1,7 @@
 class_name ResultDrawer
 extends RefCounted
 ## 결과 화면 (하데스 참고): 어둡게 덮고 가운데 옻칠 판, 붓글씨 제목, 기록, 단추 모양 안내.
-## 터치 판정은 Main이 한다 (아무 곳 = 다시 시작·이겼으면 다음 전장, 아래 띠 = 영웅 바꾸기, Hud.CHANGE_HERO_BAND).
+## 단추 둘: "다시 하기" (같은 전장), "전장 목록" (그 영웅의 전장 고르기). 터치 판정은 RunEnd.action_at.
 
 
 static func draw(hud: Hud) -> void:
@@ -10,7 +10,7 @@ static func draw(hud: Hud) -> void:
 	hud.draw_rect(Rect2(Vector2.ZERO, s), Color(0, 0, 0, 0.62))
 	var victory := state.result == GameState.Result.VICTORY
 	var title := ("우두머리 격파" if state.boss_killed else "생존 성공") if victory else "쓰러졌다"
-	var panel := Rect2(s.x * 0.5 - 300.0, s.y * 0.26, 600.0, 470.0)
+	var panel := _panel(s)
 	UiStyle.panel(hud, panel, UiStyle.LACQUER, UiStyle.GOLD)
 	var cx := panel.position.x
 	var w := panel.size.x
@@ -24,17 +24,27 @@ static func draw(hud: Hud) -> void:
 	if hud.stage:
 		UiStyle.text(hud, UiStyle.BODY_FONT, Vector2(cx, panel.position.y + 250),
 			"%s · %s" % [hud.stage.year_label, hud.stage.title], 22, Color(UiStyle.PAPER, 0.7), w)
-	var btn := Rect2(panel.get_center().x - 150.0, panel.end.y - 150.0, 300.0, 84.0)
-	if victory and hud.next_stage:
-		UiStyle.button(hud, btn, "다음 전장 〉", 42)
-		UiStyle.text(hud, UiStyle.BODY_FONT, Vector2(cx, btn.position.y - 16),
-			"%s · %s" % [hud.next_stage.year_label, hud.next_stage.title], 22, Color(UiStyle.GOLD, 0.85), w)
-	else:
-		UiStyle.button(hud, btn, "다시 시작", 42)
+	UiStyle.button(hud, replay_rect(s), "다시 하기", 36)
+	UiStyle.button(hud, list_rect(s), "전장 목록", 36)
+	if victory and hud.stage:
+		UiStyle.text(hud, UiStyle.BODY_FONT, Vector2(cx, panel.end.y - 170), "전장 목록에서 다음 전장이 열렸다", 22,
+			Color(UiStyle.GOLD, 0.85), w)
 	if hud.perf and hud.show_touch_debug and GameSettings.show_stats:
 		UiStyle.text(hud, UiStyle.BODY_FONT, Vector2(cx, panel.end.y - 30), hud.perf.summary(), 18,
 			Color(1, 1, 0.6, 0.8), w, Color(0, 0, 0, 0.6), 3)
-	if hud.can_change_hero:
-		var band := Rect2(0, s.y - Hud.CHANGE_HERO_BAND, s.x, Hud.CHANGE_HERO_BAND)
-		var b := Rect2(band.get_center() - Vector2(170, 42), Vector2(340, 84))
-		UiStyle.button(hud, b, "영웅 바꾸기", 38)
+
+
+static func _panel(view: Vector2) -> Rect2:
+	return Rect2(view.x * 0.5 - 300.0, view.y * 0.26, 600.0, 470.0)
+
+
+## "다시 하기" 단추 (결과 판 아래 왼쪽).
+static func replay_rect(view: Vector2) -> Rect2:
+	var p := _panel(view)
+	return Rect2(p.position.x + 30.0, p.end.y - 140.0, 255.0, 84.0)
+
+
+## "전장 목록" 단추 (결과 판 아래 오른쪽, 엄지 쪽).
+static func list_rect(view: Vector2) -> Rect2:
+	var p := _panel(view)
+	return Rect2(p.end.x - 285.0, p.end.y - 140.0, 255.0, 84.0)

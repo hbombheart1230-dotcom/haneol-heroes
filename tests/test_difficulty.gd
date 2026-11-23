@@ -81,8 +81,12 @@ func test_run_uses_hero_tier_and_victory_raises_it() -> void:
 	assert_int(main.spawner.spawn_table[0].max_hp).is_equal(roundi(base.max_hp * CURVE.hp(2)))  # 두 번 적용돼도 겹치지 않음
 	var hero_boss := BossHpScale.for_hero(st.boss, main.player.hero)  # 영웅 배율 (#78) → 단계
 	assert_int(main.spawner.boss_data.max_hp).is_equal(roundi(hero_boss.max_hp * CURVE.hp(2)))
-	main.advance_stage()
+	GameSettings.hero_cleared = {}
+	RunEnd.record(main, true)  # 처음 이긴 전장 → 난이도 단계 +1
 	assert_int(int(GameSettings.hero_clears["yi_sun_sin"])).is_equal(3)
+	RunEnd.record(main, true)  # 같은 전장을 다시 이겨도 그대로
+	assert_int(int(GameSettings.hero_clears["yi_sun_sin"])).is_equal(3)
+	GameSettings.hero_cleared = {}
 	get_tree().paused = false
 	main.queue_free()
 	GameSettings.hero_clears = {}

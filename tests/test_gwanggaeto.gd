@@ -32,6 +32,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	GameSettings.want_stage_list = false
 	for c in get_children():
 		if c is DamageZone or c is Projectile:
 			remove_child(c)
@@ -295,6 +296,8 @@ func test_main_waits_for_hero_then_runs_chosen_hero() -> void:
 	sel.handle_touch(0, c, false)
 	assert_bool(main.story_intro.is_open()).is_true()  # 고른 직후 그 영웅 이야기
 	main.story_intro.finish()
+	assert_bool(main.stage_select.is_open()).is_true()  # 이야기 뒤 전장 목록
+	main.stage_select.press(0)
 	var p: Player = main.get_node("Player")
 	assert_bool(main.waiting_pick).is_false()
 	assert_bool(get_tree().paused).is_false()
@@ -304,7 +307,6 @@ func test_main_waits_for_hero_then_runs_chosen_hero() -> void:
 	assert_int(p.health.max).is_equal(GW.max_hp)
 	assert_object((p.get_node("SkillCaster") as SkillCaster).kit.tap).is_instanceof(QuakeSkill)
 	assert_str(String(GameSettings.hero_id)).is_equal("gwanggaeto")
-	assert_bool(main.is_change_hero_area(Vector2(10, main.get_viewport().get_visible_rect().size.y - 10))).is_true()
 	get_tree().paused = false
 	main.queue_free()
 	GameSettings.hero_picked = true

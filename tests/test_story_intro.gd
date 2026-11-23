@@ -4,6 +4,10 @@ extends GdUnitTestSuite
 const INTRO := preload("res://data/intro/story_intro.tres")
 
 
+func after_test() -> void:
+	GameSettings.want_stage_list = false
+
+
 func test_timeline_slides_fades_and_lines() -> void:
 	var tl := IntroTimeline.new(PackedFloat32Array([5.0, 4.0]), 0.8)
 	assert_float(tl.total()).is_equal(9.0)
@@ -64,6 +68,9 @@ func test_enter_prologue_hero_hero_story_then_run() -> void:
 	GameSettings.intro_seen = false
 	GameSettings.seen_stories = PackedStringArray()
 	GameSettings.hero_picked = false
+	GameSettings.hero_id = &""  # 처음 하는 사람 (마지막 영웅 없음 → 영웅 고르기)
+	GameSettings.hero_cleared = {}  # 아직 이긴 전장 없음
+	GameSettings.cleared_stages = PackedStringArray()
 	GameSettings.stage_picked = false
 	GameSettings.hero_stages = {}
 	GameSettings.save_settings()
@@ -90,8 +97,12 @@ func test_enter_prologue_hero_hero_story_then_run() -> void:
 	assert_object(intro.data).is_same(hero.story)
 	intro.finish()
 	assert_bool(GameSettings.seen_stories.has(String(hero.id))).is_true()
+	var list: StageSelect = main.stage_select
+	assert_bool(list.is_open()).is_true()  # 영웅 이야기 뒤 그 영웅의 전장 목록
+	assert_bool(list.highlight(0)).is_true()  # 처음 하는 사람: 첫 전장이 빛난다
+	list.press(0)
 	assert_bool(main.waiting_pick).is_false()
-	assert_str(String(main.run_config.stage.id)).is_equal(String(hero.home_stage))  # 그 영웅의 무대로
+	assert_str(String(main.run_config.stage.id)).is_equal(String(hero.home_stage))  # 그 영웅의 첫 전장으로
 	get_tree().paused = false
 	main.queue_free()
 	GameSettings.title_seen = true
@@ -153,6 +164,7 @@ func test_story_once_skips_what_was_seen() -> void:
 	GameSettings.tutorial_done = true
 	GameSettings.hero_clears = {}
 	GameSettings.hero_picked = false
+	GameSettings.hero_id = &""  # 마지막 영웅이 없어야 영웅 고르기
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)

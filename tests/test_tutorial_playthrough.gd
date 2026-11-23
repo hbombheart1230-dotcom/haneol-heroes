@@ -13,6 +13,7 @@ func _main(hero: StringName, button: bool = false) -> Node:
 	GameSettings.hero_stages = {}
 	GameSettings.stage_picked = false
 	GameSettings.tutorial_enabled = true
+	GameSettings.want_stage_list = false
 	GameSettings.tutorial_done = false
 	GameSettings.skill_button_enabled = button
 	GameSettings.save_settings()

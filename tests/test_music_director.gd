@@ -4,6 +4,10 @@ extends GdUnitTestSuite
 const SONG := preload("res://data/songs/manchuria_395.tres")
 
 
+func after_test() -> void:
+	GameSettings.want_stage_list = false
+
+
 func test_every_stage_has_a_complete_song() -> void:
 	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo", "hansan_1592"]:
 		var st := load("res://data/stages/%s.tres" % id) as StageTheme
@@ -67,6 +71,7 @@ func test_hero_story_plays_that_heros_stage_song() -> void:
 	GameSettings.intro_seen = true
 	GameSettings.tutorial_done = true
 	GameSettings.hero_picked = false
+	GameSettings.hero_id = &""  # 마지막 영웅 없음 → 영웅 고르기
 	GameSettings.story_enabled = true
 	GameSettings.hero_stages = {}
 	GameSettings.hero_clears = {}
@@ -87,6 +92,8 @@ func test_hero_story_plays_that_heros_stage_song() -> void:
 	await get_tree().create_timer(2.0).timeout  # 앞 곡을 줄였다가 바꾼다 (0.8초씩)
 	assert_object(MusicDirector.player().stream).is_same(st.song.interactive())
 	main.story_intro.finish()
+	assert_bool(main.stage_select.is_open()).is_true()  # 이야기 뒤 전장 목록 (같은 곡)
+	main.stage_select.press(0)
 	await get_tree().create_timer(1.0).timeout
 	assert_object(MusicDirector.player().stream).is_same(st.song.interactive())  # 판이 시작돼도 같은 곡
 	get_tree().paused = false
@@ -110,7 +117,7 @@ func test_scene_has_menu_and_result_tracks() -> void:
 	main.free()
 
 
-func test_stage_plays_its_own_song_and_hero_starts_at_home() -> void:
+func test_stage_plays_its_own_song() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
 	GameSettings.opening_seen = true
@@ -118,8 +125,8 @@ func test_stage_plays_its_own_song_and_hero_starts_at_home() -> void:
 	GameSettings.tutorial_done = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
-	GameSettings.stage_picked = false
-	GameSettings.hero_stages = {"yi_sun_sin": "manchuria_395"}  # 이번 실행에서 "다음 전장"으로 만주에 옴
+	GameSettings.stage_picked = true
+	GameSettings.stage_id = &"manchuria_395"  # 원정으로 만주를 골랐다
 	GameSettings.hero_clears = {}
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
@@ -131,10 +138,6 @@ func test_stage_plays_its_own_song_and_hero_starts_at_home() -> void:
 	assert_object(MusicDirector.player().stream).is_same(mine.interactive())  # 만주에서는 광개토 노래
 	get_tree().paused = false
 	main.queue_free()
-	# 저장하지 않으므로 앱을 다시 켜면(값이 비면) 자기 무대부터
-	GameSettings.hero_stages = {}
-	GameSettings.load_settings()
-	assert_bool(GameSettings.hero_stages.has("yi_sun_sin")).is_false()
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
 	GameSettings.save_settings()

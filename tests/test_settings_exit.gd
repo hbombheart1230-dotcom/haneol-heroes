@@ -12,6 +12,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	GameSettings.want_stage_list = false
 	get_tree().paused = false
 	GameSettings.title_seen = true
 	GameSettings.opening_seen = true
