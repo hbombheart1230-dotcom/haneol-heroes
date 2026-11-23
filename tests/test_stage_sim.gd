@@ -32,7 +32,7 @@ func test_every_stage_reaches_the_boss_without_stalling() -> void:
 	for id in STAGES:
 		var r: Dictionary = await _run(id, SEEDS[0])
 		assert_bool(r["boss"]).override_failure_message("%s: %s" % [id, StageSim.stage_line(id, r)]).is_true()
-		assert_int((r["cleared"] as Array).size()).override_failure_message(id).is_equal(3)
+		assert_int((r["cleared"] as Array).size()).override_failure_message(id).is_equal(4)  # 물결 넷 (그 뒤 보스)
 		assert_float(r["stall"]).override_failure_message(id).is_less(1.0)  # 숨 고르기 뒤 다음 물결이 바로
 		assert_int(r["blocked"]).override_failure_message(id).is_equal(0)  # 장애물 속 등장 없음
 		var st: StageTheme = load("res://data/stages/%s.tres" % id)

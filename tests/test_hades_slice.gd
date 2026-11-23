@@ -93,7 +93,7 @@ func test_spawner_warns_then_spawns_on_screen() -> void:
 
 func test_slice_look_is_hansan_only_and_waves_everywhere() -> void:
 	assert_object(HANSAN.waves).is_not_null()
-	assert_int(HANSAN.waves.waves.size()).is_equal(3)
+	assert_int(HANSAN.waves.waves.size()).is_equal(4)  # 물결 넷 + 보스 = 5웨이브
 	assert_int(HANSAN.waves.max_alive).is_equal(14)
 	assert_object(HANSAN.look).is_not_null()
 	assert_float(HANSAN.camera_zoom).is_greater(1.0)
