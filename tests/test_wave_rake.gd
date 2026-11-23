@@ -135,3 +135,79 @@ func test_numbers_stack_on_one_label() -> void:
 	assert_int(l.number_count()).is_equal(1)
 	assert_str(String(l._fx[0]["text"])).is_equal("15")
 	assert_int(int(l._fx[0]["hits"])).is_equal(3)
+
+
+## 낙뢰 사슬: 벼락 맞은 적 → 한 박자 뒤 다음 적 (건너뛰는 박자), 적마다 지지직 여러 번, 피해 합은 그대로.
+func test_lightning_chain_hops_on_a_beat() -> void:
+	var ctx := _ctx()
+	var gw: HeroData = load("res://data/heroes/gwanggaeto.tres")
+	var s := (gw.kit.charge as LightningSkill).duplicate() as LightningSkill
+	s.chain_count = 2
+	ctx.skill = s
+	var a := _enemy(Vector2(100, 0))
+	var b := _enemy(Vector2(250, 0))
+	s.cast(ctx, 0.0)
+	var hit_a := -1.0
+	var hit_b := -1.0
+	var hits_b := [0]
+	b.health.damaged.connect(func(_a, _b, _c, _d, _e, _f) -> void: hits_b[0] += 1)
+	var t := 0.0
+	for i in 90:
+		t += DT
+		for n in get_children():
+			if n is WaveRake and not n.is_queued_for_deletion():
+				(n as WaveRake)._physics_process(DT)
+		if hit_a < 0.0 and a.health.current < 9999:
+			hit_a = t
+		if hit_b < 0.0 and b.health.current < 9999:
+			hit_b = t
+	assert_float(hit_b - hit_a).is_greater_equal(s.chain_beat - DT)  # 한 박자 뒤
+	assert_int(9999 - a.health.current).is_equal(s.damage)
+	assert_int(9999 - b.health.current).is_equal(roundi(s.damage * s.chain_ratio))
+	assert_int(hits_b[0]).is_equal(s.crackle_hits)
+
+
+## 화폭: 조이는 타 간격이 점점 짧아지고, 마지막 타가 가두기 끝(delay)에 온다. 피해 합은 그대로.
+func test_canvas_squeeze_speeds_up_and_lands_at_delay() -> void:
+	var ctx := _ctx()
+	var sa: HeroData = load("res://data/heroes/shin_saimdang.tres")
+	var s := (sa.kit.charge as CanvasSkill).duplicate() as CanvasSkill
+	ctx.skill = s
+	var e := _enemy(Vector2(100, 0))
+	var times: Array = []
+	e.health.damaged.connect(func(_a, _b, _c, _d, _e, _f) -> void: times.append(0.0))
+	var run := s.cast(ctx, 0.0)
+	var t := 0.0
+	for i in 60:
+		t += DT
+		run.tick(DT)
+		var before := times.size()
+		for n in get_children():
+			if n is WaveRake and not n.is_queued_for_deletion():
+				(n as WaveRake)._physics_process(DT)
+		for k in range(before, times.size()):
+			times[k] = t
+	assert_int(times.size()).is_equal(s.squeeze_hits)
+	assert_int(9999 - e.health.current).is_equal(s.damage)
+	assert_float(float(times[times.size() - 1])).is_equal_approx(s.delay, DT * 2.5)
+	var g0 := float(times[1]) - float(times[0])
+	var g_last := float(times[times.size() - 1]) - float(times[times.size() - 2])
+	assert_float(g_last).is_less(g0)  # 조인다 (점점 빨라짐)
+
+
+## 사방 검기도 긁는다: 검기마다 긁기가 붙고 합은 검기 피해.
+func test_counter_blades_rake() -> void:
+	var ctx := _ctx()
+	var s := (YI.kit.counter as CounterSlashSkill).duplicate() as CounterSlashSkill
+	s.radial_blades = 4
+	ctx.skill = s
+	s.cast(ctx, 0.0)
+	var n := 0
+	for c in get_children():
+		if c is Projectile:
+			var r := WaveRake.of(c)
+			assert_object(r).is_not_null()
+			assert_int(r.total_damage()).is_equal(s.blade_damage)
+			assert_int(r.damages.size()).is_equal(s.blade_rake_hits)
+			n += 1
+	assert_int(n).is_equal(4)

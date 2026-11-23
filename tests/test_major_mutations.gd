@@ -119,4 +119,5 @@ func test_counter_radial_blades() -> void:
 	assert_int(ps.size()).is_equal(8)
 	for p in ps:
 		assert_bool((p as Projectile).pierce).is_true()
-		assert_int((p as Projectile).damage).is_equal(s.blade_damage)
+		var r := WaveRake.of(p as Projectile)  # 검기 긁기: 타마다 나눈 합 = 검기 피해
+		assert_int(r.total_damage() if r else (p as Projectile).damage).is_equal(s.blade_damage)

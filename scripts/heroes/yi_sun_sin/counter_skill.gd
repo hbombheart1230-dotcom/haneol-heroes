@@ -13,6 +13,11 @@ extends SkillDef
 ## 반격과 함께 사방으로 날리는 관통 검기 수 (0이면 없음).
 @export var radial_blades: int = 0
 @export var blade_damage: int = 25
+## 검기 긁기 (WaveRake, 해일검기와 같은 방식): 검기가 닿은 적을 blade_rake_interval초마다 blade_rake_hits번 잘게,
+## 총 피해 blade_damage·총 밀기 blade_push는 나눠 마지막 타가 크게. 1이면 예전처럼 한 번에.
+@export var blade_rake_hits: int = 3
+@export var blade_rake_interval: float = 0.05
+@export var blade_push: float = 90.0
 
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
@@ -31,11 +36,15 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 			ctx.fx.add_slash(center - d, center + d, 16.0, 0.25, fx_color)
 	for i in radial_blades:
 		var dir := Vector2.from_angle(TAU * i / float(radial_blades))
-		ctx.spawn_projectile_configured(func(pr: Projectile) -> void:
+		var p := ctx.spawn_projectile_configured(func(pr: Projectile) -> void:
 			pr.direction = dir
 			pr.speed = 760.0
 			pr.lifetime = 0.6
 			pr.pierce = true
 			pr.damage = blade_damage
+			pr.knockback = blade_push
 			pr.size_scale = 1.3)
+		if p and blade_rake_hits > 1:  # 사방 검기도 지나가며 잘게 긁는다 (다다닥)
+			WaveRake.attach(ctx, p, WaveRake.plan(blade_damage, blade_rake_hits, 2.0, blade_push, 0.35),
+				blade_rake_interval, 24)
 	return SkillRun.instant(hits)  # 명중 멈춤은 SkillHitStop 공통 규칙 (피해 비례, D3)
