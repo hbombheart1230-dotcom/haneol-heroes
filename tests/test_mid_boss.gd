@@ -8,6 +8,13 @@ const ELITE_PATH := "res://data/enemies/waegun_elite.tres"
 const SOLDIER := preload("res://data/enemies/waegun_soldier.tres")
 const COMMANDER := preload("res://data/enemies/waegun_commander.tres")
 const DT := 1.0 / 60.0
+## 네 무대 중간 보스 → 무대 주인 영웅, 붙는 거리, 탭 거리 (StageSim.HEROES와 같은 값).
+const MIDS := {
+	"res://data/enemies/waegun_elite.tres": ["yi_sun_sin", 90.0, 170.0],
+	"res://data/enemies/elite_warrior.tres": ["gwanggaeto", 110.0, 200.0],
+	"res://data/enemies/jurchen_elite.tres": ["sejong", 280.0, 520.0],
+	"res://data/enemies/cc_mantis.tres": ["shin_saimdang", 150.0, 240.0],
+}
 
 var player: Player
 var sp: EnemySpawner
@@ -68,7 +75,14 @@ func _wave_set(when_left: int) -> WaveSetData:
 
 
 func test_mid_boss_data_rules() -> void:
-	var d := _elite()
+	for path in MIDS:
+		_check_data(ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as EnemyData)
+
+
+func _check_data(d: EnemyData) -> void:
+	assert_int(d.xp).is_equal(20)  # 처치 점수 (레벨 곡선)
+	assert_str(d.boss_feel.intro_subtitle).is_equal("정예 출현")
+	assert_str(d.boss_feel.finale_subtitle).is_equal("정예 격파")
 	assert_bool(d.is_elite).is_true()
 	assert_bool(d.is_boss).is_false()  # 처치해도 승리 아님
 	assert_object(d.boss_feel).is_not_null()
@@ -169,21 +183,33 @@ func test_hero_boss_hp_mult_applies_to_mid_boss() -> void:
 	assert_object(BossHpScale.for_hero(plain, gw)).is_same(plain)
 
 
-## 결정적 시뮬레이션: 순신이 피하며 치면 15~25초 안에 잡고 (등장 대기·소환 포함), 막힘 없이, 같은 공격 연속 없이.
-func test_mid_boss_fight_length_with_yi() -> void:
-	for s in [11, 23, 37]:
-		var sim := BossSim.new(self)
-		await sim.setup(_elite(), s)
-		var r := sim.run(BossSim.Bot.DODGE, 60.0)
-		print(BossSim.line("mid-boss yi seed %d" % s, r))
-		sim.free_all()
-		assert_bool(r["won"]).is_true()
-		assert_int(r["phase"]).is_equal(2)
-		assert_float(r["time"]).override_failure_message("%.1fs" % r["time"]).is_between(15.0, 25.0)
-		for g in r["gaps"]:
-			assert_float(g).is_less(6.0)
-		var w: Array = r["struck"]
-		for i in range(1, w.size()):
-			var prev: EnemyAttackData = w[i - 1]
-			if prev.follow_up != w[i]:
-				assert_int(int((w[i] as EnemyAttackData).kind)).is_not_equal(int(prev.kind))
+## 결정적 시뮬레이션: 무대 주인 영웅이 피하며 치면 (영웅 배율 받은 체력) 15~25초 안에 잡고 (등장 대기·소환 포함),
+## 막힘 없이, 같은 공격 연속 없이. 보통 실행은 씨앗 하나, HH_SLOW=1이면 셋.
+func test_mid_boss_fight_length() -> void:
+	var seeds := [11, 23, 37] if OS.get_environment("HH_SLOW") == "1" else [11]
+	for path in MIDS:
+		var c: Array = MIDS[path]
+		var hp := "res://data/heroes/%s.tres" % c[0]
+		for s in seeds:
+			var sim := BossSim.new(self)
+			sim.use_hero(hp, c[1], c[2])
+			var hero := ResourceLoader.load(hp, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as HeroData
+			var d := ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as EnemyData
+			await sim.setup(BossHpScale.for_hero(d, hero), s)
+			var r := sim.run(BossSim.Bot.DODGE, 60.0)
+			print(BossSim.line("mid-boss %s %s seed %d" % [d.id, c[0], s], r))
+			sim.free_all()
+			_check_fight(r, String(d.id))
+
+
+func _check_fight(r: Dictionary, label: String) -> void:
+	assert_bool(r["won"]).override_failure_message(label).is_true()
+	assert_int(r["phase"]).is_equal(2)
+	assert_float(r["time"]).override_failure_message("%s %.1fs" % [label, r["time"]]).is_between(15.0, 25.0)
+	for g in r["gaps"]:
+		assert_float(g).is_less(6.0)
+	var w: Array = r["struck"]
+	for i in range(1, w.size()):
+		var prev: EnemyAttackData = w[i - 1]
+		if prev.follow_up != w[i]:
+			assert_int(int((w[i] as EnemyAttackData).kind)).is_not_equal(int(prev.kind))

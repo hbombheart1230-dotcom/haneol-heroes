@@ -3,29 +3,112 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
 [ext_resource type="Resource" path="res://assets/sprites/jurchen_elite/jurchen_elite.tres" id="3_sheet"]
+[ext_resource type="Script" path="res://scripts/data/boss_phase_data.gd" id="4_phase"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_soldier.tres" id="5_soldier"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_archer.tres" id="6_ranged"]
+[ext_resource type="Script" path="res://scripts/data/boss_feel_data.gd" id="7_feel"]
 
-[sub_resource type="Resource" id="Attack_elite_slam"]
+[sub_resource type="Resource" id="El_slam_follow"]
 script = ExtResource("2_attack")
-kind = 6
-trigger_range = 230.0
-windup = 0.8
-radius = 150.0
-damage = 25
+kind = 0
+anim = &"attack"
+trigger_range = 340.0
+windup = 0.9
+radius = 120.0
+damage = 20
 cooldown = 1.8
-recovery = 0.6
-length = 240.0
-width = 70.0
+recovery = 1.3
+bypass_cap = true
+
+[sub_resource type="Resource" id="El_charge"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"run"
+trigger_range = 380.0
+windup = 0.85
+length = 440.0
+width = 90.0
+miss_overshoot = 140.0
+miss_recovery = 1.5
+damage = 20
+cooldown = 1.6
+recovery = 0.9
+bypass_cap = true
+
+[sub_resource type="Resource" id="El_slam"]
+script = ExtResource("2_attack")
+kind = 0
+anim = &"attack"
+trigger_range = 340.0
+windup = 0.9
+radius = 120.0
+damage = 20
+cooldown = 1.6
+recovery = 1.0
+bypass_cap = true
+
+[sub_resource type="Resource" id="El_charge_combo"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"run"
+trigger_range = 380.0
+windup = 0.85
+length = 440.0
+width = 90.0
+damage = 20
+cooldown = 1.6
+recovery = 0.4
+bypass_cap = true
+follow_up = SubResource("El_slam_follow")
+follow_gap = 0.4
+
+[sub_resource type="Resource" id="Phase_summon"]
+script = ExtResource("4_phase")
+hp_frac = 0.7
+summon = Array[ExtResource("1_enemy")]([ExtResource("5_soldier"), ExtResource("5_soldier")])
+invuln_time = 0.6
+seal_label = ""
+
+[sub_resource type="Resource" id="Phase_rage"]
+script = ExtResource("4_phase")
+hp_frac = 0.4
+patterns = Array[ExtResource("2_attack")]([SubResource("El_charge_combo"), SubResource("El_slam")])
+summon = Array[ExtResource("1_enemy")]([ExtResource("5_soldier"), ExtResource("6_ranged")])
+invuln_time = 0.8
+seal_label = "짓밟아라!"
+
+[sub_resource type="Resource" id="Mid_feel"]
+script = ExtResource("7_feel")
+intro_hold = 1.2
+transition_hold = 0.8
+summon_delay = 0.4
+summon_distance = 170.0
+phase_pick = false
+intro_subtitle = "정예 출현"
+finale_time = 1.4
+finale_slow_scale = 0.35
+finale_slow_time = 0.5
+finale_slow_back = 0.3
+finale_zoom = 1.12
+finale_zoom_in = 0.2
+finale_zoom_hold = 0.5
+finale_zoom_out = 0.5
+finale_flash_alpha = 0.35
+finale_flash_time = 0.8
+finale_subtitle = "정예 격파"
 
 [resource]
 script = ExtResource("1_enemy")
 id = &"jurchen_elite"
-max_hp = 400
-xp = 12
+max_hp = 900
+xp = 20
 move_speed = 80.0
-contact_damage = 20
+contact_damage = 0
 body_radius = 38.0
 color = Color(0.45, 0.28, 0.6, 1)
-attack = SubResource("Attack_elite_slam")
+patterns = Array[ExtResource("2_attack")]([SubResource("El_charge"), SubResource("El_slam")])
+phases = Array[ExtResource("4_phase")]([SubResource("Phase_summon"), SubResource("Phase_rage")])
+boss_feel = SubResource("Mid_feel")
 preferred_range = 0.0
 knockback_scale = 0.15
 stun_scale = 0.5
