@@ -13,6 +13,11 @@ extends StageSim
 static var legacy_reach := false
 const REACH_IDS := ["chaser", "jurchen_soldier", "cc_mouse"]
 var _alive_t := 0.0
+## 판 안 성장 (레벨·패·기술 성장, tests/run_growth.gd). null이면 성장 없이.
+var growth: RunGrowth
+## 물결별 받은 피해 ("w1"… "boss")와 그때 체력.
+var _by_wave := {}
+var _hp_prev := 0
 var _dis_t := 0.0
 var _starts := 0
 var _strikes := 0
@@ -28,7 +33,7 @@ var _near_dis := 0.0
 
 
 ## 무대 꾸리기 (await 필요). caps가 비어 있지 않으면 물결별 상한을 바꾼다 (예: [8, 11, 14]).
-func setup_run(st: StageTheme, s: int, caps: Array = []) -> void:
+func setup_run(st: StageTheme, s: int, caps: Array = [], grow: bool = false) -> void:
 	var stage_copy := st
 	if not caps.is_empty():
 		stage_copy = st.duplicate() as StageTheme
@@ -48,6 +53,11 @@ func setup_run(st: StageTheme, s: int, caps: Array = []) -> void:
 				if REACH_IDS.has(String(e.id)) and e.attack:
 					e.attack.trigger_range = 130.0
 	await setup_stage(stage_copy, s)
+	if grow:
+		growth = RunGrowth.new()
+		growth.begin(player, caster, atk, spawner, s, func() -> float: return _t)
+	_by_wave.clear()
+	_hp_prev = player.health.current
 	spawner.boss_data = BossHpScale.for_hero(stage_copy.boss, player.hero)
 	spawner.elite_data = BossHpScale.for_hero(stage_copy.elite, player.hero)
 	_alive_t = 0.0
@@ -61,7 +71,20 @@ func setup_run(st: StageTheme, s: int, caps: Array = []) -> void:
 	_near_dis = 0.0
 
 
+## 지금 어느 물결인지 ("w1"…, 보스 기다림·보스는 "boss").
+func _wave_key() -> String:
+	var w := spawner.waves if spawner else null
+	if w == null or w.phase == WaveRunner.Phase.BOSS_WAIT or w.phase == WaveRunner.Phase.BOSS or spawner.boss_spawned_once:
+		return "boss"
+	return "w%d" % (maxi(w.index, 0) + 1)
+
+
 func _sample(list: Array) -> void:
+	var hp := player.health.current
+	if hp < _hp_prev:
+		var k := _wave_key()
+		_by_wave[k] = int(_by_wave.get(k, 0)) + _hp_prev - hp
+	_hp_prev = hp
 	for e: Enemy in list:
 		if e.data == null or e.data.is_boss or e.data.is_elite or e.data.boss_feel:
 			continue
@@ -105,6 +128,11 @@ func run_full(miss: float = 0.0) -> Dictionary:
 			out["lost"] = b["lost"]
 	out["total"] = snappedf(out["wave_time"] + out["boss_time"], 0.1)
 	out["damage"] = player.health.max - player.health.current
+	out["by_wave"] = _by_wave.duplicate()
+	out["died_in"] = _wave_key() if player.is_dead() else ""
+	out["level"] = growth.progress.level if growth else 1
+	out["picks"] = growth.picks.duplicate() if growth else []
+	out["max_hp"] = player.health.max
 	out["disabled"] = _dis_t / maxf(_alive_t, 0.01)
 	out["starts_per_s"] = _starts / maxf(_alive_t, 0.01)
 	out["strikes_per_s"] = _strikes / maxf(_alive_t, 0.01)
@@ -122,3 +150,11 @@ static func run_line(name: String, r: Dictionary) -> String:
 	return "[run-sim] %s: %s total %.1fs (waves %.1f, mid %.1f, boss %.1f), damage %d (waves %d), trash disabled %.0f%% (near %.0f%%), starts %.3f/s, strikes %.3f/s, why %s" % [
 		name, "WIN" if r["won"] else ("LOSE" if r["lost"] else "TIMEOUT"), r["total"], r["wave_time"], r["mid_time"],
 		r["boss_time"], r["damage"], r["wave_damage"], r["disabled"] * 100.0, r.get("near_disabled", 0.0) * 100.0, r["starts_per_s"], r["strikes_per_s"], str(r.get("why", {}))]
+
+
+## 성장 판 한 줄: 결과·진 물결·물결별 피해·레벨·고른 패.
+static func growth_line(name: String, r: Dictionary) -> String:
+	return "[run-growth] %s: %s%s total %.1fs (boss %.1f), hp %d, level %d, damage by wave %s, picks %s" % [
+		name, "WIN" if r["won"] else ("LOSE" if r["lost"] else "TIMEOUT"),
+		(" in " + r["died_in"]) if r["died_in"] != "" else "", r["total"], r["boss_time"], r["max_hp"], r["level"],
+		str(r["by_wave"]), ", ".join(r["picks"])]

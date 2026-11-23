@@ -16,6 +16,8 @@ var stage: StageTheme
 var obstacles: Obstacles
 ## 판을 꾸리기 전부터 있던 시험 노드 (그 뒤에 world에 붙은 탄·기술 효과만 손으로 굴린다).
 var _before: Array = []
+## true가 되면 물결 돌리기를 멈춘다 (성장 스냅숏: 중간 보스 등장 순간 등).
+var stop_now := false
 
 
 static func hero_of(st: StageTheme) -> String:
@@ -61,7 +63,7 @@ func run_waves(limit: float = 300.0) -> Dictionary:
 		e.killed.connect(func(_e: Enemy) -> void: res["mid_time"] = snappedf(_t - t0 - res["mid_at"], 0.1)))
 	var tap_t := 0.0
 	var stall := 0.0
-	while _t - t0 < limit and not player.is_dead() and not spawner.boss_spawned_once:
+	while _t - t0 < limit and not player.is_dead() and not spawner.boss_spawned_once and not stop_now:
 		_t += DT
 		Engine.time_scale = 1.0
 		for c in spawner.get_children():

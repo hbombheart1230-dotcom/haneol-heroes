@@ -42,6 +42,8 @@ var miss_rate := 0.0
 var _missed := {}
 ## 영웅 데이터 경로, 붙는 거리(px), 탭을 시작하는 보스 거리(px). 원거리 영웅은 멀리 선다 (use_hero).
 var hero_path := YI_PATH
+## 있으면 hero_path 대신 이 영웅 데이터 (판 안에서 성장한 영웅 사본, tests/grown_heroes.gd).
+var hero_override: HeroData
 var want := 90.0
 var tap_range := 170.0
 ## 탄이 이미 맞힌 적 (관통 탄은 같은 적을 한 번만).
@@ -80,7 +82,7 @@ func setup(boss_data: EnemyData, s: int, boss_at: Vector2 = Vector2(0, -300)) ->
 	_kept.clear()
 	for c in suite.get_children():
 		_kept[c] = true
-	var yi := ResourceLoader.load(hero_path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as HeroData
+	var yi := hero_override if hero_override else ResourceLoader.load(hero_path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as HeroData
 	player = Player.new()
 	var h := Health.new()
 	h.name = "Health"

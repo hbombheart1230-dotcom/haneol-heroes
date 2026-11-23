@@ -14,8 +14,13 @@ func after_test() -> void:
 func _trials(name: String, bot: BossSim.Bot, contact: bool = true, miss: float = 0.0) -> Array:
 	var out: Array = []
 	for s in SEEDS:
+		var boss := ResourceLoader.load(BOSS_PATH, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as EnemyData
 		var sim := BossSim.new(self)
-		await sim.setup(ResourceLoader.load(BOSS_PATH, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as EnemyData, s)
+		if bot == BossSim.Bot.DODGE:  # 피하며 치는 판: 물결을 성장과 함께 거쳐 온 순신 (보스 체력은 성장 기준, tests/grown_heroes.gd)
+			var grown: Array = await GrownHeroes.take(self, "yi_sun_sin", s, GrownHeroes.At.BOSS)
+			sim.hero_override = grown[0]
+			boss = BossHpScale.for_hero(boss, grown[0])
+		await sim.setup(boss, s)
 		sim.contact = contact
 		sim.miss_rate = miss
 		var r := sim.run(bot)
@@ -43,7 +48,7 @@ func test_dodging_and_punishing_wins() -> void:
 	var rs: Array = await _trials("dodge", BossSim.Bot.DODGE)
 	assert_int(_count(rs, "won")).is_equal(SEEDS.size())
 	for r: Dictionary in rs:
-		assert_float(r["time"]).is_between(35.0, 65.0)  # 목표 약 50초
+		assert_float(r["time"]).is_between(25.0, 70.0)  # 성장한 순신: 씨앗마다 고른 패가 달라 흔들림 (평균 목표는 test_boss_balance_sim)
 		var w: Array = r["strikes"]  # 끊긴 예고(경직)는 다시 낼 수 있다: 실제로 친 차례만 본다
 		for i in range(1, w.size()):
 			assert_int(w[i]).override_failure_message("same attack twice: %s" % str(w)).is_not_equal(w[i - 1])

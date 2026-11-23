@@ -62,7 +62,7 @@ func test_damage_lands_on_contact_frame() -> void:
 		assert_int(int(a.melee_delay() * speed * sheet.fps[i] + 0.001)).is_greater_equal(3)  # 칼을 든 앞 칸(0~2)에서 멈추지 않는다
 	a.chain_step = 1
 	# 사용자 판 피드백 (순신 연타가 두 영웅보다 약하다): 1·2타가 광개토·사임당과 같은 0.15초에 닿는다 (예전 0.19초)
-	assert_float(a.melee_delay()).is_equal_approx(Feedback.feel_data().melee_delay_max, 0.001)
+	assert_float(a.melee_delay()).is_less_equal(Feedback.feel_data().melee_delay_max)  # 사용자: 순신 1·2타 사이 정적 → 휘두르기 조금 더 빠르게 (1.35, 0.14초)
 
 
 ## 다른 영웅은 그대로 (데이터가 없으면 꺼짐).

@@ -25,10 +25,10 @@ func _rules(on: bool) -> void:
 	RunSim.legacy_reach = not on  # #102 A: 무대 근접 잡몹 거리 130 → 170
 
 
-func _run(id: String, s: int, miss: float) -> Dictionary:
+func _run(id: String, s: int, miss: float, grow: bool = false) -> Dictionary:
 	var st := ResourceLoader.load("res://data/stages/%s.tres" % id, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as StageTheme
 	var sim := RunSim.new(self)
-	await sim.setup_run(st, s)
+	await sim.setup_run(st, s, [], grow)
 	var r := sim.run_full(miss)
 	sim.free_all()
 	return r
@@ -50,4 +50,18 @@ func test_report_table() -> void:
 				print(RunSim.run_line(tag + " dodge", r))
 				if SLOW:
 					print(RunSim.run_line(tag + " sloppy", await _run(id, s, 0.3)))
+	assert_bool(true).is_true()
+
+
+## 판 안 성장(레벨·패·기술 성장)을 넣은 한 판 표 (HH_GROWTH=1일 때만, 보고용): 영웅 넷 × 피하기·서툰 사람 × 씨앗 셋.
+## 패 고르기 규칙은 tests/run_growth.gd 머리말 (가중치로 펼친 3장 중 늘 첫 장).
+func test_growth_table() -> void:
+	if OS.get_environment("HH_GROWTH") != "1":
+		assert_bool(true).is_true()
+		return
+	for id in STAGES:
+		for s in [11, 23, 37]:
+			for miss in [0.0, 0.3]:
+				var r: Dictionary = await _run(id, s, miss, true)
+				print(RunSim.growth_line("%s seed %d %s" % [id, s, "dodge" if miss == 0.0 else "sloppy"], r))
 	assert_bool(true).is_true()
