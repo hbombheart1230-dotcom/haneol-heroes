@@ -1,8 +1,8 @@
 extends SceneTree
 ## 무대 조명(StageLook) 비교: 순신 + 왜군 몇 + 해룡참 고리를 한 화면에 세워 찍는다.
-## godot --path . --resolution 540x1200 -s res://tools/shots/look_shot.gd -- <look .tres 경로 | none> <출력 png> [ring|plain] [카메라 확대, 0이면 무대 값] [무대 id]
+## godot --path . --resolution 540x1200 -s res://tools/shots/look_shot.gd -- <look .tres 경로 | none | off> <출력 png> [ring|plain] [카메라 확대, 0이면 무대 값] [무대 id]
 ## 폰 비율(논리 720×1680)로 보려면 --resolution 450x1050. 영웅 키 비율(화면 높이 대비)을 출력한다.
-## none이면 무대 데이터 그대로 (지금 모습). plain이면 기술 없이 (바닥 측정용). 화톳불이 있으면 그 옆에 선다.
+## none이면 무대 데이터 그대로 (지금 모습). plain이면 기술 없이 (바닥 측정용), 아니면 무대 주인공의 탭 기술. 화톳불이 있으면 그 옆에 선다.
 
 const HERO := {"hansan_1592": "yi_sun_sin", "manchuria_395": "gwanggaeto", "gyeongbokgung_1433": "sejong",
 	"chochungdo": "shin_saimdang"}
@@ -15,7 +15,8 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
-	GameSettings.settings_path = OS.get_user_data_dir() + "/probe_settings.cfg"
+	GameSettings.settings_path = OS.get_user_data_dir() + "/look_shot_settings.cfg"  # 저장된 영웅·무대를 읽지 않게 빈 설정
+	DirAccess.remove_absolute(GameSettings.settings_path)
 	GameSettings.hero_picked = true
 	GameSettings.title_seen = true
 	GameSettings.intro_seen = true
@@ -23,7 +24,7 @@ func _run() -> void:
 	GameSettings.stage_picked = true
 	var stage_id := StringName(args[4]) if args.size() > 4 else &"hansan_1592"
 	GameSettings.stage_id = stage_id
-	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.hero_id = StringName(HERO.get(String(stage_id), "yi_sun_sin"))  # 무대 주인공으로 시작 (스킬·단추까지)
 	GameSettings.tutorial_enabled = false
 	GameSettings.show_stats = false
 	var main: Node = load("res://scenes/main.tscn").instantiate()
@@ -34,17 +35,18 @@ func _run() -> void:
 	if arena.theme == null or arena.theme.id != stage_id:  # 저장된 설정이 무대를 바꿨으면 되돌린다
 		StageApply.stage(main, load("res://data/stages/%s.tres" % stage_id))
 		await process_frame
-	if args[0] != "none":
+	if args[0] != "none":  # off = 조명 없는 예전 모습 (확대 1, 비네트 없음)
 		var st := arena.theme.duplicate() as StageTheme
-		st.look = load(args[0]) as StageLook
+		st.look = null if args[0] == "off" else load(args[0]) as StageLook
+		if args[0] == "off":
+			st.camera_zoom = 1.0
+			st.vignette = 0.0
 		arena.apply_theme(st)
+		arena.clamp_camera(main.get_node("Player/Camera2D") as Camera2D)
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	var player := main.get_node("Player") as Node2D
-	var hero_id: String = HERO.get(String(stage_id), "yi_sun_sin")
-	if (player as Player).hero.id != StringName(hero_id):  # 무대 주인공으로
-		(player as Player).change_hero(load("res://data/heroes/%s.tres" % hero_id))
-		for i in 3:
-			await process_frame
+	if (player as Player).hero.id != GameSettings.hero_id:
+		push_warning("look_shot: hero %s, wanted %s" % [(player as Player).hero.id, GameSettings.hero_id])
 	var cam := player.get_node("Camera2D") as Camera2D
 	if args.size() > 3 and float(args[3]) > 0.0:
 		cam.zoom = Vector2.ONE * float(args[3])
