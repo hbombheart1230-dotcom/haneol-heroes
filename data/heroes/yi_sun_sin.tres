@@ -39,6 +39,7 @@
 
 [ext_resource type="Resource" path="res://data/heroes/combo_lock/yi_sun_sin.tres" id="combo_lock"]
 [ext_resource type="Resource" path="res://data/campaigns/yi_sun_sin.tres" id="campaign"]
+[ext_resource type="Resource" path="res://data/heroes/dash_look/yi_sun_sin.tres" id="dash_look"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -224,6 +225,7 @@ upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
 level_up = ExtResource("lv_up")
 dash_style = ExtResource("dash_style")
+dash_look = ExtResource("dash_look")
 charge_marker = ExtResource("charge_marker")
 blade_bite = ExtResource("blade_bite")
 dash_dir = ExtResource("dash_dir")

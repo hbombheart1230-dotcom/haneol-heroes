@@ -93,6 +93,7 @@ func _setup_sprite(h: HeroData) -> void:
 	_blend = AnimBlend.new()
 	add_child(_blend)  # 스프라이트 뒤: 앞 자세가 새 자세 밖으로만 잠깐 남는다
 	add_child(EvadeRim.new(player, _sprite))  # 회피 무적 금빛 테두리 (스프라이트 뒤)
+	add_child(DashLookFx.new(player, _sprite))  # 피하는 내닫기 잔상·치는 내닫기 칼 궤적 (DashLookData)
 	add_child(_sprite)
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
 	_attack = attack
@@ -261,6 +262,10 @@ func _update_sprite(delta: float) -> void:
 	_sprite.speed_scale = run_anim_speed() if cur == "run" else (Feedback.feel_data().idle_anim_speed if cur == "idle" 		else (_oneshot_speed if cur == _oneshot else 1.0))
 	if _posing and _oneshot_left <= 0.0:  # 모으는 자세: 첫 칸에 멈춤
 		_sprite.frame = 0
+		_sprite.speed_scale = 0.0
+	var hold := DashLook.pose_frame(player, _sheet)  # 내닫기 자세: 내지르기·낮추기 한 칸을 붙잡는다
+	if hold >= 0:
+		_sprite.frame = mini(hold, _sprite.sprite_frames.get_frame_count(_sprite.animation) - 1)
 		_sprite.speed_scale = 0.0
 	if _hitstop_left > 0.0 and current_anim() == _oneshot:
 		_sprite.speed_scale = 0.0

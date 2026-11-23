@@ -51,6 +51,8 @@ extends Resource
 @export var dash_style: DashStyleData
 ## 대시를 방향으로 나누기 (돌진 타격·뒤로 빠지기, DashDirData). 비면 예전 대시.
 @export var dash_dir: DashDirData
+## 치는 내닫기·피하는 내닫기를 보기에 나누기 (자세·칼 궤적·잔상·금테, DashLookData). 비면 예전 대시 그림.
+@export var dash_look: DashLookData
 
 @export_group("무게감 (보이는 무게, 조작은 그대로)")
 ## 발밑 먹 그림자: 몸 반지름 배율·속 진하기.

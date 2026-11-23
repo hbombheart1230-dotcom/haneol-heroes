@@ -8,6 +8,8 @@ var _start_pos: Vector2 = Vector2.ZERO
 var _dir: Vector2 = Vector2.RIGHT
 ## 마지막 도착 효과 시각(초, 실제 시간).
 var _last_effect: float = -INF
+## 지나간 길 띠를 그릴지 (DashLookData.style_path: 칼 궤적·잔상과 헷갈리지 않게 끈다). 대시마다 DashLookFx가 정한다.
+var draw_path: bool = true
 ## 시계 (비면 실제 시간). 헤드리스 시뮬레이션이 시뮬 시간을 넣는다 (EnemyAttack.clock과 같은 방식).
 static var clock: Callable
 
@@ -48,7 +50,8 @@ func _draw_path(pos: Vector2) -> void:
 func on_end(pos: Vector2, enemies: Array, now_sec: float = -1.0) -> int:
 	if style == null:
 		return 0
-	_draw_path(pos)  # 지나간 길은 대시마다
+	if draw_path:
+		_draw_path(pos)  # 지나간 길은 대시마다
 	var now := now_sec if now_sec >= 0.0 else (float(clock.call()) if clock.is_valid() else Time.get_ticks_msec() / 1000.0)
 	if now - _last_effect < style.end_cooldown:
 		return 0  # 연속 대시: 도착 그림·효과 모두 간격마다 한 번 (자취는 계속)

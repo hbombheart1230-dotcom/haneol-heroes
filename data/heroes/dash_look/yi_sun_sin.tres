@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="DashLookData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/dash_look_data.gd" id="1_look"]
+
+[resource]
+script = ExtResource("1_look")
+strike_anim = &"cast_dash"
+strike_frame = 1
+evade_anim = &"backstep"
+evade_frame = 3
+afterimage_color = Color(0.8, 0.9, 1, 1)
