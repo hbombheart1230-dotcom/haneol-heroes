@@ -1,17 +1,17 @@
 class_name BossSim
 extends RefCounted
-## 한산 보스전 헤드리스 시뮬레이션 (tests/test_boss_sim.gd 가 쓴다, test_measured_sim 방식).
+## 보스전 헤드리스 시뮬레이션 (영웅·보스는 아무나, 기본은 한산 순신) (tests/test_boss_sim.gd 가 쓴다, test_measured_sim 방식).
 ## 결정적으로 (같은 씨앗 = 프로세스·실행 순서와 상관없이 같은 [boss-sim] 줄):
 ##  - 한 물리 프레임 안에서 고정 틱(DT)으로 끝까지 돈다 (move_and_slide가 물리 프레임 밖에서는 실제 프레임 delta를 씀).
 ##  - 시계는 시뮬 시간 (EnemyAttack.clock · DashStyleRunner.clock), 기술 멈춤 끔, Engine.time_scale 1 고정.
 ##  - 적 버릇 씨앗(ai_seed)은 나온 차례, 생성기 난수·전역 난수는 씨앗으로. 전역 상태는 판 앞뒤로 비운다.
 ##  - 영웅·보스 데이터는 디스크에서 새로 읽는다 (다른 시험이 바꿔 둔 공유 리소스 영향 제거).
-## 순신 한 명과 보스(+ 단계 부하)를 실제 노드로 굴린다. 영웅 조작은 세 가지:
+## 영웅 한 명과 보스(+ 단계 부하)를 실제 노드로 굴린다. 영웅 탄(Projectile)은 물리 없이 손으로 맞춘다. 영웅 조작은 세 가지:
 ##   IDLE   : 제자리, 손을 안 댄다 (자동 공격만)
 ##   TAP    : 보스에게 붙어 탭 연타만 (피하지 않음)
 ##   DODGE  : 예고 동안 제자리에서 치다가 끝 무렵(REACT) 대시로 빠지고, 틈에 다시 붙어 탭 연타
 ## 결과 사전: time, won, lost, damage, by (공격 종류별 받은 피해), boss_hp, phase, windups (보스 예고 시작 [시각, 종류]),
-## strikes (실제로 친 공격 종류 차례), gaps (보스 타격 → 다음 예고 간격), max_minions (동시 부하 최대).
+## strikes (실제로 친 공격 종류 차례), struck (그 공격 데이터, 이어치기 확인용), gaps (보스 타격 → 다음 예고 간격), max_minions (동시 부하 최대).
 
 enum Bot { IDLE, TAP, DODGE }
 
@@ -40,6 +40,14 @@ var contact := true
 ## DODGE가 놓치는 예고 비율 (0 = 다 피함, 0.3 = 셋에 하나는 못 봄: 서툰 사람). 예고마다 한 번 정한다.
 var miss_rate := 0.0
 var _missed := {}
+## 영웅 데이터 경로, 붙는 거리(px), 탭을 시작하는 보스 거리(px). 원거리 영웅은 멀리 선다 (use_hero).
+var hero_path := YI_PATH
+var want := 90.0
+var tap_range := 170.0
+## 탄이 이미 맞힌 적 (관통 탄은 같은 적을 한 번만).
+var _proj_hits := {}
+## 판 전부터 있던 suite 자식 (판이 끝나면 그 밖의 것은 다 지운다: 탄·기술 노드가 지운 생성기를 부르지 않게).
+var _kept := {}
 
 
 func _init(p_suite: Node) -> void:
@@ -66,7 +74,11 @@ func setup(boss_data: EnemyData, s: int, boss_at: Vector2 = Vector2(0, -300)) ->
 	_spawned = 0
 	EnemyAttack.clock = func() -> float: return _t
 	DashStyleRunner.clock = func() -> float: return _t
-	var yi := ResourceLoader.load(YI_PATH, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as HeroData
+	_proj_hits.clear()
+	_kept.clear()
+	for c in suite.get_children():
+		_kept[c] = true
+	var yi := ResourceLoader.load(hero_path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as HeroData
 	player = Player.new()
 	var h := Health.new()
 	h.name = "Health"
@@ -111,7 +123,17 @@ func _on_spawned(n: Node) -> void:
 		(n as Enemy).ai_seed = _spawned
 
 
+## 영웅 바꾸기 (setup 전에): 경로, 붙는 거리, 탭 거리.
+func use_hero(path: String, p_want: float, p_tap: float) -> void:
+	hero_path = path
+	want = p_want
+	tap_range = p_tap
+
+
 func free_all() -> void:
+	for c in suite.get_children():
+		if not _kept.has(c) and c != spawner and c != caster and c != player:
+			c.free()
 	for n in [spawner, caster, player]:
 		if is_instance_valid(n):
 			n.free()
@@ -120,6 +142,8 @@ func free_all() -> void:
 
 func enemies() -> Array:
 	var out: Array = []
+	if not is_instance_valid(spawner):  # 판이 끝난 뒤 남은 기술 타이머가 부를 때
+		return out
 	for c in spawner.get_children():
 		if c is Enemy and is_instance_valid(c) and not (c as Enemy).health.is_dead():
 			out.append(c)
@@ -129,7 +153,7 @@ func enemies() -> Array:
 ## limit초 동안 (또는 승패까지) 굴린다.
 func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 	var res := {"time": 0.0, "won": false, "lost": false, "damage": 0, "by": {}, "boss_hp": 0, "phase": 0,
-		"windups": [], "strikes": [], "gaps": [], "max_minions": 0, "max_threats": 0}
+		"windups": [], "strikes": [], "struck": [], "gaps": [], "max_minions": 0, "max_threats": 0}
 	var tap_t := 0.0
 	var boss_state := EnemyAttack.State.READY
 	var last_strike := -1.0
@@ -146,10 +170,11 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 		player._physics_process(DT)
 		caster.tick(DT, _t)
 		tap_t -= DT
-		if bot != Bot.IDLE and tap_t <= 0.0 and player.global_position.distance_to(boss.global_position) <= 170.0:
+		if bot != Bot.IDLE and tap_t <= 0.0 and player.global_position.distance_to(boss.global_position) <= tap_range:
 			tap_t = TAP_GAP
 			caster.combo_tap()
 		atk.tick(DT, list)
+		_tick_shots(list)
 		_tick_world(list, res)
 		if not is_instance_valid(boss) or boss.health.is_dead():
 			break
@@ -161,6 +186,7 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 		if st == EnemyAttack.State.RECOVER and boss_state == EnemyAttack.State.WINDUP:
 			last_strike = t
 			res["strikes"].append(boss.attack.data.kind)
+			res["struck"].append(boss.attack.data)
 		boss_state = st
 		var minions := list.size() - 1
 		res["max_minions"] = maxi(res["max_minions"], minions)
@@ -172,6 +198,28 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 	res["boss_hp"] = boss.health.current if is_instance_valid(boss) else 0
 	res["phase"] = boss.phase_index if is_instance_valid(boss) else -1
 	return res
+
+
+## 영웅 탄 한 틱: 움직이고, 적 피격 원(22px)에 닿으면 HitBox2D가 하듯 피해를 준다 (손으로 굴리면 영역 겹침이 갱신되지 않음).
+const HURT_R := 22.0
+
+
+func _tick_shots(list: Array) -> void:
+	for c in suite.get_children():
+		if not (c is Projectile) or c.is_queued_for_deletion():
+			continue
+		var pr := c as Projectile
+		pr._physics_process(DT)
+		if pr.is_queued_for_deletion() or pr.ignore_collisions:
+			continue
+		var seen: Dictionary = _proj_hits.get_or_add(pr.get_instance_id(), {})
+		for e in list:
+			if is_instance_valid(e) and not seen.has(e) and not e.health.is_dead() \
+					and pr.global_position.distance_to(e.global_position) <= HURT_R + 12.0 * pr.size_scale:
+				seen[e] = true
+				pr._on_area_entered(e.get_node("HurtBox2D"))
+				if pr.ignore_collisions:
+					break
 
 
 ## 적·예고·화살 한 틱. 받은 피해를 공격 종류별로 센다.
@@ -228,7 +276,6 @@ func _steer(bot: Bot, list: Array) -> void:
 				player.request_dash(escape_dir(a, p))
 				return
 	var to_boss := boss.global_position - p
-	var want := 90.0
 	var busy := boss.attack.state == EnemyAttack.State.WINDUP and not bool(_missed.get(boss.attack, false))  # 못 본 예고는 없는 셈
 	if bot == Bot.DODGE and busy:
 		player.set_move_input(Vector2.ZERO)  # 예고 중엔 그 자리에서 계속 치다가 끝 무렵 대시 (위)
