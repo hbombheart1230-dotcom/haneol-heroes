@@ -3,7 +3,7 @@
 『이충무공전서』 전라좌수영 귀선(1795, 일본 국립국회도서관, 퍼블릭 도메인; Wikimedia Commons Geobukseon2.jpg)의 목판 선화에서
 귀갑문(육각 등딱지 무늬)·방패판 원 무늬 띠·용머리를 먹선만 뽑아, 무대 지도(배경 그림)와 같은 월드 영역 위에 얹을 투명 그림 한 장으로 합성한다.
 전투 구역(가운데)은 비우고 갑판 가장자리(위·아래 끝, 모서리)에만, 중간 진하기로 둔다.
-원본 인쇄물은 저장소에 올리지 않는다 (assets/concept/gwiseon_src/에만 로컬).
+원본 인쇄물(1.8MB, 퍼블릭 도메인)은 assets/concept/gwiseon_src/에 둔다.
 python tools/art/make_hansan_edge.py [원본 jpg] [출력 png]
 """
 import sys
