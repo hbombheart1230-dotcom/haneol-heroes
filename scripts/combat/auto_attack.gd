@@ -248,10 +248,12 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 		var en := e as Enemy
 		if en:
 			en.heavy_pending = heavy
+			en.hit_crowd = hits.size()  # 여럿을 한 번에 베면 경직이 짧다
 		if h:
 			h.damage(dmg)
 		if en:
 			en.heavy_pending = false
+			en.hit_crowd = 1
 			ComboSteps.push(en, from, kb, heavy, d)  # 피격 반응: 툭 밀려남 (타별 배율), 3타 크게 날리기 (있으면)
 			HitImpact.on_enemy(en, from, chain_step, d.swing_color)  # 닿는 자리 섬광·튐 줄기 (한 타 충격)
 	if not hits.is_empty():

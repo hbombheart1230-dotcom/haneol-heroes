@@ -14,6 +14,14 @@ var _dis_t := 0.0
 var _starts := 0
 var _strikes := 0
 var _last := {}
+## 묶인 까닭별 시간 (stagger, down, stun, launch, slow) — 무엇이 적을 못 움직이게 하는지.
+var _why := {}
+## 공격 거리 밖(trigger_range 너머)에 있던 시간.
+var _far_t := 0.0
+## 영웅 가까이(NEAR px 안)에 있던 잡몹: 그 시간과 그중 묶인 시간 (화면에서 보이는 "아무것도 못 하는 적").
+const NEAR := 260.0
+var _near_t := 0.0
+var _near_dis := 0.0
 
 
 ## 무대 꾸리기 (await 필요). caps가 비어 있지 않으면 물결별 상한을 바꾼다 (예: [8, 11, 14]).
@@ -39,6 +47,10 @@ func setup_run(st: StageTheme, s: int, caps: Array = []) -> void:
 	_starts = 0
 	_strikes = 0
 	_last.clear()
+	_why.clear()
+	_far_t = 0.0
+	_near_t = 0.0
+	_near_dis = 0.0
 
 
 func _sample(list: Array) -> void:
@@ -47,8 +59,18 @@ func _sample(list: Array) -> void:
 			continue
 		_alive_t += DT
 		var r := e.reaction
-		if (r and (r.is_staggered() or r.is_down())) or e.is_stunned() or e.launch.active():
+		var dis := (r and (r.is_staggered() or r.is_down())) or e.is_stunned() or e.launch.active()
+		if dis:
 			_dis_t += DT
+		if e.global_position.distance_to(player.global_position) <= NEAR:
+			_near_t += DT
+			_near_dis += DT if dis else 0.0
+		for k in ["stagger", "down", "stun", "launch", "slow"]:
+			var on: bool = (k == "stagger" and r != null and r.is_staggered()) or (k == "down" and r != null and r.is_down()) 				or (k == "stun" and e.is_stunned()) or (k == "launch" and e.launch.active()) or (k == "slow" and e._slow_left > 0.0)
+			if on:
+				_why[k] = float(_why.get(k, 0.0)) + DT
+		if e.attack and e.global_position.distance_to(player.global_position) > e.attack.data.trigger_range:
+			_far_t += DT
 		var st: int = e.attack.state if e.attack else -1
 		var was: int = _last.get(e, -1)
 		if st == EnemyAttack.State.WINDUP and was != EnemyAttack.State.WINDUP:
@@ -78,11 +100,17 @@ func run_full(miss: float = 0.0) -> Dictionary:
 	out["disabled"] = _dis_t / maxf(_alive_t, 0.01)
 	out["starts_per_s"] = _starts / maxf(_alive_t, 0.01)
 	out["strikes_per_s"] = _strikes / maxf(_alive_t, 0.01)
+	var why := {}
+	for k in _why:
+		why[k] = snappedf(_why[k] / maxf(_alive_t, 0.01), 0.01)
+	why["far"] = snappedf(_far_t / maxf(_alive_t, 0.01), 0.01)
+	out["near_disabled"] = _near_dis / maxf(_near_t, 0.01)
+	out["why"] = why
 	return out
 
 
 ## 결과 한 줄 (로그용).
 static func run_line(name: String, r: Dictionary) -> String:
-	return "[run-sim] %s: %s total %.1fs (waves %.1f, mid %.1f, boss %.1f), damage %d (waves %d), trash disabled %.0f%%, starts %.3f/s, strikes %.3f/s, cleared %s" % [
+	return "[run-sim] %s: %s total %.1fs (waves %.1f, mid %.1f, boss %.1f), damage %d (waves %d), trash disabled %.0f%% (near %.0f%%), starts %.3f/s, strikes %.3f/s, why %s" % [
 		name, "WIN" if r["won"] else ("LOSE" if r["lost"] else "TIMEOUT"), r["total"], r["wave_time"], r["mid_time"],
-		r["boss_time"], r["damage"], r["wave_damage"], r["disabled"] * 100.0, r["starts_per_s"], r["strikes_per_s"], str(r["cleared"])]
+		r["boss_time"], r["damage"], r["wave_damage"], r["disabled"] * 100.0, r.get("near_disabled", 0.0) * 100.0, r["starts_per_s"], r["strikes_per_s"], str(r.get("why", {}))]

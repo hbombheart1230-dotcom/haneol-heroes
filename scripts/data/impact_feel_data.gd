@@ -40,7 +40,7 @@ extends Resource
 ## 넘어짐 동작이 없는 시트: 맞는 동작 마지막 칸을 이만큼 눕힌다(도).
 @export var down_tilt_deg: float = 75.0
 ## 일어난 뒤 이 시간(초) 동안은 다시 넘어지지 않는다.
-@export var down_rearm: float = 2.0
+@export var down_rearm: float = 3.0
 
 @export_group("영웅 멈춤 · 3타째 (B3·B4)")
 ## 근접이 맞으면 영웅 동작도 멈춘다 (역경직): base + 맞은 수 × per, 최대 max. 3타째는 heavy.

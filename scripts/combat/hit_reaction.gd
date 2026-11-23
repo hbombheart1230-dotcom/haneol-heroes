@@ -43,7 +43,7 @@ static func tier_of(d: EnemyData, has_affix: bool, hp_mult: float = 1.0) -> Tier
 
 
 ## 피해를 받았을 때. 반환: 맞는 동작을 (다시) 시작하면 true.
-func on_hit(applied: int, max_hp: int, dir: Vector2) -> bool:
+func on_hit(applied: int, max_hp: int, dir: Vector2, crowd: int = 1) -> bool:
 	if applied <= 0:
 		return false
 	_age = 0.0
@@ -51,7 +51,7 @@ func on_hit(applied: int, max_hp: int, dir: Vector2) -> bool:
 		_dir = dir.normalized()
 	_k = 1.0 if tier == Tier.TRASH else data.heavy_flinch_scale
 	if tier == Tier.TRASH:
-		add_stagger(stagger_time())
+		add_stagger(stagger_time() * crowd_mult(crowd))
 	var plays := tier == Tier.TRASH \
 		or (tier == Tier.ELITE and applied >= maxi(max_hp, 1) * data.elite_flinch_hp_frac) \
 		or (tier == Tier.BOSS and data.boss_flinch)
@@ -64,6 +64,13 @@ func on_hit(applied: int, max_hp: int, dir: Vector2) -> bool:
 func on_shove() -> void:
 	if tier == Tier.TRASH:
 		add_stagger(stagger_time())
+
+
+## 한 번에 crowd마리가 맞았을 때 경직 배율.
+func crowd_mult(crowd: int) -> float:
+	if crowd <= 1 or data.crowd_stagger_falloff <= 0.0:
+		return 1.0
+	return maxf(1.0 / (1.0 + (crowd - 1) * data.crowd_stagger_falloff), data.crowd_stagger_min)
 
 
 ## 경직 걸기 (이어진 경직이 다 차서 쉬는 중이면 걸리지 않는다). 걸렸으면 true.
@@ -81,15 +88,15 @@ func stagger_time() -> float:
 
 func tick(delta: float) -> void:
 	anim_left = maxf(anim_left - delta, 0.0)
+	_stagger_guard = maxf(_stagger_guard - delta, 0.0)
 	if stagger_left > 0.0:
 		_chain += delta
 		if data.stagger_chain_max > 0.0 and _chain >= data.stagger_chain_max:
 			stagger_left = 0.0
+		stagger_left = maxf(stagger_left - delta, 0.0)
+		if stagger_left <= 0.0:  # 경직이 풀리면 잠깐 다시 경직되지 않는다 (움직이고 칠 틈)
+			_chain = 0.0
 			_stagger_guard = data.stagger_guard
-	stagger_left = maxf(stagger_left - delta, 0.0)
-	if stagger_left <= 0.0:
-		_chain = 0.0
-	_stagger_guard = maxf(_stagger_guard - delta, 0.0)
 	if down_left > 0.0:
 		down_left = maxf(down_left - delta, 0.0)
 	else:
