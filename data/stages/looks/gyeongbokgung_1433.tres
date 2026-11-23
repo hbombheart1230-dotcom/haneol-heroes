@@ -4,10 +4,10 @@
 
 [resource]
 script = ExtResource("1_look")
-value_mult = 0.36
+value_mult = 0.4
 saturation = 0.6
-contrast = 2.2
-pivot = 0.22
+contrast = 2.8
+pivot = 0.24
 shadow_tint = Color(0.06, 0.06, 0.15, 1)
 light_tint = Color(0.56, 0.56, 0.78, 1)
 tint_mix = 0.75
@@ -16,7 +16,7 @@ lit_props = PackedStringArray("stone_lantern")
 prop_light_color = Color(1.0, 0.72, 0.3, 1.0)
 prop_light_radius = 340.0
 pools_per_mpx = 0.9
-pool_color = Color(0.72, 0.7, 1.0, 0.6)
+pool_color = Color(0.72, 0.7, 1.0, 0.8)
 pool_radius_min = 200.0
 pool_radius_max = 340.0
 hero_light_color = Color(1.0, 0.85, 0.55, 0.3)
