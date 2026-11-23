@@ -34,8 +34,8 @@ extends Resource
 @export var flash_blinks: int = 2
 ## 맞은 순간 몸 색 (사용자가 고를 비교안): 0 = 흰 번쩍임 (flash_blinks), 1 = 붉은 실루엣 한 칸 (하데스식),
 ## 2 = 먹빛 실루엣 + 인주색 테두리 한 칸 (수묵 톤), 3 = 흰 번쩍임 + 인주색 테두리 (flash_blinks),
-## 4 = 한지색 실루엣 + 먹 테두리 한 칸. 1·2·4는 flash_frame_time초 동안만 꽉 차게.
-@export_enum("white", "red", "ink_seal", "white_seal", "hanji_ink") var hit_flash_style: int = 0
+## 4 = 한지색 실루엣 + 먹 테두리 한 칸 (기본: 사용자 선택, 네 무대 바닥에서 확인). 1·2·4는 flash_frame_time초 동안만 꽉 차게.
+@export_enum("white", "red", "ink_seal", "white_seal", "hanji_ink") var hit_flash_style: int = 4
 @export var flash_frame_time: float = 0.035
 @export var red_silhouette: Color = Color(0.86, 0.08, 0.05)
 @export var ink_silhouette: Color = Color(0.07, 0.05, 0.05)
