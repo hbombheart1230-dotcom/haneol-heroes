@@ -56,16 +56,16 @@ def main():
             a = np.asarray(crop(os.path.join(frames_dir, "f%08d.png" % i)))
             w.append_data(a)
             ws.append_data(a)
-    spans = {"idle": ("idle", 40, 4), "combo": ("combo", 3, 8), "haeryong": ("haeryong", 3, 6),
-             "dash": ("dash", 3, 6), "hit": ("hit", 3, 6), "run": ("run", 8, 6), "run_attack": ("run_attack", 4, 7)}
-    for k, (name, every, cols) in spans.items():
-        if k not in marks:
+    # 구간 이름 → (프레임 간격, 열 수). 없는 이름은 3프레임마다 8열.
+    spans = {"idle": (40, 4), "combo": (3, 8), "run": (8, 6), "run_attack": (4, 7)}
+    for k, start in marks.items():
+        if k == "end":
             continue
-        start = marks[k]
+        every, cols = spans.get(k, (3, 8))
         end = min([v for v in marks.values() if v > start] + [last])
-        if k in ("combo",):
+        if k == "combo":
             end = marks.get("dash", end)  # 연타 1→2→3→해룡참 한 장
-        strip(frames_dir, start, end, every, cols, os.path.join(out_dir, "live3d_%s.png" % name))
+        strip(frames_dir, start, end, every, cols, os.path.join(out_dir, "live3d_%s.png" % k))
     print("done", first, last)
 
 

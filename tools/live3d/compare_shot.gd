@@ -29,6 +29,7 @@ func _run() -> void:
 	GameSettings.hero_picked = true
 	GameSettings.opening_seen = true
 	GameSettings.story_enabled = false
+	ProjectSettings.set_setting("hh/art/live3d", false)  # 왼쪽은 구운 그림 그대로 (오른쪽만 직접 3D로)
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
 	var player := main.get_node("Player") as Player
@@ -56,6 +57,16 @@ func _run() -> void:
 		list.append(e)
 	player.facing = Vector2.DOWN
 	await _frames(190)  # 무대 제목 띠가 사라질 때까지
+	await _sequence(player, atk, caster, list)
+	_mark("end")
+	var f := FileAccess.open(out, FileAccess.WRITE)
+	f.store_string(JSON.stringify(_marks))
+	f.close()
+	quit()
+
+
+## 찍을 동작 순서 (action_shot.gd가 바꾼다). _mark(이름)이 구간 시작, compare_video.py가 구간마다 띠를 만든다.
+func _sequence(player: Player, atk: AutoAttack, caster: SkillCaster, list: Array) -> void:
 	_mark("idle")
 	await _frames(70)
 	_mark("combo")
@@ -92,11 +103,6 @@ func _run() -> void:
 		await _frames(1)
 	player.set_move_input(Vector2.ZERO)
 	await _frames(35)
-	_mark("end")
-	var f := FileAccess.open(out, FileAccess.WRITE)
-	f.store_string(JSON.stringify(_marks))
-	f.close()
-	quit()
 
 
 func _label(parent: Node2D, text: String) -> void:
