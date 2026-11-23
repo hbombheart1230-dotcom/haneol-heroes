@@ -208,7 +208,7 @@ def download_all(state: dict, out_dir: str) -> None:
 
 ## 굽기 구간·맞닿는 순간 (초, 동작 원본 기준), 칸마다 시각 times, 몸 더 돌리기 yaw(도).
 ## 설정의 동작에 있으면 굽기 작업으로 그대로 넘긴다 (bake_sprites.gd·bake_tip.gd).
-TRIM_KEYS = ("start", "end", "strike", "times", "yaw")
+TRIM_KEYS = ("start", "end", "strike", "times", "yaw", "live3d_only")  # live3d_only: 3D 동작만 (그림으로 굽지 않음)
 
 
 def write_bake_job(cfg: dict, state: dict) -> str:

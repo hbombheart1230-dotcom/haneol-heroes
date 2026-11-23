@@ -279,6 +279,8 @@ func _bake(job: Dictionary) -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	var meta: Array = []
 	for anim in job["anims"]:
+		if anim.get("live3d_only", false):  # 3D에서만 쓰는 동작 (예: 대장 사망 — 넘어지지 않아 그림이 나올 일이 없다)
+			continue
 		var frames: int = int(anim["frames"])
 		var sheet := Image.create(FRAME * frames, FRAME * DIRS, false, Image.FORMAT_RGBA8)
 		var src := ""
