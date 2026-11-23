@@ -51,11 +51,12 @@ func test_victory_tap_goes_to_next_stage_for_that_hero() -> void:
 	add_child(main)
 	await get_tree().process_frame
 	assert_str(String(main.run_config.stage.id)).is_equal("hansan_1592")
+	var other_before := str(GameSettings.hero_cleared.get("gwanggaeto", PackedStringArray()))  # 메인이 설정을 다시 읽은 뒤의 값
 	main.state.result = GameState.Result.VICTORY
 	main._on_ended(GameState.Result.VICTORY)
 	assert_bool(PackedStringArray(GameSettings.hero_cleared.get("yi_sun_sin", PackedStringArray())).has("hansan_1592")).is_true()
 	assert_array(Array(GameSettings.cleared_stages)).contains(["hansan_1592"])
-	assert_bool(GameSettings.hero_cleared.has("gwanggaeto")).is_false()  # 다른 영웅 기록은 그대로
+	assert_str(str(GameSettings.hero_cleared.get("gwanggaeto", PackedStringArray()))).is_equal(other_before)  # 다른 영웅 기록은 그대로
 	get_tree().paused = false
 	main.queue_free()
 	GameSettings.hero_stages = {}
