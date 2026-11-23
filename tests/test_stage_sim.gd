@@ -32,11 +32,15 @@ func test_every_stage_reaches_the_boss_without_stalling() -> void:
 	for id in STAGES:
 		var r: Dictionary = await _run(id, SEEDS[0])
 		assert_bool(r["boss"]).override_failure_message("%s: %s" % [id, StageSim.stage_line(id, r)]).is_true()
-		assert_int((r["cleared"] as Array).size()).override_failure_message(id).is_equal(3)
+		assert_int((r["cleared"] as Array).size()).override_failure_message(id).is_equal(4)  # 물결 넷 (그 뒤 보스)
 		assert_float(r["stall"]).override_failure_message(id).is_less(1.0)  # 숨 고르기 뒤 다음 물결이 바로
 		assert_int(r["blocked"]).override_failure_message(id).is_equal(0)  # 장애물 속 등장 없음
-		assert_int(r["spawned"]).override_failure_message(id).is_equal(50)  # 14 + 10 + 정예 + 24 + 보스
-		assert_int(r["max_alive"]).override_failure_message(id).is_less_equal(10 + 1)  # 물결 상한 10 (+ 정예 한 마리)
+		var st: StageTheme = load("res://data/stages/%s.tres" % id)
+		var planned := 2  # 정예(중간 보스) + 보스
+		for w: WaveData in st.waves.waves:
+			planned += w.enemies.size()
+		assert_int(r["spawned"]).override_failure_message(id).is_greater_equal(planned)  # 물결 적 다 + 정예 + 보스 (중간 보스 소환은 더)
+		assert_int(r["max_alive"]).override_failure_message(id).is_less_equal(st.waves.max_alive + 1)  # 화면 상한 (+ 정예 한 마리)
 
 
 ## 무대 길이·받는 예고 공격 피해가 한산과 비슷하다 (물결만, 보스 전까지, 접촉 피해 빼고).

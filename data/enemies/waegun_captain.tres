@@ -1,0 +1,43 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+[ext_resource type="Resource" path="res://assets/sprites/waegun_elite/waegun_elite.tres" id="3_sheet"]
+
+[sub_resource type="Resource" id="Attack_elite_slam"]
+script = ExtResource("2_attack")
+kind = 0
+trigger_range = 160.0
+windup = 1.0
+radius = 150.0
+damage = 25
+cooldown = 1.8
+recovery = 0.6
+
+[resource]
+script = ExtResource("1_enemy")
+id = &"waegun_captain"
+max_hp = 400
+xp = 12
+move_speed = 80.0
+contact_damage = 20
+body_radius = 38.0
+color = Color(0.45, 0.28, 0.6, 1)
+attack = SubResource("Attack_elite_slam")
+preferred_range = 0.0
+knockback_scale = 0.15
+stun_scale = 0.5
+is_elite = true
+display_name = "왜군 망령 사무라이"
+sprite_sheet = ExtResource("3_sheet")
+sprite_scale = 1.45
+sprite_offset = Vector2(0, -49)
+launch_scale = 0.4
+rim_color = Color(1, 0.72, 0.3, 0.9)
+rim_width = 5.0
+body_lift = 0.0
+body_contrast = 1.05
+army_tint = Color(1, 1, 1, 1)
+tint_mix = 0.0
+ghost_color = Color(0.78, 0.48, 0.7, 0.5)
+ghost_fire_scale = 1.25

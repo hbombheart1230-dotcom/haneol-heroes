@@ -45,3 +45,17 @@ func test_ghost_fire_lists_only_living_ghosts() -> void:
 func test_main_scene_has_ghost_fire_layer() -> void:
 	var main: Node = auto_free(load("res://scenes/main.tscn").instantiate())
 	assert_object(main.get_node_or_null("GhostFire") as GhostFire).is_not_null()
+
+
+## 도깨비불은 모든 불을 삼각형 목록 하나로 (마리마다 그리기 호출을 쌓지 않는다): 불 하나 = 빛무리 RING 조각 + 혀마다 두 삼각형.
+func test_ghost_fire_builds_one_triangle_list() -> void:
+	var gf: GhostFire = auto_free(GhostFire.new())
+	var one := gf.build_mesh([[Vector2.ZERO, 20.0, Color(0.8, 0.5, 0.7, 0.5), 0.0]], 0.3)
+	var per_pts := 1 + GhostFire.RING + gf.tongues * 6
+	var per_tris := GhostFire.RING + gf.tongues * 2
+	assert_int((one[0] as PackedVector2Array).size()).is_equal(per_pts)
+	assert_int((one[1] as PackedColorArray).size()).is_equal(per_pts)
+	assert_int((one[2] as PackedInt32Array).size()).is_equal(per_tris * 3)
+	var many := gf.build_mesh([[Vector2.ZERO, 20.0, Color.WHITE, 0.0], [Vector2(50, 0), 30.0, Color.WHITE, 1.0]], 0.3)
+	assert_int((many[2] as PackedInt32Array).size()).is_equal(per_tris * 3 * 2)
+	assert_int((many[2] as PackedInt32Array)[per_tris * 3]).is_equal(per_pts)  # 둘째 불 번호는 이어진다

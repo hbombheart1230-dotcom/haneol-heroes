@@ -27,21 +27,29 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 	for id in STAGES:
 		var w := _st(id).waves
 		assert_object(w).override_failure_message(id).is_not_null()
-		for k in ["max_alive", "next_when_left", "refill_each", "xp_mult", "warn_time", "one_pick_per_break", "pick_stacks"]:
+		for k in ["max_alive", "next_when_left", "refill_each", "warn_time", "one_pick_per_break", "pick_stacks"]:
 			assert_that(w.get(k)).override_failure_message("%s.%s" % [id, k]).is_equal(base.get(k))
 		assert_int(w.waves.size()).is_equal(base.waves.size())
+		var total := 0.0  # 판 전체 처치 점수(보정 후)는 무대마다 같다: 군대별 적 경험치 합이 달라 xp_mult만 다르다 (약 240, 새 레벨 곡선 기준, 레벨업 세션)
+		for wave: WaveData in w.waves:
+			for e: EnemyData in wave.enemies:
+				total += e.xp
+			total += _enemy(ROLES[id]["elite"]).xp if wave.elite_last else 0.0
+		assert_float(total * w.xp_mult).override_failure_message("%s total xp %.1f" % [id, total * w.xp_mult]).is_between(232.0, 248.0)
 		var roles: Dictionary = ROLES[id]
 		var base_roles: Dictionary = ROLES["hansan_1592"]
 		for i in w.waves.size():
 			var a: WaveData = w.waves[i]
 			var b: WaveData = base.waves[i]
-			assert_bool(a.elite_last).is_equal(b.elite_last)
-			if id != "hansan_1592" and b.elite_when_left >= 0 and _st("hansan_1592").elite.boss_feel and not _st(id).elite.boss_feel:
-				continue  # 한산만 중간 보스 물결 (잡몹 몇 → 중간 보스): 나머지 세 무대는 중간 보스가 되면 같은 모양으로
-			assert_int(a.max_alive).is_equal(b.max_alive)
+			if i == 2 and id != "hansan_1592" and b.elite_when_left >= 0 and _st("hansan_1592").elite.boss_feel and not _st(id).elite.boss_feel:
+				continue  # 3물결 = 한산만 중간 보스 물결 (잡몹 몇 → 중간 보스): 나머지 세 무대는 중간 보스 데이터가 생기면 같은 모양으로
+			assert_int(a.max_alive).override_failure_message("%s wave %d cap" % [id, i]).is_equal(b.max_alive)
 			assert_int(a.first_count).is_equal(b.first_count)
 			var mine := a.enemies.map(func(e: EnemyData) -> String: return _role(roles, e.id))
 			var theirs := b.enemies.map(func(e: EnemyData) -> String: return _role(base_roles, e.id))
+			if i == 3:  # 4물결: 한산은 일반 정예(사무라이)가 한 마리 섞여 나오고, 나머지는 elite_last 정예 — 잡몹 구성만 비교
+				mine = mine.filter(func(r: String) -> bool: return not r.begins_with("?waegun_captain"))
+				theirs = theirs.filter(func(r: String) -> bool: return not r.begins_with("?waegun_captain"))
 			assert_array(mine).override_failure_message("%s wave %d: %s" % [id, i, mine]).is_equal(theirs)
 		assert_str(String(_st(id).elite.id)).is_equal(roles["elite"])
 
@@ -84,7 +92,7 @@ func test_trash_dies_in_one_or_two_hero_hits() -> void:
 		assert_int(hp).override_failure_message("%s: hp %d, hit %d" % [id, hp, hit]).is_between(hit + 1, hit * 2)
 
 
-## 떼는 근접 위주: 원거리는 한산 예전 수(2 · 1 · 3) 그대로, 물결 상한 6 · 8 · 10.
+## 떼는 근접 위주: 원거리는 물결마다 적게 (0 · 3 · 0~1 · 4), 물결 상한 8 · 10 · 8~11 · 14 (사용자: 5웨이브, 약 4분).
 func test_swarm_is_melee_heavy_and_ranged_stays_few() -> void:
 	for id in STAGES:
 		var w := _st(id).waves
@@ -93,8 +101,8 @@ func test_swarm_is_melee_heavy_and_ranged_stays_few() -> void:
 		for wave: WaveData in w.waves:
 			ranged.append(wave.enemies.filter(func(e: EnemyData) -> bool: return String(e.id) == ROLES[id]["ranged"]).size())
 			caps.append(wave.max_alive)
-		assert_array(ranged).override_failure_message(id).is_equal([2, 1, 3])
-		assert_array(caps).override_failure_message(id).is_equal([6, 8, 10])
+		assert_array(ranged).override_failure_message(id).is_equal([0, 3, 0 if id == "hansan_1592" else 1, 4])
+		assert_array(caps).override_failure_message(id).is_equal([8, 10, 8 if id == "hansan_1592" else 11, 14])  # 한산 3물결은 중간 보스 물결 (#83)
 
 
 ## 잡몹은 닿기만 해서는 피해가 없다: 모든 피해는 붉은 먹 예고를 거친 공격으로만 (정예·보스 접촉은 따로).
