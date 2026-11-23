@@ -18,11 +18,12 @@ clips = Array[Dictionary]([{
 "key": "dash",
 "loop": false
 }, {
-"end": 0.85,
+"end": 0.9,
 "file": "res://assets/live3d/yi_sun_sin/anims/triplecomboattack.res",
 "key": "attack",
 "loop": false,
-"start": 0.15
+"start": 0.34,
+"times": [0.34, 0.46, 0.58, 0.75, 0.79, 0.9]
 }, {
 "file": "res://assets/live3d/yi_sun_sin/anims/hitreaction.res",
 "key": "hit",
@@ -32,17 +33,19 @@ clips = Array[Dictionary]([{
 "key": "death",
 "loop": false
 }, {
-"end": 1.6,
+"end": 1.68,
 "file": "res://assets/live3d/yi_sun_sin/anims/triplecomboattack.res",
 "key": "attack2",
 "loop": false,
-"start": 0.85
+"start": 0.9,
+"times": [0.9, 1.2, 1.4, 1.56, 1.6, 1.68]
 }, {
-"end": 3.4,
+"end": 2.45,
 "file": "res://assets/live3d/yi_sun_sin/anims/triplecomboattack.res",
 "key": "attack3",
 "loop": false,
-"start": 2.25
+"start": 1.68,
+"times": [1.68, 1.75, 1.85, 2.25, 2.29, 2.45]
 }, {
 "end": 1.3,
 "file": "res://assets/live3d/yi_sun_sin/anims/chargedupwardslash.res",
@@ -50,11 +53,12 @@ clips = Array[Dictionary]([{
 "loop": false,
 "start": 0.3
 }, {
-"end": 2.45,
-"file": "res://assets/live3d/yi_sun_sin/anims/triplecomboattack.res",
+"end": 1.5,
+"file": "res://assets/live3d/yi_sun_sin/anims/doublebladespin.res",
 "key": "cast_tap",
 "loop": false,
-"start": 1.35
+"start": 0.45,
+"times": [0.45, 0.58, 0.7, 0.85, 1.0, 1.2, 1.35, 1.5]
 }, {
 "end": 1.1,
 "file": "res://assets/live3d/yi_sun_sin/anims/righthandswordslash.res",

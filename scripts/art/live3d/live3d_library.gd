@@ -25,8 +25,10 @@ static func get_or_build(d: Live3DHeroData, model: Node, durations: Dictionary) 
 			continue
 		var win := ClipSlicer.window(c, src.length)
 		var out_len := float(durations.get(c["key"], win.y - win.x))
+		# 칸 시각표는 구운 시트 길이로 맞추는 동작(영웅)에만. 적 공격은 원본 시각 그대로 두고 직접 놓는다 (EnemySprite3D).
+		var times: Array = c.get("times", []) if durations.has(c["key"]) else []
 		lib.add_animation(StringName(c["key"]), ClipSlicer.slice(src, win, out_len, bool(c.get("loop", false)),
-			root_track, rest))
+			root_track, rest, times))
 	_cache[key] = lib
 	return lib
 

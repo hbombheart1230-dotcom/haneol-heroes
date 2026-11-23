@@ -9,8 +9,10 @@ const STEP := 1.0 / 60.0
 
 
 ## win = (start, end) 초. loop면 반복 동작 (끝 → 처음이 이어진다).
+## times(칸마다 원본 시각, 굽기 작업의 "times")가 있으면 고르게 나눈 결과 시각에 그 원본 시각을 놓고 사이를 잇는다
+## (준비에 칸을 많이, 베는 순간에 적게 = 준비는 천천히, 베기는 빠르게. 구운 칸과 같은 박자).
 static func slice(src: Animation, win: Vector2, out_len: float, loop: bool, root_track: NodePath = NodePath(""),
-		root_rest: Vector3 = Vector3.ZERO) -> Animation:
+		root_rest: Vector3 = Vector3.ZERO, times: Array = []) -> Animation:
 	var a := Animation.new()
 	a.length = maxf(out_len, STEP)
 	a.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
@@ -26,7 +28,7 @@ static func slice(src: Animation, win: Vector2, out_len: float, loop: bool, root
 		a.track_set_interpolation_type(i, Animation.INTERPOLATION_LINEAR)
 		for k in last + 1:
 			var ot := minf(k * STEP, a.length)
-			var st := source_time(ot, win, a.length)
+			var st := source_time(ot, win, a.length) if times.size() < 2 else timed_source(ot, times, a.length)
 			match type:
 				Animation.TYPE_POSITION_3D:
 					var p := src.position_track_interpolate(t, st)
@@ -43,6 +45,14 @@ static func slice(src: Animation, win: Vector2, out_len: float, loop: bool, root
 ## 결과 시각 → 원본 시각 (구간 안에서 비례).
 static func source_time(out_t: float, win: Vector2, out_len: float) -> float:
 	return win.x + (win.y - win.x) * clampf(out_t / maxf(out_len, 0.0001), 0.0, 1.0)
+
+
+## 칸 시각표로: 구운 칸 i가 보이기 시작하는 시각 i × out_len / 칸 수에 times[i] (맞닿는 칸이 구운 그림과 같은 순간),
+## 사이는 직선, 마지막 칸 뒤는 붙잡는다.
+static func timed_source(out_t: float, times: Array, out_len: float) -> float:
+	var u := minf(clampf(out_t / maxf(out_len, 0.0001), 0.0, 1.0) * times.size(), times.size() - 1)
+	var i := mini(int(u), times.size() - 2)
+	return lerpf(float(times[i]), float(times[i + 1]), u - i)
 
 
 ## 굽기 구간 (BakeTip.window와 같은 규칙): 없거나 이상하면 전체.
