@@ -74,6 +74,13 @@ func next_spawn(alive: int, cap: int) -> Array:
 	return [_queue.pop_front()]
 
 
+## 이번 물결의 중간 우두머리 무리 (비면 무대 정예 하나).
+func elite_group() -> Array:
+	if index < 0 or index >= data.waves.size():
+		return []
+	return data.waves[index].elite_group
+
+
 ## 이번 물결의 화면 최대: 물결 값(있으면) + 난이도 추가분 (cap − 무대 기본 최대), cap을 넘지 않게.
 func wave_cap(cap: int) -> int:
 	if index < 0 or index >= data.waves.size():

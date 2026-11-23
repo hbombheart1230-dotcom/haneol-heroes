@@ -55,6 +55,7 @@ static func difficulty(m, st: StageTheme) -> void:
 	m.spawner.interval_min = m._base_spawn["min"] * m.difficulty.interval(tier)
 	m.spawner.max_alive = (st.waves.max_alive if st.waves else m._base_spawn["alive"]) + m.difficulty.alive_add(tier)
 	m.spawner.data_scaler = func(e: EnemyData) -> EnemyData: return m.difficulty.scaled(e, tier)
+	m.spawner.elite_scaler = func(e: EnemyData) -> EnemyData: return m.difficulty.scaled(BossHpScale.for_hero(e, _hero(m)), tier)
 
 
 static func _hero(m) -> HeroData:

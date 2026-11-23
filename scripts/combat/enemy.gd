@@ -40,6 +40,8 @@ var _detour_side: float = 1.0
 ## 느려짐: 이동 속도 배율과 남은 시간 (해시계 멈춤·발묵).
 var _slow_factor: float = 1.0
 var _slow_left: float = 0.0
+var _boost: float = 1.0
+var _boost_left: float = 0.0
 ## 개별 멈춤(맞은 적만 잠깐 멈춤) 남은 시간과 떨림 기준 위치.
 var _freeze_left: float = 0.0
 var _freeze_total: float = 0.0
@@ -124,7 +126,14 @@ func slow(factor: float, seconds: float) -> void:
 
 
 func speed_scale() -> float:
-	return _slow_factor if _slow_left > 0.0 else 1.0
+	return (_slow_factor if _slow_left > 0.0 else 1.0) * (_boost if _boost_left > 0.0 else 1.0)
+
+
+## 잠깐 빠르게 (EnemyAura: 깃발·북 둘레). 더 센 쪽이 이긴다.
+func boost(mult: float, seconds: float) -> void:
+	if mult > _boost or _boost_left <= 0.0:
+		_boost = mult
+	_boost_left = maxf(_boost_left, seconds)
 
 
 func _ready() -> void:
@@ -212,12 +221,17 @@ func _physics_process(delta: float) -> void:
 		return
 	var busy := false
 	_slow_left = maxf(_slow_left - delta, 0.0)
+	_boost_left = maxf(_boost_left - delta, 0.0)
 	phase_invuln = maxf(phase_invuln - delta, 0.0)
 	if reaction:
 		reaction.tick(delta)
-	if poise and poise.armor_max > 0.0 and not poise.is_armored():
+	if poise and poise.immune_left > 0.0:
+		poise.tick(delta)  # 격노 휘청 면역이 풀려 간다
+	elif poise and poise.armor_max > 0.0 and not poise.is_armored():
 		poise.tick(delta)
 		queue_redraw()  # 깨진 갑옷이 다시 차는 막대 (그 밖엔 맞을 때만 다시 그린다)
+	if data and data.aura:
+		EnemyAura.tick(self)  # 깃발·북잡이: 둘레 아군 빠르게, 먹물 장판
 	if _stun_left > 0.0 or (reaction and reaction.is_down()):  # 기절·넘어짐 (B8)
 		_stun_left = maxf(_stun_left - delta, 0.0)
 		_drift(delta)

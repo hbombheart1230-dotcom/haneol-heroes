@@ -82,6 +82,7 @@ seal_label = "베어라!"
 
 [sub_resource type="Resource" id="Mid_feel"]
 script = ExtResource("7_feel")
+group_windup_cap = 2
 intro_hold = 1.2
 transition_hold = 0.8
 summon_delay = 0.4
@@ -104,7 +105,7 @@ finale_subtitle = "정예 격파"
 script = ExtResource("1_enemy")
 id = &"waegun_elite"
 max_hp = 900
-xp = 20
+xp = 10
 move_speed = 80.0
 contact_damage = 0
 reach_px = 20.0

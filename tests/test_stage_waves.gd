@@ -34,7 +34,8 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 		for wave: WaveData in w.waves:
 			for e: EnemyData in wave.enemies:
 				total += e.xp
-			total += _enemy(ROLES[id]["elite"]).xp if wave.elite_last else 0.0
+			if wave.elite_last:  # 정예 자리: 무리면 무리 합 (한산 중간 우두머리 셋), 아니면 무대 정예 하나
+				total += _group_xp(wave) if not wave.elite_group.is_empty() else _enemy(ROLES[id]["elite"]).xp
 		assert_float(total * w.xp_mult).override_failure_message("%s total xp %.1f" % [id, total * w.xp_mult]).is_between(232.0, 248.0)
 		var roles: Dictionary = ROLES[id]
 		var base_roles: Dictionary = ROLES["hansan_1592"]
@@ -52,6 +53,13 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 		assert_object(_st(id).elite.boss_feel).override_failure_message("%s mid-boss" % id).is_not_null()  # 3물결 중간 보스
 
 
+func _group_xp(wave: WaveData) -> float:
+	var t := 0.0
+	for e: EnemyData in wave.elite_group:
+		t += e.xp
+	return t
+
+
 func _role(roles: Dictionary, enemy_id: StringName) -> String:
 	for k in roles:
 		if roles[k] == String(enemy_id):
@@ -64,7 +72,7 @@ func test_role_values_match_hansan() -> void:
 	var keys := {"melee": ["contact_damage", "stagger_time", "hit_resets_attack"],
 		"ranged": ["max_hp", "stagger_time", "hit_resets_attack"],
 		"heavy": ["max_hp", "contact_damage", "super_armor"], "captain": ["max_hp", "contact_damage", "is_elite"],
-		"elite": ["max_hp", "contact_damage", "is_elite", "xp"]}
+		"elite": ["max_hp", "contact_damage", "is_elite"]}  # 처치 점수는 3물결 합으로 (한산은 무리 셋의 합, 위 시험)
 	for id in STAGES.slice(1):
 		for role in keys:
 			var mine := _enemy(ROLES[id][role])

@@ -5,6 +5,7 @@ extends RefCounted
 
 
 static func draw(e: Enemy) -> void:
+	EnemyAura.draw(e)  # 먹물 장판은 맨 아래
 	_telegraph(e)
 	var r := e.body_radius
 	var id: StringName = e.data.id if e.data else &"chaser"
@@ -23,6 +24,10 @@ static func draw(e: Enemy) -> void:
 		var d := e.target.global_position - e.global_position
 		if d.length_squared() > 1.0:
 			to_target = d.normalized()
+	if e.data and e.data.aura and e.data.move_speed <= 0.0:  # 깃발 (서 있기만 하는 적): 깃대 + 인주 깃발
+		Ink.stroke(e, Vector2(0, r * 0.6), Vector2(0, -r * 2.6), 5.0, body)
+		e.draw_colored_polygon(PackedVector2Array([Vector2(2, -r * 2.6), Vector2(r * 1.6, -r * 2.2), Vector2(2, -r * 1.7)]), Ink.SEAL)
+		return
 	match id:
 		&"archer":
 			Ink.blob(e, Vector2(0, -r * 0.3), r * 0.85, body, seed, 0.2, 1.1)

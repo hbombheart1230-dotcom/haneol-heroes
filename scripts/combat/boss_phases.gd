@@ -40,6 +40,9 @@ static func enter(e: Enemy, ph: BossPhaseData) -> void:
 		if not ph.patterns.is_empty():
 			e.attack.set_patterns(scaled_patterns(ph.patterns, ph.cooldown_mult))
 	e.phase_invuln = ph.invuln_time
+	if e.poise:  # 단계마다 휘청 게이지를 키우고, 격노면 잠깐 휘청 면역
+		e.poise.gauge_max *= ph.stagger_gauge_mult
+		e.poise.immune_left = maxf(e.poise.immune_left, ph.stagger_immune)
 	var stg := BossStaging.of(e)
 	var sp := e.get_parent() as EnemySpawner
 	if stg:

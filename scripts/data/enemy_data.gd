@@ -44,6 +44,8 @@ extends Resource
 @export var boss_feel: BossFeelData
 ## 보스 체력 궁합 (영웅 id → 배율, HeroData.boss_hp_mult에 곱함). 영웅 배율 하나로 안 맞는 조합만 (BossHpScale).
 @export var boss_hp_by_hero: Dictionary = {}
+## 둘레에 미치는 힘 (깃발·북잡이: 아군 빠르게, 먹물 장판). 비면 없음.
+@export var aura: EnemyAuraData
 ## 정예: 정해진 시각에 나오고, 처치하면 큰 변형 보상.
 @export var is_elite: bool = false
 @export var display_name: String = ""

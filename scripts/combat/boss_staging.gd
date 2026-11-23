@@ -30,9 +30,30 @@ static func attach(sp: EnemySpawner, e: Enemy) -> BossStaging:
 	sp.add_child(s)
 	e.set_meta(META, s)
 	s._setup_attack()
+	if s.feel.chase_speed > 0.0:
+		e.move_speed = s.feel.chase_speed  # 쉬지 않고 쫓아오는 우두머리
 	if not e.data.is_boss:
-		e.killed.connect(func(_e: Enemy) -> void: s.play_finale(Callable(), false), CONNECT_ONE_SHOT)
+		e.killed.connect(s._on_mid_killed, CONNECT_ONE_SHOT)
 	return s
+
+
+## 중간 우두머리가 죽었다: 무리(다른 중간 우두머리)가 아직 살아 있으면 조용히 빠지고, 마지막이면 처치 연출로 물결을 끝낸다.
+func _on_mid_killed(_e: Enemy) -> void:
+	if not group().is_empty():
+		_events.clear()
+		queue_free()
+		return
+	play_finale(Callable(), false)
+
+
+## 같은 생성기 아래 살아 있는 다른 중간 우두머리 (BossStaging이 붙은 정예).
+func group() -> Array:
+	var out: Array = []
+	for c in spawner.get_children():
+		var o := c as Enemy
+		if o and o != boss and not o.health.is_dead() and o.data and not o.data.is_boss and of(o) != null:
+			out.append(o)
+	return out
 
 
 static func of(e: Enemy) -> BossStaging:
@@ -53,11 +74,25 @@ func _setup_attack() -> void:
 	if a == null:
 		return
 	a.pick_by_range = feel.pick_by_range
-	if feel.onscreen_margin >= 0.0:
-		a.start_check = on_screen
+	if feel.onscreen_margin >= 0.0 or feel.group_windup_cap > 0:
+		a.start_check = can_start
 	if a.pick_by_range and not a.patterns.is_empty():
 		a.set_patterns(a.patterns)
 	a.hold(feel.intro_hold)
+
+
+## 공격을 시작해도 되는지: 화면 안이고, 무리 가운데 예고 중인 수가 group_windup_cap 아래.
+func can_start(pos: Vector2) -> bool:
+	if feel.onscreen_margin >= 0.0 and not on_screen(pos):
+		return false
+	if feel.group_windup_cap > 0:
+		var busy := 0
+		for o: Enemy in group():
+			if o.attack and o.attack.state == EnemyAttack.State.WINDUP:
+				busy += 1
+		if busy >= feel.group_windup_cap:
+			return false
+	return true
 
 
 ## 보스가 화면 안(가장자리에서 onscreen_margin 안쪽)인지. 카메라가 없으면(테스트) 늘 true.

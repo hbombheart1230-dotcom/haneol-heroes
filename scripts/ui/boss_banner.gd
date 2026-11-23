@@ -35,7 +35,7 @@ func _ready() -> void:
 	if spawner:
 		spawner.boss_spawned.connect(show_boss)
 		spawner.elite_spawned.connect(func(e: Enemy) -> void:
-			if e.data and e.data.boss_feel:  # 중간 보스
+			if e.data and e.data.boss_feel and not boss_alive():  # 중간 보스 (무리면 처음 하나만 띠)
 				show_boss(e))
 
 

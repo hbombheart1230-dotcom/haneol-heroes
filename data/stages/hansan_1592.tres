@@ -17,6 +17,8 @@
 [ext_resource type="Texture2D" path="res://assets/props/hansan/planks.png" id="p_planks"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/rope.png" id="p_rope"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/shields.png" id="p_shields"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_gunner_captain.tres" id="e_gunner_captain"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_drummer.tres" id="e_drummer"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_soldier.tres" id="e_waegun_soldier"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_gunner.tres" id="e_waegun_gunner"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_heavy.tres" id="e_waegun_heavy"]
@@ -53,6 +55,7 @@ first_count = 6
 max_alive = 8
 elite_last = true
 elite_when_left = 2
+elite_group = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_elite"), ExtResource("e_gunner_captain"), ExtResource("e_drummer")])
 
 [sub_resource type="Resource" id="Wave_4"]
 script = ExtResource("w_wave")
