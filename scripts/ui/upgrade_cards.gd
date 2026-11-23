@@ -97,7 +97,9 @@ func step(real_delta: float) -> void:
 func _process(delta: float) -> void:
 	if not visible:
 		return
-	step(delta / maxf(Engine.time_scale, 0.001) if not get_tree().paused else delta)
+	# 늘 실제 시간으로 (멈춤 중에도 delta에는 Engine.time_scale이 곱해진다: 반격·마무리 느린 시간 직후 열리면
+	# 페이드가 0.05배로 기어 패 셋이 흐린 채 판 위에 오래 남고 누름도 늦게 받았다)
+	step(delta / maxf(Engine.time_scale, 0.001))
 	queue_redraw()
 
 

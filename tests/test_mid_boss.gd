@@ -233,12 +233,14 @@ func test_breather_waits_for_mid_boss_finale() -> void:
 	var m := sp.spawn_elite(Vector2(0, -150))
 	var t := m.data.boss_feel.finale_time
 	m.health.kill()
-	assert_int(sp.finales).is_equal(1)
+	assert_bool(sp.finale_playing()).is_true()
 	await get_tree().process_frame
 	sp._tick_waves(DT)
 	assert_int(picks[0]).is_equal(0)  # 연출 중: 아직
-	await get_tree().create_timer(t + 0.1, true, false, true).timeout
-	assert_int(sp.finales).is_equal(0)
+	var end := Time.get_ticks_msec() + int(t * 1000.0) + 100  # 실제 시각으로 기다린다 (느린 시간에선 SceneTreeTimer가 일찍 끝난다)
+	while Time.get_ticks_msec() < end:
+		await get_tree().process_frame
+	assert_bool(sp.finale_playing()).is_false()
 	sp._tick_waves(DT)
 	assert_int(picks[0]).is_equal(1)  # 연출 뒤 숨 고르기
 
@@ -289,3 +291,25 @@ func _trio(group: Array, hero: String, c: Array, s: int, miss: float) -> Diction
 	var r := sim.run(BossSim.Bot.DODGE, 120.0)
 	sim.free_all()
 	return r
+
+
+## 시뮬레이션 (판 시각 GameTime.clock, 한 프레임 안에서 몇 분을 돌린다): 연출이 판 시각으로 끝나 물결이 끝난다.
+func test_finale_hold_ends_on_sim_clock() -> void:
+	var now := [5000]
+	GameTime.clock = func() -> int: return now[0]
+	sp.set_waves(_wave_set(2))
+	sp.waves._start(0)
+	sp.waves._queue.clear()
+	var picks := [0]
+	sp.breather.connect(func(_s: bool) -> void: picks[0] += 1)
+	var m := sp.spawn_elite(Vector2(0, -150))
+	var t := m.data.boss_feel.finale_time
+	m.health.kill()
+	m.remove_from_group(Enemy.GROUP)
+	sp.remove_child(m)
+	sp._tick_waves(DT)
+	assert_int(picks[0]).is_equal(0)
+	now[0] += int(t * 1000.0) + 10  # 실제 시간은 거의 안 흘렀다
+	sp._tick_waves(DT)
+	assert_int(picks[0]).is_equal(1)
+	m.free()
