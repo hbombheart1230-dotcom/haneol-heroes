@@ -57,3 +57,6 @@ extends Resource
 ## 마무리 탭은 3타가 닿고 이만큼(초) 지난 뒤에 나간다 (그 전 탭은 finisher_buffer초 기억, F1): 3타 내려베기가 보이게.
 @export var finisher_after_strike: float = 0.1
 @export var finisher_buffer: float = 0.5
+## 마무리(넷째 탭 기술) 동안 평타(손·자동)가 끼어들지 못하는 시간(초). 음수면 마무리 시전 동작이 끝날 때까지 (CastAnim).
+## 그 사이 탭은 한 번만 기억했다가 풀리면 1타로 나간다. 대시는 언제든 끊는다.
+@export var finisher_recover: float = -1.0

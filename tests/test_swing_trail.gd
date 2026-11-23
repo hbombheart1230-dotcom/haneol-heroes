@@ -74,11 +74,16 @@ func test_band_colour_goes_ink_to_hero_to_white() -> void:
 	assert_float(head.a).is_equal(1.0)
 
 
+## 기본은 아무도 안 쓴다 (순신도 닿는 순간 켜지는 초승달: 사용자 판 피드백, 궤적이 칼보다 느려 보였다). 목록에 넣은 영웅만.
 func test_trail_covers_listed_heroes_only() -> void:
 	var p: Player = auto_free(Player.new())
 	p.hero = YI
 	assert_bool(SwingTrail.covers(p)).is_false()  # 궤적 노드가 없으면 초승달 그대로
 	p.set_meta(&"swing_trail", DATA)
+	assert_bool(SwingTrail.covers(p)).is_false()  # 기본 목록이 비었다
+	var listed: SwingTrailData = DATA.duplicate()
+	listed.heroes = PackedStringArray(["yi_sun_sin"])
+	p.set_meta(&"swing_trail", listed)
 	assert_bool(SwingTrail.covers(p)).is_true()
 	p.hero = SEJONG
 	assert_bool(SwingTrail.covers(p)).is_false()
