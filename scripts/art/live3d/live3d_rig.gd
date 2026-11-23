@@ -96,15 +96,19 @@ func has_anim(anim: String) -> bool:
 	return tree.tree_root.has_node("body_" + anim)
 
 
-## 몸 동작: 바뀌거나 restart면 섞어서 시작, seek >= 0이면 그 시각부터. speed 0 = 멈춤 (역경직·착지 멈칫).
+## 몸 동작: 바뀌거나 restart면 섞어서 seek초(없으면 처음)부터, 그대로면 seek >= 0일 때만 그 시각으로.
+## speed 0 = 멈춤 (역경직·착지 멈칫·충전 자세).
 func play_body(anim: String, restart: bool, seek: float, speed: float) -> void:
 	if not has_anim(anim):
 		anim = "idle"
 	if anim != _body or restart:
+		# 멈춘 채(speed 0) 바꾸면 섞기 시간도 멈춰 앞 동작에 갇힌다 → 그때는 바로 바꾼다
+		(tree.tree_root.get_node("body") as AnimationNodeTransition).xfade_time = data.blend_time if speed > 0.0 else 0.0
 		tree.set("parameters/body/transition_request", anim)
 		_body = anim
+		seek = maxf(seek, 0.0)  # 입력을 되돌리지 않으므로 시작 시각을 늘 준다
 	if seek >= 0.0:
-		tree.set("parameters/body_seek/seek_request", seek)
+		tree.set(TreeBuilder.seek_param("body", anim), seek)
 		_seek = seek
 	_speed = speed
 	tree.set("parameters/body_ts/scale", speed)
@@ -114,6 +118,7 @@ func play_body(anim: String, restart: bool, seek: float, speed: float) -> void:
 func set_upper(anim: String, restart: bool, on: bool, speed: float, delta: float) -> void:
 	if on and has_anim(anim) and (anim != _upper or restart):
 		tree.set("parameters/upper/transition_request", anim)
+		tree.set(TreeBuilder.seek_param("upper", anim), 0.0)
 		_upper = anim
 	var step := delta / maxf(data.upper_blend_time, 0.001)
 	_upper_w = move_toward(_upper_w, 1.0 if on else 0.0, step)

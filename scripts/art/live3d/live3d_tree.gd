@@ -1,8 +1,14 @@
 extends RefCounted
 ## 실시간 3D 동작 나무 (AnimationTree, Godot 기본 기능):
-##   몸: 동작마다 입력 하나인 Transition(섞기 blend_time) → TimeSeek → TimeScale ─┐
-##   윗몸: 같은 구조(섞기 upper_blend_time) ────────────────────────────────────┴→ Blend2(윗몸 뼈만) → 출력
+##   몸: 동작마다 [동작 → TimeSeek] → Transition(섞기 blend_time) → TimeScale ─┐
+##   윗몸: 같은 구조(섞기 upper_blend_time) ─────────────────────────────────┴→ Blend2(윗몸 뼈만) → 출력
 ## 서서 칠 때는 몸이 공격 동작, 달리며 칠 때는 몸 = 달리기 + 윗몸 = 공격 (Blend2 0 → 1).
+## 동작마다 TimeSeek를 두고 Transition이 입력을 처음으로 되돌리지 않게 한다: 바꿀 때 시작 시각을 직접 준다
+## (Transition의 되돌리기가 seek보다 나중이라 기술 동작을 맞닿는 칸 앞부터 틀 수 없었다).
+
+
+static func seek_param(branch: String, anim: String) -> String:
+	return "parameters/%s_%s_seek/seek_request" % [branch, anim]
 
 
 static func build(model: Node, d: Live3DHeroData, lib: AnimationLibrary) -> AnimationTree:
@@ -21,14 +27,16 @@ static func build(model: Node, d: Live3DHeroData, lib: AnimationLibrary) -> Anim
 			tr.add_input(String(k))
 		bt.add_node(branch, tr)
 		for i in keys.size():
+			tr.set_input_reset(i, false)
 			var an := AnimationNodeAnimation.new()
 			an.animation = StringName("live/%s" % keys[i])
-			bt.add_node("%s_%s" % [branch, keys[i]], an)
-			bt.connect_node(branch, i, "%s_%s" % [branch, keys[i]])
-		bt.add_node(branch + "_seek", AnimationNodeTimeSeek.new())
-		bt.connect_node(branch + "_seek", 0, branch)
+			var node := "%s_%s" % [branch, keys[i]]
+			bt.add_node(node, an)
+			bt.add_node(node + "_seek", AnimationNodeTimeSeek.new())
+			bt.connect_node(node + "_seek", 0, node)
+			bt.connect_node(branch, i, node + "_seek")
 		bt.add_node(branch + "_ts", AnimationNodeTimeScale.new())
-		bt.connect_node(branch + "_ts", 0, branch + "_seek")
+		bt.connect_node(branch + "_ts", 0, branch)
 	var layer := AnimationNodeBlend2.new()
 	layer.filter_enabled = true
 	for bone in d.upper_bones:
