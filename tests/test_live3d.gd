@@ -67,10 +67,15 @@ func test_from_job_copies_clips_and_ink() -> void:
 	assert_float(d.ortho_size).is_equal(2.0)
 	assert_int(d.frame).is_equal(256)
 	assert_float(float(d.ink["line_px"])).is_equal(1.6)
-	var a2 := d.clip("attack2")
-	assert_float(float(a2["start"])).is_equal(0.85)
-	assert_float(float(a2["end"])).is_equal(1.6)
-	assert_str(String(a2["file"])).ends_with("animated_extra2.glb")
+	var want: Dictionary = {}
+	for a in job["anims"]:
+		if a["key"] == "attack2":
+			want = a
+	var a2 := d.clip("attack2")  # 구간 값은 굽기 작업이 정본 (다시 자르기를 따라간다)
+	assert_float(float(a2["start"])).is_equal(float(want["start"]))
+	assert_float(float(a2["end"])).is_equal(float(want["end"]))
+	assert_str(String(a2["file"])).is_equal(String(want["from"]))
+	assert_array(a2.get("times", [])).is_equal(want.get("times", []))
 	assert_bool(bool(d.clip("run")["loop"])).is_true()
 
 
