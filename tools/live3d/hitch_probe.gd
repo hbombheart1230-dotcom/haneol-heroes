@@ -2,6 +2,7 @@ extends SceneTree
 ## 첫 등장 멈칫 재기: 실제 main 장면(순신 · 한산)을 띄우고 프레임 시간을 기록한다.
 ## 구간: 장면 넣기(불러오기) → 처음 6초 → 동작마다 처음 쓰는 순간 (연타 1·2·3, 해룡참, 대시+파도격, 충전, 피격, 반격).
 ## 창 모드, 수직 동기 끔: godot --path . -s res://tools/live3d/hitch_probe.gd
+## 3D와 구운 그림 비교는 override.cfg의 [hh] art/live3d로 바꿔 두 번 돌린다.
 ## 결과: HITCH {"load_ms":..., "first6s_max_ms":..., "events": {이름: 그 뒤 20프레임 최대 ms}, "over_50ms": n}
 
 var _times: PackedFloat32Array = PackedFloat32Array()
