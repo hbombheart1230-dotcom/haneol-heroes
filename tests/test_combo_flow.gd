@@ -191,9 +191,16 @@ func test_hits_are_contiguous_cuts_of_one_combo() -> void:
 		var cut := {}
 		for a in cfg["anims"]:
 			cut[a["key"]] = a
-		assert_str(cut["attack"]["clip_of"]).is_equal(cut["attack2"]["clip_of"])
-		assert_str(cut["attack2"]["clip_of"]).is_equal(cut["attack3"]["clip_of"])
+		assert_str(_source(cut["attack"])).is_equal(_source(cut["attack2"]))
+		assert_str(_source(cut["attack2"])).is_equal(_source(cut["attack3"]))
 		assert_float(absf(float(cut["attack"]["end"]) - float(cut["attack2"]["start"]))).is_less(0.06)
+
+
+## 자르는 원본 동작: 받은 동작(clip_of) 또는 옮겨 둔 다른 뼈대 동작(reuse.from, 순신 웹 동작).
+func _source(a: Dictionary) -> String:
+	if a.has("reuse"):
+		return String(a["reuse"].get("from", "")) + ":" + String(a["reuse"]["src"])
+	return String(a.get("clip_of", ""))
 
 
 ## 대시 중에는 탭 전진을 얹지 않는다 (Codex 0f4456f).
