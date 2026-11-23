@@ -129,7 +129,7 @@ func test_trash_stagger_lets_knockback_show() -> void:
 	e._physics_process(DT)
 	assert_bool(e.reaction.is_staggered()).is_true()
 	assert_float(e.velocity.x).is_greater(0.0)  # 넉백(바깥)만, 플레이어 쪽(왼쪽)으로 걷지 않음
-	for i in int(e.reaction.data.stagger_time / DT) + 2:
+	for i in int(e.reaction.stagger_time() / DT) + 2:  # 적별 경직 (잡몹 0.3초)
 		e._physics_process(DT)
 	assert_bool(e.reaction.is_staggered()).is_false()
 	e.knockback = Vector2.ZERO
