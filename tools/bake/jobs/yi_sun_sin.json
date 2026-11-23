@@ -40,9 +40,17 @@
       "fps": 16.0,
       "loop": false,
       "from": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
-      "start": 0.15,
-      "end": 0.85,
-      "strike": 0.6
+      "start": 0.34,
+      "end": 0.9,
+      "strike": 0.75,
+      "times": [
+        0.34,
+        0.46,
+        0.58,
+        0.75,
+        0.79,
+        0.9
+      ]
     },
     {
       "key": "hit",
@@ -60,14 +68,22 @@
     },
     {
       "key": "attack2",
-      "src": "Triple Combo Attack",
+      "src": "Right-hand Sword Slash",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
-      "start": 0.85,
-      "end": 1.6,
-      "strike": 1.15
+      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra1.glb",
+      "start": 0.74,
+      "end": 1.2,
+      "strike": 1.05,
+      "times": [
+        0.74,
+        0.82,
+        0.9,
+        1.05,
+        1.09,
+        1.2
+      ]
     },
     {
       "key": "attack3",
@@ -76,9 +92,17 @@
       "fps": 16.0,
       "loop": false,
       "from": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
-      "start": 2.25,
-      "end": 3.4,
-      "strike": 3.0
+      "start": 1.55,
+      "end": 2.45,
+      "strike": 2.25,
+      "times": [
+        1.55,
+        1.7,
+        1.85,
+        2.25,
+        2.29,
+        2.45
+      ]
     },
     {
       "key": "throw",
@@ -93,14 +117,24 @@
     },
     {
       "key": "cast_tap",
-      "src": "Triple Combo Attack",
+      "src": "Double Blade Spin",
       "frames": 8,
       "fps": 20.0,
       "loop": false,
-      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
-      "start": 1.35,
-      "end": 2.45,
-      "strike": 2.2
+      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra4.glb",
+      "start": 0.45,
+      "end": 1.5,
+      "strike": 1.2,
+      "times": [
+        0.45,
+        0.58,
+        0.7,
+        0.85,
+        1.0,
+        1.2,
+        1.35,
+        1.5
+      ]
     },
     {
       "key": "cast_dash",
