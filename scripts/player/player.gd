@@ -70,11 +70,16 @@ var _shoved: Dictionary = {}
 ## 접점 시각 (그림 쪽이 넣는다: 2D SheetContact, 3D 칼끝 뼈)과 칼이 박혀 멈춘 상태 (BladeBite, 두 그림이 같이 읽는다).
 var contact: HeroContact
 var bite := BladeBite.new()
+## 대시 방향 나누기 (DashDirection): 이번 대시 종류, 돌진 타격을 하는지, 이번 대시에 이미 친 적.
+var dash_kind: int = 0
+var dash_strikes: bool = false
+var dash_struck: Dictionary = {}
 
 
 func _init() -> void:
 	dash = DashCharges.new(max_dash_charges, dash_recharge_time)
 	bite.released.connect(func() -> void: BladeBite.on_release(self))
+	dash_ended.connect(func() -> void: DashDirection.end(self))
 
 
 func _ready() -> void:
@@ -285,6 +290,7 @@ func set_move_input(v: Vector2) -> void:
 func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 	if bite.hold_dash(direction, dash.can_consume()):  # 칼이 박혀 멈춘 중: 풀릴 때 바로 (BladeBite)
 		return true
+	var chained := is_dashing() or (hero != null and hero.dash_dir != null and _since_dash_end < hero.dash_dir.chain_gap)
 	if is_dashing():
 		# 연속 대시: 충전이 남아 있으면 지금 대시를 끊고 즉시 새 방향으로 (기다리지 않음, 실기기 피드백).
 		if not dash.can_consume():
@@ -306,6 +312,7 @@ func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
 	_dash_start_pos = global_position
 	_shoved.clear()
 	facing = _dash_dir
+	DashDirection.begin(self, get_tree().get_nodes_in_group(Enemy.GROUP) if is_inside_tree() else [], chained)
 	if dash_runner:
 		dash_runner.on_start(global_position, _dash_dir)
 	dash_started.emit(_dash_dir)
@@ -368,6 +375,8 @@ func _physics_process(delta: float) -> void:
 		dash_runner.tick(delta, global_position)
 	if is_dashing() and hero and hero.dash_shove > 0.0:
 		shove_enemies(get_tree().get_nodes_in_group(Enemy.GROUP))
+	if is_dashing() and dash_strikes:
+		DashDirection.tick(self, get_tree().get_nodes_in_group(Enemy.GROUP), delta)
 	apply_contact_damage(delta, _touching_damage())
 	move_and_slide()
 	if arena_rect.has_area():

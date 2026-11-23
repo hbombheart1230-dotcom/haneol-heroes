@@ -48,6 +48,10 @@ script = ExtResource("2_step")
 caption = "대시"
 hint = "화면을 빠르게 튕기면 그쪽으로 돌진하고
 손을 떼는 순간 둘째 기술이 나갑니다"
+hero_hints = {
+"yi_sun_sin": "적 쪽으로 튕기면 베며 돌진, 반대쪽은 뒤로 빠지기
+손을 떼는 순간 둘째 기술이 나갑니다"
+}
 event = &"skill_dash"
 practice_enemy = ExtResource("4_dummy")
 practice_distance = 130.0
@@ -74,10 +78,10 @@ practice_enemy = ExtResource("3_practice")
 [sub_resource type="Resource" id="counter"]
 script = ExtResource("2_step")
 caption = "반격"
-hint = "피한 뒤 1초 안에 톡 치면
-강한 반격이 나갑니다"
-button_hint = "피한 뒤 1초 안에 기술 단추를 누르면
-강한 반격이 나갑니다"
+hint = "피한 뒤 1초 동안은 맞지 않습니다 (금빛 테두리)
+그 안에 톡 치면 강한 반격이 나갑니다"
+button_hint = "피한 뒤 1초 동안은 맞지 않습니다 (금빛 테두리)
+그 안에 기술 단추를 누르면 반격이 나갑니다"
 event = &"skill_counter"
 practice_enemy = ExtResource("3_practice")
 banner_top = true
