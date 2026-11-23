@@ -38,13 +38,15 @@ func _vp() -> Vector2:
 func banner_rect() -> Rect2:
 	var vp := _vp()
 	var s := run.current() if run else null
-	if s and s.banner_top:  # 건너뛰기 단추 아래
-		return Rect2(16.0, skip_rect().end.y + 20.0, vp.x - 32.0, 210.0)
+	if s and s.banner_top:  # 건너뛰기 단추와 왼쪽 위 영웅 묶음(HeroBadge) 아래
+		return Rect2(16.0, maxf(skip_rect().end.y + 20.0, HeroBadge.BOTTOM + 16.0), vp.x - 32.0, 210.0)
 	return Rect2(16.0, vp.y - 470.0, vp.x - 32.0, 210.0)  # 아래쪽 (무대 제목은 안내가 끝난 뒤에 나온다)
 
 
+## 위쪽 가운데 (HUD (다): 왼쪽 위는 영웅 묶음, 오른쪽 위는 톱니 단추·시계, 위 가운데는 우두머리 띠 자리인데
+## 조작 안내 중엔 우두머리가 없다).
 func skip_rect() -> Rect2:
-	return Rect2(16.0, 84.0, 180.0, 60.0)
+	return Rect2(_vp().x * 0.5 - 90.0, 40.0, 180.0, 60.0)
 
 
 func handle_touch(index: int, pos: Vector2, pressed: bool) -> bool:

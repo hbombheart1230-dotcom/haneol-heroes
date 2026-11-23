@@ -1,6 +1,6 @@
 extends SceneTree
 ## 조작 안내 단계마다 실제 판 화면을 찍는다 (이순신, 한산). 연타 단계는 영웅 넷 모두 (평타 설명이 다르다).
-## godot --path . --resolution 720x1280 -s res://tools/shots/tutorial_shot.gd -- <출력 폴더>
+## godot --path . --resolution 720x1280 -s res://tools/shots/tutorial_shot.gd -- <출력 폴더> [phone]
 ## 출력: tutorial_<번호>_<event>.png, tutorial_combo_<영웅>.png (설정은 따로 된 파일에 써서 실제 설정을 건드리지 않는다)
 
 const HEROES := [&"yi_sun_sin", &"gwanggaeto", &"sejong", &"shin_saimdang"]
@@ -68,6 +68,10 @@ func _run() -> void:
 	DirAccess.make_dir_recursive_absolute(dir)
 	sv = SubViewport.new()
 	sv.size = Vector2i(720, 1280)
+	if OS.get_cmdline_user_args().has("phone"):  # 폰 1080×2400: 가로 720 기준으로 늘린 화면 (canvas_items + expand와 같게)
+		sv.size = Vector2i(1080, 2400)
+		sv.size_2d_override = Vector2i(720, 1600)
+		sv.size_2d_override_stretch = true
 	sv.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(sv)
 	var main := await _open(&"yi_sun_sin")

@@ -59,6 +59,10 @@ func tick(delta: float) -> void:
 
 
 const ORIGIN := Vector2(20 + 50.0, 22 + 50.0)  # 초상 중심 (R = 50)
+## 묶음(초상·체력 띠·패·처치 수)의 아래 끝 y. 다른 화면 글이 이 위를 덮지 않게 (조작 안내 띠 등).
+const BOTTOM := ORIGIN.y + R + 18.0 + HP_H + 42.0
+## 묶음의 오른쪽 끝 x (체력 띠 끝).
+const RIGHT := 20.0 + R * 2 + 30.0
 
 
 func draw(c: CanvasItem, kills: int) -> void:
