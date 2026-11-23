@@ -4,15 +4,27 @@ extends RefCounted
 ## Meshy 자동 뼈대는 무기를 몸의 일부로 보고 가까운 뼈(다리·팔뚝)에 나눠 묶어서, 긴 창·붓이 걸을 때 구겨진다.
 ## 굽기 설정의 "rigid": {"bone": "RightHand", "boxes": [[x0, y0, z0, x1, y1, z1], ...]} —
 ## 기본 자세(rest)에서 상자 안에 있는 꼭짓점을 그 뼈 하나에 100% 묶는다. 상자는 메시 좌표(m).
+## 숫자 7개 [x0, y0, z0, x1, y1, z1, r]는 캡슐(두 점을 잇는 선에서 r 안): 비스듬한 창 자루만 골라 묶는다
+## (상자는 자루 옆의 소매·발까지 잡아 손에 붙여 버렸다 — 왜군 병사 창이 꺾이고 떨어지던 원인, 2026-11-23).
 
 
 ## 상자 안이면 true.
 static func inside(p: Vector3, boxes: Array) -> bool:
 	for b in boxes:
-		if p.x >= float(b[0]) and p.y >= float(b[1]) and p.z >= float(b[2]) \
+		if b.size() >= 7:
+			if in_capsule(p, Vector3(b[0], b[1], b[2]), Vector3(b[3], b[4], b[5]), float(b[6])):
+				return true
+		elif p.x >= float(b[0]) and p.y >= float(b[1]) and p.z >= float(b[2]) \
 				and p.x <= float(b[3]) and p.y <= float(b[4]) and p.z <= float(b[5]):
 			return true
 	return false
+
+
+## 선분 a–b에서 거리 r 안인지.
+static func in_capsule(p: Vector3, a: Vector3, b: Vector3, r: float) -> bool:
+	var ab := b - a
+	var t := clampf((p - a).dot(ab) / maxf(ab.length_squared(), 0.000001), 0.0, 1.0)
+	return p.distance_to(a + ab * t) <= r
 
 
 ## 스킨에서 이 뼈를 가리키는 묶음 번호 (없으면 -1).
