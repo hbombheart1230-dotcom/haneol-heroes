@@ -146,6 +146,7 @@ patterns = Array[ExtResource("2_attack")]([SubResource("Fr_cone"), SubResource("
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
 boss_hp_by_hero = {
+"shin_saimdang": 0.88,
 "yi_sun_sin": 0.76
 }
 boss_feel = SubResource("Boss_feel")
