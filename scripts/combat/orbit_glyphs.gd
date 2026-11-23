@@ -22,6 +22,9 @@ var glyph_stagger: float = 0.07
 var glyph_write: float = 0.16
 var draw_in: float = 0.3
 
+## 따라가는 적(가운데)도 hit_interval마다 친다. 두 겹 고리의 바깥 고리는 끈다 (피해가 두 배가 되지 않게).
+var hit_core: bool = true
+
 var hits: int = 0
 var _age: float = 0.0
 var _last_hit: Dictionary = {}
@@ -57,7 +60,7 @@ func _physics_process(delta: float) -> void:
 				if ctx.tick_hit(en, damage, now + hit_interval > duration):  # 마지막 한 바퀴는 크게
 					hits += 1
 		var core: Enemy = follow as Enemy if follow and is_instance_valid(follow) else null  # 적에게 씌운 고리 (세종 SkillAim): 가운데 그 적도 같은 간격으로 맞는다
-		if core and core.health and core.health.is_alive():
+		if hit_core and core and core.health and core.health.is_alive():
 			var cid := core.get_instance_id()
 			if now - float(_last_hit.get(cid, -INF)) >= hit_interval:
 				_last_hit[cid] = now

@@ -1,6 +1,6 @@
 class_name JeongeumSkill
 extends SkillDef
-## 세종 · 정음진(가칭): 몸 주위에 자모 글자 고리가 돌며 닿는 적에게 계속 피해.
+## 세종 · 정음진(가칭): 겨눈 적(SkillAim, 다른 영웅은 몸) 주위에 자모 글자 고리가 돌며 닿는 적에게 계속 피해.
 
 @export var glyphs: String = "ㄱㄴㄷㅁㅅㅇ"
 @export var radius: float = 110.0
@@ -29,11 +29,16 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 			if en != foe:
 				ComboSteps.push_out(en, center, launch_px, 0.0)
 	_ring(ctx, radius, 3.2, center, follow)
-	if outer_radius > 0.0:
-		_ring(ctx, outer_radius, -2.4, center, follow)
+	if outer_radius > 0.0:  # 바깥 고리는 가운데 적을 따로 치지 않는다 (두 겹이어도 가운데 적은 한 번씩)
+		_ring(ctx, outer_radius, -2.4, center, follow).hit_core = false
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.3, fx_color)
 	return SkillRun.instant(0)
+
+
+## 시전 연출도 고리가 펼쳐지는 자리(겨눈 적)에서 터진다 (영웅 몸에서 터지면 근거리 기술로 보인다).
+func cast_point(ctx: SkillContext) -> Vector2:
+	return SkillAim.point(ctx) if SkillAim.enabled(ctx) else ctx.player.global_position
 
 
 func _ring(ctx: SkillContext, r: float, spin: float, at: Vector2, follow: Node2D) -> OrbitGlyphs:

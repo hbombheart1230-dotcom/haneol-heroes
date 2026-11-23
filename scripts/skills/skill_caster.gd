@@ -285,7 +285,7 @@ func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float 
 	if slot == Slot.CHARGE:
 		ctx.aim_dir = aim.aim_dir()
 	if d.vfx_cast:
-		Feedback.vfx_burst(d.vfx_cast, player.global_position, player.facing, d.vfx_level)
+		Feedback.vfx_burst(d.vfx_cast, d.cast_point(ctx), player.facing, d.vfx_level)  # 세종 정음진은 겨눈 적 자리
 	SkillStageFx.on_cast(get_tree() if is_inside_tree() else null, d, player.hero)  # 컷인 + 소리 층
 	var run := d.cast(ctx, charge)
 	if run.finished:
