@@ -85,7 +85,7 @@ func test_switch_is_on_by_default() -> void:
 
 
 func test_packed_model_is_in_the_repo() -> void:
-	for id in [&"yi_sun_sin", &"gwanggaeto"]:
+	for id in [&"yi_sun_sin", &"gwanggaeto", &"shin_saimdang", &"sejong"]:
 		_check_packed(id)
 
 
