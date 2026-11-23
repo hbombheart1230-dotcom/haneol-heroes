@@ -20,6 +20,8 @@ extends Resource
 ## 띠 바깥 반지름 = 사거리 × reach. 굵기(px)는 머리에서 가장 굵고 꼬리로 갈수록 가늘다.
 @export var reach: float = 1.05
 @export var width: float = 72.0
+## 타별 휩쓰는 각도 배율 (판정 부채꼴 대비). 3타는 판정이 좁아도 그림은 조금 넓게 휘감는다.
+@export var step_arc_scales: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.0])
 @export var step_widths: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.5])
 ## 꼬리 굵기 곡선 (1 = 일정하게 가늘어짐, 클수록 머리 쪽만 굵다).
 @export var taper: float = 1.3

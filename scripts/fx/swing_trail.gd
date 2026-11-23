@@ -60,6 +60,7 @@ func _on_windup(dir: Vector2) -> void:
 	color = sd.swing_color
 	var step := attack.chain_step
 	var half := deg_to_rad(sd.melee_arc_degrees * ComboSteps.at(sd.step_arc_mults, step, 1.0) * 0.5)
+	half *= ComboSteps.at(data.step_arc_scales, step, 1.0)
 	var r := sd.melee_range * ComboSteps.at(sd.step_range_mults, step, 1.0) * data.reach
 	var w := data.width * ComboSteps.at(data.step_widths, step, 1.0)
 	arc.setup(dir.angle(), half, ComboSteps.at(sd.step_trail_flip, step, 1.0) * data.sweep_sign, r, w,
