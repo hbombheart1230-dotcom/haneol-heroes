@@ -135,7 +135,7 @@ def _gpt_art(hero: str, uid: str):
 
 def make_icon(hero: str, uid: str) -> Image.Image:
     sp = SPEC[(hero, uid)]
-    gpt = _gpt_art(hero, uid) if sp["base"] != "hero" else None  # 체력 강화는 지금 모델 얼굴 (사용자 결정 2026-11-23)
+    gpt = _gpt_art(hero, uid)
     if gpt is not None:  # spec의 gpt=True(임시 12개)가 아니어도 넣으면 바뀐다 — 기술 강화 그림을 따로 받을 때도 같은 길
         print(f"GPT 그림 사용: {hero}/{uid}" + ("" if sp["gpt"] else " (기술 강화 그림 교체)"))
         art = gpt
