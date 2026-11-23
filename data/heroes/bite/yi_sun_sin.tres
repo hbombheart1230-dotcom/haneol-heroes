@@ -4,4 +4,4 @@
 
 [resource]
 script = ExtResource("1_bite")
-swing_speed = 1.25
+swing_speed = 1.35
