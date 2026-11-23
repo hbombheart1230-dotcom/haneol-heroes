@@ -182,6 +182,7 @@ dash_shove = 520.0
 dash_shove_radius = 80.0
 attack = SubResource("Attack_gw")
 kit = SubResource("Kit_gw")
+boss_hp_mult = 1.9
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
 dash_style = ExtResource("dash_style")
