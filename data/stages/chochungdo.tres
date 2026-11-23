@@ -4,22 +4,21 @@
 [ext_resource type="Resource" path="res://data/stages/looks/chochungdo.tres" id="look"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/brush.png" id="p_brush"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/cockscomb.png" id="p_cockscomb"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/cucumber_trellis.png" id="p_cucumber_trellis"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/daylily.png" id="p_daylily"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/eggplant.png" id="p_eggplant"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/ink_puddle.png" id="p_ink_puddle"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/inkstone.png" id="p_inkstone"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/leaf_a.png" id="p_leaf_a"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/leaf_b.png" id="p_leaf_b"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/leaf_c.png" id="p_leaf_c"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/maple_leaf.png" id="p_maple_leaf"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/poppy.png" id="p_poppy"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/rock_a.png" id="p_rock_a"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/rock_b.png" id="p_rock_b"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/rock_grass.png" id="p_rock_grass"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/scroll.png" id="p_scroll"]
-[ext_resource type="Texture2D" path="res://assets/props/chochungdo/wild_sage.png" id="p_wild_sage"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_cockscomb.png" id="p_s_cockscomb"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_cucumber.png" id="p_s_cucumber"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_daylily.png" id="p_s_daylily"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_eggplant.png" id="p_s_eggplant"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_orange_flower.png" id="p_s_orange_flower"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_poppy.png" id="p_s_poppy"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_smartweed.png" id="p_s_smartweed"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_watermelon.png" id="p_s_watermelon"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_butterfly_red.png" id="p_s_butterfly_red"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_butterfly_white.png" id="p_s_butterfly_white"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_moth_eggplant.png" id="p_s_moth_eggplant"]
+[ext_resource type="Texture2D" path="res://assets/props/chochungdo/screen_dragonfly.png" id="p_s_dragonfly"]
 [ext_resource type="Resource" path="res://data/enemies/cc_mantis_captain.tres" id="e_cc_mantis_captain"]
 [ext_resource type="Resource" path="res://data/enemies/cc_mouse.tres" id="e_cc_mouse"]
 [ext_resource type="Resource" path="res://data/enemies/cc_grasshopper.tres" id="e_cc_grasshopper"]
@@ -99,10 +98,12 @@ rock_per_mpx = 0.0
 rock_color = Color(0.45, 0.42, 0.36, 0.5)
 clear_radius = 260.0
 seed = 7406
-prop_textures = Array[Texture2D]([ExtResource("p_brush"), ExtResource("p_cockscomb"), ExtResource("p_cucumber_trellis"), ExtResource("p_daylily"), ExtResource("p_eggplant"), ExtResource("p_ink_puddle"), ExtResource("p_inkstone"), ExtResource("p_leaf_a"), ExtResource("p_leaf_b"), ExtResource("p_leaf_c"), ExtResource("p_maple_leaf"), ExtResource("p_poppy"), ExtResource("p_rock_a"), ExtResource("p_rock_b"), ExtResource("p_rock_grass"), ExtResource("p_scroll"), ExtResource("p_wild_sage")])
-picture_props_per_mpx = 2.0
+prop_textures = Array[Texture2D]([ExtResource("p_brush"), ExtResource("p_inkstone"), ExtResource("p_rock_a"), ExtResource("p_rock_b"), ExtResource("p_s_cockscomb"), ExtResource("p_s_cockscomb"), ExtResource("p_s_cucumber"), ExtResource("p_s_cucumber"), ExtResource("p_s_daylily"), ExtResource("p_s_daylily"), ExtResource("p_s_eggplant"), ExtResource("p_s_eggplant"), ExtResource("p_s_orange_flower"), ExtResource("p_s_orange_flower"), ExtResource("p_s_poppy"), ExtResource("p_s_poppy"), ExtResource("p_s_smartweed"), ExtResource("p_s_smartweed"), ExtResource("p_s_watermelon"), ExtResource("p_s_watermelon"), ExtResource("p_s_butterfly_red"), ExtResource("p_s_butterfly_white"), ExtResource("p_s_moth_eggplant"), ExtResource("p_s_dragonfly")])
+picture_props_per_mpx = 2.4
+prop_scale_min = 0.85
+prop_scale_max = 1.2
 background_path = "res://assets/backgrounds/chochungdo.png"
 background_rect = Rect2(-933, -1400, 1867, 2800)
 prop_inset = 300.0
 map_blockers = PackedVector3Array(-732, -1035, 201, -386, -990, 100, 671, -1035, 201, 817, -762, 128, -769, -306, 164, -824, -51, 128, 708, -270, 201, 817, 86, 109, -742, 888, 191, -477, 1025, 128, 653, 970, 146, 836, 1153, 146, 635, 1298, 109, -824, 1153, 109)
-solid_props = PackedStringArray("cockscomb", "cucumber_trellis", "eggplant", "rock_a", "rock_b", "inkstone")
+solid_props = PackedStringArray("screen_cockscomb", "screen_cucumber", "screen_eggplant", "screen_poppy", "screen_watermelon", "rock_a", "rock_b", "inkstone")
