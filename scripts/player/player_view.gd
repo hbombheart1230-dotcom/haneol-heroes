@@ -259,7 +259,6 @@ func _update_sprite(delta: float) -> void:
 		_sprite.speed_scale *= player.bite.anim_speed()
 	if player.hero:
 		PlayerPose.tick(self, delta)
-		_sprite.position += player.bite.jitter()  # 멈춘 동안 잔떨림
 
 
 ## 대시 착지 (무게감): 발 기준 눌림, 그림 잠깐 멈칫, 발밑 먹 튐, 무거운 영웅은 흔들림·화면 밀림.
