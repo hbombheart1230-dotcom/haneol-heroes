@@ -200,3 +200,13 @@ func test_hansan_edge_overlay_layer() -> void:
 	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
 		var st: StageTheme = load("res://data/stages/%s.tres" % id)
 		assert_bool(st.look.overlay_texture == null).override_failure_message(id).is_true()
+
+
+## 한산 판자 결(2048)은 밉맵을 만든다 (카메라가 움직일 때 반짝이지 않게, 무손실 그대로).
+func test_hansan_grain_has_mipmaps_and_keeps_lossless() -> void:
+	var cfg := ConfigFile.new()
+	assert_int(cfg.load("res://assets/textures/grain/deck_planks.png.import")).is_equal(OK)
+	assert_bool(cfg.get_value("params", "mipmaps/generate")).is_true()
+	assert_int(cfg.get_value("params", "compress/mode")).is_equal(0)
+	var tex: Texture2D = load("res://assets/textures/grain/deck_planks.png")
+	assert_bool(tex.get_image().has_mipmaps()).is_true()

@@ -109,3 +109,15 @@ func test_level_up_in_a_run_raises_stats_and_skill_look_without_pausing() -> voi
 	assert_float(main.hud.badge.level_t).is_greater(0.0)  # 레벨업 연출
 	GameSettings.hero_stages = {}
 	GameSettings.hero_clears = {}
+
+
+## 초상 원 꼭짓점은 처음 한 번만 만들고 매 프레임 다시 만들지 않는다 (자리만 옮겨 그린다).
+func test_badge_portrait_circle_is_built_once() -> void:
+	var b := HeroBadge.new()
+	b._build_circle()
+	var first := b._circle_pts
+	b._build_circle()
+	assert_int(b._circle_pts.size()).is_equal(40)
+	assert_int(b._circle_uvs.size()).is_equal(40)
+	assert_bool(b._circle_pts == first).is_true()
+	assert_float(b._circle_pts[0].length()).is_equal_approx(HeroBadge.R, 0.01)  # 가운데 0 기준

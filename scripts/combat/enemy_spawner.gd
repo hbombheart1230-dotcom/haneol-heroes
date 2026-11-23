@@ -47,6 +47,8 @@ signal breather(slowmo: bool)
 var waves: WaveRunner
 ## 예고 중인 등장 자리 수 (화면 최대에 센다).
 var _warnings: int = 0
+## 진행 중인 중간 우두머리 처치 연출 수 (BossStaging.play_finale). 연출이 끝나야 물결이 끝나 숨 고르기·패 고르기가 뜬다.
+var finales: int = 0
 ## true면 다음 물결을 기다린다 (강화 고르는 중, Main이 넣는다).
 var hold_check: Callable
 ## 물결 등장 자리가 막힌 곳(벽·바위 같은 장애물)인지 묻는 함수 (p, 여유) → bool. 비면 검사 없음.
@@ -231,6 +233,7 @@ func set_waves(d: WaveSetData) -> void:
 	waves = WaveRunner.new(d) if d else null
 	view_margin = d.spawn_screen_margin if d else -1.0
 	_warnings = 0
+	finales = 0
 	horde_enabled = false if d else _horde_default
 
 
@@ -246,7 +249,7 @@ func can_offer() -> bool:
 
 func _tick_waves(delta: float) -> void:
 	var hold := hold_check.is_valid() and bool(hold_check.call())
-	match waves.tick(delta, alive_count() + _warnings, hold):
+	match waves.tick(delta, alive_count() + _warnings + finales, hold):
 		WaveRunner.Event.CLEARED:
 			breather.emit(true)
 		WaveRunner.Event.BOSS:

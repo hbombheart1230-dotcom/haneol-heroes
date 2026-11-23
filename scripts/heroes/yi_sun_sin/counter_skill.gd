@@ -45,6 +45,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 			pr.knockback = blade_push
 			pr.size_scale = 1.3)
 		if p and blade_rake_hits > 1:  # 사방 검기도 지나가며 잘게 긁는다 (다다닥)
-			WaveRake.attach(ctx, p, WaveRake.plan(blade_damage, blade_rake_hits, 2.0, blade_push, 0.35),
+			var rake := WaveRake.attach(ctx, p, WaveRake.plan(blade_damage, blade_rake_hits, 2.0, blade_push, 0.35),
 				blade_rake_interval, 24)
+			rake.finale = false  # 멈춤은 반격 자신의 한 번만 (검기가 사라질 때 또 멈추지 않는다)
 	return SkillRun.instant(hits)  # 명중 멈춤은 SkillHitStop 공통 규칙 (피해 비례, D3)

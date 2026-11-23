@@ -25,6 +25,8 @@ var wave_alive: bool = true
 ## 붙은 물결 (시험·도구가 찾을 때).
 var wave: Projectile
 var total_hits: int = 0
+## false면 다 끝나도 마무리 멈춤을 걸지 않는다 (반격 사방 검기: 반격이 이미 멈춘 뒤라 한 번만).
+var finale: bool = true
 
 var _en: Array[Enemy] = []
 var _next := PackedFloat32Array()
@@ -159,7 +161,7 @@ func _physics_process(delta: float) -> void:
 					_remove(i)
 		i -= 1
 	if not wave_alive and _en.is_empty() and _fx_at.is_empty():
-		if total_hits > 0:
+		if total_hits > 0 and finale:
 			SkillMultiHit.finale(ctx)  # 멈춤은 물결이 끝날 때 한 번
 		queue_free()
 

@@ -121,3 +121,5 @@ func test_counter_radial_blades() -> void:
 		assert_bool((p as Projectile).pierce).is_true()
 		var r := WaveRake.of(p as Projectile)  # 검기 긁기: 타마다 나눈 합 = 검기 피해
 		assert_int(r.total_damage() if r else (p as Projectile).damage).is_equal(s.blade_damage)
+		if r:
+			assert_bool(r.finale).is_false()  # 멈춤은 반격 자신의 한 번만 (검기가 사라질 때 마무리 멈춤 없음)

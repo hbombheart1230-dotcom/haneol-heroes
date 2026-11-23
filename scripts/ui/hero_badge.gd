@@ -21,6 +21,9 @@ var level_t: float = 0.0
 var card_pulse: float = 0.0
 var hurt_t: float = 0.0
 var _last_hp: int = -1
+## 초상 원 (가운데 0 기준 꼭짓점과 UV). 처음 그릴 때 한 번 만든다.
+var _circle_pts := PackedVector2Array()
+var _circle_uvs := PackedVector2Array()
 
 
 func on_scored(kind: StringName, amount: int) -> void:
@@ -91,14 +94,11 @@ func _draw_portrait(c: CanvasItem, ctr: Vector2) -> void:
 			c.draw_circle(ctr + Vector2(cos(a), sin(a)) * (R + 5.0), 6.0 + 10.0 * glint, Color(1, 0.93, 0.6, glint * 1.6))
 	var hero := player.hero if player else null
 	if hero and hero.portrait:
-		var pts := PackedVector2Array()
-		var uvs := PackedVector2Array()
-		for i in 40:
-			var d := Vector2.from_angle(TAU * i / 40.0)
-			pts.append(ctr + d * R)
-			uvs.append(Vector2(0.5, 0.5) + d * 0.5)
+		_build_circle()
 		c.draw_circle(ctr, R, hero.body_color.darkened(0.55))  # 투명한 바탕 자리는 영웅 색으로
-		c.draw_polygon(pts, PackedColorArray([Color.WHITE]), uvs, hero.portrait)
+		c.draw_set_transform(ctr)  # 원 꼭짓점은 한 번만 만들고 자리만 옮겨 그린다
+		c.draw_polygon(_circle_pts, PackedColorArray([Color.WHITE]), _circle_uvs, hero.portrait)
+		c.draw_set_transform(Vector2.ZERO)
 	else:
 		c.draw_circle(ctr, R, hero.body_color if hero else Color(0.3, 0.3, 0.3))
 	if hurt_t > 0.0:
@@ -149,3 +149,12 @@ func _draw_level_up(c: CanvasItem, at: Vector2) -> void:
 	UiStyle.text(c, UiStyle.TITLE_FONT, at, "경지 오름", int(48 * s), Color(UiStyle.GOLD, a), -1, Color(0, 0, 0, 0.9 * a), 7)
 	UiStyle.text(c, UiStyle.BODY_FONT, at + Vector2(4, 30), "패 +1 · 다음 숨 고르기에서 고른다", 22, Color(UiStyle.PAPER, a), -1,
 		Color(0, 0, 0, 0.8 * a), 4)
+
+
+func _build_circle() -> void:
+	if not _circle_pts.is_empty():
+		return
+	for i in 40:
+		var d := Vector2.from_angle(TAU * i / 40.0)
+		_circle_pts.append(d * R)
+		_circle_uvs.append(Vector2(0.5, 0.5) + d * 0.5)
