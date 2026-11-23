@@ -44,9 +44,14 @@ class PadoRun extends SkillRun:
 		left = p_skill.hit_count
 
 	func strike() -> void:
+		var last := left <= 1  # 마지막 연타는 크게 한 번 멈춤
+		var struck := false
 		for en in ctx.enemies_near_segment(a, b, skill.width * 0.5):
-			ctx.hit(en, skill.damage_per_hit)
+			if ctx.hit(en, skill.damage_per_hit):
+				struck = true
 			hits += 1  # 타격마다 경로 위 대상 수 (리팩터링 전과 동일한 집계)
+		if last and struck:
+			SkillMultiHit.finale(ctx)
 		left -= 1
 		timer += skill.hit_interval
 		if ctx.fx and left >= 0:

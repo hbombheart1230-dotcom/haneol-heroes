@@ -54,7 +54,7 @@ func _physics_process(delta: float) -> void:
 				if now - float(_last_hit.get(id, -INF)) < hit_interval:
 					continue
 				_last_hit[id] = now
-				if ctx.hit(en, damage, false):
+				if ctx.tick_hit(en, damage, now + hit_interval > duration):  # 마지막 한 바퀴는 크게
 					hits += 1
 		var core: Enemy = follow as Enemy if follow and is_instance_valid(follow) else null  # 적에게 씌운 고리 (세종 SkillAim): 가운데 그 적도 같은 간격으로 맞는다
 		if core and core.health and core.health.is_alive():

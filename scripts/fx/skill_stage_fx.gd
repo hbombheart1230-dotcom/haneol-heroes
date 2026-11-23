@@ -21,7 +21,8 @@ static func on_hit(d: SkillVfxData, pos: Vector2, dir: Vector2, damage: int, lev
 		p.hit_mark(d, pos, dir, level)
 	var st := SkillStageFeel.get_default()
 	f.kick(dir, st.kick_for(damage))
-	f.add_trauma(st.trauma_for(damage), dir)
+	var im := f.feel.impact_data()  # 여러 번 맞아도 흔들림이 쌓여 넘치지 않게 (ImpactFx.capped_trauma)
+	f.add_trauma(ImpactFx.capped_trauma(f.trauma, st.trauma_for(damage), im.trauma_cap), dir)
 
 
 ## 발동 순간: 큰 기술 컷인 + 기술 소리 층.

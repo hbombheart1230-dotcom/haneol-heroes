@@ -54,7 +54,7 @@ func _physics_process(delta: float) -> void:
 	var wob := Vector2.from_angle(_age * 9.0 + _wobble) * 40.0
 	global_position += ((to.normalized() * speed) + wob) * delta if to.length() > 6.0 else wob * delta
 	if t and _cd <= 0.0 and t.global_position.distance_to(global_position) <= touch_radius + t.body_radius:
-		if ctx.hit(t, damage, false):
+		if ctx.tick_hit(t, damage, _age + hit_interval > lifetime):  # 사라지기 전 마지막 물기는 크게
 			hits += 1
 			ctx.impact(t.global_position)  # 문 자리에 매화 꽃잎
 		_cd = hit_interval
