@@ -16,14 +16,14 @@ var finish: float = 0.0
 
 ## pause = 3타 모으기, delay = 칼이 닿기까지 (모으기 뒤). 모으는 동안은 그리지 않는다.
 func setup(p_aim: float, p_half: float, p_flip: float, p_radius: float, p_width: float,
-		pause: float, delay: float, d: SwingTrailData) -> void:
+		pause: float, delay: float, d: SwingTrailData, lead_mult: float = 1.0) -> void:
 	aim = p_aim
 	half = p_half
 	flip = p_flip
 	radius = p_radius
 	width = p_width
 	strike = pause + delay
-	start = maxf(pause, strike - d.lead)
+	start = maxf(pause, strike - d.lead * lead_mult)
 	finish = strike + d.follow
 
 

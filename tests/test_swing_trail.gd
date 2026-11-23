@@ -33,11 +33,11 @@ func test_timeline_waits_for_windup_and_brackets_the_strike() -> void:
 	assert_float(short.start).is_equal(0.25)
 
 
-func test_head_sweeps_side_to_side_past_centre_at_strike() -> void:
+func test_head_sweeps_side_to_side_near_centre_at_strike() -> void:
 	var a := _arc()
 	assert_float(a.angle_at(a.start)).is_equal_approx(-a.half, 0.0001)
 	assert_float(a.angle_at(a.finish)).is_equal_approx(a.half, 0.0001)
-	assert_float(a.angle_at(a.strike)).is_greater(0.0)  # 닿는 순간 가운데를 조금 지남
+	assert_float(absf(a.angle_at(a.strike))).is_less(a.half * 0.3)  # 닿는 순간 가운데 근처, 나머지 호는 닿은 뒤에 그려진다
 	var b := _arc(0.0, -1.0)  # 2타: 반대쪽에서
 	assert_float(b.angle_at(b.start)).is_equal_approx(b.half, 0.0001)
 
@@ -92,3 +92,15 @@ func test_main_scene_has_trail_wired_to_auto_attack() -> void:
 		if st.get_node_name(i) == &"SwingTrail":
 			found = true
 	assert_bool(found).is_true()
+
+
+func test_third_hit_sweeps_earlier_wider_and_thicker() -> void:
+	var a := SwingArc.new()
+	a.setup(0.0, 0.5, 1.0, 100.0, 30.0, 0.0, 0.3, DATA, ComboSteps.at(DATA.step_lead_mults, 3, 1.0))
+	var b := SwingArc.new()
+	b.setup(0.0, 0.5, 1.0, 100.0, 30.0, 0.0, 0.3, DATA, ComboSteps.at(DATA.step_lead_mults, 1, 1.0))
+	assert_float(a.start).is_less(b.start)  # 칼이 닿아 멈출 때 호가 더 많이 그려져 있다
+	assert_float(ComboSteps.at(DATA.step_widths, 3, 1.0)).is_greater(ComboSteps.at(DATA.step_widths, 2, 1.0))
+	assert_float(ComboSteps.at(DATA.step_widths, 2, 1.0)).is_greater_equal(ComboSteps.at(DATA.step_widths, 1, 1.0))
+	assert_float(ComboSteps.at(DATA.step_arc_scales, 3, 1.0)).is_greater(1.0)
+	assert_float(DATA.life).is_greater_equal(DATA.follow)  # 닿은 뒤에도 남는다
