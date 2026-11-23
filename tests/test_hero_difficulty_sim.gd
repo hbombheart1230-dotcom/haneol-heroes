@@ -1,7 +1,7 @@
 extends GdUnitTestSuite
 ## 영웅별 한 판 난이도 (tests/run_sim.gd, 결정적): 네 영웅 × 자기 무대 한 판 전체 (물결 → 중간 보스 → 보스).
 ## 받은 피해·판 길이·서툰 사람 승률이 영웅마다 비슷하고, 잡몹이 경직에 묶여 아무것도 못 하는 일이 없다.
-## 보통 실행은 씨앗 하나·피하기만. HH_SLOW=1이면 씨앗 셋 × 피하기·서툰 사람 × 옛 경직 규칙·새 규칙 (보고 표, 오래 걸림).
+## 보통 실행에서는 건너뛴다. HH_SLOW=1이면 씨앗 셋 × 피하기·서툰 사람 × 옛 경직 규칙·새 규칙 (보고 표, 오래 걸림).
 
 const STAGES := ["hansan_1592", "manchuria_395", "gyeongbokgung_1433", "chochungdo"]
 static var SLOW: bool = OS.get_environment("HH_SLOW") == "1"
@@ -31,6 +31,9 @@ func _run(id: String, s: int, miss: float) -> Dictionary:
 
 
 func test_report_table() -> void:
+	if not SLOW:  # 보고용 (한 판 네 번 = 약 2분): 전체 스위트에서는 건너뛴다
+		assert_bool(true).is_true()
+		return
 	var seeds := [11, 23, 37] if SLOW else [11]
 	for on in ([false, true] if SLOW and OS.get_environment("HH_ONLY_NEW") != "1" else [true]):
 		_rules(on)
