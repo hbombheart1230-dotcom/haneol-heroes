@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="Resource" path="res://data/stages/hazards/hansan_cannon.tres" id="h_cannon"]
+[ext_resource type="Script" path="res://scripts/data/stage_hazard_data.gd" id="h_script"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/hansan_1592/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/banner_blue.png" id="p_banner_blue"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/banner_dragon.png" id="p_banner_dragon"]
@@ -74,6 +76,7 @@ xp_mult = 1.53
 
 [resource]
 script = ExtResource("1_theme")
+hazards = Array[ExtResource("h_script")]([ExtResource("h_cannon")])
 id = &"hansan_1592"
 year_label = "1592년"
 title = "한산도"

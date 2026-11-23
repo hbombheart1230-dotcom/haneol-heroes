@@ -14,6 +14,11 @@ const HEROES := {"순신": ["yi_sun_sin", 90.0, 170.0], "광개토": ["gwanggaet
 
 var stage: StageTheme
 var obstacles: Obstacles
+## 무대 장치(StageTheme.hazards)를 켠다 (tests/test_hazard_sim.gd). 끄면 예전과 똑같다.
+var use_hazards: bool = false
+## 장치 예고 줄 안에 서 있으면 위아래로 비킨다 (끄면 줄을 무시하고 싸운다 = 가장 많이 맞는 쪽).
+var dodge_hazards: bool = true
+var hazards: StageHazards
 ## 판을 꾸리기 전부터 있던 시험 노드 (그 뒤에 world에 붙은 탄·기술 효과만 손으로 굴린다).
 var _before: Array = []
 ## true가 되면 물결 돌리기를 멈춘다 (성장 스냅숏: 중간 보스 등장 순간 등).
@@ -40,6 +45,12 @@ func setup_stage(st: StageTheme, s: int) -> void:
 	spawner.boss_data = st.boss
 	spawner.max_alive = st.waves.max_alive
 	spawner.set_waves(st.waves)
+	if use_hazards:
+		hazards = StageHazards.new()
+		suite.add_child(hazards)
+		hazards.player = player
+		hazards.spawner = spawner
+		hazards.setup(st.hazards)
 
 
 func free_all() -> void:
@@ -47,12 +58,15 @@ func free_all() -> void:
 		c.free()
 	if is_instance_valid(obstacles):
 		obstacles.free()
+	if is_instance_valid(hazards):
+		hazards.free()
 	super.free_all()
 
 
 func run_waves(limit: float = 300.0) -> Dictionary:
 	var res := {"time": 0.0, "boss": false, "lost": false, "damage": 0, "by": {}, "cleared": [], "spawned": 0,
-		"max_alive": 0, "stall": 0.0, "blocked": 0, "mid_at": -1.0, "mid_time": -1.0}
+		"max_alive": 0, "stall": 0.0, "blocked": 0, "mid_at": -1.0, "mid_time": -1.0, "hz_strikes": 0, "hz_enemy_hits": 0,
+		"hz_hero_hits": 0}
 	var t0 := _t
 	spawner.breather.connect(func(_slow: bool) -> void: res["cleared"].append(snappedf(_t - t0, 0.1)))
 	spawner.child_entered_tree.connect(func(n: Node) -> void:
@@ -70,7 +84,7 @@ func run_waves(limit: float = 300.0) -> Dictionary:
 			c.set_physics_process(false)
 		var list := enemies()
 		var near := _nearest(list)
-		if not _dodge(list):
+		if not _dodge(list) and not _dodge_hazard():
 			_approach(near)
 		player._physics_process(DT)
 		caster.tick(DT, _t)
@@ -85,6 +99,7 @@ func run_waves(limit: float = 300.0) -> Dictionary:
 		for c in _effects():  # 기술 효과 (글자 고리, 붓 자국 …): 한 프레임 안이라 손으로
 			c.set_physics_process(false)
 			c._physics_process(DT)
+		_tick_hazards(res)
 		spawner.tick(DT)
 		var alive := spawner.alive_count() + spawner._warnings
 		res["max_alive"] = maxi(res["max_alive"], alive)
@@ -96,6 +111,34 @@ func run_waves(limit: float = 300.0) -> Dictionary:
 	res["damage"] = player.health.max - player.health.current
 	res["spawned"] = _spawned
 	return res
+
+
+## 무대 장치를 한 틀 굴리고 포격 결과를 센다.
+func _tick_hazards(res: Dictionary) -> void:
+	if hazards == null:
+		return
+	for lane in hazards.get_children():
+		lane.set_physics_process(false)
+		var before: int = lane.get(&"strikes")
+		lane._physics_process(DT)
+		if lane.get(&"strikes") != before:
+			res["hz_strikes"] += 1
+			res["hz_enemy_hits"] += lane.get(&"last_enemy_hits")
+			res["hz_hero_hits"] += 1 if lane.get(&"last_hero_hit") else 0
+
+
+## 예고 중인 줄 안이면 가까운 쪽(위·아래)으로 비킨다.
+func _dodge_hazard() -> bool:
+	if hazards == null or not dodge_hazards:
+		return false
+	for lane in hazards.get_children():
+		var ls := lane as LaneStrike
+		if ls and ls.clock.warning() and ls.row >= 0:
+			var r := ls.data.rows[ls.row]
+			if LanePlan.in_lane(r, ls.data.half_width + 30.0, player.global_position, player.body_radius):
+				player.set_move_input(LanePlan.push_dir(r.x, player.global_position))
+				return true
+	return false
 
 
 ## world(시험 노드)에 새로 붙은 기술 효과 (판 노드·영웅 탄 빼고, 지운 것 빼고).

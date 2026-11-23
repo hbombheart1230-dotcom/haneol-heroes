@@ -18,6 +18,8 @@ static func stage(m, st: StageTheme) -> void:
 			arena.lights.follow(m.get_node_or_null("Player") as Node2D)
 		if m.spawner and arena.obstacles:
 			m.spawner.blocked_check = arena.obstacles.blocks
+		if arena.hazards:
+			_wire_hazards(m, arena.hazards)
 		if m.breakables:
 			m.breakables.obstacles = arena.obstacles
 			m.breakables.setup(st.breakable, arena.rect.grow(-maxf(st.prop_inset, 160.0)), st.seed)
@@ -56,6 +58,14 @@ static func difficulty(m, st: StageTheme) -> void:
 	m.spawner.max_alive = (st.waves.max_alive if st.waves else m._base_spawn["alive"]) + m.difficulty.alive_add(tier)
 	m.spawner.data_scaler = func(e: EnemyData) -> EnemyData: return m.difficulty.scaled(e, tier)
 	m.spawner.elite_scaler = func(e: EnemyData) -> EnemyData: return m.difficulty.scaled(BossHpScale.for_hero(e, _hero(m)), tier)
+
+
+## 무대 장치에 영웅·적·박자 조건을 넣는다: 판 진행 중이고 강화 고르기·길잡이(튜토리얼)가 아닐 때만 박자가 흐른다.
+static func _wire_hazards(m, hz: StageHazards) -> void:
+	hz.player = m.player
+	hz.spawner = m.spawner
+	hz.running_check = func() -> bool:
+		return m.state != null and m.state.is_playing() and not m.is_choosing() 			and (m.tutorial_director == null or not m.tutorial_director.running())
 
 
 static func _hero(m) -> HeroData:

@@ -35,6 +35,10 @@ extends Resource
 ## 깨면 탕약(체력 회복)이 나오는 물건. 비우면 없음.
 @export var breakable: BreakableData
 
+@export_group("무대 장치")
+## 전장마다 플레이를 바꾸는 장치 (중립: 적에게 훨씬 세게). 비우면 없음. docs/research/stage_identity.md.
+@export var hazards: Array[StageHazardData] = []
+
 @export_group("적 (망령 군대)")
 ## 비어 있으면 장면(EnemySpawner)에 정해 둔 적을 그대로 쓴다.
 @export var spawn_table: Array[EnemyData] = []

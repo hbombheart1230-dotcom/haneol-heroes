@@ -17,6 +17,8 @@ var lights: LightPools
 var edge: MapLayer
 var border: Node2D
 var obstacles: Obstacles
+## 무대 장치 (StageTheme.hazards: 한산 포격선 등). 바닥 위·적 아래.
+var hazards: StageHazards
 ## 화면 가장자리 먹 비네트 (HUD 아래, 무대 vignette가 0이면 숨김).
 var vignette: Vignette
 ## 지도 밖 바닥 (카메라가 전장 끝에서 보는 곳)을 덮는 여유.
@@ -48,6 +50,8 @@ func _ready() -> void:
 	add_child(props)
 	obstacles = Obstacles.new()
 	add_child(obstacles)
+	hazards = StageHazards.new()
+	add_child(hazards)
 	border = Border.new()
 	border.rect = rect
 	add_child(border)
@@ -92,6 +96,8 @@ func apply_theme(t: StageTheme) -> void:
 		if props:
 			list.append_array(Obstacles.from_props(props.items, t))
 		obstacles.build(list)
+	if hazards:
+		hazards.setup(t.hazards)
 	queue_redraw()
 
 
