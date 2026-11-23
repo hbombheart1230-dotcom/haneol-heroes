@@ -92,6 +92,7 @@ func _setup_sprite(h: HeroData) -> void:
 	_sprite.position = h.sprite_offset
 	_blend = AnimBlend.new()
 	add_child(_blend)  # 스프라이트 뒤: 앞 자세가 새 자세 밖으로만 잠깐 남는다
+	add_child(EvadeRim.new(player, _sprite))  # 회피 무적 금빛 테두리 (스프라이트 뒤)
 	add_child(_sprite)
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
 	_attack = attack
