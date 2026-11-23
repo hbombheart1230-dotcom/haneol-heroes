@@ -25,6 +25,38 @@
 [ext_resource type="Resource" path="res://data/songs/gyeongbokgung_1433.tres" id="song"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 
+[ext_resource type="Script" path="res://scripts/data/wave_data.gd" id="w_wave"]
+[ext_resource type="Script" path="res://scripts/data/wave_set_data.gd" id="w_set"]
+
+[sub_resource type="Resource" id="Wave_1"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer")])
+first_count = 3
+max_alive = 3
+elite_last = false
+
+[sub_resource type="Resource" id="Wave_2"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier")])
+first_count = 4
+max_alive = 4
+elite_last = true
+
+[sub_resource type="Resource" id="Wave_3"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier")])
+first_count = 5
+max_alive = 5
+elite_last = false
+
+[sub_resource type="Resource" id="Waves"]
+script = ExtResource("w_set")
+waves = Array[ExtResource("w_wave")]([SubResource("Wave_1"), SubResource("Wave_2"), SubResource("Wave_3")])
+max_alive = 8
+next_when_left = 2
+refill_each = true
+xp_mult = 3.5
+
 [resource]
 script = ExtResource("1_theme")
 id = &"gyeongbokgung_1433"
@@ -39,6 +71,7 @@ spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), E
 spawn_weights = PackedFloat32Array(6, 2, 1)
 unlock_times = PackedFloat32Array(0, 10, 20)
 elite = ExtResource("e_jurchen_elite")
+waves = SubResource("Waves")
 boss = ExtResource("e_jurchen_chieftain")
 card_art = ExtResource("p_palace_gate")
 floor_base = Color(0.532, 0.461, 0.423, 1)
