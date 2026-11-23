@@ -124,3 +124,18 @@ func test_dash_only_bot_is_not_better_than_melee() -> void:
 			if r[1]["cleared"] and r[1]["time"] < r[0]["time"] and r[1]["damage"] <= r[0]["damage"]:
 				dash_better += 1
 	assert_int(dash_better).is_equal(0)
+
+
+## 예고 범위 안에서 시작한 대시 = 회피: 적 쪽이어도 돌진 타격·대가 없음 (메인 결정: 회피를 방해하지 않게).
+func test_escape_dash_from_telegraph_does_not_strike() -> void:
+	var p := _player()
+	var e := _enemy(Vector2(60, 0))
+	e.attack.state = EnemyAttack.State.WINDUP
+	e.attack.aim_origin = e.global_position
+	e.attack.target_point = p.global_position
+	e.attack.aim_dir = Vector2.LEFT
+	assert_bool(ComboSteps.in_windup([e], p.global_position)).is_true()
+	p.request_dash(Vector2.RIGHT)
+	assert_int(p.dash_kind).is_equal(DashDirection.Kind.CHARGE)
+	assert_bool(p.dash_strikes).is_false()
+	e.attack.state = EnemyAttack.State.READY

@@ -46,7 +46,8 @@ static func begin(p: Player, list: Array, chained: bool) -> void:
 		return
 	var to := to_nearest(p, list, d.enemy_range)
 	p.dash_kind = classify(d, p.get_dash_direction(), to)
-	p.dash_strikes = p.dash_kind == Kind.CHARGE and d.strike_enabled and not chained
+	# 예고 범위 안에서 시작한 대시는 회피 (빠져나오기): 돌진 타격·대가(충전·끝 경직)를 붙이지 않는다 (회피를 방해하지 않게)
+	p.dash_strikes = p.dash_kind == Kind.CHARGE and d.strike_enabled and not chained 		and not ComboSteps.in_windup(list, p.global_position)
 	if p.dash_kind == Kind.BACK:
 		p.facing = to.normalized()  # 적을 본 채로 뒤로
 
