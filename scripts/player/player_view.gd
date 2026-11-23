@@ -122,7 +122,9 @@ func _on_skill_started(_slot: SkillCaster.Slot, def: SkillDef) -> void:
 func _on_auto_swing(_d: Vector2, _h: int) -> void:
 	if not is_moving() or (_attack and _attack.last_manual):  # 손으로 친 타는 움직이는 중에도 보인다 (M1)
 		var anim := _attack.chain_anim() if _attack else "attack"  # 연계 2·3타 동작 (B4)
-		play_oneshot(anim, anim_seconds(anim, 0.35))
+		var speed := swing_speed()
+		play_oneshot(anim, anim_seconds(anim, 0.35) / speed)
+		_oneshot_speed = speed
 		var pause := _attack.step_pause() if _attack else 0.0
 		if pause > 0.0:  # 3타 앞 모으기: 첫 칸에서 잠깐 멈춤
 			_hitstop_left = maxf(_hitstop_left, pause)
@@ -133,6 +135,12 @@ func _on_auto_swing(_d: Vector2, _h: int) -> void:
 			_lunge_t = -pause
 			_lunge_out = st.lunge_out
 			_lunge_back = st.lunge_back
+
+
+## 평타 동작 재생 배율 (BladeBiteData.swing_speed, 없으면 1): 칼 닿는 시각(AutoAttack.melee_delay)과 같은 배율.
+func swing_speed() -> float:
+	var bite := player.hero.blade_bite if player and player.hero else null
+	return maxf(bite.swing_speed, 0.05) if bite and bite.enabled else 1.0
 
 
 ## 칼이 닿은 순간: 맞았으면 지금 보여 주는 공격 동작을 잠깐 멈춘다 (달리는 중엔 다리를 멈추지 않는다).

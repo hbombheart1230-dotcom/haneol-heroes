@@ -59,6 +59,8 @@ func test_sixteen_matchups_last_about_the_same() -> void:
 	var sloppy_wins := 0
 	var sloppy_runs := 0
 	for boss in BOSSES:
+		if OS.get_environment("HH_ONLY_BOSS") != "" and boss != OS.get_environment("HH_ONLY_BOSS"):
+			continue
 		for hero in HEROES:
 			if ONLY != "" and hero != ONLY:
 				continue

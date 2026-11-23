@@ -178,6 +178,7 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 		atk.tick(DT, list)
 		_tick_shots(list)
 		_tick_world(list, res)
+		_sample(list)
 		if not is_instance_valid(boss) or boss.health.is_dead():
 			break
 		var st := boss.attack.state
@@ -222,6 +223,11 @@ func _tick_shots(list: Array) -> void:
 				pr._on_area_entered(e.get_node("HurtBox2D"))
 				if pr.ignore_collisions:
 					break
+
+
+## 매 틱 재기 (RunSim이 덮어써 잡몹 경직·공격 시작을 센다). 기본은 아무것도 안 한다.
+func _sample(_list: Array) -> void:
+	pass
 
 
 ## 적·예고·화살 한 틱. 받은 피해를 공격 종류별로 센다.

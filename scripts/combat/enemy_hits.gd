@@ -32,8 +32,8 @@ static func is_armored(e: Enemy) -> bool:
 static func on_hit(e: Enemy, heavy: bool) -> void:
 	var d := impact()
 	if not is_armored(e) and e.attack and e.attack.can_interrupt():
-		e.attack.interrupt(d.interrupt_cooldown, d.interrupt_rearm)
-		e.reaction.stagger_left = maxf(e.reaction.stagger_left, d.interrupt_stagger)
+		e.attack.interrupt(d.interrupt_cooldown, d.interrupt_rearm, d.interrupt_guard_next)
+		e.reaction.add_stagger(d.interrupt_stagger)
 		e._stop_charge()
 	if not is_armored(e) and e.data and e.data.hit_resets_attack and e.attack and e.reaction.is_staggered():
 		e.attack.restart_wait(d.reset_max_gap_mult)
@@ -44,9 +44,13 @@ static func on_hit(e: Enemy, heavy: bool) -> void:
 
 ## 넘어뜨리기 (잡몹, 슈퍼아머 아님): 예고를 버리고 돌진을 멈춘다. 넘어졌으면 true.
 static func knock_down(e: Enemy) -> bool:
-	if is_armored(e) or not e.reaction.knock_down(impact()):
+	if is_armored(e) or (e.attack and e.attack.state == EnemyAttack.State.WINDUP and not e.attack.can_interrupt()):
+		return false  # 지켜진 예고 (끊긴 다음 예고)는 넘어뜨려도 버리지 않는다
+	if not e.reaction.knock_down(impact()):
 		return false
 	if e.attack:
+		if e.attack.state == EnemyAttack.State.WINDUP:
+			e.attack.guard_next = e.attack.guard_next or impact().interrupt_guard_next
 		e.attack.cancel()
 	e._stop_charge()
 	return true

@@ -46,7 +46,7 @@ func _rig(hero: HeroData = YI, count: int = 1) -> Array:
 	return [p, a, enemies]
 
 
-## 1. 피해 시점 = 클립의 접점 시각 그대로 (예전에는 0.15초로 잘려 칼이 닿기 전 장면 = 세 타 모두 2번 칸에서 멈췄다).
+## 1. 피해 시점 = 클립의 접점 시각 ÷ swing_speed (예전에는 0.15초로 잘려 칼이 닿기 전 장면 = 세 타 모두 2번 칸에서 멈췄다).
 ## 순신 1·2타는 시트 맞닿는 칸이 칼을 든 칸이라 데이터로 칼이 몸에 닿는 칸 (1타 4번 0.25초, 2타 5번 0.3125초).
 func test_damage_lands_on_contact_frame() -> void:
 	var r := _rig()
@@ -57,10 +57,12 @@ func test_damage_lands_on_contact_frame() -> void:
 		a.chain_step = 1 if anim == "attack" else int(anim.right(1))
 		var i := sheet.anim_names.find(anim)
 		var want: float = over[StringName(anim)] if over.has(StringName(anim)) else sheet.strike_frame(anim) / sheet.fps[i]
-		assert_float(a.melee_delay()).is_equal_approx(want, 0.0001)
-		assert_int(int(a.melee_delay() * sheet.fps[i] + 0.001)).is_greater_equal(3)  # 칼을 든 앞 칸(0~2)에서 멈추지 않는다
+		var speed := YI.blade_bite.swing_speed  # 평타 동작을 이 배율로 틀어 칼이 일찍 닿는다 (그림도 같은 배율)
+		assert_float(a.melee_delay()).is_equal_approx(want / speed, 0.0001)
+		assert_int(int(a.melee_delay() * speed * sheet.fps[i] + 0.001)).is_greater_equal(3)  # 칼을 든 앞 칸(0~2)에서 멈추지 않는다
 	a.chain_step = 1
-	assert_float(a.melee_delay()).is_greater(Feedback.feel_data().melee_delay_max)  # 예전 상한 0.15를 넘는다
+	# 사용자 판 피드백 (순신 연타가 두 영웅보다 약하다): 1·2타가 광개토·사임당과 같은 0.15초에 닿는다 (예전 0.19초)
+	assert_float(a.melee_delay()).is_equal_approx(Feedback.feel_data().melee_delay_max, 0.001)
 
 
 ## 다른 영웅은 그대로 (데이터가 없으면 꺼짐).
