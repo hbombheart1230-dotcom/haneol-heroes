@@ -106,6 +106,12 @@ func _sync(job: Dictionary, n: String) -> void:
 	var fresh := Live3DHeroData.from_job(job)
 	for c in d.clips:
 		var f := fresh.clip(String(c["key"]))
+		# 원본 동작이 바뀌었으면 (예: 2타를 다른 동작에서) 이미 꺼내 둔 anims/<이름>.res로. 없으면 stage 2부터 다시.
+		var res := "res://assets/live3d/%s/anims/%s.res" % [n, Lib.norm(String(f.get("src", "")))]
+		if ResourceLoader.exists(res):
+			c["file"] = res
+		else:
+			push_error("%s: clip %s not packed yet (%s) — run stage 1·2" % [n, f.get("src", ""), res])
 		for k in ["start", "end", "times"]:
 			if f.has(k):
 				c[k] = f[k]
