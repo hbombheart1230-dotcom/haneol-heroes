@@ -85,31 +85,40 @@ func test_switch_is_on_by_default() -> void:
 
 
 func test_packed_model_is_in_the_repo() -> void:
-	var d: Live3DHeroData = load(View3D.data_path(&"yi_sun_sin"))
+	for id in [&"yi_sun_sin", &"gwanggaeto"]:
+		_check_packed(id)
+
+
+func _check_packed(id: StringName) -> void:
+	var d: Live3DHeroData = load(View3D.data_path(id))
 	assert_bool(d.model_path.begins_with("res://assets/live3d/")).is_true()  # Meshy 원본(gitignore)이 아니라 가공 리소스
 	assert_bool(ResourceLoader.exists(d.model_path)).is_true()
+	assert_bool(d.rigid.is_empty()).is_true()  # 무기 고정은 가공 때 끝남 (게임이 tools/를 부르지 않게)
 	for c in d.clips:
 		assert_bool(ResourceLoader.exists(String(c["file"]))).is_true()
 
 
-## 순신은 3D, 3D 설정이 없는 영웅은 구운 그림, 설정을 끄면 예전 PlayerView 그대로.
+## 3D 설정이 있는 영웅은 3D, 없는 영웅은 구운 그림, 설정을 끄면 예전 PlayerView 그대로.
 func test_ready_heroes_get_3d_others_keep_sprites() -> void:
 	assert_bool(_view(&"yi_sun_sin", true).get("rig") != null).is_true()
-	var gw := _view(&"gwanggaeto", true)
-	assert_bool(gw.get_script() == View3D).is_true()
-	assert_bool(gw.get("rig") == null).is_true()
-	assert_bool(gw._sprite != null).is_true()  # 구운 그림
+	var none := _view(&"gwanggaeto", true, &"no_live3d_hero")  # data/live3d/<id>.tres가 없는 영웅
+	assert_bool(none.get_script() == View3D).is_true()
+	assert_bool(none.get("rig") == null).is_true()
+	assert_bool(none._sprite != null).is_true()  # 구운 그림
 	var off := _view(&"yi_sun_sin", false)
 	assert_bool(off.get_script() == View3D).is_false()
 	assert_bool(off._sprite.material == null).is_true()
 
 
-func _view(id: StringName, live: bool) -> PlayerView:
+func _view(id: StringName, live: bool, as_id: StringName = &"") -> PlayerView:
 	var p: Player = auto_free(Player.new())
 	var h := Health.new()
 	h.name = "Health"
 	p.add_child(h)
 	p.hero = load("res://data/heroes/%s.tres" % id)
+	if as_id != &"":
+		p.hero = p.hero.duplicate()
+		p.hero.id = as_id
 	add_child(p)
 	var was: Variant = ProjectSettings.get_setting(Switch.SETTING, true)
 	ProjectSettings.set_setting(Switch.SETTING, live)
