@@ -64,8 +64,23 @@ static var stage_picked: bool = false
 static var hero_stages: Dictionary = {}
 ## 영웅마다 이긴 전장 수 (hero_id → 수). 난이도 단계 (DifficultyCurve).
 static var hero_clears: Dictionary = {}
-## 이긴 무대 id들 (다음 무대 열기).
+## 이긴 무대 id들 (옛 저장·기록용. 전장 열기는 영웅별 hero_cleared).
 static var cleared_stages: PackedStringArray = PackedStringArray()
+## 영웅마다 이긴 무대 (hero_id → PackedStringArray). 전장 목록의 이김·열림 (CampaignProgress).
+## 옛 저장에 없으면 cleared_stages에서 옮긴다 (CampaignProgress.migrate, Main이 영웅 목록을 알 때).
+static var hero_cleared: Dictionary = {}
+
+
+## 이 영웅이 이 무대를 이겼다고 기록 (cleared_stages에도). 영웅 기록이 늘면 true.
+static func mark_hero_cleared(hero: StringName, id: StringName) -> bool:
+	mark_cleared(id)
+	var key := String(hero)
+	var mine := PackedStringArray(hero_cleared.get(key, PackedStringArray()))
+	if id == &"" or mine.has(String(id)):
+		return false
+	mine.append(String(id))
+	hero_cleared[key] = mine
+	return true
 
 
 ## 무대를 이겼다고 기록 (이미 있으면 그대로). 기록이 늘면 true.
@@ -98,6 +113,7 @@ static func load_settings(path: String = "") -> void:
 	seen_stories = PackedStringArray(cfg.get_value("game", "seen_stories", seen_stories))
 	cleared_stages = PackedStringArray(cfg.get_value("game", "cleared_stages", cleared_stages))
 	hero_clears = cfg.get_value("game", "hero_clears", hero_clears)
+	hero_cleared = cfg.get_value("game", "hero_cleared", hero_cleared)
 
 
 static func save_settings(path: String = "") -> Error:
@@ -120,6 +136,7 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("game", "seen_stories", seen_stories)
 	cfg.set_value("game", "cleared_stages", cleared_stages)
 	cfg.set_value("game", "hero_clears", hero_clears)
+	cfg.set_value("game", "hero_cleared", hero_cleared)
 	return cfg.save(path)
 
 

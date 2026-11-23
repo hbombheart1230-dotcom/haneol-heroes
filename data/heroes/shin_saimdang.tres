@@ -31,6 +31,7 @@
 [ext_resource type="Texture2D" path="res://assets/vfx/grasshopper.png" id="art_grasshopper"]
 [ext_resource type="Texture2D" path="res://assets/ui/portraits/shin_saimdang.png" id="portrait"]
 [ext_resource type="Resource" path="res://data/heroes/levels/shin_saimdang_level_up.tres" id="lv_up"]
+[ext_resource type="Resource" path="res://data/campaigns/shin_saimdang.tres" id="campaign"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -150,6 +151,7 @@ id = &"shin_saimdang"
 impact_style = 4
 story = ExtResource("story")
 home_stage = &"chochungdo"
+campaign = ExtResource("campaign")
 display_name = "사임당"
 card_art = ExtResource("card_art")
 portrait = ExtResource("portrait")

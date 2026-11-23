@@ -38,6 +38,7 @@
 [ext_resource type="Resource" path="res://data/heroes/dash_dir/yi_sun_sin.tres" id="dash_dir"]
 
 [ext_resource type="Resource" path="res://data/heroes/combo_lock/yi_sun_sin.tres" id="combo_lock"]
+[ext_resource type="Resource" path="res://data/campaigns/yi_sun_sin.tres" id="campaign"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -182,6 +183,7 @@ id = &"yi_sun_sin"
 impact_style = 1
 story = ExtResource("story")
 home_stage = &"hansan_1592"
+campaign = ExtResource("campaign")
 display_name = "순신"
 card_art = ExtResource("card_art")
 portrait = ExtResource("portrait")
