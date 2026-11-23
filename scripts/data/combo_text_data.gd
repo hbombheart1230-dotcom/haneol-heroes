@@ -9,13 +9,13 @@ extends Resource
 @export var sizes: PackedInt32Array = PackedInt32Array([44, 52, 62, 92])
 ## 화면 비율 자리 (글 가운데).
 @export var anchor: Vector2 = Vector2(0.17, 0.36)
-## 글 색 (한지)과 먹 외곽선, 마무리 글 색 (인주)과 외곽선 굵기.
-@export var color: Color = Color(0.95, 0.91, 0.82, 1)
-@export var outline: Color = Color(0.09, 0.09, 0.11, 0.95)
+## 글 색 (한지)과 먹 외곽선 (피해 숫자와 같은 색, ImpactFeelData.number_color·number_outline_color), 마무리 글 색 (인주)과 외곽선 굵기.
+@export var color: Color = Color(0.96, 0.93, 0.86, 1)
+@export var outline: Color = Color(0.1, 0.08, 0.07, 1)
 @export var finish_color: Color = Color(0.82, 0.16, 0.1, 1)
 @export var outline_px: int = 10
-## 글 뒤 먹 붓자국 (가로 길이 = 글 크기 × 이 값, 0이면 없음)과 색.
-@export var stroke_mult: float = 2.4
+## 글 뒤 먹 붓자국 (가로 길이 = 글 크기 × 이 값, 0이면 없음 = 기본: 회색 상자로 보여 사용자가 테두리만 골랐다)과 색.
+@export var stroke_mult: float = 0.0
 @export var stroke_color: Color = Color(0.09, 0.09, 0.11, 0.55)
 ## 뜰 때 이 배율에서 1로 (초), 마무리는 더 크게.
 @export var pop_scale: float = 1.5

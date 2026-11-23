@@ -161,3 +161,13 @@ func test_draws_in_tree() -> void:
 		cc.show_count(n)
 		await get_tree().process_frame
 	assert_int(cc.shown()).is_equal(4)
+
+
+## 사용자 A안: 글 뒤 먹 띠 없음 (회색 상자로 보였다), 한지색 글 + 먹 테두리 = 피해 숫자와 같은 색.
+func test_outline_only_like_damage_numbers() -> void:
+	var d: ComboTextData = load(ComboCounter.DATA_PATH)
+	var im := ImpactFeelData.new()
+	assert_float(d.stroke_mult).is_equal(0.0)
+	assert_bool(d.color.is_equal_approx(im.number_color)).is_true()
+	assert_bool(Color(d.outline, 1.0).is_equal_approx(Color(im.number_outline_color, 1.0))).is_true()
+	assert_int(d.outline_px).is_greater(0)
