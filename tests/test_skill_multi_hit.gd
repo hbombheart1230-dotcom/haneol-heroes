@@ -93,3 +93,27 @@ func test_finale_length_comes_from_data() -> void:
 	assert_float(d.finale_seconds(feel)).is_equal_approx(feel.skill_stop_cap * d.finale_stop, 0.0001)
 	assert_object(SkillHitFeelData.get_default()).is_not_null()
 	assert_int(d.tick_step).is_less(HitImpactData.new().skill_step)  # 틱은 한 번에 끊어 치는 명중보다 작게
+
+
+## 적에게 씌운 정음진 고리 (세종 SkillAim): 글자가 닿지 않는 가운데 적도 틱마다 맞고, 마지막 틱은 크게 멈춘다.
+func test_ring_core_enemy_gets_tick_hits_and_finale() -> void:
+	var ctx := _ctx()
+	var e := _enemy_at(Vector2(400, 0))
+	var ring := OrbitGlyphs.new()
+	ring.ctx = ctx
+	ring.follow = e
+	ring.radius = 200.0
+	ring.glyph_radius = 10.0
+	ring.duration = 0.5
+	ring.hit_interval = 0.3
+	ring.damage = 5
+	add_child(ring)
+	ring.set_physics_process(false)
+	ring._physics_process(0.01)  # 첫 틱: 가볍게
+	assert_int(e.health.current).is_equal(995)
+	assert_bool(SkillMultiHit.finale(ctx)).is_true()
+	SkillMultiHit.reset()
+	ring._physics_process(0.3)  # 둘째 틱이 마지막 → 크게 한 번
+	assert_int(e.health.current).is_equal(990)
+	assert_bool(SkillMultiHit.finale(ctx)).is_false()
+	ring.queue_free()

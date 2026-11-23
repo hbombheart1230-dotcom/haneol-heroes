@@ -61,7 +61,7 @@ func _physics_process(delta: float) -> void:
 			var cid := core.get_instance_id()
 			if now - float(_last_hit.get(cid, -INF)) >= hit_interval:
 				_last_hit[cid] = now
-				if ctx.hit(core, damage, false):
+				if ctx.tick_hit(core, damage, now + hit_interval > duration):  # 글자와 같은 연속 타격감 (마지막은 크게)
 					hits += 1
 	if _age >= duration:
 		queue_free()

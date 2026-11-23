@@ -77,7 +77,6 @@ BEHAVIOUR = {
     "waegun_heavy": "waegun_shield",
     "cc_grasshopper": "cc_hop",
     "cc_mantis": "cc_ambush",
-    "cc_frog": "cc_frog_tongue",
 }
 
 
