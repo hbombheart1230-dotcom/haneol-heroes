@@ -9,6 +9,9 @@ extends StageSim
 ## 결과 사전: won, lost, total (판 길이), wave_time (보스 등장 시각), cleared, mid_time, boss_time,
 ## damage (판 전체), wave_damage, disabled, starts_per_s, strikes_per_s.
 
+## 전/후 비교: true면 무대 근접 잡몹 공격 시작 거리를 예전 130px로 (판마다 새로 읽은 데이터만 바꾼다).
+static var legacy_reach := false
+const REACH_IDS := ["chaser", "jurchen_soldier", "cc_mouse"]
 var _alive_t := 0.0
 var _dis_t := 0.0
 var _starts := 0
@@ -39,6 +42,11 @@ func setup_run(st: StageTheme, s: int, caps: Array = []) -> void:
 		ws.waves = list
 		ws.max_alive = maxi(ws.max_alive, caps.max())
 		stage_copy.waves = ws
+	if legacy_reach:
+		for w in stage_copy.waves.waves:
+			for e: EnemyData in w.enemies:
+				if REACH_IDS.has(String(e.id)) and e.attack:
+					e.attack.trigger_range = 130.0
 	await setup_stage(stage_copy, s)
 	spawner.boss_data = BossHpScale.for_hero(stage_copy.boss, player.hero)
 	spawner.elite_data = BossHpScale.for_hero(stage_copy.elite, player.hero)

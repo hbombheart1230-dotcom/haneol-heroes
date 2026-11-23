@@ -113,6 +113,9 @@ color = Color(0.45, 0.28, 0.6, 1)
 patterns = Array[ExtResource("2_attack")]([SubResource("El_slam"), SubResource("El_charge")])
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_summon"), SubResource("Phase_rage")])
 boss_feel = SubResource("Mid_feel")
+boss_hp_by_hero = {
+"yi_sun_sin": 0.7
+}
 preferred_range = 0.0
 knockback_scale = 0.15
 stun_scale = 0.5

@@ -18,7 +18,11 @@ func _rules(on: bool) -> void:
 	var d := Feedback.feel_data().impact_data()
 	var fresh := HitReactionData.new()
 	r.stagger_chain_max = fresh.stagger_chain_max if on else 0.0
+	r.stagger_guard = fresh.stagger_guard if on else 0.0
+	r.crowd_stagger_falloff = fresh.crowd_stagger_falloff if on else 0.0
 	d.interrupt_guard_next = on
+	d.down_rearm = ImpactFeelData.new().down_rearm if on else 2.0
+	RunSim.legacy_reach = not on  # #102 A: 무대 근접 잡몹 거리 130 → 170
 
 
 func _run(id: String, s: int, miss: float) -> Dictionary:
