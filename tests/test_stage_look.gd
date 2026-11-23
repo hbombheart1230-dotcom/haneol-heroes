@@ -186,3 +186,17 @@ func test_prop_shadow_lowered_only_on_bright_stage() -> void:
 			assert_float(st.prop_shadow).override_failure_message(id).is_between(0.05, 0.6)
 		else:
 			assert_float(st.prop_shadow).override_failure_message(id).is_equal(1.0)
+
+
+## 한산 갑판 가장자리 먹선 (귀선도): 겹침 그림이 지도와 같은 영역에 얹히고, 다른 무대는 없다.
+func test_hansan_edge_overlay_layer() -> void:
+	var l: StageLook = HANSAN.look
+	assert_object(l.overlay_texture).is_not_null()
+	var arena: Arena = auto_free(Arena.new())
+	add_child(arena)
+	arena.apply_theme(HANSAN)
+	assert_object(arena.edge.texture).is_same(l.overlay_texture)
+	assert_vector(arena.edge.rect.size).is_equal(arena.map.rect.size)
+	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
+		var st: StageTheme = load("res://data/stages/%s.tres" % id)
+		assert_bool(st.look.overlay_texture == null).override_failure_message(id).is_true()
