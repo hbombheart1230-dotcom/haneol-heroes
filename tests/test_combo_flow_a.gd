@@ -106,18 +106,34 @@ func test_dash_cancels_pending_swing() -> void:
 
 
 ## 손으로 친 타는 움직이는 중에도, 맞는 동작 중에도 공격 동작이 보인다.
+## 3D(PlayerView3D)는 달리며 친 타를 윗몸에만 겹친다 (다리는 달리기), 구운 그림은 몸 전체. 맞는 중엔 둘 다 몸 전체.
 func test_view_shows_manual_swing_while_moving_and_hurt() -> void:
+	for live in [true, false]:
+		_swing_case(live)
+
+
+func _swing_case(live: bool) -> void:
 	var r := _rig()
 	var p: Player = r[0]
 	var a: AutoAttack = r[1]
+	var was: Variant = ProjectSettings.get_setting("hh/art/live3d", true)
+	ProjectSettings.set_setting("hh/art/live3d", live)
 	var v := PlayerView.new()
 	v.player = p
 	p.add_child(v)
+	ProjectSettings.set_setting("hh/art/live3d", was)
+	var rig: Node = v.get("rig")
+	assert_bool(rig != null).is_equal(live)
 	p.move_input = Vector2.RIGHT
 	for i in 20:
 		p.compute_velocity(DT)
 	a.manual_strike(1, false, r[3])
-	assert_str(v.current_anim()).starts_with("attack")
+	if rig:
+		assert_str(v.current_anim()).is_equal("run")
+		assert_str(String(v.get("_upper_anim"))).starts_with("attack")
+		assert_float(float(v.get("_upper_left"))).is_greater(0.0)
+	else:
+		assert_str(v.current_anim()).starts_with("attack")
 	p._take_hit(5)
 	a._since_manual = 99.0
 	a._melee_left = -1.0

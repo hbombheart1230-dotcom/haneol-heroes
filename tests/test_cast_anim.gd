@@ -95,8 +95,17 @@ func test_dash_skill_starts_near_strike_frame() -> void:
 
 
 ## 충전: 모으는 동안 cast_charge 첫 칸에 멈춤, 떼면 그 동작이 맞닿는 칸 앞에서 이어진다.
+## 3D(PlayerView3D)와 구운 그림 둘 다 (hh/art/live3d). 3D는 칸 대신 동작 시각으로 맞닿는 칸 앞부터 튼다.
 func test_charge_holds_gather_pose_then_releases() -> void:
+	for live in [true, false]:
+		_charge_case(live)
+
+
+func _charge_case(live: bool) -> void:
+	var was: Variant = ProjectSettings.get_setting("hh/art/live3d", true)
+	ProjectSettings.set_setting("hh/art/live3d", live)
 	var r := _rig(YI)
+	ProjectSettings.set_setting("hh/art/live3d", was)
 	var c: SkillCaster = r[1]
 	var v: PlayerView = r[2]
 	c.on_press(0, 0.0)
@@ -109,5 +118,12 @@ func test_charge_holds_gather_pose_then_releases() -> void:
 	c.on_release(0, c.kit.hold_threshold + 0.5)
 	v._update_sprite(DT)
 	assert_str(v.current_anim()).is_equal("cast_charge")
-	assert_int(v._sprite.frame).is_greater(0)
+	var rig: Node = v.get("rig")
+	assert_bool(rig != null).is_equal(live)
+	if rig:
+		assert_str(rig.body_anim()).is_equal("cast_charge")
+		assert_float(rig.last_seek()).is_greater(0.0)
+		assert_float(rig.body_speed()).is_greater(0.0)
+	else:
+		assert_int(v._sprite.frame).is_greater(0)
 	assert_float(v._sprite.speed_scale).is_greater(0.0)
