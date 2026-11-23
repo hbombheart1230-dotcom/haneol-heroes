@@ -173,3 +173,21 @@ func test_combo_step_is_skipped_for_a_hero_without_tap_combo() -> void:
 	assert_str(String(run.current().event)).is_equal("skill_tap")  # 연타 단계를 넘김
 	assert_object(main.tutorial_director.sparring.enemy).is_not_null()  # 마무리 단계의 허수아비는 선다
 	_cleanup(main)
+
+
+## 건너뛰기 단추와 위쪽 안내 띠는 HUD (다)의 영웅 묶음(왼쪽 위)·톱니 단추와 시계(오른쪽 위)를 덮지 않는다 (S20 1e4da72 06번).
+func test_skip_and_top_banner_leave_the_hero_badge_and_gear_free() -> void:
+	var p := TutorialProgress.new(DATA)
+	var o: TutorialOverlay = auto_free(TutorialOverlay.new())
+	o.size = Vector2(720, 1600)  # 1080×2400 폰 (가로 720 기준 확장)
+	add_child(o)
+	o.open(p)
+	var badge := Rect2(0, 0, HeroBadge.RIGHT + 10.0, HeroBadge.BOTTOM)
+	var gear := Rect2(720 - 130, 0, 130, 190)  # 톱니 단추 (가운데 x-52, y 112) + 시계
+	var skip := o.skip_rect()
+	assert_bool(skip.intersects(badge)).is_false()
+	assert_bool(skip.intersects(gear)).is_false()
+	assert_float(skip.get_center().x).is_equal_approx(360.0, 0.5)
+	TutorialDriver.skip_to(p, &"skill_counter")  # 위쪽 띠 단계
+	assert_bool(o.banner_rect().intersects(badge)).is_false()
+	assert_bool(o.banner_rect().intersects(skip)).is_false()
