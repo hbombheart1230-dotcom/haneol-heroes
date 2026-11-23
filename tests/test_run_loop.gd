@@ -296,6 +296,8 @@ func test_main_scene_level_up_shows_cards_and_pauses() -> void:
 	enemy.health.kill()
 	await get_tree().physics_frame
 	var sc: SealChoice = main.seal_choice
+	assert_bool(sc.is_open()).is_false()  # 물결 무대: 싸움 중 레벨업은 숨 고르기까지 쌓아 둔다
+	main._on_breather(false)
 	assert_bool(sc.is_open()).is_true()
 	assert_bool(sc.major).is_false()
 	assert_bool(get_tree().paused).is_true()  # 카드를 고르는 동안 멈춘다
@@ -303,11 +305,13 @@ func test_main_scene_level_up_shows_cards_and_pauses() -> void:
 	sc.pick(0)
 	assert_bool(sc.is_open()).is_false()
 	assert_bool(get_tree().paused).is_false()
-	assert_int(main.progress.stacks.get(u.id, 0)).is_equal(1)
-	# 정예 처치 → 금빛 큰 변형 인장
+	assert_int(main.progress.stacks.get(u.id, 0)).is_equal(mini(2, u.max_stacks))  # 숨 고르기 한 번 = 2단계
+	# 정예 처치 → 금빛 큰 변형 인장 (이것도 숨 고르기에)
 	var elite: Enemy = spawner.spawn_elite()
 	elite.health.kill()
 	await get_tree().physics_frame
+	assert_bool(sc.is_open()).is_false()
+	main._on_breather(false)
 	assert_bool(sc.is_open()).is_true()
 	assert_bool(sc.major).is_true()
 	main.state.player_died()

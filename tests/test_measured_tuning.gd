@@ -98,7 +98,7 @@ func test_trash_stagger_uses_enemy_value() -> void:
 	assert_bool(ELITE.hit_resets_attack).is_false()
 
 
-## 한산 물결: 6 · 3 · 9 (30 · 15 · 55%), 상한 3 · 4 · 5, 한 마리씩 보충.
+## 한산 물결 (잡몹 떼): 14 · 10 · 24, 상한 6 · 8 · 10 (정예 물결은 잡몹 덜), 한 마리씩 보충.
 func test_hansan_waves_follow_hades_split() -> void:
 	var w := HANSAN.waves
 	assert_bool(w.refill_each).is_true()
@@ -107,8 +107,8 @@ func test_hansan_waves_follow_hades_split() -> void:
 	for wave: WaveData in w.waves:
 		counts.append(wave.enemies.size())
 		caps.append(wave.max_alive)
-	assert_array(counts).is_equal([6, 3, 9])
-	assert_array(caps).is_equal([3, 4, 5])
+	assert_array(counts).is_equal([14, 10, 24])
+	assert_array(caps).is_equal([6, 8, 10])
 	assert_bool(w.waves[1].elite_last).is_true()  # 큰 강화는 쉬는 물결 끝
 
 
