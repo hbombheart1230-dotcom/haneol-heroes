@@ -35,9 +35,11 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 		for i in w.waves.size():
 			var a: WaveData = w.waves[i]
 			var b: WaveData = base.waves[i]
+			assert_bool(a.elite_last).is_equal(b.elite_last)
+			if id != "hansan_1592" and b.elite_when_left >= 0 and _st("hansan_1592").elite.boss_feel and not _st(id).elite.boss_feel:
+				continue  # 한산만 중간 보스 물결 (잡몹 몇 → 중간 보스): 나머지 세 무대는 중간 보스가 되면 같은 모양으로
 			assert_int(a.max_alive).is_equal(b.max_alive)
 			assert_int(a.first_count).is_equal(b.first_count)
-			assert_bool(a.elite_last).is_equal(b.elite_last)
 			var mine := a.enemies.map(func(e: EnemyData) -> String: return _role(roles, e.id))
 			var theirs := b.enemies.map(func(e: EnemyData) -> String: return _role(base_roles, e.id))
 			assert_array(mine).override_failure_message("%s wave %d: %s" % [id, i, mine]).is_equal(theirs)
@@ -60,6 +62,8 @@ func test_role_values_match_hansan() -> void:
 		for role in keys:
 			var mine := _enemy(ROLES[id][role])
 			var base := _enemy(ROLES["hansan_1592"][role])
+			if role == "elite" and base.boss_feel and not mine.boss_feel:
+				continue  # 한산 정예는 중간 보스 (tests/test_mid_boss.gd), 나머지는 아직 정예
 			for k in keys[role]:
 				if role == "heavy" and k == "super_armor" and id == "chochungdo":
 					continue  # 쇠똥벌레는 넘어지는 벌레 (버릇: 슈퍼아머 없음)
