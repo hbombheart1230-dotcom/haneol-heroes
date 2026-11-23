@@ -45,6 +45,7 @@ func test_victory_tap_goes_to_next_stage_for_that_hero() -> void:
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.stage_picked = false
 	GameSettings.hero_stages = {"gwanggaeto": "chochungdo"}
+	GameSettings.hero_cleared = {}  # 앞 시험이 남긴 다른 영웅 기록이 아래 "다른 영웅 기록은 그대로" 확인을 흐리지 않게
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
@@ -59,6 +60,7 @@ func test_victory_tap_goes_to_next_stage_for_that_hero() -> void:
 	main.queue_free()
 	GameSettings.hero_stages = {}
 	GameSettings.hero_clears = {}
+	GameSettings.hero_cleared = {}
 	GameSettings.cleared_stages = PackedStringArray()
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
