@@ -66,6 +66,8 @@ extends Resource
 @export var charge_marker: ChargeMarkerData
 ## 무기가 몹에 박히는 느낌 (역경직, BladeBiteData). 비면 꺼짐 (예전 방식). 지금은 순신만.
 @export var blade_bite: BladeBiteData
+## 연타 중 처음 때린 몹에 붙기 (ComboLockData). 비면 꺼짐.
+@export var combo_lock: ComboLockData
 
 @export_group("전투")
 @export var attack: BasicAttackData
