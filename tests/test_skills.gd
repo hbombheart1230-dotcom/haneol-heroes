@@ -194,8 +194,20 @@ func test_hold_release_fires_haeil_scaled_by_charge() -> void:
 			proj = c
 	assert_object(proj).is_not_null()
 	assert_bool(proj.pierce).is_true()
-	assert_int(proj.damage).is_equal(caster.kit.charge.max_damage)
-	assert_float(proj.size_scale).is_equal_approx(caster.kit.charge.max_scale, 0.001)
+	var rake: WaveRake = null  # 긁기: 물결 첫 타 + 나머지 타 = 다 모은 피해
+	for c in get_children():
+		if c is WaveRake:
+			rake = c
+	assert_object(rake).is_not_null()
+	var sum := 0
+	for v in rake.damages:
+		sum += v
+	assert_int(proj.damage).is_equal(rake.damages[0])
+	assert_int(sum).is_equal(caster.kit.charge.max_damage)
+	rake.queue_free()
+	var g := SkillGrowthData.get_default()  # 성장 단계: 판정(물결 크기)도 단계 배율
+	var k := g.size_at(caster.kit.charge.vfx_level) if SkillGrowthData.applies(caster.kit.charge) else 1.0
+	assert_float(proj.size_scale).is_equal_approx(caster.kit.charge.max_scale * k, 0.001)
 	proj.queue_free()
 
 
@@ -203,7 +215,9 @@ func test_haeil_min_charge_damage() -> void:
 	caster.on_press(0, 0.0)
 	var t := caster.input.hold_threshold + 0.001
 	var p := (caster.cast(SkillCaster.Slot.CHARGE, 0.0).get_meta(&"projectile") as Projectile)
-	assert_int(p.damage).is_equal(caster.kit.charge.min_damage)
+	var rake := WaveRake.of(p)  # 긁기: 타마다 나눈 피해의 합 = 바로 놓은 피해
+	assert_int(rake.total_damage()).is_equal(caster.kit.charge.min_damage)
+	rake.queue_free()
 	p.queue_free()
 	caster.cancel_input()
 

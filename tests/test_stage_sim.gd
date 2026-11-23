@@ -32,11 +32,15 @@ func test_every_stage_reaches_the_boss_without_stalling() -> void:
 	for id in STAGES:
 		var r: Dictionary = await _run(id, SEEDS[0])
 		assert_bool(r["boss"]).override_failure_message("%s: %s" % [id, StageSim.stage_line(id, r)]).is_true()
-		assert_int((r["cleared"] as Array).size()).override_failure_message(id).is_equal(3)
+		assert_int((r["cleared"] as Array).size()).override_failure_message(id).is_equal(4)  # 물결 넷 (그 뒤 보스)
 		assert_float(r["stall"]).override_failure_message(id).is_less(1.0)  # 숨 고르기 뒤 다음 물결이 바로
 		assert_int(r["blocked"]).override_failure_message(id).is_equal(0)  # 장애물 속 등장 없음
-		assert_int(r["spawned"]).override_failure_message(id).is_equal(50)  # 14 + 10 + 정예 + 24 + 보스
-		assert_int(r["max_alive"]).override_failure_message(id).is_less_equal(10 + 1)  # 물결 상한 10 (+ 정예 한 마리)
+		var st: StageTheme = load("res://data/stages/%s.tres" % id)
+		var planned := 2  # 정예(중간 보스) + 보스
+		for w: WaveData in st.waves.waves:
+			planned += w.enemies.size()
+		assert_int(r["spawned"]).override_failure_message(id).is_greater_equal(planned)  # 물결 적 다 + 정예 + 보스 (중간 보스 소환은 더)
+		assert_int(r["max_alive"]).override_failure_message(id).is_less_equal(st.waves.max_alive + 1)  # 화면 상한 (+ 정예 한 마리)
 
 
 ## 무대 길이·받는 예고 공격 피해가 한산과 비슷하다 (물결만, 보스 전까지, 접촉 피해 빼고).
@@ -46,8 +50,7 @@ func test_stage_length_and_damage_match_hansan() -> void:
 		var m: Array = await _mean(id)
 		var msg := "%s mean time %.1f (한산 %.1f), damage share %.2f (한산 %.2f)" % [id, m[0], base[0], m[1], base[1]]
 		print("[stage-sim] " + msg)
-		# 0.6: 한산 2물결만 중간 보스라 (소환 부하·잡몹이 줄어든 뒤 등장) 잡몹 물결이 조금 길다. 세 무대도 중간 보스가 되면 0.65로.
-		assert_float(m[0]).override_failure_message(msg).is_between(base[0] * 0.6, base[0] * 1.35)  # 영웅 기술 차이 (세종 글자 고리·사임당이 떼를 더 빨리 쓴다)
+		assert_float(m[0]).override_failure_message(msg).is_between(base[0] * 0.65, base[0] * 1.35)  # 영웅 기술 차이 (세종 글자 고리·사임당이 떼를 더 빨리 쓴다)
 		assert_float(m[1]).override_failure_message(msg).is_less(0.6)  # 피하며 치면 물결에서 죽지 않는다
 
 

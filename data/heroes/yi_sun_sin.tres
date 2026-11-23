@@ -76,6 +76,7 @@ melee_hit_sfx = &"w_sword"
 heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_haeryong"]
 script = ExtResource("4_haeryong")
+growth = true
 launch_px = 110.0
 id = &"haeryong"
 display_name = "해룡참"
@@ -95,6 +96,7 @@ cast_lead = -1.0
 
 [sub_resource type="Resource" id="Skill_pado"]
 script = ExtResource("5_pado")
+growth = true
 id = &"pado"
 display_name = "파도격"
 icon = ExtResource("i_pado")
@@ -123,6 +125,7 @@ fx = Vector2(0.8, 1.5)
 
 [sub_resource type="Resource" id="Skill_haeil"]
 script = ExtResource("6_haeil")
+growth = true
 id = &"haeil"
 display_name = "해일검기"
 icon = ExtResource("i_haeil")
@@ -148,6 +151,7 @@ cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("7_counter")
+growth = true
 launch_px = 120.0
 id = &"counter"
 display_name = "강화 반격"

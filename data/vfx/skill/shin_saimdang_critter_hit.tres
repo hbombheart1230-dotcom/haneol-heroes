@@ -23,3 +23,4 @@ decal_spin = 2.5
 glow = 0.3
 glow_color = Color(1, 0.55, 0.75, 1)
 decal_time = 0.35
+growth = true

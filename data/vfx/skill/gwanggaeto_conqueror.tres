@@ -43,3 +43,4 @@ ground_color = Color(0.1, 0.08, 0.06, 0.55)
 flicker = 0.6
 twist = 0.6
 art_fill = 0.87
+growth = true

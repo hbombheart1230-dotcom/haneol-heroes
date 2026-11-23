@@ -33,8 +33,8 @@ static func reset() -> void:
 
 
 ## def.cutin인 기술이면 컷인을 띄우고 게임을 잠깐 느리게. 띄웠으면 true.
-static func play(tree: SceneTree, p_def: SkillDef, p_hero: HeroData) -> bool:
-	if tree == null or p_def == null or not p_def.cutin:
+static func play(tree: SceneTree, p_def: SkillDef, p_hero: HeroData, force: bool = false) -> bool:
+	if tree == null or p_def == null or not (p_def.cutin or force):  # force = 성장 단계가 높아 컷인 (SkillGrowthData)
 		return false
 	var st := SkillStageFeel.get_default()
 	var now := Time.get_ticks_msec()

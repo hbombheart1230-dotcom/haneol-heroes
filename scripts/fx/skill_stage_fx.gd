@@ -29,7 +29,8 @@ static func on_hit(d: SkillVfxData, pos: Vector2, dir: Vector2, damage: int, lev
 static func on_cast(tree: SceneTree, d: SkillDef, hero: HeroData) -> void:
 	if d == null:
 		return
-	SkillCutin.play(tree, d, hero)
+	var grown := SkillGrowthData.get_default().on_cast(d)  # 강화 단계: 흔들림·소리 층, 높으면 컷인
+	SkillCutin.play(tree, d, hero, grown)
 	play_all(d.sfx_layers)
 
 
