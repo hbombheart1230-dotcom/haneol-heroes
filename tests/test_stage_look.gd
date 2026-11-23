@@ -70,18 +70,46 @@ func test_arena_grades_floor_and_lays_lights_from_look() -> void:
 func test_no_look_keeps_old_floor_and_no_lights() -> void:
 	var arena: Arena = auto_free(Arena.new())
 	add_child(arena)
-	var st: StageTheme = load("res://data/stages/manchuria_395.tres")
-	assert_object(st.look).is_null()
+	var st := (load("res://data/stages/manchuria_395.tres") as StageTheme).duplicate() as StageTheme
+	st.look = null  # 조명 없는 무대 (예전 방식)
 	arena.apply_theme(st)
 	assert_bool(arena.lights.visible).is_false()
 	assert_int(arena.lights.pools.size()).is_equal(0)
 	assert_bool(arena.lights.hero_glow.is_processing()).is_false()
 
 
-func test_only_hansan_may_have_a_look() -> void:
-	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
+## 네 무대 모두 한산 기준: 조명(look)·확대 1.09·비네트, 바닥은 어둡지만 명암 폭이 있고 색이 있다.
+## 여기서는 지도 그림 전체(가장자리 포함)를 보정만 해서 잰다: 비네트·빛 웅덩이가 없어 실제 화면보다 밝고 덜 진하다.
+## 실제 화면 값(한산 기준 편차 ≈ 0.15, 상위 5% ≈ 0.52)은 tools/shots/look_shot.gd + measure_look.py로 잰다.
+## 그리고 무대마다 색이 한눈에 다르다 (평균 색 색상 차 ≥ 0.08).
+const STAGES := ["hansan_1592", "manchuria_395", "gyeongbokgung_1433", "chochungdo"]
+
+
+func test_every_stage_has_look_zoom_and_vignette() -> void:
+	for id in STAGES:
 		var st: StageTheme = load("res://data/stages/%s.tres" % id)
-		assert_object(st.look).override_failure_message(id).is_null()
+		assert_object(st.look).override_failure_message(id).is_not_null()
+		assert_float(st.camera_zoom).override_failure_message(id).is_equal_approx(1.09, 0.001)
+		assert_float(st.vignette).override_failure_message(id).is_greater(0.0)
+
+
+func test_every_floor_is_dark_contrasty_coloured_and_distinct() -> void:
+	var hues: Array[float] = []
+	for id in STAGES:
+		var s := FloorGrade.stats(load("res://data/stages/%s.tres" % id))
+		assert_float(s[0]).override_failure_message("%s mean" % id).is_less_equal(0.45)
+		assert_float(s[1]).override_failure_message("%s std" % id).is_greater_equal(0.08)
+		assert_float(s[2]).override_failure_message("%s sat" % id).is_greater_equal(0.25)
+		hues.append((s[3] as Color).h)
+	for i in hues.size():
+		for k in range(i + 1, hues.size()):
+			var d := absf(hues[i] - hues[k])
+			assert_float(minf(d, 1.0 - d)).override_failure_message("%s vs %s" % [STAGES[i], STAGES[k]]).is_greater_equal(0.08)
+
+
+func test_floor_grade_matches_shader_defaults() -> void:
+	var c := Color(0.3, 0.5, 0.7)
+	assert_bool(FloorGrade.apply(c, StageLook.new()).is_equal_approx(c)).is_true()  # 기본값이면 그대로
 
 
 func test_enemy_rim_has_halo_and_strong_ghost_rim() -> void:
@@ -100,12 +128,6 @@ func test_swing_crescent_is_bigger_and_third_hit_biggest() -> void:
 	assert_float(feel.crescent_core_alpha).is_greater(0.0)
 
 
-func test_camera_zoom_defaults_to_one_off_hansan() -> void:
-	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
-		var st: StageTheme = load("res://data/stages/%s.tres" % id)
-		assert_float(st.camera_zoom).override_failure_message(id).is_equal(1.0)
-
-
 func test_arena_applies_stage_zoom_to_camera() -> void:
 	var arena: Arena = auto_free(Arena.new())
 	add_child(arena)
@@ -114,6 +136,8 @@ func test_arena_applies_stage_zoom_to_camera() -> void:
 	arena.clamp_camera(cam)
 	assert_vector(cam.zoom).is_equal_approx(Vector2.ONE * HANSAN.camera_zoom, Vector2.ONE * 0.001)
 	assert_vector(cam.get_meta(&"base_zoom")).is_equal(cam.zoom)
-	arena.apply_theme(load("res://data/stages/manchuria_395.tres"))
+	var plain := HANSAN.duplicate() as StageTheme
+	plain.camera_zoom = 1.0
+	arena.apply_theme(plain)
 	arena.clamp_camera(cam)
 	assert_vector(cam.zoom).is_equal(Vector2.ONE)

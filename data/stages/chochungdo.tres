@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="Resource" path="res://data/stages/looks/chochungdo.tres" id="look"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/brush.png" id="p_brush"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/cockscomb.png" id="p_cockscomb"]
@@ -47,6 +48,9 @@ boss = ExtResource("e_cc_frog")
 card_art = ExtResource("p_watermelon")
 floor_base = Color(0.884, 0.746, 0.563, 1)
 floor_stain = Color(0.55, 0.5, 0.42, 1)
+vignette = 0.4
+look = ExtResource("look")
+camera_zoom = 1.09
 grass_per_mpx = 0.0
 grass_color = Color(0.36, 0.45, 0.25, 0.6)
 rock_per_mpx = 0.0
