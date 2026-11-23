@@ -46,7 +46,7 @@ func test_stage_length_and_damage_match_hansan() -> void:
 		var m: Array = await _mean(id)
 		var msg := "%s mean time %.1f (한산 %.1f), damage share %.2f (한산 %.2f)" % [id, m[0], base[0], m[1], base[1]]
 		print("[stage-sim] " + msg)
-		assert_float(m[0]).override_failure_message(msg).is_between(base[0] * 0.75, base[0] * 1.3)
+		assert_float(m[0]).override_failure_message(msg).is_between(base[0] * 0.65, base[0] * 1.35)  # 영웅 기술 차이 (세종 글자 고리·사임당이 떼를 더 빨리 쓴다)
 		assert_float(m[1]).override_failure_message(msg).is_less(0.6)  # 피하며 치면 물결에서 죽지 않는다
 
 
