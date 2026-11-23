@@ -33,6 +33,7 @@
 [ext_resource type="Script" path="res://scripts/data/charge_scaling.gd" id="cs_charge"]
 
 [ext_resource type="Resource" path="res://data/heroes/bite/yi_sun_sin.tres" id="blade_bite"]
+[ext_resource type="Resource" path="res://data/heroes/dash_dir/yi_sun_sin.tres" id="dash_dir"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -212,4 +213,5 @@ major_pool = ExtResource("10_major")
 dash_style = ExtResource("dash_style")
 charge_marker = ExtResource("charge_marker")
 blade_bite = ExtResource("blade_bite")
+dash_dir = ExtResource("dash_dir")
 hit_sfx = Array[StringName]([&"mat_water", &"mat_blade"])

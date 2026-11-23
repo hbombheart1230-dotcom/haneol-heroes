@@ -187,7 +187,7 @@ func current_anim() -> String:
 	if player.is_dead():
 		return "death"
 	if player.is_dashing():
-		return "dash"
+		return DashDirection.anim(player, _sheet)  # 돌진 베기·뒤로 뛰기 (시트에 없으면 dash)
 	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time 			and not (_oneshot_left > 0.0 and _over_hurt):  # 맞는 중에 친 타는 보인다
 		return "hit"
 	if _oneshot_left > 0.0:

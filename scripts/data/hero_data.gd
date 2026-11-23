@@ -45,6 +45,8 @@ extends Resource
 @export var dash_shove_radius: float = 70.0
 ## 영웅마다 다른 회피 생김새·도착 효과 (없으면 기본 대시).
 @export var dash_style: DashStyleData
+## 대시를 방향으로 나누기 (돌진 타격·뒤로 빠지기, DashDirData). 비면 예전 대시.
+@export var dash_dir: DashDirData
 
 @export_group("무게감 (보이는 무게, 조작은 그대로)")
 ## 발밑 먹 그림자: 몸 반지름 배율·속 진하기.
