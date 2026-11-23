@@ -21,15 +21,19 @@ FACES = {
 WHITE = 236  # 이보다 밝은 무채색이 가장자리와 이어져 있으면 바탕으로 보고 투명하게
 
 
-def portrait(hero: str) -> Image.Image:
+def portrait(hero: str, scale: float = 1.0, drop: float = 0.0, size: int = SIZE) -> Image.Image:
+    """얼굴 자르기. scale·drop으로 더 넓게·아래로 (강화 패 "강건"의 상반신: tools/art/make_upgrade_icons.py)."""
     x, y, s = FACES[hero]
+    s = int(s * scale)
+    y += int(s * drop)
     src = Image.open(os.path.join(ROOT, f"assets/concept/redesign/heroes/{hero}.png")).convert("RGBA")
-    im = src.crop((x - s // 2, y - s // 2, x + s // 2, y + s // 2)).resize((SIZE, SIZE), Image.LANCZOS)
+    im = src.crop((x - s // 2, y - s // 2, x + s // 2, y + s // 2)).resize((size, size), Image.LANCZOS)
     r, g, b, a = im.split()
     key = Image.merge("RGB", (r, g, b)).convert("L").point(lambda v: 255 if v >= WHITE else 0)
     sat = Image.merge("RGB", (r, g, b)).convert("HSV").split()[1].point(lambda v: 255 if v < 18 else 0)
     cand = Image.composite(key, Image.new("L", im.size, 0), sat)
-    for xy in [(i, 0) for i in range(SIZE)] + [(0, i) for i in range(SIZE)] + [(SIZE - 1, i) for i in range(SIZE)]:
+    n = size
+    for xy in [(i, 0) for i in range(n)] + [(0, i) for i in range(n)] + [(n - 1, i) for i in range(n)] + [(i, n - 1) for i in range(n)]:
         if cand.getpixel(xy) == 255:  # 가장자리와 이어진 흰 바탕만 (흰 깃·동정은 남긴다)
             ImageDraw.floodfill(cand, xy, 128)
     bg = cand.point(lambda v: 255 if v == 128 else 0).filter(ImageFilter.GaussianBlur(1.2))
