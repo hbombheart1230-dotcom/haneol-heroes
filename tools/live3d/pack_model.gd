@@ -120,7 +120,12 @@ func _sync(job: Dictionary, n: String) -> void:
 			else:
 				c.erase(k)
 		c["loop"] = f.get("loop", false)
-	print("sync ", path, " ", ResourceSaver.save(d, path))
+	for f in fresh.clips:  # 굽기 작업에 새로 생긴 동작 (예: 대장 땅 찍기·사망) — 이미 옮겨 둔 .res일 때만
+		if d.clip(String(f["key"])).is_empty() and String(f.get("file", "")).get_extension() == "res":
+			var c := f.duplicate()
+			c.erase("src")
+			d.clips.append(c)
+	print("sync ", path, " ", ResourceSaver.save(d, path), " clips ", d.clips.size())
 
 
 ## LOD·그림자 메시 없이 표면만 새로 (경로 없는 리소스 → 장면 안에 저장된다).

@@ -17,23 +17,43 @@ clips = Array[Dictionary]([{
 "file": "res://assets/live3d/waegun_commander/anims/chargedspellcast.res",
 "key": "attack",
 "loop": false,
-"start": 0.9,
-"end": 2.67,
 "times": [0.9, 1.45, 1.75, 1.95, 2.35, 2.67]
 }, {
 "file": "res://assets/live3d/waegun_commander/anims/hitreaction.res",
 "key": "hit",
 "loop": false,
-"start": 0.15,
-"end": 0.6,
 "times": [0.15, 0.35, 0.6]
 }, {
 "file": "res://assets/live3d/waegun_commander/anims/chargedslash.res",
 "key": "attack2",
 "loop": false,
-"start": 0.0,
-"end": 1.4,
 "times": [0.0, 0.2, 0.39, 0.6, 0.9, 1.4]
+}, {
+"end": 0.5,
+"file": "res://assets/live3d/waegun_commander/anims/web_maleheaddowncharge.res",
+"key": "charge",
+"loop": true,
+"start": 0.0
+}, {
+"end": 2.2,
+"file": "res://assets/live3d/waegun_commander/anims/web_chargedgroundslam.res",
+"key": "slam",
+"loop": false,
+"start": 0.2,
+"times": [0.2, 0.6, 1.0, 1.3, 1.47, 1.65, 1.85, 2.2]
+}, {
+"end": 2.4,
+"file": "res://assets/live3d/waegun_commander/anims/web_dead.res",
+"key": "down",
+"loop": false,
+"start": 0.0,
+"times": [0.0, 0.15, 0.4, 0.9, 1.4, 1.65, 1.95, 2.4]
+}, {
+"end": 2.4,
+"file": "res://assets/live3d/waegun_commander/anims/web_swordshout.res",
+"key": "shout",
+"loop": false,
+"start": 0.6
 }])
 ortho_size = 2.6
 frame = 224
