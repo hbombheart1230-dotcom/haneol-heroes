@@ -89,6 +89,14 @@
         5.4,
         6.3
       ]
+    },
+    {
+      "key": "attack_stand",
+      "match": "shoot",
+      "action_id": 234,
+      "frames": 6,
+      "fps": 10.0,
+      "loop": false
     }
   ]
 }

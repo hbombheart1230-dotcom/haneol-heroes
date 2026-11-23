@@ -91,3 +91,11 @@ func test_swarm_is_melee_heavy_and_ranged_stays_few() -> void:
 			caps.append(wave.max_alive)
 		assert_array(ranged).override_failure_message(id).is_equal([2, 1, 3])
 		assert_array(caps).override_failure_message(id).is_equal([6, 8, 10])
+
+
+## 잡몹은 닿기만 해서는 피해가 없다: 모든 피해는 붉은 먹 예고를 거친 공격으로만 (정예·보스 접촉은 따로).
+func test_trash_has_no_contact_damage() -> void:
+	for id in STAGES:
+		for role in ["melee", "ranged", "heavy"]:
+			var d := _enemy(ROLES[id][role])
+			assert_int(d.contact_damage).override_failure_message(String(d.id)).is_equal(0)
