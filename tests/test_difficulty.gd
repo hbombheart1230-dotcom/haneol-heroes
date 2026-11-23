@@ -30,6 +30,37 @@ func test_scaled_copy_leaves_original() -> void:
 		assert_int(c.attack.damage).is_equal(roundi(SOLDIER.attack.damage * CURVE.damage(2)))
 
 
+
+## 보스 단계 공격·이어치기도 단계 배율을 받는다 (원본은 그대로, 같은 이어치기는 같은 사본).
+func test_scaled_boss_phases_and_follow_ups() -> void:
+	var boss: EnemyData = load("res://data/enemies/waegun_commander.tres")
+	var c := CURVE.scaled(boss, 3)
+	var k := CURVE.damage(3)
+	for i in boss.phases.size():
+		assert_object(c.phases[i]).is_not_same(boss.phases[i])
+		assert_float(c.phases[i].hp_frac).is_equal(boss.phases[i].hp_frac)
+		for j in boss.phases[i].patterns.size():
+			var a: EnemyAttackData = boss.phases[i].patterns[j]
+			var b: EnemyAttackData = c.phases[i].patterns[j]
+			assert_int(b.damage).is_equal(roundi(a.damage * k))
+			if a.follow_up:
+				assert_int(b.follow_up.damage).is_equal(roundi(a.follow_up.damage * k))
+				assert_object(b.follow_up).is_not_same(a.follow_up)
+	assert_int(boss.phases[0].patterns[0].damage).is_equal(20)  # 원본 그대로
+
+
+## 영웅별 보스 체력 배율과 난이도 단계는 곱으로 겹친다.
+func test_hero_boss_hp_mult_composes_with_tier() -> void:
+	var boss: EnemyData = load("res://data/enemies/waegun_commander.tres")
+	var hero := HeroData.new()
+	hero.boss_hp_mult = 1.5
+	var c := CURVE.scaled(BossHpScale.for_hero(boss, hero), 2)
+	assert_int(c.max_hp).is_equal(roundi(roundi(boss.max_hp * 1.5) * CURVE.hp(2)))
+	assert_object(BossHpScale.for_hero(SOLDIER, hero)).is_same(SOLDIER)  # 보스만
+	hero.boss_hp_mult = 1.0
+	assert_object(BossHpScale.for_hero(boss, hero)).is_same(boss)
+
+
 func test_run_uses_hero_tier_and_victory_raises_it() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
