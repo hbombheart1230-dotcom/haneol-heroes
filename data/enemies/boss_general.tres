@@ -145,6 +145,7 @@ patterns = Array[ExtResource("2_attack")]([SubResource("Gu_sweep"), SubResource(
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
 boss_hp_by_hero = {
+"gwanggaeto": 0.88,
 "shin_saimdang": 0.9,
 "yi_sun_sin": 1.1
 }
