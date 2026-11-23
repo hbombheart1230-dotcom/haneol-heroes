@@ -110,6 +110,18 @@ func test_ready_heroes_get_3d_others_keep_sprites() -> void:
 	assert_bool(off._sprite.material == null).is_true()
 
 
+## 3D 영웅 → 3D가 없는 영웅으로 바꾸면 3D 화면·수묵 셰이더가 빠지고 구운 그림만 남는다.
+func test_switching_to_a_hero_without_3d_drops_the_rig() -> void:
+	var v := _view(&"yi_sun_sin", true)
+	assert_bool(v.get("rig") != null).is_true()
+	var other: HeroData = (load("res://data/heroes/gwanggaeto.tres") as HeroData).duplicate()
+	other.id = &"no_live3d_hero"
+	v.player.hero = other
+	v.refresh()
+	assert_bool(v.get("rig") == null).is_true()
+	assert_bool(v._sprite.material == null).is_true()
+
+
 func _view(id: StringName, live: bool, as_id: StringName = &"") -> PlayerView:
 	var p: Player = auto_free(Player.new())
 	var h := Health.new()

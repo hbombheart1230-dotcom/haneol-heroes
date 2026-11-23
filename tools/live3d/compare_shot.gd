@@ -48,6 +48,7 @@ func _run() -> void:
 	_label(baked, "구운 그림 (지금)")
 	_label(live, "실시간 3D")
 	await _frames(10)
+	live.call("refresh")  # 게임은 "PlayerView" 노드만 영웅 바뀜을 알린다 → 비교용 노드는 직접
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	spawner.active = false
 	var atk := player.get_node("AutoAttack") as AutoAttack
