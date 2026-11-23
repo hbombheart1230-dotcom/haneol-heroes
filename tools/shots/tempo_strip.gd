@@ -1,7 +1,8 @@
 extends SceneTree
 ## 순신 1타 → 2타 프레임 띠 (박자 전·후): 실제 한산 장면, 오른쪽에 왜군 병사. 탭을 계속 누르고 1타 시작부터 0.05초마다 한 칸씩 찍는다.
 ## 칸 테두리: 노랑 = 칼이 닿은 칸, 파랑 = 다음 타가 시작한 칸. "before"면 같은 판에서 예전 값 (swing_speed 1.25, 다음 타 간격 0.625·0.656).
-## godot --path . --resolution 720x1280 -s res://tools/shots/tempo_strip.gd -- <before|after> <출력 png> [칸 수=12]
+## 다른 영웅도 (넷째 인자, before는 순신만 예전 값): -- after <출력 png> 14 gwanggaeto
+## godot --path . --resolution 720x1280 -s res://tools/shots/tempo_strip.gd -- <before|after> <출력 png> [칸 수=12] [영웅=yi_sun_sin]
 
 const CROP := Vector2i(220, 260)
 const STEP := 0.05
@@ -17,10 +18,11 @@ func _initialize() -> void:
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	var cells := int(args[2]) if args.size() > 2 else 12
-	var main: Node = await ShotStage.open(self)
+	var hero := StringName(args[3]) if args.size() > 3 else &"yi_sun_sin"
+	var main: Node = await ShotStage.open(self, &"hansan_1592", hero)
 	await _wait(3.0)
 	var player := main.get_node("Player") as Player
-	if args[0] == "before":
+	if args[0] == "before" and hero == &"yi_sun_sin":
 		player.hero = player.hero.duplicate()
 		player.hero.blade_bite = player.hero.blade_bite.duplicate()
 		player.hero.blade_bite.swing_speed = 1.25
@@ -41,6 +43,8 @@ func _run() -> void:
 	await _wait(0.5)
 	atk.melee_swung.connect(func(_d: Vector2, hits: int) -> void: _hit = _hit or hits > 0)
 	atk.melee_windup.connect(func(_d: Vector2) -> void: _start = true)
+	atk.ranged_windup.connect(func(_d: Vector2) -> void: _start = true)
+	atk.projectile_fired.connect(func(_p: Projectile) -> void: _hit = true)
 	caster.combo_tap()
 	_start = false
 	var shots: Array[Image] = []
