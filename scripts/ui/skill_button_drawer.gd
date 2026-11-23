@@ -58,7 +58,7 @@ static func _draw_button(canvas: CanvasItem, controller: TouchController, sc: Sk
 ## 버튼 없이 제스처로 쓸 때: 오른쪽 아래에 기술 3개 쿨타임 (탭 / 튕기고 탭 / 꾹).
 static func _draw_status(canvas: CanvasItem, controller: TouchController, sc: SkillCaster, font: Font) -> void:
 	var slots := [SkillCaster.Slot.TAP, SkillCaster.Slot.DASH, SkillCaster.Slot.CHARGE]
-	var hints := ["탭", "대시 후 떼기", "꾹"]
+	var hints := ["톡", "내닫고 떼기", "꾹"]
 	var size := controller.viewport_size()
 	var r := 32.0
 	for i in slots.size():

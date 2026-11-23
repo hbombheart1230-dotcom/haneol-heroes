@@ -12,7 +12,7 @@ signal exit_confirmed(mode: StringName)
 
 const ROWS: Array[StringName] = [&"sfx", &"music", &"haptics", &"story", &"skill_button", &"enemy_hp", &"combo_text", &"stats", &"tutorial"]
 const LABELS := {&"sfx": "효과음", &"music": "음악", &"haptics": "타격 진동", &"story": "이야기",
-	&"skill_button": "스킬 단추", &"enemy_hp": "적 체력", &"combo_text": "연타 글씨", &"stats": "개발 수치", &"tutorial": "조작 안내"}
+	&"skill_button": "기술 단추", &"enemy_hp": "적 체력", &"combo_text": "연타 글씨", &"stats": "개발 수치", &"tutorial": "조작 안내"}
 const ROW_STEP := 92.0
 const SLIDERS: Array[StringName] = [&"sfx", &"music"]
 ## 나가기 방식별 [단추 글, 확인 물음 두 줄].
