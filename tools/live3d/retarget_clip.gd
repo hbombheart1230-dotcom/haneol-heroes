@@ -13,7 +13,10 @@ func _initialize() -> void:
 	var hero: String = a[0]
 	var prefix: String = a[2] if a.size() > 2 else "web"
 	var fps := float(a[3]) if a.size() > 3 else 30.0
-	var dst_root: Node = (load("res://assets/live3d/%s/model.scn" % hero) as PackedScene).instantiate()
+	var dst_path := "res://assets/live3d/%s/model.scn" % hero
+	if not ResourceLoader.exists(dst_path):  # 3D가 없는 적: 굽기 원본 모델에 맞춘다
+		dst_path = "res://assets/models/meshy/%s/animated.glb" % hero
+	var dst_root: Node = (load(dst_path) as PackedScene).instantiate()
 	var src_root: Node = (load(a[1]) as PackedScene).instantiate()
 	var dst := dst_root.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
 	var src := src_root.find_children("*", "Skeleton3D", true, false)[0] as Skeleton3D
