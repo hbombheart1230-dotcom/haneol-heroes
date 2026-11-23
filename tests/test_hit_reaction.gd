@@ -83,6 +83,7 @@ func test_shake_starts_big_and_fades_over_freeze() -> void:
 func test_flash_amount_peaks_white_then_fades() -> void:
 	var r := _react(HitReaction.Tier.TRASH)
 	r.data = r.data.duplicate() as HitReactionData
+	r.data.hit_flash_style = 0  # 흰 번쩍임 방식 (기본은 4 한지 실루엣: test_flash_styles)
 	r.data.flash_blinks = 1  # 한 번 번쩍 방식 (예전)
 	assert_float(r.flash_amount(0.08, 0.08, 0.03)).is_equal(r.data.flash_white)
 	assert_float(r.flash_amount(0.025, 0.08, 0.03)).is_equal_approx(r.data.flash_white_tail * 0.5, 0.001)
@@ -92,6 +93,8 @@ func test_flash_amount_peaks_white_then_fades() -> void:
 ## 두 번 번쩍 (GDQuest juicy-attack): 0.15초를 켜짐 · 꺼짐 · 켜짐 세 칸으로.
 func test_flash_blinks_twice() -> void:
 	var r := _react(HitReaction.Tier.TRASH)
+	r.data = r.data.duplicate() as HitReactionData
+	r.data.hit_flash_style = 0  # 흰 번쩍임 방식
 	assert_int(r.data.flash_blinks).is_equal(2)
 	assert_float(r.flash_amount(0.15, 0.15, 0.05)).is_equal(r.data.flash_white)  # 첫 칸
 	assert_float(r.flash_amount(0.075, 0.15, 0.05)).is_equal(0.0)  # 가운데 꺼짐
@@ -222,3 +225,19 @@ func test_trash_hit_stops_charge_but_elite_keeps_going() -> void:
 	assert_bool(el.is_charging()).is_true()
 	el.stun(1.0)
 	assert_bool(el.is_charging()).is_false()
+
+
+## 기본 4 (한지 실루엣 + 먹 테두리, 사용자 선택): 실제 적 셰이더에 맞은 첫 칸만 꽉 차고, 색·테두리가 한지·먹.
+func test_default_hanji_silhouette_on_enemy() -> void:
+	var e := _enemy()
+	e.target = _target()
+	e.health.damage(3)
+	e._physics_process(DT)
+	var rd := Feedback.feel_data().reaction_data()
+	assert_int(rd.hit_flash_style).is_equal(4)
+	assert_float(float(e.sprite.get_instance_shader_parameter(&"flash"))).is_equal(1.0)
+	assert_bool(Color(e.sprite.get_instance_shader_parameter(&"flash_color")).is_equal_approx(rd.hanji_silhouette)).is_true()
+	assert_bool(Color(e.sprite.get_instance_shader_parameter(&"flash_rim")).is_equal_approx(rd.ink_rim)).is_true()
+	for i in 12:
+		e._physics_process(DT)
+	assert_float(float(e.sprite.get_instance_shader_parameter(&"flash"))).is_equal(0.0)
