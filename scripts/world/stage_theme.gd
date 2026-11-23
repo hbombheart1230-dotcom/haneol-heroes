@@ -54,6 +54,8 @@ extends Resource
 @export var floor_value: float = 1.0
 @export var floor_saturation: float = 1.0
 @export var vignette: float = 0.0
+## 그림 소품 아래 먹 그림자 농도 배율 (1 = 그대로, 밝은 한지 무대는 낮춘다).
+@export var prop_shadow: float = 1.0
 ## 조명 한 벌 (바닥 색 보정 + 빛 웅덩이). 있으면 floor_value·floor_saturation 대신 쓴다.
 @export var look: StageLook
 

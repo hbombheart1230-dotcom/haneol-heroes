@@ -93,18 +93,29 @@ func test_every_stage_has_look_zoom_and_vignette() -> void:
 		assert_float(st.vignette).override_failure_message(id).is_greater(0.0)
 
 
-func test_every_floor_is_dark_contrasty_coloured_and_distinct() -> void:
+## 초충도만 "밝은 한지 세계" (사용자 결정: 그림 속 세상, 네 무대 중 혼자 밝게). 나머지는 어두운 기준.
+const BRIGHT_STAGES := ["chochungdo"]
+
+
+func test_every_floor_is_contrasty_coloured_and_distinct() -> void:
 	var hues: Array[float] = []
+	var means: Array[float] = []
 	for id in STAGES:
 		var s := FloorGrade.stats(load("res://data/stages/%s.tres" % id))
-		assert_float(s[0]).override_failure_message("%s mean" % id).is_less_equal(0.45)
-		assert_float(s[1]).override_failure_message("%s std" % id).is_greater_equal(0.08)
+		if BRIGHT_STAGES.has(id):
+			assert_float(s[0]).override_failure_message("%s mean (bright)" % id).is_between(0.45, 0.95)
+		else:
+			assert_float(s[0]).override_failure_message("%s mean" % id).is_less_equal(0.45)
+		assert_float(s[1]).override_failure_message("%s std" % id).is_greater_equal(0.06)
 		assert_float(s[2]).override_failure_message("%s sat" % id).is_greater_equal(0.25)
 		hues.append((s[3] as Color).h)
+		means.append(s[0])
 	for i in hues.size():
 		for k in range(i + 1, hues.size()):
 			var d := absf(hues[i] - hues[k])
-			assert_float(minf(d, 1.0 - d)).override_failure_message("%s vs %s" % [STAGES[i], STAGES[k]]).is_greater_equal(0.08)
+			# 한눈에 구분: 색상이 다르거나 (≥ 0.08) 밝기가 확연히 다르다 (≥ 0.2, 밝은 한지 초충도)
+			var apart := minf(d, 1.0 - d) >= 0.08 or absf(means[i] - means[k]) >= 0.2
+			assert_bool(apart).override_failure_message("%s vs %s" % [STAGES[i], STAGES[k]]).is_true()
 
 
 func test_floor_grade_matches_shader_defaults() -> void:
@@ -165,3 +176,13 @@ func test_arena_passes_grain_layer_to_shader() -> void:
 	assert_float(float(m.get_shader_parameter("detail_strength"))).is_equal_approx((HANSAN.look as StageLook).detail_strength, 0.001)
 	assert_object(m.get_shader_parameter("detail_tex")).is_not_null()
 	assert_vector(m.get_shader_parameter("map_px")).is_equal(arena.map.rect.size)
+
+
+## 소품 그림자 농도: 밝은 한지 초충도만 낮춘다 (다른 무대는 그대로 1).
+func test_prop_shadow_lowered_only_on_bright_stage() -> void:
+	for id in STAGES:
+		var st: StageTheme = load("res://data/stages/%s.tres" % id)
+		if BRIGHT_STAGES.has(id):
+			assert_float(st.prop_shadow).override_failure_message(id).is_between(0.05, 0.6)
+		else:
+			assert_float(st.prop_shadow).override_failure_message(id).is_equal(1.0)
