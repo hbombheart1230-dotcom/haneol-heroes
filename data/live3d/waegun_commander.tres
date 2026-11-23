@@ -14,19 +14,25 @@ clips = Array[Dictionary]([{
 "key": "run",
 "loop": true
 }, {
+"end": 2.67,
 "file": "res://assets/live3d/waegun_commander/anims/chargedspellcast.res",
 "key": "attack",
 "loop": false,
+"start": 0.9,
 "times": [0.9, 1.45, 1.75, 1.95, 2.35, 2.67]
 }, {
+"end": 0.6,
 "file": "res://assets/live3d/waegun_commander/anims/hitreaction.res",
 "key": "hit",
 "loop": false,
+"start": 0.15,
 "times": [0.15, 0.35, 0.6]
 }, {
+"end": 1.4,
 "file": "res://assets/live3d/waegun_commander/anims/chargedslash.res",
 "key": "attack2",
 "loop": false,
+"start": 0.0,
 "times": [0.0, 0.2, 0.39, 0.6, 0.9, 1.4]
 }, {
 "end": 0.5,

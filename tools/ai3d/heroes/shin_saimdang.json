@@ -195,6 +195,18 @@
       "start": 3.0,
       "end": 4.6,
       "strike": 3.96
+    },
+    {
+      "key": "victory",
+      "reuse": {
+        "src": "victory",
+        "from": "res://assets/live3d/shin_saimdang/anims/web_victory.res"
+      },
+      "frames": 8,
+      "fps": 8.0,
+      "loop": false,
+      "start": 1.0,
+      "end": 3.0
     }
   ]
 }

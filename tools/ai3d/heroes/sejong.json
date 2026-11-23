@@ -177,6 +177,18 @@
       "start": 1.2,
       "end": 2.5,
       "strike": 1.62
+    },
+    {
+      "key": "victory",
+      "reuse": {
+        "src": "victory",
+        "from": "res://assets/live3d/sejong/anims/web_victory.res"
+      },
+      "frames": 8,
+      "fps": 8.0,
+      "loop": false,
+      "start": 1.0,
+      "end": 3.0
     }
   ]
 }
