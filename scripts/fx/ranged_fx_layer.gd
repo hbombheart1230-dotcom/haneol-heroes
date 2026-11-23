@@ -127,6 +127,7 @@ func _draw() -> void:
 
 
 func _draw_muzzle(i: int, k: float) -> void:
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)  # 앞 칸(탄 그림·글자)이 옮기고 늘린 그리기 좌표를 되돌린다
 	var s := _step[i]
 	var p := _pos[i]
 	var core := HitImpactData.at_f(data.muzzle_core, s, 12.0)
@@ -167,10 +168,10 @@ func _draw_shot(i: int, k: float, hit: bool) -> void:
 		draw_set_transform(p, d.angle(), Vector2.ONE)
 		draw_texture_rect(tex, rect, false, Color(tint, fade * 0.9))
 	elif _glyph[i] != "":
-		var px := int(_size[i].x * grow)
+		var px := maxi(int(_size[i].x), 8)  # 글꼴은 탄 글자 크기 그대로, 커지는 것은 늘려 그린다 (새 글꼴 크기 = 첫 사용 멈칫)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		if hit:  # 글자 밑으로 먹이 번진다
 			Ink.splash(self, p, _size[i].x * data.glyph_bloom * (0.6 + 0.8 * k), Color(INK, data.glyph_bloom_alpha * fade), _seed[i])
-		draw_set_transform(p, 0.0, Vector2.ONE)
-		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-px * 0.5, px * 0.35), _glyph[i], maxi(px, 8),
+		draw_set_transform(p, 0.0, Vector2.ONE * grow)
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-px * 0.5, px * 0.35), _glyph[i], px,
 			Color(UiStyle.GOLD.lerp(tint, 0.5), fade), float(px), Color(0, 0, 0, 0.7 * fade), maxi(roundi(px / 8.0), 3))
