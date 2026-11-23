@@ -1,5 +1,5 @@
 extends GdUnitTestSuite
-## 설정 "나가기": 한 번 더 묻고, 판 중이면 첫 화면으로 / 판 전 화면이면 게임 끄기.
+## 설정 "나가기": 한 번 더 묻고, 판 중이면 첫 화면으로 / 판 전 화면이면 앱 끝내기.
 
 var screen: SettingsScreen
 
@@ -33,6 +33,20 @@ func test_exit_button_fits_beside_close() -> void:
 	assert_bool(p.encloses(screen.confirm_rect())).is_true()
 	assert_bool(screen.confirm_rect().encloses(screen.confirm_yes_rect())).is_true()
 	assert_bool(screen.confirm_rect().encloses(screen.confirm_no_rect())).is_true()
+
+
+func test_exit_labels_fit_their_buttons() -> void:
+	for mode in [&"title", &"quit"]:
+		screen.exit_mode = mode
+		var label: String = screen._exit_text(0)
+		var f := UiStyle.BODY_FONT
+		assert_float(f.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, int(40 * 0.85)).x).is_less(screen.exit_rect().size.x - 24.0)
+		assert_float(f.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, int(38 * 0.85)).x).is_less(screen.confirm_yes_rect().size.x - 24.0)
+	screen.exit_mode = &"title"
+	assert_str(screen._exit_text(0)).is_equal("전장 나가기")
+	screen.exit_mode = &"quit"
+	assert_str(screen._exit_text(0)).is_equal("끝내기")
+	assert_str(screen._exit_text(1)).is_equal("끝낼까요?")
 
 
 func test_exit_asks_first_and_cancel_keeps_settings_open() -> void:
