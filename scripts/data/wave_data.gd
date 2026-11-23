@@ -10,3 +10,6 @@ extends Resource
 @export var max_alive: int = 0
 ## 이 물결 마지막에 정예 한 마리 (무대의 elite, 변종 무작위).
 @export var elite_last: bool = false
+## 0 이상이면 정예는 살아 있는 적이 이 수 이하가 될 때까지 기다렸다 나온다 (중간 보스: 잡몹 몇 마리 → 등장).
+## 정예가 마지막이라 그 뒤로는 일반 보충이 없고, 잡몹은 중간 보스의 소환으로만 나온다.
+@export var elite_when_left: int = -1

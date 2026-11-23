@@ -15,6 +15,6 @@ static func for_hero(boss: EnemyData, hero: HeroData) -> EnemyData:
 
 ## 영웅 배율 × 보스별 궁합 (보스가 아니거나 영웅이 없으면 1).
 static func mult(boss: EnemyData, hero: HeroData) -> float:
-	if boss == null or hero == null or not boss.is_boss:
+	if boss == null or hero == null or not (boss.is_boss or boss.boss_feel):  # 보스·중간 보스
 		return 1.0
 	return hero.boss_hp_mult * float(boss.boss_hp_by_hero.get(String(hero.id), 1.0))

@@ -26,7 +26,7 @@ static func stage(m, st: StageTheme) -> void:
 		m.spawner.spawn_weights = st.spawn_weights
 		m.spawner.unlock_times = st.unlock_times
 	if m.spawner and st.elite:
-		m.spawner.elite_data = st.elite
+		m.spawner.elite_data = BossHpScale.for_hero(st.elite, _hero(m))  # 중간 보스면 영웅 배율
 	if m.spawner and st.boss:
 		m.spawner.boss_data = BossHpScale.for_hero(st.boss, _hero(m))  # 영웅 화력만큼 보스 체력
 	if m.spawner:
@@ -47,7 +47,8 @@ static func difficulty(m, st: StageTheme) -> void:
 	for e in (st.spawn_table if not st.spawn_table.is_empty() else m.spawner.spawn_table):
 		table.append(m.difficulty.scaled(e, tier))
 	m.spawner.spawn_table = table
-	m.spawner.elite_data = m.difficulty.scaled(st.elite if st.elite else m.spawner.elite_data, tier)
+	var elite: EnemyData = st.elite if st.elite else m.spawner.elite_data
+	m.spawner.elite_data = m.difficulty.scaled(BossHpScale.for_hero(elite, _hero(m)) if st.elite else elite, tier)  # 중간 보스면 영웅 배율 × 단계
 	var boss: EnemyData = st.boss if st.boss else m.spawner.boss_data
 	m.spawner.boss_data = m.difficulty.scaled(BossHpScale.for_hero(boss, _hero(m)) if st.boss else boss, tier)  # 영웅 배율 × 단계
 	m.spawner.interval_start = m._base_spawn["start"] * m.difficulty.interval(tier)

@@ -141,6 +141,12 @@ func spawn_boss() -> Enemy:
 
 ## 정예 한 마리 (동시 최대 수와 상관없이 나온다).
 func spawn_elite(at: Vector2 = Vector2.INF) -> Enemy:
+	if elite_data and elite_data.boss_feel:  # 중간 보스: 변종 없이, 박자·연출 (BossStaging)
+		var m := spawn_at(elite_data, at)
+		if m:
+			BossStaging.attach(self, m)
+			elite_spawned.emit(m)
+		return m
 	var affixes := Enemy.ai_data().elite_affixes
 	var af: EliteAffixData = affixes[rng.randi() % affixes.size()] if not affixes.is_empty() else null
 	var e := spawn_at(elite_data, at, func(en: Enemy) -> void: en.affix = af) if elite_data else null

@@ -30,6 +30,12 @@ extends Resource
 @export var summon_distance: float = 190.0
 @export var summon_spread_deg: float = 100.0
 
+@export_group("중간 보스")
+## 단계가 바뀔 때 강화 고르기를 연다 (중간 보스는 끔: 강화는 물결 끝 숨 고르기에서).
+@export var phase_pick: bool = true
+## 등장 띠 아래 글자 (비면 BossBanner 기본 "적장 출현").
+@export var intro_subtitle: String = ""
+
 @export_group("처치")
 ## 마지막 일격 뒤 승리 화면까지 실제 시간(초). 그동안 영웅은 맞지 않고 남은 부하는 흩어진다.
 @export var finale_time: float = 2.6

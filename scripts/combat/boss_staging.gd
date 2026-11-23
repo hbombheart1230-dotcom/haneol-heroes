@@ -6,6 +6,8 @@ extends Node
 ##   단계 전환(BossPhases.enter가 부름): 보스·영웅 모두 transition_hold 동안 치지도 맞지도 않음 →
 ##     pick_delay 뒤 강화 고르기 → summon_delay 뒤 부하 (보스 뒤, 최대 max_minions).
 ##   처치(Main이 BossStaging.finish로 부름): 남은 부하 흩어짐, 영웅 무적, 느린 시간·확대·한지 번짐, finale_time 뒤 승리.
+##   중간 보스(boss_feel이 있는 정예, is_boss 아님): 죽으면 스스로 짧은 처치 연출 — 남은 부하·나타나는 중인 자리를 지워
+##     물결이 끝나게 하고, 생성기는 멈추지 않는다 (승리 아님).
 
 const META := &"boss_staging"
 
@@ -28,6 +30,8 @@ static func attach(sp: EnemySpawner, e: Enemy) -> BossStaging:
 	sp.add_child(s)
 	e.set_meta(META, s)
 	s._setup_attack()
+	if not e.data.is_boss:
+		e.killed.connect(func(_e: Enemy) -> void: s.play_finale(Callable(), false), CONNECT_ONE_SHOT)
 	return s
 
 
@@ -74,7 +78,8 @@ func on_phase(ph: BossPhaseData) -> void:
 	var p := spawner.target as Player
 	if p:
 		p.grant_invulnerability(feel.transition_hold)
-	_events.append([feel.pick_delay, func() -> void: spawner.breather.emit(false)])
+	if feel.phase_pick:
+		_events.append([feel.pick_delay, func() -> void: spawner.breather.emit(false)])
 	_events.append([feel.summon_delay, summon.bind(ph.summon)])
 
 
@@ -115,14 +120,19 @@ func _physics_process(delta: float) -> void:
 
 
 ## 처치 연출 (실제 시간): 남은 부하·화살 정리, 영웅 무적, 느린 시간·확대·한지 번짐, finale_time 뒤 done.
-func play_finale(done: Callable) -> void:
+## final = false(중간 보스)면 생성기를 멈추지 않고, 나타나는 중인 자리만 지운다.
+func play_finale(done: Callable, final: bool = true) -> void:
 	_events.clear()
 	var p := spawner.target as Player
 	if p:
-		p.grant_invulnerability(feel.finale_time + 1.0)
-	spawner.active = false  # 나타나는 중인 부하는 나오지 않는다
+		p.grant_invulnerability(feel.finale_time + (1.0 if final else 0.0))
+	if final:
+		spawner.active = false  # 나타나는 중인 부하는 나오지 않는다
 	for c in spawner.get_children():
-		if c is Enemy and c != boss and not (c as Enemy).health.is_dead():
+		if c is SpawnWarning and not final:
+			spawner._warnings = maxi(spawner._warnings - 1, 0)
+			c.queue_free()
+		elif c is Enemy and c != boss and not (c as Enemy).health.is_dead():
 			(c as Enemy).health.kill()
 		elif c is EnemyArrow:
 			c.queue_free()
@@ -130,5 +140,6 @@ func play_finale(done: Callable) -> void:
 	GameTime.stop(tree, feel.finale_slow_time + feel.finale_slow_back, feel.finale_slow_scale, feel.finale_slow_back)
 	BossFinaleFx.play(Feedback.instance, feel)
 	tree.create_timer(feel.finale_time, false, false, true).timeout.connect(func() -> void:
-		done.call()
+		if done.is_valid():
+			done.call()
 		queue_free())
