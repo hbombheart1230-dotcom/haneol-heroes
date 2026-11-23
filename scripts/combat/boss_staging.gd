@@ -74,6 +74,8 @@ func on_screen(pos: Vector2) -> bool:
 func on_phase(ph: BossPhaseData) -> void:
 	if boss.attack:
 		boss.attack.hold(feel.transition_hold)
+	if feel.phase_anim != &"":
+		EnemySprite.show_pose(boss, feel.phase_anim, feel.transition_hold)  # 군령 외침
 	boss.phase_invuln = maxf(boss.phase_invuln, ph.invuln_time)
 	var p := spawner.target as Player
 	if p:

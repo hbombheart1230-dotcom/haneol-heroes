@@ -12,7 +12,7 @@
 [sub_resource type="Resource" id="Boss_charge_follow"]
 script = ExtResource("2_attack")
 kind = 4
-anim = &"run"
+anim = &"charge"
 trigger_range = 300.0
 windup = 0.9
 length = 460.0
@@ -27,7 +27,7 @@ bypass_cap = true
 [sub_resource type="Resource" id="Boss_shock_follow"]
 script = ExtResource("2_attack")
 kind = 2
-anim = &"attack"
+anim = &"slam"
 trigger_range = 260.0
 windup = 0.9
 radius = 250.0
@@ -52,7 +52,7 @@ bypass_cap = true
 [sub_resource type="Resource" id="Boss_charge"]
 script = ExtResource("2_attack")
 kind = 4
-anim = &"run"
+anim = &"charge"
 trigger_range = 300.0
 windup = 0.9
 length = 460.0
@@ -67,7 +67,7 @@ bypass_cap = true
 [sub_resource type="Resource" id="Boss_shockwave"]
 script = ExtResource("2_attack")
 kind = 2
-anim = &"attack"
+anim = &"slam"
 trigger_range = 260.0
 windup = 1.0
 radius = 250.0
@@ -94,7 +94,7 @@ follow_gap = 0.35
 [sub_resource type="Resource" id="Boss_charge_combo"]
 script = ExtResource("2_attack")
 kind = 4
-anim = &"run"
+anim = &"charge"
 trigger_range = 300.0
 windup = 0.9
 length = 460.0
