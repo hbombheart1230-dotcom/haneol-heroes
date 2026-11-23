@@ -12,6 +12,8 @@ extends Resource
 @export var sweep_sign: float = -1.0
 ## 칼이 닿는 순간(맞닿는 프레임) 앞뒤로 휘두르는 시간 (초). 닿는 순간 머리가 부채꼴 가운데를 조금 지난다.
 @export var lead: float = 0.1
+## 타별 lead 배율: 3타는 일찍 휩쓸어 칼이 닿아 멈출 때(히트스톱) 호가 대부분 그려져 있게.
+@export var step_lead_mults: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.0])
 @export var follow: float = 0.06
 ## 꼬리 길이 (초): 머리가 지나간 뒤 이만큼 남았다 사라진다. 빠른 구간일수록 띠가 길다.
 @export var life: float = 0.14

@@ -63,7 +63,7 @@ func _on_windup(dir: Vector2) -> void:
 	var r := sd.melee_range * ComboSteps.at(sd.step_range_mults, step, 1.0) * data.reach
 	var w := data.width * ComboSteps.at(data.step_widths, step, 1.0)
 	arc.setup(dir.angle(), half, ComboSteps.at(sd.step_trail_flip, step, 1.0) * data.sweep_sign, r, w,
-		attack.step_pause(), attack.melee_delay(), data)
+		attack.step_pause(), attack.melee_delay(), data, ComboSteps.at(data.step_lead_mults, step, 1.0))
 	_clock = 0.0
 	_active = true
 
