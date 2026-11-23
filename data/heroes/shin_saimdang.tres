@@ -29,6 +29,7 @@
 [ext_resource type="Resource" path="res://data/heroes/charge/shin_saimdang.tres" id="charge_marker"]
 [ext_resource type="Texture2D" path="res://assets/vfx/butterfly.png" id="art_butterfly"]
 [ext_resource type="Texture2D" path="res://assets/vfx/grasshopper.png" id="art_grasshopper"]
+[ext_resource type="Texture2D" path="res://assets/ui/portraits/shin_saimdang.png" id="portrait"]
 [ext_resource type="Resource" path="res://data/heroes/levels/shin_saimdang_level_up.tres" id="lv_up"]
 
 [sub_resource type="Resource" id="Attack"]
@@ -151,7 +152,7 @@ story = ExtResource("story")
 home_stage = &"chochungdo"
 display_name = "사임당"
 card_art = ExtResource("card_art")
-portrait_rect = Rect2(126, 22, 108, 108)
+portrait = ExtResource("portrait")
 tagline = "수묵의 술사\n그림 속 생명을 깨운다"
 playable = true
 body_color = Color(0.5, 0.3, 0.62, 1)

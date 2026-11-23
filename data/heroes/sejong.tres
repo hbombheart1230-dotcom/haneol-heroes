@@ -27,6 +27,7 @@
 [ext_resource type="Texture2D" path="res://assets/vfx/meteor.png" id="fall_art"]
 [ext_resource type="Texture2D" path="res://assets/vfx/glyphs.png" id="ring_art"]
 [ext_resource type="Resource" path="res://data/heroes/charge/sejong.tres" id="charge_marker"]
+[ext_resource type="Texture2D" path="res://assets/ui/portraits/sejong.png" id="portrait"]
 [ext_resource type="Resource" path="res://data/heroes/levels/sejong_level_up.tres" id="lv_up"]
 
 [sub_resource type="Resource" id="Attack"]
@@ -152,7 +153,7 @@ story = ExtResource("story")
 home_stage = &"gyeongbokgung_1433"
 display_name = "세종"
 card_art = ExtResource("card_art")
-portrait_rect = Rect2(126, 38, 108, 108)
+portrait = ExtResource("portrait")
 tagline = "천문의 지배자\n문자와 별의 마법"
 playable = true
 body_color = Color(0.72, 0.15, 0.12, 1)

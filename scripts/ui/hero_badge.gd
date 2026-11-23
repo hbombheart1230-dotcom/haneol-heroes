@@ -1,7 +1,7 @@
 class_name HeroBadge
 extends RefCounted
-## 왼쪽 위 구석의 영웅 묶음 (Hud가 그린다, 사용자 선택 (다)): 위에서부터 둥근 초상(HeroData.card_art의
-## portrait_rect) + 그 둘레를 도는 공력(경험치) 고리 + 초상에 겹친 경지 도장, 그 아래 체력 띠, 적립한 패와 처치 수,
+## 왼쪽 위 구석의 영웅 묶음 (Hud가 그린다, 사용자 선택 (다)): 위에서부터 둥근 초상(HeroData.portrait,
+## 지금 모델과 같은 얼굴) + 그 둘레를 도는 공력(경험치) 고리 + 초상에 겹친 경지 도장, 그 아래 체력 띠, 적립한 패와 처치 수,
 ## 행동 점수 글씨("연타 +2"), 경지가 오르면 "경지 오름"·"패 +1". 위쪽 가운데는 우두머리 띠 전용으로 비운다
 ## (BossBarDrawer.TOP_FREE), 시간은 톱니 단추 아래 (Hud). 맞으면 초상이 붉게 번쩍·흔들린다.
 ## 화면 글씨에 외래어를 쓰지 않는다 (레벨 → 경지, 카드 → 패, 보스 → 우두머리).
@@ -90,18 +90,15 @@ func _draw_portrait(c: CanvasItem, ctr: Vector2) -> void:
 			var a := -PI / 2 + TAU * progress.xp_ratio()
 			c.draw_circle(ctr + Vector2(cos(a), sin(a)) * (R + 5.0), 6.0 + 10.0 * glint, Color(1, 0.93, 0.6, glint * 1.6))
 	var hero := player.hero if player else null
-	if hero and hero.card_art and hero.portrait_rect.has_area():
+	if hero and hero.portrait:
 		var pts := PackedVector2Array()
 		var uvs := PackedVector2Array()
-		var tex := hero.card_art
-		var reg := hero.portrait_rect
 		for i in 40:
 			var d := Vector2.from_angle(TAU * i / 40.0)
 			pts.append(ctr + d * R)
-			var uv := reg.position + reg.size * (Vector2(0.5, 0.5) + d * 0.5)
-			uvs.append(uv / Vector2(tex.get_size()))
-		c.draw_circle(ctr, R, Color(0.2, 0.17, 0.14))
-		c.draw_polygon(pts, PackedColorArray([Color.WHITE]), uvs, tex)
+			uvs.append(Vector2(0.5, 0.5) + d * 0.5)
+		c.draw_circle(ctr, R, hero.body_color.darkened(0.55))  # 투명한 바탕 자리는 영웅 색으로
+		c.draw_polygon(pts, PackedColorArray([Color.WHITE]), uvs, hero.portrait)
 	else:
 		c.draw_circle(ctr, R, hero.body_color if hero else Color(0.3, 0.3, 0.3))
 	if hurt_t > 0.0:

@@ -9,8 +9,8 @@ extends Resource
 @export_multiline var tagline: String = ""
 ## 영웅 고르기 화면 일러스트 (전신).
 @export var card_art: Texture2D
-## HUD 초상으로 쓸 card_art 안의 얼굴 자리 (픽셀, 정사각형). 비면 body_color 원.
-@export var portrait_rect: Rect2 = Rect2()
+## HUD 초상 (지금 게임 속 모델과 같은 얼굴, tools/art/make_portraits.py가 새 원화에서 자름). 비면 body_color 원.
+@export var portrait: Texture2D
 ## false면 고르기 화면에 "준비 중"으로만 보인다 (아직 기술·모델이 없는 영웅).
 @export var playable: bool = true
 ## 3타·큰 기술의 한 타 충격 줄기 모양 (HitImpactLayer.Style): 순신 물보라, 광개토 번개와 흙, 세종 금빛 획, 사임당 먹과 꽃잎.

@@ -33,6 +33,7 @@
 [ext_resource type="Script" path="res://scripts/data/charge_scaling.gd" id="cs_charge"]
 
 [ext_resource type="Resource" path="res://data/heroes/bite/yi_sun_sin.tres" id="blade_bite"]
+[ext_resource type="Texture2D" path="res://assets/ui/portraits/yi_sun_sin.png" id="portrait"]
 [ext_resource type="Resource" path="res://data/heroes/levels/yi_sun_sin_level_up.tres" id="lv_up"]
 
 [sub_resource type="Resource" id="Attack_yi"]
@@ -180,7 +181,7 @@ story = ExtResource("story")
 home_stage = &"hansan_1592"
 display_name = "순신"
 card_art = ExtResource("card_art")
-portrait_rect = Rect2(126, 44, 108, 108)
+portrait = ExtResource("portrait")
 tagline = "푸른 해류의 검
 빠르게 누비며 벤다"
 body_color = Color(0.13, 0.27, 0.55, 1)

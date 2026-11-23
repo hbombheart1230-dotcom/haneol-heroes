@@ -73,6 +73,8 @@ func test_every_hero_has_level_up_stats() -> void:
 		assert_object(h.level_up).override_failure_message(id).is_not_null()
 		assert_int(h.level_up.vfx_level_gain).is_equal(0)  # 기술 모습은 LevelRules.vfx_every로만
 		assert_bool(h.level_up.mods.is_empty()).is_false()
+		assert_object(h.portrait).override_failure_message(id + " 초상").is_not_null()  # 지금 모델 얼굴 (옛 카드 그림 아님)
+		assert_str(h.portrait.resource_path).contains("assets/ui/portraits/")
 
 
 func test_level_up_in_a_run_raises_stats_and_skill_look_without_pausing() -> void:
