@@ -23,6 +23,11 @@ extends Resource
 @export var detail_px: float = 512.0
 @export var detail_strength: float = 0.0
 
+@export_group("가장자리 겹침 그림 (먹선·문양)")
+## 지도와 같은 월드 영역에 얹는 투명 그림 (tools/art/make_hansan_edge.py: 한산 귀선도 먹선). 비우면 없음.
+@export var overlay_texture: Texture2D
+@export var overlay_alpha: float = 1.0
+
 @export_group("소품 빛 (화톳불·등불)")
 ## 이 이름(그림 파일 이름, 확장자 없이)의 소품 둘레에 빛 웅덩이를 깐다.
 @export var lit_props: PackedStringArray = PackedStringArray()
