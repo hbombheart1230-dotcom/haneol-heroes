@@ -110,3 +110,17 @@ func test_jeongeum_ring_follows_the_enemy() -> void:
 	assert_object(ring.follow).is_same(e)
 	assert_vector(ring.global_position).is_equal_approx(e.global_position, Vector2(0.01, 0.01))
 	ring.queue_free()
+
+
+func test_jeongeum_ring_hits_the_enemy_it_sits_on() -> void:
+	var skill := SEJONG.kit.tap as JeongeumSkill
+	var ctx := _ctx(SEJONG, skill)
+	var e := _enemy_at(Vector2(200, 0))
+	e.health.max = 1000
+	e.health.current = 1000
+	skill.cast(ctx, 0.0)
+	for c in get_children():
+		if c is OrbitGlyphs:
+			(c as OrbitGlyphs)._physics_process(0.016)
+			c.queue_free()
+	assert_int(e.health.current).is_less(1000)  # 가운데 적도 맞는다

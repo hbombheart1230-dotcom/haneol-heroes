@@ -135,7 +135,10 @@ func test_sundial_data_has_hand_and_twelve_ticks() -> void:
 
 
 func test_constellation_stars_land_one_by_one() -> void:
-	player.hero = SJ
+	var h: HeroData = SJ.duplicate()
+	h.kit = SJ.kit.duplicate()
+	h.kit.skills_at_target = false  # 예전 모양 (앞쪽 고정 거리)으로 별 순서만 본다 (적 기준은 test_sejong_aim)
+	player.hero = h
 	var s: ConstellationSkill = SJ.kit.charge.duplicate()
 	ctx.skill = s
 	var pts := s.star_points(Vector2.ZERO, Vector2.RIGHT, s.star_count(1.0))
