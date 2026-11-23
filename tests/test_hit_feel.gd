@@ -2,7 +2,7 @@ extends GdUnitTestSuite
 ## 타격감 1차 (docs/game_feel_research.md ①②③): 개별 멈칫, 처치 날림, 먹물·군대별 죽음, 방향 흔들림.
 
 const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
-const ELITE := preload("res://data/enemies/jurchen_elite.tres")
+const ELITE := preload("res://data/enemies/jurchen_elite_captain.tres")
 const SOLDIER := preload("res://data/enemies/jurchen_soldier.tres")
 const MOUSE := preload("res://data/enemies/cc_mouse.tres")
 const PROJ := preload("res://scenes/projectile.tscn")
