@@ -15,6 +15,14 @@ extends Resource
 @export var tint_mix: float = 0.0
 @export var tint_split: float = 0.3
 
+@export_group("바닥 결 (사진 재질 층)")
+## 회색 결 그림 (0.5 = 그대로, tools/art/make_grain.py). 그린 바닥에 곱해 질감만 더한다 (색·판선은 그림 그대로).
+## 같은 계열 무대(한산·명량·노량 등)가 같은 결을 다시 쓴다.
+@export var detail_texture: Texture2D
+## 결 한 칸 크기 (월드 px)와 세기 (0이면 없음).
+@export var detail_px: float = 512.0
+@export var detail_strength: float = 0.0
+
 @export_group("소품 빛 (화톳불·등불)")
 ## 이 이름(그림 파일 이름, 확장자 없이)의 소품 둘레에 빛 웅덩이를 깐다.
 @export var lit_props: PackedStringArray = PackedStringArray()
