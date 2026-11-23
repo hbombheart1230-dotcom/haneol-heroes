@@ -150,6 +150,8 @@
 | 배경 0.85 → 0.7 (`assets/backgrounds`) | 5.46 → 3.36 | −2.10 | 한산 바닥 2배 확대에서 구분 안 됨 |
 | **합계** | | **−16.3** | |
 
+실제 APK (같은 커밋 55f9eec 위에서 내보내 비교): **98.19 MB (93.64 MiB) → 82.13 MB (78.32 MiB), −16.06 MB**. 목표 76 MiB 보다 2 MiB 큰 것은 이야기 그림을 0.7 대신 0.8 로 둔 것(+1.1 MB)과 기준 APK 가 그새 커진 몫.
+
 비교 그림: `build/preview/size_diet_{vfx_ring,vfx_sundial,vfx_wave,hansan_floor,story,video}.png`.
 
 새 그림·곡에도 같은 규칙:
