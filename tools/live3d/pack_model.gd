@@ -10,7 +10,7 @@ extends SceneTree
 ##   godot --headless --path . -s res://tools/live3d/pack_model.gd -- yi_sun_sin --stage=1 [--tex=1024 (줄이기)]
 ##   godot --headless --path . --import
 ##   godot --headless --path . -s res://tools/live3d/pack_model.gd -- yi_sun_sin --stage=2
-## 굽기 작업의 동작 구간(start·end·loop)만 바꿨으면 (예: 평타 다시 자르기) 모델 없이 설정만 맞춘다:
+## 굽기 작업의 동작 구간(start·end·loop·times)만 바꿨으면 (예: 평타 다시 자르기) 모델 없이 설정만 맞춘다:
 ##   godot --headless --path . -s res://tools/live3d/pack_model.gd -- yi_sun_sin --stage=sync
 ## (구간의 정본은 굽기 작업 JSON. tests/test_live3d.gd가 둘이 다르면 실패한다.)
 
@@ -106,7 +106,15 @@ func _sync(job: Dictionary, n: String) -> void:
 	var fresh := Live3DHeroData.from_job(job)
 	for c in d.clips:
 		var f := fresh.clip(String(c["key"]))
-		for k in ["start", "end"]:
+		# 원본 동작이 바뀌었으면 (예: 2타를 다른 동작에서) 이미 꺼내 둔 anims/<이름>.res로. 없으면 stage 2부터 다시.
+		var res := "res://assets/live3d/%s/anims/%s.res" % [n, Lib.norm(String(f.get("src", "")))]
+		if String(f.get("file", "")).get_extension() == "res":  # 굽기도 쓰는 옮긴 동작 (reuse.from)
+			res = String(f["file"])
+		if ResourceLoader.exists(res):
+			c["file"] = res
+		else:
+			push_error("%s: clip %s not packed yet (%s) — run stage 1·2" % [n, f.get("src", ""), res])
+		for k in ["start", "end", "times"]:
 			if f.has(k):
 				c[k] = f[k]
 			else:
@@ -128,6 +136,8 @@ static func _plain_mesh(src: ArrayMesh, mat: Material) -> ArrayMesh:
 
 ## 동작 하나 → anims/<이름>.res. file이 비면 모델 안 동작, 아니면 그 .glb의 동작 (여럿이면 src 이름으로).
 func _save_clip(ap: AnimationPlayer, file: String, src: String, out: String) -> String:
+	if file.get_extension() == "res":  # 이미 이 뼈대로 옮겨 둔 동작 (retarget_clip.gd, 굽기도 같은 것을 쓴다)
+		return file
 	var s: Node = null
 	if file != "":
 		s = (load(file) as PackedScene).instantiate()

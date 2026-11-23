@@ -24,7 +24,7 @@ func bars() -> Array:
 		var e := n as Enemy
 		if e == null or not is_instance_valid(e) or e.health == null or e.health.is_dead():
 			continue
-		if e.data and e.data.is_boss:
+		if e.data and (e.data.is_boss or e.data.boss_feel):  # 화면 위 띠가 있다
 			continue
 		var r := float(e.health.current) / maxf(float(e.health.max), 1.0)
 		if r >= 1.0:

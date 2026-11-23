@@ -150,7 +150,7 @@ func _ready() -> void:
 		if has_meta(&"sweep"):  # 휩쓸기 무리: 한쪽으로 곧장 지나간다
 			brain.sweep_dir = get_meta(&"sweep")
 			brain.sweep_left = AI.wall_time
-		if data.is_boss:
+		if data.is_boss or data.boss_feel:  # 중간 보스도 화면 위 체력 띠
 			add_to_group(BOSS_GROUP)
 		if data.sprite_sheet:
 			sprite = EnemySprite.setup(self)

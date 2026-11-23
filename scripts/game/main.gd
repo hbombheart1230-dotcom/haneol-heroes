@@ -112,6 +112,7 @@ func _start_flow() -> void:
 ## 이번 판 시작: 무대 적용, 성장 준비, 멈춤 풀기, 무대 곡.
 func begin_run() -> void:
 	StageApply.stage(self, stage_by_id(run_stage_id()))
+	FxWarmup.run(self, player.hero if player else null, stage_by_id(run_stage_id()))  # 효과 첫 사용 멈칫을 판 시작 때 미리
 	_begin_build()
 	levels.begin()
 	waiting_pick = false

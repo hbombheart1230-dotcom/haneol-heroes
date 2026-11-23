@@ -40,6 +40,19 @@ func test_slice_stretches_window_to_sheet_length() -> void:
 	assert_vector(p).is_equal_approx(Vector3(0.1, 2.5, 0.2), Vector3.ONE * 0.01)
 
 
+## 칸 시각표: 칸 i는 i/3초(구운 칸이 보이는 순간)에 times[i], 사이는 직선, 마지막 칸 뒤는 붙잡는다.
+func test_times_warp_follows_frame_table() -> void:
+	var times := [0.0, 0.2, 1.8]
+	assert_float(ClipSlicer.timed_source(0.0, times, 1.0)).is_equal_approx(0.0, 0.0001)
+	assert_float(ClipSlicer.timed_source(1.0 / 6.0, times, 1.0)).is_equal_approx(0.1, 0.0001)
+	assert_float(ClipSlicer.timed_source(1.0 / 3.0, times, 1.0)).is_equal_approx(0.2, 0.0001)
+	assert_float(ClipSlicer.timed_source(2.0 / 3.0, times, 1.0)).is_equal_approx(1.8, 0.0001)
+	assert_float(ClipSlicer.timed_source(1.0, times, 1.0)).is_equal_approx(1.8, 0.0001)
+	var s := ClipSlicer.slice(_src(), Vector2(0.0, 1.8), 1.0, false, ^"", Vector3.ZERO, times)
+	var q := s.rotation_track_interpolate(1, 1.0 / 3.0)  # 원본 0.2초 자세 (90도 × 0.1)
+	assert_float(q.get_angle()).is_equal_approx(PI * 0.5 * 0.1, 0.01)
+
+
 func test_loop_slice_has_no_duplicate_end_key() -> void:
 	var s := ClipSlicer.slice(_src(), Vector2(0.0, 2.0), 1.0, true)
 	assert_int(s.loop_mode).is_equal(Animation.LOOP_LINEAR)
@@ -54,10 +67,15 @@ func test_from_job_copies_clips_and_ink() -> void:
 	assert_float(d.ortho_size).is_equal(2.0)
 	assert_int(d.frame).is_equal(256)
 	assert_float(float(d.ink["line_px"])).is_equal(1.6)
-	var a2 := d.clip("attack2")
-	assert_float(float(a2["start"])).is_equal(0.85)
-	assert_float(float(a2["end"])).is_equal(1.6)
-	assert_str(String(a2["file"])).ends_with("animated_extra2.glb")
+	var want: Dictionary = {}
+	for a in job["anims"]:
+		if a["key"] == "attack2":
+			want = a
+	var a2 := d.clip("attack2")  # 구간 값은 굽기 작업이 정본 (다시 자르기를 따라간다)
+	assert_float(float(a2["start"])).is_equal(float(want["start"]))
+	assert_float(float(a2["end"])).is_equal(float(want["end"]))
+	assert_str(String(a2["file"])).is_equal(String(want["from"]))
+	assert_array(a2.get("times", [])).is_equal(want.get("times", []))
 	assert_bool(bool(d.clip("run")["loop"])).is_true()
 
 
@@ -111,6 +129,7 @@ func test_clip_windows_match_bake_jobs() -> void:
 			for k in ["start", "end"]:
 				assert_float(float(got.get(k, -1.0))).override_failure_message("%s %s %s" % [id, c["key"], k]) 					.is_equal(float(c.get(k, -1.0)))
 			assert_bool(bool(got.get("loop", false))).is_equal(bool(c.get("loop", false)))
+			assert_array(got.get("times", [])).is_equal(c.get("times", []))
 
 
 ## 3D 설정이 있는 영웅은 3D, 없는 영웅은 구운 그림, 설정을 끄면 예전 PlayerView 그대로.

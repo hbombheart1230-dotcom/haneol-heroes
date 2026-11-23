@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="EvadeRimData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/evade_rim_data.gd" id="1_rim"]
+
+[resource]
+script = ExtResource("1_rim")

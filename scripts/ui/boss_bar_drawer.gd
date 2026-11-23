@@ -44,6 +44,6 @@ static func draw(c: CanvasItem, b: Enemy, chip: float, width: float, top: float 
 			c.draw_circle(p, PIP_R, TICK)
 		else:
 			c.draw_arc(p, PIP_R - 1.0, 0.0, TAU, 16, Color(TICK, 0.7), 2.0)
-	var name_text := b.data.display_name if b.data and b.data.display_name != "" else "보스"
+	var name_text := b.data.display_name if b.data and b.data.display_name != "" else "우두머리"
 	UiStyle.text(c, UiStyle.TITLE_FONT, Vector2(r.position.x, r.position.y - 16), name_text, 46, EnemyNameTag.BOSS_COLOR, r.size.x,
 		Color(0, 0, 0, 0.95), 10)

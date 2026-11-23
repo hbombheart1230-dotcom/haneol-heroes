@@ -11,6 +11,20 @@
     "grain": 0.0
   },
   "lossy_quality": 0.58,
+  "rigid": {
+    "bone": "RightHand",
+    "boxes": [
+      [
+        -0.58,
+        -0.02,
+        0.62,
+        -0.45,
+        0.95,
+        -0.27,
+        0.045
+      ]
+    ]
+  },
   "anims": [
     {
       "key": "idle",
@@ -35,14 +49,22 @@
     },
     {
       "key": "attack",
-      "src": "Triple Combo Attack",
+      "src": "Weapon_Combo_1",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
-      "start": 0.15,
-      "end": 0.85,
-      "strike": 0.6
+      "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo1.res",
+      "start": 0.33,
+      "end": 1.07,
+      "strike": 0.8,
+      "times": [
+        0.33,
+        0.47,
+        0.73,
+        0.8,
+        0.84,
+        1.07
+      ]
     },
     {
       "key": "hit",
@@ -60,25 +82,41 @@
     },
     {
       "key": "attack2",
-      "src": "Triple Combo Attack",
+      "src": "Weapon_Combo_1",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
-      "start": 0.85,
-      "end": 1.6,
-      "strike": 1.15
+      "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo1.res",
+      "start": 1.07,
+      "end": 1.73,
+      "strike": 1.33,
+      "times": [
+        1.07,
+        1.2,
+        1.27,
+        1.33,
+        1.37,
+        1.73
+      ]
     },
     {
       "key": "attack3",
-      "src": "Triple Combo Attack",
+      "src": "Weapon_Combo_1",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
-      "start": 2.25,
-      "end": 3.4,
-      "strike": 3.0
+      "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo1.res",
+      "start": 1.73,
+      "end": 2.6,
+      "strike": 2.47,
+      "times": [
+        1.73,
+        2.07,
+        2.27,
+        2.47,
+        2.51,
+        2.6
+      ]
     },
     {
       "key": "throw",
@@ -93,14 +131,24 @@
     },
     {
       "key": "cast_tap",
-      "src": "Triple Combo Attack",
+      "src": "Jump_and_Slam_Back_Down",
       "frames": 8,
       "fps": 20.0,
       "loop": false,
-      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
-      "start": 1.35,
-      "end": 2.45,
-      "strike": 2.2
+      "from": "res://assets/live3d/yi_sun_sin/anims/web_jumpandslambackdown.res",
+      "start": 0.67,
+      "end": 2.0,
+      "strike": 1.53,
+      "times": [
+        0.67,
+        0.87,
+        1.07,
+        1.27,
+        1.4,
+        1.53,
+        1.57,
+        2.0
+      ]
     },
     {
       "key": "cast_dash",
@@ -134,6 +182,16 @@
       "start": 1.12,
       "end": 1.85,
       "strike": 1.5
+    },
+    {
+      "key": "backstep",
+      "src": "Sword_Parry_Backward",
+      "frames": 6,
+      "fps": 18.0,
+      "loop": false,
+      "from": "res://assets/live3d/yi_sun_sin/anims/web_swordparrybackward.res",
+      "start": 0.07,
+      "end": 0.73
     }
   ]
 }

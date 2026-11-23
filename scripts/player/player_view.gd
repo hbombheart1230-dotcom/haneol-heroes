@@ -92,6 +92,7 @@ func _setup_sprite(h: HeroData) -> void:
 	_sprite.position = h.sprite_offset
 	_blend = AnimBlend.new()
 	add_child(_blend)  # 스프라이트 뒤: 앞 자세가 새 자세 밖으로만 잠깐 남는다
+	add_child(EvadeRim.new(player, _sprite))  # 회피 무적 금빛 테두리 (스프라이트 뒤)
 	add_child(_sprite)
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
 	_attack = attack
@@ -187,7 +188,7 @@ func current_anim() -> String:
 	if player.is_dead():
 		return "death"
 	if player.is_dashing():
-		return "dash"
+		return DashDirection.anim(player, _sheet)  # 돌진 베기·뒤로 뛰기 (시트에 없으면 dash)
 	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time 			and not (_oneshot_left > 0.0 and _over_hurt):  # 맞는 중에 친 타는 보인다
 		return "hit"
 	if _oneshot_left > 0.0:
@@ -243,7 +244,7 @@ func _update_sprite(delta: float) -> void:
 	var tint := Color(1, 1, 1)
 	var ds := player.hero.dash_style if player.hero else null
 	if player.skill_invuln_left() > 0.0 and not player.is_dashing():
-		tint = Color(1.0, 0.9, 0.55)
+		tint = EvadeRim.body_tint()  # 무적: 옅은 금빛 (테두리가 주 표시, EvadeRimData)
 	elif player.is_dashing():
 		tint = ds.body_tint if ds else Color(0.75, 0.9, 1.0)
 		tint.a = ds.body_alpha if ds else 1.0  # 광개토 번개 순간이동·사임당 먹으로 흩어짐

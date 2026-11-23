@@ -47,6 +47,8 @@ extends Resource
 @export var dash_shove_radius: float = 70.0
 ## 영웅마다 다른 회피 생김새·도착 효과 (없으면 기본 대시).
 @export var dash_style: DashStyleData
+## 대시를 방향으로 나누기 (돌진 타격·뒤로 빠지기, DashDirData). 비면 예전 대시.
+@export var dash_dir: DashDirData
 
 @export_group("무게감 (보이는 무게, 조작은 그대로)")
 ## 발밑 먹 그림자: 몸 반지름 배율·속 진하기.
@@ -68,6 +70,8 @@ extends Resource
 @export var charge_marker: ChargeMarkerData
 ## 무기가 몹에 박히는 느낌 (역경직, BladeBiteData). 비면 꺼짐 (예전 방식). 지금은 순신만.
 @export var blade_bite: BladeBiteData
+## 연타 중 처음 때린 몹에 붙기 (ComboLockData). 비면 꺼짐.
+@export var combo_lock: ComboLockData
 
 @export_group("전투")
 @export var attack: BasicAttackData

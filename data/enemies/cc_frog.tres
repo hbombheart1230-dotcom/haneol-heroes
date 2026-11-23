@@ -145,6 +145,9 @@ stun_scale = 0.3
 patterns = Array[ExtResource("2_attack")]([SubResource("Fr_cone"), SubResource("Fr_tongue")])
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
+boss_hp_by_hero = {
+"yi_sun_sin": 0.8
+}
 boss_feel = SubResource("Boss_feel")
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.4

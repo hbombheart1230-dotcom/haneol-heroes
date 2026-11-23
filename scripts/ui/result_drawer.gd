@@ -9,7 +9,7 @@ static func draw(hud: Hud) -> void:
 	var state := hud.state
 	hud.draw_rect(Rect2(Vector2.ZERO, s), Color(0, 0, 0, 0.62))
 	var victory := state.result == GameState.Result.VICTORY
-	var title := ("보스 격파" if state.boss_killed else "생존 성공") if victory else "쓰러졌다"
+	var title := ("우두머리 격파" if state.boss_killed else "생존 성공") if victory else "쓰러졌다"
 	var panel := Rect2(s.x * 0.5 - 300.0, s.y * 0.26, 600.0, 470.0)
 	UiStyle.panel(hud, panel, UiStyle.LACQUER, UiStyle.GOLD)
 	var cx := panel.position.x

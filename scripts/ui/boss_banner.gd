@@ -34,6 +34,9 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_PAUSABLE  # 설정 화면 등으로 멈추면 같이 멈춘다 (HUD는 ALWAYS)
 	if spawner:
 		spawner.boss_spawned.connect(show_boss)
+		spawner.elite_spawned.connect(func(e: Enemy) -> void:
+			if e.data and e.data.boss_feel:  # 중간 보스
+				show_boss(e))
 
 
 func show_boss(b: Enemy) -> void:
@@ -42,6 +45,8 @@ func show_boss(b: Enemy) -> void:
 	_len = banner_time
 	defeated = false
 	_sub = subtitle
+	if b and b.data and b.data.boss_feel and b.data.boss_feel.intro_subtitle != "":
+		_sub = b.data.boss_feel.intro_subtitle
 	_name = b.data.display_name if b and b.data and b.data.display_name != "" else "적장"
 	if b and b.data and b.data.boss_feel:
 		b.killed.connect(_on_boss_killed.bind(b.data.boss_feel), CONNECT_ONE_SHOT)

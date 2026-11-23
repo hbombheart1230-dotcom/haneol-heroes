@@ -46,18 +46,20 @@ func test_stage_length_and_damage_match_hansan() -> void:
 		var m: Array = await _mean(id)
 		var msg := "%s mean time %.1f (한산 %.1f), damage share %.2f (한산 %.2f)" % [id, m[0], base[0], m[1], base[1]]
 		print("[stage-sim] " + msg)
-		assert_float(m[0]).override_failure_message(msg).is_between(base[0] * 0.65, base[0] * 1.35)  # 영웅 기술 차이 (세종 글자 고리·사임당이 떼를 더 빨리 쓴다)
+		# 0.6: 한산 2물결만 중간 보스라 (소환 부하·잡몹이 줄어든 뒤 등장) 잡몹 물결이 조금 길다. 세 무대도 중간 보스가 되면 0.65로.
+		assert_float(m[0]).override_failure_message(msg).is_between(base[0] * 0.6, base[0] * 1.35)  # 영웅 기술 차이 (세종 글자 고리·사임당이 떼를 더 빨리 쓴다)
 		assert_float(m[1]).override_failure_message(msg).is_less(0.6)  # 피하며 치면 물결에서 죽지 않는다
 
 
-## 세 씨앗 평균 [보스까지 초, 받은 피해 ÷ 영웅 체력]. 진 판은 시간 대신 한도(300초).
+## 세 씨앗 평균 [보스까지 초 (정예·중간 보스와 싸운 시간 빼고: 한산만 중간 보스라 잡몹 물결 길이를 비교), 받은 피해 ÷ 영웅 체력].
+## 진 판은 시간 대신 한도(300초).
 func _mean(id: String) -> Array:
 	var hp := float((load(StageSim.hero_of(load("res://data/stages/%s.tres" % id))) as HeroData).max_hp)
 	var t := 0.0
 	var d := 0.0
 	for s in SEEDS:
 		var r: Dictionary = await _run(id, s, false)
-		t += r["time"] if r["boss"] else 300.0
+		t += r["time"] - maxf(r["mid_time"], 0.0) if r["boss"] else 300.0
 		d += r["damage"] / hp
 	return [t / SEEDS.size(), d / SEEDS.size()]
 

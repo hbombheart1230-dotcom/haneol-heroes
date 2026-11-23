@@ -63,6 +63,9 @@ func tick(delta: float, alive: int, hold: bool) -> Event:
 func next_spawn(alive: int, cap: int) -> Array:
 	if phase != Phase.RUN or _queue.is_empty() or _stagger > 0.0 or alive >= wave_cap(cap):
 		return []
+	var w: WaveData = data.waves[index]
+	if _queue[0] == null and w.elite_when_left >= 0 and alive > w.elite_when_left:
+		return []  # 중간 보스는 잡몹이 줄어든 뒤
 	if not data.refill_each:
 		if _budget <= 0:
 			return []
