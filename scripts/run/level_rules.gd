@@ -4,14 +4,14 @@ extends Resource
 ## 판 안 레벨은 저장하지 않는다 (판마다 1부터). 데이터: data/runs/level_rules.tres.
 
 ## 레벨 n → n+1에 필요한 점수 (needs[n-1]). 배열을 넘으면 마지막 값 + tail_growth씩.
-@export var needs: PackedInt32Array = PackedInt32Array([12, 18, 24, 28, 32, 36, 40, 44, 48])
+@export var needs: PackedInt32Array = PackedInt32Array([14, 18, 22, 26, 30, 34, 38, 42, 46])
 @export var tail_growth: int = 4
 ## 레벨이 이만큼 오를 때마다 모든 기술의 모습 단계(SkillDef.vfx_level) +1. 0이면 끔.
 @export var vfx_every: int = 2
 ## 레벨이 이만큼 오를 때마다 영웅 능력치 상승(HeroData.level_up)을 한 번 적용. 0이면 끔.
 @export var stats_every: int = 2
 
-@export_group("카드 (숨 고르기에서 고르기)")
+@export_group("패 (숨 고르기에서 고르기)")
 ## 숨 고르기 한 번에 고르는 최대 횟수 (연달아 카드가 너무 많이 뜨지 않게).
 @export var picks_per_break: int = 2
 ## 숨 고르기 한 번에 쓰는 최대 카드 수. 고르는 횟수보다 많으면 마지막 고르기가 여러 단계를 올린다 (합침).

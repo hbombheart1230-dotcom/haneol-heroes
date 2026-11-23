@@ -15,7 +15,7 @@ func _progress() -> RunProgress:
 
 func test_curve_is_front_loaded_and_continues_past_the_table() -> void:
 	assert_int(RULES.need(1)).is_less(RULES.need(2))
-	assert_int(RULES.need(1)).is_less_equal(12)  # 첫 레벨업은 졸병 여섯 마리면
+	assert_int(RULES.need(1)).is_less_equal(14)  # 첫 경지 오름은 졸병 아홉 마리 안팎
 	var last := RULES.needs[RULES.needs.size() - 1]
 	assert_int(RULES.need(RULES.needs.size() + 1)).is_equal(last + RULES.tail_growth)
 	var p := _progress()

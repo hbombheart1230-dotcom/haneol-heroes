@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_rules")
-needs = PackedInt32Array(12, 18, 24, 28, 32, 36, 40, 44, 48)
+needs = PackedInt32Array(14, 18, 22, 26, 30, 34, 38, 42, 46)
 tail_growth = 4
 vfx_every = 2
 stats_every = 2

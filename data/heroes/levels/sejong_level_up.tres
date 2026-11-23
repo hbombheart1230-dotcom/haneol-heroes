@@ -27,7 +27,7 @@ value = 1.04
 [resource]
 script = ExtResource("1_up")
 id = &"level_up_sejong"
-title = "세종 레벨 업"
+title = "세종 경지 오름"
 description = "최대 체력 +5 · 기본 공격 피해 +4%"
 max_stacks = 99
 weight = 0.0

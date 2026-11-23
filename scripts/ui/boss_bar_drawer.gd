@@ -11,6 +11,8 @@ const INVULN := Color(0.78, 0.66, 0.4)
 const TICK := Color(0.98, 0.84, 0.45)
 const BAR_H := 22.0
 const PIP_R := 6.0
+## 위쪽 가운데 우두머리 띠 자리 (왼쪽 위 영웅 묶음 오른쪽, 톱니 단추 왼쪽): x = 왼쪽 끝, y = 막대 윗변.
+const TOP_FREE := Vector2(200.0, 72.0)
 
 
 ## chip = 자국이 남은 비율 (Hud가 천천히 줄인다). top = 막대 윗변 y (HUD 배치에 따라).

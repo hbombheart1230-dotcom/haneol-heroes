@@ -4,8 +4,8 @@
   python tools/sim/level_curve_sim.py --check    # 목표를 어기면 종료 코드 1
 
 곡선·점수·카드 규칙은 게임 데이터를 그대로 읽는다 (data/runs/level_rules.tres, score_table.tres).
-물결 구성(PLAN)은 확정된 판 구조(① 잡몹 떼 ② 떼+새 종류 ③ 중간 보스 ④ 떼+정예 ⑤ 보스)를 한산 적 구성으로 채운 가정이다.
-적 움직임 세션이 물결 데이터를 바꾸면 PLAN만 맞춰 다시 돌린다.
+물결 구성(plan_for)은 적 움직임 세션의 5물결 데이터(claude/swarm-up) 마릿수·xp_mult를 옮긴 것이다.
+물결 데이터가 바뀌면 plan_for·STAGE_XP_MULT만 맞춰 다시 돌린다.
 영웅 빠르기(PACE)는 tests/test_stage_sim.gd 봇 기록 (같은 50마리를 깨는 시간 비: 순신 43s·광개토 40s·세종 30s·사임당 33s).
 실력(SKILL): 물결을 깨는 시간 배율과 분당 행동 횟수 (점수는 ScoreTable 간격·물결당 상한을 그대로 적용).
 """
@@ -15,17 +15,22 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
-# 물결: (적 xp 목록, 보통 실력·순신 기준 싸우는 시간 초). 처치 점수 = xp × 무대 xp_mult(2) × kill_mult.
-SOLDIER, GUNNER, HEAVY, ELITE, MID_BOSS = 1, 2, 4, 12, 20
-PLAN = [
-    ([SOLDIER] * 14 + [GUNNER] * 2, 40.0),
-    ([SOLDIER] * 16 + [GUNNER] * 3 + [HEAVY] * 2, 47.0),
-    ([MID_BOSS] + [SOLDIER] * 8, 42.0),
-    ([SOLDIER] * 18 + [GUNNER] * 3 + [HEAVY] * 2 + [ELITE], 47.0),
-]
+# 물결: (적 xp 목록, 보통 실력·순신 기준 싸우는 시간 초). 처치 점수 = xp × 무대 xp_mult × kill_mult.
+# 구성은 claude/swarm-up 6724b0b+ (적 움직임 세션, 2026-11-23): 근접 1 · 원거리 2 · 중갑 4 · 정예/중간 보스 12.
+MELEE, RANGED, HEAVY, ELITE = 1, 2, 4, 12
+WAVE3 = {"hansan": [MELEE] * 6 + [ELITE], "other": [MELEE] * 17 + [RANGED] + [ELITE]}
+def plan_for(stage):
+    return [
+        ([MELEE] * 24, 40.0),
+        ([MELEE] * 27 + [RANGED] * 3 + [HEAVY] * 2, 50.0),
+        (WAVE3[stage], 40.0 if stage == "hansan" else 45.0),
+        ([MELEE] * 34 + [RANGED] * 4 + [HEAVY] * 3 + [ELITE], 60.0),
+    ]
+# 무대 처치 배율 (판 전체 처치 점수 ≈ 240: 한산 149 × 1.61, 나머지 162 × 1.48)
+STAGE_XP_MULT = {"hansan": 1.61, "other": 1.48}
+HOME = {"순신": "hansan", "광개토": "other", "세종": "other", "사임당": "other"}
 BREATH = 8.0  # 숨 고르기 (카드 고르는 시간 포함)
 BOSS_FIGHT = 35.0
-STAGE_XP_MULT = 2.0
 PACE = {"순신": 1.0, "광개토": 0.93, "세종": 0.85, "사임당": 0.9}
 # 실력: 시간 배율, 분당 (연타 마무리, 회피, 반격 명중, 충전 만충 명중)
 SKILL = {
@@ -87,10 +92,11 @@ def run(R, hero, skill):
     events = []  # (t, kind, value)
     t = 0.0
     breaks = []
+    PLAN = plan_for(HOME[hero])
     for wi, (enemies, dur) in enumerate(PLAN):
         d = dur * tmul
         for k, xp in enumerate(enemies):  # 첫 처치 3초 뒤, 고르게
-            events.append((t + 3.0 + (d - 3.0) * k / max(len(enemies) - 1, 1), "kill", xp * STAGE_XP_MULT * R["kill_mult"]))
+            events.append((t + 3.0 + (d - 3.0) * k / max(len(enemies) - 1, 1), "kill", xp * STAGE_XP_MULT[HOME[hero]] * R["kill_mult"]))
         for kind, per_min in zip(KINDS, rates):
             if per_min <= 0:
                 continue
@@ -112,7 +118,7 @@ def run(R, hero, skill):
     for (et, kind, v) in events + [(1e9, "end", 0)]:
         while bi < len(breaks) and breaks[bi][0] <= et:
             bt, wi = breaks[bi]
-            last = wi == len(PLAN) - 1
+            last = wi == len(breaks) - 1
             p = plan(R, bank, last)
             used = sum(p)
             free = max(0, used - bank)
