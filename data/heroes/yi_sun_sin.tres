@@ -30,6 +30,8 @@
 [ext_resource type="Resource" path="res://data/heroes/charge/yi_sun_sin.tres" id="charge_marker"]
 [ext_resource type="Texture2D" path="res://assets/vfx/tidal_crest.png" id="art_tidal_crest_1"]
 
+[ext_resource type="Script" path="res://scripts/data/charge_scaling.gd" id="cs_charge"]
+
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
 melee_interval = 0.64
@@ -103,6 +105,14 @@ sfx_layers = Array[StringName]([&"gugak_kill"])
 cast_anim = &"cast_dash"
 cast_lead = 0.06
 
+[sub_resource type="Resource" id="Scaling_haeil"]
+script = ExtResource("cs_charge")
+exponent = 1.5
+stages = 3
+reach = Vector2(0.75, 1.15)
+knockback = Vector2(60, 280)
+fx = Vector2(0.8, 1.5)
+
 [sub_resource type="Resource" id="Skill_haeil"]
 script = ExtResource("6_haeil")
 id = &"haeil"
@@ -110,10 +120,10 @@ display_name = "해일검기"
 icon = ExtResource("i_haeil")
 cooldown = 5.0
 color = Color(0.35, 0.65, 1, 1)
-min_damage = 20
-max_damage = 60
-min_scale = 1.6
-max_scale = 3.2
+min_damage = 14
+max_damage = 66
+min_scale = 1.3
+max_scale = 3.6
 speed = 650.0
 lifetime = 1.1
 vfx_cast = ExtResource("vs_haeil")
@@ -121,9 +131,8 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vfx_impact")
 wave_art_size = Vector2(220, 80)
 wave_wake = ExtResource("vs_haeil_wake")
-aim_assist_deg = 80.0
-aim_assist_range = 600.0
-aim_fallback_nearest = true
+charge_aim = true
+charge_scaling = SubResource("Scaling_haeil")
 sfx_layers = Array[StringName]([&"gugak_buk"])
 wave_art = ExtResource("art_tidal_crest_1")
 cast_anim = &"cast_charge"

@@ -30,6 +30,11 @@ extends Resource
 @export var aim_assist_deg: float = 0.0
 @export var aim_assist_range: float = 600.0
 @export var aim_fallback_nearest: bool = false
+## 충전 기술만: 모으는 동안 이동 손가락(조이스틱)으로 잡은 방향으로 곧게 (조준 보정·유도 없음, ChargeAim).
+## 방향을 안 잡으면 모으기 시작할 때 바라보던 방향.
+@export var charge_aim: bool = false
+## 충전 기술만: 모은 시간 비례 곡선·마디 (ChargeScaling, 공통). 기술이 자기 최소·최대 값을 이 곡선으로 잇는다.
+@export var charge_scaling: ChargeScaling
 @export_group("이펙트")
 ## 발동 순간 영웅 자리에서 (바라보는 방향으로) 터지는 이펙트.
 @export var vfx_cast: SkillVfxData
@@ -54,9 +59,20 @@ extends Resource
 ## 반환: 진행 상태. 즉시 끝나는 기술은 SkillRun.instant(hits).
 ## 조준 보정된 방향 (aim_assist_deg 0이면 바라보는 방향).
 func aim(ctx: SkillContext) -> Vector2:
+	if charge_aim:  # 잡은 방향 그대로 (보정 없음)
+		return ctx.aim_dir.normalized() if ctx.aim_dir.length_squared() > 0.0001 else ctx.player.facing
 	return Targeting.assist_dir(ctx.enemies(), ctx.player.global_position, ctx.player.facing,
 		aim_assist_deg, aim_assist_range, aim_fallback_nearest)
 
 
 func cast(_ctx: SkillContext, _charge: float) -> SkillRun:
 	return SkillRun.instant(0)
+
+
+## 충전 조준 길 표시 (charge_aim 기술): 충전 c에서 닿는 거리(px)와 맞는 폭(px). 0이면 길을 그리지 않는다.
+func aim_length(_c: float) -> float:
+	return 0.0
+
+
+func aim_width(_c: float) -> float:
+	return 0.0

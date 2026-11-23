@@ -45,3 +45,4 @@ spin2 = -4.0
 spark_vfx = SubResource("Spark")
 full_vfx = SubResource("Full")
 alpha_min = 0.45
+full_sfx = &"gugak_jing"

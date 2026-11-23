@@ -13,6 +13,8 @@ var hit_stop_enabled: bool = true
 var skill: SkillDef
 ## 휘감는 기술(sweep) 중: 적마다 멈추지 않고 휘감기가 끝날 때 한 번 크게 (CombatFeelData.sweep_final_stop).
 var defer_stop: bool = false
+## 충전 조준 (SkillDef.charge_aim): 모으는 동안 잡은 방향. ZERO면 없음.
+var aim_dir: Vector2 = Vector2.ZERO
 var _thud_done: bool = false
 
 
