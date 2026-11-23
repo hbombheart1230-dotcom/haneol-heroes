@@ -185,6 +185,7 @@ Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-ag
 | Health, HitBoxes, HurtBoxes and HitScans | 5.0.4 + HH 패치 | MIT (`addons/health_hitbox_hurtbox/LICENSE`) | https://github.com/cluttered-code/godot-health-hitbox-hurtbox |
 | Meshy API (AI 3D 생성 서비스, 개발 도구에서 호출) | openapi v1 | 유료 플랜 산출물 사용 조건은 Meshy 약관 | https://docs.meshy.ai/en/api |
 | 순신 실시간 3D 모델 (Meshy 유료 플랜 산출물을 가공: 뼈대·스킨 메시, 1024² 텍스처, 동작 9개) | 2026-11-22 생성 (Meshy 작업 01a200c7·01a200c8, 동작 Idle·Run 2·Roll Dodge·Hit Reaction·Dead·Triple Combo Attack·Charged Upward Slash·Right-hand Sword Slash·Double Blade Spin) | 유료 플랜 산출물 — Meshy 약관 (원본 .glb·state.json은 저장소에 없음) | `assets/live3d/yi_sun_sin/` ← `tools/live3d/pack_model.gd`가 `assets/models/meshy/yi_sun_sin/*.glb`(gitignore)에서 만든다. 패치: LOD·그림자 메시·동작 트랙 제거, 텍스처 2048→1024 (Lanczos, VRAM 압축), 동작은 .res로 따로 |
+| 한산 대장(왜군 지휘관) 실시간 3D 모델 (Meshy 유료 플랜 산출물을 가공: 뼈대·스킨 메시, 1024² 텍스처, 동작 5개) | 2026-11-23 가공 (Meshy 작업 01a2009c·01a2009e, 동작 Idle·Walk Fight Forward·Hit Reaction·Charged Spell Cast·Charged Slash) | 유료 플랜 산출물 — Meshy 약관 (원본 .glb·state.json은 저장소에 없음) | `assets/live3d/waegun_commander/` ← `tools/live3d/pack_model.gd waegun_commander`가 `assets/models/meshy/waegun_commander/*.glb`(gitignore)에서 만든다. 패치: 순신과 같음 + 공격 동작에 구운 시트의 칸 시각(times) 덧붙임 (`data/live3d/waegun_commander.tres`) |
 
 HH 패치: `health/health.gd`의 피격 로그를 `verbose_debug`(기본 꺼짐)일 때만 출력하도록 변경. 원본은 매 피격마다 출력해 적 30마리 전투에서 성능 부담이 있다.
 | awesome-gamedev-agent-skills (`godot` 플러그인, 개발용) | — | Apache-2.0 | https://github.com/gamedev-skills/awesome-gamedev-agent-skills |
