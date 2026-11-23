@@ -3,9 +3,11 @@ extends GdUnitTestSuite
 ## "예고를 보고 피하며 틈에 침"이 약 40~50초. 서툰 사람(예고 30% 놓침) 승률은 보고용.
 ## 영웅마다 보스 체력 배율(HeroData.boss_hp_mult)이 화력 차이를 메운다. 난이도 단계(DifficultyCurve)와 곱해도 깨지지 않는지도 본다.
 ## 결과는 로그([boss-balance])에 표로 남긴다. 무대 주인 영웅의 조합도 여기서 본다 (test_stage_boss_sim은 가만히 지는 것만).
-## 오래 걸린다 (약 15분: 16조합 × 씨앗 셋 × 피하기·서툰 사람).
+## 보통 실행은 조합마다 피하기 한 판 (약 2.5분). 환경 변수 HH_SLOW=1이면 씨앗 셋 × 피하기·서툰 사람 전체 표 (약 15분, PR 표).
 
-const SEEDS := [11, 23, 37]
+const ALL_SEEDS := [11, 23, 37]
+static var SEEDS: Array = ALL_SEEDS if OS.get_environment("HH_SLOW") == "1" else [11]
+static var SLOPPY: bool = OS.get_environment("HH_SLOW") == "1"
 const BOSSES := {
 	"hansan": "res://data/enemies/waegun_commander.tres",
 	"manchuria": "res://data/enemies/boss_general.tres",
@@ -65,14 +67,16 @@ func test_sixteen_matchups_last_about_the_same() -> void:
 				assert_float(r["time"]).override_failure_message("%s vs %s seed %d: %.1fs" % [hero, boss, s, r["time"]]).is_between(WIN_MIN, WIN_MAX)
 				_check_rhythm(r, "%s vs %s seed %d" % [hero, boss, s])
 				times.append(r["time"])
-				var sl: Dictionary = await _run(boss, hero, s, 0.3)
-				wins += 1 if sl["won"] else 0
+				if SLOPPY:
+					var sl: Dictionary = await _run(boss, hero, s, 0.3)
+					wins += 1 if sl["won"] else 0
 			sloppy_wins += wins
-			sloppy_runs += SEEDS.size()
+			sloppy_runs += SEEDS.size() if SLOPPY else 0
 			rows.append("[boss-balance] %-10s %-14s dodge %4.1f~%4.1fs  sloppy %d/%d" % [boss, hero, times.min(), times.max(), wins, SEEDS.size()])
 	for line in rows:
 		print(line)
-	assert_float(float(sloppy_wins) / sloppy_runs).is_greater_equal(SLOPPY_MIN_RATE)
+	if SLOPPY:
+		assert_float(float(sloppy_wins) / sloppy_runs).is_greater_equal(SLOPPY_MIN_RATE)
 
 
 ## 같은 공격 연속 없음 (군령 이어치기 제외) · 보스 공격 간격 7초 미만 (막힘 없음) · 부하 3 이하.
