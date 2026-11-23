@@ -4,10 +4,13 @@ extends SceneTree
 ## Movie Maker(고정 60fps)로 찍는다. 창 크기 덮어쓰기(405x720) 대신 720x1280으로 찍으려면 프로젝트 폴더에 잠깐
 ## override.cfg ([display] window/size/window_width_override=720, window_height_override=1280)를 두고 찍은 뒤 지운다.
 ##   godot --path . --resolution 720x1280 --fixed-fps 60 --write-movie build/preview/live3d_frames/f.png
-##     -s res://tools/live3d/compare_shot.gd -- build/preview/live3d_marks.json
+##     -s res://tools/live3d/compare_shot.gd -- build/preview/live3d_marks.json [영웅 id = yi_sun_sin]
 ## 그다음 python tools/live3d/compare_video.py 가 잘라서 mp4·프레임 띠를 만든다.
 
 const GAP := 105.0
+## 영웅 → 무대 (그 영웅의 실제 무대 바닥에서 찍는다).
+const STAGE := {"yi_sun_sin": &"hansan_1592", "gwanggaeto": &"manchuria_395", "sejong": &"gyeongbokgung_1433",
+	"shin_saimdang": &"chochungdo"}
 var _frame: int = 0
 var _marks: Dictionary = {}
 
@@ -17,13 +20,15 @@ func _initialize() -> void:
 
 
 func _run() -> void:
-	var out: String = OS.get_cmdline_user_args()[0] if not OS.get_cmdline_user_args().is_empty() else "user://marks.json"
+	var args := OS.get_cmdline_user_args()
+	var out: String = args[0] if not args.is_empty() else "user://marks.json"
+	var hero_id: String = args[1] if args.size() > 1 else "yi_sun_sin"
 	GameSettings.title_seen = true
 	GameSettings.intro_seen = true
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.stage_picked = true
-	GameSettings.stage_id = &"hansan_1592"
-	GameSettings.hero_id = &"yi_sun_sin"
+	GameSettings.stage_id = STAGE[hero_id]
+	GameSettings.hero_id = StringName(hero_id)
 	GameSettings.tutorial_done = true
 	GameSettings.tutorial_enabled = false
 	GameSettings.hero_picked = true
@@ -43,6 +48,7 @@ func _run() -> void:
 	_label(baked, "구운 그림 (지금)")
 	_label(live, "실시간 3D")
 	await _frames(10)
+	live.call("refresh")  # 게임은 "PlayerView" 노드만 영웅 바뀜을 알린다 → 비교용 노드는 직접
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	spawner.active = false
 	var atk := player.get_node("AutoAttack") as AutoAttack

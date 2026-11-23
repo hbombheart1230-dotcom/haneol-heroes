@@ -1,0 +1,84 @@
+[gd_resource type="Resource" script_class="Live3DHeroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/art/live3d/live3d_hero_data.gd" id="1_5axdh"]
+
+[resource]
+script = ExtResource("1_5axdh")
+model_path = "res://assets/live3d/sejong/model.scn"
+clips = Array[Dictionary]([{
+"file": "res://assets/live3d/sejong/anims/idle.res",
+"key": "idle",
+"loop": true
+}, {
+"file": "res://assets/live3d/sejong/anims/run2.res",
+"key": "run",
+"loop": true
+}, {
+"file": "res://assets/live3d/sejong/anims/rolldodge.res",
+"key": "dash",
+"loop": false
+}, {
+"end": 2.67,
+"file": "res://assets/live3d/sejong/anims/chargedspellcast.res",
+"key": "attack",
+"loop": false,
+"start": 0.9
+}, {
+"file": "res://assets/live3d/sejong/anims/hitreaction.res",
+"key": "hit",
+"loop": false
+}, {
+"file": "res://assets/live3d/sejong/anims/dead.res",
+"key": "death",
+"loop": false
+}, {
+"end": 2.2,
+"file": "res://assets/live3d/sejong/anims/magesoellcast4.res",
+"key": "throw",
+"loop": false,
+"start": 0.0
+}, {
+"end": 1.4,
+"file": "res://assets/live3d/sejong/anims/magesoellcast3.res",
+"key": "throw2",
+"loop": false,
+"start": 0.4
+}, {
+"end": 1.3,
+"file": "res://assets/live3d/sejong/anims/magesoellcast6.res",
+"key": "throw3",
+"loop": false,
+"start": 0.2
+}, {
+"end": 3.3,
+"file": "res://assets/live3d/sejong/anims/chargedspellcast1.res",
+"key": "cast_tap",
+"loop": false,
+"start": 1.5
+}, {
+"end": 1.7,
+"file": "res://assets/live3d/sejong/anims/magesoellcast2.res",
+"key": "cast_dash",
+"loop": false,
+"start": 0.6
+}, {
+"end": 2.3,
+"file": "res://assets/live3d/sejong/anims/chargedspellcast.res",
+"key": "cast_charge",
+"loop": false,
+"start": 0.72
+}, {
+"end": 2.5,
+"file": "res://assets/live3d/sejong/anims/chargedgroundslam.res",
+"key": "cast_counter",
+"loop": false,
+"start": 1.2
+}])
+ortho_size = 2.3
+ink = {
+"grain": 0.0,
+"inner_line": 0.0,
+"line_px": 1.6,
+"wash_amount": 0.25
+}
+upper_bones = PackedStringArray("Spine02", "Spine01", "Spine", "neck", "Head", "head_end", "headfront", "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand", "RightShoulder", "RightArm", "RightForeArm", "RightHand")

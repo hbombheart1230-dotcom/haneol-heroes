@@ -36,6 +36,7 @@ func _attach_live(h: HeroData) -> void:
 	if rig:
 		rig.queue_free()
 		rig = null
+		_sprite.material = null  # 3D가 없는 영웅으로 바뀌면 구운 그림에 수묵 셰이더가 남지 않게
 	live = null
 	var path := data_path(h.id)
 	if not ResourceLoader.exists(path):
