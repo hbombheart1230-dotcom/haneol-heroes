@@ -20,17 +20,29 @@ func star_count(charge: float) -> int:
 
 
 ## 별 위치: 플레이어 앞 부채꼴에 지그재그로 (같은 충전이면 같은 모양).
-func star_points(origin: Vector2, facing: Vector2, n: int) -> PackedVector2Array:
+## 별 위치: 플레이어 앞 부채꼴에 지그재그로 (같은 충전이면 같은 모양). far > 0이면 마지막 별까지의 거리 (기본 reach).
+func star_points(origin: Vector2, facing: Vector2, n: int, far: float = -1.0) -> PackedVector2Array:
 	var pts := PackedVector2Array()
+	var r := far if far > 0.0 else reach
 	for i in n:
 		var t := float(i + 1) / float(n)
 		var side := (1.0 if i % 2 == 0 else -1.0) * deg_to_rad(spread_degrees) * 0.5 * (0.4 + 0.6 * t)
-		pts.append(origin + facing.rotated(side) * reach * (0.25 + 0.75 * t))
+		if far > 0.0 and i == n - 1:
+			side = 0.0  # 마지막 별은 겨눈 자리에 정확히
+		pts.append(origin + facing.rotated(side) * r * (0.25 + 0.75 * t))
 	return pts
 
 
 func cast(ctx: SkillContext, charge: float) -> SkillRun:
-	var run := StarChainRun.new(self, ctx, star_points(ctx.player.global_position, aim(ctx), star_count(charge)))
+	var from := ctx.player.global_position
+	var dir := aim(ctx)
+	var far := -1.0
+	if SkillAim.enabled(ctx):  # 세종: 별자리가 겨눈 적까지 뻗어 마지막 별이 그 적에게 박힌다
+		var to := SkillAim.point(ctx) - from
+		if to.length() > 1.0:
+			dir = to.normalized()
+			far = maxf(to.length(), reach * 0.45)
+	var run := StarChainRun.new(self, ctx, star_points(from, dir, star_count(charge), far))
 	run.tick(0.0)  # 첫 별은 누르는 순간
 	return run
 

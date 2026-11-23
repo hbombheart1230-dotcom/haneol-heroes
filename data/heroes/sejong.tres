@@ -135,6 +135,7 @@ tap = SubResource("Skill_tap")
 dash = SubResource("Skill_dash")
 charge = SubResource("Skill_charge")
 counter = SubResource("Skill_counter")
+skills_at_target = true
 counter_window = 1.0
 dash_link_window = 0.45
 hold_threshold = 0.2

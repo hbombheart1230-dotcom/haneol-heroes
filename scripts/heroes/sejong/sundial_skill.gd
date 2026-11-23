@@ -14,7 +14,7 @@ extends SkillDef
 
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
-	var center := ctx.player.global_position
+	var center := SkillAim.point(ctx, true) if SkillAim.enabled(ctx) else ctx.player.global_position  # 세종: 공격한 적 자리에
 	var targets: Array[Enemy] = []
 	for en in ctx.enemies_in_radius(center, radius):
 		if not en.health.is_alive():
