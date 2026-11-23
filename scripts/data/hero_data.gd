@@ -17,6 +17,8 @@ extends Resource
 @export_enum("ink", "water", "thunder", "gold", "petal") var impact_style: int = 0
 ## 이 영웅이 처음 서는 무대 (StageTheme.id). 이기면 무대 순서대로 다음 전장으로 이어간다.
 @export var home_stage: StringName = &""
+## 이 영웅의 전장 순서 (시간 순, 앞을 이겨야 다음이 열림). 전장 고르기 화면 (StageSelect).
+@export var campaign: HeroCampaign
 ## 이 영웅을 처음 고르면 무대 전에 보여 줄 영웅 이야기 (data/intro/story_<영웅>.tres). 비우면 없음.
 @export var story: IntroData
 @export var body_color: Color = Color(0.15, 0.4, 0.8)

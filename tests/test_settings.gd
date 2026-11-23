@@ -12,6 +12,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	GameSettings.want_stage_list = false
 	get_tree().paused = false
 	GameSettings.sfx_volume = 0.8
 	GameSettings.music_volume = 0.8
@@ -134,6 +135,7 @@ func test_story_off_skips_prologue_and_hero_story() -> void:
 	GameSettings.title_seen = false
 	GameSettings.opening_seen = true
 	GameSettings.hero_picked = false
+	GameSettings.hero_id = &""  # 마지막 영웅 없음 → 영웅 고르기
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
@@ -149,6 +151,8 @@ func test_story_off_skips_prologue_and_hero_story() -> void:
 	sel.handle_touch(0, c, true)
 	sel.handle_touch(0, c, false)
 	assert_bool(main.story_intro.is_open()).is_false()
+	assert_bool(main.stage_select.is_open()).is_true()  # 이야기 없이 바로 전장 목록
+	main.stage_select.press(0)
 	assert_bool(main.waiting_pick).is_false()
 	main.settings.set_value(&"skill_button", true)  # 설정에서 바꾸면 조작에 바로 반영
 	assert_bool((main.get_node("TouchController") as TouchController).skill_button_enabled).is_true()

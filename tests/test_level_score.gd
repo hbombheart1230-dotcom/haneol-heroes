@@ -82,6 +82,7 @@ func test_level_up_in_a_run_raises_stats_and_skill_look_without_pausing() -> voi
 	GameSettings.title_seen = true
 	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
+	GameSettings.want_stage_list = false
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.tutorial_done = true
 	GameSettings.stage_picked = false

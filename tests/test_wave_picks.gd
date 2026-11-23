@@ -15,6 +15,7 @@ func _main() -> Node:
 	GameSettings.title_seen = true
 	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
+	GameSettings.want_stage_list = false
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.tutorial_done = true
 	GameSettings.stage_picked = false

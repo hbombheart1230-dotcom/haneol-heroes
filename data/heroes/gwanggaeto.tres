@@ -28,6 +28,7 @@
 [ext_resource type="Resource" path="res://data/heroes/charge/gwanggaeto.tres" id="charge_marker"]
 [ext_resource type="Texture2D" path="res://assets/ui/portraits/gwanggaeto.png" id="portrait"]
 [ext_resource type="Resource" path="res://data/heroes/levels/gwanggaeto_level_up.tres" id="lv_up"]
+[ext_resource type="Resource" path="res://data/campaigns/gwanggaeto.tres" id="campaign"]
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
@@ -156,6 +157,7 @@ id = &"gwanggaeto"
 impact_style = 2
 story = ExtResource("story")
 home_stage = &"manchuria_395"
+campaign = ExtResource("campaign")
 display_name = "광개토"
 card_art = ExtResource("card_art")
 portrait = ExtResource("portrait")

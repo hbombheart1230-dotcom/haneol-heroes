@@ -12,6 +12,8 @@ extends Node2D
 ## 고를 수 있는 영웅. 둘 이상이면 앱을 켠 뒤 첫 판 전에 고르기 화면.
 @export var heroes: Array[HeroData] = []
 @export var hero_select: HeroSelect
+## 전장 고르기 (영웅 다음, 판이 끝나면 다시). StartFlow가 연다.
+@export var stage_select: StageSelect
 ## 인트로(입장 단추). 앱을 켠 뒤 한 번만.
 @export var title_screen: TitleScreen
 ## 고를 수 있는 무대 (역사 연표 순). 둘 이상이면 영웅 다음에 고르기 화면.
@@ -74,6 +76,8 @@ func _ready() -> void:
 		if spawner:
 			spawner.boss_time = run_config.boss_time
 			spawner.ramp_time = run_config.ramp_time
+	if GameSettings.hero_cleared.is_empty() and not GameSettings.cleared_stages.is_empty():  # 옛 저장: 영웅별로 옮김
+		CampaignProgress.migrate(heroes, GameSettings.cleared_stages, GameSettings.hero_cleared)
 	progress = RunProgress.new(run_config)
 	levels = RunLevels.new(self)
 	var saved := hero_by_id(GameSettings.hero_id)
@@ -100,7 +104,6 @@ func _ready() -> void:
 		progress.leveled_up.connect(hud.on_level_up)
 		progress.scored.connect(hud.on_scored)
 		hud.stage = run_config.stage if run_config else null
-		hud.can_change_hero = playable_heroes().size() > 1
 	_start_flow()
 
 
@@ -115,6 +118,7 @@ func begin_run() -> void:
 	FxWarmup.run(self, player.hero if player else null, stage_by_id(run_stage_id()))  # 효과 첫 사용 멈칫을 판 시작 때 미리
 	_begin_build()
 	levels.begin()
+	GameSettings.want_stage_list = false  # 판이 시작됐다 (다시 켜거나 판이 끝나야 다시 목록)
 	waiting_pick = false
 	get_tree().paused = false
 	music_cue(&"stage")  # 다시 시작하면 무대 곡으로 (같으면 이어서)
@@ -148,19 +152,11 @@ func playable_heroes() -> Array[HeroData]:
 func run_stage_id() -> StringName:
 	if GameSettings.stage_picked and HeroRoute.index_of(stages, GameSettings.stage_id) >= 0:
 		return GameSettings.stage_id
-	return HeroRoute.current(stages, player.hero if player else null, GameSettings.hero_stages)
-
-
-## 이긴 뒤 "다음 전장": 이 영웅의 다음 무대를 저장하고 새 판.
-func advance_stage() -> void:
-	var cur := run_config.stage.id if run_config and run_config.stage else run_stage_id()
-	var nxt := HeroRoute.next(stages, cur)
-	if player and player.hero:
-		var hid := String(player.hero.id)
-		GameSettings.hero_stages[hid] = String(nxt)
-		GameSettings.hero_clears[hid] = int(GameSettings.hero_clears.get(hid, 0)) + 1
-	GameSettings.stage_id = nxt
-	GameSettings.save_settings()
+	var hero := player.hero if player else null
+	var cur := CampaignProgress.new(stages, GameSettings.hero_cleared).current(hero)  # 전장 목록에서 이어 갈 전장
+	if HeroRoute.index_of(stages, cur) >= 0:
+		return cur
+	return HeroRoute.current(stages, hero, GameSettings.hero_stages)
 
 
 ## 이 영웅의 난이도 단계 = 이 영웅이 이긴 전장 수.
@@ -237,12 +233,8 @@ func stage_music(kind: StringName) -> AudioStream:
 
 func _on_ended(result: GameState.Result) -> void:
 	music_cue(&"victory" if result == GameState.Result.VICTORY else &"defeat")
-	if hud and result == GameState.Result.VICTORY and run_config and run_config.stage:
-		hud.next_stage = stage_by_id(HeroRoute.next(stages, run_config.stage.id))
 	_end_time = 0.0
-	if result == GameState.Result.VICTORY and run_config and run_config.stage:
-		if GameSettings.mark_cleared(run_config.stage.id):  # 다음 무대가 열린다
-			GameSettings.save_settings()
+	RunEnd.record(self, result == GameState.Result.VICTORY)  # 이긴 전장·난이도 단계·경지·시간 기록
 	if seal_choice:
 		seal_choice.close()
 	GameTime.reset()
@@ -257,17 +249,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if state.is_playing() or _end_time < restart_delay:
 		return
 	if event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed:
-		if is_change_hero_area((event as InputEventScreenTouch).position):
-			GameSettings.hero_picked = false  # 다음 판 전에 고르기 화면 (영웅 → 시험판이면 전장)
-			GameSettings.stage_picked = false
-		elif state.result == GameState.Result.VICTORY:
-			advance_stage()
-		restart()
-
-
-## 결과 화면 아래 띠 ("영웅 바꾸기"). HUD가 같은 영역을 그린다.
-func is_change_hero_area(pos: Vector2) -> bool:
-	return playable_heroes().size() > 1 and pos.y >= get_viewport().get_visible_rect().size.y - Hud.CHANGE_HERO_BAND
+		RunEnd.press(self, RunEnd.action_at(get_viewport().get_visible_rect().size, (event as InputEventScreenTouch).position))
 
 
 func restart() -> void:

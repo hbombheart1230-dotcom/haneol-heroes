@@ -6,10 +6,6 @@ extends Control
 @export var player: Player
 @export var controller: TouchController
 @export var show_touch_debug: bool = true
-## 결과 화면 아래 "영웅 바꾸기" 띠 높이(px). Main이 같은 값으로 터치를 판정한다.
-const CHANGE_HERO_BAND := 140.0
-## 영웅이 둘 이상일 때만 띠를 그린다.
-var can_change_hero: bool = false
 
 var state: GameState
 ## P0-D 성능 기록. 결과 화면에 요약을 보여준다.
@@ -20,8 +16,6 @@ var progress: RunProgress
 var badge := HeroBadge.new()
 ## 판 시작 때 띄우는 무대 이름 (연도 · 전장).
 var stage: StageTheme
-## 이겼을 때 "다음 전장" 무대 (결과 화면에 이름).
-var next_stage: StageTheme
 const STAGE_TITLE_TIME := 3.2
 ## 보스 막대의 방금 깎인 자국 (비율): CHIP_DELAY초 뒤 CHIP_SPEED/초로 따라 내려간다.
 var _boss_chip: float = 1.0

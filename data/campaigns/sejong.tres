@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="HeroCampaign" format=3]
+
+[ext_resource type="Script" path="res://scripts/run/campaign_slot.gd" id="1_slot"]
+[ext_resource type="Script" path="res://scripts/run/hero_campaign.gd" id="2_campaign"]
+
+[sub_resource type="Resource" id="slot_0"]
+script = ExtResource("1_slot")
+id = &"gyeongbokgung_1433"
+title = ""
+year_label = ""
+
+[sub_resource type="Resource" id="slot_1"]
+script = ExtResource("1_slot")
+id = &"changdeokgung"
+title = "창덕궁"
+year_label = ""
+
+[sub_resource type="Resource" id="slot_2"]
+script = ExtResource("1_slot")
+id = &"donggung"
+title = "동궁전"
+year_label = ""
+
+[resource]
+script = ExtResource("2_campaign")
+slots = Array[ExtResource("1_slot")]([SubResource("slot_0"), SubResource("slot_1"), SubResource("slot_2")])
