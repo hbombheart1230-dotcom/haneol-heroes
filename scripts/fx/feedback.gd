@@ -358,8 +358,8 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 	add_trauma(feel.kill_trauma, dir)
 	kick(dir, feel.kill_kick_px)
 	var now := Time.get_ticks_msec() / 1000.0
-	# 칼이 박힌 멈춤 중이면 처치 멈춤을 더 얹지 않는다 (휘두름 한 번에 멈춤 한 번, BladeBite), 돌진 타격 처치도 멈추지 않는다
-	if feel.kill_freeze > 0.0 and now - _last_kill_freeze >= feel.kill_freeze_min_gap and is_inside_tree() 			and not BladeBite.is_biting() and not DashDirection.striking:
+	# 돌진 타격 처치는 멈추지 않는다 (지나가며 베기). 칼 박힘 중에도 처치 멈춤은 건다
+	if feel.kill_freeze > 0.0 and now - _last_kill_freeze >= feel.kill_freeze_min_gap and is_inside_tree() 			and not DashDirection.striking:  # 칼 박힘 중에도 처치 멈춤 (순신만 처치 순간이 밋밋하던 원인, docs/research/yi_swing_frames.md)
 		_last_kill_freeze = now
 		GameTime.stop(get_tree(), feel.kill_freeze)
 

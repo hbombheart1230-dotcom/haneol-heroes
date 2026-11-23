@@ -37,8 +37,7 @@ static func melee_hit(pos: Vector2, dir: Vector2, d: BasicAttackData, heavy: boo
 		fb.play(d.heavy_hit_sfx, 0.0)
 	fb.add_trauma(capped_trauma(fb.trauma, im.heavy_trauma, im.trauma_cap), dir)  # 겹친 흔들림 상한
 	fb.kick(dir, im.heavy_kick_px)
-	if not BladeBite.is_biting():  # 칼이 박힌 멈춤이 이 타의 멈춤 (겹쳐 쌓지 않는다)
-		heavy_slow(fb.get_tree(), im)
+	heavy_slow(fb.get_tree(), im)  # 칼 박힘 중에도 3타 늦은 감속 (박힘은 그림만 세우고, 감속은 그 뒤 시간 전체: 하데스처럼 닿고 조금 뒤)
 	if im.heavy_gugak != &"":
 		fb.play(im.heavy_gugak, im.heavy_gugak_gap)  # 꽹과리 한 타
 	fb.haptic(fb.feel.haptic_impact_ms, fb.feel.haptic_impact_amp)

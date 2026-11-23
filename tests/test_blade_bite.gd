@@ -73,7 +73,7 @@ func test_other_heroes_off() -> void:
 	assert_object(YI.blade_bite).is_not_null()
 
 
-## 2. 휘두름 한 번에 멈춤 한 번: 세 마리를 같이 베어도 영웅·몹 모두 같은 길이 (1타 0.05초), 몹은 고르게 떤다.
+## 2. 휘두름 한 번에 멈춤 한 번: 세 마리를 같이 베어도 영웅·몹 모두 같은 길이 (1타 0.02초), 몹은 고르게 떤다.
 func test_one_stop_per_swing_for_hero_and_all_hit() -> void:
 	var r := _rig(YI, 3)
 	var p: Player = r[0]
@@ -88,14 +88,15 @@ func test_one_stop_per_swing_for_hero_and_all_hit() -> void:
 	assert_bool(BladeBite.is_biting()).is_true()
 	for e in r[2]:
 		var en: Enemy = e
-		assert_float(en._freeze_left).is_equal_approx(YI.blade_bite.stop_for(1), 0.0001)
+		assert_float(en._freeze_left).is_greater_equal(YI.blade_bite.stop_for(1) - 0.0001)  # 박힘보다 긴 피해 멈춤이면 그쪽 (max)
 		assert_float(en._bite_px).is_equal(YI.blade_bite.jitter_px)
 	assert_float(absf(p.bite.jitter().x)).is_equal(YI.blade_bite.jitter_px)
 
 
 func test_heavy_third_hit_stops_longer() -> void:
 	assert_float(YI.blade_bite.stop_for(3)).is_greater(YI.blade_bite.stop_for(1))
-	assert_float(YI.blade_bite.stop_for(3)).is_equal_approx(0.1, 0.001)
+	assert_float(YI.blade_bite.stop_for(3)).is_equal_approx(0.06, 0.001)  # 사용자: 박히는 느낌은 3타에 뚜렷하게, 1·2타는 살짝 (0.02)
+	assert_float(YI.blade_bite.stop_for(1)).is_equal_approx(0.02, 0.001)
 	assert_float(YI.blade_bite.finisher_stop).is_equal_approx(0.1, 0.001)
 
 
@@ -115,11 +116,15 @@ func test_push_after_stop_and_release_speedup() -> void:
 	assert_vector(e.global_position).is_equal(at)  # 멈춘 동안 밀리지 않는다
 	var released := [false]
 	p.bite.released.connect(func() -> void: released[0] = true)
-	for i in 4:
+	var speed := 1.0
+	for i in 10:
 		p.compute_velocity(DT)
 		e._physics_process(DT)
+		if released[0]:
+			speed = p.bite.anim_speed()  # 풀린 그 프레임 (박힘이 짧으면 빠른 구간도 짧다: release_time)
+			break
 	assert_bool(released[0]).is_true()
-	assert_float(p.bite.anim_speed()).is_equal(YI.blade_bite.release_speed)
+	assert_float(speed).is_equal(YI.blade_bite.release_speed)
 	for i in 6:
 		e._physics_process(DT)
 	assert_float(e.global_position.distance_to(at)).is_greater(1.0)  # 풀린 뒤 밀림
