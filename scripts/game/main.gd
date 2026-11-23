@@ -118,6 +118,7 @@ func begin_run() -> void:
 	FxWarmup.run(self, player.hero if player else null, stage_by_id(run_stage_id()))  # 효과 첫 사용 멈칫을 판 시작 때 미리
 	_begin_build()
 	levels.begin()
+	GameSettings.want_stage_list = false  # 판이 시작됐다 (다시 켜거나 판이 끝나야 다시 목록)
 	waiting_pick = false
 	get_tree().paused = false
 	music_cue(&"stage")  # 다시 시작하면 무대 곡으로 (같으면 이어서)

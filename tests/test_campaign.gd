@@ -71,3 +71,51 @@ func test_hero_cleared_is_saved_and_loaded() -> void:
 	GameSettings.load_settings(path)
 	assert_bool(PackedStringArray(GameSettings.hero_cleared.get("sejong", PackedStringArray())).has("gyeongbokgung_1433")).is_true()
 	GameSettings.hero_cleared = {}
+
+
+func test_records_keep_best_level_and_fastest_win() -> void:
+	GameSettings.stage_records = {}
+	GameSettings.record_run(&"sejong", &"gyeongbokgung_1433", 6, false, 120.0)
+	GameSettings.record_run(&"sejong", &"gyeongbokgung_1433", 9, true, 250.0)
+	GameSettings.record_run(&"sejong", &"gyeongbokgung_1433", 7, true, 230.0)
+	var r := GameSettings.record_of(&"sejong", &"gyeongbokgung_1433")
+	assert_int(int(r["level"])).is_equal(9)
+	assert_float(float(r["time"])).is_equal(230.0)
+	var sejong: HeroData = load("res://data/heroes/sejong.tres")
+	assert_str(StageCardDrawer.record_line(sejong, &"gyeongbokgung_1433")).is_equal("가장 높은 경지 9  ·  가장 빨리 3:50")
+	GameSettings.stage_records = {}
+
+
+func test_result_buttons_are_two_and_separate() -> void:
+	var v := Vector2(720, 1280)
+	assert_bool(ResultDrawer.replay_rect(v).intersects(ResultDrawer.list_rect(v))).is_false()
+	assert_str(String(RunEnd.action_at(v, ResultDrawer.list_rect(v).get_center()))).is_equal("list")
+	assert_str(String(RunEnd.action_at(v, ResultDrawer.replay_rect(v).get_center()))).is_equal("replay")
+	assert_str(String(RunEnd.action_at(v, Vector2(10, 10)))).is_equal("")
+
+
+func test_stage_select_locks_coming_and_expedition_views_other_heroes() -> void:
+	var yi: HeroData = load("res://data/heroes/yi_sun_sin.tres")
+	var all: Array[HeroData] = []
+	for id: String in HEROES:
+		all.append(load("res://data/heroes/%s.tres" % id))
+	var real: Array[StageTheme] = []
+	for id in ["hansan_1592", "manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
+		real.append(load("res://data/stages/%s.tres" % id))
+	var sel: StageSelect = auto_free(StageSelect.new())
+	sel.size = Vector2(720, 1280)
+	add_child(sel)
+	var picked := []
+	sel.stage_picked.connect(func(id: StringName) -> void: picked.append(id))
+	sel.open(yi, CampaignProgress.new(real, {}), all)
+	assert_bool(sel.highlight(0)).is_true()
+	assert_bool(sel.press(1)).is_false()  # 곧 열림
+	assert_bool(sel.press(-2)).is_false()  # 원정은 아직
+	sel.open(yi, CampaignProgress.new(real, {"yi_sun_sin": PackedStringArray(["hansan_1592"])}), all)
+	assert_bool(sel.highlight(0)).is_false()  # 이겼으면 더 빛나지 않는다
+	assert_bool(sel.press(-2)).is_true()  # 만든 전장을 다 이김 → 원정
+	assert_bool(sel.expedition).is_true()
+	assert_object(sel.view_hero).is_not_same(yi)
+	var other: StringName = sel.view_hero.campaign.slots[0].id
+	assert_bool(sel.press(0)).is_true()  # 다른 영웅의 첫 전장을 지금 영웅으로
+	assert_str(String(picked[0])).is_equal(String(other))

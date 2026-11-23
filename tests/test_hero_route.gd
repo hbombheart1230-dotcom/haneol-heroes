@@ -6,6 +6,10 @@ const HEROES := {"gwanggaeto": "manchuria_395", "sejong": "gyeongbokgung_1433",
 	"shin_saimdang": "chochungdo", "yi_sun_sin": "hansan_1592"}
 
 
+func after_test() -> void:
+	GameSettings.want_stage_list = false
+
+
 func _stages() -> Array[StageTheme]:
 	var out: Array[StageTheme] = []
 	for id in IDS:

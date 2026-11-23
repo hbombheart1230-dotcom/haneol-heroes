@@ -30,8 +30,8 @@ func next() -> void:
 		main.opening_video.open()
 		return
 	if not _ready_to_run():
-		# 영웅 이야기 차례면 그 영웅 무대의 노래 (판이 시작돼도 끊기지 않고 이어진다), 아니면 입장 음악
-		if pending_hero_story() and not (main.title_screen and not GameSettings.title_seen):
+		# 영웅 이야기·전장 목록 차례면 그 영웅 무대의 노래 (판이 시작돼도 끊기지 않고 이어진다), 아니면 입장 음악
+		if (pending_hero_story() or wants_stage_list()) and not (main.title_screen and not GameSettings.title_seen):
 			main.hero_music(player.hero)
 		else:
 			main.menu_music()

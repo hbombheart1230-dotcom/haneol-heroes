@@ -32,6 +32,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	GameSettings.want_stage_list = false
 	for c in get_children():
 		if c is DamageZone or c is Projectile:
 			remove_child(c)
