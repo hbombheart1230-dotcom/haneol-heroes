@@ -105,13 +105,20 @@ func _draw_cutin() -> void:
 	if def:  # 기술 이름: 붓글씨가 크게 찍혔다가 자리 잡는다
 		var stamp := clampf((k - 0.1) / 0.16, 0.0, 1.0)
 		if stamp > 0.0:
-			var px := int(stage.cutin_font_px * lerpf(1.5, 1.0, 1.0 - pow(1.0 - stamp, 3.0)))
 			var col := Color(UiStyle.GOLD.lightened(0.25), a * stamp)
-			UiStyle.text(_canvas, UiStyle.TITLE_FONT, Vector2(view.x * 0.06, cy + px * 0.35), def.display_name, px, col,
-				-1.0, Color(0, 0, 0, 0.85), maxi(px / 10, 4))
+			draw_name(_canvas, Vector2(view.x * 0.06, cy), def.display_name, stage.cutin_font_px,
+				lerpf(1.5, 1.0, 1.0 - pow(1.0 - stamp, 3.0)), col)
 
 
 ## 그림을 3×3 칸(정점 4×4) 다각형으로 그려 바깥 테두리 정점만 투명하게 (네모 칼선 대신 부드러운 가장자리).
+## 기술 이름 한 줄: 글꼴은 늘 size 크기로 그리고 찍히는 크기는 늘려 그린다 (프레임마다 새 글꼴 크기를 만들면
+## 첫 컷인마다 글자 그림을 새로 만드느라 멈칫한다; FxWarmupLayer가 같은 함수로 미리 그린다). at = 왼쪽 가운데 줄.
+static func draw_name(c: CanvasItem, at: Vector2, text: String, size: int, grow: float, col: Color) -> void:
+	c.draw_set_transform(at, 0.0, Vector2.ONE * grow)
+	UiStyle.text(c, UiStyle.TITLE_FONT, Vector2(0, size * 0.35), text, size, col, -1.0, Color(0, 0, 0, 0.85), maxi(size / 10, 4))
+	c.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
 func _feathered(tex: Texture2D, dst: Rect2, src: Rect2, alpha: float) -> void:
 	var ts := tex.get_size()
 	for gy in 3:
