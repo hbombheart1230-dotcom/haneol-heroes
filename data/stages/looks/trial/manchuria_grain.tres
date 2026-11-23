@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="StageLook" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/stage_look.gd" id="1_look"]
+[ext_resource type="Texture2D" path="res://assets/textures/grain/steppe_grass.png" id="2_grain"]
+
+[resource]
+script = ExtResource("1_look")
+detail_texture = ExtResource("2_grain")
+detail_px = 700.0
+detail_strength = 0.45
+value_mult = 0.53
+saturation = 0.7
+contrast = 3.0
+pivot = 0.24
+shadow_tint = Color(0.07, 0.09, 0.08, 1)
+light_tint = Color(0.95, 0.74, 0.4, 1)
+tint_mix = 0.75
+tint_split = 0.35
+lit_props = PackedStringArray()
+prop_light_color = Color(1.0, 0.6, 0.25, 0.9)
+prop_light_radius = 320.0
+pools_per_mpx = 0.9
+pool_color = Color(1.0, 0.75, 0.38, 0.85)
+pool_radius_min = 220.0
+pool_radius_max = 360.0
+hero_light_color = Color(1.0, 0.8, 0.5, 0.3)
+hero_light_radius = 130.0

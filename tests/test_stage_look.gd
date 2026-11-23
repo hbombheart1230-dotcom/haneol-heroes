@@ -141,3 +141,31 @@ func test_arena_applies_stage_zoom_to_camera() -> void:
 	arena.apply_theme(plain)
 	arena.clamp_camera(cam)
 	assert_vector(cam.zoom).is_equal(Vector2.ONE)
+
+
+## 바닥 결 층: 회색 0.5 중심 (그림 밝기를 안 바꾸고 결만), 룩이 셰이더에 넘긴다.
+func test_grain_textures_are_mid_grey() -> void:
+	for n in ["deck_planks", "steppe_grass", "palace_stone", "hanji_paper"]:
+		var img := (load("res://assets/textures/grain/%s.png" % n) as Texture2D).get_image()
+		img.resize(64, 64)
+		var sum := 0.0
+		for y in 64:
+			for x in 64:
+				sum += img.get_pixel(x, y).r
+		assert_float(sum / 4096.0).override_failure_message(n).is_between(0.42, 0.58)
+
+
+func test_arena_passes_grain_layer_to_shader() -> void:
+	var arena: Arena = auto_free(Arena.new())
+	add_child(arena)
+	var st := HANSAN.duplicate() as StageTheme
+	var l := (HANSAN.look as StageLook).duplicate() as StageLook
+	l.detail_texture = load("res://assets/textures/grain/deck_planks.png")
+	l.detail_strength = 0.4
+	l.detail_px = 420.0
+	st.look = l
+	arena.apply_theme(st)
+	var m := arena.map.material as ShaderMaterial
+	assert_float(float(m.get_shader_parameter("detail_strength"))).is_equal_approx(0.4, 0.001)
+	assert_object(m.get_shader_parameter("detail_tex")).is_not_null()
+	assert_vector(m.get_shader_parameter("map_px")).is_equal(arena.map.rect.size)
