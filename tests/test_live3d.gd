@@ -98,6 +98,21 @@ func _check_packed(id: StringName) -> void:
 		assert_bool(ResourceLoader.exists(String(c["file"]))).is_true()
 
 
+## 동작 구간의 정본은 굽기 작업 JSON: 3D 설정이 같은 start·end·loop를 쓴다 (다시 자르면 pack_model --stage=sync).
+func test_clip_windows_match_bake_jobs() -> void:
+	for id in ["yi_sun_sin", "gwanggaeto", "shin_saimdang", "sejong"]:
+		var d: Live3DHeroData = load(View3D.data_path(StringName(id)))
+		var job: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/bake/jobs/%s.json" % id))
+		var want := Live3DHeroData.from_job(job)
+		assert_int(d.clips.size()).is_equal(want.clips.size())
+		for c in want.clips:
+			var got := d.clip(String(c["key"]))
+			assert_bool(got.is_empty()).override_failure_message("%s %s missing" % [id, c["key"]]).is_false()
+			for k in ["start", "end"]:
+				assert_float(float(got.get(k, -1.0))).override_failure_message("%s %s %s" % [id, c["key"], k]) 					.is_equal(float(c.get(k, -1.0)))
+			assert_bool(bool(got.get("loop", false))).is_equal(bool(c.get("loop", false)))
+
+
 ## 3D 설정이 있는 영웅은 3D, 없는 영웅은 구운 그림, 설정을 끄면 예전 PlayerView 그대로.
 func test_ready_heroes_get_3d_others_keep_sprites() -> void:
 	assert_bool(_view(&"yi_sun_sin", true).get("rig") != null).is_true()

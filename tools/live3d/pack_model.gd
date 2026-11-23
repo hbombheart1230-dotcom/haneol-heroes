@@ -10,6 +10,9 @@ extends SceneTree
 ##   godot --headless --path . -s res://tools/live3d/pack_model.gd -- yi_sun_sin --stage=1 [--tex=1024 (줄이기)]
 ##   godot --headless --path . --import
 ##   godot --headless --path . -s res://tools/live3d/pack_model.gd -- yi_sun_sin --stage=2
+## 굽기 작업의 동작 구간(start·end·loop)만 바꿨으면 (예: 평타 다시 자르기) 모델 없이 설정만 맞춘다:
+##   godot --headless --path . -s res://tools/live3d/pack_model.gd -- yi_sun_sin --stage=sync
+## (구간의 정본은 굽기 작업 JSON. tests/test_live3d.gd가 둘이 다르면 실패한다.)
 
 const Lib := preload("res://scripts/art/live3d/live3d_library.gd")
 ## 달리며 공격할 때 공격 동작을 따르는 윗몸 뼈 (Meshy 자동 뼈대 이름).
@@ -30,7 +33,9 @@ func _initialize() -> void:
 		var job: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/bake/jobs/%s.json" % n))
 		var out := "res://assets/live3d/%s" % n
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out + "/anims"))
-		if args.get("stage", "1") == "1":
+		if args.get("stage", "1") == "sync":
+			_sync(job, n)
+		elif args.get("stage", "1") == "1":
 			_stage1(job, out, int(args.get("tex", str(job.get("live3d_tex", 0)))))
 		else:
 			_stage2(job, out, n)
@@ -92,6 +97,22 @@ func _stage2(job: Dictionary, out: String, n: String) -> void:
 	model.free()
 	d.model_path = out + "/model.scn"
 	print("data ", ResourceSaver.save(d, "res://data/live3d/%s.tres" % n), " clips ", d.clips.size())
+
+
+## 설정의 동작 구간을 굽기 작업과 같게 (동작 파일·모델은 그대로: 자르기는 게임이 한다).
+func _sync(job: Dictionary, n: String) -> void:
+	var path := "res://data/live3d/%s.tres" % n
+	var d: Live3DHeroData = load(path)
+	var fresh := Live3DHeroData.from_job(job)
+	for c in d.clips:
+		var f := fresh.clip(String(c["key"]))
+		for k in ["start", "end"]:
+			if f.has(k):
+				c[k] = f[k]
+			else:
+				c.erase(k)
+		c["loop"] = f.get("loop", false)
+	print("sync ", path, " ", ResourceSaver.save(d, path))
 
 
 ## LOD·그림자 메시 없이 표면만 새로 (경로 없는 리소스 → 장면 안에 저장된다).
