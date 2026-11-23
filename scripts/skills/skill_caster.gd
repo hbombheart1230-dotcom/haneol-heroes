@@ -277,6 +277,7 @@ func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float 
 		return null
 	_cd[slot] = cd if cd >= 0.0 else d.cooldown
 	d = TapCombo.scaled_def(d, damage_scale)
+	d = SkillGrowthData.get_default().scaled_def(d)  # 성장 단계: 판정도 그림과 같은 비율로
 	if slot == Slot.COUNTER:
 		_counter_left = 0.0
 	skill_started.emit(slot, d)

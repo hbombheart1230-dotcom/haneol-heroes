@@ -3,7 +3,8 @@ extends Resource
 ## 강화할수록 기술 모습이 단계적으로 커지고 화려해진다 (사용자: "초반엔 작게 나중엔 크고 화려하게").
 ## 입력은 SkillDef.vfx_level 하나 (카드 한 장·레벨업 두 번마다 +1 등, 진행 방식이 바뀌어도 이 숫자만 오르면 된다).
 ## vfx_level → 단계 (stage_from): 0 기본 · 1 (1~2) · 2 (3~4) · 3 (큰 강화/만렙). 단계마다 크기·입자·빛·겹·화면 상한.
-## SkillVfxData.growth가 켜진 효과에만 쓴다 (켜지 않은 효과는 예전 level_size 방식). 판정(반경)은 바꾸지 않는다 — 그림만.
+## SkillVfxData.growth가 켜진 효과에만 쓴다 (켜지 않은 효과는 예전 level_size 방식).
+## 판정도 같은 비율로 (사용자 결정: 보이는 대로 맞게, 성장이 손에도) — 발동 때 hit_props 수치를 size배 한 기술 사본 (scaled_def).
 
 const PATH := "res://data/feel/skill_growth.tres"
 
@@ -21,6 +22,10 @@ const PATH := "res://data/feel/skill_growth.tres"
 @export var ring_stage: int = 2
 ## 화면 너비 대비 상한 (SkillStageFeel.screen_cap 대신). 마지막 단계는 지금(0.58)보다 크게.
 @export var screen_cap: PackedFloat32Array = PackedFloat32Array([0.36, 0.46, 0.58, 0.75])
+
+## 판정 크기 속성 이름 (있는 것만, 숫자면 size배). 기술 vfx_impact.growth가 켜진 기술에만.
+@export var hit_props: PackedStringArray = PackedStringArray(["radius", "outer_radius", "end_burst_radius",
+	"star_burst_radius", "max_radius", "width"])
 
 static var _cached: SkillGrowthData
 
@@ -74,3 +79,25 @@ func ring_at(level: int) -> bool:
 func _f(arr: PackedFloat32Array, level: int, fallback: float) -> float:
 	var s := stage_of(level)
 	return arr[s] if s < arr.size() else (arr[arr.size() - 1] if not arr.is_empty() else fallback)
+
+
+## 이 기술이 성장 단계를 쓰는지 (vfx_impact.growth).
+static func applies(d: SkillDef) -> bool:
+	return d != null and d.vfx_impact != null and d.vfx_impact.growth
+
+
+## 발동할 기술: 성장 단계면 판정 크기 속성을 단계 배율로 키운(줄인) 사본, 아니면 그대로.
+func scaled_def(d: SkillDef) -> SkillDef:
+	if not applies(d):
+		return d
+	var k := size_at(d.vfx_level)
+	if is_equal_approx(k, 1.0):
+		return d
+	var c := d.duplicate() as SkillDef
+	for n in hit_props:
+		if not (n in c):
+			continue
+		var v: Variant = c.get(n)
+		if typeof(v) == TYPE_FLOAT and float(v) > 0.0:
+			c.set(n, float(v) * k)
+	return c

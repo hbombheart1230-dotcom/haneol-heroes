@@ -111,8 +111,8 @@ func burst(d: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: in
 
 ## 그릴 지름: 판정 반경을 알면 거기에 맞추고, 모르면 데이터 크기 × 강화 배율.
 static func fit_size(d: SkillVfxData, level: int, fit_radius: float) -> float:
-	if fit_radius > 0.0 and d.fit_to_hit:  # 성장 단계면 판정에 맞춘 지름에도 단계 배율 (그림만, 판정은 그대로)
-		return d.fitted_size(fit_radius) * (d.size_mult(level) if d.growth else 1.0)
+	if fit_radius > 0.0 and d.fit_to_hit:  # 성장 단계면 판정(반경)이 이미 단계 배율로 커져 있다 (SkillGrowthData.scaled_def)
+		return d.fitted_size(fit_radius)
 	return d.decal_size * d.size_mult(level)
 
 
