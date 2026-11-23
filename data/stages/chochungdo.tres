@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="Resource" path="res://data/stages/looks/chochungdo.tres" id="look"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/brush.png" id="p_brush"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/cockscomb.png" id="p_cockscomb"]
@@ -29,6 +30,38 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/watermelon.png" id="p_watermelon"]
 
+[ext_resource type="Script" path="res://scripts/data/wave_data.gd" id="w_wave"]
+[ext_resource type="Script" path="res://scripts/data/wave_set_data.gd" id="w_set"]
+
+[sub_resource type="Resource" id="Wave_1"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
+first_count = 6
+max_alive = 6
+elite_last = false
+
+[sub_resource type="Resource" id="Wave_2"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
+first_count = 8
+max_alive = 8
+elite_last = true
+
+[sub_resource type="Resource" id="Wave_3"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_beetle"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
+first_count = 10
+max_alive = 10
+elite_last = false
+
+[sub_resource type="Resource" id="Waves"]
+script = ExtResource("w_set")
+waves = Array[ExtResource("w_wave")]([SubResource("Wave_1"), SubResource("Wave_2"), SubResource("Wave_3")])
+max_alive = 10
+next_when_left = 2
+refill_each = true
+xp_mult = 2.0
+
 [resource]
 script = ExtResource("1_theme")
 id = &"chochungdo"
@@ -43,10 +76,14 @@ spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResou
 spawn_weights = PackedFloat32Array(6, 2, 1)
 unlock_times = PackedFloat32Array(0, 10, 20)
 elite = ExtResource("e_cc_mantis")
+waves = SubResource("Waves")
 boss = ExtResource("e_cc_frog")
 card_art = ExtResource("p_watermelon")
 floor_base = Color(0.884, 0.746, 0.563, 1)
 floor_stain = Color(0.55, 0.5, 0.42, 1)
+vignette = 0.4
+look = ExtResource("look")
+camera_zoom = 1.09
 grass_per_mpx = 0.0
 grass_color = Color(0.36, 0.45, 0.25, 0.6)
 rock_per_mpx = 0.0

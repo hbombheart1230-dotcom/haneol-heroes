@@ -67,10 +67,14 @@ var _since_dash_start: float = INF
 var _dash_start_pos: Vector2 = Vector2.ZERO
 ## 이번 대시에 이미 밀쳐 낸 적 (한 번씩만).
 var _shoved: Dictionary = {}
+## 접점 시각 (그림 쪽이 넣는다: 2D SheetContact, 3D 칼끝 뼈)과 칼이 박혀 멈춘 상태 (BladeBite, 두 그림이 같이 읽는다).
+var contact: HeroContact
+var bite := BladeBite.new()
 
 
 func _init() -> void:
 	dash = DashCharges.new(max_dash_charges, dash_recharge_time)
+	bite.released.connect(func() -> void: BladeBite.on_release(self))
 
 
 func _ready() -> void:
@@ -279,6 +283,8 @@ func set_move_input(v: Vector2) -> void:
 ## 방향이 0이면 현재 이동 방향, 그것도 없으면 바라보는 방향으로 대시한다.
 ## 반환: 대시가 시작되면 true.
 func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
+	if bite.hold_dash(direction, dash.can_consume()):  # 칼이 박혀 멈춘 중: 풀릴 때 바로 (BladeBite)
+		return true
 	if is_dashing():
 		# 연속 대시: 충전이 남아 있으면 지금 대시를 끊고 즉시 새 방향으로 (기다리지 않음, 실기기 피드백).
 		if not dash.can_consume():
@@ -315,6 +321,7 @@ func slow_for(seconds: float, mult: float) -> void:
 
 func compute_velocity(delta: float) -> Vector2:
 	dash.update(delta)
+	bite.tick(delta)
 	_since_dash_start += delta
 	_skill_invuln = maxf(_skill_invuln - delta, 0.0)
 	if not is_dashing():

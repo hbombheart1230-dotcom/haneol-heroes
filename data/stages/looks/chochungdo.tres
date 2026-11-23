@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="StageLook" format=3]
+
+[ext_resource type="Script" path="res://scripts/world/stage_look.gd" id="1_look"]
+
+[resource]
+script = ExtResource("1_look")
+value_mult = 0.3
+saturation = 0.8
+contrast = 3.0
+pivot = 0.24
+shadow_tint = Color(0.03, 0.1, 0.06, 1)
+light_tint = Color(0.5, 0.76, 0.42, 1)
+tint_mix = 0.7
+tint_split = 0.3
+lit_props = PackedStringArray()
+prop_light_color = Color(1.0, 0.85, 0.5, 0.8)
+prop_light_radius = 300.0
+pools_per_mpx = 1.6
+pool_color = Color(1.0, 0.88, 0.55, 0.85)
+pool_radius_min = 200.0
+pool_radius_max = 380.0
+hero_light_color = Color(1.0, 0.9, 0.65, 0.3)
+hero_light_radius = 130.0
+pool_spacing = 300.0

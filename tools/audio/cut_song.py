@@ -19,6 +19,8 @@ import soundfile as sf
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 SECTIONS = ["intro", "verse", "chorus", "outro"]
 EDGE_FADE = 0.006  # 자른 자리 딸깍 소리 없애기 (초)
+## Vorbis 압축 정도 (libsndfile 0~1, 높을수록 작게). 0.7 ≈ 평균 95 kbps (APK 용량, docs/research/apk_size.md). 기본값은 약 125 kbps
+OGG_LEVEL = 0.7
 
 
 def estimate_bpm(x: np.ndarray, sr: int) -> float:
@@ -58,7 +60,7 @@ def cut(x: np.ndarray, sr: int, start: float, end: float) -> np.ndarray:
 def write_ogg(path: str, seg: np.ndarray, sr: int) -> None:
     """libsndfile은 OGG를 한 번에 크게 쓰면 죽는 경우가 있어 조금씩 나눠 쓴다."""
     ch = 1 if seg.ndim == 1 else seg.shape[1]
-    with sf.SoundFile(path, "w", samplerate=sr, channels=ch, format="OGG", subtype="VORBIS") as f:
+    with sf.SoundFile(path, "w", samplerate=sr, channels=ch, format="OGG", subtype="VORBIS", compression_level=OGG_LEVEL) as f:
         for i in range(0, len(seg), 4096):
             f.write(seg[i:i + 4096])
 

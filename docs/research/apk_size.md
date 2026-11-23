@@ -138,3 +138,23 @@
 2. APK 의 `assets/.godot/imported/*` 크기를 각 `.import` 의 `path=` 로 원본에 이어 붙여 묶는다 (zip 의 compress_size).
 3. 두 APK 비교는 파일 이름에서 `-<md5>` 를 지우고 같은 이름끼리 뺀다.
 4. 쓰이는지: 원본의 `res://` 경로와 `.import` 의 uid 를 `scripts/ scenes/ data/ assets/` 의 .gd·.tres·.tscn 에서 찾는다 (`tests/test_export_excludes.gd` 가 제외 목록에 대해 같은 일을 한다).
+
+## 6. 적용 (2026-11-23, 안 1~5 승인)
+
+| 항목 | 전 → 후 (MB) | 절약 | 화질 확인 |
+|---|---|---:|---|
+| 이펙트 그림 무손실 → 손실 0.85 (`assets/vfx`, 63장) | 6.59 → 2.33 | −4.26 | 해룡 고리·해시계 판·파도 띠 2배 확대에서도 구분 안 됨 |
+| 음악 128 → 약 95 kbps (22곡, defeat 는 이미 103) | 24.12 → 18.41 | −5.71 | 샘플 수 그대로(반복·구간 전환 시점 같음), 고음 대역 18.1 kHz 그대로. 사람이 귀로 비교는 못 함 → 폰에서 확인 필요 |
+| 여는 영상 720×1260 4.3 Mbps → 544×952 1.8 Mbps | 5.45 → 2.31 | −3.14 | 1.2 Mbps(1.54 MB)는 두루마리 글씨가 뭉개져서 뺌 |
+| 이야기 그림 0.85 → 0.8 (`assets/intro`) | 4.72 → 3.60 | −1.12 | 0.7(−2.2 MB)은 한지 결(종이 잡티)이 지워져 눈에 띄어 0.8 로 |
+| 배경 0.85 → 0.7 (`assets/backgrounds`) | 5.46 → 3.36 | −2.10 | 한산 바닥 2배 확대에서 구분 안 됨 |
+| **합계** | | **−16.3** | |
+
+실제 APK (같은 커밋 55f9eec 위에서 내보내 비교): **98.19 MB (93.64 MiB) → 82.13 MB (78.32 MiB), −16.06 MB**. 목표 76 MiB 보다 2 MiB 큰 것은 이야기 그림을 0.7 대신 0.8 로 둔 것(+1.1 MB)과 기준 APK 가 그새 커진 몫.
+
+비교 그림: `build/preview/size_diet_{vfx_ring,vfx_sundial,vfx_wave,hansan_floor,story,video}.png`.
+
+새 그림·곡에도 같은 규칙:
+- 그림: `tools/build/import_rules.json` (폴더 → 압축). 새 그림을 넣고 Godot 이 한 번 가져온 뒤 `python tools/build/import_rules.py` → 다시 가져오기. `tests/test_import_rules.gd` 가 규칙과 다른 그림이 있으면 실패한다.
+- 음악: `tools/audio/cut_song.py` 의 `OGG_LEVEL = 0.7` (cut_boss.py 도 같은 write_ogg). 다른 방법으로 넣은 곡은 `python tools/audio/music_diet.py` (110 kbps 넘는 것만 다시 씀, `--check` 로 확인).
+- 영상: `python tools/video/encode_opening.py` (원본 `build/video_src/opening.mp4`, 저장소 밖).

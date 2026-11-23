@@ -64,6 +64,8 @@ extends Resource
 @export var hit_sfx: Array[StringName] = []
 ## 궁극기를 모으는 동안 발밑 표시 (없으면 공통 붓 고리).
 @export var charge_marker: ChargeMarkerData
+## 무기가 몹에 박히는 느낌 (역경직, BladeBiteData). 비면 꺼짐 (예전 방식). 지금은 순신만.
+@export var blade_bite: BladeBiteData
 
 @export_group("전투")
 @export var attack: BasicAttackData

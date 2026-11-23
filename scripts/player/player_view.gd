@@ -75,10 +75,17 @@ func refresh() -> void:
 	_sprite.sprite_frames = _sheet.build_sprite_frames()
 	_sprite.scale = Vector2.ONE * h.sprite_scale
 	_sprite.position = h.sprite_offset
+	_install_contact(h)
+
+
+## 2D 구운 그림의 접점 시각 (HeroContact): 시트 맞닿는 칸 ÷ fps, 데이터 덮어쓰기.
+func _install_contact(h: HeroData) -> void:
+	player.contact = SheetContact.new(h.sprite_sheet, h.blade_bite.clip_contact if h.blade_bite else {})
 
 
 func _setup_sprite(h: HeroData) -> void:
 	_sheet = h.sprite_sheet
+	_install_contact(h)
 	_sprite = AnimatedSprite2D.new()
 	_sprite.sprite_frames = _sheet.build_sprite_frames()
 	_sprite.scale = Vector2.ONE * h.sprite_scale
@@ -129,7 +136,9 @@ func _on_auto_swing(_d: Vector2, _h: int) -> void:
 
 ## 칼이 닿은 순간: 맞았으면 지금 보여 주는 공격 동작을 잠깐 멈춘다 (달리는 중엔 다리를 멈추지 않는다).
 func _on_melee_contact(_d: Vector2, hits: int) -> void:
-	if _oneshot_left > 0.0 and _oneshot.begins_with("attack") and not GameTime.is_stopped():  # 기술 멈춤·마무리 슬로우와 겹치지 않게
+	if player.bite.active():  # 칼이 박힌 멈춤 (BladeBite): 타마다 정해진 길이, 맞은 수와 상관없이
+		_hitstop_left = player.bite.left()
+	elif _oneshot_left > 0.0 and _oneshot.begins_with("attack") and not GameTime.is_stopped():  # 기술 멈춤·마무리 슬로우와 겹치지 않게
 		_hitstop_left = Feedback.feel_data().impact_data().hero_hitstop(hits, _attack != null and _attack.last_heavy)
 
 
@@ -207,8 +216,8 @@ func available_anim(anim: String) -> String:
 func _update_sprite(delta: float) -> void:
 	if _hitstop_left > 0.0:  # 멈춘 동안은 공격 동작 시간도 흐르지 않는다
 		_hitstop_left = maxf(_hitstop_left - delta, 0.0)
-	elif _oneshot_left > 0.0:
-		_oneshot_left = maxf(_oneshot_left - delta, 0.0)
+	elif _oneshot_left > 0.0:  # 풀리며 빨라지는 동안은 그림만큼 빨리 (멈춘 만큼 되찾아 한 번 휘두르는 길이는 그대로)
+		_oneshot_left = maxf(_oneshot_left - delta * (player.bite.anim_speed() if player.bite.releasing() else 1.0), 0.0)
 		if _oneshot_left <= 0.0 and (_oneshot.begins_with("attack") or _oneshot.begins_with("throw") 				or _oneshot.begins_with("cast")):
 			_hold_left = Feedback.feel_data().combo_hold_time
 	else:
@@ -246,6 +255,8 @@ func _update_sprite(delta: float) -> void:
 		_sprite.speed_scale = 0.0
 	if _hitstop_left > 0.0 and current_anim() == _oneshot:
 		_sprite.speed_scale = 0.0
+	elif player.bite.releasing() and current_anim() == _oneshot:  # 풀리면서 잠깐 빠르게 (멈춘 만큼 되찾기)
+		_sprite.speed_scale *= player.bite.anim_speed()
 	if player.hero:
 		PlayerPose.tick(self, delta)
 

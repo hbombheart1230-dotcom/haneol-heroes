@@ -113,6 +113,8 @@ func setup(boss_data: EnemyData, s: int, boss_at: Vector2 = Vector2(0, -300)) ->
 	suite.add_child(spawner)
 	spawner.set_physics_process(false)
 	spawner.boss_data = boss_data
+	if boss_data == null:  # 물결 무대 (StageSim): 보스는 마지막 물결 뒤
+		return
 	boss = spawner.spawn_boss()  # 박자·연출(BossStaging)도 붙는다
 	boss.global_position = boss_at
 
@@ -257,24 +259,8 @@ func _tick_world(list: Array, res: Dictionary) -> void:
 ## 영웅 조작: 위험한 예고가 곧 끝나면 대시로 빠지고, 아니면 보스에게 붙는다 (DODGE는 보스가 칠 때 붙지 않는다).
 func _steer(bot: Bot, list: Array) -> void:
 	var p := player.global_position
-	if bot == Bot.DODGE and not player.is_dashing():
-		for e in list:
-			var a: EnemyAttack = e.attack
-			if a == null or a.state != EnemyAttack.State.WINDUP:
-				_missed.erase(a)
-				continue
-			if not _missed.has(a):
-				_missed[a] = randf() < miss_rate
-			if _missed[a] or a.windup_left() > REACT:
-				continue
-			if a.is_shoot():
-				var off := p - a.aim_origin
-				if absf(off.dot(a.aim_dir.orthogonal())) < 50.0 and off.dot(a.aim_dir) > 0.0:
-					player.request_dash(_side(a.aim_dir, off))
-					return
-			elif a.contains(p):
-				player.request_dash(escape_dir(a, p))
-				return
+	if bot == Bot.DODGE and _dodge(list):
+		return
 	var to_boss := boss.global_position - p
 	var busy := boss.attack.state == EnemyAttack.State.WINDUP and not bool(_missed.get(boss.attack, false))  # 못 본 예고는 없는 셈
 	if bot == Bot.DODGE and busy:
@@ -284,6 +270,31 @@ func _steer(bot: Bot, list: Array) -> void:
 	else:
 		player.set_move_input(Vector2.ZERO)
 		player.facing = to_boss.normalized()
+
+
+## 곧 끝나는 위험한 예고가 있으면 그 밖으로 대시하고 true (DODGE·StageSim이 같이 쓴다).
+func _dodge(list: Array) -> bool:
+	if player.is_dashing():
+		return false
+	var p := player.global_position
+	for e in list:
+		var a: EnemyAttack = e.attack
+		if a == null or a.state != EnemyAttack.State.WINDUP:
+			_missed.erase(a)
+			continue
+		if not _missed.has(a):
+			_missed[a] = randf() < miss_rate
+		if _missed[a] or a.windup_left() > REACT:
+			continue
+		if a.is_shoot():
+			var off := p - a.aim_origin
+			if absf(off.dot(a.aim_dir.orthogonal())) < 50.0 and off.dot(a.aim_dir) > 0.0:
+				player.request_dash(_side(a.aim_dir, off))
+				return true
+		elif a.contains(p):
+			player.request_dash(escape_dir(a, p))
+			return true
+	return false
 
 
 ## 예고 영역 밖으로 나가는 대시 방향.

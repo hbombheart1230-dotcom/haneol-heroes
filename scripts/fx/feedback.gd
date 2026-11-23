@@ -356,7 +356,8 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 	add_trauma(feel.kill_trauma, dir)
 	kick(dir, feel.kill_kick_px)
 	var now := Time.get_ticks_msec() / 1000.0
-	if feel.kill_freeze > 0.0 and now - _last_kill_freeze >= feel.kill_freeze_min_gap and is_inside_tree():
+	# 칼이 박힌 멈춤 중이면 처치 멈춤을 더 얹지 않는다 (휘두름 한 번에 멈춤 한 번, BladeBite)
+	if feel.kill_freeze > 0.0 and now - _last_kill_freeze >= feel.kill_freeze_min_gap and is_inside_tree() 			and not BladeBite.is_biting():
 		_last_kill_freeze = now
 		GameTime.stop(get_tree(), feel.kill_freeze)
 

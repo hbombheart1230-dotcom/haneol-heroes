@@ -11,17 +11,17 @@ kind = 0
 trigger_range = 160.0
 windup = 1.0
 radius = 150.0
-damage = 40
-cooldown = 2.4
+damage = 25
+cooldown = 1.8
 recovery = 0.6
 
 [resource]
 script = ExtResource("1_enemy")
 id = &"cc_mantis"
-max_hp = 520
+max_hp = 400
 xp = 12
 move_speed = 80.0
-contact_damage = 25
+contact_damage = 20
 body_radius = 38.0
 color = Color(0.45, 0.28, 0.6, 1)
 attack = SubResource("Attack_elite_slam")

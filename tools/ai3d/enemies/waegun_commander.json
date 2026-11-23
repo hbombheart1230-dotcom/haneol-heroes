@@ -92,6 +92,22 @@
         0.9,
         1.4
       ]
+    },
+    {
+      "key": "charge",
+      "match": "charge",
+      "action_id": 510,
+      "frames": 8,
+      "fps": 10.0,
+      "loop": true
+    },
+    {
+      "key": "slam",
+      "match": "slam",
+      "action_id": 127,
+      "frames": 6,
+      "fps": 10.0,
+      "loop": false
     }
   ]
 }

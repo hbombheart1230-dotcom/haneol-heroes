@@ -69,11 +69,21 @@ func _on_windup(dir: Vector2) -> void:
 	_active = true
 
 
+## 칼이 박힌 멈춤 동안 검기 폭·밝기 배율 (BladeBiteData.trail_flare_*, 그 밖 1).
+var _flare_w: float = 1.0
+var _flare_b: float = 1.0
+
+
 func _process(delta: float) -> void:
 	if not _active:
 		return
-	if not _hitstopped():
+	var stopped := _hitstopped()
+	if not stopped:
 		_clock += delta
+	var bite := attack.player.bite if attack and attack.player else null
+	var on := stopped and bite != null and bite.active() and bite.data != null
+	_flare_w = bite.data.trail_flare_width if on else 1.0
+	_flare_b = bite.data.trail_flare_bright if on else 1.0
 	if attack and attack.player:
 		global_position = attack.player.global_position + data.center_offset
 	_active = arc.alive(_clock, data)
@@ -118,7 +128,7 @@ func _band(ci: CanvasItem, mode: int, frac: float, grow: float) -> void:
 			var k := i + j
 			var o := _outer[k]
 			var inn := o.lerp(_inner[k], frac)
-			var g := (o - inn).normalized() * grow if grow > 0.0 else Vector2.ZERO
+			var g := (o - inn).normalized() * (grow + (o - inn).length() * (_flare_w - 1.0) * 0.5)
 			_quad[j] = o + g
 			_quad[3 - j] = inn - g
 			_uv[j] = Vector2(_f[k] * 0.9 + 0.05, 0.0)
@@ -129,8 +139,10 @@ func _band(ci: CanvasItem, mode: int, frac: float, grow: float) -> void:
 					c = Color(Ink.INK, data.ink_alpha * minf(_f[k] * 2.0, 1.0))
 				1:
 					c = body_color(_f[k], color, data)
+					if _flare_b > 1.0:  # 박힌 순간: 흰빛 쪽으로
+						c = Color(c.lerp(Color.WHITE, clampf(_flare_b - 1.0, 0.0, 1.0) * 0.6), c.a)
 				_:
-					c = Color(color.lerp(Color.WHITE, data.lighten), data.glow_alpha * _f[k] * _f[k])
+					c = Color(color.lerp(Color.WHITE, data.lighten), minf(data.glow_alpha * _f[k] * _f[k] * _flare_b, 1.0))
 			_cols[j] = c
 			_cols[3 - j] = c
 		ci.draw_primitive(_quad, _cols, _uv, data.band)

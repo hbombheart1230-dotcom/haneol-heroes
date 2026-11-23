@@ -34,9 +34,8 @@ try {
     $java = Join-Path $src "platform\android\java"
     # gradle 설정 단계가 PATH에서 scons 실행 파일을 찾는다 (pip --user 설치 위치를 더해 준다)
     $env:PATH = (& python -c "import sysconfig; print(sysconfig.get_path('scripts', 'nt_user'))") + ";" + $env:PATH
-    # build.gradle이 lib/libs/ 를 작업 폴더 기준으로 찾으므로 작업 폴더를 명시해서 실행한다.
-    # --no-daemon: Start-Process -Wait가 자식인 gradle 데몬까지 기다려 끝나지 않았다 (2026-11-23)
-    $g = Start-Process -FilePath (Join-Path $java "gradlew.bat") -ArgumentList "generateGodotTemplates", "--quiet", "--no-daemon" `
+    # build.gradle이 lib/libs/ 를 작업 폴더 기준으로 찾으므로 작업 폴더를 명시해서 실행한다
+    $g = Start-Process -FilePath (Join-Path $java "gradlew.bat") -ArgumentList "generateGodotTemplates", "--quiet" `
         -WorkingDirectory $java -NoNewWindow -Wait -PassThru
     if ($g.ExitCode -ne 0) { throw "gradle 템플릿 생성 실패 (exit $($g.ExitCode))" }
 } finally { Pop-Location }
