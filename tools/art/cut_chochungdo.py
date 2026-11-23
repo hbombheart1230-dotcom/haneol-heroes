@@ -15,6 +15,7 @@ from PIL import Image, ImageFilter
 SRC = r"C:/Haneol-Heroes/assets/concept/chochungdo_src"
 OUT = "assets/props/chochungdo"
 MAX_PX = 300  # 소품 한 변 최대 (화면에서 0.55~0.8배로 그려진다)
+THRESH = {"screen_poppy": (34.0, 62.0), "screen_smartweed": (30.0, 58.0), "screen_orange_flower": (30.0, 58.0)}  # 종이가 얼룩진 판
 SMALL = {"screen_butterfly_red": 120, "screen_butterfly_white": 130, "screen_moth_eggplant": 90, "screen_dragonfly": 150}
 
 # 이름: (판, (x0, y0, x1, y1) 비율, 막히는 소품인지)
@@ -68,7 +69,7 @@ def main(src=SRC, out=OUT):
     for name, (panel, box, _solid) in CUTS.items():
         if panel not in cache:
             cache[panel] = Image.open(os.path.join(src, "clean_%s.jpg" % panel))
-        cut(cache[panel], box, max_px=SMALL.get(name, MAX_PX)).save(os.path.join(out, name + ".png"))
+        cut(cache[panel], box, thresh=THRESH.get(name, (24.0, 52.0)), max_px=SMALL.get(name, MAX_PX)).save(os.path.join(out, name + ".png"))
         print("cut", name)
 
 
