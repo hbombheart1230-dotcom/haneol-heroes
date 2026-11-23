@@ -57,5 +57,9 @@ static func from_job(job: Dictionary) -> Live3DHeroData:
 			c["end"] = float(a["end"])
 		if a.has("times"):  # 칸마다 원본 시각 (준비에 칸을 많이)
 			c["times"] = (a["times"] as Array).map(func(t: Variant) -> float: return float(t))
+			if not c.has("start"):  # 구간이 없으면 칸 시각표의 처음·끝 (적 공격: 원본 시각 그대로 놓는다)
+				c["start"] = float(c["times"][0])
+			if not c.has("end"):
+				c["end"] = float(c["times"][-1])
 		d.clips.append(c)
 	return d

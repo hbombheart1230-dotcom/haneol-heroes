@@ -5,15 +5,16 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/waegun_elite/run.png" id="t1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/waegun_elite/attack.png" id="t2"]
 [ext_resource type="Texture2D" path="res://assets/sprites/waegun_elite/hit.png" id="t3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/waegun_elite/shout.png" id="t5"]
 
 [resource]
 script = ExtResource("1_set")
 frame_size = 160
 directions = 8
-anim_names = PackedStringArray("idle", "run", "attack", "hit")
-textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3")])
-frame_counts = PackedInt32Array(4, 8, 6, 3)
-fps = PackedFloat32Array(6.0, 5.5, 10.0, 12.0)
-loops = Array[bool]([true, true, false, false])
-strike_frames = PackedInt32Array(-1, -1, 3, -1)
-tips = Array[PackedVector2Array]([PackedVector2Array(), PackedVector2Array(), PackedVector2Array(20.2, 24.5, 30.0, 8.6, 19.3, 5.7, 55.8, -7.0, 1.4, -31.4, 23.5, 21.7, 33.3, 48.4, 37.4, 33.2, 37.1, 29.7, 52.7, 21.1, 18.3, -26.5, 35.2, 47.1, -17.7, 30.7, -10.8, -9.4, -8.8, 32.6, 11.9, 63.6, 24.3, 53.7, -18.8, 17.0, -15.2, 8.3, -3.5, -4.7, 0.4, -7.1, -22.9, 23.4, -9.0, 8.4, -21.3, 7.5, -10.2, 3.6, -13.0, -4.1, 0.7, -4.7, -48.8, 7.0, -7.4, -2.8, -8.5, -0.4, -21.2, -13.1, 28.1, 9.8, 27.5, 9.4, -41.5, -14.5, -18.3, -7.7, -21.4, -17.7, 17.7, 15.4, 10.8, 18.9, 8.8, 13.4, -11.9, -29.6, -24.3, -19.8, 18.8, 8.3, 10.9, 22.4, 5.2, 8.1, 2.2, 6.6, 30.7, -28.0, -8.3, -32.4, 15.3, 17.3), PackedVector2Array()])
+anim_names = PackedStringArray("idle", "run", "attack", "hit", "shout")
+textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3"), ExtResource("t5")])
+frame_counts = PackedInt32Array(4, 8, 6, 3, 8)
+fps = PackedFloat32Array(6.0, 5.5, 10.0, 12.0, 8.0)
+loops = Array[bool]([true, true, false, false, false])
+strike_frames = PackedInt32Array(-1, -1, 3, -1, 5)
+tips = Array[PackedVector2Array]([PackedVector2Array(), PackedVector2Array(), PackedVector2Array(20.2, 24.5, 30.0, 8.6, 19.3, 5.7, 55.8, -7.0, 1.4, -31.4, 23.5, 21.7, 33.3, 48.4, 37.4, 33.2, 37.1, 29.7, 52.7, 21.1, 18.3, -26.5, 35.2, 47.1, -17.7, 30.7, -10.8, -9.4, -8.8, 32.6, 11.9, 63.6, 24.3, 53.7, -18.8, 17.0, -15.2, 8.3, -3.5, -4.7, 0.4, -7.1, -22.9, 23.4, -9.0, 8.4, -21.3, 7.5, -10.2, 3.6, -13.0, -4.1, 0.7, -4.7, -48.8, 7.0, -7.4, -2.8, -8.5, -0.4, -21.2, -13.1, 28.1, 9.8, 27.5, 9.4, -41.5, -14.5, -18.3, -7.7, -21.4, -17.7, 17.7, 15.4, 10.8, 18.9, 8.8, 13.4, -11.9, -29.6, -24.3, -19.8, 18.8, 8.3, 10.9, 22.4, 5.2, 8.1, 2.2, 6.6, 30.7, -28.0, -8.3, -32.4, 15.3, 17.3), PackedVector2Array(), PackedVector2Array()])

@@ -238,6 +238,18 @@
       "loop": false,
       "start": 0.07,
       "end": 0.73
+    },
+    {
+      "key": "victory",
+      "reuse": {
+        "src": "victory",
+        "from": "res://assets/live3d/yi_sun_sin/anims/web_victory.res"
+      },
+      "frames": 8,
+      "fps": 8.0,
+      "loop": false,
+      "start": 1.0,
+      "end": 3.0
     }
   ]
 }

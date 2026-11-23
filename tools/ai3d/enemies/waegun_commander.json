@@ -97,17 +97,76 @@
       "key": "charge",
       "match": "charge",
       "action_id": 510,
-      "frames": 8,
-      "fps": 10.0,
-      "loop": true
+      "frames": 6,
+      "fps": 12.0,
+      "loop": true,
+      "reuse": {
+        "src": "Male_Head_Down_Charge",
+        "from": "res://assets/live3d/waegun_commander/anims/web_maleheaddowncharge.res"
+      },
+      "start": 0.0,
+      "end": 0.5
     },
     {
       "key": "slam",
       "match": "slam",
       "action_id": 127,
-      "frames": 6,
+      "frames": 8,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "reuse": {
+        "src": "Charged_Ground_Slam",
+        "from": "res://assets/live3d/waegun_commander/anims/web_chargedgroundslam.res"
+      },
+      "start": 0.2,
+      "end": 2.2,
+      "strike": 1.65,
+      "times": [
+        0.2,
+        0.6,
+        1.0,
+        1.3,
+        1.47,
+        1.65,
+        1.85,
+        2.2
+      ]
+    },
+    {
+      "key": "down",
+      "reuse": {
+        "src": "Dead",
+        "from": "res://assets/live3d/waegun_commander/anims/web_dead.res"
+      },
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "start": 0.0,
+      "end": 2.4,
+      "times": [
+        0.0,
+        0.15,
+        0.4,
+        0.9,
+        1.4,
+        1.65,
+        1.95,
+        2.4
+      ],
+      "live3d_only": true
+    },
+    {
+      "key": "shout",
+      "reuse": {
+        "src": "Sword_Shout",
+        "from": "res://assets/live3d/waegun_commander/anims/web_swordshout.res"
+      },
+      "frames": 8,
+      "fps": 8.0,
+      "loop": false,
+      "start": 0.6,
+      "end": 2.4,
+      "strike": 1.8
     }
   ]
 }

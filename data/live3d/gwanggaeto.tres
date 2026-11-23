@@ -73,6 +73,12 @@ clips = Array[Dictionary]([{
 "key": "cast_counter",
 "loop": false,
 "start": 1.1
+}, {
+"end": 3.0,
+"file": "res://assets/live3d/gwanggaeto/anims/web_victory.res",
+"key": "victory",
+"loop": false,
+"start": 1.0
 }])
 ortho_size = 2.6
 ink = {

@@ -26,7 +26,7 @@ func _run() -> void:
 		else:
 			clips.append(a)
 	DirAccess.make_dir_recursive_absolute(out)
-	var model: Node3D = (load("res://assets/live3d/%s/model.scn" % hero) as PackedScene).instantiate()
+	var model: Node3D = (load(_model_path(hero)) as PackedScene).instantiate()
 	var vp := SubViewport.new()
 	vp.size = Vector2i(CELL, CELL)
 	vp.transparent_bg = true
@@ -85,3 +85,9 @@ func _run() -> void:
 		f.close()
 		print("SCAN ", name, " frames ", n)
 	quit()
+
+
+## 영웅·적의 가공 3D 모델, 없으면 굽기 원본 (3D가 없는 적).
+static func _model_path(id: String) -> String:
+	var p := "res://assets/live3d/%s/model.scn" % id
+	return p if ResourceLoader.exists(p) else "res://assets/models/meshy/%s/animated.glb" % id

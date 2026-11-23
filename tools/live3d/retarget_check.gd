@@ -14,7 +14,7 @@ func _run() -> void:
 	var n := int(a[5]) if a.size() > 5 else 8
 	var yaw := deg_to_rad(float(a[6]) if a.size() > 6 else 30.0)
 	var src_scene: Node3D = (load(a[1]) as PackedScene).instantiate()
-	var dst_scene: Node3D = (load("res://assets/live3d/%s/model.scn" % a[0]) as PackedScene).instantiate()
+	var dst_scene: Node3D = (load(_model_path(a[0])) as PackedScene).instantiate()
 	var vs := _viewport(src_scene, yaw)
 	var vd := _viewport(dst_scene, yaw)
 	var sap := src_scene.find_child("AnimationPlayer", true, false) as AnimationPlayer
@@ -81,3 +81,9 @@ func _viewport(model: Node3D, yaw: float) -> SubViewport:
 	env.environment.ambient_light_energy = 0.6
 	vp.add_child(env)
 	return vp
+
+
+## 영웅·적의 가공 3D 모델, 없으면 굽기 원본 (3D가 없는 적).
+static func _model_path(id: String) -> String:
+	var p := "res://assets/live3d/%s/model.scn" % id
+	return p if ResourceLoader.exists(p) else "res://assets/models/meshy/%s/animated.glb" % id

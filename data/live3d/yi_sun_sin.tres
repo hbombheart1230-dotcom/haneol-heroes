@@ -83,6 +83,12 @@ clips = Array[Dictionary]([{
 "key": "backstep",
 "loop": false,
 "start": 0.07
+}, {
+"end": 3.0,
+"file": "res://assets/live3d/yi_sun_sin/anims/web_victory.res",
+"key": "victory",
+"loop": false,
+"start": 1.0
 }])
 ink = {
 "grain": 0.0,
