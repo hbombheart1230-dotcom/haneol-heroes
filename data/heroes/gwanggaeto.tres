@@ -58,6 +58,7 @@ melee_hit_sfx = &"w_spear"
 heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_quake"]
 script = ExtResource("4_quake")
+growth = true
 launch_px = 110.0
 icon = ExtResource("i_quake")
 id = &"quake"
@@ -78,6 +79,7 @@ cast_lead = 0.1
 
 [sub_resource type="Resource" id="Skill_trail"]
 script = ExtResource("5_trail")
+growth = true
 icon = ExtResource("i_thunder_trail")
 id = &"thunder_trail"
 display_name = "벽력돌파"
@@ -96,6 +98,7 @@ cast_lead = 0.06
 
 [sub_resource type="Resource" id="Skill_bolt"]
 script = ExtResource("6_bolt")
+growth = true
 icon = ExtResource("i_lightning")
 id = &"lightning"
 display_name = "낙뢰"
@@ -114,6 +117,7 @@ cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_conq"]
 script = ExtResource("7_conq")
+growth = true
 launch_px = 120.0
 icon = ExtResource("i_conqueror")
 id = &"conqueror"

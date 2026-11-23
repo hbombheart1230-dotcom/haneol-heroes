@@ -27,7 +27,8 @@ func test_every_hero_skill_stays_under_cap_at_max_level_and_huge_radius() -> voi
 				continue
 			for r in [0.0, 230.0, 900.0]:
 				var pl := FxCoverage.plan(s.vfx_impact, 99, r, st, W)
-				assert_float(float(pl["frac"])).is_less_equal(st.screen_cap + 0.001)
+				# 성장 단계 효과는 단계별 상한 (최대 단계는 SkillGrowthData.screen_cap 마지막 값)
+				assert_float(float(pl["frac"])).is_less_equal(s.vfx_impact.screen_cap_for(99, st.screen_cap) + 0.001)
 
 
 func test_cap_follows_camera_zoom() -> void:
