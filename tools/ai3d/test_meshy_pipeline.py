@@ -163,6 +163,22 @@ class PipelineTest(unittest.TestCase):
         self.assertTrue(by_key["attack"]["from"].endswith("hero_Attack.glb"))
         self.assertNotIn("hit", by_key)  # 파일 없는 동작은 건너뜀 (게임은 대기로 대신)
 
+    def test_import_web_names_trims_and_bake_style(self):
+        """웹 .glb (Meshy 웹 뼈대·동작 무료): 동작 이름은 web, 자르기·맞닿는 칸·수묵은 API 경로와 같게 옮긴다."""
+        cfg = json.loads(json.dumps(self.cfg))
+        cfg["bake"].update({"style": "ink", "ink": {"line_px": 1.6}, "lossy_quality": 0.5})
+        cfg["anims"][0]["web"] = "Idle"
+        cfg["anims"][-1].update({"web": "Archery_Shot", "times": [2.3, 4.15], "strike": 4.15, "start": 2.3, "end": 4.15})
+        mp.import_files(cfg, [self._glb("archer_web_meshyrig.glb")])
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        self.assertEqual(job["style"], "ink")
+        self.assertEqual(job["ink"], {"line_px": 1.6})
+        self.assertEqual(job["anims"][0]["src"], "Idle")
+        last = job["anims"][-1]
+        self.assertEqual(last["src"], "Archery_Shot")
+        self.assertEqual((last["start"], last["end"], last["strike"]), (2.3, 4.15, 4.15))
+        self.assertEqual(last["times"], [2.3, 4.15])
+
     def test_name_matching_is_word_based(self):
         self.assertTrue(mp.name_matches("hero_Running", "run"))
         self.assertTrue(mp.name_matches("HitReaction", "hit"))
