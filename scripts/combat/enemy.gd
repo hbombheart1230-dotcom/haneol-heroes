@@ -43,6 +43,7 @@ var _slow_left: float = 0.0
 ## 개별 멈춤(맞은 적만 잠깐 멈춤) 남은 시간과 떨림 기준 위치.
 var _freeze_left: float = 0.0
 var _freeze_total: float = 0.0
+var _bite_px: float = 0.0
 ## 맞는 반응 (맞는 동작·잡몹 경직·그림 움찔·흰 번쩍임).
 var reaction: HitReaction
 ## 무게 등급 (정예 갑옷·보스 경직 게이지).
@@ -173,6 +174,13 @@ func freeze(seconds: float) -> void:
 	_freeze_left = maxf(_freeze_left, seconds)
 
 
+## 칼이 박힌 멈춤 (BladeBite): 정확히 seconds초 멈추고 px만큼 고르게 떨다가, 풀리면 넉백·날리기가 이어진다.
+func bite(seconds: float, px: float) -> void:
+	_freeze_left = seconds
+	_freeze_total = seconds
+	_bite_px = px
+
+
 func is_frozen() -> bool:
 	return _freeze_left > 0.0
 
@@ -188,6 +196,10 @@ func _tick_freeze(delta: float) -> void:
 	if sprite:
 		sprite.speed_scale = 0.0 if _freeze_left > 0.0 else 1.0
 		var px := HitReaction.shake_px(Feedback.feel_data().hit_shake_px, _freeze_left, _freeze_total)
+		if _bite_px > 0.0:  # 칼이 박힌 멈춤: 줄지 않는 잔떨림, 풀리면 끝
+			px = _bite_px if _freeze_left > 0.0 else 0.0
+			if _freeze_left <= 0.0:
+				_bite_px = 0.0
 		EnemySprite.pose(self, px if Engine.get_physics_frames() % 2 == 0 else -px)
 	queue_redraw()
 
