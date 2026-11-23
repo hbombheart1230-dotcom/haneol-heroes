@@ -97,20 +97,20 @@
     },
     {
       "key": "attack2",
-      "clip_of": "attack",
+      "clip_of": "combo",
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "start": 0.74,
-      "end": 1.2,
-      "strike": 1.05,
+      "start": 0.9,
+      "end": 1.68,
+      "strike": 1.56,
       "times": [
-        0.74,
-        0.82,
         0.9,
-        1.05,
-        1.09,
-        1.2
+        1.2,
+        1.4,
+        1.56,
+        1.6,
+        1.68
       ]
     },
     {
@@ -119,12 +119,12 @@
       "frames": 6,
       "fps": 16.0,
       "loop": false,
-      "start": 1.55,
+      "start": 1.68,
       "end": 2.45,
       "strike": 2.25,
       "times": [
-        1.55,
-        1.7,
+        1.68,
+        1.75,
         1.85,
         2.25,
         2.29,
