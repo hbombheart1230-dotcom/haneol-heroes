@@ -68,6 +68,9 @@ extends Resource
 @export_group("전투")
 @export var attack: BasicAttackData
 @export var kit: SkillKit
+## 이 영웅이 만나는 보스의 체력 배율 (영웅 화력 차이를 메워 어느 무대 보스든 비슷한 길이로, BossHpScale).
+## 근거: tests/test_hero_dps_probe.gd (허수아비 초당 피해), tests/test_boss_balance_sim.gd (16조합 시간).
+@export var boss_hp_mult: float = 1.0
 
 @export_group("성장")
 ## 레벨업 때 나오는 성장 선택지.

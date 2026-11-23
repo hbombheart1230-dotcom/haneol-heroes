@@ -42,6 +42,8 @@ extends Resource
 @export var is_boss: bool = false
 ## 보스전 박자·연출 (공격 고르기, 등장·전환·처치). 비면 옛 방식.
 @export var boss_feel: BossFeelData
+## 보스 체력 궁합 (영웅 id → 배율, HeroData.boss_hp_mult에 곱함). 영웅 배율 하나로 안 맞는 조합만 (BossHpScale).
+@export var boss_hp_by_hero: Dictionary = {}
 ## 정예: 정해진 시각에 나오고, 처치하면 큰 변형 보상.
 @export var is_elite: bool = false
 @export var display_name: String = ""
