@@ -190,22 +190,29 @@ func test_mid_boss_fight_length() -> void:
 	for path in MIDS:
 		var c: Array = MIDS[path]
 		var hp := "res://data/heroes/%s.tres" % c[0]
+		var total := 0.0
 		for s in seeds:
+			var grown: Array = await GrownHeroes.take(self, c[0], s, GrownHeroes.At.MID)  # 3물결까지 성장한 영웅
 			var sim := BossSim.new(self)
 			sim.use_hero(hp, c[1], c[2])
-			var hero := ResourceLoader.load(hp, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as HeroData
+			sim.hero_override = grown[0]
+			var hero: HeroData = grown[0]
 			var d := ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as EnemyData
 			await sim.setup(BossHpScale.for_hero(d, hero), s)
 			var r := sim.run(BossSim.Bot.DODGE, 60.0)
-			print(BossSim.line("mid-boss %s %s seed %d" % [d.id, c[0], s], r))
+			print(BossSim.line("mid-boss %s %s (level %d) seed %d" % [d.id, c[0], grown[1], s], r))
 			sim.free_all()
 			_check_fight(r, String(d.id))
+			total += r["time"]
+		var mean: float = total / seeds.size()
+		print("[boss-sim] mid-boss %s mean %.1fs" % [path.get_file(), mean])
+		assert_float(mean).override_failure_message("%s mean %.1fs" % [path, mean]).is_between(15.0, 25.0)  # 목표 길이는 씨앗 평균
 
 
 func _check_fight(r: Dictionary, label: String) -> void:
 	assert_bool(r["won"]).override_failure_message(label).is_true()
 	assert_int(r["phase"]).is_equal(2)
-	assert_float(r["time"]).override_failure_message("%s %.1fs" % [label, r["time"]]).is_between(15.0, 25.0)
+	assert_float(r["time"]).override_failure_message("%s %.1fs" % [label, r["time"]]).is_between(10.0, 32.0)  # 고른 패마다 흔들림 (평균은 위에서 15~25)
 	for g in r["gaps"]:
 		assert_float(g).is_less(6.0)
 	var w: Array = r["struck"]

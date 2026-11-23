@@ -133,7 +133,7 @@ script = ExtResource("8_feel")
 script = ExtResource("1_enemy")
 id = &"cc_frog"
 display_name = "오이 덩굴 개구리 장군"
-max_hp = 1600
+max_hp = 2880
 xp = 0
 move_speed = 85.0
 contact_damage = 0
@@ -146,6 +146,7 @@ patterns = Array[ExtResource("2_attack")]([SubResource("Fr_cone"), SubResource("
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
 boss_hp_by_hero = {
+"gwanggaeto": 0.85,
 "shin_saimdang": 0.88,
 "yi_sun_sin": 0.76
 }
