@@ -215,7 +215,7 @@ chase_speed = 135.0
 script = ExtResource("1_enemy")
 id = &"waegun_commander"
 display_name = "왜군 망령 수군 장수"
-max_hp = 2520
+max_hp = 2300
 xp = 0
 move_speed = 85.0
 contact_damage = 0
@@ -228,7 +228,7 @@ patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
 boss_hp_by_hero = {
-"gwanggaeto": 1.05,
+"gwanggaeto": 0.85,
 "yi_sun_sin": 0.8
 }
 boss_feel = SubResource("Boss_feel")

@@ -212,7 +212,7 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 		else:
 			res["boss_idle"] += DT
 		res["dist"] += player.global_position.distance_to(boss.global_position) * DT
-		var minions := list.size() - 1
+		var minions := list.filter(func(e: Enemy) -> bool: return not (e.data.aura and e.data.move_speed <= 0.0)).size() - 1  # 깃발은 부하가 아니다
 		res["max_minions"] = maxi(res["max_minions"], minions)
 		res["max_threats"] = maxi(res["max_threats"], EnemyAttack.active_windups)
 	res["time"] = snappedf(_t - t0, 0.1)
@@ -271,7 +271,8 @@ func _tick_world(list: Array, res: Dictionary) -> void:
 			key = "arrow"
 		if player.health.current < before:
 			res["by"][key] = int(res["by"].get(key, 0)) + before - player.health.current
-			res["hits"][key] = int(res["hits"].get(key, 0)) + 1
+			if res.has("hits"):  # 패턴 보고용 (물결 시뮬 결과에는 없다)
+				res["hits"][key] = int(res["hits"].get(key, 0)) + 1
 	# 접촉 피해 (시뮬레이션 영웅에는 감지 영역이 없어 손으로 잰다)
 	var touch := 0
 	for e in (list if contact else []):

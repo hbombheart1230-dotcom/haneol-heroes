@@ -57,7 +57,7 @@ func group() -> Array:
 
 
 static func of(e: Enemy) -> BossStaging:
-	return e.get_meta(META, null) as BossStaging if e and is_instance_valid(e) else null
+	return e.get_meta(META) as BossStaging if e and is_instance_valid(e) and e.has_meta(META) else null  # get_meta(기본값)는 없으면 오류를 찍는다
 
 
 ## 보스 처치 뒤 승리 (done). 연출이 있는 보스면 finale_time 뒤, 없으면 바로.
