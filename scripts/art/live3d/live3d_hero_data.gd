@@ -6,7 +6,7 @@ extends Resource
 
 ## 모델 장면 (Meshy .glb, gitignore — PC에만 있음).
 @export var model_path: String = ""
-## 동작 목록: {key, file ("" = 모델), src, start, end, loop}. 구간이 없으면 전체.
+## 동작 목록: {key, file ("" = 모델), src, start, end, loop, times(칸마다 원본 시각, 있으면)}. 구간이 없으면 전체.
 @export var clips: Array[Dictionary] = []
 ## 카메라 (굽기와 같은 각도): 직교 크기(m), 위치, 바라보는 점. 화면 크기(px)는 구운 칸과 같다.
 @export var ortho_size: float = 2.0
@@ -55,5 +55,7 @@ static func from_job(job: Dictionary) -> Live3DHeroData:
 			c["start"] = float(a["start"])
 		if a.has("end"):
 			c["end"] = float(a["end"])
+		if a.has("times"):  # 칸마다 원본 시각 (준비에 칸을 많이)
+			c["times"] = (a["times"] as Array).map(func(t: Variant) -> float: return float(t))
 		d.clips.append(c)
 	return d
