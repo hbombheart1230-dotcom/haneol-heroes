@@ -33,10 +33,10 @@ extends Resource
 @export var full_sfx: StringName = &""
 
 @export_group("모으는 마디 (ChargeScaling.stages)")
-## 발밑 고리 둘레 마디 점: 반지름(px, 고리 바깥), 점 크기, 빈·찬 색.
+## 발밑 고리 아래 마디 점: 반지름(px, 고리 바깥), 점 크기, 빈 마디 고리 색·찬 마디 색 (먹 바탕 위).
 @export var pip_radius: float = 70.0
 @export var pip_size: float = 7.0
-@export var pip_empty: Color = Color(0.09, 0.09, 0.11, 0.45)
+@export var pip_empty: Color = Color(0.95, 0.91, 0.82, 0.6)
 @export var pip_full: Color = Color(0.95, 0.91, 0.82, 0.95)
 ## 마디를 넘는 순간 소리 (마디마다 음이 오른다)와 고리가 잠깐 커지는 배율·시간.
 @export var stage_sfx: StringName = &"gugak_pyeon"

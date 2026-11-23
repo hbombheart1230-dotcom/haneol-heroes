@@ -99,18 +99,20 @@ func draw(canvas: CanvasItem, charging: bool, c: float) -> void:
 		_draw_pips(canvas, size)
 
 
-## 마디 점: 고리 위쪽 둘레에 stages개, 넘은 마디는 한지색으로 찬다.
+## 마디 점: 고리 아래쪽 둘레에 stages개, 넘은 마디는 한지색으로 찬다.
 func _draw_pips(canvas: CanvasItem, ring: float) -> void:
 	if _stages <= 0:
 		return
 	var r := maxf(ring * 0.5, data.pip_radius)
 	for i in _stages:
-		var t := -PI * 0.5 + (i - (_stages - 1) * 0.5) * 0.42
+		var t := PI * 0.5 - (i - (_stages - 1) * 0.5) * 0.42  # 발 아래 (영웅 그림에 가리지 않게), 왼쪽부터
 		var at := Vector2(cos(t), sin(t)) * r
 		var lit := i < _stage
-		canvas.draw_circle(at, data.pip_size + 2.0, data.pip_empty)
+		canvas.draw_circle(at, data.pip_size + 2.0, Color(0.09, 0.09, 0.11, 0.6))  # 먹 바탕
 		if lit:
 			canvas.draw_circle(at, data.pip_size, data.pip_full)
+		else:
+			canvas.draw_arc(at, data.pip_size - 1.0, 0.0, TAU, 12, data.pip_empty, 2.0)  # 빈 마디: 한지색 고리
 
 
 func _tex(canvas: CanvasItem, tex: Texture2D, size: float, rot: float, col: Color) -> void:
