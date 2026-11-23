@@ -35,6 +35,8 @@
 [ext_resource type="Resource" path="res://data/heroes/bite/yi_sun_sin.tres" id="blade_bite"]
 [ext_resource type="Resource" path="res://data/heroes/dash_dir/yi_sun_sin.tres" id="dash_dir"]
 
+[ext_resource type="Resource" path="res://data/heroes/combo_lock/yi_sun_sin.tres" id="combo_lock"]
+
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
 melee_interval = 0.64
@@ -214,4 +216,5 @@ dash_style = ExtResource("dash_style")
 charge_marker = ExtResource("charge_marker")
 blade_bite = ExtResource("blade_bite")
 dash_dir = ExtResource("dash_dir")
+combo_lock = ExtResource("combo_lock")
 hit_sfx = Array[StringName]([&"mat_water", &"mat_blade"])
