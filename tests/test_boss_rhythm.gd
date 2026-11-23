@@ -4,7 +4,11 @@ extends GdUnitTestSuite
 
 const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
 const COMMANDER := preload("res://data/enemies/waegun_commander.tres")
-const GENERAL := preload("res://data/enemies/boss_general.tres")
+## boss_feel이 없는 옛 방식 보스 (네 무대 보스는 모두 boss_feel이 있어 시험용 사본을 쓴다).
+const LEGACY := preload("res://tests/fixtures/legacy_boss.tres")
+## 네 무대 보스 (모두 같은 구조: 박자·연출, 3단계, 접촉 피해 0, 군령 이어치기).
+const STAGE_BOSSES := ["res://data/enemies/waegun_commander.tres", "res://data/enemies/boss_general.tres",
+	"res://data/enemies/jurchen_chieftain.tres", "res://data/enemies/cc_frog.tres"]
 const DT := 1.0 / 60.0
 
 var player: Player
@@ -88,28 +92,38 @@ func _all_attacks(d: EnemyData) -> Array:
 	return out
 
 
-func test_commander_rhythm_data() -> void:
+func test_stage_bosses_rhythm_data() -> void:
+	for path in STAGE_BOSSES:
+		_check_rhythm_data(load(path) as EnemyData)
+
+
+func _check_rhythm_data(boss: EnemyData) -> void:
 	var ai := Enemy.ai_data()
-	for a: EnemyAttackData in _all_attacks(COMMANDER):
+	for a: EnemyAttackData in _all_attacks(boss):
+		assert_bool(a.bypass_cap).is_true()
+		assert_bool(boss.sprite_sheet.has_anim(a.anim)).override_failure_message("%s: no clip %s" % [boss.id, a.anim]).is_true()
 		assert_float(a.windup).is_greater_equal(maxf(ai.min_windup, 0.8))  # 보스 예고 0.8초 이상 (한 손 세로 화면에서 읽히는 길이)
 		if a.follow_up == null:
 			assert_float(a.recovery).is_greater_equal(0.9)  # 조합 끝·홑공격 뒤엔 반드시 때릴 틈
 			assert_float(maxf(a.cooldown, a.recovery)).is_greater_equal(1.6)  # 타격 → 다음 예고
 		else:
 			assert_int(int(a.follow_up.kind)).is_not_equal(int(a.kind))  # 이어치기도 같은 종류 연속 아님
-	for a: EnemyAttackData in COMMANDER.patterns:
+	for a: EnemyAttackData in boss.patterns:
 		assert_object(a.follow_up).is_null()  # 1단계는 홑공격만
+	assert_int(boss.phases.size()).is_equal(2)  # 3단계 (66%·33%)
 	var combos := 0
-	for ph: BossPhaseData in COMMANDER.phases:
+	for ph: BossPhaseData in boss.phases:
 		combos = 0
 		for a: EnemyAttackData in ph.patterns:
 			combos += 1 if a.follow_up else 0
 		assert_int(combos).is_greater(0)
 	assert_int(combos).is_equal(2)  # 3단계는 조합 둘
-	assert_object(COMMANDER.boss_feel).is_not_null()
-	assert_int(COMMANDER.contact_damage).is_equal(0)  # 모든 피해는 예고로
-	for ph: BossPhaseData in COMMANDER.phases:
-		assert_int(ph.summon.size()).is_less_equal(COMMANDER.boss_feel.max_minions)
+	assert_object(boss.boss_feel).is_not_null()
+	assert_int(boss.contact_damage).is_equal(0)  # 모든 피해는 예고로
+	assert_float(boss.launch_scale).is_less(1.0)  # 날아가지 않음
+	for ph: BossPhaseData in boss.phases:
+		assert_int(ph.summon.size()).is_less_equal(boss.boss_feel.max_minions)
+		assert_object(ph.seal_art).is_not_null()
 
 
 ## --- 이어치기·대기 ---
@@ -145,7 +159,7 @@ func test_intro_hold_and_offscreen_block_attacks() -> void:
 
 
 func test_other_bosses_keep_old_rotation() -> void:
-	var b := _boss(GENERAL)
+	var b := _boss(LEGACY)
 	assert_object(BossStaging.of(b)).is_null()
 	assert_bool(b.attack.pick_by_range).is_false()
 	assert_float(b.attack.hold_left).is_equal(0.0)
@@ -204,7 +218,7 @@ func test_finale_delays_victory_clears_minions_and_protects_hero() -> void:
 
 func test_finish_without_staging_wins_at_once() -> void:
 	var won := [false]
-	BossStaging.finish(_boss(GENERAL), func() -> void: won[0] = true)
+	BossStaging.finish(_boss(LEGACY), func() -> void: won[0] = true)
 	assert_bool(won[0]).is_true()
 
 

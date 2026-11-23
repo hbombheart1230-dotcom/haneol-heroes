@@ -1,13 +1,15 @@
 class_name EnemyArt
 extends RefCounted
 ## 적 임시 그래픽: 수묵풍 실루엣 + 인주 빛 예고 영역. 정식 그래픽 교체 시 이 파일만 바꾼다.
-## 종류는 data.id로 구분: chaser(창), archer(활), heavy(두꺼운 갑옷), boss(투구·대검·금빛).
+## 종류는 data.id로 구분: chaser(창), archer(활), heavy(두꺼운 갑옷). 보스(is_boss)는 모두 투구·대검·금빛.
 
 
 static func draw(e: Enemy) -> void:
 	_telegraph(e)
 	var r := e.body_radius
 	var id: StringName = e.data.id if e.data else &"chaser"
+	if e.data and e.data.is_boss:
+		id = &"boss"
 	var seed := float(e.get_instance_id() % 97)
 	var feel := Feedback.feel_data()  # 큰 적일수록 넓고 진한 먹 그림자 (무게감)
 	var rr := r * e.size_mult
@@ -33,7 +35,7 @@ static func draw(e: Enemy) -> void:
 				var y := -r * 0.6 + k * r * 0.4
 				e.draw_line(Vector2(-r * 0.7, y), Vector2(r * 0.7, y), Color(0.55, 0.45, 0.65), 4.0)
 			e.draw_circle(Vector2(0, -r * 1.2), r * 0.4, Color(0.4, 0.3, 0.5))
-		&"boss_general":
+		&"boss":
 			Ink.blob(e, Vector2(0, -r * 0.3), r * 1.05, body, seed, 0.1, 1.1)
 			Ink.ring(e, Vector2(0, -r * 0.3), r * 0.9, 6.0, Ink.GOLD, 1.0, seed)
 			e.draw_circle(Vector2(0, -r * 1.3), r * 0.42, Ink.GOLD)  # 투구
