@@ -88,7 +88,7 @@ func run_waves(limit: float = 300.0) -> Dictionary:
 		spawner.tick(DT)
 		var alive := spawner.alive_count() + spawner._warnings
 		res["max_alive"] = maxi(res["max_alive"], alive)
-		stall = stall + DT if alive == 0 and spawner.waves.phase == WaveRunner.Phase.RUN else 0.0
+		stall = stall + DT if alive == 0 and spawner.waves.phase == WaveRunner.Phase.RUN and not spawner.finale_playing() else 0.0  # 중간 우두머리 처치 연출(일부러 기다림)은 막힘이 아니다
 		res["stall"] = maxf(res["stall"], stall)
 	res["time"] = snappedf(_t - t0, 0.1)
 	res["boss"] = spawner.boss_spawned_once
