@@ -2,22 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dg75sn55y81mp"
-path.s3tc="res://.godot/imported/albedo.png-b0941cbb6b5fe81ee53b4e54cb313326.s3tc.ctex"
-path.etc2="res://.godot/imported/albedo.png-b0941cbb6b5fe81ee53b4e54cb313326.etc2.ctex"
+uid="uid://dpb1tfwy8ja4a"
+path="res://.godot/imported/albedo.png-b0941cbb6b5fe81ee53b4e54cb313326.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/live3d/gwanggaeto/albedo.png"
-dest_files=["res://.godot/imported/albedo.png-b0941cbb6b5fe81ee53b4e54cb313326.s3tc.ctex", "res://.godot/imported/albedo.png-b0941cbb6b5fe81ee53b4e54cb313326.etc2.ctex"]
+dest_files=["res://.godot/imported/albedo.png-b0941cbb6b5fe81ee53b4e54cb313326.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

@@ -2,22 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dt15ehse3hv3m"
-path.s3tc="res://.godot/imported/albedo.png-df2d264e8e66299d418d3631c074d6a6.s3tc.ctex"
-path.etc2="res://.godot/imported/albedo.png-df2d264e8e66299d418d3631c074d6a6.etc2.ctex"
+uid="uid://cu2jjpl7aga7j"
+path="res://.godot/imported/albedo.png-df2d264e8e66299d418d3631c074d6a6.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
 source_file="res://assets/live3d/waegun_commander/albedo.png"
-dest_files=["res://.godot/imported/albedo.png-df2d264e8e66299d418d3631c074d6a6.s3tc.ctex", "res://.godot/imported/albedo.png-df2d264e8e66299d418d3631c074d6a6.etc2.ctex"]
+dest_files=["res://.godot/imported/albedo.png-df2d264e8e66299d418d3631c074d6a6.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

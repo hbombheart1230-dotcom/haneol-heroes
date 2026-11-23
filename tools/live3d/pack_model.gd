@@ -1,12 +1,13 @@
 extends SceneTree
 ## Meshy 원본(.glb, gitignore) → 게임에 넣는 가공 리소스 (커밋 가능, README "외부 자산"):
-##   assets/live3d/<이름>/albedo.png   텍스처 (원본 2048 → tex px, VRAM 압축으로 가져온다)
+##   assets/live3d/<이름>/albedo.png   텍스처: 기본은 원본 크기·무손실 (화질 우선, 2026-11-23 사용자).
+##                                     줄이려면 --tex=<px> 또는 굽기 작업의 "live3d_tex" → 그 크기로 줄이고 VRAM 압축
 ##   assets/live3d/<이름>/material.tres
 ##   assets/live3d/<이름>/model.scn    뼈대 + 스킨 메시 (LOD·그림자 메시·동작 없이)
 ##   assets/live3d/<이름>/anims/*.res   동작 원본 (구간 자르기는 게임이 한다: live3d_library.gd)
 ##   data/live3d/<이름>.tres           설정 (굽기 작업 tools/bake/jobs/<이름>.json에서)
 ## 두 번 돌린다 (사이에 가져오기):
-##   godot --headless --path . -s res://tools/live3d/pack_model.gd -- yi_sun_sin --stage=1 [--tex=1024]
+##   godot --headless --path . -s res://tools/live3d/pack_model.gd -- yi_sun_sin --stage=1 [--tex=1024 (줄이기)]
 ##   godot --headless --path . --import
 ##   godot --headless --path . -s res://tools/live3d/pack_model.gd -- yi_sun_sin --stage=2
 
@@ -30,7 +31,7 @@ func _initialize() -> void:
 		var out := "res://assets/live3d/%s" % n
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out + "/anims"))
 		if args.get("stage", "1") == "1":
-			_stage1(job, out, int(args.get("tex", "1024")))
+			_stage1(job, out, int(args.get("tex", str(job.get("live3d_tex", 0)))))
 		else:
 			_stage2(job, out, n)
 	quit()
@@ -45,15 +46,17 @@ func _stage1(job: Dictionary, out: String, tex: int) -> void:
 	if img.is_compressed():
 		img.decompress()
 	img.convert(Image.FORMAT_RGB8)
-	img.resize(tex, tex, Image.INTERPOLATE_LANCZOS)
+	if tex > 0 and tex < img.get_width():  # 줄이기는 고를 때만 (VRAM 압축 함께)
+		img.resize(tex, tex, Image.INTERPOLATE_LANCZOS)
 	img.save_png(ProjectSettings.globalize_path(out + "/albedo.png"))
+	var mode := 2 if tex > 0 else 0  # 0 = 무손실 (원래 화질), 2 = VRAM 압축
 	_write(out + "/albedo.png.import", "[remap]\n\nimporter=\"texture\"\ntype=\"CompressedTexture2D\"\n\n[params]\n\n"
-		+ "compress/mode=2\ncompress/high_quality=false\nmipmaps/generate=true\ndetect_3d/compress_to=0\n")
+		+ "compress/mode=%d\ncompress/high_quality=false\nmipmaps/generate=true\ndetect_3d/compress_to=0\n" % mode)
 	_write(out + "/material.tres", "[gd_resource type=\"StandardMaterial3D\" format=3]\n\n"
 		+ "[ext_resource type=\"Texture2D\" path=\"%s/albedo.png\" id=\"1\"]\n\n[resource]\n" % out
 		+ "albedo_texture = ExtResource(\"1\")\nroughness = %s\nmetallic_specular = %s\n" % [src.roughness, src.metallic_specular])
 	model.free()
-	print("stage1 ", out, " tex ", tex)
+	print("stage1 ", out, " tex ", img.get_width(), " lossless" if tex <= 0 else " vram")
 
 
 ## 메시·뼈대 장면, 동작, 설정.
