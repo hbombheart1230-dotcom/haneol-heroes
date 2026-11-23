@@ -141,3 +141,27 @@ func test_arena_applies_stage_zoom_to_camera() -> void:
 	arena.apply_theme(plain)
 	arena.clamp_camera(cam)
 	assert_vector(cam.zoom).is_equal(Vector2.ONE)
+
+
+## 바닥 결 층: 회색 0.5 중심 (그림 밝기를 안 바꾸고 결만), 룩이 셰이더에 넘긴다.
+func test_hansan_grain_is_mid_grey_and_used() -> void:
+	var l: StageLook = HANSAN.look
+	assert_object(l.detail_texture).is_not_null()
+	assert_float(l.detail_strength).is_greater(0.0)
+	var img := l.detail_texture.get_image()
+	img.resize(64, 64)
+	var sum := 0.0
+	for y in 64:
+		for x in 64:
+			sum += img.get_pixel(x, y).r
+	assert_float(sum / 4096.0).is_between(0.42, 0.58)
+
+
+func test_arena_passes_grain_layer_to_shader() -> void:
+	var arena: Arena = auto_free(Arena.new())
+	add_child(arena)
+	arena.apply_theme(HANSAN)
+	var m := arena.map.material as ShaderMaterial
+	assert_float(float(m.get_shader_parameter("detail_strength"))).is_equal_approx((HANSAN.look as StageLook).detail_strength, 0.001)
+	assert_object(m.get_shader_parameter("detail_tex")).is_not_null()
+	assert_vector(m.get_shader_parameter("map_px")).is_equal(arena.map.rect.size)

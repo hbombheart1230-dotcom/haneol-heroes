@@ -68,6 +68,8 @@ var heavy_pending: bool = false
 ## 보스 단계 (BossPhases): 들어간 단계 수, 단계가 바뀐 순간 무적 남은 시간.
 var phase_index: int = 0
 var phase_invuln: float = 0.0
+## 지금 맞는 타격이 한 번에 맞힌 적 수 (AutoAttack이 피해 직전에 넣고 뒤에 1로, HitReaction 경직 배율).
+var hit_crowd: int = 1
 ## 넉백 감쇠율(초당). 클수록 빨리 멈춘다.
 @export var knockback_damping: float = 8.0
 
@@ -150,7 +152,7 @@ func _ready() -> void:
 		if has_meta(&"sweep"):  # 휩쓸기 무리: 한쪽으로 곧장 지나간다
 			brain.sweep_dir = get_meta(&"sweep")
 			brain.sweep_left = AI.wall_time
-		if data.is_boss:
+		if data.is_boss or data.boss_feel:  # 중간 보스도 화면 위 체력 띠
 			add_to_group(BOSS_GROUP)
 		if data.sprite_sheet:
 			sprite = EnemySprite.setup(self)
@@ -276,7 +278,7 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 		_last_hit_dir = d.normalized() if d.length_squared() > 0.01 else _last_hit_dir
 	if applied > 0 and not health.is_dead():
 		freeze(feel.freeze_for(applied))
-		if reaction and reaction.on_hit(applied, health.max, _last_hit_dir) and sprite:
+		if reaction and reaction.on_hit(applied, health.max, _last_hit_dir, hit_crowd) and sprite:
 			EnemySprite.start_hit(self)  # 멈춤 동안 첫 프레임, 멈춤 뒤 나머지 (R1)
 		if reaction and reaction.is_staggered():
 			_stop_charge()  # 잡몹 돌진은 맞으면 멈춘다 (정예·보스는 그대로 밀고 온다)

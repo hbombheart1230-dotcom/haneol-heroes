@@ -50,12 +50,15 @@ func free_all() -> void:
 
 func run_waves(limit: float = 300.0) -> Dictionary:
 	var res := {"time": 0.0, "boss": false, "lost": false, "damage": 0, "by": {}, "cleared": [], "spawned": 0,
-		"max_alive": 0, "stall": 0.0, "blocked": 0}
+		"max_alive": 0, "stall": 0.0, "blocked": 0, "mid_at": -1.0, "mid_time": -1.0}
 	var t0 := _t
 	spawner.breather.connect(func(_slow: bool) -> void: res["cleared"].append(snappedf(_t - t0, 0.1)))
 	spawner.child_entered_tree.connect(func(n: Node) -> void:
 		if n is SpawnWarning and obstacles.blocks(spawner.global_position + (n as Node2D).position, 0.0):
 			res["blocked"] += 1)
+	spawner.elite_spawned.connect(func(e: Enemy) -> void:  # 중간 보스(정예) 등장 시각과 싸운 시간
+		res["mid_at"] = snappedf(_t - t0, 0.1)
+		e.killed.connect(func(_e: Enemy) -> void: res["mid_time"] = snappedf(_t - t0 - res["mid_at"], 0.1)))
 	var tap_t := 0.0
 	var stall := 0.0
 	while _t - t0 < limit and not player.is_dead() and not spawner.boss_spawned_once:
@@ -76,6 +79,7 @@ func run_waves(limit: float = 300.0) -> Dictionary:
 		atk.tick(DT, list)
 		_tick_shots(list)  # 영웅 탄은 BossSim이 손으로 맞춘다
 		_tick_world(list, res)
+		_sample(list)
 		for c in _effects():  # 기술 효과 (글자 고리, 붓 자국 …): 한 프레임 안이라 손으로
 			c.set_physics_process(false)
 			c._physics_process(DT)
@@ -123,6 +127,6 @@ func _approach(e: Enemy) -> void:
 
 ## 결과 한 줄 (로그용).
 static func stage_line(name: String, r: Dictionary) -> String:
-	return "[stage-sim] %s: %s at %.1fs, cleared %s, damage %d, spawned %d, alive max %d, stall %.1fs, blocked %d, by %s" % [
+	return "[stage-sim] %s: %s at %.1fs, cleared %s, damage %d, spawned %d, alive max %d, stall %.1fs, blocked %d, elite at %.1fs for %.1fs, by %s" % [
 		name, "BOSS" if r["boss"] else ("LOSE" if r["lost"] else "TIMEOUT"), r["time"], str(r["cleared"]), r["damage"],
-		r["spawned"], r["max_alive"], r["stall"], r["blocked"], str(r["by"])]
+		r["spawned"], r["max_alive"], r["stall"], r["blocked"], r["mid_at"], r["mid_time"], str(r["by"])]

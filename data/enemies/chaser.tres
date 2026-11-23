@@ -6,7 +6,7 @@
 
 [sub_resource type="Resource" id="Attack_slam"]
 script = ExtResource("2_attack")
-trigger_range = 130.0
+trigger_range = 170.0
 windup = 0.6
 radius = 80.0
 damage = 15

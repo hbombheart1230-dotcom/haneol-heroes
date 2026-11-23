@@ -40,3 +40,4 @@ ground_size = 300.0
 ground_color = Color(0.1, 0.08, 0.06, 0.5)
 flicker = 0.5
 art_fill = 0.91
+growth = true

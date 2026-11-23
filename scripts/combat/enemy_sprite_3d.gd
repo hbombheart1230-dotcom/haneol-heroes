@@ -49,6 +49,19 @@ static func rig_of(e: Enemy) -> Node:
 	return e.get_meta(META) if e.has_meta(META) else null
 
 
+## 처치 때 날아가는 시체 그림. 3D 적의 화면(ViewportTexture)은 적과 함께 지워져 흰 사각형이 되니 같은 동작의 구운 칸을 준다.
+static func corpse_texture(e: Enemy) -> Texture2D:
+	if e == null or e.sprite == null or e.sprite.sprite_frames == null:
+		return null
+	var anim := e.sprite.animation
+	if rig_of(e) == null:
+		return e.sprite.sprite_frames.get_frame_texture(anim, e.sprite.frame)
+	var baked: SpriteFrames = e.data.sprite_sheet.shared_sprite_frames() if e.data and e.data.sprite_sheet else null
+	if baked == null or not baked.has_animation(anim) or baked.get_frame_count(anim) == 0:
+		return null  # 구운 칸이 없으면 시체 없이 터지는 효과만
+	return baked.get_frame_texture(anim, 0)
+
+
 ## 동작 키 → 구운 시트의 한 번 길이(초). 칸마다 시각(times)이 있는 공격은 넣지 않는다 (원본 시각 그대로 두고 직접 놓는다).
 static func durations(sheet: SpriteSheetSet, d: Live3DHeroData) -> Dictionary:
 	var out := PV3D.durations(sheet)

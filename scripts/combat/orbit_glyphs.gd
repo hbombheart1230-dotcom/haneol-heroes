@@ -3,6 +3,9 @@ extends Node2D
 ## 몸 주위를 도는 글자 고리 (세종 정음진). 글자에 닿은 적은 같은 적마다 hit_interval초에 한 번 피해.
 ## 플레이어를 따라다닌다 (부모가 아니라 follow를 매 프레임 따라감: 월드에 붙여 히트스톱·정지와 같이 움직임).
 
+## 글자 글꼴 크기(px). 써지는 동안 크게 찍히는 것은 늘려 그린다.
+const GLYPH_PX := 46
+
 var ctx: SkillContext
 var follow: Node2D
 var glyphs: String = "ㄱㄴㄷㅁㅅㅇ"
@@ -21,6 +24,9 @@ var art_alpha: float = 0.55
 var glyph_stagger: float = 0.07
 var glyph_write: float = 0.16
 var draw_in: float = 0.3
+
+## 따라가는 적(가운데)도 hit_interval마다 친다. 두 겹 고리의 바깥 고리는 끈다 (피해가 두 배가 되지 않게).
+var hit_core: bool = true
 
 var hits: int = 0
 var _age: float = 0.0
@@ -57,7 +63,7 @@ func _physics_process(delta: float) -> void:
 				if ctx.tick_hit(en, damage, now + hit_interval > duration):  # 마지막 한 바퀴는 크게
 					hits += 1
 		var core: Enemy = follow as Enemy if follow and is_instance_valid(follow) else null  # 적에게 씌운 고리 (세종 SkillAim): 가운데 그 적도 같은 간격으로 맞는다
-		if core and core.health and core.health.is_alive():
+		if hit_core and core and core.health and core.health.is_alive():
 			var cid := core.get_instance_id()
 			if now - float(_last_hit.get(cid, -INF)) >= hit_interval:
 				_last_hit[cid] = now
@@ -89,6 +95,8 @@ func _draw() -> void:
 			var bs := 70.0 * (0.5 + w)
 			draw_texture_rect(blot, Rect2(p - Vector2.ONE * bs * 0.5, Vector2.ONE * bs), false,
 				Color(0.08, 0.06, 0.04, 0.7 * (1.0 - w)))
-		var px := int(46.0 * lerpf(1.7, 1.0, 1.0 - pow(1.0 - w, 3.0)))
-		UiStyle.text(self, UiStyle.TITLE_FONT, p + Vector2(-px * 0.48, px * 0.35), glyphs[i], px,
-			Color(UiStyle.GOLD, fade * minf(w * 1.6, 1.0)), px * 0.96, Color(0, 0, 0, 0.7 * fade * w), 5)
+		# 써지며 줄어드는 크기는 늘려 그린다 (글꼴은 GLYPH_PX 하나: 프레임마다 새 크기 글자 그림을 만들지 않게, FxWarmup)
+		draw_set_transform(p, 0.0, Vector2.ONE * lerpf(1.7, 1.0, 1.0 - pow(1.0 - w, 3.0)))
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-GLYPH_PX * 0.48, GLYPH_PX * 0.35), glyphs[i], GLYPH_PX,
+			Color(UiStyle.GOLD, fade * minf(w * 1.6, 1.0)), GLYPH_PX * 0.96, Color(0, 0, 0, 0.7 * fade * w), 5)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

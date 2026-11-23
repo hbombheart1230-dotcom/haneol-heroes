@@ -4,7 +4,7 @@
   python tools/art/make_upgrade_icons.py --sheet out.png   # 확인용 한 장 모음도
 
 재료는 저장소에 이미 있는 그림만 쓴다 (외부 자산 없음):
-  assets/ui/icons/*.png (기술 그림), assets/vfx/*.png (이펙트), assets/ui/heroes/*.png (영웅 카드).
+  assets/ui/icons/*.png (기술 그림), assets/vfx/*.png (이펙트), 새 원화 assets/concept/redesign/heroes (영웅 상반신).
 만드는 법 (어떤 강화에 무엇을 쓰는지는 upgrade_icon_spec.py):
   1) 안쪽 그림: 기술 그림의 다른 부분을 당겨 보거나, 영웅 바탕 위에 이펙트·상반신을 얹는다.
   2) 큰 변형(major)은 기술 그림 위에 변형 이펙트를 겹친다.
@@ -22,8 +22,10 @@ from PIL import Image, ImageDraw, ImageEnhance, ImageFilter
 sys.path.insert(0, os.path.dirname(__file__))
 from icon_badges import badge  # noqa: E402
 from upgrade_icon_spec import HEROES, SPEC  # noqa: E402
+from make_portraits import portrait  # noqa: E402
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+BUST_SCALE, BUST_DROP = 1.7, 0.22  # "강건" 상반신: 초상보다 넓게, 어깨가 보이게 아래로
 SIZE = 192  # 카드에는 130px 정도로 그려진다. 고해상 폰에서도 깨지지 않게 조금 크게
 WORK = 256  # 원본 기술 아이콘 크기에서 작업
 INSET, RADIUS = 11, 22  # 기술 아이콘 금테 안쪽 (256 기준)
@@ -94,12 +96,8 @@ def _hero_bg(hero: str) -> Image.Image:
 
 
 def _hero_bust(hero: str) -> Image.Image:
-    card = _load(f"assets/ui/heroes/{hero}.png")
-    h = HEROES[hero]
-    y0, y1 = int(card.height * h["bust"][0]), int(card.height * h["bust"][1])
-    side = y1 - y0
-    cx = int(card.width * h["bust_x"])
-    bust = card.crop((cx - side // 2, y0, cx + side // 2, y1)).resize((int(WORK * 0.92), int(WORK * 0.92)), Image.LANCZOS)
+    """지금 모델과 같은 얼굴의 상반신 (새 원화, make_portraits.portrait를 넓게)."""
+    bust = portrait(hero, BUST_SCALE, BUST_DROP, int(WORK * 0.92))
     out = _hero_bg(hero)
     shadow = Image.new("RGBA", bust.size, (0, 0, 0, 0))
     shadow.putalpha(bust.getchannel("A").filter(ImageFilter.GaussianBlur(6)).point(lambda v: v * 0.7))

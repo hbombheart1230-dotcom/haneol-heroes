@@ -85,6 +85,18 @@ func test_windup_seeks_clip_to_strike_time() -> void:
 	a.state = EnemyAttack.State.READY
 
 
+## 3D 대장의 시체는 지워질 화면 텍스처가 아니라 구운 칸 (흰 사각형이 날아가지 않게). 구운 적은 지금 칸 그대로.
+func test_corpse_texture_is_baked_not_viewport() -> void:
+	var boss := _enemy(COMMANDER, true)
+	assert_object(boss.sprite.sprite_frames.get_frame_texture(boss.sprite.animation, 0)).is_instanceof(ViewportTexture)
+	var tex := EnemySprite3D.corpse_texture(boss)
+	assert_object(tex).is_not_null()
+	assert_bool(tex is ViewportTexture).is_false()
+	var soldier := _enemy(SOLDIER, true)
+	assert_object(EnemySprite3D.corpse_texture(soldier)).is_same(
+		soldier.sprite.sprite_frames.get_frame_texture(soldier.sprite.animation, soldier.sprite.frame))
+
+
 func _enemy(path: String, live: bool) -> Enemy:
 	var was: Variant = ProjectSettings.get_setting(Switch.SETTING, true)
 	ProjectSettings.set_setting(Switch.SETTING, live)

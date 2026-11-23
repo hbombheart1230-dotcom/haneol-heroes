@@ -60,9 +60,13 @@ func test_text_priority_is_wave_then_button_then_hero() -> void:
 
 func test_wave_hint_matches_wave_data() -> void:
 	var hansan: StageTheme = load("res://data/stages/hansan_1592.tres")
-	assert_bool(hansan.waves.one_pick_per_break).is_true()
-	assert_int(hansan.waves.pick_stacks).is_equal(2)  # 설명의 "한 번에 두 단계"
-	assert_str(_step(&"upgrade").wave_hint).contains("두 단계")
+	assert_bool(hansan.waves.one_pick_per_break).is_true()  # 싸움 중엔 고르지 않고 숨 고르기에서
+	var run: RunConfig = load("res://data/runs/default_run.tres")
+	assert_object(run.levels).is_not_null()  # 경지가 오르면 패 한 장 (LevelRules)
+	var hint := _step(&"upgrade").wave_hint
+	assert_str(hint).contains("경지")
+	assert_str(hint).contains("패")
+	assert_str(hint).contains("숨 고르기")
 
 
 func test_practice_partners() -> void:

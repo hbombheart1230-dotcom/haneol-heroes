@@ -130,7 +130,7 @@ script = ExtResource("8_feel")
 script = ExtResource("1_enemy")
 id = &"jurchen_chieftain"
 display_name = "여진 망령 추장"
-max_hp = 3300
+max_hp = 1800
 xp = 0
 move_speed = 85.0
 contact_damage = 0
@@ -142,6 +142,12 @@ stun_scale = 0.3
 patterns = Array[ExtResource("2_attack")]([SubResource("Ju_charge"), SubResource("Ju_slam")])
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
+boss_hp_by_hero = {
+"gwanggaeto": 0.88,
+"sejong": 0.93,
+"shin_saimdang": 0.9,
+"yi_sun_sin": 0.84
+}
 boss_feel = SubResource("Boss_feel")
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.35

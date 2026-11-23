@@ -11,11 +11,14 @@ const INVULN := Color(0.78, 0.66, 0.4)
 const TICK := Color(0.98, 0.84, 0.45)
 const BAR_H := 22.0
 const PIP_R := 6.0
+## 위쪽 가운데 우두머리 띠 자리 (왼쪽 위 영웅 묶음 오른쪽, 톱니 단추 왼쪽): x = 왼쪽 끝, y = 막대 윗변.
+const TOP_FREE := Vector2(200.0, 72.0)
 
 
-## chip = 자국이 남은 비율 (Hud가 천천히 줄인다).
-static func draw(c: CanvasItem, b: Enemy, chip: float, width: float) -> void:
-	var r := Rect2(70, 178, width - 140, BAR_H)
+## chip = 자국이 남은 비율 (Hud가 천천히 줄인다). top = 막대 윗변 y (HUD 배치에 따라).
+static func draw(c: CanvasItem, b: Enemy, chip: float, width: float, top: float = 178.0,
+		left: float = 70.0) -> void:
+	var r := Rect2(left, top, width - left - 70, BAR_H)
 	UiStyle.panel(c, r.grow(8.0), UiStyle.LACQUER, UiStyle.GOLD)
 	var pct := b.health.percent()
 	if chip > pct:
@@ -41,6 +44,6 @@ static func draw(c: CanvasItem, b: Enemy, chip: float, width: float) -> void:
 			c.draw_circle(p, PIP_R, TICK)
 		else:
 			c.draw_arc(p, PIP_R - 1.0, 0.0, TAU, 16, Color(TICK, 0.7), 2.0)
-	var name_text := b.data.display_name if b.data and b.data.display_name != "" else "보스"
-	UiStyle.text(c, UiStyle.TITLE_FONT, Vector2(0, r.position.y - 16), name_text, 46, EnemyNameTag.BOSS_COLOR, width,
+	var name_text := b.data.display_name if b.data and b.data.display_name != "" else "우두머리"
+	UiStyle.text(c, UiStyle.TITLE_FONT, Vector2(r.position.x, r.position.y - 16), name_text, 46, EnemyNameTag.BOSS_COLOR, r.size.x,
 		Color(0, 0, 0, 0.95), 10)

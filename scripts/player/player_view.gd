@@ -92,6 +92,7 @@ func _setup_sprite(h: HeroData) -> void:
 	_sprite.position = h.sprite_offset
 	_blend = AnimBlend.new()
 	add_child(_blend)  # 스프라이트 뒤: 앞 자세가 새 자세 밖으로만 잠깐 남는다
+	add_child(EvadeRim.new(player, _sprite))  # 회피 무적 금빛 테두리 (스프라이트 뒤)
 	add_child(_sprite)
 	var attack := player.get_node_or_null("AutoAttack") as AutoAttack
 	_attack = attack
@@ -121,7 +122,9 @@ func _on_skill_started(_slot: SkillCaster.Slot, def: SkillDef) -> void:
 func _on_auto_swing(_d: Vector2, _h: int) -> void:
 	if not is_moving() or (_attack and _attack.last_manual):  # 손으로 친 타는 움직이는 중에도 보인다 (M1)
 		var anim := _attack.chain_anim() if _attack else "attack"  # 연계 2·3타 동작 (B4)
-		play_oneshot(anim, anim_seconds(anim, 0.35))
+		var speed := swing_speed()
+		play_oneshot(anim, anim_seconds(anim, 0.35) / speed)
+		_oneshot_speed = speed
 		var pause := _attack.step_pause() if _attack else 0.0
 		if pause > 0.0:  # 3타 앞 모으기: 첫 칸에서 잠깐 멈춤
 			_hitstop_left = maxf(_hitstop_left, pause)
@@ -132,6 +135,12 @@ func _on_auto_swing(_d: Vector2, _h: int) -> void:
 			_lunge_t = -pause
 			_lunge_out = st.lunge_out
 			_lunge_back = st.lunge_back
+
+
+## 평타 동작 재생 배율 (BladeBiteData.swing_speed, 없으면 1): 칼 닿는 시각(AutoAttack.melee_delay)과 같은 배율.
+func swing_speed() -> float:
+	var bite := player.hero.blade_bite if player and player.hero else null
+	return maxf(bite.swing_speed, 0.05) if bite and bite.enabled else 1.0
 
 
 ## 칼이 닿은 순간: 맞았으면 지금 보여 주는 공격 동작을 잠깐 멈춘다 (달리는 중엔 다리를 멈추지 않는다).
@@ -187,7 +196,7 @@ func current_anim() -> String:
 	if player.is_dead():
 		return "death"
 	if player.is_dashing():
-		return "dash"
+		return DashDirection.anim(player, _sheet)  # 돌진 베기·뒤로 뛰기 (시트에 없으면 dash)
 	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time 			and not (_oneshot_left > 0.0 and _over_hurt):  # 맞는 중에 친 타는 보인다
 		return "hit"
 	if _oneshot_left > 0.0:
@@ -243,7 +252,7 @@ func _update_sprite(delta: float) -> void:
 	var tint := Color(1, 1, 1)
 	var ds := player.hero.dash_style if player.hero else null
 	if player.skill_invuln_left() > 0.0 and not player.is_dashing():
-		tint = Color(1.0, 0.9, 0.55)
+		tint = EvadeRim.body_tint()  # 무적: 옅은 금빛 (테두리가 주 표시, EvadeRimData)
 	elif player.is_dashing():
 		tint = ds.body_tint if ds else Color(0.75, 0.9, 1.0)
 		tint.a = ds.body_alpha if ds else 1.0  # 광개토 번개 순간이동·사임당 먹으로 흩어짐

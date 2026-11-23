@@ -55,7 +55,7 @@ static func enter(e: Enemy, ph: BossPhaseData) -> void:
 		fb.play(&"gugak_kill", 0.0)  # 북·징 (파일이 있을 때만)
 		fb.play(&"confirm_big", 0.0)
 		fb.add_trauma(fb.feel.poise_trauma)
-		if fb.fx:
+		if fb.fx and ph.seal_label != "":
 			fb.fx.add_label(e.global_position + Vector2(0, -e.body_radius * 2.0), ph.seal_label, Ink.SEAL)
 			if ph.seal_art:
 				fb.fx.add_fall(ph.seal_art, e.global_position + Vector2(0, -260), e.global_position, 0.3, 180.0, 90.0)  # 낙인은 똑바로 선 채 떨어진다

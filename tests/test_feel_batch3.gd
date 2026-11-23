@@ -3,7 +3,7 @@ extends GdUnitTestSuite
 
 const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
 const SOLDIER := preload("res://data/enemies/jurchen_soldier.tres")
-const ELITE := preload("res://data/enemies/jurchen_elite.tres")
+const ELITE := preload("res://data/enemies/jurchen_elite_captain.tres")
 const BOSS := preload("res://data/enemies/boss_general.tres")
 
 

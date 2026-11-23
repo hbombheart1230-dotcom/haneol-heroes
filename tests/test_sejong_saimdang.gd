@@ -174,6 +174,9 @@ func test_canvas_traps_then_damages() -> void:
 	assert_bool(far.is_stunned()).is_false()
 	for i in 45:
 		run.tick(DT)
+		for n in get_children():  # 조이는 타 (WaveRake)
+			if n is WaveRake:
+				(n as WaveRake)._physics_process(DT)
 	assert_int(e.health.current).is_equal(e.health.max - s.damage)
 	assert_float(s.radius_for(1.0)).is_equal(s.max_radius)
 

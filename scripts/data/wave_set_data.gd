@@ -23,5 +23,5 @@ extends Resource
 @export var xp_mult: float = 3.5
 ## 숨 고르기(물결 끝·보스 단계)마다 강화를 한 번만 고른다 (하데스식: 연달아 여러 번 고르지 않는다).
 @export var one_pick_per_break: bool = true
-## 그 한 번이 올려 주는 단계 수 (횟수가 준 만큼 한 번을 크게; 최대 단계는 넘지 않는다).
+## RunConfig.levels가 없을 때만: 그 한 번이 올려 주는 단계 수 (있으면 적립 카드 계획 LevelRules.plan을 따른다).
 @export var pick_stacks: int = 2

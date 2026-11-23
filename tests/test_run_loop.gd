@@ -290,7 +290,7 @@ func test_main_scene_level_up_shows_cards_and_pauses() -> void:
 	assert_float(main.state.survive_time).is_equal(0.0)
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	assert_float(spawner.boss_time).is_equal(RUN.boss_time)
-	assert_object(spawner.elite_data).is_same(ELITE)
+	assert_str(String(spawner.elite_data.id)).is_equal(String(ELITE.id))  # 영웅 배율 사본일 수 있어 id로
 	var enemy: Enemy = spawner.spawn_one()
 	main.progress.add_xp(main.progress.xp_to_next() - enemy.data.xp)
 	enemy.health.kill()
@@ -305,7 +305,8 @@ func test_main_scene_level_up_shows_cards_and_pauses() -> void:
 	sc.pick(0)
 	assert_bool(sc.is_open()).is_false()
 	assert_bool(get_tree().paused).is_false()
-	assert_int(main.progress.stacks.get(u.id, 0)).is_equal(mini(2, u.max_stacks))  # 숨 고르기 한 번 = 2단계
+	assert_int(main.progress.stacks.get(u.id, 0)).is_equal(1)  # 적립 카드 1장 = 1단계 (LevelRules.plan)
+	assert_int(main.progress.pending).is_equal(0)
 	# 정예 처치 → 금빛 큰 변형 인장 (이것도 숨 고르기에)
 	var elite: Enemy = spawner.spawn_elite()
 	elite.health.kill()

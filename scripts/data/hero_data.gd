@@ -9,6 +9,8 @@ extends Resource
 @export_multiline var tagline: String = ""
 ## 영웅 고르기 화면 일러스트 (전신).
 @export var card_art: Texture2D
+## HUD 초상 (지금 게임 속 모델과 같은 얼굴, tools/art/make_portraits.py가 새 원화에서 자름). 비면 body_color 원.
+@export var portrait: Texture2D
 ## false면 고르기 화면에 "준비 중"으로만 보인다 (아직 기술·모델이 없는 영웅).
 @export var playable: bool = true
 ## 3타·큰 기술의 한 타 충격 줄기 모양 (HitImpactLayer.Style): 순신 물보라, 광개토 번개와 흙, 세종 금빛 획, 사임당 먹과 꽃잎.
@@ -45,6 +47,8 @@ extends Resource
 @export var dash_shove_radius: float = 70.0
 ## 영웅마다 다른 회피 생김새·도착 효과 (없으면 기본 대시).
 @export var dash_style: DashStyleData
+## 대시를 방향으로 나누기 (돌진 타격·뒤로 빠지기, DashDirData). 비면 예전 대시.
+@export var dash_dir: DashDirData
 
 @export_group("무게감 (보이는 무게, 조작은 그대로)")
 ## 발밑 먹 그림자: 몸 반지름 배율·속 진하기.
@@ -66,13 +70,20 @@ extends Resource
 @export var charge_marker: ChargeMarkerData
 ## 무기가 몹에 박히는 느낌 (역경직, BladeBiteData). 비면 꺼짐 (예전 방식). 지금은 순신만.
 @export var blade_bite: BladeBiteData
+## 연타 중 처음 때린 몹에 붙기 (ComboLockData). 비면 꺼짐.
+@export var combo_lock: ComboLockData
 
 @export_group("전투")
 @export var attack: BasicAttackData
 @export var kit: SkillKit
+## 이 영웅이 만나는 보스의 체력 배율 (영웅 화력 차이를 메워 어느 무대 보스든 비슷한 길이로, BossHpScale).
+## 근거: tests/test_hero_dps_probe.gd (허수아비 초당 피해), tests/test_boss_balance_sim.gd (16조합 시간).
+@export var boss_hp_mult: float = 1.0
 
 @export_group("성장")
 ## 레벨업 때 나오는 성장 선택지.
 @export var upgrade_pool: UpgradePool
 ## 정예 처치 보상: 기술 행동을 바꾸는 큰 변형.
 @export var major_pool: UpgradePool
+## 판 안 레벨이 오를 때마다 바로 적용하는 작은 능력치 상승 (UpgradeDef의 mods만 쓴다. 기술 모습은 LevelRules.vfx_every).
+@export var level_up: UpgradeDef

@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/run/run_config.gd" id="1_run"]
 [ext_resource type="Resource" path="res://data/stages/manchuria_395.tres" id="2_stage"]
+[ext_resource type="Resource" path="res://data/runs/level_rules.tres" id="3_levels"]
+[ext_resource type="Resource" path="res://data/runs/score_table.tres" id="4_score"]
 
 [resource]
 script = ExtResource("1_run")
@@ -12,4 +14,6 @@ boss_time = 150.0
 ramp_time = 120.0
 survive_time = 0.0
 elite_times = PackedFloat32Array(60, 110)
+levels = ExtResource("3_levels")
+score = ExtResource("4_score")
 stage = ExtResource("2_stage")

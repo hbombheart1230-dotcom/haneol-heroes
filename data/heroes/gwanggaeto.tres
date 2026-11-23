@@ -26,6 +26,8 @@
 [ext_resource type="Resource" path="res://data/heroes/dash/gwanggaeto.tres" id="dash_style"]
 [ext_resource type="Texture2D" path="res://assets/vfx/proj_spear.png" id="proj_art"]
 [ext_resource type="Resource" path="res://data/heroes/charge/gwanggaeto.tres" id="charge_marker"]
+[ext_resource type="Texture2D" path="res://assets/ui/portraits/gwanggaeto.png" id="portrait"]
+[ext_resource type="Resource" path="res://data/heroes/levels/gwanggaeto_level_up.tres" id="lv_up"]
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
@@ -58,6 +60,7 @@ melee_hit_sfx = &"w_spear"
 heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_quake"]
 script = ExtResource("4_quake")
+growth = true
 launch_px = 110.0
 icon = ExtResource("i_quake")
 id = &"quake"
@@ -78,6 +81,7 @@ cast_lead = 0.1
 
 [sub_resource type="Resource" id="Skill_trail"]
 script = ExtResource("5_trail")
+growth = true
 icon = ExtResource("i_thunder_trail")
 id = &"thunder_trail"
 display_name = "벽력돌파"
@@ -96,6 +100,7 @@ cast_lead = 0.06
 
 [sub_resource type="Resource" id="Skill_bolt"]
 script = ExtResource("6_bolt")
+growth = true
 icon = ExtResource("i_lightning")
 id = &"lightning"
 display_name = "낙뢰"
@@ -114,6 +119,7 @@ cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_conq"]
 script = ExtResource("7_conq")
+growth = true
 launch_px = 120.0
 icon = ExtResource("i_conqueror")
 id = &"conqueror"
@@ -152,6 +158,7 @@ story = ExtResource("story")
 home_stage = &"manchuria_395"
 display_name = "광개토"
 card_art = ExtResource("card_art")
+portrait = ExtResource("portrait")
 tagline = "천둥의 정복자
 들어가서 터뜨린다"
 body_color = Color(0.55, 0.25, 0.15, 1)
@@ -182,8 +189,10 @@ dash_shove = 520.0
 dash_shove_radius = 80.0
 attack = SubResource("Attack_gw")
 kit = SubResource("Kit_gw")
+boss_hp_mult = 1.9
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+level_up = ExtResource("lv_up")
 dash_style = ExtResource("dash_style")
 charge_marker = ExtResource("charge_marker")
 hit_sfx = Array[StringName]([&"mat_fire", &"mat_blunt"])

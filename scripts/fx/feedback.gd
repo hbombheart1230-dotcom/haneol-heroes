@@ -4,6 +4,8 @@ extends Node
 ## 게임 로직은 static 함수만 호출한다 (씬에 Feedback 노드가 없으면 아무 일도 안 함 → 테스트 안전).
 
 static var instance: Feedback
+## 피해가 들어간 적 명중 수 (늘기만 한다, 칼·내닫기 타격·기술 모두): 연타 숫자(ComboCounter)가 늘어난 만큼 센다.
+static var hit_serial: int = 0
 const FEEL_PATH := "res://data/feel/combat_feel.tres"
 
 @export var camera: Camera2D
@@ -223,6 +225,8 @@ func skill_trauma_for(slot: SkillCaster.Slot, hits: int) -> float:
 ## dir: 맞은 방향 (공격자 → 적). 먹물이 그쪽으로 튄다. style: 피해 숫자 모양 (EnemyHits.number_style),
 ## bonus: 반격·뒤치기 글자 (HitBonus 깃발).
 static func enemy_hit(pos: Vector2, amount: int, dir: Vector2 = Vector2.ZERO, style: int = -1, bonus: int = 0) -> void:
+	if amount > 0:
+		hit_serial += 1
 	if instance == null:
 		return
 	if instance.fx:
@@ -337,9 +341,7 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 	var finisher := d != null and (d.is_boss or d.is_elite)
 	var elem := DeathCause.burst(self, e, last_damage, finisher)  # 처치한 영웅의 속성 모습 (물·번개·글자·먹)
 	if kill_fx:
-		var tex: Texture2D = null
-		if e.sprite and e.sprite.sprite_frames:
-			tex = e.sprite.sprite_frames.get_frame_texture(e.sprite.animation, e.sprite.frame)
+		var tex := EnemySprite3D.corpse_texture(e)  # 3D 적은 구운 칸 (화면 텍스처는 적과 함께 지워진다)
 		kill_fx.launch(e.global_position, dir, last_damage, tex, d.sprite_scale if d else 1.0,
 			d.sprite_offset if d else Vector2.ZERO, d.sprite_tint if d else Color.WHITE,
 			&"none" if elem else (d.death_style if d else &"smoke"), d.launch_scale if d else 1.0, finisher)
@@ -356,8 +358,8 @@ func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
 	add_trauma(feel.kill_trauma, dir)
 	kick(dir, feel.kill_kick_px)
 	var now := Time.get_ticks_msec() / 1000.0
-	# 칼이 박힌 멈춤 중이면 처치 멈춤을 더 얹지 않는다 (휘두름 한 번에 멈춤 한 번, BladeBite)
-	if feel.kill_freeze > 0.0 and now - _last_kill_freeze >= feel.kill_freeze_min_gap and is_inside_tree() 			and not BladeBite.is_biting():
+	# 칼이 박힌 멈춤 중이면 처치 멈춤을 더 얹지 않는다 (휘두름 한 번에 멈춤 한 번, BladeBite), 돌진 타격 처치도 멈추지 않는다
+	if feel.kill_freeze > 0.0 and now - _last_kill_freeze >= feel.kill_freeze_min_gap and is_inside_tree() 			and not BladeBite.is_biting() and not DashDirection.striking:
 		_last_kill_freeze = now
 		GameTime.stop(get_tree(), feel.kill_freeze)
 

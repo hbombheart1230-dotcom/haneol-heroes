@@ -27,6 +27,8 @@
 [ext_resource type="Texture2D" path="res://assets/vfx/meteor.png" id="fall_art"]
 [ext_resource type="Texture2D" path="res://assets/vfx/glyphs.png" id="ring_art"]
 [ext_resource type="Resource" path="res://data/heroes/charge/sejong.tres" id="charge_marker"]
+[ext_resource type="Texture2D" path="res://assets/ui/portraits/sejong.png" id="portrait"]
+[ext_resource type="Resource" path="res://data/heroes/levels/sejong_level_up.tres" id="lv_up"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -59,6 +61,7 @@ melee_hit_sfx = &"w_scroll"
 heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_tap"]
 script = ExtResource("s0")
+growth = true
 launch_px = 100.0
 sfx = &"magic"
 icon = ExtResource("i_jeongeum")
@@ -77,6 +80,7 @@ cast_lead = -1.0
 
 [sub_resource type="Resource" id="Skill_dash"]
 script = ExtResource("s1")
+growth = true
 sfx = &"magic"
 icon = ExtResource("i_meteor")
 id = &"meteor"
@@ -95,6 +99,7 @@ cast_lead = 0.08
 
 [sub_resource type="Resource" id="Skill_charge"]
 script = ExtResource("s2")
+growth = true
 sfx = &"magic"
 icon = ExtResource("i_constellation")
 id = &"constellation"
@@ -114,6 +119,7 @@ cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("s3")
+growth = true
 icon = ExtResource("i_sundial")
 id = &"sundial"
 display_name = "해시계 멈춤"
@@ -136,6 +142,8 @@ dash = SubResource("Skill_dash")
 charge = SubResource("Skill_charge")
 counter = SubResource("Skill_counter")
 skills_at_target = true
+target_default = 400.0
+target_range = 680.0
 counter_window = 1.0
 dash_link_window = 0.45
 hold_threshold = 0.2
@@ -149,6 +157,7 @@ story = ExtResource("story")
 home_stage = &"gyeongbokgung_1433"
 display_name = "세종"
 card_art = ExtResource("card_art")
+portrait = ExtResource("portrait")
 tagline = "천문의 지배자\n문자와 별의 마법"
 playable = true
 body_color = Color(0.72, 0.15, 0.12, 1)
@@ -177,8 +186,10 @@ stop_slide_px = 6.0
 stop_slide_time = 0.14
 attack = SubResource("Attack")
 kit = SubResource("Kit")
+boss_hp_mult = 2.2
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+level_up = ExtResource("lv_up")
 dash_style = ExtResource("dash_style")
 charge_marker = ExtResource("charge_marker")
 hit_sfx = Array[StringName]([&"mat_lightning", &"mat_glyph"])

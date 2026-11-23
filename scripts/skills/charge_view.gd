@@ -34,7 +34,14 @@ static func draw(c: SkillCaster) -> void:
 	var m := c._marker()
 	m.draw(c, charging, k)
 	if charging and aims(c):
-		c.aim.draw(c, c.kit.charge.aim_length(k), c.kit.charge.aim_width(k), k, m.data if m.data else _default_data())
+		c.aim.draw(c, c.kit.charge.aim_length(k), aim_width(c, k), k, m.data if m.data else _default_data())
+
+
+## 조준 길 폭: 쏘는 물결과 같은 성장 단계 배율 (SkillCaster.cast가 SkillGrowthData.scaled_def로 키운 판정과 맞춘다).
+static func aim_width(c: SkillCaster, k: float) -> float:
+	var d := c.kit.charge
+	var w: float = d.aim_width(k)
+	return w * SkillGrowthData.get_default().size_at(d.vfx_level) if SkillGrowthData.applies(d) else w
 
 
 ## 충전 기술이 조준하는지 (SkillDef.charge_aim).

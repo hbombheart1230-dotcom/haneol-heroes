@@ -4,6 +4,11 @@ extends Node2D
 ## 링(해룡참 물결), 선(파도격 검기 잔상), 타격 불꽃을 짧게 그린다.
 
 var _fx: Array[Dictionary] = []
+## 0이 아니면 다음 피해 숫자를 이 열쇠(적 id)의 숫자에 더한다 (WaveRake가 타 직전에 넣고 바로 지운다: 다다닥 쌓이는 합산 숫자).
+static var stack_key: int = 0
+## 쌓인 숫자는 타마다 이만큼 커진다 (최대 STACK_GROW_MAX배, 글꼴 크기는 그대로 늘려 그림).
+const STACK_GROW := 0.07
+const STACK_GROW_MAX := 1.6
 
 
 func add_ring(pos: Vector2, radius: float, duration: float, color: Color) -> void:
@@ -43,12 +48,39 @@ func add_fall(tex: Texture2D, from: Vector2, to: Vector2, duration: float, size:
 ## 피해 숫자 (B6): 위로 떠오르며 사라진다. style 0 = 보통 먹색, 1 = 큰 피해 인장색, 2 = 3타째 강타 금빛·가장 크게.
 func add_number(pos: Vector2, amount: int, style: int = 0) -> void:
 	var d := Feedback.feel_data().impact_data()
+	if stack_key != 0 and _stack(stack_key, amount):
+		return
 	if number_count() >= d.max_numbers:
 		return  # 떼거리에서 숫자가 화면을 덮지 않게
 	var col := d.number_color_heavy if style == 2 else (d.number_color_big if style == 1 else d.number_color)
 	var size := d.number_size_heavy if style == 2 else (d.number_size_big if style == 1 else d.number_size)
 	_fx.append({"kind": "number", "pos": pos + Vector2(randf_range(-10, 10), 0), "text": str(amount), "size": size,
 		"t": 0.0, "dur": d.number_time, "color": col})
+
+
+## 같은 열쇠의 숫자에 더한다 (살아 있으면). 반환: 더했으면 true.
+func _stack(key: int, amount: int) -> bool:
+	for f in _fx:
+		if f["kind"] == "number" and int(f.get("key", 0)) == key and float(f["t"]) < float(f["dur"]):
+			f["total"] = int(f.get("total", int(f["text"]))) + amount
+			f["text"] = str(f["total"])
+			f["hits"] = int(f.get("hits", 1)) + 1
+			f["t"] = 0.0
+			return true
+	return false
+
+
+## 방금 생긴 숫자(pos 근처)에 열쇠를 붙인다: 이어지는 타가 이 숫자에 쌓인다 (물결 첫 타는 HitBox가 넣어 열쇠가 없다).
+static func tag_last_number(key: int, pos: Vector2) -> void:
+	var fb := Feedback.instance
+	var l: FxLayer = fb.fx if fb else null
+	if l == null:
+		return
+	for i in range(l._fx.size() - 1, -1, -1):
+		var f := l._fx[i]
+		if f["kind"] == "number" and float(f["t"]) < 0.05 and (f["pos"] as Vector2).distance_to(pos) < 60.0:
+			f["key"] = key
+			return
 
 
 ## 반격·뒤치기 글자: 숫자보다 조금 위에서 떠오른다.
@@ -129,9 +161,15 @@ func _draw() -> void:
 				var im := feel.impact_data()
 				var np: Vector2 = (f["pos"] as Vector2) + Vector2(-80, -im.number_rise * k - 30.0)
 				var fs := int(f["size"])
+				if f.has("key"):  # 쌓이는 숫자: 타마다 커지고, 막 더해진 순간 톡 튄다 (늘려 그림)
+					var grow := minf(1.0 + STACK_GROW * (int(f.get("hits", 1)) - 1), STACK_GROW_MAX)
+					grow *= 1.0 + 0.25 * maxf(1.0 - float(f["t"]) / 0.1, 0.0)
+					draw_set_transform(np + Vector2(80, 0), 0.0, Vector2.ONE * grow)
+					np = Vector2(-80, 0)
 				draw_string_outline(UiStyle.TITLE_FONT, np, f["text"], HORIZONTAL_ALIGNMENT_CENTER, 160, fs,
 					im.number_outline, Color(im.number_outline_color, 1.0 - k))
 				draw_string(UiStyle.TITLE_FONT, np, f["text"], HORIZONTAL_ALIGNMENT_CENTER, 160, fs, Color(c, 1.0 - k))
+				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 			"spark":  # 타격 튐: 물보라 붓 그림
 				var p3: Vector2 = f["pos"]
 				if not _tex_draw(feel.splat_art, p3, 36.0 + 30.0 * k, float(f.get("seed", 0.0)), Color(c, (1.0 - k) * 0.9)):

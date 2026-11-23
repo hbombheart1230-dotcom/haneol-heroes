@@ -161,7 +161,7 @@ func test_army_behaviours_in_data() -> void:
 	assert_float(wh.behaviour.front_guard_deg).is_greater(0.0)
 	var gh: EnemyData = load("res://data/enemies/cc_grasshopper.tres")
 	assert_int(gh.behaviour.style).is_equal(EnemyBehaviourData.Style.HOP)
-	var mt: EnemyData = load("res://data/enemies/cc_mantis.tres")
+	var mt: EnemyData = load("res://data/enemies/cc_mantis_captain.tres")
 	assert_int(mt.behaviour.style).is_equal(EnemyBehaviourData.Style.AMBUSH)
 	var fr := _enemy("res://data/enemies/cc_frog.tres")
 	var kinds := fr.attack.patterns.map(func(x: EnemyAttackData) -> int: return x.kind)
@@ -244,7 +244,7 @@ func test_elite_affix_applies_and_splitting_splits() -> void:
 		if a.split_count > 0:
 			split = a
 	assert_object(split).is_not_null()
-	var d: EnemyData = load("res://data/enemies/jurchen_elite.tres")
+	var d: EnemyData = load("res://data/enemies/jurchen_elite_captain.tres")
 	var e := sp.spawn_at(d, Vector2(300, 0), func(en: Enemy) -> void: en.affix = split)
 	assert_object(e.affix).is_same(split)
 	var n := sp.alive_count()
@@ -279,7 +279,7 @@ func test_no_split_after_run_ends() -> void:
 	for a in Enemy.ai_data().elite_affixes:
 		if a.split_count > 0:
 			split = a
-	var e := sp.spawn_at(load("res://data/enemies/jurchen_elite.tres"), Vector2(300, 0), func(en: Enemy) -> void: en.affix = split)
+	var e := sp.spawn_at(load("res://data/enemies/jurchen_elite_captain.tres"), Vector2(300, 0), func(en: Enemy) -> void: en.affix = split)
 	var n := sp.alive_count()
 	sp.active = false  # 판 끝
 	e.health.kill()
@@ -308,14 +308,14 @@ func test_volley_shooters_ignore_windup_cap() -> void:
 
 
 func test_ambusher_reveals_before_it_can_strike() -> void:
-	var mt: EnemyData = load("res://data/enemies/cc_mantis.tres")
+	var mt: EnemyData = load("res://data/enemies/cc_mantis_captain.tres")
 	assert_float(mt.behaviour.ambush_range).is_greater(mt.behaviour.attack.trigger_range)
 	var p: Player = auto_free(Player.new())
 	var h := Health.new()
 	h.name = "Health"
 	p.add_child(h)
 	add_child(p)
-	var e := _enemy("res://data/enemies/cc_mantis.tres", Vector2(mt.behaviour.attack.trigger_range - 10.0, 0))
+	var e := _enemy("res://data/enemies/cc_mantis_captain.tres", Vector2(mt.behaviour.attack.trigger_range - 10.0, 0))
 	e.target = p
 	e.attack._cooldown = 0.0
 	e._physics_process(0.016)

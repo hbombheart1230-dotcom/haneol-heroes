@@ -39,6 +39,8 @@ var state: GameState
 var flow: StartFlow
 var perf := PerfStats.new()
 var progress: RunProgress
+## 판 안 레벨: 점수 수집·레벨업 보상·숨 고르기 카드 계획 (RunLevels).
+var levels: RunLevels
 var build := RunBuild.new()
 var rng := RandomNumberGenerator.new()
 ## 정예 처치로 받을 큰 변형 고르기 대기 수 (레벨업보다 먼저 연다).
@@ -73,6 +75,7 @@ func _ready() -> void:
 			spawner.boss_time = run_config.boss_time
 			spawner.ramp_time = run_config.ramp_time
 	progress = RunProgress.new(run_config)
+	levels = RunLevels.new(self)
 	var saved := hero_by_id(GameSettings.hero_id)
 	if player and saved and saved != player.hero:
 		player.change_hero(saved)
@@ -94,6 +97,8 @@ func _ready() -> void:
 		hud.state = state
 		hud.perf = perf
 		hud.progress = progress
+		progress.leveled_up.connect(hud.on_level_up)
+		progress.scored.connect(hud.on_scored)
 		hud.stage = run_config.stage if run_config else null
 		hud.can_change_hero = playable_heroes().size() > 1
 	_start_flow()
@@ -107,7 +112,9 @@ func _start_flow() -> void:
 ## 이번 판 시작: 무대 적용, 성장 준비, 멈춤 풀기, 무대 곡.
 func begin_run() -> void:
 	StageApply.stage(self, stage_by_id(run_stage_id()))
+	FxWarmup.run(self, player.hero if player else null, stage_by_id(run_stage_id()))  # 효과 첫 사용 멈칫을 판 시작 때 미리
 	_begin_build()
+	levels.begin()
 	waiting_pick = false
 	get_tree().paused = false
 	music_cue(&"stage")  # 다시 시작하면 무대 곡으로 (같으면 이어서)
@@ -276,7 +283,7 @@ func _on_enemy_killed(e: Enemy) -> void:
 		return
 	if e.data.is_elite:
 		major_pending += 1
-	progress.add_xp(roundi(e.data.xp * (spawner.xp_mult() if spawner else 1.0)))
+	levels.on_kill(e, spawner.xp_mult() if spawner else 1.0)
 	if not is_choosing() and not _one_pick() and (spawner == null or spawner.can_offer()):  # 물결 싸움 중엔 물결 끝까지 쌓아 둔다
 		_offer_next()
 
@@ -287,17 +294,20 @@ func _on_breather(slowmo: bool) -> void:
 		var f := Feedback.feel_data()
 		GameTime.stop(get_tree(), f.wave_end_slow_time + f.wave_end_slow_back, f.wave_end_slow_scale, f.wave_end_slow_back)
 	if state.is_playing() and not is_choosing():
-		break_picks = 1
+		var last := spawner != null and spawner.waves != null and spawner.waves.phase == WaveRunner.Phase.BOSS_WAIT
+		break_picks = levels.plan_break(last) + major_pending  # 적립 카드: 한 번에 최대 2번 (넘치면 합침), 보스 직전엔 전부. 큰 변형은 따로
+		if hud:
+			hud.cards_used(LevelRules.used(levels.gains))
 		_offer_next()
 
 
-## 물결 모드에서 숨 고르기마다 한 번만 고르는지 (그 한 번이 올리는 단계 수는 pick_gain).
+## 물결 모드인지: 싸움 중엔 고르지 않고 숨 고르기에서 적립 카드를 고른다 (횟수는 break_picks, 단계 수는 pick_gain).
 func _one_pick() -> bool:
 	return spawner != null and spawner.waves != null and spawner.waves.data.one_pick_per_break
 
 
 func pick_gain(major: bool) -> int:
-	return 1 if major or not _one_pick() else maxi(spawner.waves.data.pick_stacks, 1)
+	return 1 if major or not _one_pick() else levels.current_gain(maxi(spawner.waves.data.pick_stacks, 1))
 
 
 func is_choosing() -> bool:
@@ -318,7 +328,7 @@ func _offer_next() -> void:
 			seal_choice.open(majors, player.global_position, true, progress.stacks)
 			return
 		major_pending = 0
-	if progress.pending > 0 or one:  # 물결 모드는 레벨과 상관없이 숨 고르기마다 한 번
+	if progress.pending > 0 or one:  # 물결 모드: 숨 고르기 계획(break_picks)만큼
 		var pool := build.hero.upgrade_pool
 		var choices: Array[UpgradeDef] = []  # 빈 배열 리터럴은 타입이 없어 삼항식에 쓰면 오류
 		if pool:
@@ -336,10 +346,15 @@ func _on_upgrade_chosen(u: UpgradeDef, major: bool) -> void:
 		major_pending = maxi(major_pending - 1, 0)
 		progress.stacks[u.id] = int(progress.stacks.get(u.id, 0)) + 1
 	else:
-		progress.record_choice(u)
-		for i in mini(pick_gain(false), u.max_stacks - int(progress.stacks.get(u.id, 0)) + 1) - 1:  # 한 번에 여러 단계
+		var gain := pick_gain(false)
+		if levels.gains.is_empty():
+			progress.record_choice(u)  # 옛 방식 (레벨 규칙 없음): 레벨업 대기 하나를 쓴다
+		else:
+			progress.stacks[u.id] = int(progress.stacks.get(u.id, 0)) + 1  # 카드는 숨 고르기 계획 때 이미 썼다
+		for i in mini(gain, u.max_stacks - int(progress.stacks.get(u.id, 0)) + 1) - 1:  # 한 번에 여러 단계
 			build.apply(u)
 			progress.stacks[u.id] = int(progress.stacks.get(u.id, 0)) + 1
+		levels.consume()
 	break_picks = maxi(break_picks - 1, 0)
 	if state.is_playing():
 		_offer_next()

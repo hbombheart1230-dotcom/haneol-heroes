@@ -132,7 +132,7 @@ script = ExtResource("8_feel")
 script = ExtResource("1_enemy")
 id = &"boss_general"
 display_name = "거란 망령 부족장"
-max_hp = 2500
+max_hp = 1500
 xp = 0
 move_speed = 85.0
 contact_damage = 0
@@ -144,6 +144,11 @@ stun_scale = 0.3
 patterns = Array[ExtResource("2_attack")]([SubResource("Gu_sweep"), SubResource("Gu_chop")])
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
+boss_hp_by_hero = {
+"gwanggaeto": 0.88,
+"shin_saimdang": 0.9,
+"yi_sun_sin": 1.1
+}
 boss_feel = SubResource("Boss_feel")
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.35

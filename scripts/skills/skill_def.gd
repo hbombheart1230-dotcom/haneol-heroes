@@ -44,6 +44,8 @@ extends Resource
 @export var vfx_impact: SkillVfxData
 ## 강화 단계 (이번 판 성장으로 오른다: 보통 +1, 큰 변형 +UpgradeDef.vfx_level_gain). 클수록 이펙트가 크고 화려하다.
 @export var vfx_level: int = 0
+## 켜면 강화 단계(SkillGrowthData)에 따라 판정·그림이 같이 커진다 (기본은 작게, 큰 강화/만렙은 크고 화려하게).
+@export var growth: bool = false
 @export_group("연출 · 컷인과 소리 층")
 ## true면 발동할 때 먹 띠 + 영웅 그림 + 기술 이름 컷인 (큰 기술: 반격 계열). 간격 상한은 SkillStageFeel.
 @export var cutin: bool = false
@@ -67,6 +69,11 @@ func aim(ctx: SkillContext) -> Vector2:
 
 func cast(_ctx: SkillContext, _charge: float) -> SkillRun:
 	return SkillRun.instant(0)
+
+
+## 시전 연출(vfx_cast)이 터지는 자리. 기본은 영웅 몸, 적 자리에 펼쳐지는 기술(세종 정음진)은 그 자리.
+func cast_point(ctx: SkillContext) -> Vector2:
+	return ctx.player.global_position
 
 
 ## 충전 조준 길 표시 (charge_aim 기술): 충전 c에서 닿는 거리(px)와 맞는 폭(px). 0이면 길을 그리지 않는다.

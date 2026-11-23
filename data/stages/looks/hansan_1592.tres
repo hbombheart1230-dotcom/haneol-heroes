@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="StageLook" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_look.gd" id="1_look"]
+[ext_resource type="Texture2D" path="res://assets/textures/grain/deck_planks.png" id="2_grain"]
 
 [resource]
 script = ExtResource("1_look")
+detail_texture = ExtResource("2_grain")
+detail_px = 420.0
+detail_strength = 0.4
 value_mult = 0.5
 saturation = 0.6
 contrast = 2.0

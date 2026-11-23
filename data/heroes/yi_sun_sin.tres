@@ -33,6 +33,11 @@
 [ext_resource type="Script" path="res://scripts/data/charge_scaling.gd" id="cs_charge"]
 
 [ext_resource type="Resource" path="res://data/heroes/bite/yi_sun_sin.tres" id="blade_bite"]
+[ext_resource type="Texture2D" path="res://assets/ui/portraits/yi_sun_sin.png" id="portrait"]
+[ext_resource type="Resource" path="res://data/heroes/levels/yi_sun_sin_level_up.tres" id="lv_up"]
+[ext_resource type="Resource" path="res://data/heroes/dash_dir/yi_sun_sin.tres" id="dash_dir"]
+
+[ext_resource type="Resource" path="res://data/heroes/combo_lock/yi_sun_sin.tres" id="combo_lock"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
@@ -70,6 +75,7 @@ melee_hit_sfx = &"w_sword"
 heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_haeryong"]
 script = ExtResource("4_haeryong")
+growth = true
 launch_px = 110.0
 id = &"haeryong"
 display_name = "해룡참"
@@ -89,6 +95,7 @@ cast_lead = -1.0
 
 [sub_resource type="Resource" id="Skill_pado"]
 script = ExtResource("5_pado")
+growth = true
 id = &"pado"
 display_name = "파도격"
 icon = ExtResource("i_pado")
@@ -117,6 +124,7 @@ fx = Vector2(0.8, 1.5)
 
 [sub_resource type="Resource" id="Skill_haeil"]
 script = ExtResource("6_haeil")
+growth = true
 id = &"haeil"
 display_name = "해일검기"
 icon = ExtResource("i_haeil")
@@ -142,6 +150,7 @@ cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_counter"]
 script = ExtResource("7_counter")
+growth = true
 launch_px = 120.0
 id = &"counter"
 display_name = "강화 반격"
@@ -179,6 +188,7 @@ story = ExtResource("story")
 home_stage = &"hansan_1592"
 display_name = "순신"
 card_art = ExtResource("card_art")
+portrait = ExtResource("portrait")
 tagline = "푸른 해류의 검
 빠르게 누비며 벤다"
 body_color = Color(0.13, 0.27, 0.55, 1)
@@ -207,9 +217,13 @@ stop_slide_px = 5.0
 stop_slide_time = 0.12
 attack = SubResource("Attack_yi")
 kit = SubResource("Kit_yi")
+boss_hp_mult = 1.25
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+level_up = ExtResource("lv_up")
 dash_style = ExtResource("dash_style")
 charge_marker = ExtResource("charge_marker")
 blade_bite = ExtResource("blade_bite")
+dash_dir = ExtResource("dash_dir")
+combo_lock = ExtResource("combo_lock")
 hit_sfx = Array[StringName]([&"mat_water", &"mat_blade"])

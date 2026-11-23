@@ -112,7 +112,7 @@ func pieces(d: SkillVfxData, pos: Vector2, dir: Vector2, level: int, size: float
 	_sets.append({"data": d, "pos": pos, "rot": rot, "start": start, "size": size, "grow": pl.get("grow", d.decal_grow),
 		"glow_k": pl.get("glow_k", d.glow_size), "flash_k": pl.get("flash_k", stage.flash_scale * 1.3),
 		"flash": d.piece_flash * light, "core": pl.get("core", 1.0),
-		"t": 0.0, "life": life, "bright": 1.0 + d.level_glow * d.level_of(level), "glow": d.glow_for(level) * light})
+		"t": 0.0, "life": life, "bright": d.bright_for(level), "glow": d.glow_for(level) * light})
 	_cap(_sets, stage.max_piece_sets)
 	_last_size[d] = size
 	if d.sweep_hand:
@@ -149,7 +149,7 @@ func hit_mark(d: SkillVfxData, pos: Vector2, dir: Vector2, level: int) -> void:
 func gather(d: SkillVfxData, pos: Vector2, level: int) -> void:
 	if d == null or d.gather_time <= 0.0 or d.gather_count <= 0:
 		return
-	var n := roundi(d.gather_count * (1.0 + d.level_count * d.level_of(level)))
+	var n := roundi(d.gather_count * float(d.count_for(level)) / maxf(float(d.count), 1.0)) if d.count > 0 else roundi(d.gather_count * (1.0 + d.level_count * d.level_of(level)))
 	for i in n:
 		var a := TAU * float(i) / float(n) + randf_range(-0.3, 0.3)
 		var r := d.gather_radius * d.size_mult(level) * randf_range(0.7, 1.15)

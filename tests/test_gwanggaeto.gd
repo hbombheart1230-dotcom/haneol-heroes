@@ -152,6 +152,14 @@ func test_thunder_trail_strikes_dash_path_after_delay() -> void:
 	assert_int(get_children().filter(func(c: Node) -> bool: return c is DamageZone).size()).is_equal(1)
 
 
+## 벼락·사슬은 박자대로 (WaveRake): 다 끝날 때까지 돌린다.
+func _rake_out(frames: int = 60) -> void:
+	for i in frames:
+		for n in get_children():
+			if n is WaveRake and not n.is_queued_for_deletion():
+				(n as WaveRake)._physics_process(DT)
+
+
 func test_lightning_bolts_scale_with_charge_and_chain() -> void:
 	var s: LightningSkill = GW.kit.charge.duplicate()
 	assert_int(s.bolt_count(0.0)).is_equal(s.min_bolts)
@@ -160,11 +168,13 @@ func test_lightning_bolts_scale_with_charge_and_chain() -> void:
 	var b := _enemy_at(Vector2(250, 0))  # a에서 연쇄 거리(180) 안
 	var c := _enemy_at(Vector2(380, 0))  # b에서 연쇄 거리 안
 	s.cast(ctx, 0.0)  # 벼락 1개 → 가장 가까운 a, 연쇄 없음
+	_rake_out()
 	assert_int(a.health.current).is_less(a.health.max)
 	assert_int(b.health.current).is_equal(b.health.max)
 	assert_int(c.health.current).is_equal(c.health.max)
 	s.chain_count = 2
 	s.cast(ctx, 0.0)
+	_rake_out()
 	assert_int(b.health.current).is_less(b.health.max)  # a → b로 튐
 	assert_int(c.health.current).is_less(c.health.max)
 
@@ -176,6 +186,7 @@ func test_lightning_skips_dead_enemies() -> void:
 	dead.health.kill()
 	var live := _enemy_at(Vector2(200, 0))
 	s.cast(ctx, 0.0)  # 벼락 1개
+	_rake_out()
 	assert_int(live.health.current).is_less(live.health.max)
 
 

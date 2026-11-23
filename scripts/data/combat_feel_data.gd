@@ -154,6 +154,9 @@ extends Resource
 ## 평타 검기 크기 배율 (전체, 타별 곱). 3타는 더 크게.
 @export var crescent_scale: float = 1.5
 @export var crescent_step_scales: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.35])
+## 초승달 바깥 가장자리 = 판정 사거리 × crescent_reach, 두께 = 사거리 × crescent_depth × 타별 배율 (그림을 판정에 맞춘다).
+@export var crescent_reach: float = 1.05
+@export var crescent_depth: float = 0.85
 ## 검기 영웅색을 밝히는 정도, 밝은 심의 진하기와 흰빛 섞는 비율 (어두운 바닥에서 보이게).
 @export var crescent_lighten: float = 0.25
 @export var crescent_core_alpha: float = 0.85

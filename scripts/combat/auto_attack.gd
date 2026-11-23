@@ -49,11 +49,17 @@ var last_manual: bool = false
 ## 지금 닿을 칼·놓을 탄이 손 평타인지 (닿기·놓기가 늦게 와도: 연타 글씨).
 var swing_manual: bool = false
 var shot_manual: bool = false
+## 연타 대상 고정 (HeroData.combo_lock): 1타가 맞힌 몹을 연타 동안 겨냥.
+var lock := ComboLock.new()
 ## 연타 흐름: 마지막으로 칼이 닿은 뒤 흐른 시간 (캔슬 구간), 이번 원거리 연타 번호와 손에 든 탄의 번호·동작.
 var _since_strike: float = INF
 var ranged_step: int = 0
 var _release_step: int = 0
 var _release_anim: String = ""
+## 마무리 기술 동작 중 (TapChain): 남은 시간 동안 평타(손·자동)를 내지 않는다.
+var _busy_left: float = 0.0
+## 기억해 둔 손 탭이 있는 동안 자동 평타가 먼저 나가 그 탭을 먹지 않게 (TapChain).
+var _auto_hold: float = 0.0
 
 
 func _ready() -> void:
@@ -83,6 +89,8 @@ func tick(delta: float, enemy_list: Array) -> void:
 	_since_melee += delta
 	_since_manual += delta
 	_since_strike += delta
+	_busy_left = maxf(_busy_left - delta, 0.0)
+	_auto_hold = maxf(_auto_hold - delta, 0.0)
 	if player == null:
 		return
 	if player.is_dead():  # 죽으면 손에 든 탄·휘두르던 칼은 버린다
@@ -103,6 +111,8 @@ func tick(delta: float, enemy_list: Array) -> void:
 		_release_left -= delta
 		if _release_left < 0.0:
 			RangedShot.release(self, enemy_list)
+	if _busy_left > 0.0 or _auto_hold > 0.0:  # 마무리 동작 중·기억한 손 탭이 나가기 전엔 자동 평타가 끼어들지 않는다
+		return
 	var from := player.global_position
 	var nearest := Targeting.nearest(enemy_list, from, stats().ranged_range)
 	if nearest == null:
@@ -124,7 +134,21 @@ func tick(delta: float, enemy_list: Array) -> void:
 
 ## 손 평타를 지금 낼 수 있는지: min_gap초가 지났고, 휘두르던 칼·손에 든 탄이 없다.
 func can_manual(min_gap: float) -> bool:
-	return player != null and not player.is_dead() and _since_manual >= min_gap and _melee_left < 0.0 		and _release_left < 0.0 and _since_strike >= stats().cancel_after  # 앞 타가 닿은 뒤에야 끊고 들어간다
+	return player != null and not player.is_dead() and _since_manual >= min_gap and _melee_left < 0.0 		and _release_left < 0.0 and _since_strike >= stats().cancel_after and _busy_left <= 0.0  # 앞 타가 닿은 뒤에야 끊고 들어간다
+
+
+## 마무리 기술 동작 동안 seconds초 평타를 막는다 (0이면 풀기, 대시가 끊는다).
+func busy_for(seconds: float) -> void:
+	_busy_left = maxf(seconds, 0.0)
+
+
+func busy_left() -> float:
+	return _busy_left
+
+
+## 기억해 둔 손 탭이 나갈 때까지 (최대 seconds초) 자동 평타를 쉰다.
+func hold_auto(seconds: float) -> void:
+	_auto_hold = maxf(seconds, 0.0)
 
 
 ## 휘두른 칼이 아직 닿기 전인지 (대시로 끊기면 false).
@@ -138,9 +162,12 @@ func manual_strike(step: int, ranged: bool, enemy_list: Array = []) -> void:
 	var list := enemy_list if not enemy_list.is_empty() else enemies()
 	var from := player.global_position
 	var nearest := Targeting.nearest(list, from, stats().ranged_range)
+	if not ranged and player.hero:  # 연타 중이면 처음 때린 몹 (ComboLock)
+		nearest = lock.pick(player.hero.combo_lock, player, step, stats().melee_range * ComboSteps.at(stats().step_range_mults, step, 1.0), nearest)
 	var to: Vector2 = nearest.global_position - from if nearest else player.facing
 	_since_manual = 0.0
 	_hold = 0.0
+	_auto_hold = 0.0
 	last_manual = true
 	if ranged:
 		ranged_step = step
@@ -222,7 +249,7 @@ func melee_delay() -> float:
 	if bite and bite.enabled and player.contact:  # 칼이 몹 몸에 닿는 바로 그 장면 (HeroContact, 범위로 자르지 않는다)
 		var t := player.contact.contact_time(StringName(chain_anim()))
 		if t >= 0.0:
-			return clampf(t, bite.contact_min, bite.contact_max)
+			return clampf(t / maxf(bite.swing_speed, 0.05), bite.contact_min, bite.contact_max)
 	var sheet := player.hero.sprite_sheet if player and player.hero else null
 	var feel := Feedback.feel_data()
 	var anim := chain_anim()
@@ -248,10 +275,12 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 		var en := e as Enemy
 		if en:
 			en.heavy_pending = heavy
+			en.hit_crowd = hits.size()  # 여럿을 한 번에 베면 경직이 짧다
 		if h:
 			h.damage(dmg)
 		if en:
 			en.heavy_pending = false
+			en.hit_crowd = 1
 			ComboSteps.push(en, from, kb, heavy, d)  # 피격 반응: 툭 밀려남 (타별 배율), 3타 크게 날리기 (있으면)
 			HitImpact.on_enemy(en, from, chain_step, d.swing_color)  # 닿는 자리 섬광·튐 줄기 (한 타 충격)
 	if not hits.is_empty():
@@ -264,6 +293,8 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 			if e is Enemy and is_instance_valid(e):
 				(e as Enemy).bite(bite_t, player.hero.blade_bite.jitter_px)
 	last_heavy = heavy
+	if swing_manual and player.hero:
+		lock.on_contact(player.hero.combo_lock, player, hits, _swing_dir)  # 대상 잡기 · 살짝 끌려 붙기
 	melee_swung.emit(_swing_dir, hits.size())
 	queue_redraw()
 

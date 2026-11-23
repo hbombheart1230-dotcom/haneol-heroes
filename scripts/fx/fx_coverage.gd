@@ -27,10 +27,11 @@ static func grow_of(d: SkillVfxData, fitted: bool, st: SkillStageFeel) -> float:
 
 
 ## 처음 그릴 지름 size를, 커진 뒤에도 화면 너비 × screen_cap을 넘지 않게 줄인다.
-static func capped(size: float, grow: float, st: SkillStageFeel, view_w: float) -> float:
-	if st.screen_cap <= 0.0:
+static func capped(size: float, grow: float, st: SkillStageFeel, view_w: float, cap: float = -1.0) -> float:
+	var c := st.screen_cap if cap < 0.0 else cap
+	if c <= 0.0:
 		return size
-	return minf(size, st.screen_cap * view_w / maxf(grow, 1.0))
+	return minf(size, c * view_w / maxf(grow, 1.0))
 
 
 ## 화면 너비의 big_from 이상을 덮는 "큰" 이펙트인지 (빛·시간을 줄이고 가운데를 먼저 비움).
@@ -61,7 +62,7 @@ static func plan(d: SkillVfxData, level: int, fit_radius: float, st: SkillStageF
 	var fitted := fit_radius > 0.0 and d.fit_to_hit
 	var grow := grow_of(d, fitted, st)
 	var raw := VfxDecals.fit_size(d, level, fit_radius)
-	var size := capped(raw, grow, st, view_w)
+	var size := capped(raw, grow, st, view_w, d.screen_cap_for(level, st.screen_cap))  # 성장 단계면 단계별 상한
 	var big := is_big(size, grow, st, view_w)
 	var glow_k := limit_scale(d.glow_size, size, st, view_w)
 	var flash_k := limit_scale(st.flash_scale * 1.3, size, st, view_w)

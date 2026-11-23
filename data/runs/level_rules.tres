@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="LevelRules" format=3]
+
+[ext_resource type="Script" path="res://scripts/run/level_rules.gd" id="1_rules"]
+
+[resource]
+script = ExtResource("1_rules")
+needs = PackedInt32Array(14, 18, 22, 26, 30, 34, 38, 42, 46)
+tail_growth = 4
+vfx_first_level = 2
+vfx_every = 2
+stats_every = 2
+picks_per_break = 2
+cards_per_break = 3
+last_break_picks = 3
+min_cards_per_break = 1
