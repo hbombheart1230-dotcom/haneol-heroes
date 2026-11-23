@@ -57,3 +57,10 @@
 - 멈춤은 관통 중 없음, 물결과 모든 타가 끝나면 한 번 (`SkillMultiHit.finale`). 동시에 긁는 적 상한 24 (넘으면 남은 피해를 한 번에).
 - 물결 몸통은 물마루가 줄지어 밀려오는 모양 (`Projectile.blades`, 바로 놓음 2 ~ 다 모음 5겹).
 - 수치: `HaeilSkill` "긁기" 무리, 소리: `skill_hits.tres` "긁기" 무리. 띠·떼 측정: `tools/shots/rake_strip.gd`.
+
+### 같은 방식으로 넓힘 (사용자: "응 동일하게 적용해야지")
+- 순신 반격 큰 강화 사방 검기: 검기가 닿은 적을 0.05초마다 3타 (`blade_rake_*`), 검기 피해 25·밀기 90 나눔.
+- 광개토 낙뢰: 벼락이 0.07초 간격으로 차례로 떨어지고, 사슬(큰 강화)은 0.09초 박자로 한 칸씩 건너뛴다. 맞은 적마다 0.045초 간격 지지직 3타 (`bolt_beat`·`chain_beat`·`crackle_*`), 번개 재질 소리.
+- 사임당 화폭: 가둔 적을 0.12초부터 5번 조이고 간격이 타마다 0.75배로 짧아져 마지막 타가 가두기 끝(0.6초)에 크게 (`squeeze_*`, `WaveRake.accel`), 먹 재질 소리.
+- 공통: `WaveRake.standalone` + `schedule`(적마다 시작 시각·피해·밀기·방향·첫 타 연출), 숫자 쌓기·오르는 음·끝에 멈춤 한 번. 총 피해·면역 규칙 그대로.
+- 띠: `tools/shots/burst_strip.gd` → build/preview/rake_counter|lightning|canvas_before|after.png
