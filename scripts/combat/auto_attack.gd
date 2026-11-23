@@ -46,6 +46,9 @@ var last_heavy: bool = false
 ## 탭 연타 (A안): 마지막 손 평타 뒤 흐른 시간, 지금 나가는 평타가 손으로 낸 것인지 (신호 받는 쪽이 구분).
 var _since_manual: float = INF
 var last_manual: bool = false
+## 지금 닿을 칼·놓을 탄이 손 평타인지 (닿기·놓기가 늦게 와도: 연타 글씨).
+var swing_manual: bool = false
+var shot_manual: bool = false
 ## 연타 흐름: 마지막으로 칼이 닿은 뒤 흐른 시간 (캔슬 구간), 이번 원거리 연타 번호와 손에 든 탄의 번호·동작.
 var _since_strike: float = INF
 var ranged_step: int = 0
@@ -180,6 +183,7 @@ func _melee(from: Vector2, toward: Vector2, enemy_list: Array, step: int = -1) -
 	_swing_dir = toward.normalized() if toward.length_squared() > 0.0001 else player.facing
 	chain_step = step if step > 0 else next_chain_step(chain_step, _since_melee, d)
 	_since_melee = 0.0
+	swing_manual = last_manual
 	melee_windup.emit(_swing_dir)
 	var delay := melee_delay() + step_pause()
 	if delay > 0.0:
@@ -259,6 +263,7 @@ func _fire(from: Vector2, dir: Vector2) -> void:
 	var d := stats()
 	_ranged_cd = d.ranged_interval
 	_release_step = maxi(ranged_step, 1)
+	shot_manual = last_manual
 	_release_anim = ranged_anim_now()
 	ranged_windup.emit(dir)
 	var delay := release_delay()

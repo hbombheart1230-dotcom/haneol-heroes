@@ -11,6 +11,8 @@ extends Node2D
 signal skill_cast(slot: Slot, hits: int)
 ## 누르는 순간 (여러 프레임 기술도 시작할 때 한 번): 영웅 시전 동작용. def = 실제로 쓰인 기술.
 signal skill_started(slot: Slot, def: SkillDef)
+## 손 연타가 이어진 타 수 (평타가 적에 닿을 때 1·2·3, 원거리 평타는 쏠 때, 마무리 = combo_hits + 1): 연타 글씨용.
+signal combo_count(n: int)
 
 enum Slot { NONE, TAP, DASH, CHARGE, COUNTER }
 
@@ -26,6 +28,8 @@ enum Slot { NONE, TAP, DASH, CHARGE, COUNTER }
 
 var input := SkillInput.new()
 var _charge_marker: ChargeMarker
+## 충전 조준 (charge_aim 기술): 모으는 동안 잡은 방향과 바닥 길 표시.
+var aim := ChargeAim.new()
 ## 적 목록 공급자. 테스트에서 교체할 수 있다.
 var enemy_source: Callable = func() -> Array: return get_tree().get_nodes_in_group(Enemy.GROUP)
 
@@ -248,8 +252,16 @@ func auto_attack() -> AutoAttack:
 		if _attack:  # 자동 평타를 연계 수에 넣을지는 kit.combo_auto_counts
 			_attack.melee_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
 			_attack.ranged_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
+			_attack.melee_swung.connect(func(_d: Vector2, hits: int) -> void: _on_manual_land(hits > 0 and _attack.swing_manual))
+			_attack.projectile_fired.connect(func(_p: Projectile) -> void: _on_manual_land(_attack.shot_manual))
 			player.dash_started.connect(func(_d: Vector2) -> void: ComboSteps.cancel_swing(_attack))
 	return _attack
+
+
+## 손 평타가 닿았다 (원거리는 쏘았다): 연타 글씨.
+func _on_manual_land(landed: bool) -> void:
+	if landed and combo.streak > 0:
+		combo_count.emit(combo.streak)
 
 
 func _on_auto_swing() -> void:
@@ -270,6 +282,8 @@ func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float 
 	skill_started.emit(slot, d)
 	var ctx := _context()
 	ctx.skill = d
+	if slot == Slot.CHARGE:
+		ctx.aim_dir = aim.aim_dir()
 	if d.vfx_cast:
 		Feedback.vfx_burst(d.vfx_cast, player.global_position, player.facing, d.vfx_level)
 	SkillStageFx.on_cast(get_tree() if is_inside_tree() else null, d, player.hero)  # 컷인 + 소리 층
@@ -323,6 +337,10 @@ func is_charging() -> bool:
 
 
 ## 살아서 모으는 중인지 (죽으면 손을 떼기 전이라도 표시·입자·번쩍임 없음).
+func is_charging_alive() -> bool:
+	return _is_charging_alive()
+
+
 func _is_charging_alive() -> bool:
 	return input.state == SkillInput.State.CHARGING and player != null and not player.is_dead()
 
@@ -339,19 +357,9 @@ func _marker() -> ChargeMarker:
 
 func _physics_process(delta: float) -> void:
 	tick(delta, Time.get_ticks_usec() / 1_000_000.0)
-	var charging := _is_charging_alive()
-	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0) if charging else 0.0
-	if player:
-		if player.is_dead():
-			_marker().cancel()  # 죽으면 번쩍임까지 바로 지운다
-		else:
-			_marker().tick(delta, charging, c, player.global_position)
+	ChargeView.tick(self, delta)
 	queue_redraw()
 
 
 func _draw() -> void:
-	# 충전 중 표시: 플레이어 발밑 (영웅별 그림, show_behind_parent로 영웅 그림 아래)
-	var charging := _is_charging_alive()
-	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0) if charging else 1.0
-	if player:
-		_marker().draw(self, charging, c)
+	ChargeView.draw(self)  # 충전 중 표시: 플레이어 발밑 (show_behind_parent로 영웅 그림 아래)

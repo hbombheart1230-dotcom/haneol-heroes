@@ -46,8 +46,12 @@ func test_directional_skills_have_aim_assist() -> void:
 	var sj: HeroData = load("res://data/heroes/sejong.tres")
 	var found := 0
 	for k in [yi.kit.tap, yi.kit.dash, yi.kit.charge, yi.kit.counter, sj.kit.tap, sj.kit.dash, sj.kit.charge, sj.kit.counter]:
-		if k is HaeilSkill or k is ConstellationSkill:
+		if k is ConstellationSkill:
 			assert_float(k.aim_assist_deg).is_greater(0.0)
+			found += 1
+		elif k is HaeilSkill:  # 사용자 (b416fc1 폰 의견): 모으는 동안 잡은 방향으로 곧게, 보정 없음 (test_charge_aim)
+			assert_bool(k.charge_aim).is_true()
+			assert_float(k.aim_assist_deg).is_equal(0.0)
 			found += 1
 		else:
 			assert_float(k.aim_assist_deg).is_equal(0.0)  # 다른 기술은 그대로
