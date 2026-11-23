@@ -22,6 +22,8 @@ extends Resource
 @export var transition_hold: float = 1.8
 ## 낙인이 떨어지고 글자가 읽힌 뒤 강화 고르기를 연다(초).
 @export var pick_delay: float = 0.7
+## 전환 한 박자 동안 보일 동작 (시트에 있을 때만, 예: 칼을 하늘로 드는 외침 shout). 비면 없음.
+@export var phase_anim: StringName = &"shout"
 ## 부하 먹 번짐 예고를 시작하는 때(초, 전환 시작부터). 예고 0.6초 뒤 나타난다.
 @export var summon_delay: float = 1.0
 ## 보스와 함께 있을 부하 최대 (근접 전용 영웅이 보스와 함께 감당할 수). 넘는 소환은 버린다.

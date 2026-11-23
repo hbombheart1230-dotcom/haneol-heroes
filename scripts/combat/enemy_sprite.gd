@@ -22,7 +22,11 @@ static func update(e: Enemy, busy: bool) -> void:
 	var a := e.attack
 	var anim := "idle"
 	var down := e.reaction != null and e.reaction.is_down()
-	if down:  # 넘어짐 (B8): 넘어짐 동작이 있으면 그것, 없으면 맞는 동작 마지막 칸을 눕힌다 (pose)
+	var posed := pose_anim(e)
+	if posed != "" and not down:  # 정해진 시간 동안 보이는 동작 (보스 단계 전환 외침 등, BossStaging)
+		anim = posed
+		busy = false
+	elif down:  # 넘어짐 (B8): 넘어짐 동작이 있으면 그것, 없으면 맞는 동작 마지막 칸을 눕힌다 (pose)
 		anim = "down" if sheet.has_anim("down") else ("hit" if sheet.has_anim("hit") else "idle")
 	elif e.reaction and e.reaction.shows_hit_anim() and sheet.has_anim("hit"):
 		anim = "hit"
@@ -45,12 +49,31 @@ static func update(e: Enemy, busy: bool) -> void:
 		var n := sheet.frame_count(anim)
 		e.sprite.speed_scale = 0.0
 		e.sprite.frame = mini(int(e.reaction.down_progress() * n), n - 1) if anim == "down" else n - 1
-	elif busy and a and anim != "hit" and anim != "run":  # 무기와 피해 시점 맞추기 (W2): 예고·회복에 맞춰 칸을 직접 고른다
+	elif busy and a and anim != "hit" and not sheet.is_loop(anim):  # 무기와 피해 시점 맞추기 (W2): 예고·회복에 맞춰 칸을 직접 고른다 (돌진처럼 되풀이 동작은 그냥 돈다)
 		e.sprite.speed_scale = 0.0
 		e.sprite.frame = AttackTiming.enemy_frame(a.state == EnemyAttack.State.RECOVER, a.windup_ratio(),
 			a.recover_ratio(), sheet.strike_frame(anim), sheet.frame_count(anim))
-	EnemySprite3D.sync(e, anim, face, busy and a != null and anim != "hit" and anim != "run" and not down)
+	EnemySprite3D.sync(e, anim, face, busy and a != null and anim != "hit" and not sheet.is_loop(anim) and not down)
 	pose(e, 0.0)
+
+
+## 정해진 시간(초, 시뮬 시계도 따르는 EnemyAttack.now_sec) 동안 anim을 보인다 (시트에 있을 때만). 처음부터 튼다.
+static func show_pose(e: Enemy, anim: StringName, seconds: float) -> void:
+	if e == null or e.data == null or e.data.sprite_sheet == null or not e.data.sprite_sheet.has_anim(String(anim)):
+		return
+	e.set_meta(&"pose", [String(anim), EnemyAttack.now_sec() + seconds])
+	if e.sprite:
+		e.sprite.stop()
+
+
+static func pose_anim(e: Enemy) -> String:
+	if not e.has_meta(&"pose"):
+		return ""
+	var p: Array = e.get_meta(&"pose")
+	if EnemyAttack.now_sec() >= float(p[1]):
+		e.remove_meta(&"pose")
+		return ""
+	return p[0]
 
 
 ## 공격 동작의 맞닿는 프레임에서 무기 끝 (월드 좌표). 기록이 없으면 몸 가운데 + 겨눈 방향 × 몸 반경.

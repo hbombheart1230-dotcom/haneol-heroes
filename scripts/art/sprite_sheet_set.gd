@@ -27,6 +27,12 @@ func shared_sprite_frames() -> SpriteFrames:
 	return _cache[key]
 
 
+## 되풀이 동작인지 (달리기·돌진 등: 예고 진행으로 칸을 고르지 않고 그냥 돈다).
+func is_loop(anim: String) -> bool:
+	var i := anim_names.find(anim)
+	return i >= 0 and i < loops.size() and loops[i]
+
+
 func has_anim(anim: String) -> bool:
 	return anim_names.has(anim)
 
