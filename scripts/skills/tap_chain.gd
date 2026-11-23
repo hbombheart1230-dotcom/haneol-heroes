@@ -23,13 +23,28 @@ static func tap(c: SkillCaster) -> SkillCaster.Slot:
 			if bite and bite.enabled:  # 마무리 명중 멈춤 = 칼이 박히는 멈춤 길이 하나로 (풀릴 때 쉭)
 				SkillHitStop.force_next(bite.finisher_stop, bite.release_sfx, bite.release_pitch)
 			c.cast(SkillCaster.Slot.TAP, 0.0, c.kit.combo_finisher_mult, c.kit.tap.cooldown * c.kit.combo_finisher_cd_ratio)
+			if atk:  # 마무리 동작이 끝날 때까지 다음 1타(손·자동)가 끼어들지 않게
+				atk.busy_for(recover(c))
 			c.combo_count.emit(c.kit.combo_hits + 1)  # 마무리 = 4타
 			return SkillCaster.Slot.TAP
 		TapCombo.Action.HIT:
 			atk.manual_strike(c.combo.on_hit(c.kit.combo_hits, atk.stats().chain_len), c.kit.ranged_taps)
-		TapCombo.Action.BUFFERED:
-			c.combo.buffer(c.kit.tap_buffer)
+		TapCombo.Action.BUFFERED:  # 마무리 동작 중이면 풀릴 때까지 한 번 기억 (자동 평타가 먼저 먹지 않게)
+			var keep := c.kit.tap_buffer + (atk.busy_left() if atk else 0.0)
+			c.combo.buffer(keep)
+			if atk:
+				atk.hold_auto(keep)
 	return SkillCaster.Slot.NONE
+
+
+## 마무리 뒤 평타를 막는 시간(초): kit.finisher_recover, 음수면 마무리 시전 동작 길이 (그림이 없으면 0).
+static func recover(c: SkillCaster) -> float:
+	if c.kit.finisher_recover >= 0.0:
+		return c.kit.finisher_recover
+	var sheet := c.player.hero.sprite_sheet if c.player and c.player.hero else null
+	if sheet == null:
+		return 0.0
+	return CastAnim.of(c.kit.tap, sheet).seconds
 
 
 ## 손 평타 최소 간격(초): 평타 간격 × tap_min_gap_mult (공격속도 강화를 따른다).

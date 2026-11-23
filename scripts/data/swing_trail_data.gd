@@ -3,8 +3,9 @@ extends Resource
 ## 평타 검기 궤적 (SwingTrail): 칼이 지나간 자리를 따라 그려지는 붓 획 띠. 수치는 data/feel/swing_trail.tres.
 ## 부채꼴(판정)과 같은 각도·사거리를 휩쓴다: 모양은 BasicAttackData(step_arc_mults·step_trail_flip·step_range_mults).
 
-## 궤적을 쓰는 영웅 (HeroData.id). 없는 영웅은 예전 초승달 (SwingCrescent).
-@export var heroes: PackedStringArray = PackedStringArray(["yi_sun_sin"])
+## 궤적을 쓰는 영웅 (HeroData.id). 없는 영웅은 칼이 닿는 순간 켜졌다 꺼지는 초승달 (SwingCrescent).
+## 기본 비움: 순신도 초승달 (사용자 판 피드백 — 따라 그리는 궤적이 칼보다 느려 보였다, 광개토·사임당처럼).
+@export var heroes: PackedStringArray = PackedStringArray()
 ## 띠 그림 (무채색, 세로 0 = 칼끝 가장자리 → 1 안쪽 마른 붓 결). tools/vfx/make_trail_band.py.
 @export var band: Texture2D
 ## 휘두르는 방향 = step_trail_flip × sweep_sign (1 = 화면 시계 방향). 순신 굽기의 무기 끝 기록을 방향 8개로 재면

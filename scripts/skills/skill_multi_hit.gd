@@ -30,7 +30,7 @@ static func tick(ctx: SkillContext, en: Enemy) -> void:
 ## 반환: 이번에 멈췄으면 true.
 static func finale(ctx: SkillContext) -> bool:
 	var d := data()
-	var now := Time.get_ticks_msec()
+	var now := GameTime.now_ms()
 	if now - _last_finale_ms < int(d.finale_gap * 1000.0):
 		return false
 	_last_finale_ms = now

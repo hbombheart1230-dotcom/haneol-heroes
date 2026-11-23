@@ -15,6 +15,14 @@ static var _inner_until_ms: int = 0
 static var _inner_scale: float = 1.0
 ## 긴 멈춤 끝의 되돌아오는 구간(ms): 이 동안 배율이 _stop_scale에서 1로 부드럽게 올라간다 (하데스 LerpTime).
 static var _ramp_ms: int = 0
+## 시각(ms) 공급자: 비면 실제 시각. 시뮬레이션은 판 시각을 넣는다 (실제 시각이면 기계 속도에 따라 멈춤 길이가 달라져
+## 같은 씨앗이 다른 판이 됐다: 멈춤 중이면 칼 박힘이 안 걸리는 등).
+static var clock: Callable
+
+
+## 지금 시각(ms): 멈춤·멈춤 간격을 재는 모든 곳이 이것을 쓴다 (BladeBite·SkillHitStop·SkillMultiHit).
+static func now_ms() -> int:
+	return int(clock.call()) if clock.is_valid() else Time.get_ticks_msec()
 
 
 ## 기준 배율 바꾸기 (인장 고르기 느린 시간). 걸려 있던 멈춤은 지우지 않고 새 기준 위에서 이어 간다
@@ -35,7 +43,7 @@ static func reset() -> void:
 
 
 static func is_stopped() -> bool:
-	return Time.get_ticks_msec() < _stop_until_ms
+	return now_ms() < _stop_until_ms
 
 
 ## 히트스톱·슬로모션: duration초(실제 시간) 동안 게임 시간을 base × scale로. tree가 없으면 아무 일도 안 함.
@@ -44,7 +52,7 @@ static func is_stopped() -> bool:
 static func stop(tree: SceneTree, duration: float, scale: float = 0.05, ramp: float = 0.0) -> void:
 	if tree == null or duration <= 0.0:
 		return
-	var until := Time.get_ticks_msec() + int(duration * 1000.0)
+	var until := now_ms() + int(duration * 1000.0)
 	if is_stopped() and until < _stop_until_ms:
 		# 더 긴 멈춤이 이미 걸려 있다. 더 센 멈춤이면 그 안에서 잠깐만 건다 (컷인 중 히트스톱, Codex b11a3b0 지적).
 		if scale < _stop_scale and until > _inner_until_ms:
@@ -65,17 +73,17 @@ static func stop(tree: SceneTree, duration: float, scale: float = 0.05, ramp: fl
 
 ## 지금 배율을 엔진에 반영 (순수 계산은 current_scale).
 static func _apply() -> void:
-	Engine.time_scale = base * current_scale(Time.get_ticks_msec())
+	Engine.time_scale = base * current_scale(now_ms())
 
 
 ## now 시각의 멈춤 배율: 멈춤이 없으면 1, 안쪽 멈춤이 살아 있으면 둘 중 더 센 쪽.
-static func current_scale(now_ms: int) -> float:
-	if now_ms >= _stop_until_ms:
+static func current_scale(at_ms: int) -> float:
+	if at_ms >= _stop_until_ms:
 		return 1.0
 	var outer := _stop_scale
-	if _ramp_ms > 0 and now_ms > _stop_until_ms - _ramp_ms:
-		outer = lerpf(_stop_scale, 1.0, float(now_ms - (_stop_until_ms - _ramp_ms)) / _ramp_ms)
-	return minf(outer, _inner_scale) if now_ms < _inner_until_ms else outer
+	if _ramp_ms > 0 and at_ms > _stop_until_ms - _ramp_ms:
+		outer = lerpf(_stop_scale, 1.0, float(at_ms - (_stop_until_ms - _ramp_ms)) / _ramp_ms)
+	return minf(outer, _inner_scale) if at_ms < _inner_until_ms else outer
 
 
 static func _on_frame() -> void:

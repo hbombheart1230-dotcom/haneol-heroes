@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
-## 연타 글씨 (사용자: "연타를 1타 2타 3타 4타 이렇게 콤보 넣는 글씨 띄웠으면"): 손 평타가 닿을 때 1·2·3, 넷째 탭 마무리에 4,
-## 타수가 오를수록 크게, 연타가 끊기면 사라짐, 설정으로 끔.
+## 연타 글씨 (사용자: "연타를 1타 2타 3타 4타 이렇게 콤보 넣는 글씨 띄웠으면", 뒤에 "어느 것으로든 맞히면 계속 올라가게"):
+## 탭 연타 수(combo_count)는 1·2·3, 마무리 4 그대로 (점수), 글씨는 모든 명중마다 오르고 연타 유지 시간 뒤 바로 0, 설정으로 끔.
 
 const PROJECTILE_SCENE := preload("res://scenes/projectile.tscn")
 const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
@@ -111,45 +111,80 @@ func _counter(c: SkillCaster = null) -> ComboCounter:
 	return cc
 
 
-## 타수가 오를수록 크게, 마무리(4타)가 가장 크다.
-func test_sizes_grow_and_finish_is_biggest() -> void:
-	var d: ComboTextData = load(ComboCounter.DATA_PATH)
-	assert_int(d.labels.size()).is_equal(4)
-	for i in range(1, d.sizes.size()):
-		assert_int(d.sizes[i]).is_greater(d.sizes[i - 1])
-	assert_str(d.labels[3]).is_equal("4타")
+## 어떤 명중이든 (칼·내닫기 타격·기술: Feedback.enemy_hit 피해 > 0) 하나씩 오르고 4타에서 멈추지 않는다.
+func test_any_hit_counts_past_four() -> void:
+	var cc := _counter()
+	for i in 6:
+		Feedback.enemy_hit(Vector2.ZERO, 5)
+		cc._process(DT)
+	assert_int(cc.count()).is_equal(6)
+	assert_int(cc.shown()).is_equal(6)
+	Feedback.enemy_hit(Vector2.ZERO, 0)  # 막힌 타 (피해 0)는 세지 않는다
+	cc._process(DT)
+	assert_int(cc.count()).is_equal(6)
 
 
-## 연타가 끊기면 (streak 0) 옅어져 사라지고, 마무리는 잠깐 머문 뒤 사라진다.
-func test_fades_when_combo_breaks() -> void:
+## 연타 유지 시간 동안 못 맞히면 숫자는 바로 0, 글은 옅어져 사라지고 다음 명중은 1타부터.
+func test_resets_to_zero_after_break_time() -> void:
 	var r := _rig(YI)
-	var c: SkillCaster = r[2]
-	var cc := _counter(c)
-	c.combo.on_hit(3, 3)
-	c.combo_count.emit(1)
-	assert_int(cc.shown()).is_equal(1)
-	cc._process(0.1)
-	assert_float(cc.alpha()).is_equal(1.0)  # 아직 이어지는 중
-	c.combo.tick(5.0, YI.kit.combo_window)  # 끊김
+	var cc := _counter(r[2])
+	Feedback.enemy_hit(Vector2.ZERO, 5)
+	Feedback.enemy_hit(Vector2.ZERO, 5)
+	cc._process(DT)
+	assert_float(cc.break_time()).is_equal(YI.kit.combo_window)
+	cc._process(YI.kit.combo_window - 0.1)
+	assert_int(cc.count()).is_equal(2)  # 아직 이어지는 중
+	cc._process(0.2)
+	assert_int(cc.count()).is_equal(0)  # 칼같이 0
 	for i in 30:
 		cc._process(DT)
 	assert_int(cc.shown()).is_equal(0)
-	c.combo_count.emit(4)
-	assert_int(cc.shown()).is_equal(4)
-	cc._process(0.3)
-	assert_float(cc.alpha()).is_equal(1.0)  # 마무리는 finish_hold 동안 머문다
-	for i in 90:
-		cc._process(DT)
-	assert_int(cc.shown()).is_equal(0)
+	Feedback.enemy_hit(Vector2.ZERO, 5)
+	cc._process(DT)
+	assert_int(cc.shown()).is_equal(1)
+
+
+## 다단 타격이 몰아쳐도 한 타마다 오르되 매번 튀지 않고, 글자 크기는 상한에서 멈춘다 (화면을 덮지 않게).
+func test_multi_hit_counts_each_without_covering_screen() -> void:
+	var d: ComboTextData = load(ComboCounter.DATA_PATH)
+	var cc := _counter()
+	Feedback.enemy_hit(Vector2.ZERO, 5)
+	cc._process(DT)
+	cc._process(d.pop_time)  # 첫 튐이 끝난 뒤
+	Feedback.enemy_hit(Vector2.ZERO, 5)
+	Feedback.enemy_hit(Vector2.ZERO, 5)
+	cc._process(DT)
+	assert_int(cc.count()).is_equal(3)
+	assert_float(cc._age).is_greater(d.pop_time)  # 다시 튀지 않았다
+	assert_int(ComboCounter.size_for(2, false, d)).is_greater(ComboCounter.size_for(1, false, d))
+	assert_int(ComboCounter.size_for(50, false, d)).is_equal(d.size_max)
+	assert_int(d.size_max).is_less(ComboCounter.size_for(1, true, d) + 1)
+	assert_str(d.label_format % 12).is_equal("12타")
+
+
+## 넷째 탭 마무리 동안은 인주색 (finish_hold), 그 뒤 다시 한지색.
+func test_finisher_tints_while_counting_on() -> void:
+	var d: ComboTextData = load(ComboCounter.DATA_PATH)
+	var r := _rig(YI)
+	var c: SkillCaster = r[2]
+	var cc := _counter(c)
+	Feedback.enemy_hit(Vector2.ZERO, 5)
+	c.combo_count.emit(YI.kit.combo_hits + 1)
+	cc._process(DT)
+	assert_bool(cc.finishing()).is_true()
+	cc._process(d.finish_hold)
+	assert_bool(cc.finishing()).is_false()
 
 
 func test_setting_turns_it_off() -> void:
 	var cc := _counter()
 	GameSettings.combo_text = false
-	cc.show_count(2)
+	Feedback.enemy_hit(Vector2.ZERO, 5)
+	cc._process(DT)
 	assert_int(cc.shown()).is_equal(0)
 	GameSettings.combo_text = true
-	cc.show_count(2)
+	Feedback.enemy_hit(Vector2.ZERO, 5)
+	cc._process(DT)
 	assert_int(cc.shown()).is_equal(2)
 	assert_bool(SettingsScreen.ROWS.has(&"combo_text")).is_true()
 
@@ -157,10 +192,10 @@ func test_setting_turns_it_off() -> void:
 ## 실제 장면에서 그려도 오류 없음.
 func test_draws_in_tree() -> void:
 	var cc := _counter()
-	for n in [1, 2, 3, 4]:
-		cc.show_count(n)
+	for n in 5:
+		Feedback.enemy_hit(Vector2.ZERO, 5)
 		await get_tree().process_frame
-	assert_int(cc.shown()).is_equal(4)
+	assert_int(cc.shown()).is_equal(5)
 
 
 ## 사용자 A안: 글 뒤 먹 띠 없음 (회색 상자로 보였다), 한지색 글 + 먹 테두리 = 피해 숫자와 같은 색.

@@ -58,6 +58,7 @@ func _init(p_suite: Node) -> void:
 static func reset_globals() -> void:
 	EnemyAttack.active_windups = 0
 	EnemyAttack.clock = Callable()
+	GameTime.clock = Callable()
 	DashStyleRunner.clock = Callable()
 	AttackTokens.clear()
 	SkillHitStop.reset()
@@ -73,6 +74,7 @@ func setup(boss_data: EnemyData, s: int, boss_at: Vector2 = Vector2(0, -300)) ->
 	_t = 0.0
 	_spawned = 0
 	EnemyAttack.clock = func() -> float: return _t
+	GameTime.clock = func() -> int: return int(_t * 1000.0)  # 멈춤도 판 시각으로 (실제 시각이면 같은 씨앗이 다른 판)
 	DashStyleRunner.clock = func() -> float: return _t
 	_proj_hits.clear()
 	_kept.clear()

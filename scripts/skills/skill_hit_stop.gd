@@ -40,14 +40,14 @@ static func request(tree: SceneTree, damage: int) -> void:
 ## 이번 프레임의 명중 멈춤을 seconds로 (간격 규칙 무시: 마무리는 늘 멈춘다), 풀릴 때 sfx.
 static func force_next(seconds: float, sfx: StringName = &"", pitch: float = 1.0) -> void:
 	_forced = seconds
-	_forced_ms = Time.get_ticks_msec()
+	_forced_ms = GameTime.now_ms()
 	_forced_sfx = sfx
 	_forced_pitch = pitch
 
 
 static func _flush(tree: SceneTree) -> void:
 	var f := Feedback.feel_data()
-	var now := Time.get_ticks_msec()
+	var now := GameTime.now_ms()
 	if _forced > 0.0 and now - _forced_ms <= FORCE_WINDOW_MS and is_instance_valid(tree):
 		GameTime.stop(tree, _forced, f.skill_stop_scale)
 		_last_ms = now
