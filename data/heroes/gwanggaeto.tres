@@ -156,8 +156,8 @@ tagline = "천둥의 정복자
 들어가서 터뜨린다"
 body_color = Color(0.55, 0.25, 0.15, 1)
 sprite_sheet = ExtResource("8_sheet")
-sprite_scale = 0.98
-sprite_offset = Vector2(0, -62)
+sprite_scale = 1.06
+sprite_offset = Vector2(0, -67)
 max_hp = 140
 move_speed = 265.0
 move_accel_time = 0.12
