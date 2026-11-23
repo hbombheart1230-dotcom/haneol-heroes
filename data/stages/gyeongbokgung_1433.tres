@@ -17,6 +17,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/rank_stones.png" id="p_rank_stones"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/roof_tiles.png" id="p_roof_tiles"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/stone_lantern.png" id="p_stone_lantern"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_elite_captain.tres" id="e_jurchen_elite_captain"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_soldier.tres" id="e_jurchen_soldier"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_archer.tres" id="e_jurchen_archer"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_heavy.tres" id="e_jurchen_heavy"]
@@ -45,17 +46,18 @@ elite_last = false
 
 [sub_resource type="Resource" id="Wave_3"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier")])
-first_count = 11
-max_alive = 11
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier")])
+first_count = 6
+max_alive = 8
 elite_last = true
+elite_when_left = 2
 
 [sub_resource type="Resource" id="Wave_4"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier")])
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_elite_captain")])
 first_count = 14
 max_alive = 14
-elite_last = true
+elite_last = false
 
 [sub_resource type="Resource" id="Waves"]
 script = ExtResource("w_set")
@@ -63,7 +65,7 @@ waves = Array[ExtResource("w_wave")]([SubResource("Wave_1"), SubResource("Wave_2
 max_alive = 14
 next_when_left = 2
 refill_each = true
-xp_mult = 1.48
+xp_mult = 1.53
 
 [resource]
 script = ExtResource("1_theme")

@@ -20,6 +20,7 @@
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/rock_grass.png" id="p_rock_grass"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/scroll.png" id="p_scroll"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/wild_sage.png" id="p_wild_sage"]
+[ext_resource type="Resource" path="res://data/enemies/cc_mantis_captain.tres" id="e_cc_mantis_captain"]
 [ext_resource type="Resource" path="res://data/enemies/cc_mouse.tres" id="e_cc_mouse"]
 [ext_resource type="Resource" path="res://data/enemies/cc_grasshopper.tres" id="e_cc_grasshopper"]
 [ext_resource type="Resource" path="res://data/enemies/cc_beetle.tres" id="e_cc_beetle"]
@@ -49,17 +50,18 @@ elite_last = false
 
 [sub_resource type="Resource" id="Wave_3"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
-first_count = 11
-max_alive = 11
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
+first_count = 6
+max_alive = 8
 elite_last = true
+elite_when_left = 2
 
 [sub_resource type="Resource" id="Wave_4"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_beetle"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_beetle"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_beetle"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_beetle"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_beetle"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_beetle"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mantis_captain")])
 first_count = 14
 max_alive = 14
-elite_last = true
+elite_last = false
 
 [sub_resource type="Resource" id="Waves"]
 script = ExtResource("w_set")
@@ -67,7 +69,7 @@ waves = Array[ExtResource("w_wave")]([SubResource("Wave_1"), SubResource("Wave_2
 max_alive = 14
 next_when_left = 2
 refill_each = true
-xp_mult = 1.48
+xp_mult = 1.53
 
 [resource]
 script = ExtResource("1_theme")
