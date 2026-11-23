@@ -174,10 +174,10 @@ func freeze(seconds: float) -> void:
 	_freeze_left = maxf(_freeze_left, seconds)
 
 
-## 칼이 박힌 멈춤 (BladeBite): 정확히 seconds초 멈추고 px만큼 고르게 떨다가, 풀리면 넉백·날리기가 이어진다.
+## 칼이 박힌 멈춤 (BladeBite): 적어도 seconds초 멈추고 (피해 멈춤이 더 길면 그쪽: 짧게 덮으면 정예가 일찍 풀려 다시 밀고 온다,
+## 한산 seed 11 접촉 패배) px만큼 고르게 떨다가, 풀리면 넉백·날리기가 이어진다.
 func bite(seconds: float, px: float) -> void:
-	_freeze_left = seconds
-	_freeze_total = seconds
+	freeze(seconds)
 	_bite_px = px
 
 
