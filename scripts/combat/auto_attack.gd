@@ -249,7 +249,7 @@ func melee_delay() -> float:
 	if bite and bite.enabled and player.contact:  # 칼이 몹 몸에 닿는 바로 그 장면 (HeroContact, 범위로 자르지 않는다)
 		var t := player.contact.contact_time(StringName(chain_anim()))
 		if t >= 0.0:
-			return clampf(t, bite.contact_min, bite.contact_max)
+			return clampf(t / maxf(bite.swing_speed, 0.05), bite.contact_min, bite.contact_max)
 	var sheet := player.hero.sprite_sheet if player and player.hero else null
 	var feel := Feedback.feel_data()
 	var anim := chain_anim()

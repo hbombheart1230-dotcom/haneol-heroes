@@ -109,7 +109,7 @@ func _update_upper(delta: float, cur: String) -> void:
 	_upper_left = maxf(_upper_left - delta, 0.0)
 	_upper_stop = maxf(_upper_stop - delta, 0.0)
 	var on := _upper_left > 0.0 and cur == "run"
-	rig.set_upper(_upper_anim, _upper_restart, on, 0.0 if _upper_stop > 0.0 else 1.0, delta)
+	rig.set_upper(_upper_anim, _upper_restart, on, 0.0 if _upper_stop > 0.0 else swing_speed(), delta)
 	_upper_restart = false
 
 
@@ -120,7 +120,7 @@ func _on_auto_swing(d: Vector2, h: int) -> void:
 		super(d, h)
 	else:
 		_upper_anim = _attack.chain_anim() if _attack else "attack"
-		_upper_left = anim_seconds(_upper_anim, 0.35) + Feedback.feel_data().combo_hold_time * 0.5
+		_upper_left = anim_seconds(_upper_anim, 0.35) / swing_speed() + Feedback.feel_data().combo_hold_time * 0.5
 		_upper_restart = true
 
 

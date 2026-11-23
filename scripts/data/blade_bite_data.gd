@@ -20,6 +20,8 @@ extends Resource
 ## 접점 시각 안전 범위(초): 모르는 클립·이상한 값은 이 안으로.
 @export var contact_min: float = 0.05
 @export var contact_max: float = 0.4
+## 평타 동작(attack·attack2·attack3) 재생 배율: 칼이 닿는 시각 = 접점 ÷ 이 값 (순신 1.25 → 0.19초가 광개토·사임당과 같은 0.15초).
+@export var swing_speed: float = 1.0
 ## 닿을 때 둔탁한 퍽은 HitImpactData.thud_sfx (이미 남), 거기 더 겹칠 소리 (비우면 없음). 풀릴 때 가르는 쉭 (SoundBank 종류, 비우면 없음)과 음높이.
 @export var bite_sfx: StringName = &""
 @export var release_sfx: StringName = &"slash"
