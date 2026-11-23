@@ -67,12 +67,26 @@ func scaled(e: EnemyData, tier: int) -> EnemyData:
 	for p in e.patterns:
 		pats.append(_scaled_attack(p, tier))
 	c.patterns = pats
+	var phases: Array[BossPhaseData] = []
+	for ph in e.phases:  # 보스 단계 공격도 (이어치기까지) 같은 배율로
+		var pc := ph.duplicate() as BossPhaseData
+		var pp: Array[EnemyAttackData] = []
+		for p in ph.patterns:
+			pp.append(_scaled_attack(p, tier))
+		pc.patterns = pp
+		phases.append(pc)
+	c.phases = phases
 	return c
 
 
-func _scaled_attack(a: EnemyAttackData, tier: int) -> EnemyAttackData:
+## 공격 사본 (이어치기 follow_up도 사본으로, 같은 이어치기는 같은 사본: 데이터 비교가 그대로 맞게).
+func _scaled_attack(a: EnemyAttackData, tier: int, done: Dictionary = {}) -> EnemyAttackData:
 	if a == null:
 		return null
+	if done.has(a):
+		return done[a]
 	var c := a.duplicate() as EnemyAttackData
+	done[a] = c
 	c.damage = roundi(a.damage * damage(tier))
+	c.follow_up = _scaled_attack(a.follow_up, tier, done)
 	return c
