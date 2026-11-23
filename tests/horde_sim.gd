@@ -46,9 +46,9 @@ func run_horde(bot: HordeBot, limit: float = 60.0) -> Dictionary:
 				_dash_bot(near)
 			else:
 				_walk_to(near, 70.0)
-		var struck_before := player.dash_struck.size()
+		var struck_before := _struck()
 		player._physics_process(DT)
-		res["strikes"] += maxi(player.dash_struck.size() - struck_before, 0)
+		res["strikes"] += maxi(_struck() - struck_before, 0)
 		caster.tick(DT, _t)
 		tap_t -= DT
 		if bot == HordeBot.MELEE and tap_t <= 0.0 and near.global_position.distance_to(player.global_position) <= 140.0:
@@ -63,6 +63,12 @@ func run_horde(bot: HordeBot, limit: float = 60.0) -> Dictionary:
 	res["evades"] = evades[0]
 	res["invuln"] = snappedf(inv / maxf(_t - t0, 0.001), 0.01)
 	return res
+
+
+## 이번 대시에 돌진 타격으로 친 적 수 (대시 방향 나누기가 없으면 0).
+func _struck() -> int:
+	var s: Variant = player.get("dash_struck")
+	return (s as Dictionary).size() if s is Dictionary else 0
 
 
 func _nearest(list: Array) -> Enemy:
@@ -82,9 +88,9 @@ func _walk_to(e: Enemy, stop: float) -> void:
 
 ## 돌진만: 대시를 쓸 수 있고 연속이 아니면 (타격이 나는 대시) 적 쪽으로, 아니면 다가감.
 func _dash_bot(e: Enemy) -> void:
-	var d := player.hero.dash_dir
+	var d: Variant = player.hero.get("dash_dir")  # 대시 방향 나누기가 없는 가지에서도 돈다
 	var to := e.global_position - player.global_position
-	var fresh := d == null or player._since_dash_end >= d.chain_gap
+	var fresh: bool = d == null or player._since_dash_end >= float(d.chain_gap)
 	if not player.is_dashing() and fresh and player.dash.can_consume() and to.length() <= 380.0:
 		player.request_dash(to.normalized())
 	else:
