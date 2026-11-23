@@ -79,6 +79,7 @@ func run_waves(limit: float = 300.0) -> Dictionary:
 		atk.tick(DT, list)
 		_tick_shots(list)  # 영웅 탄은 BossSim이 손으로 맞춘다
 		_tick_world(list, res)
+		_sample(list)
 		for c in _effects():  # 기술 효과 (글자 고리, 붓 자국 …): 한 프레임 안이라 손으로
 			c.set_physics_process(false)
 			c._physics_process(DT)

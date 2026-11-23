@@ -40,6 +40,8 @@ var _evaded: bool = false
 var _was_inside: bool = false
 ## 끊긴 뒤 다음 예고가 끊기지 않는 남은 시간 (B1).
 var _armor_left: float = 0.0
+## 다음 예고를 끊기지 않게 (ImpactFeelData.interrupt_guard_next): 예고를 시작할 때 그 예고 동안 갑옷.
+var guard_next: bool = false
 ## 보스: 켜면 다음 공격을 BossPatternPicker로 고른다 (끄면 차례대로).
 var pick_by_range: bool = false
 ## 보스: 비어 있지 않으면 이 함수(자기 위치) → true일 때만 예고를 시작한다 (화면 안에서만).
@@ -118,6 +120,9 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 					and (data.bypass_cap or data.volley or active_windups < max_concurrent) 					and (not data.volley or EnemyBrain.volley_open(ai, now_sec())):
 				state = State.WINDUP
 				_chained = false
+				if guard_next:
+					_armor_left = maxf(_armor_left, data.windup + 0.05)
+					guard_next = false
 				active_windups += 1
 				_timer = data.windup
 				target_point = player.global_position
@@ -224,10 +229,11 @@ func can_interrupt() -> bool:
 
 
 ## 잡몹이 맞아 예고가 끊김 (B1): 예고를 버리고 cooldown초 쉬고, 다음 rearm초 동안은 끊기지 않는다.
-func interrupt(cooldown: float, rearm: float) -> void:
+func interrupt(cooldown: float, rearm: float, p_guard_next: bool = false) -> void:
 	cancel()
 	_cooldown = maxf(_cooldown, cooldown)
 	_armor_left = rearm
+	guard_next = guard_next or p_guard_next
 
 
 ## 등장 뒤 첫 공격 대기 (0.3~1.5초 무작위). seed_id가 0 이상이면 그 씨앗으로 (헤드리스 시뮬레이션이 실행마다 같게).

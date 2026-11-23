@@ -25,6 +25,8 @@ extends Resource
 @export var interrupt_cooldown: float = 0.6
 ## 한 번 끊긴 적의 다음 예고는 이 시간(초) 동안 끊기지 않는다 (계속 묶여 위협이 사라지지 않게).
 @export var interrupt_rearm: float = 1.5
+## 끊긴(또는 넘어져 버린) 예고 다음의 예고는 언제 시작하든 끊기지도 넘어지지도 않는다 (적의 공격이 둘에 하나는 나온다).
+@export var interrupt_guard_next: bool = true
 ## 맞아서 공격 대기를 처음부터 다시 셀 때(EnemyData.hit_resets_attack)의 상한: 마지막 공격(또는 등장) 뒤
 ## cooldown × 이 값 안에는 다시 준비된다. 연타로 붙잡아도 공격이 영영 안 나오지 않게 (실측: open_data_benchmark.md).
 @export var reset_max_gap_mult: float = 1.3
@@ -38,7 +40,7 @@ extends Resource
 ## 넘어짐 동작이 없는 시트: 맞는 동작 마지막 칸을 이만큼 눕힌다(도).
 @export var down_tilt_deg: float = 75.0
 ## 일어난 뒤 이 시간(초) 동안은 다시 넘어지지 않는다.
-@export var down_rearm: float = 2.0
+@export var down_rearm: float = 3.0
 
 @export_group("영웅 멈춤 · 3타째 (B3·B4)")
 ## 근접이 맞으면 영웅 동작도 멈춘다 (역경직): base + 맞은 수 × per, 최대 max. 3타째는 heavy.
