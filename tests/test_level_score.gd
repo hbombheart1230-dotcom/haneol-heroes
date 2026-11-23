@@ -36,6 +36,7 @@ func test_plan_limits_picks_and_merges_extra_cards() -> void:
 
 func test_vfx_and_stats_rise_every_other_level() -> void:
 	assert_int(RULES.vfx_bonus(1)).is_equal(0)
+	assert_int(RULES.vfx_bonus(2)).is_equal(1)  # 첫 경지 오름에 바로 한 단계 (기본 모습에 오래 머물지 않게)
 	assert_int(RULES.vfx_bonus(3)).is_equal(1)
 	assert_int(RULES.vfx_bonus(9)).is_equal(4)
 	assert_bool(RULES.grants_stats(2)).is_false()
@@ -92,11 +93,12 @@ func test_level_up_in_a_run_raises_stats_and_skill_look_without_pausing() -> voi
 	var hp0: int = hero.max_hp
 	var vfx0: int = hero.kit.tap.vfx_level
 	var p: RunProgress = main.progress
-	p.add_xp(p.xp_to_next())  # 2레벨
+	p.add_xp(p.xp_to_next())  # 2레벨: 모습 한 단계, 능력치는 아직
 	assert_int(hero.max_hp).is_equal(hp0)
+	assert_int(hero.kit.tap.vfx_level).is_equal(vfx0 + 1)
 	assert_bool(main.is_choosing()).is_false()  # 싸움을 멈추지 않는다
 	assert_bool(get_tree().paused).is_false()
-	p.add_xp(p.xp_to_next())  # 3레벨: 능력치 + 모습 한 단계
+	p.add_xp(p.xp_to_next())  # 3레벨: 능력치 (모습은 4레벨에 다음 단계)
 	assert_int(hero.max_hp).is_greater(hp0)
 	assert_int(hero.kit.tap.vfx_level).is_equal(vfx0 + 1)
 	assert_int(main.build.level_vfx).is_equal(1)

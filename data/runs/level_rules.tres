@@ -6,6 +6,7 @@
 script = ExtResource("1_rules")
 needs = PackedInt32Array(14, 18, 22, 26, 30, 34, 38, 42, 46)
 tail_growth = 4
+vfx_first_level = 2
 vfx_every = 2
 stats_every = 2
 picks_per_break = 2

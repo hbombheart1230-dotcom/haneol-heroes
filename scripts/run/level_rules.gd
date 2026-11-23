@@ -6,7 +6,9 @@ extends Resource
 ## 레벨 n → n+1에 필요한 점수 (needs[n-1]). 배열을 넘으면 마지막 값 + tail_growth씩.
 @export var needs: PackedInt32Array = PackedInt32Array([14, 18, 22, 26, 30, 34, 38, 42, 46])
 @export var tail_growth: int = 4
-## 레벨이 이만큼 오를 때마다 모든 기술의 모습 단계(SkillDef.vfx_level) +1. 0이면 끔.
+## 모든 기술의 모습 단계(SkillDef.vfx_level) 보너스: vfx_first_level에 첫 +1 (기본 모습에 오래 머물지 않게,
+## 첫 경지 오름 ≈ 10초), 그 뒤 vfx_every 레벨마다 +1. vfx_every 0이면 끔.
+@export var vfx_first_level: int = 2
 @export var vfx_every: int = 2
 ## 레벨이 이만큼 오를 때마다 영웅 능력치 상승(HeroData.level_up)을 한 번 적용. 0이면 끔.
 @export var stats_every: int = 2
@@ -33,7 +35,9 @@ func need(level: int) -> int:
 
 ## 이 레벨에서 기술 모습 단계 보너스 (레벨 1 = 0).
 func vfx_bonus(level: int) -> int:
-	return 0 if vfx_every <= 0 else (level - 1) / vfx_every
+	if vfx_every <= 0 or level < vfx_first_level:
+		return 0
+	return 1 + (level - vfx_first_level) / vfx_every
 
 
 ## 이 레벨에 오른 순간 능력치 상승을 적용하는지.

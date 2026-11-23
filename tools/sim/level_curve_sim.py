@@ -56,7 +56,7 @@ def load_rules():
     s = read_tres("data/runs/score_table.tres")
     needs = [int(x) for x in re.findall(r"\d+", r["needs"].split("(", 1)[1])]
     return {
-        "needs": needs, "tail": int(r["tail_growth"]), "vfx_every": int(r["vfx_every"]),
+        "needs": needs, "tail": int(r["tail_growth"]), "vfx_every": int(r["vfx_every"]), "vfx_first": int(r["vfx_first_level"]),
         "picks": int(r["picks_per_break"]), "per_break": int(r["cards_per_break"]),
         "last_picks": int(r["last_break_picks"]), "min": int(r["min_cards_per_break"]),
         "kill_mult": float(s["kill_mult"]), "cap": int(s["per_wave_cap"]),
@@ -72,6 +72,12 @@ def need(R, level):
     if i < len(R["needs"]):
         return R["needs"][i]
     return R["needs"][-1] + R["tail"] * (i - len(R["needs"]) + 1)
+
+
+def vfx_bonus(R, level):
+    if R["vfx_every"] <= 0 or level < R["vfx_first"]:
+        return 0
+    return 1 + (level - R["vfx_first"]) // R["vfx_every"]
 
 
 def plan(R, banked, last):
@@ -126,7 +132,7 @@ def run(R, hero, skill):
             stacks += used
             total_cards += free
             rows.append({"t": bt, "level": level, "picks": len(p), "stacks": used, "carry": bank,
-                         "vfx": (level - 1) // R["vfx_every"] if R["vfx_every"] else 0})
+                         "vfx": vfx_bonus(R, level)})
             count = {}
             bi += 1
         if kind == "end":
@@ -162,7 +168,7 @@ def main():
             for row in r["rows"]:
                 cells.append("%ds L%d %d번·%d단계%s" % (row["t"], row["level"], row["picks"], row["stacks"],
                                                     " (남김 %d)" % row["carry"] if row["carry"] else ""))
-            vfx = (r["level"] - 1) // R["vfx_every"]
+            vfx = vfx_bonus(R, r["level"])
             print("| %s | %s | %.0f초 | %s | %d | +%d | %d |" % (hero, skill, r["first"] or -1, " | ".join(cells),
                                                              r["level"], vfx, r["stacks"]))
             if skill == "보통" and not (8.0 <= (r["first"] or 99) <= 16.0):
