@@ -99,6 +99,8 @@ func _update_sprite(delta: float) -> void:
 	rig.set_facing(player.facing, delta)
 	rig.play_body(cur, restart, seek, _sprite.speed_scale)
 	_update_upper(delta, cur)
+	if _blend:  # 2D 겹침 그림(AnimBlend)은 끈다: 3D가 진짜로 섞고, 찍어 둔 칸이 살아 있는 화면이라 겹쳐 보인다
+		_blend.visible = false
 
 
 ## 달리며 공격: 다리는 달리기, 윗몸은 공격 동작 (구운 그림은 달릴 때 공격 동작을 못 튼다).
@@ -110,9 +112,12 @@ func _update_upper(delta: float, cur: String) -> void:
 	_upper_restart = false
 
 
+## 움직이는 중 공격은 윗몸만 (다리는 달리기 그대로). 부모는 손 평타를 움직이는 중에도 몸 전체로 틀지만(M1),
+## 3D는 윗몸 겹치기로 같은 칼질을 보이면서 다리를 멈추지 않는다.
 func _on_auto_swing(d: Vector2, h: int) -> void:
-	super(d, h)
-	if rig and is_moving() and not live.upper_bones.is_empty():
+	if not (rig and is_moving() and not live.upper_bones.is_empty() and player.hurt_time_left() <= 0.0):  # 맞는 중엔 몸 전체 (M1)
+		super(d, h)
+	else:
 		_upper_anim = _attack.chain_anim() if _attack else "attack"
 		_upper_left = anim_seconds(_upper_anim, 0.35) + Feedback.feel_data().combo_hold_time * 0.5
 		_upper_restart = true

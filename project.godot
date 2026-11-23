@@ -47,7 +47,7 @@ theme/custom_font="res://assets/fonts/DeogonPrincess.ttf"
 [hh]
 
 ; 영웅 그림: false = 구운 스프라이트 (기본), true = 실시간 3D 시험 (docs/research/live3d_spike.md)
-art/live3d=false
+art/live3d=true
 
 [input_devices]
 

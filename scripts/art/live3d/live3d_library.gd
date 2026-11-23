@@ -34,6 +34,8 @@ static func get_or_build(d: Live3DHeroData, model: Node, durations: Dictionary) 
 static func _source(ap: AnimationPlayer, file: String, src: String, sources: Dictionary) -> Animation:
 	if file == "":
 		return _find(ap, src)
+	if not sources.has(file) and file.get_extension() in ["res", "tres"]:  # 미리 꺼내 둔 동작 (모델·텍스처 없이)
+		sources[file] = load(file) as Animation
 	if not sources.has(file):
 		var other: Node = (load(file) as PackedScene).instantiate()
 		var oap := other.find_child("AnimationPlayer", true, false) as AnimationPlayer

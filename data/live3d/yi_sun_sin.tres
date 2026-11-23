@@ -22,7 +22,7 @@ clips = Array[Dictionary]([{
 "src": "Roll Dodge"
 }, {
 "end": 0.85,
-"file": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
+"file": "res://assets/models/meshy/yi_sun_sin/anims/animated_extra2.res",
 "key": "attack",
 "loop": false,
 "src": "Triple Combo Attack",
@@ -39,49 +39,49 @@ clips = Array[Dictionary]([{
 "src": "Dead"
 }, {
 "end": 1.6,
-"file": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
+"file": "res://assets/models/meshy/yi_sun_sin/anims/animated_extra2.res",
 "key": "attack2",
 "loop": false,
 "src": "Triple Combo Attack",
 "start": 0.85
 }, {
 "end": 3.4,
-"file": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
+"file": "res://assets/models/meshy/yi_sun_sin/anims/animated_extra2.res",
 "key": "attack3",
 "loop": false,
 "src": "Triple Combo Attack",
 "start": 2.25
 }, {
 "end": 1.3,
-"file": "res://assets/models/meshy/yi_sun_sin/animated_extra3.glb",
+"file": "res://assets/models/meshy/yi_sun_sin/anims/animated_extra3.res",
 "key": "throw",
 "loop": false,
 "src": "Charged Upward Slash",
 "start": 0.3
 }, {
 "end": 2.45,
-"file": "res://assets/models/meshy/yi_sun_sin/animated_extra2.glb",
+"file": "res://assets/models/meshy/yi_sun_sin/anims/animated_extra2.res",
 "key": "cast_tap",
 "loop": false,
 "src": "Triple Combo Attack",
 "start": 1.35
 }, {
 "end": 1.1,
-"file": "res://assets/models/meshy/yi_sun_sin/animated_extra1.glb",
+"file": "res://assets/models/meshy/yi_sun_sin/anims/animated_extra1.res",
 "key": "cast_dash",
 "loop": false,
 "src": "Right-hand Sword Slash",
 "start": 0.45
 }, {
 "end": 2.2,
-"file": "res://assets/models/meshy/yi_sun_sin/animated_extra3.glb",
+"file": "res://assets/models/meshy/yi_sun_sin/anims/animated_extra3.res",
 "key": "cast_charge",
 "loop": false,
 "src": "Charged Upward Slash",
 "start": 0.6
 }, {
 "end": 1.85,
-"file": "res://assets/models/meshy/yi_sun_sin/animated_extra4.glb",
+"file": "res://assets/models/meshy/yi_sun_sin/anims/animated_extra4.res",
 "key": "cast_counter",
 "loop": false,
 "src": "Double Blade Spin",
