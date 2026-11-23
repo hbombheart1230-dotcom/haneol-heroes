@@ -21,6 +21,16 @@ const PATH := "res://data/feel/skill_hits.tres"
 @export var finale_scale: float = 0.05
 @export var finale_gap: float = 0.3
 
+@export_group("긁기 (해일검기 물결, WaveRake)")
+## 타마다 짧은 소리 (음높이가 타마다 rake_pitch_step씩 올라 rake_pitch_max까지), 다시 울리기까지 간격(초): 여러 적이 한꺼번에 뭉개지지 않게.
+@export var rake_sfx: StringName = &"mat_water"
+@export var rake_pitch: float = 0.95
+@export var rake_pitch_step: float = 0.05
+@export var rake_pitch_max: float = 1.35
+@export var rake_gap: float = 0.045
+## 적마다 마지막 타의 큰 소리.
+@export var rake_last_sfx: StringName = &"w_heavy"
+
 static var _cached: SkillHitFeelData
 
 
