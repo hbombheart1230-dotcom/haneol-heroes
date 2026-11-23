@@ -96,7 +96,8 @@ func run_waves(limit: float = 300.0) -> Dictionary:
 func _effects() -> Array:
 	var own := [player, spawner, caster, obstacles]
 	return suite.get_children().filter(func(c: Node) -> bool:
-		return not _before.has(c) and not own.has(c) and not (c is Projectile) and not c.is_queued_for_deletion() \n			and c.has_method("_physics_process"))
+		return not _before.has(c) and not own.has(c) and not (c is Projectile) and not c.is_queued_for_deletion() \
+			and c.has_method("_physics_process"))
 
 
 func _nearest(list: Array) -> Enemy:
