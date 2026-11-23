@@ -206,10 +206,10 @@ func test_boss_enters_phase_two_and_summons() -> void:
 	sp.set_physics_process(false)
 	var boss := sp.spawn_at(COMMANDER, Vector2(200, 0))
 	boss.set_physics_process(false)
-	assert_int(boss.attack.patterns.size()).is_equal(2)
+	assert_int(boss.attack.patterns.size()).is_equal(COMMANDER.patterns.size())
 	boss.health.damage(roundi(boss.health.max * 0.4))
 	assert_int(boss.phase_index).is_equal(1)
-	assert_int(boss.attack.patterns.size()).is_equal(3)
+	assert_int(boss.attack.patterns.size()).is_equal(COMMANDER.phases[0].patterns.size())  # 단계마다 공격 목록이 바뀐다 (군기 꽂기·먼 돌진 포함)
 	assert_float(boss.phase_invuln).is_greater(0.0)
 	assert_int(sp._warnings).is_equal(COMMANDER.phases[0].summon.size())  # 연출 없이(spawn_at) 부르면 바로 소환
 	var hp := boss.health.current

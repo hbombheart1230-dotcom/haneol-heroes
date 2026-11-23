@@ -15,6 +15,8 @@ var regen_left: float = 0.0
 var gauge_max: float = 0.0
 var gauge: float = 0.0
 var staggers: int = 0
+## 휘청하지 않는 남은 시간(초, 격노 단계 BossPhaseData.stagger_immune).
+var immune_left: float = 0.0
 
 
 func _init(p_tier: HitReaction.Tier, max_hp: int, p_ai: EnemyAIData) -> void:
@@ -36,7 +38,7 @@ func on_damage(applied: int) -> Event:
 		if armor <= 0.0:
 			regen_left = ai.armor_regen_delay
 			return Event.ARMOR_BREAK
-	elif gauge_max > 0.0:
+	elif gauge_max > 0.0 and immune_left <= 0.0:
 		gauge += applied
 		if gauge >= gauge_max:
 			gauge = 0.0
@@ -47,6 +49,7 @@ func on_damage(applied: int) -> Event:
 
 
 func tick(delta: float) -> void:
+	immune_left = maxf(immune_left - delta, 0.0)
 	if armor_max > 0.0 and armor <= 0.0:
 		regen_left = maxf(regen_left - delta, 0.0)
 		if regen_left <= 0.0:

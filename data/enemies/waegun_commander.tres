@@ -8,6 +8,7 @@
 [ext_resource type="Resource" path="res://data/enemies/waegun_gunner.tres" id="6_gunner"]
 [ext_resource type="Texture2D" path="res://assets/vfx/boss_phase_seal.png" id="art_boss_phase_seal_1"]
 [ext_resource type="Script" path="res://scripts/data/boss_feel_data.gd" id="7_feel"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_flag.tres" id="8_flag"]
 
 [sub_resource type="Resource" id="Boss_charge_follow"]
 script = ExtResource("2_attack")
@@ -106,33 +107,115 @@ bypass_cap = true
 follow_up = SubResource("Boss_shock_follow")
 follow_gap = 0.4
 
+[sub_resource type="Resource" id="Boss_flag"]
+script = ExtResource("2_attack")
+kind = 0
+anim = &"shout"
+trigger_range = 420.0
+windup = 1.0
+radius = 150.0
+damage = 10
+cooldown = 2.0
+recovery = 1.0
+bypass_cap = true
+spawn_on_strike = ExtResource("8_flag")
+spawn_cap = 2
+
+[sub_resource type="Resource" id="Boss_far_charge"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"charge"
+trigger_range = 620.0
+windup = 0.9
+length = 620.0
+width = 110.0
+miss_overshoot = 60.0
+miss_recovery = 1.5
+damage = 25
+cooldown = 1.8
+recovery = 1.2
+bypass_cap = true
+min_range = 320.0
+
+[sub_resource type="Resource" id="Boss_charge3c"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"charge"
+trigger_range = 400.0
+windup = 0.8
+length = 460.0
+width = 110.0
+miss_overshoot = 60.0
+miss_recovery = 1.8
+damage = 20
+cooldown = 2.0
+recovery = 1.6
+bypass_cap = true
+chain_repeat = true
+
+[sub_resource type="Resource" id="Boss_charge3b"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"charge"
+trigger_range = 400.0
+windup = 0.8
+length = 460.0
+width = 110.0
+damage = 20
+cooldown = 2.0
+recovery = 0.4
+bypass_cap = true
+chain_repeat = true
+follow_up = SubResource("Boss_charge3c")
+follow_gap = 0.5
+
+[sub_resource type="Resource" id="Boss_charge3a"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"charge"
+trigger_range = 400.0
+windup = 0.9
+length = 460.0
+width = 110.0
+damage = 20
+cooldown = 2.0
+recovery = 0.4
+bypass_cap = true
+chain_repeat = true
+follow_up = SubResource("Boss_charge3b")
+follow_gap = 0.5
+
 [sub_resource type="Resource" id="Phase_2"]
 script = ExtResource("4_phase")
 hp_frac = 0.66
-patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone_combo"), SubResource("Boss_charge"), SubResource("Boss_shockwave")])
+patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone_combo"), SubResource("Boss_charge"), SubResource("Boss_shockwave"), SubResource("Boss_flag"), SubResource("Boss_far_charge")])
 summon = Array[ExtResource("1_enemy")]([ExtResource("5_soldier"), ExtResource("6_gunner")])
 invuln_time = 1.8
 seal_label = "진격!"
+stagger_gauge_mult = 1.5
 seal_art = ExtResource("art_boss_phase_seal_1")
 
 [sub_resource type="Resource" id="Phase_3"]
 script = ExtResource("4_phase")
 hp_frac = 0.33
-patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone_combo"), SubResource("Boss_charge_combo"), SubResource("Boss_shockwave")])
-cooldown_mult = 0.8
+patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone_combo"), SubResource("Boss_charge3a"), SubResource("Boss_shockwave"), SubResource("Boss_flag"), SubResource("Boss_far_charge")])
+cooldown_mult = 0.75
 summon = Array[ExtResource("1_enemy")]([ExtResource("5_soldier"), ExtResource("5_soldier"), ExtResource("6_gunner")])
 invuln_time = 1.8
 seal_label = "총공격!"
+stagger_gauge_mult = 1.5
+stagger_immune = 8.0
 seal_art = ExtResource("art_boss_phase_seal_1")
 
 [sub_resource type="Resource" id="Boss_feel"]
 script = ExtResource("7_feel")
+chase_speed = 135.0
 
 [resource]
 script = ExtResource("1_enemy")
 id = &"waegun_commander"
 display_name = "왜군 망령 수군 장수"
-max_hp = 2520
+max_hp = 2300
 xp = 0
 move_speed = 85.0
 contact_damage = 0
@@ -141,11 +224,11 @@ reach_px = 26.0
 color = Color(0.7, 0.55, 0.2, 1)
 knockback_scale = 0.1
 stun_scale = 0.3
-patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge")])
+patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge"), SubResource("Boss_far_charge")])
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
 boss_hp_by_hero = {
-"gwanggaeto": 1.05,
+"gwanggaeto": 0.85,
 "yi_sun_sin": 0.8
 }
 boss_feel = SubResource("Boss_feel")

@@ -34,11 +34,20 @@ enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE, PULL, THRUST }
 ## 타격 후 경직(초). 이 동안 움직이지 않는다.
 @export var recovery: float = 0.3
 
+@export_group("고르기 조건 (보스)")
+## 0보다 크면 영웅이 이 거리(px)보다 멀 때만 고른다 (원거리 대응: 뒷걸음질만으로 이기지 못하게, 근접 영웅 판은 그대로).
+@export var min_range: float = 0.0
+## 타격 순간 예고 자리(target_point)에 이 적을 세운다 (깃발 꽂기). 같은 적이 spawn_cap 이상 있으면 세우지 않는다.
+@export var spawn_on_strike: EnemyData
+@export var spawn_cap: int = 2
+
 @export_group("이어치기 (보스 조합)")
 ## 있으면 이 공격 뒤 바로 이어 쓰는 공격 (쓸기 → 돌진). 이어치기는 거리와 상관없이 나간다.
 ## 이 공격의 cooldown 대신 follow_gap초 뒤 이어치기 예고가 시작된다 (recovery가 더 길면 그 뒤).
 @export var follow_up: EnemyAttackData
 @export var follow_gap: float = 0.3
+## 같은 공격을 일부러 잇는 이어치기 (격노 3연 돌진, 3연사): 다시 겨눈다. 시험의 "이어치기 종류 다름" 규칙에서 뺀다.
+@export var chain_repeat: bool = false
 
 @export_group("소리·이펙트 (타격감 2차 E1)")
 ## 예고 시작·타격(발사) 순간 소리 (SoundBank 종류). 비우면 EnemyAIData.attack_sfx의 종류별 기본값.

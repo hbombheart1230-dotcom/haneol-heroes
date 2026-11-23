@@ -32,6 +32,8 @@ var atk: AutoAttack
 var caster: SkillCaster
 var spawner: EnemySpawner
 var boss: Enemy
+## 함께 싸우는 다른 우두머리 (중간 우두머리 무리). boss가 쓰러지면 다음 살아 있는 하나가 boss가 되고, 모두 쓰러지면 이김.
+var group: Array = []
 ## 시뮬 시간(초)과 나온 적 수 (ai_seed).
 var _t: float = 0.0
 var _spawned: int = 0
@@ -159,7 +161,8 @@ func enemies() -> Array:
 ## limit초 동안 (또는 승패까지) 굴린다.
 func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 	var res := {"time": 0.0, "won": false, "lost": false, "damage": 0, "by": {}, "boss_hp": 0, "phase": 0,
-		"windups": [], "strikes": [], "struck": [], "gaps": [], "max_minions": 0, "max_threats": 0}
+		"windups": [], "strikes": [], "struck": [], "hits": {}, "boss_stun": 0.0, "boss_windup": 0.0,
+		"boss_recover": 0.0, "boss_idle": 0.0, "dist": 0.0, "gaps": [], "max_minions": 0, "max_threats": 0}
 	var tap_t := 0.0
 	var boss_state := EnemyAttack.State.READY
 	var last_strike := -1.0
@@ -184,8 +187,12 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 		_tick_world(list, res)
 		_sample(list)
 		if not is_instance_valid(boss) or boss.health.is_dead():
-			break
-		var st := boss.attack.state
+			var nxt := _next_alive()
+			if nxt == null:
+				break
+			boss = nxt
+			boss_state = EnemyAttack.State.READY
+		var st := boss.attack.state if boss.attack else EnemyAttack.State.READY
 		if st == EnemyAttack.State.WINDUP and boss_state != EnemyAttack.State.WINDUP:
 			res["windups"].append([snappedf(t, 0.01), boss.attack.data.kind])
 			if last_strike >= 0.0:
@@ -195,12 +202,22 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 			res["strikes"].append(boss.attack.data.kind)
 			res["struck"].append(boss.attack.data)
 		boss_state = st
-		var minions := list.size() - 1
+		# 패턴 보고 (tests/test_boss_pattern_report.gd): 보스가 휘청·멈춤/예고/회복/쉼에 쓴 시간, 영웅과 거리
+		if boss.is_stunned():
+			res["boss_stun"] += DT
+		elif st == EnemyAttack.State.WINDUP:
+			res["boss_windup"] += DT
+		elif st == EnemyAttack.State.RECOVER:
+			res["boss_recover"] += DT
+		else:
+			res["boss_idle"] += DT
+		res["dist"] += player.global_position.distance_to(boss.global_position) * DT
+		var minions := list.filter(func(e: Enemy) -> bool: return not (e.data.aura and e.data.move_speed <= 0.0)).size() - 1  # 깃발은 부하가 아니다
 		res["max_minions"] = maxi(res["max_minions"], minions)
 		res["max_threats"] = maxi(res["max_threats"], EnemyAttack.active_windups)
 	res["time"] = snappedf(_t - t0, 0.1)
 	res["lost"] = player.is_dead()
-	res["won"] = not is_instance_valid(boss) or boss.health.is_dead()
+	res["won"] = (not is_instance_valid(boss) or boss.health.is_dead()) and _next_alive() == null
 	res["damage"] = player.health.max - player.health.current
 	res["boss_hp"] = boss.health.current if is_instance_valid(boss) else 0
 	res["phase"] = boss.phase_index if is_instance_valid(boss) else -1
@@ -254,6 +271,8 @@ func _tick_world(list: Array, res: Dictionary) -> void:
 			key = "arrow"
 		if player.health.current < before:
 			res["by"][key] = int(res["by"].get(key, 0)) + before - player.health.current
+			if res.has("hits"):  # 패턴 보고용 (물결 시뮬 결과에는 없다)
+				res["hits"][key] = int(res["hits"].get(key, 0)) + 1
 	# 접촉 피해 (시뮬레이션 영웅에는 감지 영역이 없어 손으로 잰다)
 	var touch := 0
 	for e in (list if contact else []):
@@ -272,7 +291,7 @@ func _steer(bot: Bot, list: Array) -> void:
 	if bot == Bot.DODGE and _dodge(list):
 		return
 	var to_boss := boss.global_position - p
-	var busy := boss.attack.state == EnemyAttack.State.WINDUP and not bool(_missed.get(boss.attack, false))  # 못 본 예고는 없는 셈
+	var busy := boss.attack != null and boss.attack.state == EnemyAttack.State.WINDUP and not bool(_missed.get(boss.attack, false))  # 못 본 예고는 없는 셈
 	if bot == Bot.DODGE and busy:
 		player.set_move_input(Vector2.ZERO)  # 예고 중엔 그 자리에서 계속 치다가 끝 무렵 대시 (위)
 	elif to_boss.length() > want:
@@ -329,3 +348,11 @@ static func line(name: String, r: Dictionary) -> String:
 	return "[boss-sim] %s: %s in %.1fs, damage %d, boss hp %d, phase %d, minions max %d, by %s, gaps %s" % [
 		name, "WIN" if r["won"] else ("LOSE" if r["lost"] else "TIMEOUT"), r["time"], r["damage"], r["boss_hp"],
 		r["phase"], r["max_minions"], str(r["by"]), str(r["gaps"].slice(0, 12))]
+
+
+## 무리 가운데 아직 살아 있는 다음 우두머리 (없으면 null).
+func _next_alive() -> Enemy:
+	for e in group:
+		if is_instance_valid(e) and not (e as Enemy).health.is_dead():
+			return e
+	return null

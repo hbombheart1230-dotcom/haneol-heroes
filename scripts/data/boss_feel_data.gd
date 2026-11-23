@@ -13,6 +13,12 @@ extends Resource
 ## 보스 공격은 보스가 화면 안(가장자리에서 이 px 안쪽)에 있을 때만 시작한다 (화면 밖 돌진 금지). 음수면 끔.
 @export var onscreen_margin: float = 60.0
 
+@export_group("추격")
+## 0보다 크면 보스 이동 속도를 이 값으로 (쉬지 않고 쫓아오는 우두머리). 0 = EnemyData.move_speed 그대로.
+@export var chase_speed: float = 0.0
+## 무리(같은 물결 중간 우두머리 여럿) 가운데 동시에 예고하는 수 최대. 0 = 제한 없음.
+@export var group_windup_cap: int = 0
+
 @export_group("등장")
 ## 등장 뒤 이 시간(초)은 치지 않는다 (이름 띠·붉은 깜박임이 끝날 즈음 첫 공격).
 @export var intro_hold: float = 2.2

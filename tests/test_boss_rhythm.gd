@@ -106,7 +106,7 @@ func _check_rhythm_data(boss: EnemyData) -> void:
 		if a.follow_up == null:
 			assert_float(a.recovery).is_greater_equal(0.9)  # 조합 끝·홑공격 뒤엔 반드시 때릴 틈
 			assert_float(maxf(a.cooldown, a.recovery)).is_greater_equal(1.6)  # 타격 → 다음 예고
-		else:
+		elif not a.chain_repeat:  # 일부러 잇는 연속 (격노 3연 돌진)은 빼고
 			assert_int(int(a.follow_up.kind)).is_not_equal(int(a.kind))  # 이어치기도 같은 종류 연속 아님
 	for a: EnemyAttackData in boss.patterns:
 		assert_object(a.follow_up).is_null()  # 1단계는 홑공격만

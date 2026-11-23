@@ -82,6 +82,7 @@ seal_label = "베어라!"
 
 [sub_resource type="Resource" id="Mid_feel"]
 script = ExtResource("7_feel")
+group_windup_cap = 2
 intro_hold = 1.2
 transition_hold = 0.8
 summon_delay = 0.4
@@ -104,7 +105,7 @@ finale_subtitle = "정예 격파"
 script = ExtResource("1_enemy")
 id = &"waegun_elite"
 max_hp = 900
-xp = 20
+xp = 10
 move_speed = 80.0
 contact_damage = 0
 reach_px = 20.0
@@ -114,6 +115,7 @@ patterns = Array[ExtResource("2_attack")]([SubResource("El_slam"), SubResource("
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_summon"), SubResource("Phase_rage")])
 boss_feel = SubResource("Mid_feel")
 boss_hp_by_hero = {
+"shin_saimdang": 0.8,
 "yi_sun_sin": 0.9
 }
 preferred_range = 0.0

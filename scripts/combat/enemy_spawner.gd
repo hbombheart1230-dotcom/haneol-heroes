@@ -143,9 +143,10 @@ func spawn_boss() -> Enemy:
 
 
 ## 정예 한 마리 (동시 최대 수와 상관없이 나온다).
-func spawn_elite(at: Vector2 = Vector2.INF) -> Enemy:
-	if elite_data and elite_data.boss_feel:  # 중간 보스: 변종 없이, 박자·연출 (BossStaging)
-		var m := spawn_at(elite_data, at)
+func spawn_elite(at: Vector2 = Vector2.INF, d: EnemyData = null) -> Enemy:
+	var ed := d if d else elite_data
+	if ed and ed.boss_feel:  # 중간 보스: 변종 없이, 박자·연출 (BossStaging)
+		var m := spawn_at(ed, at)
 		if m:
 			BossStaging.attach(self, m)
 			elite_spawned.emit(m)
@@ -265,8 +266,12 @@ func _tick_waves(delta: float) -> void:
 		if r.is_empty():
 			break
 		var d: EnemyData = r[0]
-		warn_spawn(d if d else elite_data, near_point(target.global_position, waves.data.spawn_min, waves.data.spawn_max),
-			d == null)
+		var group := waves.elite_group() if d == null else []
+		for g: EnemyData in group:  # 중간 우두머리 무리: 한꺼번에 (각자 다른 자리)
+			warn_spawn(g, near_point(target.global_position, waves.data.spawn_min, waves.data.spawn_max), true)
+		if group.is_empty():
+			warn_spawn(d if d else elite_data, near_point(target.global_position, waves.data.spawn_min, waves.data.spawn_max),
+				d == null)
 
 
 ## 화면 안 등장 자리: center에서 min~max px (전장 안).
@@ -309,6 +314,10 @@ func safe_point(at: Vector2, around: Vector2, dmin: float, dmax: float) -> Vecto
 
 
 ## 먹 번짐 예고 뒤 등장 (물결·보스 부하). 예고 중에도 화면 최대에 센다.
+## 무리 정예(WaveData.elite_group)에 입힐 배율 (영웅 보스 배율 × 난이도 단계, StageApply가 넣는다). 없으면 data_scaler.
+var elite_scaler: Callable
+
+
 func warn_spawn(d: EnemyData, at: Vector2, elite: bool = false) -> void:
 	if d == null:
 		return
@@ -322,7 +331,7 @@ func warn_spawn(d: EnemyData, at: Vector2, elite: bool = false) -> void:
 			return
 		var dd: EnemyData = data_scaler.call(d) if data_scaler.is_valid() else d
 		if elite:
-			spawn_elite(at)
+			spawn_elite(at, null if d == elite_data else (elite_scaler.call(d) if elite_scaler.is_valid() else dd))
 		else:
 			spawn_at(dd, at)
 	add_child(w)
