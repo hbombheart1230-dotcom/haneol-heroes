@@ -108,8 +108,8 @@ func test_hansan_waves_follow_hades_split() -> void:
 	for wave: WaveData in w.waves:
 		counts.append(wave.enemies.size())
 		caps.append(wave.max_alive)
-	assert_array(counts).is_equal([14, 6, 24])
-	assert_array(caps).is_equal([6, 8, 10])
+	assert_array(counts).is_equal([19, 6, 34])
+	assert_array(caps).is_equal([8, 8, 14])
 	assert_bool(w.waves[1].elite_last).is_true()  # 큰 강화는 쉬는 물결 끝
 	assert_int(w.waves[1].elite_when_left).is_equal(2)  # 잡몹이 둘 이하로 줄면 중간 보스
 

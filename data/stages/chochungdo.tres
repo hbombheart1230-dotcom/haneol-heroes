@@ -35,32 +35,32 @@
 
 [sub_resource type="Resource" id="Wave_1"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
-first_count = 6
-max_alive = 6
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
+first_count = 8
+max_alive = 8
 elite_last = false
 
 [sub_resource type="Resource" id="Wave_2"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
-first_count = 8
-max_alive = 8
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
+first_count = 11
+max_alive = 11
 elite_last = true
 
 [sub_resource type="Resource" id="Wave_3"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_beetle"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
-first_count = 10
-max_alive = 10
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_beetle"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_grasshopper"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse"), ExtResource("e_cc_mouse")])
+first_count = 14
+max_alive = 14
 elite_last = false
 
 [sub_resource type="Resource" id="Waves"]
 script = ExtResource("w_set")
 waves = Array[ExtResource("w_wave")]([SubResource("Wave_1"), SubResource("Wave_2"), SubResource("Wave_3")])
-max_alive = 10
+max_alive = 14
 next_when_left = 2
 refill_each = true
-xp_mult = 2.0
+xp_mult = 1.6
 
 [resource]
 script = ExtResource("1_theme")

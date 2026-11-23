@@ -84,7 +84,7 @@ func test_trash_dies_in_one_or_two_hero_hits() -> void:
 		assert_int(hp).override_failure_message("%s: hp %d, hit %d" % [id, hp, hit]).is_between(hit + 1, hit * 2)
 
 
-## 떼는 근접 위주: 원거리는 한산 예전 수(2 · 1 · 3) 그대로, 물결 상한 6 · 8 · 10.
+## 떼는 근접 위주: 원거리는 한산 예전 수(2 · 1 · 3) 그대로, 물결 상한 8 · 11 · 14 (사용자: 잡몹은 더 많아도).
 func test_swarm_is_melee_heavy_and_ranged_stays_few() -> void:
 	for id in STAGES:
 		var w := _st(id).waves
@@ -94,7 +94,7 @@ func test_swarm_is_melee_heavy_and_ranged_stays_few() -> void:
 			ranged.append(wave.enemies.filter(func(e: EnemyData) -> bool: return String(e.id) == ROLES[id]["ranged"]).size())
 			caps.append(wave.max_alive)
 		assert_array(ranged).override_failure_message(id).is_equal([2, 1, 3])
-		assert_array(caps).override_failure_message(id).is_equal([6, 8, 10])
+		assert_array(caps).override_failure_message(id).is_equal([8, 8 if id == "hansan_1592" else 11, 14])  # 한산 2물결은 중간 보스 물결 (#83)
 
 
 ## 잡몹은 닿기만 해서는 피해가 없다: 모든 피해는 붉은 먹 예고를 거친 공격으로만 (정예·보스 접촉은 따로).
