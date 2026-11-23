@@ -290,7 +290,7 @@ func test_main_scene_level_up_shows_cards_and_pauses() -> void:
 	assert_float(main.state.survive_time).is_equal(0.0)
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	assert_float(spawner.boss_time).is_equal(RUN.boss_time)
-	assert_object(spawner.elite_data).is_same(ELITE)
+	assert_str(String(spawner.elite_data.id)).is_equal(String(ELITE.id))  # 영웅 배율 사본일 수 있어 id로
 	var enemy: Enemy = spawner.spawn_one()
 	main.progress.add_xp(main.progress.xp_to_next() - enemy.data.xp)
 	enemy.health.kill()
