@@ -36,8 +36,8 @@ func on_contact(d: ComboLockData, p: Player, hits: Array, swing_dir: Vector2) ->
 		var best_dot := -INF
 		for e in hits:
 			var en := e as Enemy
-			if en == null or not is_instance_valid(en):
-				continue
+			if en == null or not is_instance_valid(en) or en.health.is_dead():
+				continue  # 이번 타에 죽은 몹은 잡지 않는다: 시체에 붙어 다음 탭까지 걸리지 않고 살아 있는 몹으로
 			var dot := swing_dir.dot((en.global_position - p.global_position).normalized())
 			if dot > best_dot:
 				best_dot = dot

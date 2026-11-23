@@ -128,6 +128,8 @@ func play_finale(done: Callable, final: bool = true) -> void:
 		p.grant_invulnerability(feel.finale_time + (1.0 if final else 0.0))
 	if final:
 		spawner.active = false  # 나타나는 중인 부하는 나오지 않는다
+	else:
+		spawner.finales += 1  # 연출 동안 물결이 끝나지 않는다 (끝나면 숨 고르기)
 	for c in spawner.get_children():
 		if c is SpawnWarning and not final:
 			spawner._warnings = maxi(spawner._warnings - 1, 0)
@@ -140,6 +142,8 @@ func play_finale(done: Callable, final: bool = true) -> void:
 	GameTime.stop(tree, feel.finale_slow_time + feel.finale_slow_back, feel.finale_slow_scale, feel.finale_slow_back)
 	BossFinaleFx.play(Feedback.instance, feel)
 	tree.create_timer(feel.finale_time, false, false, true).timeout.connect(func() -> void:
+		if not final and is_instance_valid(spawner):
+			spawner.finales = maxi(spawner.finales - 1, 0)
 		if done.is_valid():
 			done.call()
 		queue_free())

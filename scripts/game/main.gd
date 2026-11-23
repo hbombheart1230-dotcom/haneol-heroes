@@ -327,7 +327,11 @@ func _offer_next() -> void:
 		if not majors.is_empty():
 			seal_choice.open(majors, player.global_position, true, progress.stacks)
 			return
+		if one:  # 큰 강화가 다 찼다: 그 몫으로 센 고르기를 빼야 패가 한 장 더 나오지 않는다
+			break_picks = maxi(break_picks - major_pending, 0)
 		major_pending = 0
+		if one and break_picks <= 0:
+			return
 	if progress.pending > 0 or one:  # 물결 모드: 숨 고르기 계획(break_picks)만큼
 		var pool := build.hero.upgrade_pool
 		var choices: Array[UpgradeDef] = []  # 빈 배열 리터럴은 타입이 없어 삼항식에 쓰면 오류

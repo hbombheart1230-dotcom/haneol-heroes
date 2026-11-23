@@ -102,6 +102,19 @@ func test_dead_target_moves_on() -> void:
 	assert_float(a._swing_dir.x).is_less(0.0)
 
 
+## 1타에 죽은 몹은 잡지 않고 같이 맞은 살아 있는 몹을 잡는다 (시체에 걸려 다음 탭까지 붙지 못하지 않게).
+func test_one_hit_kill_locks_the_living_one() -> void:
+	var r := _rig()
+	var a: AutoAttack = r[1]
+	var weak := _enemy(Vector2(80, 0))
+	weak.health.current = 1
+	var tough := _enemy(Vector2(100, 25))
+	_swing(a, 1, [weak, tough])
+	assert_bool(weak.health.is_dead()).is_true()
+	assert_object(a.lock.target).is_same(tough)
+	assert_bool(a.lock.active()).is_true()
+
+
 ## 닿는 순간 대상 쪽으로 끌려 붙기 (몸을 뚫지 않게 이상 틈까지, 한 타 상한).
 func test_pull_toward_target_on_contact() -> void:
 	var r := _rig()

@@ -213,3 +213,23 @@ func _check_fight(r: Dictionary, label: String) -> void:
 		var prev: EnemyAttackData = w[i - 1]
 		if prev.follow_up != w[i]:
 			assert_int(int((w[i] as EnemyAttackData).kind)).is_not_equal(int(prev.kind))
+
+
+## 중간 우두머리 처치 연출 동안은 물결이 끝나지 않는다 → 연출이 끝난 뒤 숨 고르기 (패 고르기가 연출 위에 뜨지 않게).
+func test_breather_waits_for_mid_boss_finale() -> void:
+	sp.set_waves(_wave_set(2))
+	sp.waves._start(0)
+	sp.waves._queue.clear()
+	var picks := [0]
+	sp.breather.connect(func(_s: bool) -> void: picks[0] += 1)
+	var m := sp.spawn_elite(Vector2(0, -150))
+	var t := m.data.boss_feel.finale_time
+	m.health.kill()
+	assert_int(sp.finales).is_equal(1)
+	await get_tree().process_frame
+	sp._tick_waves(DT)
+	assert_int(picks[0]).is_equal(0)  # 연출 중: 아직
+	await get_tree().create_timer(t + 0.1, true, false, true).timeout
+	assert_int(sp.finales).is_equal(0)
+	sp._tick_waves(DT)
+	assert_int(picks[0]).is_equal(1)  # 연출 뒤 숨 고르기

@@ -165,3 +165,13 @@ func test_arena_passes_grain_layer_to_shader() -> void:
 	assert_float(float(m.get_shader_parameter("detail_strength"))).is_equal_approx((HANSAN.look as StageLook).detail_strength, 0.001)
 	assert_object(m.get_shader_parameter("detail_tex")).is_not_null()
 	assert_vector(m.get_shader_parameter("map_px")).is_equal(arena.map.rect.size)
+
+
+## 한산 판자 결(2048)은 밉맵을 만든다 (카메라가 움직일 때 반짝이지 않게, 무손실 그대로).
+func test_hansan_grain_has_mipmaps_and_keeps_lossless() -> void:
+	var cfg := ConfigFile.new()
+	assert_int(cfg.load("res://assets/textures/grain/deck_planks.png.import")).is_equal(OK)
+	assert_bool(cfg.get_value("params", "mipmaps/generate")).is_true()
+	assert_int(cfg.get_value("params", "compress/mode")).is_equal(0)
+	var tex: Texture2D = load("res://assets/textures/grain/deck_planks.png")
+	assert_bool(tex.get_image().has_mipmaps()).is_true()

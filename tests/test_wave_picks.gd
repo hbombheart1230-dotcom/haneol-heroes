@@ -86,3 +86,17 @@ func test_elite_major_comes_on_top_of_the_cards() -> void:
 	assert_bool(main.seal_choice.major).is_false()
 	main.seal_choice.pick(0)
 	assert_bool(main.is_choosing()).is_false()
+
+
+func test_full_major_pool_does_not_add_an_extra_card() -> void:
+	var main := _main()
+	await get_tree().process_frame
+	for u in main.build.hero.major_pool.upgrades:  # 큰 변형을 다 골랐다
+		main.progress.stacks[u.id] = u.max_stacks
+	main.major_pending = 1
+	main.progress.pending = 1
+	main._on_breather(false)
+	assert_bool(main.is_choosing()).is_true()
+	assert_bool(main.seal_choice.major).is_false()
+	assert_int(_pick_all(main).size()).is_equal(1)  # 적립 한 장만 (큰 변형 몫으로 한 장이 더 나오지 않는다)
+	assert_int(main.major_pending).is_equal(0)
