@@ -2,7 +2,8 @@ class_name StartFlow
 extends RefCounted
 ## 판을 시작하기 전 화면들의 순서 (Main에서 분리):
 ## 입장(앱 켠 뒤 한 번) → 공통 이야기(입장 직후) → 영웅 고르기(필요할 때)
-## → 그 영웅 이야기(고르기 화면에서 고른 직후) → 판 시작 (Main.begin_run, 영웅의 무대 순서대로).
+## → 그 영웅 이야기(고르기 화면에서 고른 직후) → 전장 고르기(StageSelect) → 판 시작 (Main.begin_run).
+## 앱을 다시 켜면 입장 뒤 마지막 영웅(GameSettings.hero_id)의 전장 목록부터. 판이 끝나거나 "전장 나가기"면 전장 목록으로.
 ## 이야기는 지금 매번 나온다 (GameSettings.story_once를 켜면 한 번 본 것은 건너뜀). 다시 시작(같은 영웅)은 건너뜀.
 ## 화면이 떠 있는 동안 게임은 멈춘다 (Main.waiting_pick).
 
@@ -52,6 +53,12 @@ func next() -> void:
 		_hold()
 		main.story_intro.finished.connect(_on_hero_story_finished.bind(player.hero.id), CONNECT_ONE_SHOT)
 		main.story_intro.open(player.hero.story)
+	elif wants_stage_list():
+		_hold()
+		var sel: StageSelect = main.stage_select
+		sel.stage_picked.connect(_on_stage_picked, CONNECT_ONE_SHOT)
+		sel.change_hero.connect(_on_change_hero, CONNECT_ONE_SHOT)
+		sel.open(player.hero, CampaignProgress.new(main.stages, GameSettings.hero_cleared), main.playable_heroes())
 	else:
 		main.begin_run()
 
@@ -62,7 +69,13 @@ func _ready_to_run() -> bool:
 		return false
 	if main.playable_heroes().size() > 1 and not GameSettings.hero_picked:
 		return false
-	return not pending_hero_story()
+	return not pending_hero_story() and not wants_stage_list()
+
+
+## 전장 목록을 띄울 차례인지 (입장·영웅 고르기·판 끝·전장 나가기 뒤, 전장 목록이 있는 영웅이면).
+func wants_stage_list() -> bool:
+	var player: Player = main.player
+	return GameSettings.want_stage_list and main.stage_select != null and player != null and player.hero != null 		and player.hero.campaign != null
 
 
 ## 방금 고른 영웅의 이야기를 보여 줄 차례면 true.
@@ -86,6 +99,9 @@ func _on_opening_finished() -> void:
 func _on_title_entered() -> void:
 	Feedback.ui()
 	GameSettings.title_seen = true
+	if main.hero_by_id(GameSettings.hero_id):  # 앱을 다시 켰으면 마지막 영웅의 전장 목록부터 (영웅 고르기 건너뜀)
+		GameSettings.hero_picked = true
+	GameSettings.want_stage_list = true
 	prologue_pending = GameSettings.story_enabled and GameSettings.should_show_story(GameSettings.intro_seen)
 	next()
 
@@ -100,13 +116,41 @@ func _on_hero_picked(h: HeroData) -> void:
 	Feedback.ui()
 	GameSettings.hero_id = h.id
 	GameSettings.hero_picked = true
-	GameSettings.hero_stages.erase(String(h.id))  # 영웅을 고르면 자기 무대부터
+	GameSettings.hero_stages.erase(String(h.id))
+	GameSettings.stage_picked = false
+	GameSettings.want_stage_list = true  # 영웅을 고르면 그 영웅의 전장 목록
 	hero_story_pending = GameSettings.story_enabled
 	GameSettings.save_settings()
 	var player: Player = main.player
 	if player and h != player.hero:
 		player.change_hero(h)
 	next()
+
+
+func _on_stage_picked(id: StringName) -> void:
+	Feedback.ui()
+	_drop_select_signals()
+	GameSettings.stage_id = id
+	GameSettings.stage_picked = true
+	GameSettings.want_stage_list = false
+	GameSettings.save_settings()
+	next()
+
+
+## 전장 목록의 "영웅 바꾸기": 영웅 고르기로 (고르면 그 영웅 이야기 → 전장 목록).
+func _on_change_hero() -> void:
+	Feedback.ui()
+	_drop_select_signals()
+	GameSettings.hero_picked = false
+	next()
+
+
+func _drop_select_signals() -> void:
+	var sel: StageSelect = main.stage_select
+	if sel.stage_picked.is_connected(_on_stage_picked):
+		sel.stage_picked.disconnect(_on_stage_picked)
+	if sel.change_hero.is_connected(_on_change_hero):
+		sel.change_hero.disconnect(_on_change_hero)
 
 
 func _on_hero_story_finished(hero_id: StringName) -> void:
@@ -116,7 +160,7 @@ func _on_hero_story_finished(hero_id: StringName) -> void:
 	next()
 
 
-## 설정 "나가기"가 할 일: 판 전 화면(첫 화면·이야기·영웅 고르기)이면 앱 끝내기, 판 중·결과 화면이면 첫 화면으로.
+## 설정 "나가기"가 할 일: 판 전 화면(첫 화면·이야기·영웅·전장 고르기)이면 앱 끝내기, 판 중·결과 화면이면 전장 목록으로.
 func exit_mode() -> StringName:
 	return &"quit" if main.waiting_pick else &"title"
 
@@ -126,8 +170,8 @@ func exit(mode: StringName) -> void:
 	if mode == &"quit":
 		main.get_tree().quit()
 		return
-	GameSettings.back_to_title()
-	main.restart()  # 판을 버리고 장면을 새로 (첫 화면부터)
+	GameSettings.back_to_stage_list()
+	main.restart()  # 판을 버리고 장면을 새로 (그 영웅의 전장 목록부터)
 
 
 ## 나가기 전에 떠 있는 강화 카드를 닫는다 (카드가 걸어 둔 멈춤을 되돌린다).

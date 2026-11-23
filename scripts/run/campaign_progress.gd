@@ -41,6 +41,17 @@ func state(hero: HeroData, i: int) -> State:
 	return State.LOCKED
 
 
+## 원정: 다른 영웅(owner)의 전장 칸 i를 지금 영웅(player)으로 볼 때. 만든 전장은 모두 갈 수 있다 (이김은 player 기록).
+func expedition_state(player: HeroData, owner: HeroData, i: int) -> State:
+	var slots := owner.campaign.slots if owner and owner.campaign else []
+	if i < 0 or i >= slots.size():
+		return State.LOCKED
+	var id: StringName = slots[i].id
+	if stage_of(id) == null:
+		return State.COMING
+	return State.CLEARED if has_cleared(player, id) else State.OPEN
+
+
 ## 자기 전장을 다 이겼는지 (만든 전장 기준: 곧 열림 칸은 빼고, 하나 이상 이김). 그러면 원정이 열린다.
 func expedition_open(hero: HeroData) -> bool:
 	if hero == null or hero.campaign == null:

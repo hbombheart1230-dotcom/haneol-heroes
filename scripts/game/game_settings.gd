@@ -66,9 +66,34 @@ static var hero_stages: Dictionary = {}
 static var hero_clears: Dictionary = {}
 ## 이긴 무대 id들 (옛 저장·기록용. 전장 열기는 영웅별 hero_cleared).
 static var cleared_stages: PackedStringArray = PackedStringArray()
+## 다음 판 전 흐름에서 전장 목록(StageSelect)을 연다 (입장·영웅 고르기·결과 "전장 목록"·판 중 "전장 나가기" 뒤). 저장 안 함.
+static var want_stage_list: bool = false
+## 전장 기록 ("hero_id/stage_id" → {"level": 가장 높이 오른 경지, "time": 가장 빨리 이긴 초 (0 = 아직 못 이김)}).
+static var stage_records: Dictionary = {}
 ## 영웅마다 이긴 무대 (hero_id → PackedStringArray). 전장 목록의 이김·열림 (CampaignProgress).
 ## 옛 저장에 없으면 cleared_stages에서 옮긴다 (CampaignProgress.migrate, Main이 영웅 목록을 알 때).
 static var hero_cleared: Dictionary = {}
+
+
+## 판 중 "전장 나가기"·결과 "전장 목록": 판을 버리고 그 영웅의 전장 목록으로 (첫 화면·영웅 고르기는 건너뜀).
+static func back_to_stage_list() -> void:
+	stage_picked = false
+	want_stage_list = true
+
+
+## 판이 끝난 기록을 남긴다: 가장 높은 경지, 이겼으면 가장 빠른 시간.
+static func record_run(hero: StringName, stage: StringName, level: int, won: bool, seconds: float) -> void:
+	var key := "%s/%s" % [hero, stage]
+	var r: Dictionary = stage_records.get(key, {"level": 0, "time": 0.0})
+	r["level"] = maxi(int(r.get("level", 0)), level)
+	var best := float(r.get("time", 0.0))
+	if won and (best <= 0.0 or seconds < best):
+		r["time"] = seconds
+	stage_records[key] = r
+
+
+static func record_of(hero: StringName, stage: StringName) -> Dictionary:
+	return stage_records.get("%s/%s" % [hero, stage], {})
 
 
 ## 이 영웅이 이 무대를 이겼다고 기록 (cleared_stages에도). 영웅 기록이 늘면 true.
@@ -114,6 +139,7 @@ static func load_settings(path: String = "") -> void:
 	cleared_stages = PackedStringArray(cfg.get_value("game", "cleared_stages", cleared_stages))
 	hero_clears = cfg.get_value("game", "hero_clears", hero_clears)
 	hero_cleared = cfg.get_value("game", "hero_cleared", hero_cleared)
+	stage_records = cfg.get_value("game", "stage_records", stage_records)
 
 
 static func save_settings(path: String = "") -> Error:
@@ -137,6 +163,7 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("game", "cleared_stages", cleared_stages)
 	cfg.set_value("game", "hero_clears", hero_clears)
 	cfg.set_value("game", "hero_cleared", hero_cleared)
+	cfg.set_value("game", "stage_records", stage_records)
 	return cfg.save(path)
 
 
