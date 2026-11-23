@@ -10,6 +10,15 @@ extends Resource
 @export var charge: SkillDef
 ## 회피 성공 직후 반격 기술 (기획서 §6.3 우선순위 1).
 @export var counter: SkillDef
+@export_group("스킬 좌표 (원거리 영웅)")
+## true면 설치·낙하·고리 기술이 영웅 자리 대신 겨눈 적 자리에 떨어진다 (SkillAim, 세종). 다른 영웅은 false (예전 그대로).
+@export var skills_at_target: bool = false
+## 떨어지는 자리의 사거리 상한(px, 영웅에서): 더 먼 적은 이 거리에서 자른다.
+@export var target_range: float = 520.0
+## 겨눌 적을 찾는 거리(px)와, 적이 없을 때 바라보는 방향으로 떨어지는 기본 거리(px).
+@export var target_search: float = 760.0
+@export var target_default: float = 240.0
+@export_group("")
 ## 회피 성공 후 반격을 쓸 수 있는 시간(초).
 @export var counter_window: float = 1.0
 ## 대시가 끝난 뒤에도 dash 기술로 인정하는 시간(초).

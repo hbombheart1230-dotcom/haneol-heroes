@@ -30,6 +30,20 @@ const PATH := "res://data/feel/ranged_feel.tres"
 @export var glow_alpha: float = 0.3
 @export var glow_scale: Vector2 = Vector2(1.1, 1.6)
 
+@export_group("글자 탄 (세종)")
+## 글자 크기 배율 (연타 번호별, BasicAttackData.ranged_step_scale에 곱함): 계단처럼 커져 3번째가 가장 크다. 그림만 (판정 그대로).
+@export var glyph_boost: PackedFloat32Array = PackedFloat32Array([1.15, 1.3, 1.2])
+## 글자 밑 한지색 심 (부드러운 원, 글자 크기 대비)과 먹 테두리 고리 (두께 px), 뒤로 끌리는 먹 꼬리 (탄 꼬리 길이 배율, 두께 = 글자 대비).
+@export var glyph_paper: Color = Color(0.96, 0.92, 0.8, 0.78)
+@export var glyph_paper_scale: float = 1.0
+@export var glyph_rim: Color = Color(0.08, 0.06, 0.05, 0.85)
+@export var glyph_rim_width: float = 5.0
+@export var glyph_tail_mult: float = 1.4
+@export var glyph_tail_width: float = 0.32
+## 맞을 때 글자 밑으로 번지는 먹 (글자 크기 대비 반지름, 진하기).
+@export var glyph_bloom: float = 0.6
+@export var glyph_bloom_alpha: float = 0.5
+
 @export_group("맞는 순간")
 ## 접점 섬광·줄기는 HitImpactData (근접과 같은 계열), 원거리 연타 번호를 근접 타 번호로 쓴다.
 ## 탄이 진행 방향으로 더 미는 힘 (BasicAttackData.ranged_knockback에 더함, 감쇠 8이면 약 힘/8 px).

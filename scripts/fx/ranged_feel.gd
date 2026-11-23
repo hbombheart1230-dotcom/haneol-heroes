@@ -52,6 +52,7 @@ static func on_fired(a: AutoAttack, p: Projectile) -> void:
 		p.speed *= d.speed_mult
 		p.lifetime /= d.speed_mult
 	add_glow(p, d, col)
+	dress_glyph(p, d, step)
 	var l := layer()
 	if l:
 		l.muzzle(p.global_position, dir, step, col)
@@ -87,6 +88,18 @@ static func add_glow(p: Projectile, d: RangedFeelData, col: Color) -> Sprite2D:
 	g.position = Vector2(-sz.x * 0.1, 0.0) if p.art else Vector2.ZERO  # 탄 그림은 앞 40%·뒤 60%
 	p.add_child(g)
 	return g
+
+
+## 글자 탄 (세종): 연타 번호별로 계단처럼 키우고 한지색 심·먹 테두리·먹 꼬리를 밑에 깐다 (그림만, 판정 그대로).
+static func dress_glyph(p: Projectile, d: RangedFeelData, step: int) -> GlyphBacker:
+	if p.glyph == "" or p.art:
+		return null
+	p.glyph_px = roundi(p.glyph_px * HitImpactData.at_f(d.glyph_boost, step, 1.0))
+	var b := GlyphBacker.new()
+	b.name = "GlyphBacker"
+	b.setup(d, float(p.glyph_px), p.trail_len)
+	p.add_child(b)
+	return b
 
 
 ## 탄 그림 크기 (글자탄은 글자 칸).

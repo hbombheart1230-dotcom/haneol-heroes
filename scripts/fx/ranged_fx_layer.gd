@@ -168,6 +168,9 @@ func _draw_shot(i: int, k: float, hit: bool) -> void:
 		draw_texture_rect(tex, rect, false, Color(tint, fade * 0.9))
 	elif _glyph[i] != "":
 		var px := int(_size[i].x * grow)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		if hit:  # 글자 밑으로 먹이 번진다
+			Ink.splash(self, p, _size[i].x * data.glyph_bloom * (0.6 + 0.8 * k), Color(INK, data.glyph_bloom_alpha * fade), _seed[i])
 		draw_set_transform(p, 0.0, Vector2.ONE)
 		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-px * 0.5, px * 0.35), _glyph[i], maxi(px, 8),
 			Color(UiStyle.GOLD.lerp(tint, 0.5), fade), float(px), Color(0, 0, 0, 0.7 * fade), maxi(roundi(px / 8.0), 3))

@@ -17,7 +17,7 @@ extends SkillDef
 
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
-	var at := ctx.player.global_position
+	var at := SkillAim.point(ctx) if SkillAim.enabled(ctx) else ctx.player.global_position  # 세종: 겨눈 적 자리에
 	ctx.foretell(at)  # 떨어질 자리로 불기운이 모인다
 	if ctx.fx:
 		ctx.fx.add_ring(at, radius, delay, Color(fx_color, 0.4))  # 떨어질 자리 예고

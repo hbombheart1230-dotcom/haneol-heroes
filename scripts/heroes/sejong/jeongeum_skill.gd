@@ -17,21 +17,29 @@ extends SkillDef
 
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
+	# 세종 (SkillAim): 고리가 겨눈 적에게 씌워져 그 적을 따라다닌다 (적이 없으면 앞쪽 기본 거리에 선다).
+	var aimed := SkillAim.enabled(ctx)
+	var foe := SkillAim.target(ctx) if aimed else null
+	var center := SkillAim.point_for(ctx, foe) if aimed else ctx.player.global_position
+	var follow: Node2D = foe if aimed and foe and center.distance_to(foe.global_position) < 1.0 else null
+	if not aimed:
+		follow = ctx.player
 	if launch_px > 0.0:  # 글자 고리가 퍼지며 밀어낸다
-		for en in ctx.enemies_in_radius(ctx.player.global_position, radius):
-			ComboSteps.push_out(en, ctx.player.global_position, launch_px, 0.0)
-	_ring(ctx, radius, 3.2)
+		for en in ctx.enemies_in_radius(center, radius):
+			if en != foe:
+				ComboSteps.push_out(en, center, launch_px, 0.0)
+	_ring(ctx, radius, 3.2, center, follow)
 	if outer_radius > 0.0:
-		_ring(ctx, outer_radius, -2.4)
+		_ring(ctx, outer_radius, -2.4, center, follow)
 	if ctx.fx:
-		ctx.fx.add_ring(ctx.player.global_position, radius, 0.3, fx_color)
+		ctx.fx.add_ring(center, radius, 0.3, fx_color)
 	return SkillRun.instant(0)
 
 
-func _ring(ctx: SkillContext, r: float, spin: float) -> OrbitGlyphs:
+func _ring(ctx: SkillContext, r: float, spin: float, at: Vector2, follow: Node2D) -> OrbitGlyphs:
 	var o := OrbitGlyphs.new()
 	o.ctx = ctx
-	o.follow = ctx.player
+	o.follow = follow
 	o.glyphs = glyphs
 	o.radius = r
 	o.duration = duration
@@ -39,5 +47,5 @@ func _ring(ctx: SkillContext, r: float, spin: float) -> OrbitGlyphs:
 	o.hit_interval = hit_interval
 	o.spin_speed = spin
 	o.art = ring_art
-	ctx.add_to_world(o, ctx.player.global_position)
+	ctx.add_to_world(o, at)
 	return o

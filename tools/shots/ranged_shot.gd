@@ -1,7 +1,7 @@
 extends SceneTree
 ## 영웅 하나의 원거리 평타 한 발을 시간 순서대로 찍는다 (왼쪽 줄 = 전, 오른쪽 줄 = 후, 위 → 아래 시간 순).
 ## 줄: 쏜 직후 · 조금 뒤 · 날아가는 중 · 맞은 순간 · 맞고 조금 뒤 · 맞고 더 뒤. 칸마다 한 장씩 찍어 이어 붙인다.
-## godot --path . --resolution 720x1280 -s res://tools/shots/ranged_shot.gd -- <영웅 id> <출력 png> [연타 번호 1~3]
+## godot --path . --resolution 720x1280 -s res://tools/shots/ranged_shot.gd -- <영웅 id> <출력 png> [연타 번호 1~3] [무대 id]
 
 const STAGE := {"yi_sun_sin": "hansan_1592", "gwanggaeto": "manchuria_395", "sejong": "gyeongbokgung_1433",
 	"shin_saimdang": "chochungdo"}
@@ -21,7 +21,7 @@ func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	var hero: HeroData = load("res://data/heroes/%s.tres" % args[0])
 	var step := int(args[2]) if args.size() > 2 else 1
-	var st: StageTheme = load("res://data/stages/%s.tres" % STAGE[args[0]])
+	var st: StageTheme = load("res://data/stages/%s.tres" % (args[3] if args.size() > 3 else STAGE[args[0]]))
 	ShotStage.backdrop(self, st)  # 실제 바닥 (floor_grade·빛 웅덩이·비네트·무대 확대)
 	var foe: EnemyData = load("res://data/enemies/waegun_soldier.tres")
 	var d := hero.attack
@@ -54,6 +54,7 @@ func _run() -> void:
 				p.monitoring = false
 				if after:
 					RangedFeel.add_glow(p, rf, col)
+					RangedFeel.dress_glyph(p, rf, step)
 			if after:
 				var fx := RangedFxLayer.new(rf)
 				var hit := HitImpactLayer.new(HitImpact.data())
@@ -66,7 +67,8 @@ func _run() -> void:
 				fx.step(t)
 				if t >= hit_t:
 					var at := FOE + Vector2(-20.0, foe.sprite_offset.y * HitImpact.data().body_height_ratio)
-					fx.burst(at, Vector2.RIGHT, step, col, d.proj_art, p_size(d, k), d.ranged_glyphs.substr(0, 1))
+					var boost := 1.0 if d.proj_art else HitImpactData.at_f(rf.glyph_boost, step, 1.0)
+					fx.burst(at, Vector2.RIGHT, step, col, d.proj_art, p_size(d, k) * boost, d.ranged_glyphs.substr(0, 1))
 					hit.add(at, Vector2.RIGHT, step, col)
 					fx.step(t - hit_t)
 					hit._process(t - hit_t)
