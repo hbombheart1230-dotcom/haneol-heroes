@@ -4,6 +4,11 @@ import os
 import re
 import shutil
 
+## 굽기 작업으로 옮기는 값 (meshy_pipeline.write_bake_job과 같은 것).
+BAKE_KEYS = ("style", "ink", "lossy_quality", "rigid")
+TRIM_KEYS = ("start", "end", "strike", "times", "yaw")
+
+
 def name_words(text: str) -> list:
     """이름을 단어로 나눈다: 기호·숫자 경계와 낙타 표기 (HitReaction → hit, reaction)."""
     spaced = re.sub(r"([a-z])([A-Z])", r"\1 \2", text)
@@ -43,7 +48,11 @@ def import_files(cfg: dict, files: list, root: str) -> str:
     model = file_for(cfg["anims"][0]["match"]) or res[0]
     anims = []
     for a in cfg["anims"]:
-        entry = {"key": a["key"], "src": a["match"], "frames": a["frames"], "fps": a["fps"], "loop": a["loop"]}
+        if a.get("skip_bake"):
+            continue
+        # web: 웹에서 받은 파일 안의 동작 이름 (없으면 match 후보로 찾는다). 자르기·맞닿는 칸은 API 경로와 같은 키
+        entry = {"key": a["key"], "src": a.get("web", a["match"]), "frames": a["frames"], "fps": a["fps"],
+                 "loop": a["loop"], **{k: a[k] for k in TRIM_KEYS if k in a}}
         if len(res) > 1:
             src_file = file_for(a["match"])
             if not src_file:
@@ -53,7 +62,8 @@ def import_files(cfg: dict, files: list, root: str) -> str:
                 entry["from"] = src_file
         anims.append(entry)
     job = {"name": name, "model": model, "ortho_size": cfg["bake"]["ortho_size"],
-           "frame": cfg["bake"]["frame"], "anims": anims}
+           "frame": cfg["bake"]["frame"],
+           **{k: cfg["bake"][k] for k in BAKE_KEYS if k in cfg["bake"]}, "anims": anims}
     path = os.path.join(root, f"tools/bake/jobs/{name}.json")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
