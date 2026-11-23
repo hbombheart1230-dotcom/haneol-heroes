@@ -24,7 +24,7 @@ func start(d: BladeBiteData, stop: float) -> bool:
 	data = d
 	_stop_left = maxf(_stop_left, stop)
 	_release_left = d.release_time(stop)
-	_biting_until_ms = Time.get_ticks_msec() + int(_stop_left * 1000.0 / maxf(Engine.time_scale, 0.05))
+	_biting_until_ms = GameTime.now_ms() + int(_stop_left * 1000.0 / maxf(Engine.time_scale, 0.05))
 	return true
 
 
@@ -95,7 +95,7 @@ func jitter() -> Vector2:
 
 ## 지금 어느 영웅이든 칼이 박혀 멈춘 중인지 (처치 멈춤을 겹치지 않게).
 static func is_biting() -> bool:
-	return Time.get_ticks_msec() < _biting_until_ms
+	return GameTime.now_ms() < _biting_until_ms
 
 
 static func reset() -> void:
