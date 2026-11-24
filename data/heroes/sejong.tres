@@ -87,6 +87,7 @@ sfx = &"magic"
 icon = ExtResource("i_meteor")
 id = &"meteor"
 display_name = "유성"
+element = &"meteor"
 cooldown = 3.0
 color = Color(0.3, 0.45, 0.8, 1)
 fx_color = Color(0.75, 0.85, 1, 1)
