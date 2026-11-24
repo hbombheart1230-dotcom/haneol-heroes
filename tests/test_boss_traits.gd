@@ -176,13 +176,20 @@ func test_gyeongbok_boss_traits() -> void:
 	assert_float(r.follow_up.radius).is_greater(r.radius)  # 안 고리 → 바깥 고리
 
 
-func test_other_bosses_keep_old_values() -> void:
-	for path in ["res://data/enemies/cc_frog.tres"]:
-		var d := _d(path)
-		assert_float(d.boss_feel.chase_speed).override_failure_message(path).is_equal(0.0)
-		for ph: BossPhaseData in d.phases:
-			assert_float(ph.stagger_gauge_mult).is_equal(1.0)
-			assert_float(ph.stagger_immune).is_equal(0.0)
-			for a: EnemyAttackData in ph.patterns:
-				assert_float(a.min_range).is_equal(0.0)
-				assert_object(a.spawn_on_strike).is_null()
+## 초충도 개구리 장군 (A안): 공통 성질 + 늪 장판 (둘레 안 영웅 느려짐) + 혀 두 번 연달아 끌기 (혀 500).
+func test_chochung_boss_traits() -> void:
+	var d := _d("res://data/enemies/cc_frog.tres")
+	assert_float(d.boss_feel.chase_speed).is_greater(0.0)
+	for ph: BossPhaseData in d.phases:
+		assert_float(ph.stagger_gauge_mult).is_greater(1.0)
+	assert_float((d.phases[1] as BossPhaseData).stagger_immune).is_greater(0.0)
+	assert_object(d.aura).is_not_null()
+	assert_float(d.aura.field_slow_mult).is_less(1.0)  # 늪
+	var far: EnemyAttackData = d.patterns.filter(func(a: EnemyAttackData) -> bool: return a.min_range > 0.0)[0]
+	assert_int(int(far.kind)).is_equal(int(EnemyAttackData.Kind.PULL))  # 1단계는 홑 혀 (멀 때만)
+	assert_float(far.length).is_equal(500.0)
+	for ph: BossPhaseData in d.phases:
+		var twice: Array = ph.patterns.filter(func(a: EnemyAttackData) -> bool:
+			return a.kind == EnemyAttackData.Kind.PULL and a.follow_up and a.follow_up.kind == EnemyAttackData.Kind.PULL)
+		assert_int(twice.size()).is_equal(1)
+		assert_float((twice[0] as EnemyAttackData).follow_up.length).is_equal(500.0)
