@@ -277,6 +277,7 @@ func test_main_waits_for_hero_then_runs_chosen_hero() -> void:
 	GameSettings.intro_seen = true
 	GameSettings.tutorial_done = true
 	GameSettings.hero_clears = {}
+	GameSettings.hero_cleared = {}  # 깬 전장 수만큼 성장(#134): 앞 시험의 기록이 체력을 바꾸지 않게
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
