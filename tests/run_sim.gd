@@ -205,3 +205,11 @@ static func growth_line(name: String, r: Dictionary) -> String:
 		name, "WIN" if r["won"] else ("LOSE" if r["lost"] else "TIMEOUT"),
 		(" in " + r["died_in"]) if r["died_in"] != "" else "", r["total"], r["wave_time"], r["boss_time"], r.get("avg_dist", 0.0), r.get("crowd_max", 0), r.get("crowd_avg", 0.0), r["max_hp"], r["level"],
 		str(r["by_wave"]), ", ".join(r["picks"])]
+
+
+## 받은 피해 합 (물결별 합: 회복이 있어도 받은 만큼).
+static func taken(r: Dictionary) -> int:
+	var n := 0
+	for k in r.get("by_wave", {}):
+		n += int(r["by_wave"][k])
+	return n

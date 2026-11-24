@@ -22,11 +22,17 @@ func test_hansan_full_run_report() -> void:
 				st.hero_hint = HINTS[hero]
 				if OS.get_environment("HH_SWARM") != "":  # 근접 잡몹 수 배율 비교 (WaveSwarm)
 					st.waves.melee_count_mult = float(OS.get_environment("HH_SWARM"))
+				if OS.get_environment("HH_CAP_ADD") != "":  # 밀도 변형: 동시 상한 더하기
+					st.waves.alive_cap_add = int(OS.get_environment("HH_CAP_ADD"))
+				if OS.get_environment("HH_STAGGER") != "":  # 등장 간격(초)
+					st.waves.spawn_stagger = float(OS.get_environment("HH_STAGGER"))
+				if OS.get_environment("HH_ELITE_HEAL") != "":  # 중간 우두머리 물결 뒤 회복 비율 (견본)
+					st.waves.elite_clear_heal = float(OS.get_environment("HH_ELITE_HEAL"))
 				var sim := RunSim.new(self)
 				sim.use_hazards = true
 				await sim.setup_run(st, s, [], true)
 				var r := sim.run_full(miss)
 				print(RunSim.growth_line("%s %s seed %d %s" % [stage, hero, s, "dodge" if miss == 0.0 else "sloppy"], r)
-					+ " | trio %.1fs" % r["mid_time"])
+					+ " | trio %.1fs | dmg %d | spawn widened %d stuck %d" % [r["mid_time"], RunSim.taken(r), sim.spawner.spawn_widened, sim.spawner.spawn_stuck]))
 				sim.free_all()
 	assert_bool(true).is_true()

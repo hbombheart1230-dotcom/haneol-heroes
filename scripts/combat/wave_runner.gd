@@ -81,12 +81,21 @@ func elite_group() -> Array:
 	return data.waves[index].elite_group
 
 
+## 지금(방금 깬) 물결이 중간 우두머리 물결인지 (정예·무리).
+func is_elite_wave() -> bool:
+	if index < 0 or index >= data.waves.size():
+		return false
+	var w: WaveData = data.waves[index]
+	return w.elite_last or not w.elite_group.is_empty()
+
+
 ## 이번 물결의 화면 최대: 물결 값(있으면) + 난이도 추가분 (cap − 무대 기본 최대), cap을 넘지 않게.
 func wave_cap(cap: int) -> int:
 	if index < 0 or index >= data.waves.size():
 		return cap
 	var w: WaveData = data.waves[index]
-	return cap if w.max_alive <= 0 else mini(cap, w.max_alive + maxi(cap - data.max_alive, 0))
+	var add := maxi(data.alive_cap_add, 0)  # 밀도 변형: 물결 값과 무대 상한에 같이
+	return cap + add if w.max_alive <= 0 else mini(cap + add, w.max_alive + add + maxi(cap - data.max_alive, 0))
 
 
 func _start(i: int) -> void:

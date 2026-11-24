@@ -27,3 +27,7 @@ extends Resource
 @export var one_pick_per_break: bool = true
 ## RunConfig.levels가 없을 때만: 그 한 번이 올려 주는 단계 수 (있으면 적립 카드 계획 LevelRules.plan을 따른다).
 @export var pick_stacks: int = 2
+## 화면 동시 상한에 더하는 수 (물결마다·무대 전체, 밀도 변형): 0 = 지금 (꺼짐). 늘어난 자리는 나올 차례의 적이 채운다.
+@export var alive_cap_add: int = 0
+## 중간 우두머리 물결(정예·무리)을 깬 뒤 최대 체력의 이 비율만큼 회복 (우두머리 앞 숨 고르기): 0 = 꺼짐.
+@export var elite_clear_heal: float = 0.0
