@@ -1,0 +1,295 @@
+{
+ "_설명": "노랫소리 끔용 반주 재료: 원곡(build/music_src, 깃 제외)에서 목소리 없는 구간만 모은 계획. tools/audio/make_vocal_off.py가 읽는다. 시간은 초, lvl_db은 구간 상대 세기(음량 맞춤용).",
+ "stages": {
+  "hansan_1592": {
+   "stage": [
+    {
+     "src": "hansan_jindo_v2.mp3",
+     "t0": 118.793,
+     "t1": 129.869,
+     "lvl_db": -1.5,
+     "note": "hansan_jindo_v2 마디 64-70"
+    },
+    {
+     "src": "hansan_jindo_v1.mp3",
+     "t0": 135.651,
+     "t1": 153.089,
+     "lvl_db": -0.7,
+     "note": "hansan_jindo_v1 마디 70-79"
+    },
+    {
+     "src": "hansan_jindo_v1.mp3",
+     "t0": 201.433,
+     "t1": 209.189,
+     "lvl_db": 0.4,
+     "note": "hansan_jindo_v1 마디 104-108"
+    }
+   ],
+   "boss": [
+    {
+     "src": "boss/hansan_1592_v2.mp3",
+     "t0": 0.464,
+     "t1": 3.622,
+     "lvl_db": -6.4,
+     "note": "hansan_1592_v2 마디 0-2"
+    },
+    {
+     "src": "boss/hansan_1592.mp3",
+     "t0": 0.07,
+     "t1": 3.251,
+     "lvl_db": -5.8,
+     "note": "hansan_1592 마디 0-2"
+    },
+    {
+     "src": "boss/hansan_1592.mp3",
+     "t0": 122.276,
+     "t1": 131.889,
+     "lvl_db": -2.3,
+     "note": "hansan_1592 마디 75-81"
+    },
+    {
+     "src": "boss/hansan_1592_v2.mp3",
+     "t0": 113.429,
+     "t1": 139.413,
+     "lvl_db": -2.3,
+     "note": "hansan_1592_v2 마디 69-85"
+    }
+   ]
+  },
+  "manchuria_395": {
+   "stage": [
+    {
+     "src": "manchuria_miryang_v1.mp3",
+     "t0": 0.441,
+     "t1": 7.268,
+     "lvl_db": -3.8,
+     "note": "manchuria_miryang_v1 마디 0-3"
+    },
+    {
+     "src": "manchuria_miryang_v2.mp3",
+     "t0": 16.37,
+     "t1": 25.565,
+     "lvl_db": -4.5,
+     "note": "manchuria_miryang_v2 마디 7-11"
+    },
+    {
+     "src": "manchuria_miryang_v2.mp3",
+     "t0": 109.529,
+     "t1": 136.603,
+     "lvl_db": -1.6,
+     "note": "manchuria_miryang_v2 마디 48-60"
+    },
+    {
+     "src": "manchuria_miryang_v2.mp3",
+     "t0": 181.65,
+     "t1": 190.613,
+     "lvl_db": -1.3,
+     "note": "manchuria_miryang_v2 마디 80-84"
+    },
+    {
+     "src": "manchuria_miryang_v1.mp3",
+     "t0": 121.487,
+     "t1": 134.792,
+     "lvl_db": -1.2,
+     "note": "manchuria_miryang_v1 마디 54-60"
+    },
+    {
+     "src": "manchuria_miryang_v1.mp3",
+     "t0": 181.209,
+     "t1": 189.986,
+     "lvl_db": -0.5,
+     "note": "manchuria_miryang_v1 마디 81-85"
+    }
+   ],
+   "boss": [
+    {
+     "src": "boss/manchuria_395_v2.mp3",
+     "t0": 10.867,
+     "t1": 15.093,
+     "lvl_db": -5.9,
+     "note": "manchuria_395_v2 마디 5-7"
+    },
+    {
+     "src": "boss/manchuria_395.mp3",
+     "t0": 127.385,
+     "t1": 131.587,
+     "lvl_db": -2.4,
+     "note": "manchuria_395 마디 60-62"
+    },
+    {
+     "src": "boss/manchuria_395_v2.mp3",
+     "t0": 124.645,
+     "t1": 137.253,
+     "lvl_db": -1.9,
+     "note": "manchuria_395_v2 마디 59-65"
+    },
+    {
+     "src": "boss/manchuria_395.mp3",
+     "t0": 196.673,
+     "t1": 200.853,
+     "lvl_db": 1.0,
+     "note": "manchuria_395 마디 93-95"
+    }
+   ]
+  },
+  "gyeongbokgung_1433": {
+   "stage": [
+    {
+     "src": "gyeongbok_arirang_v1.mp3",
+     "t0": 0.209,
+     "t1": 6.014,
+     "lvl_db": -9.9,
+     "note": "gyeongbok_arirang_v1 마디 0-3"
+    },
+    {
+     "src": "gyeongbok_arirang_v2.mp3",
+     "t0": 235.59,
+     "t1": 247.2,
+     "lvl_db": -1.9,
+     "note": "gyeongbok_arirang_v2 마디 124-130"
+    },
+    {
+     "src": "gyeongbok_arirang_v1.mp3",
+     "t0": 145.566,
+     "t1": 154.715,
+     "lvl_db": -1.7,
+     "note": "gyeongbok_arirang_v1 마디 78-83"
+    },
+    {
+     "src": "gyeongbok_arirang_v2.mp3",
+     "t0": 154.366,
+     "t1": 167.555,
+     "lvl_db": -0.7,
+     "note": "gyeongbok_arirang_v2 마디 81-88"
+    }
+   ],
+   "boss": [
+    {
+     "src": "boss/gyeongbokgung_1433.mp3",
+     "t0": 0.488,
+     "t1": 16.625,
+     "lvl_db": -4.1,
+     "note": "gyeongbokgung_1433 마디 0-8"
+    },
+    {
+     "src": "boss/gyeongbokgung_1433_v2.mp3",
+     "t0": 0.186,
+     "t1": 22.407,
+     "lvl_db": -3.6,
+     "note": "gyeongbokgung_1433_v2 마디 0-11"
+    },
+    {
+     "src": "boss/gyeongbokgung_1433.mp3",
+     "t0": 34.737,
+     "t1": 40.751,
+     "lvl_db": -3.3,
+     "note": "gyeongbokgung_1433 마디 17-20"
+    },
+    {
+     "src": "boss/gyeongbokgung_1433.mp3",
+     "t0": 118.166,
+     "t1": 147.772,
+     "lvl_db": -2.4,
+     "note": "gyeongbokgung_1433 마디 59-74"
+    },
+    {
+     "src": "boss/gyeongbokgung_1433_v2.mp3",
+     "t0": 95.318,
+     "t1": 124.807,
+     "lvl_db": -1.8,
+     "note": "gyeongbokgung_1433_v2 마디 48-63"
+    },
+    {
+     "src": "boss/gyeongbokgung_1433_v2.mp3",
+     "t0": 165.907,
+     "t1": 173.708,
+     "lvl_db": -0.2,
+     "note": "gyeongbokgung_1433_v2 마디 84-88"
+    }
+   ]
+  },
+  "chochungdo": {
+   "stage": [
+    {
+     "src": "chochungdo_jeongseon_v2.mp3",
+     "t0": 0.441,
+     "t1": 3.971,
+     "lvl_db": -7.1,
+     "note": "chochungdo_jeongseon_v2 마디 0-2"
+    },
+    {
+     "src": "chochungdo_jeongseon_v1.mp3",
+     "t0": 0.441,
+     "t1": 26.03,
+     "lvl_db": -4.9,
+     "note": "chochungdo_jeongseon_v1 마디 0-15"
+    },
+    {
+     "src": "chochungdo_jeongseon_v2.mp3",
+     "t0": 185.76,
+     "t1": 196.789,
+     "lvl_db": -4.2,
+     "note": "chochungdo_jeongseon_v2 마디 102-108"
+    },
+    {
+     "src": "chochungdo_jeongseon_v1.mp3",
+     "t0": 126.131,
+     "t1": 131.216,
+     "lvl_db": -2.5,
+     "note": "chochungdo_jeongseon_v1 마디 74-77"
+    },
+    {
+     "src": "chochungdo_jeongseon_v2.mp3",
+     "t0": 112.919,
+     "t1": 127.524,
+     "lvl_db": -1.0,
+     "note": "chochungdo_jeongseon_v2 마디 62-70"
+    }
+   ],
+   "boss": [
+    {
+     "src": "boss/chochungdo_v2.mp3",
+     "t0": 0.441,
+     "t1": 5.039,
+     "lvl_db": -6.9,
+     "note": "chochungdo_v2 마디 0-2"
+    },
+    {
+     "src": "boss/chochungdo.mp3",
+     "t0": 0.464,
+     "t1": 9.102,
+     "lvl_db": -5.6,
+     "note": "chochungdo 마디 0-6"
+    },
+    {
+     "src": "boss/chochungdo.mp3",
+     "t0": 116.169,
+     "t1": 126.92,
+     "lvl_db": -2.4,
+     "note": "chochungdo 마디 76-83"
+    },
+    {
+     "src": "boss/chochungdo.mp3",
+     "t0": 43.932,
+     "t1": 47.044,
+     "lvl_db": -1.9,
+     "note": "chochungdo 마디 29-31"
+    },
+    {
+     "src": "boss/chochungdo_v2.mp3",
+     "t0": 120.651,
+     "t1": 127.57,
+     "lvl_db": -1.6,
+     "note": "chochungdo_v2 마디 52-55"
+    },
+    {
+     "src": "boss/chochungdo.mp3",
+     "t0": 140.69,
+     "t1": 143.732,
+     "lvl_db": -0.2,
+     "note": "chochungdo 마디 92-94"
+    }
+   ]
+  }
+ }
+}

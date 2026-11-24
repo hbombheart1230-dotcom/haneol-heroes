@@ -128,6 +128,7 @@ func begin_run() -> void:
 
 
 func _on_settings_changed() -> void:
+	music.refresh()  # 노랫소리 켬/끔은 판 중 음악을 바로 바꾼다
 	var tc := get_node_or_null("TouchController") as TouchController
 	if tc:
 		tc.skill_button_enabled = GameSettings.skill_button_enabled
