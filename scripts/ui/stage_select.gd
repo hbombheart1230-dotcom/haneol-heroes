@@ -26,6 +26,9 @@ var _notice_left: float = 0.0
 var _press_index: int = -1
 var _press_what: int = -99  # 칸 번호, -1 영웅 바꾸기/내 전장, -2 원정, -3 초상(원정 다음 영웅)
 var _t: float = 0.0
+## 초상 원 (꼭짓점·UV): 한 번만 만든다 (매 프레임 다시 만들지 않게).
+var _head_pts := PackedVector2Array()
+var _head_uvs := PackedVector2Array()
 
 
 func _ready() -> void:
@@ -211,14 +214,10 @@ func _draw_head() -> void:
 	var h := view_hero if expedition else hero
 	draw_circle(HEAD, HEAD_R + 8.0, UiStyle.LACQUER)
 	if h.portrait:
-		var pts := PackedVector2Array()
-		var uvs := PackedVector2Array()
-		for i in 40:
-			var d := Vector2.from_angle(TAU * i / 40.0)
-			pts.append(HEAD + d * HEAD_R)
-			uvs.append(Vector2(0.5, 0.5) + d * 0.5)
+		if _head_pts.is_empty():
+			_build_head()
 		draw_circle(HEAD, HEAD_R, h.body_color.darkened(0.55))
-		draw_polygon(pts, PackedColorArray([Color.WHITE]), uvs, h.portrait)
+		draw_polygon(_head_pts, PackedColorArray([Color.WHITE]), _head_uvs, h.portrait)
 	draw_arc(HEAD, HEAD_R + 8.0, 0.0, TAU, 48, UiStyle.GOLD, 2.5)
 	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(184, 140), h.display_name, 58, UiStyle.GOLD, -1)
 	var line := "이긴 전장 %d" % int(GameSettings.hero_clears.get(String(hero.id), 0))
@@ -226,6 +225,13 @@ func _draw_head() -> void:
 		line = "▶ 다음 영웅의 전장"
 	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(188, 178), line, 22, Color(UiStyle.PAPER, 0.8), -1, Color(0, 0, 0, 0.6), 3)
 	UiStyle.button(self, change_rect(), "내 전장" if expedition else "영웅 바꾸기", 26)
+
+
+func _build_head() -> void:
+	for i in 40:
+		var d := Vector2.from_angle(TAU * i / 40.0)
+		_head_pts.append(HEAD + d * HEAD_R)
+		_head_uvs.append(Vector2(0.5, 0.5) + d * 0.5)
 
 
 func _draw_expedition() -> void:

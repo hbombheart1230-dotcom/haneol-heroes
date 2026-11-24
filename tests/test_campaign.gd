@@ -119,3 +119,45 @@ func test_stage_select_locks_coming_and_expedition_views_other_heroes() -> void:
 	var other: StringName = sel.view_hero.campaign.slots[0].id
 	assert_bool(sel.press(0)).is_true()  # 다른 영웅의 첫 전장을 지금 영웅으로
 	assert_str(String(picked[0])).is_equal(String(other))
+
+
+func test_only_first_win_of_own_stage_raises_tier() -> void:
+	var saved := [GameSettings.hero_cleared, GameSettings.hero_clears, GameSettings.cleared_stages, GameSettings.stage_records]
+	GameSettings.hero_cleared = {}
+	GameSettings.hero_clears = {}
+	GameSettings.cleared_stages = PackedStringArray()
+	GameSettings.stage_records = {}
+	var yi: HeroData = load("res://data/heroes/yi_sun_sin.tres")
+	var sejong: HeroData = load("res://data/heroes/sejong.tres")
+	var away: StringName = sejong.campaign.slots[0].id
+	assert_bool(RunEnd.raises_tier(yi, yi.home_stage)).is_true()
+	assert_bool(RunEnd.raises_tier(yi, away)).is_false()
+	RunEnd.apply(yi, away, 5, true, 200.0)  # 원정 첫 승: 이긴 기록은 남지만 단계는 그대로
+	assert_int(int(GameSettings.hero_clears.get("yi_sun_sin", 0))).is_equal(0)
+	assert_bool(PackedStringArray(GameSettings.hero_cleared.get("yi_sun_sin", PackedStringArray())).has(String(away))).is_true()
+	RunEnd.apply(yi, yi.home_stage, 5, false, 100.0)  # 지면 그대로
+	assert_int(int(GameSettings.hero_clears.get("yi_sun_sin", 0))).is_equal(0)
+	RunEnd.apply(yi, yi.home_stage, 6, true, 220.0)  # 자기 전장 첫 승: +1
+	assert_int(int(GameSettings.hero_clears.get("yi_sun_sin", 0))).is_equal(1)
+	RunEnd.apply(yi, yi.home_stage, 7, true, 210.0)  # 다시 이겨도 그대로
+	assert_int(int(GameSettings.hero_clears.get("yi_sun_sin", 0))).is_equal(1)
+	GameSettings.hero_cleared = saved[0]
+	GameSettings.hero_clears = saved[1]
+	GameSettings.cleared_stages = saved[2]
+	GameSettings.stage_records = saved[3]
+
+
+func test_stage_select_builds_the_portrait_circle_once() -> void:
+	var yi: HeroData = load("res://data/heroes/yi_sun_sin.tres")
+	var sel: StageSelect = auto_free(StageSelect.new())
+	sel.size = Vector2(720, 1280)
+	add_child(sel)
+	sel.open(yi, CampaignProgress.new([], {}), [yi])
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_int(sel._head_pts.size()).is_equal(40)
+	var first := sel._head_pts
+	sel.queue_redraw()
+	await get_tree().process_frame
+	assert_int(sel._head_pts.size()).is_equal(40)  # 다시 그려도 늘지 않는다
+	assert_vector(sel._head_pts[0]).is_equal(first[0])
