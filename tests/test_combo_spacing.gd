@@ -53,11 +53,14 @@ func test_melee_gaps_match_plan_and_dps_holds() -> void:
 		assert_float(anim_len).override_failure_message(id + " anim cut").is_less_equal(gaps.min() + 0.001)
 
 
-## 세종 글자 연사: 한 바퀴 길이 그대로 (0.36 · 0.40 · 0.42), 초당 피해 그대로.
+## 세종 글자 연사: 고른 박자 (한 바퀴 비율 그대로), 초당 피해 그대로.
+## 사용자 7ce32eb "세종은 아직 공속이 너무 빠르다" → 평타 간격 0.55 → 0.64 (약 16% 느리게), 한 발 12 → 14 (초당 피해 그대로):
+## 0.36·0.40·0.42 → 0.42·0.47·0.49.
 func test_sejong_glyph_taps_even_out_same_round() -> void:
 	var d := (load("res://data/heroes/sejong.tres") as HeroData).attack
 	var gaps := _gaps(d.ranged_interval, Array(d.step_gap_mults))
-	assert_float(gaps[0]).is_equal_approx(0.36, 0.01)
-	assert_float(gaps[1]).is_equal_approx(0.40, 0.01)
-	assert_float(gaps[2]).is_equal_approx(0.42, 0.01)
+	assert_float(gaps[0]).is_equal_approx(0.42, 0.01)
+	assert_float(gaps[1]).is_equal_approx(0.47, 0.01)
+	assert_float(gaps[2]).is_equal_approx(0.49, 0.01)
+	assert_float(d.ranged_damage / d.ranged_interval).is_equal_approx(12.0 / 0.55, 0.5)  # 초당 피해 그대로
 	assert_float(_sum(gaps)).is_equal_approx(_sum(_gaps(d.ranged_interval, OLD_MULTS)), 0.02)
