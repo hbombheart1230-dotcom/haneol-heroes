@@ -29,6 +29,8 @@ signal hurt(amount: int)
 @export var contact_sensor: Area2D
 
 var move_input: Vector2 = Vector2.ZERO
+## 기술을 모으는 동안 걷지 않는다 (SkillCaster.tick이 매 틱 정함, 사용자 2026-11-24: 모으는 중 걸음이 나와 애매하게 취소됨). 이동 입력은 조준(ChargeAim)에만 쓴다.
+var walk_locked: bool = false
 var _swing_left: float = 0.0
 var _swing_mult: float = 1.0
 var facing: Vector2 = Vector2.DOWN
@@ -165,7 +167,7 @@ func apply_recoil(offset: Vector2, seconds: float = -1.0) -> void:
 
 ## 이번 프레임 걷기 속도: 목표 속도로 가속·감속 (영웅별 무게감).
 func _walk_velocity(delta: float) -> Vector2:
-	var want := move_input * move_speed
+	var want := Vector2.ZERO if walk_locked else move_input * move_speed
 	var speeding_up := want.length() >= _walk_vel.length() - 0.01
 	var t := move_accel_time if speeding_up else move_decel_time
 	if t <= 0.0:

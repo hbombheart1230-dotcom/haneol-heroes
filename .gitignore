@@ -24,3 +24,5 @@ android/
 
 # Meshy 원본 모델·작업 상태 (유료 플랜 결과물, 공개 저장소에 올리지 않는다. 구운 스프라이트만 커밋)
 assets/models/meshy/
+# 국립중앙박물관 초충도 원본 판 (판당 약 15MB, 공개 저장소에 올리지 않음; 잘라 낸 소품만 커밋)
+assets/concept/chochungdo_src/

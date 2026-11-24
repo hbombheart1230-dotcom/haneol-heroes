@@ -197,7 +197,7 @@ func test_hansan_edge_overlay_layer() -> void:
 	arena.apply_theme(HANSAN)
 	assert_object(arena.edge.texture).is_same(l.overlay_texture)
 	assert_vector(arena.edge.rect.size).is_equal(arena.map.rect.size)
-	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
+	for id in ["chochungdo"]:  # 만주·경복궁은 아래 시험에서
 		var st: StageTheme = load("res://data/stages/%s.tres" % id)
 		assert_bool(st.look.overlay_texture == null).override_failure_message(id).is_true()
 
@@ -210,3 +210,18 @@ func test_hansan_grain_has_mipmaps_and_keeps_lossless() -> void:
 	assert_int(cfg.get_value("params", "compress/mode")).is_equal(0)
 	var tex: Texture2D = load("res://assets/textures/grain/deck_planks.png")
 	assert_bool(tex.get_image().has_mipmaps()).is_true()
+
+
+## 만주 가장자리 (무용총 수렵도에서 뽑은 선): 같은 구조, 지도와 같은 영역.
+func test_manchuria_and_palace_edge_overlay_layer() -> void:
+	for id in ["manchuria_395", "gyeongbokgung_1433"]:
+		_check_edge_layer(load("res://data/stages/%s.tres" % id))
+
+
+func _check_edge_layer(st: StageTheme) -> void:
+	assert_object(st.look.overlay_texture).is_not_null()
+	var arena: Arena = auto_free(Arena.new())
+	add_child(arena)
+	arena.apply_theme(st)
+	assert_object(arena.edge.texture).is_same(st.look.overlay_texture)
+	assert_vector(arena.edge.rect.size).is_equal(arena.map.rect.size)

@@ -92,7 +92,8 @@ func test_every_hero_finisher_has_a_recover_time() -> void:
 		var r := _rig(h)
 		var t := TapChain.recover(r[2])
 		assert_float(t).override_failure_message("%s finisher recover %.3f" % [id, t]).is_greater(0.1)
-		assert_float(t).is_equal_approx(CastAnim.of(h.kit.tap, h.sprite_sheet).seconds, 0.001)
+		var want := h.kit.finisher_recover if h.kit.finisher_recover >= 0.0 else CastAnim.of(h.kit.tap, h.sprite_sheet).seconds  # 순신: 닿은 직후까지만 (돌려 베기)
+		assert_float(t).is_equal_approx(want, 0.001)
 
 
 ## 마무리 동안: 손 탭도 자동 평타도 1타를 내지 않고 탭은 한 번만 기억, 풀리면 기억한 탭이 다음 연타의 1타로.
@@ -108,9 +109,11 @@ func test_no_first_hit_during_finisher_then_one_buffered_tap() -> void:
 		var early := [0]
 		a.melee_windup.connect(func(_d: Vector2) -> void: early[0] += int(a.busy_left() > 0.0))
 		a.ranged_windup.connect(func(_d: Vector2) -> void: early[0] += int(a.busy_left() > 0.0))
-		for i in 4:  # 마무리 중에 연타
+		var taps := 0
+		while a.busy_left() > DT * 2.0 or taps == 0:  # 마무리 잠금 동안 연타 (순신은 닿은 직후까지라 짧다)
 			c.combo_tap()
 			_step(r, DT * 2.0)
+			taps += 1
 		assert_int(early[0]).override_failure_message("%s: hit during finisher" % id).is_equal(0)
 		assert_bool(c.combo.has_buffer()).override_failure_message("%s: tap not kept" % id).is_true()
 		assert_int(c.combo.streak).is_equal(0)

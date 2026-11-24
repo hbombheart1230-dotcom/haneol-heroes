@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="DashDirData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/dash_dir_data.gd" id="1_dd"]
+
+[resource]
+script = ExtResource("1_dd")
+strike_damage_mult = 0.5
+strike_slow = 0.5
+strike_slow_time = 1.2
+strike_extra_charge = 1
+strike_end_lag = 0.15
+strike_sfx = &"w_scroll"

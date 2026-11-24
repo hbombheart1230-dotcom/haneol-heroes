@@ -2,11 +2,12 @@ extends SceneTree
 ## 연타 박자 재기 (진단): 실제 한산 장면에서 영웅 앞에 왜군 병사 n마리 (안 죽고 안 침), 탭을 gap초마다 계속 누른다.
 ## 타마다 시작(휘두르기·던지기·마무리 시전)·닿음(칼이 닿음·탄 놓음) 시각을 실제 시각(ms)으로 찍고,
 ## 흐름을 멈추는 것들의 실제 시간을 더한다: 게임 시간 느려짐(GameTime 멈춤 = Engine.time_scale < 1), 영웅 그림 멈춤(역경직),
-## 칼 박힘(BladeBite), 마무리 잠금(AutoAttack.busy_left), 기억한 탭(TapCombo 버퍼).
+## 칼 박힘(BladeBite), 마무리 잠금(AutoAttack.busy_left), 기억한 탭(TapCombo 버퍼). 몹이 피해를 입은 시각(dmg)과 그때 영웅 자리도.
 ## godot --path . --resolution 720x1280 -s res://tools/shots/tap_rhythm.gd -- <hero id> [병사 수=1] [탭 간격 초=0.05] [초=7]
 
 var _events: Array = []
 var _t0: int = 0
+var _player: Node2D
 
 
 func _initialize() -> void:
@@ -26,6 +27,7 @@ func _run() -> void:
 	var main: Node = await ShotStage.open(self, &"hansan_1592", hero)
 	await _wait(3.0)
 	var player := main.get_node("Player") as Player
+	_player = player
 	var caster := player.get_node("SkillCaster") as SkillCaster
 	var atk := caster.auto_attack()
 	var view := player.get_node("PlayerView")
@@ -44,6 +46,7 @@ func _run() -> void:
 		e.attack = null
 		e.set_physics_process(false)
 		foes.append([e, off])
+		e.health.damaged.connect(func(_en: Node, _ty: int, amount: int, _i: int, _m: float, _a: int) -> void: _log("dmg", amount, true))
 	await _wait(0.5)
 	atk.melee_windup.connect(func(_d: Vector2) -> void: _log("start", atk.chain_step, atk.last_manual))
 	atk.ranged_windup.connect(func(_d: Vector2) -> void: _log("start", atk.ranged_step, atk.last_manual))
@@ -88,13 +91,13 @@ func _run() -> void:
 		hero, count, gap, seconds, slow, frozen, biting, locked, kept, starts / seconds])
 	var line := PackedStringArray()
 	for e in _events:
-		line.append("%.3f %s%s%s" % [e[0], e[1], e[2], "" if e[3] else "(auto)"])
+		line.append("%.3f %s%s%s @%d,%d" % [e[0], e[1], e[2], "" if e[3] else "(auto)", e[4].x, e[4].y])
 	print("EVENTS " + " | ".join(line))
 	quit()
 
 
 func _log(kind: String, n: int, manual: bool) -> void:
-	_events.append([_now(), kind, n, manual])
+	_events.append([_now(), kind, n, manual, _player.global_position if _player else Vector2.ZERO])
 
 
 func _wait(s: float) -> void:
