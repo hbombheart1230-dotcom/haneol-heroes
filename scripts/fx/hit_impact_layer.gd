@@ -137,9 +137,9 @@ func _draw_one(i: int) -> void:
 	for j in n:
 		var a := -spread * 0.5 + spread * (j + 0.5 + 0.3 * sin(_seed[i] + j * 1.7)) / n
 		var v := d.rotated(a)
-		var from := p + v * core * 0.4
+		var from := p + v * core * (0.4 if s < 3 else 0.7)  # 3타는 뿌리를 벌려 겹쳐 뭉치지 않게
 		var to := p + v * (core * 0.4 + length * (0.8 + 0.2 * cos(_seed[i] * 2.0 + j)))
-		var thick := w * data.brush_thick_mult
+		var thick := w * (data.brush_thick_heavy if s >= 3 else data.brush_thick_mult)
 		if style == Style.THUNDER:  # 번개: 꺾인 줄기 (중간 점 하나를 옆으로), 두 마디 붓 획
 			var mid := from.lerp(to, 0.5) + v.orthogonal() * length * 0.12 * sin(_seed[i] * 3.0 + j)
 			_brush(from, mid, thick, col, ink, fade)
@@ -150,8 +150,8 @@ func _draw_one(i: int) -> void:
 	_draw_drops(i, p, d, w, fade, col)
 	# 고리 (먹 + 영웅색)와 밝은 심
 	var ring_r := core * (1.0 + (data.ring_mult - 1.0) * k)
-	draw_arc(p, ring_r, 0.0, TAU, 24, Color(data.ink_color, 0.6 * fade), data.ring_width * fade + data.outline + 1.0)
-	draw_arc(p, ring_r, 0.0, TAU, 24, Color(col, 0.9 * fade), data.ring_width * fade + 1.0)
+	InkPaint.ring(self, p, ring_r + 1.0, Color(data.ink_color, 0.5 * fade))  # 붓 고리: 먹 테 위에 영웅색
+	InkPaint.ring(self, p, ring_r, Color(col, 0.75 * fade))
 	var ck := clampf(k / maxf(data.core_share, 0.001), 0.0, 1.0)
 	if ck < 1.0:
 		draw_circle(p, core * (1.0 - 0.6 * ck), Color(data.core_color.lerp(_color[i], data.core_tint), 1.0 - ck))

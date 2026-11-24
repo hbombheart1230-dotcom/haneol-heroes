@@ -35,6 +35,9 @@ func _run() -> void:
 	layer.add(Vector2(300, 1100), Vector2(0.8, -0.6), 1, col)
 	layer.add(Vector2(300, 1500), Vector2(0.9, 0.3), 2, col)
 	layer.add(Vector2(780, 1200), Vector2(-0.8, -0.5), 3, col, hero.impact_style)
+	if args.size() > 2:  # 굵기 견본: 기준(3.2) 대비 비율
+		layer.data.brush_thick_mult = 3.2 * float(args[2])
+		layer.data.brush_thick_heavy = 3.2 * float(args[2]) * 1.35
 	layer.set_process(false)  # 프레임 시간이 길어 저절로 사라지지 않게 직접 나이를 먹인다
 	layer._process(0.06)
 	for k in 3:

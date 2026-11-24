@@ -16,11 +16,13 @@ extends Resource
 @export var streak_width: float = 9.0
 @export var outline: float = 3.0
 ## 붓 획 굵기 = streak_width(시간에 따라 줄어듦) × 이 값 (그림은 시작이 굵고 끝이 가늘다).
-@export var brush_thick_mult: float = 3.2
+## 3타·큰 기술은 조금 더 굵게.
+@export var brush_thick_heavy: float = 1.5
+@export var brush_thick_mult: float = 1.12
 ## 같은 색 작은 방울: 타마다 개수, 퍼지는 거리(줄기 길이 배율), 크기(줄기 두께 배율).
 @export var drop_count: PackedInt32Array = PackedInt32Array([3, 4, 6])
 @export var drop_reach: float = 1.15
-@export var drop_size: float = 0.6
+@export var drop_size: float = 0.3
 ## 줄기가 퍼지는 각도(도, 맞은 방향 기준).
 @export var streak_spread_deg: float = 110.0
 ## 보이는 시간 (심은 앞 core_share만큼 밝다).
