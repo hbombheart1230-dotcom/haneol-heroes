@@ -153,6 +153,7 @@ script = ExtResource("3_kit")
 combo_finisher_free = true
 tap = SubResource("Skill_quake")
 finisher_recover = 0.3
+dash_auto = true
 dash = SubResource("Skill_trail")
 charge = SubResource("Skill_bolt")
 counter = SubResource("Skill_conq")
