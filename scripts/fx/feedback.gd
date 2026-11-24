@@ -207,6 +207,7 @@ func music_playing() -> bool:
 
 func _on_skill_cast(slot: SkillCaster.Slot, hits: int) -> void:
 	var def := skill_caster.def_of(slot) if skill_caster else null
+	ImpactFx.skill_accent(self, slot, hits, skill_caster.last_charge if skill_caster else 0.0)
 	if def and def.sfx != &"":  # 기술마다 정한 소리 (세종·사임당 = 마법)
 		play(def.sfx, 0.0)
 		add_trauma(skill_trauma_for(slot, hits))
@@ -246,7 +247,9 @@ func _play_hit(amount: int) -> void:
 		play(kind)
 	if amount >= feel.big_hit_damage:
 		play(&"confirm_big", 0.08)
-		play(&"gugak_big", 0.12)  # 국악 꽹과리 (파일이 있을 때만 울린다)
+		var g := feel.impact_data().big_hit_gugak  # 국악 덧소리는 결정타에 몰아준다 (ImpactFeelData, 기본 없음)
+		if g != &"":
+			play(g, 0.12)
 
 
 ## 지금 영웅의 명중 재질 소리 (없으면 빈 배열).

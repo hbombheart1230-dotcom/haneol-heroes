@@ -115,7 +115,7 @@ func test_pick_avoids_immediate_repeat() -> void:
 		prev = s
 
 
-## 큰 타격은 몸통 + 영웅 재질 둘 + 확인음 + 국악 꽹과리 (공유마당 장구·꽹과리, tools/audio/cut_gugak.py).
+## 큰 타격은 몸통 + 영웅 재질 둘 + 확인음. 국악 꽹과리는 결정타에만 (사용자 2026-11-24: 평타·보통 기술은 가볍게).
 func test_big_hit_layers_body_material_and_confirm() -> void:
 	var f: Feedback = auto_free(Feedback.new())
 	f.bank = BANK
@@ -125,8 +125,25 @@ func test_big_hit_layers_body_material_and_confirm() -> void:
 	f._play_hit(f.feel.big_hit_damage)
 	for k in [&"hit", &"mat_fire", &"mat_blunt", &"confirm_big"]:
 		assert_bool(f._voices.kinds.has(k)).is_true()
-	assert_bool(f._voices.kinds.has(&"gugak_big")).is_true()
+	assert_bool(f._voices.kinds.has(&"gugak_big")).is_false()
 	f._last_played.clear()
 	f._voices = SfxVoices.new(f.sfx_voices)
 	f._play_hit(5)
 	assert_bool(f._voices.kinds.has(&"confirm_big")).is_false()
+
+
+## 국악 몰아주기: 넷째 탭 마무리·반격·완전 충전이 맞혔을 때만 꽹과리, 덜 모은 충전·헛친 기술·내닫기 기술은 없음. 3타 강타도 없음.
+func test_gugak_accent_only_on_decisive_hits() -> void:
+	var f: Feedback = auto_free(Feedback.new())
+	f.bank = BANK
+	add_child(f)
+	var cases := [[SkillCaster.Slot.TAP, 1, 0.0, true], [SkillCaster.Slot.COUNTER, 2, 0.0, true],
+		[SkillCaster.Slot.CHARGE, 1, 1.0, true], [SkillCaster.Slot.CHARGE, 1, 0.6, false],
+		[SkillCaster.Slot.DASH, 3, 0.0, false], [SkillCaster.Slot.TAP, 0, 0.0, false]]
+	for c in cases:
+		f._last_played.clear()
+		f._voices = SfxVoices.new(f.sfx_voices)
+		ImpactFx.skill_accent(f, c[0], c[1], c[2])
+		assert_bool(f._voices.kinds.has(&"gugak_big")).override_failure_message(str(c)).is_equal(c[3])
+	assert_str(String(f.feel.impact_data().heavy_gugak)).is_empty()
+	assert_str(String(f.feel.impact_data().stagger_gugak)).is_equal("gugak_kill")
