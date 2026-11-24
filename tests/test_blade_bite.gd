@@ -95,7 +95,7 @@ func test_one_stop_per_swing_for_hero_and_all_hit() -> void:
 
 func test_heavy_third_hit_stops_longer() -> void:
 	assert_float(YI.blade_bite.stop_for(3)).is_greater(YI.blade_bite.stop_for(1))
-	assert_float(YI.blade_bite.stop_for(3)).is_equal_approx(0.06, 0.001)  # 쾌검 (사용자 2026-11-24): 1·2타 멈춤 없음, 3타·4타만 살짝
+	assert_float(YI.blade_bite.stop_for(3)).is_equal_approx(0.02, 0.001)  # 쾌검 (사용자 2026-11-24): 1·2타 멈춤 없음, 3타 아주 살짝 (2→3 멈칫 없게), 무게는 4타 마무리(finisher_stop)
 	assert_float(YI.blade_bite.stop_for(1)).is_equal(0.0)
 	assert_float(YI.blade_bite.stop_for(2)).is_equal(0.0)
 	assert_float(YI.blade_bite.finisher_stop).is_equal_approx(0.06, 0.001)
