@@ -31,5 +31,3 @@ extends Resource
 @export var alive_cap_add: int = 0
 ## 중간 우두머리 물결(정예·무리)을 깬 뒤 최대 체력의 이 비율만큼 회복 (우두머리 앞 숨 고르기): 0 = 꺼짐.
 @export var elite_clear_heal: float = 0.0
-## 우두머리가 나올 때 최대 체력의 이 비율만큼 회복 (우두머리 직전 숨 고르기 견본): 0 = 꺼짐.
-@export var boss_entry_heal: float = 0.0
