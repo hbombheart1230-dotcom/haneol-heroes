@@ -24,6 +24,9 @@ extends Resource
 @export var cast_lead: float = 0.06
 ## 재생 속도 배율.
 @export var cast_speed: float = 1.0
+## 시전 동작 동안 영웅을 기술 그림(FxLayer) 위에 그린다 (CombatFeelData.cast_over_fx_z): 몸을 덮는 큰 고리·물보라 기술.
+## 사용자 7ce32eb "4타 모션이 너무 약하다" — 해룡참 물결 고리·물보라가 0.35초 동안 순신을 가렸다.
+@export var hero_over_fx: bool = false
 ## 충전 기술만: 모으는 동안 시전 동작 첫 칸(모으는 자세)을 붙잡는다 (서 있을 때).
 @export var charge_pose: bool = true
 @export_group("조준 보정")

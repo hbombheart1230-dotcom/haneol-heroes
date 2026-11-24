@@ -131,22 +131,21 @@
     },
     {
       "key": "cast_tap",
-      "src": "Weapon_Combo",
-      "frames": 7,
+      "src": "Double Blade Spin",
+      "frames": 6,
       "fps": 24.0,
       "loop": false,
-      "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo.res",
-      "start": 1.87,
-      "end": 2.47,
-      "strike": 2.2,
+      "from": "res://assets/models/meshy/yi_sun_sin/animated_extra4.glb",
+      "start": 0.4,
+      "end": 1.42,
+      "strike": 0.5,
       "times": [
-        1.87,
-        1.97,
-        2.07,
-        2.13,
-        2.2,
-        2.33,
-        2.47
+        0.4,
+        0.5,
+        0.7,
+        0.92,
+        1.16,
+        1.42
       ]
     },
     {
