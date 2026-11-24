@@ -38,6 +38,9 @@ var chain_min_speed: float = 500.0
 ## 휙 돌리는 손짓도 내닫기가 된다 (사용자 7ce32eb "각도를 돌리다가 취소"). 연속·다시 잡기 쉬운 기준도 쓰지 않는다.
 var charge_min_distance: float = 140.0
 var charge_min_speed: float = 1600.0
+## 그 튕김은 누른 자리(앵커)에서 이만큼(px) 이상 바깥으로 멀어져야 한다: 조준을 반대쪽으로 넘기거나(180° 넘김)
+## 둘레를 도는 손짓은 앵커에서 거리가 거의 그대로라 내닫기가 아니다 (사용자 단서 "돌리다가 180도가 넘었을 때쯤").
+var charge_min_outward: float = 60.0
 ## 손 떼고 다시 튕기기: 직전 플릭 후 이 시간(초) 안에 새로 댄 손가락의 첫 플릭은 방향과 상관없이 연속 기준.
 var retouch_chain_window: float = 0.5
 ## 그 첫 플릭의 기준 (다시 잡고 이동하려는 손짓과 구분되도록 꺾기 연속보다는 조금 높게).
@@ -115,10 +118,11 @@ func touch_move(index: int, pos: Vector2, time: float, aiming: bool = false) -> 
 		return Vector2.ZERO
 	_current = pos
 	_push_sample(time, pos)
+	var held := _anchor  # 따라붙기 전 앵커 (바깥으로 멀어졌는지 재는 기준)
 	var offset := _current - _anchor
 	if offset.length() > anchor_follow_radius:
 		_anchor = _current - offset.normalized() * anchor_follow_radius
-	var dir := _detect_flick(time, false, aiming)
+	var dir := _detect_flick(time, false, aiming, held)
 	if dir != Vector2.ZERO and reanchor_after_flick:
 		_anchor = _current
 		_samples.clear()
@@ -153,7 +157,7 @@ func _push_sample(time: float, pos: Vector2) -> void:
 		_samples.pop_front()
 
 
-func _detect_flick(time: float, releasing: bool = false, aiming: bool = false) -> Vector2:
+func _detect_flick(time: float, releasing: bool = false, aiming: bool = false, held := Vector2.ZERO) -> Vector2:
 	if time - _stroke_flick_time < flick_cooldown:
 		return Vector2.ZERO
 	if _samples.size() < 2:
@@ -194,6 +198,8 @@ func _detect_flick(time: float, releasing: bool = false, aiming: bool = false) -
 		reason = "속도 부족"
 	elif not easy and flick_burst_ratio > 0.0 and speed < prev_speed * flick_burst_ratio:
 		reason = "급가속 부족"
+	elif aiming and _current.distance_to(held) - (base[1] as Vector2).distance_to(held) < charge_min_outward:
+		reason = "조준 돌리기"
 	if reason != "":
 		if dist >= need_dist * 0.5 or (releasing and dist >= 20.0):
 			check["result"] = reason + ("" if easy else " (이동 중)")
