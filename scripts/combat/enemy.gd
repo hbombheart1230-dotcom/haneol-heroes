@@ -138,6 +138,9 @@ func boost(mult: float, seconds: float) -> void:
 
 func _ready() -> void:
 	_detour_side = 1.0 if _seed_id() % 2 == 0 else -1.0
+	var rim := TelegraphRim.new()  # 예고 테두리는 기술 효과 위 층 (색 규칙 B)
+	rim.enemy = self
+	add_child(rim)
 	if data:
 		move_speed = data.move_speed
 		contact_damage = data.contact_damage
