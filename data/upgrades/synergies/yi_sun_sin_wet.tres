@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SynergyDef" format=3]
+
+[ext_resource type="Script" path="res://scripts/run/synergy_def.gd" id="1_def"]
+[ext_resource type="Script" path="res://scripts/run/synergy_mark.gd" id="2_mark"]
+
+; 순신 짝 견본: 파도격 · 연파 + 해일검기 · 큰 해일 → 파도격에 젖은 적에게 해일검기 1.5배.
+[sub_resource type="Resource" id="Mark_wet"]
+script = ExtResource("2_mark")
+mark_skill = &"pado"
+mark_tag = &"wet"
+mark_time = 4.0
+mark_label = "젖음"
+bonus_skill = &"haeil"
+bonus_mult = 1.5
+bonus_label = "물먹은 적"
+color = Color(0.55, 0.85, 1, 1)
+ring_radius = 46.0
+
+[resource]
+script = ExtResource("1_def")
+id = &"yi_wet_tide"
+title = "젖은 바다"
+description = "파도격에 맞은 적은 4초간 젖는다.
+젖은 적에게 해일검기 피해 1.5배."
+needs = Array[StringName]([&"pado_more", &"haeil_big"])
+effect = SubResource("Mark_wet")

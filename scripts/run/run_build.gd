@@ -7,6 +7,8 @@ var hero: HeroData
 var player: Player
 var caster: SkillCaster
 var attack: AutoAttack
+## 이번 판에 적용한 패 (UpgradeDef.id → 횟수): 패 짝(SynergyState)을 센다.
+var picked: Dictionary = {}
 
 
 ## 영웅 데이터를 복사해 플레이어·기술·기본 공격이 사본을 쓰게 연결한다.
@@ -15,6 +17,8 @@ func begin(p_player: Player, p_caster: SkillCaster, p_attack: AutoAttack) -> voi
 	player = p_player
 	caster = p_caster
 	attack = p_attack
+	picked.clear()
+	SynergyState.reset()
 	if player == null or player.hero == null:
 		return
 	hero = player.hero.duplicate_deep(Resource.DEEP_DUPLICATE_INTERNAL) as HeroData
@@ -59,6 +63,8 @@ func apply(u: UpgradeDef) -> bool:
 			(obj as SkillDef).vfx_level += u.vfx_level_gain
 	if touches_hero and player:
 		player.refresh_stats(old_max_hp)
+	picked[u.id] = int(picked.get(u.id, 0)) + 1
+	SynergyState.refresh(hero.upgrade_pool, picked)
 	if caster:
 		caster.apply_kit(hero.kit)  # 입력 판정 시간(충전 등)은 캐시되므로 다시 읽힌다
 	return ok
