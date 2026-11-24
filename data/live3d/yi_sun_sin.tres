@@ -53,12 +53,12 @@ clips = Array[Dictionary]([{
 "loop": false,
 "start": 0.3
 }, {
-"end": 2.0,
-"file": "res://assets/live3d/yi_sun_sin/anims/web_jumpandslambackdown.res",
+"end": 2.47,
+"file": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo.res",
 "key": "cast_tap",
 "loop": false,
-"start": 0.67,
-"times": [0.67, 0.87, 1.07, 1.27, 1.4, 1.53, 1.57, 2.0]
+"start": 1.87,
+"times": [1.87, 1.97, 2.07, 2.13, 2.2, 2.33, 2.47]
 }, {
 "end": 1.1,
 "file": "res://assets/live3d/yi_sun_sin/anims/righthandswordslash.res",

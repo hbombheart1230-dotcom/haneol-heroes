@@ -177,23 +177,22 @@
     {
       "key": "cast_tap",
       "reuse": {
-        "src": "Jump_and_Slam_Back_Down",
-        "from": "res://assets/live3d/yi_sun_sin/anims/web_jumpandslambackdown.res"
+        "src": "Weapon_Combo",
+        "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo.res"
       },
-      "frames": 8,
-      "fps": 20.0,
-      "start": 0.67,
-      "end": 2.0,
-      "strike": 1.53,
+      "frames": 7,
+      "fps": 24.0,
+      "start": 1.87,
+      "end": 2.47,
+      "strike": 2.2,
       "times": [
-        0.67,
-        0.87,
-        1.07,
-        1.27,
-        1.4,
-        1.53,
-        1.57,
-        2.0
+        1.87,
+        1.97,
+        2.07,
+        2.13,
+        2.2,
+        2.33,
+        2.47
       ],
       "loop": false
     },
