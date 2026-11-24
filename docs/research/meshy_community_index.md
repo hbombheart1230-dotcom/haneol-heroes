@@ -348,3 +348,26 @@
 | 228 | (창) | `019f90c7-9cd1-7263-b67f-8a780e6f0487` | 미확인 | - | 미확인 |
 | 229 | (녹색 장식 창) | `01987120-a35e-739a-a3ed-cf9c2ecbfe60` | 미확인 | - | 미확인 |
 | 230 | (장식 창) | `0198914c-dba6-711e-a8f5-d553f967a854` | 미확인 | - | 미확인 |
+
+## 명량·노량·북잡이 내려받기 12개 (2026-11-24 밤, 크롬 Meshy 로그인 상태, 모두 CC0, 크레딧 잔액 1,527 그대로 — 소모 0)
+저장: `build/meshy_agent/community/<번호>_<이름>/model.glb` (GLB 하나에 텍스처 포함, 커밋 안 함). 전부 메시 1개, 뼈대·동작 없음. 형식은 지난번과 같은 GLB (받기 창에서 glb 선택이 유지됨).
+
+| 번호 | 이름 | 자리 | 용량 | 삼각형 | 텍스처 | 원본 주소 |
+|---|---|---|---|---|---|---|
+| 41 | Crimson Ronin | 명량 중간 | 36MB | 907,233 | 2048×3 | /ko/posts/019ea875-9d7b-76ba-8b88-3294793d1f70 |
+| 56 | Japanese ashigaru (창병) | 명량 잡몹 | 22MB | 409,411 | 2048×3 (받침 있음) | /ko/posts/019e7f14-ffca-74e8-86d5-3a4a4b19557e |
+| 38 | skull ninja | 명량 잡몹 | 0.7MB | 10,000 | 2048 | /ko/posts/0195aa92-3475-7615-9a55-918ebbc4462f |
+| 39 | dark ninja | 명량 잡몹 | 9.7MB | 281,622 | 2048 | /ko/posts/01974270-e567-76b1-bc3b-6c3710d515fe |
+| 37 | Lanternblade Samurai | 노량 중간 | 78MB | 2,021,388 | 2048·4096 | /ko/posts/01a1f33b-dda7-718d-be82-575cc95c51a0 |
+| 49 | samouraï ninja (파일명 Crimson Shadow Ronin) | 노량 중간 | 103MB | 1,989,748 | 2048×3 | /ko/posts/samourai-ninja-01a01104-eb06-7f2a-9633-a556e4f1ad85 |
+| 52 | Ironclad Ronin | 노량 중간 | 99MB | 1,963,040 | 2048×3 | /ko/posts/Ironclad-Ronin-01a00ff9-2f60-732e-970e-3808d2955352 |
+| 58 | Low-Poly Samuraiwarrior (조총병) | 노량 잡몹 | 80MB | 1,192,196 | 2048·4096 (받침 있음) | /ko/posts/019fa3cd-bac4-7fa3-9e41-76925447068e |
+| 40 | Crimson Shadow Assassin | 노량 잡몹 | 24MB | 524,994 | 2048×4 (T자 자세) | /ko/posts/019f3beb-2aae-74ee-84d2-02fd486c2524 |
+| 48 | Rhythms of the Afterlife (해골 북잡이) | 한산 북잡이 교체 | 59MB | 1,571,182 | 2048×3 | /ko/posts/019a26ea-98dc-7762-b673-72019bf52334 |
+| u15 | 제목 "village" (파일명 Signal Crossbowman, 궁수) | 보류분 | 9.7MB | 31,622 | 2048×3 | /ko/posts/village-01a12b64-33e5-7404-9340-1b7a4b485a09 |
+| u32 | The Deplusher (사자 얼굴 괴물) | 보류분 | 57MB | 1,614,333 | 2048×3 | /ko/posts/019a045a-f45f-795e-a9a0-22b1801f812a |
+
+- 15번은 이번엔 받기 창이 열려 받아졌다 (이전엔 창이 안 열렸음). 파일명이 다른 제목(Signal Crossbowman)이라, 쓰기 전에 모양 확인 필요.
+- 49번 파일명(Crimson Shadow Ronin)이 페이지 제목(samouraï ninja)과 달라, 삼각형 수(1.99M)로 같은 모델임을 확인.
+- 미리보기: `build/preview/meshy_community/dl12/` — 번호별 정면·3/4 (`37.jpg` … `u32.jpg`; 정점 색을 점으로 찍은 소프트웨어 그림이라 약간 까끌해 보임), 배정표 `assign_myeongnyang.jpg`, `assign_noryang.jpg`.
+- 리깅·동작(Meshy 웹) 크레딧: 이번엔 조사 못 함(크레딧 버튼을 누르지 않는다는 조건). 저장소 README 기준 무료 플랜은 웹에서 뼈대→동작을 붙여 .glb로 받고 `meshy_pipeline.py import`로 굽는 길이며, 산출물은 CC BY 4.0이라 "Meshy" 표기가 필요. 필요한 크레딧은 리깅 화면에서 확인해야 함.
