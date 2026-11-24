@@ -5,7 +5,6 @@ extends RefCounted
 ## 줌 1.09 · 어두운 달빛 바닥에서 읽히게 막대를 두껍게, 테두리와 글자 그림자를 진하게.
 
 const FILL := Color(0.86, 0.2, 0.12)
-const FILL_TOP := Color(1.0, 0.62, 0.45, 0.55)
 const CHIP := Color(0.98, 0.9, 0.7, 0.85)
 const INVULN := Color(0.78, 0.66, 0.4)
 const TICK := Color(0.98, 0.84, 0.45)
@@ -19,16 +18,15 @@ const TOP_FREE := Vector2(200.0, 72.0)
 static func draw(c: CanvasItem, b: Enemy, chip: float, width: float, top: float = 178.0,
 		left: float = 70.0) -> void:
 	var r := Rect2(left, top, width - left - 70, BAR_H)
-	UiStyle.panel(c, r.grow(8.0), UiStyle.LACQUER, UiStyle.GOLD)
 	var pct := b.health.percent()
-	if chip > pct:
-		c.draw_rect(Rect2(r.position, Vector2(r.size.x * chip, r.size.y)), CHIP)
 	var guard := b.phase_invuln > 0.0
 	var fill := INVULN if guard else FILL
 	if guard:  # 전환 무적: 금빛으로 맥박
 		fill = fill.lerp(Color.WHITE, 0.25 + 0.25 * sin(Time.get_ticks_msec() / 90.0))
-	c.draw_rect(Rect2(r.position, Vector2(r.size.x * pct, r.size.y)), fill)
-	c.draw_rect(Rect2(r.position, Vector2(r.size.x * pct, 5)), FILL_TOP)
+	InkPaint.bar(c, r, 0.0, fill, Color(1, 1, 1, 0.95), 9.0)  # 먹선 바탕 (옻칠 대신 붓으로 그은 띠)
+	if chip > pct:
+		InkPaint.fill_part(c, r, chip, CHIP)
+	InkPaint.fill_part(c, r, pct, fill)
 	var phases: Array = b.data.phases if b.data else []
 	for ph in phases:
 		var x := r.position.x + r.size.x * (ph as BossPhaseData).hp_frac
