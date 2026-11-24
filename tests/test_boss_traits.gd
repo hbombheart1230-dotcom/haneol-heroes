@@ -156,8 +156,26 @@ func test_manchuria_boss_traits() -> void:
 	assert_int(spin.size()).is_equal(1)
 
 
+## 경복궁 여진 추장 (A안): 공통 성질 + 갔다 오는 돌진 (450, 멀 때만 쓰는 것도) + 두 겹 고리 충격파.
+func test_gyeongbok_boss_traits() -> void:
+	var d := _d("res://data/enemies/jurchen_chieftain.tres")
+	assert_float(d.boss_feel.chase_speed).is_greater(0.0)
+	for ph: BossPhaseData in d.phases:
+		assert_float(ph.stagger_gauge_mult).is_greater(1.0)
+	assert_float((d.phases[1] as BossPhaseData).stagger_immune).is_greater(0.0)
+	var far: EnemyAttackData = d.patterns.filter(func(a: EnemyAttackData) -> bool: return a.min_range > 0.0)[0]
+	assert_int(int(far.kind)).is_equal(int(EnemyAttackData.Kind.CHARGE))
+	assert_float(far.length).is_equal(450.0)
+	assert_int(int(far.follow_up.kind)).is_equal(int(EnemyAttackData.Kind.CHARGE))  # 갔다가 돌아온다
+	var rings: Array = (d.phases[0] as BossPhaseData).patterns.filter(func(a: EnemyAttackData) -> bool:
+		return a.kind == EnemyAttackData.Kind.SHOCKWAVE and a.follow_up and a.follow_up.kind == EnemyAttackData.Kind.SHOCKWAVE)
+	assert_int(rings.size()).is_equal(1)
+	var r: EnemyAttackData = rings[0]
+	assert_float(r.follow_up.radius).is_greater(r.radius)  # 안 고리 → 바깥 고리
+
+
 func test_other_bosses_keep_old_values() -> void:
-	for path in ["res://data/enemies/jurchen_chieftain.tres", "res://data/enemies/cc_frog.tres"]:
+	for path in ["res://data/enemies/cc_frog.tres"]:
 		var d := _d(path)
 		assert_float(d.boss_feel.chase_speed).override_failure_message(path).is_equal(0.0)
 		for ph: BossPhaseData in d.phases:
