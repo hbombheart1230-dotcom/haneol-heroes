@@ -154,3 +154,26 @@ func test_hero_firepower_report() -> void:
 		var r: Array = out[id]
 		print("[hero-dps] %s vs 순신: single x%.2f, pack x%.2f" % [id, r[0] / maxf(yi[0], 0.01), r[1] / maxf(yi[1], 0.01)])
 	assert_int(out.size()).is_equal(HEROES.size())
+
+
+## 성장한 영웅 화력 (보고용, HH_GROWN=1일 때만): 자기 무대를 성장과 함께 돌아 대장이 나오는 순간의 사본(GrownHeroes)으로
+## 같은 30초 재기. 씨앗 셋의 평균과 순신 대비 배율.
+func test_grown_firepower_report() -> void:
+	if OS.get_environment("HH_GROWN") != "1":
+		assert_bool(true).is_true()
+		return
+	var out := {}
+	for id in HEROES:
+		var sum := [0.0, 0.0]
+		for s in [11, 23, 37]:
+			var g: Array = await GrownHeroes.take(self, id, s, GrownHeroes.At.BOSS)
+			var r: Array = await _measure(g[0])
+			print("[hero-dps-grown] %s seed %d level %d: single %.1f dmg/s, pack %.2f kills/s" % [id, s, g[1], r[0], r[1]])
+			sum[0] += r[0] / 3.0
+			sum[1] += r[1] / 3.0
+		out[id] = sum
+	var yi: Array = out["yi_sun_sin"]
+	for id in HEROES:
+		var r: Array = out[id]
+		print("[hero-dps-grown] %s mean: single %.1f (x%.2f), pack %.2f (x%.2f)" % [id, r[0], r[0] / maxf(yi[0], 0.01), r[1], r[1] / maxf(yi[1], 0.01)])
+	assert_int(out.size()).is_equal(HEROES.size())
