@@ -108,6 +108,9 @@ func _ready() -> void:
 		progress.leveled_up.connect(hud.on_level_up)
 		progress.scored.connect(hud.on_scored)
 		hud.stage = run_config.stage if run_config else null
+		hud.spawner = spawner
+		if spawner:
+			spawner.wave_announce.connect(hud.on_wave_announce)
 	_start_flow()
 
 

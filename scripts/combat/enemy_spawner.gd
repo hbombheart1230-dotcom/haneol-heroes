@@ -42,6 +42,9 @@ var horde := HordeDirector.new(Enemy.ai_data())
 signal horde_started(kind: int)
 ## 숨 고르기 (물결 끝 = slowmo true, 보스 단계 바뀜 = false): Main이 쌓인 강화를 연다.
 signal breather(slowmo: bool)
+## 물결이 곧 시작된다 (번호 0부터, 우두머리 물결 제외): 패 고르기가 끝나 숨 고르기가 다시 흐르는 때, 적 등장 전에.
+signal wave_announce(index: int, elite: bool)
+var _announced: int = -1
 
 ## 물결 모드 (무대 데이터 StageTheme.waves). null이면 시간 따라 계속 나오는 지금 방식.
 var waves: WaveRunner
@@ -256,6 +259,11 @@ func can_offer() -> bool:
 
 func _tick_waves(delta: float) -> void:
 	var hold := hold_check.is_valid() and bool(hold_check.call())
+	if waves.phase == WaveRunner.Phase.GAP and not hold:
+		var nxt := waves.index + 1
+		if nxt != _announced and nxt < waves.data.waves.size():
+			_announced = nxt
+			wave_announce.emit(nxt, WaveTrack.kinds(waves.data)[nxt] == WaveTrack.Kind.ELITE)
 	match waves.tick(delta, alive_count() + _warnings + (1 if finale_playing() else 0), hold):
 		WaveRunner.Event.CLEARED:
 			breather.emit(true)
