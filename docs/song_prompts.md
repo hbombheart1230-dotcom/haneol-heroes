@@ -304,5 +304,5 @@ Korean traditional epic overture, cinematic game opening theme, four heroes awak
 ### 노랫소리 끔용 반주
 
 설정 "노랫소리"를 끄면 판 중(무대·우두머리)에만 목소리 없는 반주 반복 곡이 나온다 (첫 화면·이야기·승리·패배는 그대로).
-원곡에서 목소리 없는 구간(전주·간주·후주)만 모아 이은 것: 계획 `tools/audio/vocal_off_plan.json`, 만들기 `python tools/audio/make_vocal_off.py`.
-짧은 곡 (한산 무대 34초, 만주 우두머리 25초, 초충도 우두머리 34초)은 Suno에서 "반주만" 판을 받아 `assets/audio/music/<무대>/instrumental_stage.ogg`·`instrumental_boss.ogg`로 갈아 끼우면 된다 (코드·데이터 변경 없음).
+원곡에서 목소리 없는 구간(전주·간주·후주)만 모아 이은 것 (조용한 꼬리는 잘라 내고 박자 위에서 0.3초 등전력 겹침으로 바로 이음, 같은 판끼리 모음): 계획 `tools/audio/vocal_off_plan.json`, 만들기 `python tools/audio/make_vocal_off.py`.
+짧은 곡 (한산 무대 34초, 만주 우두머리 22초, 초충도 우두머리 28초)은 Suno에서 "반주만" 판을 받아 `assets/audio/music/<무대>/instrumental_stage.ogg`·`instrumental_boss.ogg`로 갈아 끼우면 된다 (코드·데이터 변경 없음).
