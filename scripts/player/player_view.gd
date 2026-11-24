@@ -45,6 +45,8 @@ var _oneshot_speed: float = 1.0
 var _caster: SkillCaster
 var _posing: bool = false
 var _over_hurt: bool = false
+## 지금 시전 동작이 기술 그림 위에 그려지는지 (SkillDef.hero_over_fx).
+var _over_fx: bool = false
 
 
 func _ready() -> void:
@@ -116,6 +118,7 @@ func _on_skill_started(_slot: SkillCaster.Slot, def: SkillDef) -> void:
 	_oneshot_from = c.from
 	_oneshot_speed = c.speed
 	_hitstop_left = 0.0
+	_over_fx = def != null and def.hero_over_fx
 
 
 ## 자동 공격 동작은 서 있을 때만. 달리는 중엔 다리를 멈추지 않고 검기 이펙트만 보인다
@@ -193,6 +196,7 @@ func play_oneshot(anim: String, seconds: float) -> void:
 	_oneshot_from = 0
 	_oneshot_speed = 1.0
 	_over_hurt = player != null and player.hurt_time_left() > 0.0
+	_over_fx = false
 	_restart = true  # 같은 이름 동작이 연달아 와도 처음부터
 
 
@@ -264,6 +268,7 @@ func _update_sprite(delta: float) -> void:
 		tint.a = ds.body_alpha if ds else 1.0  # 광개토 번개 순간이동·사임당 먹으로 흩어짐
 	_sprite.modulate = hurt_tint(tint)
 	var cur := current_anim()
+	z_index = feel.cast_over_fx_z if _over_fx and cur == _oneshot and _oneshot_left > 0.0 else 0
 	_sprite.speed_scale = run_anim_speed() if cur == "run" else (Feedback.feel_data().idle_anim_speed if cur == "idle" 		else (_oneshot_speed if cur == _oneshot else 1.0))
 	if _posing and _oneshot_left <= 0.0:  # 모으는 자세: 첫 칸에 멈춤
 		_sprite.frame = 0

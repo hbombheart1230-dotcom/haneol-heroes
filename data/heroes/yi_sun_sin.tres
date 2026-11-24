@@ -98,6 +98,7 @@ sfx_layers = Array[StringName]([&"gugak_buk"])
 cast_anim = &"cast_tap"
 cast_speed = 0.8
 cast_lead = 0.08
+hero_over_fx = true
 
 [sub_resource type="Resource" id="Skill_pado"]
 script = ExtResource("5_pado")
