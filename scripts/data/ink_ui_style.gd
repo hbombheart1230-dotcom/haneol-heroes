@@ -22,6 +22,18 @@ static var _cached: InkUiStyle
 @export var pip_gold: Color = Color(0.94, 0.74, 0.28)
 ## 찬 칸 안쪽 금빛 번짐이 고리 반지름의 몇 배인지.
 @export var pip_fill_scale: float = 0.78
+@export_group("물결 진행 표시")
+## 줄 높이(위쪽 y, 우두머리 막대 아래), 점 반지름·간격, 한 줄 최대 너비(넘으면 간격을 줄인다).
+@export var wave_row_y: float = 146.0
+@export var wave_radius: float = 14.0
+@export var wave_spacing: float = 58.0
+@export var wave_max_width: float = 420.0
+## 지금 물결·우두머리 물결 점의 크기 배율 (중간 우두머리는 마름모).
+@export var wave_current_scale: float = 1.3
+@export var wave_boss_scale: float = 1.55
+## 물결이 바뀐 순간 번지는 고리 시간(초).
+@export var wave_flash_time: float = 0.7
+@export var wave_label_size: int = 26
 @export_group("예고 겉모습")
 ## 안쪽 먹 번짐 알파 곱 (범위 그대로, 겉모습만).
 @export var wash_alpha_mult: float = 1.35
