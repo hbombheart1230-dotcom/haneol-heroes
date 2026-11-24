@@ -7,6 +7,8 @@ var player: Player
 var spawner: EnemySpawner
 ## 박자가 흐를 수 있는 판 상태인가 (Main이 넣는다: 판 진행 중, 강화 고르기·길잡이 아님). 비면 늘 참 (도구·시험).
 var running_check: Callable
+## 막히는 원들 (Arena.obstacles, 시뮬은 자기 것). 엄폐처럼 걸음을 막는 장치가 원을 더하고 뺀다. 비면 걸음은 안 막는다.
+var obstacles: Obstacles
 
 
 func setup(list: Array[StageHazardData]) -> void:

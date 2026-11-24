@@ -29,6 +29,21 @@ func build(list: PackedVector3Array) -> void:
 		add_child(body)
 
 
+## 원 하나 더하기·빼기 (무대 장치: 엄폐 기둥이 생기고 깨진다). 나머지 원은 그대로 다시 만든다.
+func add_circle(c: Vector3) -> void:
+	var list := circles.duplicate()
+	list.append(c)
+	build(list)
+
+
+func remove_circle(c: Vector3) -> void:
+	var list := PackedVector3Array()
+	for x in circles:
+		if not x.is_equal_approx(c):
+			list.append(x)
+	build(list)
+
+
 ## 흩뿌린 소품 중 막히는 것의 발밑 원. items = StageProps.scatter 결과 [위치, 종류, 배율, 그림 번호].
 static func from_props(items: Array, t: StageTheme) -> PackedVector3Array:
 	var out := PackedVector3Array()

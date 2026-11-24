@@ -50,6 +50,7 @@ func setup_stage(st: StageTheme, s: int) -> void:
 		suite.add_child(hazards)
 		hazards.player = player
 		hazards.spawner = spawner
+		hazards.obstacles = obstacles
 		hazards.setup(st.hazards)
 
 
@@ -129,14 +130,20 @@ func _extra_dodge() -> bool:
 func _tick_hazards(res: Dictionary) -> void:
 	if hazards == null:
 		return
-	for lane in hazards.get_children():
-		lane.set_physics_process(false)
-		var before: int = lane.get(&"strikes")
+	for hz in hazards.get_children():
+		hz.set_physics_process(false)
+		if not (hz is LaneStrike):
+			hz._physics_process(DT)
+			if hz.has_method("report"):
+				res.merge(hz.report(), true)  # 장치마다 센 것 (엄폐: 막은 수·깨진 수 …)
+			continue
+		var lane := hz as LaneStrike
+		var before := lane.strikes
 		lane._physics_process(DT)
-		if lane.get(&"strikes") != before:
+		if lane.strikes != before:
 			res["hz_strikes"] += 1
-			res["hz_enemy_hits"] += lane.get(&"last_enemy_hits")
-			res["hz_hero_hits"] += 1 if lane.get(&"last_hero_hit") else 0
+			res["hz_enemy_hits"] += lane.last_enemy_hits
+			res["hz_hero_hits"] += 1 if lane.last_hero_hit else 0
 
 
 ## 예고 중인 줄 안이면 가까운 쪽(위·아래)으로 비킨다.

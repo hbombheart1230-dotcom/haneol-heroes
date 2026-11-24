@@ -51,6 +51,7 @@ func _ready() -> void:
 	obstacles = Obstacles.new()
 	add_child(obstacles)
 	hazards = StageHazards.new()
+	hazards.obstacles = obstacles
 	add_child(hazards)
 	border = Border.new()
 	border.rect = rect

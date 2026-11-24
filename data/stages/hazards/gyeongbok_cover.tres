@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CoverData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/cover_data.gd" id="1_cover"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/pillar.png" id="2_pillar"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/pillar_broken.png" id="3_pillar_broken"]
+[ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/rank_stones.png" id="4_rank"]
+[ext_resource type="Resource" path="res://data/vfx/stage/stone_dust.tres" id="6_dust"]
+
+[resource]
+script = ExtResource("1_cover")
+pieces = PackedVector3Array(-330, -800, 0, 330, -800, 0, -620, -380, 1, 620, -380, 1, -330, 380, 1, 330, 380, 1, -620, 780, 0, 620, 780, 0)
+intact = Array[Texture2D]([ExtResource("2_pillar"), ExtResource("4_rank")])
+broken = Array[Texture2D]([ExtResource("3_pillar_broken"), null])
+heights = PackedFloat32Array(200, 118)
+radii = PackedFloat32Array(38, 62)
+dust_vfx = ExtResource("6_dust")

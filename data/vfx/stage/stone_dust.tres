@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SkillVfxData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="1_vfx"]
+
+[resource]
+script = ExtResource("1_vfx")
+shape = 3
+count = 8
+aim = 0
+speed = Vector2(120, 300)
+damping = 4.0
+gravity = 420.0
+spawn_radius = 12.0
+life = Vector2(0.25, 0.5)
+size = Vector2(7, 14)
+size_end = 0.4
+spin = 7.0
+color = Color(0.82, 0.8, 0.74, 1)
+color_end = Color(0.45, 0.43, 0.4, 0)
+glow = 0.2
+glow_color = Color(1, 0.95, 0.85, 1)
+glow_size = 0.5
