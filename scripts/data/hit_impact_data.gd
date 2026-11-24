@@ -11,10 +11,16 @@ extends Resource
 @export var ring_mult: float = 1.9
 @export var ring_width: float = 5.0
 ## 튐 줄기 수·길이·두께 (먹 외곽선은 두께 + outline).
-@export var streak_count: PackedInt32Array = PackedInt32Array([5, 6, 9])
-@export var streak_length: PackedFloat32Array = PackedFloat32Array([70.0, 85.0, 220.0])
+@export var streak_count: PackedInt32Array = PackedInt32Array([3, 3, 9])
+@export var streak_length: PackedFloat32Array = PackedFloat32Array([100.0, 120.0, 220.0])
 @export var streak_width: float = 9.0
 @export var outline: float = 3.0
+## 붓 획 굵기 = streak_width(시간에 따라 줄어듦) × 이 값 (그림은 시작이 굵고 끝이 가늘다).
+@export var brush_thick_mult: float = 3.2
+## 같은 색 작은 방울: 타마다 개수, 퍼지는 거리(줄기 길이 배율), 크기(줄기 두께 배율).
+@export var drop_count: PackedInt32Array = PackedInt32Array([3, 4, 6])
+@export var drop_reach: float = 1.15
+@export var drop_size: float = 0.6
 ## 줄기가 퍼지는 각도(도, 맞은 방향 기준).
 @export var streak_spread_deg: float = 110.0
 ## 보이는 시간 (심은 앞 core_share만큼 밝다).

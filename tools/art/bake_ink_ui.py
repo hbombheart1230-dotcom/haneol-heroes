@@ -132,6 +132,12 @@ def make_tail() -> None:
     save(img, "ink_tail.png")
 
 
+def make_streak() -> None:
+    """타격 줄기 붓 획 (흰 바탕, 영웅색을 입혀 쓴다): 맞은 자리 쪽이 굵고 끝이 가늘게 빠지며 갈필로 거칠다."""
+    img = stroke_bar(256, 32, 0.95, 0.30, 0.35, 0.25, np.array([1.0, 1.0, 1.0]), False, False)
+    save(img, "ink_streak.png")
+
+
 def make_edge() -> None:
     """예고 줄 가장자리용 거친 붓 획 (흰 바탕, 가로로 길게 늘여 쓴다)."""
     img = stroke_bar(512, 32, 0.9, 0.9, 0.9, 0.30, np.array([1.0, 1.0, 1.0]), False, False)
@@ -197,4 +203,5 @@ if __name__ == "__main__":
     make_wash()
     make_wash_rect()
     make_ring()
+    make_streak()  # 마지막에: 앞 그림의 난수 순서를 바꾸지 않는다
     print("구움: assets/vfx/ink_*.png")

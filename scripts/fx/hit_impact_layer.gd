@@ -139,16 +139,15 @@ func _draw_one(i: int) -> void:
 		var v := d.rotated(a)
 		var from := p + v * core * 0.4
 		var to := p + v * (core * 0.4 + length * (0.8 + 0.2 * cos(_seed[i] * 2.0 + j)))
-		if style == Style.THUNDER:  # 번개: 꺾인 줄기 (중간 점 하나를 옆으로)
-			_bolt[0] = from
-			_bolt[1] = from.lerp(to, 0.5) + v.orthogonal() * length * 0.12 * sin(_seed[i] * 3.0 + j)
-			_bolt[2] = to
-			draw_polyline(_bolt, ink, w + data.outline * 2.0)
-			draw_polyline(_bolt, Color(col, fade), w)
+		var thick := w * data.brush_thick_mult
+		if style == Style.THUNDER:  # 번개: 꺾인 줄기 (중간 점 하나를 옆으로), 두 마디 붓 획
+			var mid := from.lerp(to, 0.5) + v.orthogonal() * length * 0.12 * sin(_seed[i] * 3.0 + j)
+			_brush(from, mid, thick, col, ink, fade)
+			_brush(mid, to, thick * 0.7, col, ink, fade)
 		else:
-			draw_line(from, to, ink, w + data.outline * 2.0)
-			draw_line(from, to, Color(col, fade), w)
+			_brush(from, to, thick, col, ink, fade)
 		_draw_bits(style, to, v, w, fade, j)
+	_draw_drops(i, p, d, w, fade, col)
 	# 고리 (먹 + 영웅색)와 밝은 심
 	var ring_r := core * (1.0 + (data.ring_mult - 1.0) * k)
 	draw_arc(p, ring_r, 0.0, TAU, 24, Color(data.ink_color, 0.6 * fade), data.ring_width * fade + data.outline + 1.0)
@@ -156,6 +155,32 @@ func _draw_one(i: int) -> void:
 	var ck := clampf(k / maxf(data.core_share, 0.001), 0.0, 1.0)
 	if ck < 1.0:
 		draw_circle(p, core * (1.0 - 0.6 * ck), Color(data.core_color.lerp(_color[i], data.core_tint), 1.0 - ck))
+
+
+## 붓 획 하나: 먹 테(조금 더 굵게) 위에 영웅색 획. 시작(맞은 자리 쪽)이 굵고 끝이 갈필로 가늘게 빠진다.
+func _brush(from: Vector2, to: Vector2, thick: float, col: Color, ink: Color, fade: float) -> void:
+	var len := from.distance_to(to)
+	if len < 1.0 or thick < 0.5:
+		return
+	var ob := data.outline * 2.0
+	draw_set_transform(from, (to - from).angle(), Vector2.ONE)
+	draw_texture_rect(InkPaint.STREAK, Rect2(-ob * 0.5, -(thick + ob) * 0.5, len + ob, thick + ob), false, ink)
+	draw_texture_rect(InkPaint.STREAK, Rect2(0.0, -thick * 0.5, len, thick), false, Color(col, minf(fade * 1.5, 1.0)))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## 맞은 방향으로 튀는 같은 색 작은 방울 (타마다 drop_count개, 씨앗으로 흩는다).
+func _draw_drops(i: int, p: Vector2, d: Vector2, w: float, fade: float, col: Color) -> void:
+	var n := HitImpactData.at_i(data.drop_count, _step[i], 3)
+	var reach := HitImpactData.at_f(data.streak_length, _step[i], 40.0) * data.drop_reach
+	for j in n:
+		var a := sin(_seed[i] * 2.3 + j * 2.1) * deg_to_rad(data.streak_spread_deg) * 0.5
+		var at := p + d.rotated(a) * reach * (0.55 + 0.45 * fmod(absf(sin(_seed[i] + j * 3.1)) * 1.7, 1.0)) * (0.6 + 0.4 * sqrt(clampf(_t[i] / data.duration, 0.0, 1.0)))
+		var r := maxf(w * data.drop_size * (0.6 + 0.4 * absf(cos(_seed[i] + j))), 0.0)
+		if r < 0.4:
+			continue
+		draw_circle(at, r + data.outline * 0.5, Color(data.ink_color, data.ink_color.a * fade))
+		draw_circle(at, r, Color(col, fade))
 
 
 ## 줄기 색: 물보라는 밝은 물빛, 금빛 획은 금색, 먹·꽃잎은 먹, 번개는 흰노랑, 그 밖은 영웅색을 밝게.
