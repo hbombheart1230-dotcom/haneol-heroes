@@ -4,6 +4,8 @@ extends RefCounted
 ## 점수는 따로 저장하지 않고 GameSettings.hero_cleared(처음 이긴 전장 목록, 원정 포함)의 크기에서 계산한다.
 
 var data: HeroGrowthData
+## 이번 판 영웅의 모든 피해 배율 (적이 받는 피해에 곱한다). 판마다 GrowthApply가 정한다.
+static var run_damage_mult: float = 1.0
 
 
 func _init(p_data: HeroGrowthData = null) -> void:

@@ -71,6 +71,26 @@ func setup_run(st: StageTheme, s: int, caps: Array = [], grow: bool = false) -> 
 	_near_dis = 0.0
 
 
+## 많이 깬 영웅: 판 밖 성장 n (GrowthApply, 깬 전장 n개)과 난이도 단계 tier를 건다 (게임의 StageApply.difficulty와 같은 배율).
+## setup_run(grow = true) 뒤, run_full 전에 부른다. 성장 판(growth)이 없으면 영웅 사본 없이 피해 배율·기술 단계만.
+func veteran(n: int, tier: int) -> void:
+	var curve := ResourceLoader.load("res://data/difficulty/curve.tres", "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as DifficultyCurve
+	var tab: Array[EnemyData] = []
+	for e in spawner.spawn_table:
+		tab.append(curve.scaled(e, tier))
+	spawner.spawn_table = tab
+	spawner.elite_data = curve.scaled(spawner.elite_data, tier)
+	spawner.boss_data = curve.scaled(spawner.boss_data, tier)
+	spawner.interval_start *= curve.interval(tier)
+	spawner.interval_min *= curve.interval(tier)
+	spawner.max_alive += curve.alive_add(tier)
+	var h := player.hero
+	spawner.data_scaler = func(e: EnemyData) -> EnemyData: return curve.scaled(e, tier)
+	spawner.elite_scaler = func(e: EnemyData) -> EnemyData: return curve.scaled(BossHpScale.for_hero(e, h), tier)
+	GrowthApply.apply(growth.build if growth else null, n)
+	_hp_prev = player.health.current
+
+
 ## 지금 어느 물결인지 ("w1"…, 보스 기다림·보스는 "boss").
 func _wave_key() -> String:
 	var w := spawner.waves if spawner else null
