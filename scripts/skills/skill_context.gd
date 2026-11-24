@@ -17,6 +17,8 @@ var defer_stop: bool = false
 var aim_dir: Vector2 = Vector2.ZERO
 ## 모으는 동안 끌어서 잡았는지 (끌지 않았으면 자동인 기술은 예전처럼, SkillDef.charge_aim_auto).
 var aim_steered: bool = false
+## 발동한 기술 칸 (SkillCaster.Slot, -1 = 모름): 정답 표 배율 (EnemyAnswer).
+var slot: int = -1
 var _thud_done: bool = false
 
 
@@ -64,7 +66,7 @@ func hit(en: Enemy, dmg: int, stop: bool = true) -> bool:
 	var h := en.get_node_or_null("Health") as Health
 	if h == null or not h.is_alive():
 		return false
-	h.damage(dmg)
+	h.damage(EnemyAnswer.scaled(en, EnemyAnswer.of_slot(slot), dmg))
 	if stop and not defer_stop and hit_stop_enabled and player and player.is_inside_tree():
 		SkillHitStop.request(player.get_tree(), dmg)
 	if stop and player:  # 한 번에 끊어 치는 명중: 닿는 자리 섬광·튐 줄기 + 퍽 소리 (평타와 같은 한 타 충격)

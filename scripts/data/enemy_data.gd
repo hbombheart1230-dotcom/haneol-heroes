@@ -55,6 +55,8 @@ extends Resource
 @export var aura: EnemyAuraData
 ## 정예: 정해진 시각에 나오고, 처치하면 큰 변형 보상.
 @export var is_elite: bool = false
+## 이 적에게 잘 듣는 수 (정답 표 견본, EnemyAnswer). 비면 모든 수가 같다.
+@export var answer: EnemyAnswerData
 @export var display_name: String = ""
 ## 구워진 8방향 스프라이트 (tools/bake). 비어 있으면 코드 그림.
 @export var sprite_sheet: SpriteSheetSet
