@@ -45,7 +45,7 @@ def bar(w: int, h: int, half_frac: float, color: np.ndarray, dry: float, lit: bo
     t = xs / (w - 1)
     cy = h / 2 + 0.8 * noise1(w, 2, 1.5)
     half = h * half_frac * (0.5 + 0.045 * noise1(w, 3, 2.5))
-    taper = np.minimum(1.0, np.minimum(t, 1.0 - t) / 0.10) ** 0.5
+    taper = np.minimum(1.0, np.minimum(t, 1.0 - t) / 0.09) ** 0.5  # 양 끝 가늘어지는 자리는 InkPaint가 늘이지 않고 그대로 붙인다 (캡 28칸 안)
     ys = np.arange(h)[:, None]
     top = cy - half * taper
     bot = cy + half * taper
@@ -75,16 +75,16 @@ def make_arrow() -> None:
     img[..., 3] = np.maximum(img[..., 3], 0.35 * tail)
     img[..., :3] = np.where(tail[..., None] > 0, np.array([0.09, 0.09, 0.11]), img[..., :3])
     # 대: 갈색
-    shaft = (xs >= 18) & (xs <= 108) & (np.abs(ys - 16 - wob) < 1.7)
+    shaft = (xs >= 18) & (xs <= 108) & (np.abs(ys - 16 - wob) < 2.6)
     img[shaft] = [0.42, 0.28, 0.16, 1.0]
     # 깃: 붉은 두 획
     for sign in (-1, 1):
         for k in range(3):
             x0 = 14 + k * 6
-            line = (np.abs((ys - 16) - sign * (xs - x0 + 2) * 0.55) < 1.5) & (xs >= x0 - 2) & (xs <= x0 + 9)
+            line = (np.abs((ys - 16) - sign * (xs - x0 + 2) * 0.6) < 2.2) & (xs >= x0 - 2) & (xs <= x0 + 9)
             img[line] = [0.72, 0.13, 0.10, 1.0]
     # 촉: 먹 마름모
-    head = (xs >= 102) & (xs <= 126) & (np.abs(ys - 16) < (126 - xs) * 0.30 + 0.0)
+    head = (xs >= 100) & (xs <= 126) & (np.abs(ys - 16) < (126 - xs) * 0.52)
     img[head] = [0.07, 0.07, 0.09, 1.0]
     save(img, "ink_arrow.png")
 

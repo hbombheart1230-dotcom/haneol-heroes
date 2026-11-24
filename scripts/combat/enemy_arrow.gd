@@ -52,4 +52,4 @@ func _physics_process(delta: float) -> void:
 
 ## 그림 한 장 (나무 대·먹 촉·붉은 깃·먹 꼬리, InkPaint.ARROW). 판정(radius)과는 별개로 겉모습만.
 func _draw() -> void:
-	draw_texture_rect(InkPaint.ARROW, Rect2(-38.0, -8.0, 64.0, 16.0), false)
+	draw_texture_rect(InkPaint.ARROW, Rect2(-42.0, -9.0, 72.0, 18.0), false)

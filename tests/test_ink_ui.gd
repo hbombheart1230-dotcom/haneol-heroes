@@ -11,7 +11,7 @@ class Painter:
 		InkPaint.ring(self, Vector2(100, 100), 40.0, Color.WHITE)
 		InkPaint.wash(self, Vector2(100, 100), 40.0, Color(1, 1, 1, 0.3))
 		InkPaint.wash_rect(self, Rect2(0, 200, 300, 80), Color(1, 0, 0, 0.3))
-		draw_texture_rect(InkPaint.ARROW, Rect2(-38.0, -8.0, 64.0, 16.0), false)
+		draw_texture_rect(InkPaint.ARROW, Rect2(-42.0, -9.0, 72.0, 18.0), false)
 
 
 func test_style_loads_with_unit_multipliers() -> void:
