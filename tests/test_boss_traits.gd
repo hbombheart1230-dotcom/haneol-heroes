@@ -135,8 +135,29 @@ func test_mid_group_caps_windups_and_only_last_plays_finale() -> void:
 	assert_int(sp.alive_count()).is_equal(0)  # 마지막이 쓰러지면 남은 부하도 흩어짐 → 물결 끝
 
 
+## 만주 거란 부족장 (A안): 공통 성질 (추격·단계별 비틀림 게이지·3단계 면역·멀 때만 쓰는 공격) + 뒤로 빠지며 화살 3연사 + 돌진 뒤 회전 베기.
+func test_manchuria_boss_traits() -> void:
+	var d := _d("res://data/enemies/boss_general.tres")
+	assert_float(d.boss_feel.chase_speed).is_greater(0.0)
+	for ph: BossPhaseData in d.phases:
+		assert_float(ph.stagger_gauge_mult).is_greater(1.0)
+	assert_float((d.phases[1] as BossPhaseData).stagger_immune).is_greater(0.0)
+	var volley: EnemyAttackData = d.patterns.filter(func(a: EnemyAttackData) -> bool: return a.min_range > 0.0)[0]
+	assert_int(int(volley.kind)).is_equal(int(EnemyAttackData.Kind.SHOOT))
+	assert_float(volley.kite_while_aiming).is_greater(0.0)
+	var n := 1
+	var a := volley
+	while a.follow_up:
+		a = a.follow_up
+		n += 1
+	assert_int(n).is_equal(3)
+	var spin: Array = (d.phases[0] as BossPhaseData).patterns.filter(func(p: EnemyAttackData) -> bool:
+		return p.kind == EnemyAttackData.Kind.CHARGE and p.follow_up and p.follow_up.angle_degrees >= 360.0)
+	assert_int(spin.size()).is_equal(1)
+
+
 func test_other_bosses_keep_old_values() -> void:
-	for path in ["res://data/enemies/boss_general.tres", "res://data/enemies/jurchen_chieftain.tres", "res://data/enemies/cc_frog.tres"]:
+	for path in ["res://data/enemies/jurchen_chieftain.tres", "res://data/enemies/cc_frog.tres"]:
 		var d := _d(path)
 		assert_float(d.boss_feel.chase_speed).override_failure_message(path).is_equal(0.0)
 		for ph: BossPhaseData in d.phases:
