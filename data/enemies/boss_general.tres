@@ -203,6 +203,7 @@ phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Pha
 is_boss = true
 boss_hp_by_hero = {
 "gwanggaeto": 0.88,
+"sejong": 1.1,
 "shin_saimdang": 1.0,
 "yi_sun_sin": 1.2
 }
