@@ -111,7 +111,8 @@ func _draw() -> void:
 		_draw_boss_bar()
 		_draw_wave_track()
 		_draw_stage_title()
-		_wave_banner.draw(self, size)
+		if not FxLayer.numbers_hidden:  # 패 고르기 화면 동안 숨김 (SealChoice.BATTLE_TEXT 와 같은 때)
+			_wave_banner.draw(self, size)
 	if show_touch_debug and GameSettings.show_stats and controller:
 		_draw_touch_debug()
 	if state and not state.is_playing():
