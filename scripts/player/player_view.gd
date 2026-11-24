@@ -172,6 +172,9 @@ func _on_ranged_windup(_d: Vector2) -> void:
 
 
 func is_moving() -> bool:
+	if player.walk_locked:  # 모으는 중: 끌기는 조준만이라 걷는 그림이 아니다 (모으는 자세 유지, 사용자 6d0635c "순신이 일어남")
+		_running = false
+		return false
 	var top := maxf(player.move_speed, 1.0)
 	var ratio := player.walk_velocity().length() / top
 	if player.move_input.length() > 0.1:
