@@ -30,13 +30,11 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 		for k in ["max_alive", "next_when_left", "refill_each", "warn_time", "one_pick_per_break", "pick_stacks"]:
 			assert_that(w.get(k)).override_failure_message("%s.%s" % [id, k]).is_equal(base.get(k))
 		assert_int(w.waves.size()).is_equal(base.waves.size())
-		var total := 0.0  # 판 전체 처치 점수(보정 후)는 무대마다 같다: 군대별 적 경험치 합이 달라 xp_mult만 다르다 (약 240, 새 레벨 곡선 기준, 레벨업 세션)
-		for wave: WaveData in w.waves:
-			for e: EnemyData in wave.enemies:
-				total += e.xp
-			if wave.elite_last:  # 정예 자리: 무리면 무리 합 (한산 중간 우두머리 셋), 아니면 무대 정예 하나
-				total += _group_xp(wave) if not wave.elite_group.is_empty() else _enemy(ROLES[id]["elite"]).xp
-		assert_float(total * w.xp_mult).override_failure_message("%s total xp %.1f" % [id, total * w.xp_mult]).is_between(232.0, 248.0)
+		# 판 전체 처치 점수 (실제로 주는 값 = 적마다 반올림(xp × xp_mult), ScoreFeed.kill): 한산(282)의 95~120%.
+		# 근접을 더해 물결 길이를 맞춘 무대(경복궁 +17%, 초충도 +6%)는 그만큼 더 준다 (잡몹 xp는 정수 1이라 깎을 수 없음).
+		var score := _stage_score(id)
+		var base_score := _stage_score("hansan_1592")
+		assert_int(score).override_failure_message("%s score %d (한산 %d)" % [id, score, base_score]).is_between(roundi(base_score * 0.95), roundi(base_score * 1.2))
 		var roles: Dictionary = ROLES[id]
 		var base_roles: Dictionary = ROLES["hansan_1592"]
 		for i in w.waves.size():
@@ -48,9 +46,31 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 			assert_int(a.elite_when_left).is_equal(b.elite_when_left)
 			var mine := a.enemies.map(func(e: EnemyData) -> String: return _role(roles, e.id))
 			var theirs := b.enemies.map(func(e: EnemyData) -> String: return _role(base_roles, e.id))
-			assert_array(mine).override_failure_message("%s wave %d: %s" % [id, i, mine]).is_equal(theirs)
+			# 역할별 수: 원거리·중갑·정예는 한산과 같고, 근접 잡몹은 한산 이상 (영웅이 물결을 빨리 지우는 무대는 근접을 더해
+			# 물결 길이를 맞춘다: 경복궁 세종·초충도 사임당, test_stage_sim 길이 비율 0.75)
+			for role in ["ranged", "heavy", "captain", "melee"]:
+				var n_mine := mine.count(role)
+				var n_base := theirs.count(role)
+				if role == "melee":
+					assert_int(n_mine).override_failure_message("%s wave %d melee %d" % [id, i, n_mine]).is_greater_equal(n_base)
+				else:
+					assert_int(n_mine).override_failure_message("%s wave %d %s" % [id, i, role]).is_equal(n_base)
+			assert_bool(mine.all(func(r: String) -> bool: return not r.begins_with("?"))).override_failure_message("%s wave %d: %s" % [id, i, mine]).is_true()
 		assert_str(String(_st(id).elite.id)).is_equal(roles["elite"])
 		assert_object(_st(id).elite.boss_feel).override_failure_message("%s mid-boss" % id).is_not_null()  # 3물결 중간 보스
+
+
+## 판 전체 처치 점수: 적마다 반올림(xp × xp_mult) (정예 자리는 무리 전부 또는 무대 정예 하나).
+func _stage_score(id: String) -> int:
+	var w := _st(id).waves
+	var n := 0
+	for wave: WaveData in w.waves:
+		var list: Array = wave.enemies.duplicate()
+		if wave.elite_last:
+			list.append_array(wave.elite_group if not wave.elite_group.is_empty() else [_enemy(ROLES[id]["elite"])])
+		for e: EnemyData in list:
+			n += roundi(e.xp * w.xp_mult)
+	return n
 
 
 func _group_xp(wave: WaveData) -> float:
