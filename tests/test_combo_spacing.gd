@@ -4,11 +4,13 @@ extends GdUnitTestSuite
 ## 한 바퀴 피해 = 한 타 × (1 + 1 + 3타 배율), 탭 한 바퀴 = 간격 셋의 합, 자동 평타 한 바퀴 = 평타 간격 × 3.
 
 const OLD_MULTS := [0.55, 0.6, 1.0]
-## 영웅: [예전 간격, 예전 한 타 피해, 바라는 간격 (1→2, 2→3, 3→1)]. 세종은 글자 연사 (ranged).
+## 영웅: [예전 간격, 예전 한 타 피해, 바라는 간격 (1→2, 2→3, 3→1), 탭 초당 피해 비율 상한]. 세종은 글자 연사 (ranged).
+## 순신은 뒤에 사용자가 다시 정함 (2026-11-24: "1타와 2타 사이에 정적이 있다 → 끝 동작을 짧게, 휘두르기 조금 빠르게",
+## PR #116): 0.32·0.34·0.60초, 휘두르기 1.35배라 탭 초당 피해가 약 10% 오른다 (우두머리 세션이 균형을 함께 맞춤).
 const HEROES := {
-	"yi_sun_sin": [0.55, 12, [0.40, 0.42, 0.60]],
-	"gwanggaeto": [0.8, 22, [0.45, 0.50, 0.70]],
-	"shin_saimdang": [0.6, 10, [0.40, 0.42, 0.60]],
+	"yi_sun_sin": [0.55, 12, [0.32, 0.34, 0.60], 1.15],
+	"gwanggaeto": [0.8, 22, [0.45, 0.50, 0.70], 1.05],
+	"shin_saimdang": [0.6, 10, [0.40, 0.42, 0.60], 1.05],
 }
 
 
@@ -36,13 +38,14 @@ func test_melee_gaps_match_plan_and_dps_holds() -> void:
 		var new_tap := d.melee_damage * hits / _sum(gaps)
 		var old_auto: float = plan[1] * hits / (plan[0] * 3.0)
 		var new_auto := d.melee_damage * hits / (d.melee_interval * 3.0)
-		assert_float(new_tap / old_tap).override_failure_message(id + " tap dps").is_between(0.95, 1.05)
+		assert_float(new_tap / old_tap).override_failure_message("%s tap dps %.3f" % [id, new_tap / old_tap]).is_between(0.95, plan[3])
 		assert_float(new_auto / old_auto).override_failure_message(id + " auto dps").is_between(0.95, 1.05)
 		assert_float(_sum(gaps)).override_failure_message(id + " tap still faster than auto").is_less(d.melee_interval * 3.0)
-		# 한 타 동작이 간격 안에서 끝까지 보인다 (시트 attack 길이 ≤ 가장 짧은 간격)
+		# 한 타 동작이 간격 안에서 끝까지 보인다 (실제 재생 길이 = 시트 attack 길이 ÷ 휘두르기 배율 ≤ 가장 짧은 간격)
 		var sheet := h.sprite_sheet
 		var i := sheet.anim_names.find("attack")
-		var anim_len := sheet.frame_count("attack") / maxf(sheet.fps[i], 1.0)
+		var speed := h.blade_bite.swing_speed if h.blade_bite and h.blade_bite.enabled else 1.0
+		var anim_len := sheet.frame_count("attack") / maxf(sheet.fps[i], 1.0) / speed
 		assert_float(anim_len).override_failure_message(id + " anim cut").is_less_equal(gaps.min() + 0.001)
 
 
