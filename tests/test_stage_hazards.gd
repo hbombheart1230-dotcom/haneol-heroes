@@ -91,7 +91,7 @@ func test_in_lane_counts_the_body_edge_and_lane_ends() -> void:
 	assert_bool(LanePlan.in_lane(row, 70.0, Vector2(530, 100), 20.0)).is_false()
 
 
-func test_only_hansan_has_the_cannon_line_and_other_stages_stay_empty() -> void:
+func test_only_hansan_has_the_cannon_line_and_other_stages_stay_empty() -> void:  # 무대마다 제 장치 하나씩, 아직 없는 무대는 비어 있다
 	var hansan: StageTheme = load("res://data/stages/hansan_1592.tres")
 	assert_int(hansan.hazards.size()).is_equal(1)
 	var lane := hansan.hazards[0] as LaneStrikeData
@@ -101,7 +101,10 @@ func test_only_hansan_has_the_cannon_line_and_other_stages_stay_empty() -> void:
 	assert_int(lane.enemy_damage).is_equal(60)
 	assert_int(lane.hero_damage).is_equal(10)
 	assert_int(lane.rows.size()).is_equal(5)
-	for id in ["manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
+	var gb: StageTheme = load("res://data/stages/gyeongbokgung_1433.tres")
+	assert_int(gb.hazards.size()).is_equal(1)
+	assert_object(gb.hazards[0] as CoverData).is_not_null()
+	for id in ["manchuria_395", "chochungdo"]:
 		var st: StageTheme = load("res://data/stages/%s.tres" % id)
 		assert_array(st.hazards).is_empty()
 

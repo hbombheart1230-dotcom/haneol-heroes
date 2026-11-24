@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="Resource" path="res://data/stages/hazards/gyeongbok_cover.tres" id="h_cover"]
+[ext_resource type="Script" path="res://scripts/data/stage_hazard_data.gd" id="h_script"]
 [ext_resource type="Resource" path="res://data/stages/looks/gyeongbokgung_1433.tres" id="look"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/gyeongbokgung_1433/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/arrows_a.png" id="p_arrows_a"]
@@ -69,6 +71,7 @@ xp_mult = 1.53
 
 [resource]
 script = ExtResource("1_theme")
+hazards = Array[ExtResource("h_script")]([ExtResource("h_cover")])
 id = &"gyeongbokgung_1433"
 year_label = "1433년"
 title = "경복궁"
