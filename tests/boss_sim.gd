@@ -68,6 +68,7 @@ static func reset_globals() -> void:
 	SkillHitStop.reset()
 	GameTime.reset()
 	Engine.time_scale = 1.0
+	GrowthApply.reset()  # 판 밖 성장 0 기준
 
 
 ## 물리 프레임 하나를 기다린 뒤 (await 필요) 그 프레임 안에서 판을 꾸린다. 이어서 run을 await 없이 부른다.

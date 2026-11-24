@@ -29,6 +29,7 @@ var _t: float = 0.0
 ## 초상 원 (꼭짓점·UV): 한 번만 만든다 (매 프레임 다시 만들지 않게).
 var _head_pts := PackedVector2Array()
 var _head_uvs := PackedVector2Array()
+var _growth: HeroGrowth
 
 
 func _ready() -> void:
@@ -220,11 +221,18 @@ func _draw_head() -> void:
 		draw_polygon(_head_pts, PackedColorArray([Color.WHITE]), _head_uvs, h.portrait)
 	draw_arc(HEAD, HEAD_R + 8.0, 0.0, TAU, 48, UiStyle.GOLD, 2.5)
 	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(184, 140), h.display_name, 58, UiStyle.GOLD, -1)
-	var line := "이긴 전장 %d" % int(GameSettings.hero_clears.get(String(hero.id), 0))
+	var line := growth_line()
 	if expedition:
 		line = "▶ 다음 영웅의 전장"
 	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(188, 178), line, 22, Color(UiStyle.PAPER, 0.8), -1, Color(0, 0, 0, 0.6), 3)
 	UiStyle.button(self, change_rect(), "내 전장" if expedition else "영웅 바꾸기", 26)
+
+
+## 위 한 줄: "깬 전장 n · 영웅 성장 +x% · 기술 n단계 시작" (HeroGrowth, 깬 전장 목록에서).
+func growth_line() -> String:
+	if _growth == null:
+		_growth = HeroGrowth.load_default()
+	return _growth.line(HeroGrowth.points(GameSettings.hero_cleared, hero.id)) if hero else ""
 
 
 func _build_head() -> void:
