@@ -78,26 +78,46 @@ func test_one_stop_per_swing_for_hero_and_all_hit() -> void:
 	var r := _rig(YI, 3)
 	var p: Player = r[0]
 	var a: AutoAttack = r[1]
-	a.manual_strike(1, false, r[2])
-	for i in 30:
+	a.manual_strike(3, false, r[2])  # 쾌검: 박힘은 3타에만 (1·2타 0)
+	for i in 60:
 		if p.bite.active():
 			break
 		a.tick(DT, r[2])
 	assert_bool(p.bite.active()).is_true()
-	assert_float(p.bite.left()).is_equal_approx(YI.blade_bite.stop_for(1), 0.0001)
+	assert_float(p.bite.left()).is_equal_approx(YI.blade_bite.stop_for(3), 0.0001)
 	assert_bool(BladeBite.is_biting()).is_true()
 	for e in r[2]:
 		var en: Enemy = e
-		assert_float(en._freeze_left).is_greater_equal(YI.blade_bite.stop_for(1) - 0.0001)  # 박힘보다 긴 피해 멈춤이면 그쪽 (max)
+		assert_float(en._freeze_left).is_greater_equal(YI.blade_bite.stop_for(3) - 0.0001)  # 박힘보다 긴 피해 멈춤이면 그쪽 (max)
 		assert_float(en._bite_px).is_equal(YI.blade_bite.jitter_px)
 	assert_float(absf(p.bite.jitter().x)).is_equal(YI.blade_bite.jitter_px)
 
 
 func test_heavy_third_hit_stops_longer() -> void:
 	assert_float(YI.blade_bite.stop_for(3)).is_greater(YI.blade_bite.stop_for(1))
-	assert_float(YI.blade_bite.stop_for(3)).is_equal_approx(0.06, 0.001)  # 사용자: 박히는 느낌은 3타에 뚜렷하게, 1·2타는 살짝 (0.02)
-	assert_float(YI.blade_bite.stop_for(1)).is_equal_approx(0.02, 0.001)
-	assert_float(YI.blade_bite.finisher_stop).is_equal_approx(0.1, 0.001)
+	assert_float(YI.blade_bite.stop_for(3)).is_equal_approx(0.06, 0.001)  # 쾌검 (사용자 2026-11-24): 1·2타 멈춤 없음, 3타·4타만 살짝
+	assert_float(YI.blade_bite.stop_for(1)).is_equal(0.0)
+	assert_float(YI.blade_bite.stop_for(2)).is_equal(0.0)
+	assert_float(YI.blade_bite.finisher_stop).is_equal_approx(0.06, 0.001)
+
+
+## 쾌검: 1·2타는 칼이 박히지 않고 지나간다 (멈춤 없이 다음 타로). 그림도 일반 역경직으로 돌아가 멈추지 않는다.
+func test_light_hits_do_not_bite() -> void:
+	var r := _rig()
+	var p: Player = r[0]
+	var a: AutoAttack = r[1]
+	var view := PlayerView.new()
+	view.player = p
+	p.add_child(view)
+	view.set_physics_process(false)
+	var stops: Array = []
+	a.melee_swung.connect(func(_d: Vector2, _n: int) -> void: stops.append(view._hitstop_left))
+	a.manual_strike(1, false, r[2])
+	for i in 30:
+		a.tick(DT, r[2])
+	assert_bool(p.bite.active()).is_false()
+	assert_array(stops).is_not_empty()
+	assert_float(float(stops[0])).is_equal(0.0)
 
 
 ## 3. 멈춤 → 밀림: 멈춘 동안 몹은 제자리, 풀린 뒤에 밀린다. 영웅 동작은 멈춤 0 → 풀림 빠르게 → 평소.
@@ -106,7 +126,7 @@ func test_push_after_stop_and_release_speedup() -> void:
 	var p: Player = r[0]
 	var a: AutoAttack = r[1]
 	var e: Enemy = r[2][0]
-	a.manual_strike(1, false, r[2])
+	a.manual_strike(3, false, r[2])
 	while not p.bite.active():
 		a.tick(DT, r[2])
 	var at := e.global_position
