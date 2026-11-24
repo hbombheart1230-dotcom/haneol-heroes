@@ -115,6 +115,7 @@ func test_meteor_falls_after_delay_and_stuns() -> void:
 	assert_int(e.health.current).is_equal(e.health.max)
 	for i in 20:
 		run.tick(DT)
+	_rake_out()  # 본 충격 + 여진 (BeatHits), 총 피해는 그대로
 	assert_int(e.health.current).is_equal(e.health.max - s.damage)
 	assert_bool(e.is_stunned()).is_true()
 

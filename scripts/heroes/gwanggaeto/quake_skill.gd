@@ -40,10 +40,10 @@ func strike(ctx: SkillContext, center: Vector2, dmg: int) -> int:
 			if ctx.hit(en, dmg):
 				en.stun(stun_time)
 	else:
-		for en in targets:
-			en.stun(stun_time)  # 첫 쿵에 묶인다 (마지막 쾅까지 도망가지 않게)
 		var rake := BeatHits.start(ctx, center, targets, dmg, beats, beat_interval, beat_last_weight, true, beat_sfx,
 			func(en: Enemy) -> void: ComboSteps.push_out(en, center, launch_px, knockback))
+		for en in targets:  # 맡긴 뒤 묶는다 (기절이 공격을 끊어 처벌 배율이 사라지기 전에 판정을 잡는다)
+			en.stun(stun_time)
 		for b in range(1, beats):
 			var last := b == beats - 1
 			rake.schedule_fx(beat_interval * b, func() -> void: _ring(ctx, center, 1.15 if last else 0.8, 0.35 if last else 0.2))

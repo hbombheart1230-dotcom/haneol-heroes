@@ -32,10 +32,10 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		_burst(ctx, center)
 		ctx.shake(0.5)
 	else:
-		for en in targets:
-			en.stun(stun_time)  # 첫 쿵에 묶인다
 		var rake := BeatHits.start(ctx, center, targets, damage, beats, beat_interval, beat_last_weight, true, beat_sfx,
 			func(en: Enemy) -> void: ComboSteps.push_out(en, center, launch_px, knockback))
+		for en in targets:  # 맡긴 뒤 묶는다 (기절이 공격을 끊어 처벌 배율이 사라지기 전에 판정을 잡는다)
+			en.stun(stun_time)
 		_quake(ctx, center, 0.6, 0.25)
 		for b in range(1, beats):
 			if b == beats - 1:

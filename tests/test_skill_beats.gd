@@ -198,3 +198,34 @@ func test_release_full_only() -> void:
 	assert_bool(ChargeRelease.play(ctx, lt, 1.0, Vector2.ZERO, Vector2.RIGHT)).is_true()
 	var bare := SkillDef.new()
 	assert_bool(ChargeRelease.play(ctx, bare, 1.0, Vector2.ZERO, Vector2.RIGHT)).is_false()
+
+
+## 세종 유성: 본 충격(가장 크다) 뒤 여진, 총 피해는 그대로, 기절은 본 충격에.
+func test_meteor_impact_then_aftershocks() -> void:
+	player.hero = SJ
+	var s: MeteorSkill = SJ.kit.dash.duplicate()
+	var e := _enemy_at(Vector2(40, 0))
+	var got := _log(e)
+	_play(s.cast(ctx, 0.0), 1.5)
+	assert_int(got.size()).is_equal(s.beats)
+	assert_int(_sum(got)).is_equal(s.damage)
+	assert_int(int(got[0])).is_greater(int(got[got.size() - 1]))
+	assert_bool(e.is_stunned()).is_true()
+
+
+## 나눠도 판정은 누른 순간 하나: 맡긴 순간의 받는 피해 배율(처벌 창 등)이 뒤 타에도 그대로.
+func test_beats_keep_the_cast_moment_multiplier() -> void:
+	var e := _enemy_at(Vector2(100, 0))
+	var got := _log(e)
+	e._damage_mult = 1.5  # 처벌 창 (경직 중)
+	var mod := HealthModifier.new(0, 1.5)
+	e.health.modifiers[HealthActionType.Enum.NONE] = mod
+	e.health.modifiers[HealthActionType.Enum.KINETIC] = mod
+	var s: QuakeSkill = GW.kit.tap
+	s.cast(ctx, 0.0)
+	e._damage_mult = 1.0  # 첫 쿵 전에 처벌 창이 닫힘
+	var plain := HealthModifier.new(0, 1.0)
+	e.health.modifiers[HealthActionType.Enum.NONE] = plain
+	e.health.modifiers[HealthActionType.Enum.KINETIC] = plain
+	_play(null, 1.0)
+	assert_int(_sum(got)).is_equal(roundi(s.damage * 1.5))

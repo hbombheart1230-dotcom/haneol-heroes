@@ -6,6 +6,7 @@ extends RefCounted
 
 
 ## targets 각각을 친다. delay_of.call(enemy) -> float 이 있으면 적마다 첫 타가 그만큼 늦다 (꽃잎이 바깥 적에 늦게 닿기).
+## last_weight가 음수면 그 크기만큼 첫 타가 크다 (유성: 본 충격 뒤 여진).
 ## heavy: 앞 타들도 묵직한 한 타 충격. on_last.call(enemy): 마지막 타 뒤 (살아 있을 때, 날리기 등). 반환: 칠 적 수.
 static func start(ctx: SkillContext, at: Vector2, targets: Array[Enemy], dmg: int, beats: int, interval: float,
 		last_weight: float, heavy: bool = false, sfx: StringName = &"", on_last: Callable = Callable(),
@@ -13,6 +14,11 @@ static func start(ctx: SkillContext, at: Vector2, targets: Array[Enemy], dmg: in
 	var rake := open(ctx, at, interval, heavy, sfx)
 	rake.on_last = on_last
 	var pl := WaveRake.plan(dmg, maxi(beats, 1), last_weight, 0.0, 0.0)
+	if last_weight < 0.0:  # 음수면 첫 타가 크다 (본 충격 + 여진): 같은 나눔을 거꾸로
+		pl = WaveRake.plan(dmg, maxi(beats, 1), -last_weight, 0.0, 0.0)
+		var first: PackedInt32Array = pl[0]
+		first.reverse()
+		pl[0] = first
 	for en in targets:
 		if en == null or not is_instance_valid(en) or not en.health.is_alive():
 			continue
