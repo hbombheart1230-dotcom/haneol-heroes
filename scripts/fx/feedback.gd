@@ -174,7 +174,13 @@ func play_music(stream: AudioStream, fade: float = 0.0) -> void:
 		_music.volume_db = music_volume_db  # 줄어들던 소리 되돌리기
 		return
 	if fade > 0.0 and _music.playing and _music.is_inside_tree():
-		_music_tween = MusicCrossfade.start(_music, stream, fade, music_volume_db)
+		if MusicCrossfade.can_copy(_music.stream):
+			_music_tween = MusicCrossfade.start(_music, stream, fade, music_volume_db)
+		else:  # 무대 노래(인터랙티브): 지금 구간을 줄이고 바꿔 키운다
+			_music_tween = _music.create_tween()
+			_music_tween.tween_property(_music, "volume_db", -40.0, fade)
+			_music_tween.tween_callback(_start_music.bind(stream))
+			_music_tween.tween_property(_music, "volume_db", music_volume_db, fade)
 		return
 	_start_music(stream)
 
