@@ -141,11 +141,13 @@ func test_yi_auto_dash_skill_is_damped() -> void:
 	assert_int(e.health.max - e.health.current).is_less(full.hit_count * full.damage_per_hit)
 
 
-## 광개토는 내닫는 쪽 90도 안의 적에만 (test_cover_sim: 경복궁 가림막 뒤에서 피하는 내닫기가 벽력돌파를 써 버려 받은 피해 0.86 → 0.51).
-func test_gwanggaeto_auto_only_toward_enemies() -> void:
-	assert_float((load("res://data/heroes/gwanggaeto.tres") as HeroData).kit.dash_auto_cone_deg).is_equal_approx(90.0, 0.001)
-	for id in ["yi_sun_sin", "sejong", "shin_saimdang"]:
-		assert_float((load("res://data/heroes/%s.tres" % id) as HeroData).kit.dash_auto_cone_deg).override_failure_message(id).is_equal(0.0)
+## 네 영웅 모두 내닫는 쪽 90도 안의 적에만 (사용자 결정 2026-11-25 "적 쪽으로 내달을 때만"; 광개토가 먼저:
+## test_cover_sim 경복궁 가림막 뒤에서 피하는 내닫기가 벽력돌파를 써 버려 받은 피해 0.86 → 0.51).
+func test_every_hero_auto_only_toward_enemies() -> void:
+	for id in ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]:
+		var kit := (load("res://data/heroes/%s.tres" % id) as HeroData).kit
+		assert_bool(kit.dash_auto).override_failure_message(id).is_true()
+		assert_float(kit.dash_auto_cone_deg).override_failure_message(id).is_equal_approx(90.0, 0.001)
 
 
 ## 한 틱 걸음이 속도 × delta보다 길어도 (내닫기 첫 박차기) 지나친 적을 놓치지 않는다: 지난 틱 자리(첫 틱은 내닫기 시작 자리)부터 본다.

@@ -148,6 +148,7 @@ ranged_taps = true
 tap = SubResource("Skill_tap")
 finisher_recover = 0.35
 dash_auto = true
+dash_auto_cone_deg = 90.0
 dash = SubResource("Skill_dash")
 charge = SubResource("Skill_charge")
 counter = SubResource("Skill_counter")
