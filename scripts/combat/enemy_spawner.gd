@@ -59,6 +59,9 @@ var hold_check: Callable
 var blocked_check: Callable
 ## 막힌 자리면 다시 뽑는 횟수.
 @export var spawn_point_tries: int = 8
+## 등장 자리 통계 (측정용): 첫 둘레가 다 막혀 넓힌 횟수, 끝까지 막힌 횟수.
+var spawn_widened := 0
+var spawn_stuck := 0
 ## 등장 자리와 장애물 사이 여유 (px, 몸 반지름쯤).
 @export var spawn_clearance: float = 24.0
 ## 0 이상이면 near_point가 보이는 화면(카메라 줌 반영) 안 여유 px에 들게 타원으로 줄인다 (물결 모드).
@@ -266,6 +269,7 @@ func _tick_waves(delta: float) -> void:
 			wave_announce.emit(nxt, WaveTrack.kinds(waves.data)[nxt] == WaveTrack.Kind.ELITE)
 	match waves.tick(delta, alive_count() + _warnings + (1 if finale_playing() else 0), hold):
 		WaveRunner.Event.CLEARED:
+			WaveBreath.on_cleared(waves, target.get("health") as Health if target else null)
 			breather.emit(true)
 		WaveRunner.Event.BOSS:
 			spawn_boss()
@@ -293,6 +297,10 @@ func near_point(center: Vector2, dmin: float, dmax: float) -> Vector2:
 			p = p.clamp(arena_rect.position, arena_rect.end)
 		if not blocked_check.is_valid() or not bool(blocked_check.call(p, spawn_clearance)):
 			break
+		if i == tries - 1:
+			spawn_widened += 1
+		if i == tries * 3 - 1:
+			spawn_stuck += 1
 	return p
 
 

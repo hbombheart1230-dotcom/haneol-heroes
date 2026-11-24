@@ -33,6 +33,10 @@ var _near_dis := 0.0
 ## 가장 가까운 잡몹까지 거리 합·틱 수 (평균 싸움 거리).
 var _dist_sum := 0.0
 var _dist_n := 0
+## 물결 동안 화면에 살아 있는 적 수 (최대·평균): 몹 수 배율 비교용.
+var _crowd_max := 0
+var _crowd_sum := 0.0
+var _crowd_n := 0
 
 
 ## 무대 꾸리기 (await 필요). caps가 비어 있지 않으면 물결별 상한을 바꾼다 (예: [8, 11, 14]).
@@ -74,6 +78,9 @@ func setup_run(st: StageTheme, s: int, caps: Array = [], grow: bool = false) -> 
 	_near_dis = 0.0
 	_dist_sum = 0.0
 	_dist_n = 0
+	_crowd_max = 0
+	_crowd_sum = 0.0
+	_crowd_n = 0
 
 
 ## 많이 깬 영웅: 판 밖 성장 n (GrowthApply, 깬 전장 n개)과 난이도 단계 tier를 건다 (게임의 StageApply.difficulty와 같은 배율).
@@ -117,6 +124,11 @@ func _sample(list: Array) -> void:
 	if near < INF:
 		_dist_sum += near
 		_dist_n += 1
+	if _wave_key() != "boss":
+		var crowd := list.filter(func(e: Enemy) -> bool: return e.data != null and not e.health.is_dead()).size()
+		_crowd_max = maxi(_crowd_max, crowd)
+		_crowd_sum += crowd
+		_crowd_n += 1
 	for e: Enemy in list:
 		if e.data == null or e.data.is_boss or e.data.is_elite or e.data.boss_feel:
 			continue
@@ -175,6 +187,8 @@ func run_full(miss: float = 0.0) -> Dictionary:
 	out["near_disabled"] = _near_dis / maxf(_near_t, 0.01)
 	out["why"] = why
 	out["avg_dist"] = _dist_sum / maxf(_dist_n, 1)
+	out["crowd_max"] = _crowd_max
+	out["crowd_avg"] = _crowd_sum / maxf(_crowd_n, 1)
 	return out
 
 
@@ -187,7 +201,15 @@ static func run_line(name: String, r: Dictionary) -> String:
 
 ## 성장 판 한 줄: 결과·진 물결·물결별 피해·레벨·고른 패.
 static func growth_line(name: String, r: Dictionary) -> String:
-	return "[run-growth] %s: %s%s total %.1fs (waves %.1f, boss %.1f, dist %.0f), hp %d, level %d, damage by wave %s, picks %s" % [
+	return "[run-growth] %s: %s%s total %.1fs (waves %.1f, boss %.1f, dist %.0f, crowd %d/%.1f), hp %d, level %d, damage by wave %s, picks %s" % [
 		name, "WIN" if r["won"] else ("LOSE" if r["lost"] else "TIMEOUT"),
-		(" in " + r["died_in"]) if r["died_in"] != "" else "", r["total"], r["wave_time"], r["boss_time"], r.get("avg_dist", 0.0), r["max_hp"], r["level"],
+		(" in " + r["died_in"]) if r["died_in"] != "" else "", r["total"], r["wave_time"], r["boss_time"], r.get("avg_dist", 0.0), r.get("crowd_max", 0), r.get("crowd_avg", 0.0), r["max_hp"], r["level"],
 		str(r["by_wave"]), ", ".join(r["picks"])]
+
+
+## 받은 피해 합 (물결별 합: 회복이 있어도 받은 만큼).
+static func taken(r: Dictionary) -> int:
+	var n := 0
+	for k in r.get("by_wave", {}):
+		n += int(r["by_wave"][k])
+	return n
