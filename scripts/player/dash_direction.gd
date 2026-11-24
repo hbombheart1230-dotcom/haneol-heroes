@@ -72,6 +72,10 @@ static func tick(p: Player, list: Array, delta: float) -> void:
 		en.health.damage(dmg)
 		striking = false
 		hit = true
+		if d.strike_push > 0.0:  # 밀쳐내기 = 넉백 + 잡몹 잠깐 경직 (Enemy.shove)
+			en.shove(p.get_dash_direction() * d.strike_push)
+		if d.strike_slow_time > 0.0:
+			en.slow(d.strike_slow, d.strike_slow_time)
 		var look := p.hero.dash_look
 		if look and look.strike_hit_fx:  # 평타와 같은 타격 효과 (섬광·튐 줄기·퍽)
 			HitImpact.on_enemy(en, p.global_position, 1, p.hero.attack.swing_color)

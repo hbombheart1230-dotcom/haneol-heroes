@@ -31,6 +31,7 @@
 [ext_resource type="Resource" path="res://data/heroes/levels/sejong_level_up.tres" id="lv_up"]
 [ext_resource type="Resource" path="res://data/campaigns/sejong.tres" id="campaign"]
 [ext_resource type="Resource" path="res://data/heroes/dash_look/sejong.tres" id="dash_look"]
+[ext_resource type="Resource" path="res://data/heroes/dash_dir/sejong.tres" id="dash_dir"]
 
 [sub_resource type="Resource" id="Attack"]
 script = ExtResource("2_attack")
@@ -195,5 +196,6 @@ major_pool = ExtResource("10_major")
 level_up = ExtResource("lv_up")
 dash_style = ExtResource("dash_style")
 dash_look = ExtResource("dash_look")
+dash_dir = ExtResource("dash_dir")
 charge_marker = ExtResource("charge_marker")
 hit_sfx = Array[StringName]([&"mat_lightning", &"mat_glyph"])
