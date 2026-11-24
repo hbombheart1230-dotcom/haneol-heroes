@@ -1,6 +1,6 @@
 class_name StageSelect
 extends Control
-## 전장 고르기 (영웅 고르기 다음, 판이 끝나면 다시 여기로): 위에 영웅 초상·이름과 "영웅 바꾸기",
+## 전장 고르기 (영웅 고르기 다음, 판이 끝나면 다시 여기로): 위에 영웅 초상·이름, 아래 줄 "영웅 고르기",
 ## 가운데 그 영웅의 전장 패를 시간 순으로 (이김 · 출전 · 잠김 · 곧 열림), 아래 "원정" (만든 자기 전장을 다 이기면 열림).
 ## 원정: 다른 영웅의 전장 목록을 지금 영웅으로 (초상을 누르면 다음 영웅, "내 전장"으로 돌아옴).
 ## 한 손 세로: 누를 것(전장 패·원정)은 화면 아래쪽 2/3에. 상태는 CampaignProgress, 저장은 GameSettings.
@@ -13,6 +13,7 @@ const GAP := 22.0
 const HEAD := Vector2(96, 140)  # 초상 중심
 const HEAD_R := 64.0
 const CHANGE_W := 220.0
+const CHANGE_PX := 30
 ## 원정 단추 아래 한 줄 글자 크기.
 const SUB_PX := 18
 
@@ -27,7 +28,7 @@ var progress: CampaignProgress
 var notice: String = ""
 var _notice_left: float = 0.0
 var _press_index: int = -1
-var _press_what: int = -99  # 칸 번호, -1 영웅 바꾸기/내 전장, -2 원정, -3 초상(원정 다음 영웅)
+var _press_what: int = -99  # 칸 번호, -1 영웅 고르기/내 전장, -2 원정, -3 초상(원정 다음 영웅)
 var _t: float = 0.0
 ## 초상 원 (꼭짓점·UV): 한 번만 만든다 (매 프레임 다시 만들지 않게).
 var _head_pts := PackedVector2Array()
@@ -85,7 +86,7 @@ func card_rect(i: int) -> Rect2:
 	return Rect2(24, top + i * (CARD_H + GAP), vp.x - 48, CARD_H)
 
 
-## 아래 줄 왼쪽 "영웅 바꾸기" (원정 보기에서는 "내 전장"). 한 손 엄지 자리, 오른쪽 위 톱니와 겹치지 않게.
+## 아래 줄 왼쪽 "영웅 고르기" (처음 영웅 고르기 화면과 같은 이름) (원정 보기에서는 "내 전장"). 한 손 엄지 자리, 오른쪽 위 톱니와 겹치지 않게.
 func change_rect() -> Rect2:
 	var vp := _vp()
 	return Rect2(24, vp.y - 150, CHANGE_W, 96)
@@ -133,7 +134,7 @@ func handle_touch(index: int, pos: Vector2, pressed: bool) -> bool:
 	return press(w)
 
 
-## 칸 w를 누름 (-1 영웅 바꾸기·내 전장, -2 원정, -3 원정 다음 영웅, 0.. 전장).
+## 칸 w를 누름 (-1 영웅 고르기·내 전장, -2 원정, -3 원정 다음 영웅, 0.. 전장).
 func press(w: int) -> bool:
 	match w:
 		-1:
@@ -231,7 +232,12 @@ func _draw_head() -> void:
 	if expedition:
 		line = "▶ 다음 영웅의 전장"
 	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(188, 178), line, 22, Color(UiStyle.PAPER, 0.8), -1, Color(0, 0, 0, 0.6), 3)
-	UiStyle.button(self, change_rect(), "내 전장" if expedition else "영웅 바꾸기", 30)
+	UiStyle.button(self, change_rect(), change_label(), CHANGE_PX)
+
+
+## 아래 줄 왼쪽 단추 글: 영웅 고르기 화면으로 (원정 보기에서는 내 전장으로).
+func change_label() -> String:
+	return "내 전장" if expedition else "영웅 고르기"
 
 
 ## 위 한 줄: "깬 전장 n · 영웅 성장 +x% · 기술 n단계 시작" (HeroGrowth, 깬 전장 목록에서).

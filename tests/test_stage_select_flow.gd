@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
 ## 전장 목록 (#106 다듬기, 사용자 2026-11-24 "영웅 선택은 할 수 있게 해 줘. 그 다음에 자기 거를 깨야 원정을 갈 수 있게"):
-## 영웅 바꾸기 단추는 아래 줄 (톱니와 안 겹침, 한 손 자리), 다시 켜서 전장 목록에서 바로 영웅을 바꿀 수 있음,
+## 영웅 고르기 단추는 아래 줄 (톱니와 안 겹침, 한 손 자리), 다시 켜서 전장 목록에서 바로 영웅을 바꿀 수 있음,
 ## 원정은 영웅마다 자기 전장(HeroCampaign.expedition_needs, 만든 것만)을 이기면 열림, 잠기면 까닭 한 줄.
 
 const HEROES := ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]
@@ -73,6 +73,22 @@ func test_buttons_sit_low_and_clear_of_the_gear() -> void:
 		assert_float(sel.expedition_rect().end.x).is_less_equal(vp.x - 23.0)
 
 
+## 단추 이름은 처음 영웅 고르기 화면과 같은 "영웅 고르기" (사용자 2026-11-24), 원정 보기에서는 "내 전장". 둘 다 단추 폭 안.
+func test_change_button_label_and_width() -> void:
+	var sel: StageSelect = auto_free(StageSelect.new())
+	sel.size = Vector2(720, 1280)
+	add_child(sel)
+	sel.open(load("res://data/heroes/yi_sun_sin.tres"), CampaignProgress.new(_real(), {"yi_sun_sin": PackedStringArray(["hansan_1592"])}), _all())
+	assert_str(sel.change_label()).is_equal("영웅 고르기")
+	var labels := [sel.change_label()]
+	sel.set_expedition(true)
+	assert_str(sel.change_label()).is_equal("내 전장")
+	labels.append(sel.change_label())
+	for l: String in labels:
+		var w := UiStyle.TITLE_FONT.get_string_size(l, HORIZONTAL_ALIGNMENT_LEFT, -1, StageSelect.CHANGE_PX).x
+		assert_float(w).override_failure_message(l).is_less_equal(sel.change_rect().size.x - 24.0)
+
+
 func test_locked_reason_fits_the_expedition_button() -> void:
 	var sel: StageSelect = auto_free(StageSelect.new())
 	sel.size = Vector2(720, 1280)
@@ -86,7 +102,7 @@ func test_locked_reason_fits_the_expedition_button() -> void:
 		assert_float(w).override_failure_message(line).is_less_equal(sel.expedition_rect().size.x - 16.0)
 
 
-## 다시 켜면 마지막 영웅의 전장 목록 → "영웅 바꾸기" → 영웅 고르기 (네 영웅 모두 고를 수 있음) → 고른 영웅의 전장 목록.
+## 다시 켜면 마지막 영웅의 전장 목록 → "영웅 고르기" → 영웅 고르기 (네 영웅 모두 고를 수 있음) → 고른 영웅의 전장 목록.
 func test_relaunch_list_can_change_hero() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true

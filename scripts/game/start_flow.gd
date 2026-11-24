@@ -137,7 +137,7 @@ func _on_stage_picked(id: StringName) -> void:
 	next()
 
 
-## 전장 목록의 "영웅 바꾸기": 영웅 고르기로 (고르면 그 영웅 이야기 → 전장 목록).
+## 전장 목록의 "영웅 고르기": 영웅 고르기로 (고르면 그 영웅 이야기 → 전장 목록).
 func _on_change_hero() -> void:
 	Feedback.ui()
 	_drop_select_signals()
