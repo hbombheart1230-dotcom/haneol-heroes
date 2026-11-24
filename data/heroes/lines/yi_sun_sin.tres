@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="HeroLines" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_lines.gd" id="1_lines"]
+
+[resource]
+script = ExtResource("1_lines")
+; 자기 전장 · 원정 · 우두머리 앞 · 이김 · 쓰러짐 · 소환되어 도울 때 (사용자 확정 2026-11-24)
+lines = PackedStringArray("이 바다를 잊게 두지 않겠다", "이곳의 기억도 지키겠다", "바다는 기억한다, 너를", "잊히지 않았다, 이 싸움은", "물결은 다시 일어난다", "물결이여, 길을 열어라!")
