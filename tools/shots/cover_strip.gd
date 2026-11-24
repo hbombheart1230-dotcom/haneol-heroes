@@ -4,7 +4,7 @@ extends SceneTree
 ## godot --path . --resolution 720x1280 -s res://tools/shots/cover_strip.gd -- <영웅 id> <출력 png>
 
 const TIMES := [0.3, 1.0, 1.8, 2.6, 3.4, 4.2, 5.0, 6.0]
-const CROP := Rect2i(0, 160, 720, 960)
+const CROP := Rect2i(0, 60, 720, 960)
 const ARCHER := "res://data/enemies/jurchen_archer.tres"
 
 var main: Node
@@ -30,11 +30,19 @@ func _run() -> void:
 	GameSettings.tutorial_enabled = false
 	GameSettings.story_enabled = false
 	GameSettings.enemy_hp_bars = false
+	GameSettings.want_stage_list = false  # 전장 목록을 열지 않고 바로 판
 	GameSettings.save_settings()
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
-	for i in 200:
+	for i in 40:
 		await process_frame
+	(main.get_node("EnemySpawner") as EnemySpawner).active = false
+	(main.get_node("Player") as Player).grant_invulnerability(9999.0)
+	for i in 160:
+		await process_frame
+	if main.is_choosing():  # 판 앞 몇 초 사이 레벨이 올라 고르기가 열렸으면 첫 카드
+		main.seal_choice.pick(0)
+	paused = false
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	var player := main.get_node("Player") as Player
 	var arena := main.get_node("Arena") as Arena
@@ -48,11 +56,11 @@ func _run() -> void:
 		quit(1)
 		return
 	var pillar := cover.state.at[1]
-	player.global_position = pillar + Vector2(0, 150)
+	player.global_position = pillar + Vector2(0, 110)
 	player.grant_invulnerability(9999.0)
 	var d: EnemyData = load(ARCHER)
 	for i in 3:
-		var e := spawner.spawn_at(d, pillar + Vector2((i - 1) * 40.0, -420.0))
+		var e := spawner.spawn_at(d, pillar + Vector2((i - 1) * 50.0, -330.0))
 		if e:
 			e.speed_mult = 0.0
 	var caster := player.get_node("SkillCaster") as SkillCaster
@@ -61,7 +69,7 @@ func _run() -> void:
 	var fired := false
 	for t in TIMES:
 		while Time.get_ticks_msec() / 1000.0 - t0 < t:
-			player.global_position = pillar + Vector2(0, 150)
+			player.global_position = pillar + Vector2(0, 110)
 			player.facing = Vector2.UP
 			if hero == "yi_sun_sin" and not fired and t >= 3.4:
 				fired = true
