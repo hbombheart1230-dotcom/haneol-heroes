@@ -3,7 +3,8 @@ extends SceneTree
 ## 3타 시작부터 seconds초 동안 그린 프레임마다 찍어 <출력 폴더>/f_000.png… 와 times.txt(시각 ms, 표시)로 남긴다.
 ## GIF는 tools/shots/frames_to_gif.py가 times.txt의 실제 간격으로 만든다.
 ## 표시: h = 몹이 피해를 입음, s = 타 시작, f = 마무리 시작.
-## godot --path . --resolution 720x1280 -s res://tools/shots/finisher_gif.gd -- <영웅 id> <출력 폴더> [초=1.2]
+## godot --path . --resolution 720x1280 -s res://tools/shots/finisher_gif.gd -- <영웅 id> <출력 폴더> [초=1.2] [시작 타=3]
+## 시작 타 1이면 1·2·3·4타 전체 (초 1.4 안팎).
 
 const CROP := Vector2i(300, 300)
 
@@ -20,9 +21,10 @@ func _initialize() -> void:
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	var seconds := float(args[2]) if args.size() > 2 else 1.2
+	var from_step := int(args[3]) if args.size() > 3 else 3
 	DirAccess.make_dir_recursive_absolute(args[1])
 	var main: Node = await ShotStage.open(self, &"hansan_1592", StringName(args[0]))
-	await _wait(3.0)
+	await _wait(6.0)  # 물결 알림 띠가 지나간 뒤
 	var player := main.get_node("Player") as Player
 	var caster := player.get_node("SkillCaster") as SkillCaster
 	var atk := caster.auto_attack()
@@ -39,7 +41,7 @@ func _run() -> void:
 	e.health.damaged.connect(func(_en: Node, _ty: int, _amount: int, _i: int, _m: float, _a: int) -> void: _hit = true)
 	atk.melee_windup.connect(func(_d: Vector2) -> void:
 		_start = true
-		if atk.chain_step == 3:
+		if atk.chain_step == from_step and (from_step != 1 or caster.combo.streak <= 1):
 			_armed = true)
 	caster.skill_started.connect(func(s: SkillCaster.Slot, _d: SkillDef) -> void: _finish = _finish or s == SkillCaster.Slot.TAP)
 	var tap_next := Time.get_ticks_msec()

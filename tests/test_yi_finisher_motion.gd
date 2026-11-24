@@ -51,3 +51,25 @@ func test_band_keeps_thickness_when_the_ring_grows() -> void:
 	var inn: Array = BandFan.inner(Vector2.ZERO, Vector2(0.53 * big, 0), thick_after, Vector2.RIGHT, v.band_inner_uv)
 	assert_float((inn[0] as Vector2).x).is_equal_approx(0.53 * big - thick_before, 0.01)
 	assert_int(BandFan.indices(5).size()).is_equal(4 * 9)
+
+
+## 3타와 4타가 겹쳐 보이지 않는다 (사용자 7ce32eb "3타랑 4타가 거의 겹친다"): 3타 칼이 닿은 뒤 그 동작 끝자락
+## (닿는 칸 뒤 칸들)을 반 넘게 보여 준 다음에 4타가 시작하고, 4타 칼이 보이는 칸까지 0.1초 넘게 떨어진다.
+## 예전: 닿고 0.04초 뒤 4타가 3타를 끊고, 그림 속 4타 칼이 0.10초 뒤 (그 사이 3타 물보라가 아직 떠 있었다).
+func test_third_hit_finishes_before_the_finisher() -> void:
+	var sheet := YI.sprite_sheet
+	var i := sheet.anim_names.find("attack3")
+	var tail := (sheet.frame_count("attack3") - sheet.strike_frame("attack3")) / sheet.fps[i] / YI.blade_bite.swing_speed
+	assert_float(YI.kit.finisher_after_strike).is_greater_equal(tail * 0.6)
+	var c := CastAnim.of(YI.kit.tap, sheet)
+	var j := sheet.anim_names.find("cast_tap")
+	var to_blade := (sheet.strike_frame("cast_tap") - c.from) / (sheet.fps[j] * c.speed)
+	assert_float(YI.kit.finisher_after_strike + to_blade).is_greater_equal(0.1)
+
+
+## 4타 동안 순신이 물결 고리·물보라 위에 그려진다 (사용자 7ce32eb "4타 모션이 너무 약하다": 고리가 몸을 0.35초 가렸다).
+func test_finisher_draws_hero_over_its_fx() -> void:
+	assert_bool(YI.kit.tap.hero_over_fx).is_true()
+	var z := Feedback.feel_data().cast_over_fx_z
+	assert_int(z).is_greater(5)  # FxLayer (main.tscn)
+	assert_int(z).is_less(7)  # RewardFx
