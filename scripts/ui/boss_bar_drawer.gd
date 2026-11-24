@@ -45,8 +45,22 @@ static func draw(c: CanvasItem, b: Enemy, chip: float, width: float, top: float 
 		else:
 			c.draw_arc(p, PIP_R - 1.0, 0.0, TAU, 16, Color(TICK, 0.7), 2.0)
 	var name_text := b.data.display_name if b.data and b.data.display_name != "" else "우두머리"
-	UiStyle.text(c, UiStyle.TITLE_FONT, Vector2(r.position.x, r.position.y - 16), name_text, 46, EnemyNameTag.BOSS_COLOR, r.size.x,
+	var more := _others_alive(b)
+	if more > 0:  # 같이 나온 중간 우두머리가 더 있다: "이름 외 2"
+		name_text = WaveBannerData.default().more_format % [name_text, more]
+	UiStyle.text(c, UiStyle.TITLE_FONT, Vector2(r.position.x, r.position.y - 16), name_text, BossBanner.fit_px(name_text, 46, r.size.x), EnemyNameTag.BOSS_COLOR, r.size.x,
 		Color(0, 0, 0, 0.95), 10)
+
+
+## 막대 주인 말고 아직 살아 있는 우두머리 수.
+static func _others_alive(b: Enemy) -> int:
+	if not b.is_inside_tree():
+		return 0
+	var n := 0
+	for o in b.get_tree().get_nodes_in_group(Enemy.BOSS_GROUP):
+		if o != b and is_instance_valid(o) and (o as Enemy).health != null and not (o as Enemy).health.is_dead():
+			n += 1
+	return n
 
 
 ## 영웅 체력 띠(옻칠·금)와 한 벌: 막대 아래 얇은 금선과 양 끝의 작은 금 마름모.
