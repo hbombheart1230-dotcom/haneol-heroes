@@ -33,6 +33,6 @@ func test_hansan_full_run_report() -> void:
 				await sim.setup_run(st, s, [], true)
 				var r := sim.run_full(miss)
 				print(RunSim.growth_line("%s %s seed %d %s" % [stage, hero, s, "dodge" if miss == 0.0 else "sloppy"], r)
-					+ " | trio %.1fs | dmg %d | spawn widened %d stuck %d" % [r["mid_time"], RunSim.taken(r), sim.spawner.spawn_widened, sim.spawner.spawn_stuck]))
+					+ " | trio %.1fs | dmg %d | spawn widened %d stuck %d" % [r["mid_time"], RunSim.taken(r), sim.spawner.spawn_widened, sim.spawner.spawn_stuck])
 				sim.free_all()
 	assert_bool(true).is_true()
