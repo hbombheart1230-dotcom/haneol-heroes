@@ -142,7 +142,9 @@ func test_manchuria_boss_traits() -> void:
 	for ph: BossPhaseData in d.phases:
 		assert_float(ph.stagger_gauge_mult).is_greater(1.0)
 	assert_float((d.phases[1] as BossPhaseData).stagger_immune).is_greater(0.0)
-	var volley: EnemyAttackData = d.patterns.filter(func(a: EnemyAttackData) -> bool: return a.min_range > 0.0)[0]
+	var far: EnemyAttackData = d.patterns.filter(func(a: EnemyAttackData) -> bool: return a.min_range > 0.0)[0]
+	assert_int(int(far.kind)).is_equal(int(EnemyAttackData.Kind.SHOOT))  # 1단계는 홑 화살 (멀 때만)
+	var volley: EnemyAttackData = (d.phases[0] as BossPhaseData).patterns.filter(func(a: EnemyAttackData) -> bool: return a.min_range > 0.0)[0]
 	assert_int(int(volley.kind)).is_equal(int(EnemyAttackData.Kind.SHOOT))
 	assert_float(volley.kite_while_aiming).is_greater(0.0)
 	var n := 1
