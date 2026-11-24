@@ -174,21 +174,28 @@ func manual_strike(step: int, ranged: bool, enemy_list: Array = []) -> void:
 		_fire(from, to.normalized() if to.length_squared() > 0.0001 else player.facing)
 		ranged_step = 0
 	else:
-		_step_in(to, list, step)
+		_step_in(to, list, step, nearest != null)
 		_melee(from, to, list, step)
 		player.slow_for(stats().swing_slow_time, stats().swing_move_mult)  # 휘두르는 동안 느리게 (M1)
 	last_manual = false
 
 
 ## 타별 짧은 전진 (손 평타만): 앞 적 몸 안으로는 안 들어가고, 적 예고가 영웅을 덮으면 생략.
-func _step_in(toward: Vector2, list: Array, step: int) -> void:
+## 마무리(4타) 전진 (TapChain): 연타와 같은 제한, 거리는 finisher_step_in_px.
+func finisher_step(toward: Vector2, list: Array, has_target: bool) -> void:
+	_step_in(toward, list, 0, has_target)
+
+
+## step 0 = 마무리. has_target: 연타 대상이 있다 (없으면 바라보는 쪽으로 조금만).
+func _step_in(toward: Vector2, list: Array, step: int, has_target: bool = true) -> void:
 	var d := stats()
 	if not d.step_in_enabled or toward.length_squared() < 0.0001 or player.is_dashing() or player.hurt_time_left() > 0.0:
 		return  # 대시 중·맞아서 밀리는 중에는 전진을 얹지 않는다 (Codex 0f4456f 지적)
 	var dir := toward.normalized()
 	var from := player.global_position
-	var px := ComboSteps.step_in(ComboSteps.at(d.step_in_px, step, 0.0), d.step_in_max,
+	var px := ComboSteps.step_in(ComboSteps.want_step(d, step, dir, has_target, player.move_input), d.step_in_max,
 		ComboSteps.gap_ahead(list, from, dir, player.body_radius) - 4.0, ComboSteps.in_windup(list, from))
+	px = StepGuard.safe_px(get_tree() if is_inside_tree() else null, from, dir, px, player.body_radius)
 	if px <= 0.0:
 		return
 	var pause := ComboSteps.at(d.step_windup_pause, step, 0.0)

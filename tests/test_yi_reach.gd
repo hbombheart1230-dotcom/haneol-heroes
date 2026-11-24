@@ -38,14 +38,21 @@ func test_print_hero_table() -> void:
 		print("[melee-table] ", _row(id))
 
 
-## 순신 사거리는 두 영웅 쪽으로 (120 → 155) 그대로. 전진·내딛기는 붙기를 뺄 때 (사용자 2026-11-24) 광개토 수준으로 (더 크지 않게).
+## 순신 사거리는 두 영웅 쪽으로 (120 → 155) 그대로. 전진은 사용자 2026-11-25 "순신은 많이, 광개토는 적게":
+## 순신은 타마다 광개토보다 더 파고들고, 둘 다 뒤 타일수록 크다 (예전 2026-11-24 "광개토 수준으로"를 바꿈).
 func test_yi_reach_and_step_in_raised() -> void:
 	var yi := _row("yi_sun_sin")
 	var gw := _row("gwanggaeto")
 	assert_int(yi["range"][0]).is_greater_equal(150)
 	for i in 3:
-		assert_int(yi["step_in"][i]).is_less_equal(gw["step_in"][i])
-		assert_int(yi["lunge"][i]).is_less_equal(gw["lunge"][i])
+		assert_int(yi["step_in"][i]).is_greater(gw["step_in"][i])
+		if i > 0:
+			assert_int(yi["step_in"][i]).is_greater(yi["step_in"][i - 1])
+			assert_int(gw["step_in"][i]).is_greater(gw["step_in"][i - 1])
+	var yd := (load("res://data/heroes/yi_sun_sin.tres") as HeroData).attack
+	var gd := (load("res://data/heroes/gwanggaeto.tres") as HeroData).attack
+	assert_float(yd.finisher_step_in_px).is_greater(gd.finisher_step_in_px)
+	assert_float(gd.finisher_step_in_px).is_greater(0.0)
 
 
 ## 연타가 이어진다: n타 사거리 끝에서 맞은 적이 밀린 뒤 (n+1)타 전진을 빼면 (n+1)타 사거리 안 (3타 뒤는 마무리가 받는다).

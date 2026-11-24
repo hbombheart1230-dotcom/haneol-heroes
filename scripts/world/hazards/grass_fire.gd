@@ -27,6 +27,12 @@ func _init(d: FireData) -> void:
 	data = d
 	grid = FireGrid.new(d)
 	clock = HazardClock.new(d)
+	add_to_group(StepGuard.GROUP)
+
+
+## 연타 전진이 타는 칸 안으로 들어가지 않게 (StepGuard).
+func step_danger_at(p: Vector2, _r: float) -> bool:
+	return grid.burning_at(p)
 
 
 func _ready() -> void:
