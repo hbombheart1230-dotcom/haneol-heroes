@@ -120,21 +120,7 @@ func apply_hero(h: HeroData) -> void:
 
 ## 대시 돌격: 경로 옆 적을 대시 방향의 옆으로 밀쳐 낸다. 밀친 적 수를 돌려준다.
 func shove_enemies(list: Array) -> int:
-	var n := 0
-	for e in list:
-		var en := e as Enemy
-		if en == null or not is_instance_valid(en) or _shoved.has(en.get_instance_id()):
-			continue
-		var off := en.global_position - global_position
-		if off.length() > hero.dash_shove_radius + en.body_radius:
-			continue
-		_shoved[en.get_instance_id()] = true
-		var side := _dash_dir.orthogonal()
-		if off.dot(side) < 0.0:
-			side = -side
-		en.apply_knockback((side * 0.8 + _dash_dir * 0.4).normalized() * hero.dash_shove)
-		n += 1
-	return n
+	return PlayerDash.shove(self, list)
 
 
 ## 성장으로 hero 수치가 바뀐 뒤 다시 읽는다 (체력은 늘어난 만큼 회복, 대시 충전은 늘어난 만큼 채움).
@@ -290,35 +276,7 @@ func set_move_input(v: Vector2) -> void:
 ## 방향이 0이면 현재 이동 방향, 그것도 없으면 바라보는 방향으로 대시한다.
 ## 반환: 대시가 시작되면 true.
 func request_dash(direction: Vector2 = Vector2.ZERO) -> bool:
-	if bite.hold_dash(direction, dash.can_consume()):  # 칼이 박혀 멈춘 중: 풀릴 때 바로 (BladeBite)
-		return true
-	var chained := is_dashing() or (hero != null and hero.dash_dir != null and _since_dash_end < hero.dash_dir.chain_gap)
-	if is_dashing():
-		# 연속 대시: 충전이 남아 있으면 지금 대시를 끊고 즉시 새 방향으로 (기다리지 않음, 실기기 피드백).
-		if not dash.can_consume():
-			return false
-		_dash_time_left = 0.0
-		_since_dash_end = 0.0
-		_dash_arrived()
-		dash_ended.emit()
-	var dir := direction
-	if dir.length_squared() < 0.0001:
-		dir = move_input if move_input.length_squared() > 0.0001 else facing
-	if not dash.try_consume():
-		return false
-	_dash_dir = dir.normalized()
-	_dash_time_left = dash_duration
-	_swing_left = 0.0  # 대시가 휘두름을 끊으면 느려짐도 끝 (대시 뒤에 남지 않게)
-	_glide_left = 0.0
-	_since_dash_start = 0.0
-	_dash_start_pos = global_position
-	_shoved.clear()
-	facing = _dash_dir
-	DashDirection.begin(self, get_tree().get_nodes_in_group(Enemy.GROUP) if is_inside_tree() else [], chained)
-	if dash_runner:
-		dash_runner.on_start(global_position, _dash_dir)
-	dash_started.emit(_dash_dir)
-	return true
+	return PlayerDash.request(self, direction)
 
 
 ## 이번 물리 프레임의 속도를 계산하고 대시·충전 타이머를 진행한다.
@@ -344,20 +302,7 @@ func compute_velocity(delta: float) -> Vector2:
 			v_move += _glide_vel * (_glide_left / dash_glide_time)
 			_glide_left = maxf(_glide_left - delta, 0.0)
 		return v_move
-	var step := minf(delta, _dash_time_left)
-	_dash_time_left -= delta
-	var v := _dash_dir * (dash_distance / dash_duration) * (step / delta if delta > 0.0 else 0.0)
-	if _dash_time_left <= 0.0:
-		_dash_time_left = 0.0
-		_since_dash_end = 0.0
-		if dash_glide_time > 0.0:
-			_glide_vel = _dash_dir * (dash_distance / dash_duration) * dash_glide_ratio
-			_glide_left = dash_glide_time
-		# 대시 직후엔 가속을 다시 기다리지 않는다 (대시 → 걷기 끊김 없이).
-		_walk_vel = move_input * move_speed
-		_arrive_pending = true  # 도착 효과는 이번 프레임 이동을 마친 실제 자리에서 (_physics_process)
-		dash_ended.emit()
-	return v
+	return PlayerDash.step(self, delta)
 
 
 ## 대시 도착: 영웅별 도착 이펙트·효과 (트리 밖 테스트에서는 이펙트만).
@@ -372,14 +317,14 @@ func _physics_process(delta: float) -> void:
 	if is_dead():
 		velocity = Vector2.ZERO
 		return
+	# 마지막 대시 프레임도 대시: compute_velocity가 남은 시간만큼 마지막 걸음을 주면서 대시를 끝내므로 그 전에 잡아 둔다
+	# (그 걸음의 돌진 타격·밀쳐내기·대시 틱, 그 프레임 무적 — 외부 감사 84b0930).
+	var dash_frame := is_dashing()
+	var struck_before := dash_struck.size()
 	velocity = compute_velocity(delta)
-	if dash_runner and is_dashing():
-		dash_runner.tick(delta, global_position)
-	if is_dashing() and hero and hero.dash_shove > 0.0:
-		shove_enemies(get_tree().get_nodes_in_group(Enemy.GROUP))
-	if is_dashing() and dash_strikes:
-		DashDirection.tick(self, get_tree().get_nodes_in_group(Enemy.GROUP), delta)
-	apply_contact_damage(delta, _touching_damage())
+	if dash_frame:
+		PlayerDash.frame(self, delta, struck_before)
+	apply_contact_damage(delta, 0 if dash_frame else _touching_damage())  # 대시 프레임은 끝 프레임까지 무적
 	move_and_slide()
 	if arena_rect.has_area():
 		global_position = global_position.clamp(arena_rect.position, arena_rect.end)
