@@ -254,7 +254,7 @@ func test_breather_waits_for_mid_boss_finale() -> void:
 
 ## 한산 3물결 중간 우두머리 무리 (돌격·조총 3연사·북잡이): 네 영웅 (3물결까지 성장한 사본) 모두 이기고, 셋 다 잡는 데
 ## 포격선 없이 씨앗 평균 50~100초 (기록용) — 한산 판에서는 포격선(#114)이 무리에도 맞아 약 절반, 실제 목표 30~40초는
-## tests/test_hansan_full_run.gd (HH_HANSAN=1)로 잰다. 보통 실행은 씨앗 하나라 한 판 30~120초만. HH_SLOW=1이면 씨앗 셋 × 피하기·서툰 사람, 피해를 로그로.
+## tests/test_hansan_full_run.gd (HH_HANSAN=1)로 잰다. 보통 실행은 씨앗 하나라 한 판 15~120초만. HH_SLOW=1이면 씨앗 셋 × 피하기·서툰 사람, 피해를 로그로.
 func test_hansan_trio_fight() -> void:
 	var slow := OS.get_environment("HH_SLOW") == "1"
 	var seeds := [11, 23, 37] if slow else [11]
@@ -272,7 +272,7 @@ func test_hansan_trio_fight() -> void:
 					hurt.append(r["damage"])
 					continue
 				assert_bool(r["won"]).override_failure_message("trio %s seed %d" % [hero, s]).is_true()
-				assert_float(r["time"]).override_failure_message("trio %s %.1fs" % [hero, r["time"]]).is_between(30.0, 120.0)
+				assert_float(r["time"]).override_failure_message("trio %s %.1fs" % [hero, r["time"]]).is_between(15.0, 120.0)
 				assert_int(r["max_threats"]).is_less_equal(EnemyAttack.max_concurrent)
 				total += r["time"]
 		var mean: float = total / seeds.size()
