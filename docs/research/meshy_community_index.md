@@ -371,3 +371,37 @@
 - 49번 파일명(Crimson Shadow Ronin)이 페이지 제목(samouraï ninja)과 달라, 삼각형 수(1.99M)로 같은 모델임을 확인.
 - 미리보기: `build/preview/meshy_community/dl12/` — 번호별 정면·3/4 (`37.jpg` … `u32.jpg`; 정점 색을 점으로 찍은 소프트웨어 그림이라 약간 까끌해 보임), 배정표 `assign_myeongnyang.jpg`, `assign_noryang.jpg`.
 - 리깅·동작(Meshy 웹) 크레딧: 이번엔 조사 못 함(크레딧 버튼을 누르지 않는다는 조건). 저장소 README 기준 무료 플랜은 웹에서 뼈대→동작을 붙여 .glb로 받고 `meshy_pipeline.py import`로 굽는 길이며, 산출물은 CC BY 4.0이라 "Meshy" 표기가 필요. 필요한 크레딧은 리깅 화면에서 확인해야 함.
+
+## 새 후보 모음 59~81번 (2026-11-25, 크롬 Meshy 커뮤니티 검색, 내려받지 않음)
+검색어: nomad/khitan archer, shaman, war horn blower, jurchen warrior, trumpeter soldier, ashigaru, heavy cavalry, wokou pirate, palace guard, praying mantis, butterfly, giant bee, lizard warrior, giant field mouse, wild cat. 전부 CC0 표시 확인(페이지에서). 내려받기 비용은 받아 보지 않아 확인 못 함(앞선 12개는 모두 0 크레딧이었음). 후보판은 `build/preview/meshy_community/candidates_<자리>.jpg`. 주소는 `https://www.meshy.ai/ko/posts/<주소>`.
+
+| 번호 | 이름 | 주소 | 면 수 | 자리 | 한 줄 평 |
+|---|---|---|---|---|---|
+| 59 | Armored Archer of the Dunes | 019d1d07-4ee6-7478-a89d-7e7a3e87b0ce | 1,222,433 | 거란 명궁 | 투구·망토에 활+굽은 칼, 서 있음. 1순위 |
+| 60 | Greenclad Steppe Warrior | Greenclad-Steppe-Warrior-01a06375-94ff-77ec-bb3d-1be70db809db | 1,153,882 | 거란/여진 전사(근접) | 미늘 갑옷 장수, 활은 아님 |
+| 61 | The Hooded Archer | 019eb334-3f16-7497-b1ad-31c4ed280d7d | 787,102 | 명궁 | 후드 사냥꾼풍, 북방색 약함 → 애매 |
+| 62 | Steppe Warlord Mounted Archer | Steppe-Warlord-Mounted-Archer-01a065de-c35a-779a-8a13-30f5318d2037 | 1,946,478 | 광개토 2·3 궁기병 | 말+사람 한 덩어리(따로 새로) |
+| 63 | Sandbound Shaman | Sandbound-Shaman-019fb25f-c647-7394-9be9-7d31122e68e3 | 802,666 | 거란 무당 | 해골 가면+뿔 지팡이. 1순위 |
+| 64 | The Guślarz (ancient shaman) | 01944ba9-89a4-7719-a6a0-881884d4516b | 8,038 | 거란 무당 | 사슴뿔+두루마기, 가벼움. 2순위 |
+| 65 | Emberbound Necromancer | 019cb214-15df-7d0a-9bdb-08bf09fb8206 | 811,085 | 무당 | 흰 머리+북, 만화풍 → 애매(제목은 강령사) |
+| 66 | The Bonebranch Shaman | 01a1ee20-47cc-75d8-9111-c8dafcc2301c | 2,613,446 | 무당 | 서양 판타지 느낌 → 애매 |
+| 67 | Mongolian Warrior | mongolian-warrior-019fef47-be4b-71cd-ac0c-0c22887eaeac | 1,989,324 | 여진 전사 | 비늘 갑옷+굽은 칼. 서 있음 |
+| 68 | 青绿铁甲长矛卫士 | %E9%9D%92%E7%BB%BF%E9%93%81%E7%94%B2%E9%95%BF%E7%9F%9B%E5%8D%AB%E5%A3%AB-01a11582-2977-7214-bddd-ebea453baa59 | 15,264 | 여진/북방 창병 | 방패+창, 중국풍(북방 적으로는 OK, 왜군 자리는 안 됨) |
+| 69 | Armored Ashigaru | 019ce323-5eed-7ace-bc5d-2ebbef5739d8 | 9,999 | 왜군 창병/잡몹 | 진가사+주황 갑옷, 칼 들고 받침 있음 |
+| 70 | Samurai Guard Costume | 01a20d79-379f-7736-bc06-2aca59c14586 | 1,066,638 | 왜군 창병 | 야리 든 푸른 옷+삿갓. ⚠ 가슴의 둥근 문양 확인 필요 |
+| 71 | Ashigaru Sentinel | 01a16e31-6669-71db-87d5-cb7810647fcb | 993,164 | 왜군 창병 | 진가사+야리, 색 없는 점토 같은 질감 → 참고용 |
+| 72 | A tall Samurai warrior in a red… | 019505b2-7665-7e6f-b0f5-a6c743305c20 | 11,714 | 노량 중간 보충 | 붉은 갑옷 A자 자세, 가벼움 |
+| 73 | Samurai chess piece, realistic | 0194a2b4-97ea-7ee5-b735-818ba5a2dc76 | 13,423 | 노량 중간 보충 | 어두운 갑옷+앞 장식 투구, 받침 있음 |
+| 74 | Emerald Sentinel (사마귀) | 01a1f7e0-053b-7426-82c5-092e338b08a6 | 1,169,276 | 사임당 사마귀 | 실물풍 초록 사마귀 |
+| 75 | praying mantis | praying-mantis-01a1f990-c201-751d-9580-4290d2e288b3 | 899,558 | 사임당 사마귀 | 갑옷 낫 풍 |
+| 76 | Whimsical Monarch (나비) | 01a20adc-6672-701b-93c5-e302e1c16cf4 | 45,826 | 사임당 나비 | 가볍고 화려 |
+| 77 | monster wasp | 0193f94d-c045-70a6-9f8a-34bc2be86301 | 283,823 | 사임당 벌 | 창 든 말벌 전사 |
+| 78 | frilled dragon (도마뱀 전사) | 0193e1c0-e433-7553-b0d5-00ca1f184abd | 283,938 | 사임당 도마뱀 | 창 든 도마뱀 |
+| 79 | a mouse | 0193b041-23fe-7eae-b211-23f97981bbff | 146,750 | 사임당 들쥐 | 사실적 회색 쥐 |
+| 80 | rat | 0196a039-722f-7f3b-bad3-4b422f7c00ff | 9,998 | 사임당 들쥐 | 아주 가벼움 |
+| 81 | Ashfang (고양이 짐승) | 01a14925-ec35-75d1-a800-dbc9ee1eff01 | 2,749,998 | 사임당 고양이 | 털 곤두선 야생 고양이, 면 수 많음 |
+
+- **뿔나팔수**: 사람 모델 후보 없음 — 나팔 부는 검색 결과가 전부 서양 군복·로마 병사(제외). 뿔나팔 소품만 있음(019f4c89-0721-7b7f-96ff-c4d786366f06 장식 뿔, 019f3cfd-9cd0-7d86-a277-142198df217e 늑대 나팔; 면 수·라이선스 미확인) → 사람 모델 + 소품 조합이 필요.
+- **노량 중간 보충·왜군 창병**: 69·71이 창병, 72·73이 중간 보충 후보. 70은 문양 확인 전까지 보류.
+- **기마(광개토)**: 서양 기사만 나와 62번 외엔 없음. **왜구**: 만화 해적뿐이라 없음. **궁궐 수비**: 오스만·인도풍이라 제외(조선 군졸 1개는 조선 복식이라 적 부적합).
+- 후보판: `candidates_거란_명궁.jpg`, `candidates_거란_무당.jpg`, `candidates_여진_전사.jpg`, `candidates_왜군_창병_노량중간.jpg`, `candidates_초충도_생물.jpg`.
