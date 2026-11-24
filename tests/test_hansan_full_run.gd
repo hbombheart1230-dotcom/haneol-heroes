@@ -1,5 +1,5 @@
 extends GdUnitTestSuite
-## 한 판 전체 (보고용, HH_HANSAN=1일 때만, 무대는 HH_STAGE (기본 한산), 영웅은 HH_HEROES (쉼표, 기본 넷)): 네 영웅이 한산을 성장(tests/run_growth.gd)과 포격선(#114)과 함께 —
+## 한 판 전체 (보고용, HH_HANSAN=1일 때만, 무대는 HH_STAGE (기본 한산), 영웅은 HH_HEROES (쉼표, 기본 넷), 근접 잡몹 수 배율 HH_SWARM): 네 영웅이 한산을 성장(tests/run_growth.gd)과 포격선(#114)과 함께 —
 ## 물결 → 3물결 중간 우두머리 무리 → 대장. 피하기·서툰 사람 × 씨앗 셋. 판 길이, 무리·대장 싸움 시간, 물결별 받은 피해, 포격 횟수.
 
 const HINTS := {"yi_sun_sin": "순신", "gwanggaeto": "광개토", "sejong": "세종", "shin_saimdang": "사임당"}
@@ -20,6 +20,8 @@ func test_hansan_full_run_report() -> void:
 			for miss in [0.0, 0.3]:
 				var st := ResourceLoader.load("res://data/stages/%s.tres" % stage, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as StageTheme
 				st.hero_hint = HINTS[hero]
+				if OS.get_environment("HH_SWARM") != "":  # 근접 잡몹 수 배율 비교 (WaveSwarm)
+					st.waves.melee_count_mult = float(OS.get_environment("HH_SWARM"))
 				var sim := RunSim.new(self)
 				sim.use_hazards = true
 				await sim.setup_run(st, s, [], true)

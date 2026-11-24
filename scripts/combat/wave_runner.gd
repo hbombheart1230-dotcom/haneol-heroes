@@ -97,7 +97,7 @@ func _start(i: int) -> void:
 	index = i
 	phase = Phase.RUN
 	var w: WaveData = data.waves[i]
-	_queue = w.enemies.duplicate()
+	_queue = WaveSwarm.expand(w.enemies, data.melee_count_mult)
 	if w.elite_last:
 		_queue.append(null)
 	_budget = mini(maxi(w.first_count, 1), _queue.size())
