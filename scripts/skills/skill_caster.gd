@@ -301,6 +301,7 @@ func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float 
 	skill_started.emit(slot, d)
 	var ctx := _context()
 	ctx.skill = d
+	ctx.slot = slot
 	if slot == Slot.CHARGE:
 		ctx.aim_dir = aim.aim_dir()
 		ctx.aim_steered = aim.active and aim.steered

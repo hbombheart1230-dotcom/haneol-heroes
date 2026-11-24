@@ -277,7 +277,7 @@ func _strike(from: Vector2, enemy_list: Array) -> void:
 			en.heavy_pending = heavy
 			en.hit_crowd = hits.size()  # 여럿을 한 번에 베면 경직이 짧다
 		if h:
-			h.damage(dmg)
+			h.damage(EnemyAnswer.scaled(en, EnemyAnswer.COMBO, dmg))  # 정답 표 (연타)
 		if en:
 			en.heavy_pending = false
 			en.hit_crowd = 1
