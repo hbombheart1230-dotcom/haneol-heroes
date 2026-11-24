@@ -60,9 +60,18 @@ extends Resource
 @export var heavy_slow_scale: float = 0.1
 @export var heavy_slow_hold: float = 0.05
 @export var heavy_slow_back: float = 0.07
-## 3타째 국악 덧소리 (꽹과리 한 타, 파일이 없으면 조용히 건너뜀)와 최소 간격(초).
-@export var heavy_gugak: StringName = &"gugak_big"
+## 3타째 국악 덧소리와 최소 간격(초). 비우면 없음: 국악 타격음은 결정타에 몰아준다 (사용자 2026-11-24 "타격음 좋아").
+@export var heavy_gugak: StringName = &""
 @export var heavy_gugak_gap: float = 0.5
+
+@export_group("국악 타격음 몰아주기 (꽹과리·장구, 효과음 크기 설정을 따른다)")
+## 피해가 큰 명중(CombatFeelData.big_hit_damage 이상)마다 덧소리 (비우면 없음: 평타·보통 기술은 가볍게).
+@export var big_hit_gugak: StringName = &""
+## 결정타 명중: 넷째 탭 마무리·반격·완전 충전 기술이 맞혔을 때 한 번 (꽹과리)과 최소 간격(초).
+@export var accent_gugak: StringName = &"gugak_big"
+@export var accent_gugak_gap: float = 0.15
+## 우두머리 휘청 (포이즈 다 깎임)에 한 번 (장구). 정예·우두머리 처치와 단계 바뀜은 Feedback이 장구.
+@export var stagger_gugak: StringName = &"gugak_kill"
 
 @export_group("피해 숫자 (B6)")
 @export var number_time: float = 0.9

@@ -61,6 +61,9 @@ static func on_poise(e: Enemy, ev: EnemyPoise.Event) -> void:
 	if ev == EnemyPoise.Event.NONE:
 		return
 	var broke := ev == EnemyPoise.Event.ARMOR_BREAK
+	var fb := Feedback.instance
+	if not broke and fb and fb.feel.impact_data().stagger_gugak != &"":
+		fb.play(fb.feel.impact_data().stagger_gugak, 0.0)  # 우두머리 휘청 = 장구
 	e._stun_left = maxf(e._stun_left, Enemy.AI.armor_break_stun if broke else Enemy.AI.boss_stagger_time)
 	if e.attack:
 		e.attack.cancel()

@@ -100,3 +100,13 @@ static func flash_rect(fb: Feedback) -> ColorRect:
 		layer.add_child(r)
 		fb.add_child(layer)
 	return layer.get_child(0) as ColorRect
+
+
+## 결정타 국악 (꽹과리): 넷째 탭 마무리·반격·완전 충전 기술이 맞혔을 때만 (ImpactFeelData.accent_gugak).
+static func skill_accent(fb: Feedback, slot: SkillCaster.Slot, hits: int, charge: float) -> void:
+	var im := fb.feel.impact_data()
+	if hits <= 0 or im.accent_gugak == &"":
+		return
+	var full := slot == SkillCaster.Slot.CHARGE and charge >= 0.999
+	if slot == SkillCaster.Slot.TAP or slot == SkillCaster.Slot.COUNTER or full:
+		fb.play(im.accent_gugak, im.accent_gugak_gap)
