@@ -29,6 +29,11 @@ var _pts := PackedVector2Array()
 ## 조각을 가운데에서 펼친 부채꼴 삼각형으로 그리는 순서 (0, j+1, j+2). draw_polygon은 제멋대로 삼각형을 나눠서
 ## 양 끝의 투명한 꼭짓점이 안쪽 띠까지 번져, 고리 모양 그림(가운데가 빈 용)이 통째로 갉혔다.
 var _fan := PackedInt32Array()
+## 띠 두께 고정 판 (BandFan): 바깥 테 + 안쪽 테 점, 그 삼각형 차례.
+var _band := PackedInt32Array()
+var _bpts := PackedVector2Array()
+var _buvs := PackedVector2Array()
+var _bcols := PackedColorArray()
 var _none_i := PackedInt32Array()
 var _none_f := PackedFloat32Array()
 var _uvs := PackedVector2Array()
@@ -50,6 +55,10 @@ func _init(p_stage: SkillStageFeel = null) -> void:
 		_fan.append(j + 2)
 	_uvs.resize(n)
 	_cols.resize(n)
+	_band = BandFan.indices(n - 1)
+	_bpts.resize(2 * n - 1)
+	_buvs.resize(2 * n - 1)
+	_bcols.resize(2 * n - 1)
 	_glow = Node2D.new()
 	var add := CanvasItemMaterial.new()
 	add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
@@ -111,7 +120,7 @@ func pieces(d: SkillVfxData, pos: Vector2, dir: Vector2, level: int, size: float
 	var life := maxf(d.decal_time * float(pl.get("time", 1.0)), d.piece_sweep + stage.piece_settle + 0.25)
 	_sets.append({"data": d, "pos": pos, "rot": rot, "start": start, "size": size, "grow": pl.get("grow", d.decal_grow),
 		"glow_k": pl.get("glow_k", d.glow_size), "flash_k": pl.get("flash_k", stage.flash_scale * 1.3),
-		"flash": d.piece_flash * light, "core": pl.get("core", 1.0),
+		"flash": d.piece_flash * light, "core": pl.get("core", 1.0), "band_k": pl.get("band_k", 1.0),
 		"t": 0.0, "life": life, "bright": d.bright_for(level), "glow": d.glow_for(level) * light})
 	_cap(_sets, stage.max_piece_sets)
 	_last_size[d] = size
@@ -258,7 +267,29 @@ func _draw_set(st: Dictionary) -> void:
 			_uvs[j + 1] = off.rotated(-rot) / size + Vector2(0.5, 0.5)
 			var edge := clampf(minf(s + f, 1.0 + f - s) / f, 0.0, 1.0)
 			_cols[j + 1] = Color(col.r, col.g, col.b, col.a * edge)
+		var bk := float(st["band_k"])
+		if d.band_inner_uv > 0.0 and bk < 0.999:  # 키운 그림의 띠를 예전 두께로 (안쪽 테를 바깥 테 쪽으로 당긴다)
+			_draw_band(center + shift, radius * grow, (radius - d.band_inner_uv * size) * bk * grow, d.band_inner_uv, rot, tex)
+			continue
 		RenderingServer.canvas_item_add_triangle_array(get_canvas_item(), _fan, _pts, _cols, _uvs, _none_i, _none_f, tex.get_rid())
+
+
+## 띠 두께 고정 조각 (BandFan): 바깥 테는 _pts 그대로, 안쪽 테는 thick(px) 안쪽에 uv 띠 안쪽 끝.
+func _draw_band(c: Vector2, rim_r: float, thick: float, band_uv: float, rot: float, tex: Texture2D) -> void:
+	var m := _pts.size() - 1
+	_bpts[0] = _pts[0]
+	_buvs[0] = _uvs[0]
+	_bcols[0] = Color(_cols[0], 0.0)
+	for j in m:
+		var off := _pts[j + 1] - c
+		_bpts[j + 1] = _pts[j + 1]
+		_buvs[j + 1] = _uvs[j + 1]
+		_bcols[j + 1] = _cols[j + 1]
+		var inn: Array = BandFan.inner(c, off, thick, (off / maxf(rim_r, 0.001)).rotated(-rot), band_uv)
+		_bpts[m + j + 1] = inn[0]
+		_buvs[m + j + 1] = inn[1]
+		_bcols[m + j + 1] = _cols[j + 1]
+	RenderingServer.canvas_item_add_triangle_array(get_canvas_item(), _band, _bpts, _bcols, _buvs, _none_i, _none_f, tex.get_rid())
 
 
 ## 두루마리 펼침: 세로 띠가 가운데부터 양옆으로 차례로 펼쳐진다 (바깥 가장자리는 투명 → 먹으로 갉힘).
