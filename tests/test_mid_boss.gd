@@ -80,7 +80,7 @@ func test_mid_boss_data_rules() -> void:
 
 
 func _check_data(d: EnemyData) -> void:
-	assert_int(d.xp).is_equal(20)  # 처치 점수 (레벨 곡선)
+	assert_int(d.xp).is_between(5, 20)  # 처치 점수 (3물결 합 20: 한산은 무리 셋 10·5·5, test_stage_waves)
 	assert_str(d.boss_feel.intro_subtitle).is_equal("정예 출현")
 	assert_str(d.boss_feel.finale_subtitle).is_equal("정예 격파")
 	assert_bool(d.is_elite).is_true()
@@ -187,7 +187,14 @@ func test_hero_boss_hp_mult_applies_to_mid_boss() -> void:
 ## 막힘 없이, 같은 공격 연속 없이. 보통 실행은 씨앗 하나, HH_SLOW=1이면 셋.
 func test_mid_boss_fight_length() -> void:
 	var seeds := [11, 23, 37] if OS.get_environment("HH_SLOW") == "1" else [11]
+	var grouped: Array = []  # 무리로 싸우는 중간 우두머리 (한산 셋)는 따로 test_hansan_trio_fight
+	for id in ["hansan_1592", "manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
+		for w: WaveData in (load("res://data/stages/%s.tres" % id) as StageTheme).waves.waves:
+			for e: EnemyData in w.elite_group:
+				grouped.append(e.resource_path)
 	for path in MIDS:
+		if grouped.has(path):
+			continue
 		var c: Array = MIDS[path]
 		var hp := "res://data/heroes/%s.tres" % c[0]
 		var total := 0.0
@@ -206,7 +213,7 @@ func test_mid_boss_fight_length() -> void:
 			total += r["time"]
 		var mean: float = total / seeds.size()
 		print("[boss-sim] mid-boss %s mean %.1fs" % [path.get_file(), mean])
-		if seeds.size() > 1:  # 목표 길이는 씨앗 셋 평균 (보통 실행은 한 판이라 한 판 범위 10~32초만, 위 _check_fight)
+		if seeds.size() > 1:  # 목표 길이는 씨앗 셋 평균 (보통 실행은 한 판이라 한 판 범위만)
 			assert_float(mean).override_failure_message("%s mean %.1fs" % [path, mean]).is_between(15.0, 25.0)
 
 
@@ -243,6 +250,55 @@ func test_breather_waits_for_mid_boss_finale() -> void:
 	assert_bool(sp.finale_playing()).is_false()
 	sp._tick_waves(DT)
 	assert_int(picks[0]).is_equal(1)  # 연출 뒤 숨 고르기
+
+
+## 한산 3물결 중간 우두머리 무리 (돌격·조총 3연사·북잡이): 네 영웅 (3물결까지 성장한 사본) 모두 이기고, 셋 다 잡는 데
+## 포격선 없이 씨앗 평균 50~100초 (기록용) — 한산 판에서는 포격선(#114)이 무리에도 맞아 약 절반, 실제 목표 30~40초는
+## tests/test_hansan_full_run.gd (HH_HANSAN=1)로 잰다. 보통 실행은 씨앗 하나라 한 판 30~120초만. HH_SLOW=1이면 씨앗 셋 × 피하기·서툰 사람, 피해를 로그로.
+func test_hansan_trio_fight() -> void:
+	var slow := OS.get_environment("HH_SLOW") == "1"
+	var seeds := [11, 23, 37] if slow else [11]
+	var stage := load("res://data/stages/hansan_1592.tres") as StageTheme
+	var group: Array = (stage.waves.waves[2] as WaveData).elite_group
+	for hero in ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]:
+		var c: Array = HERO_REACH[hero]
+		var total := 0.0
+		var hurt: Array = []
+		for s in seeds:
+			for miss in ([0.0, 0.3] if slow else [0.0]):
+				var r := await _trio(group, hero, c, s, miss)
+				print(BossSim.line("trio %s seed %d %s" % [hero, s, "dodge" if miss == 0.0 else "sloppy"], r))
+				if miss > 0.0:
+					hurt.append(r["damage"])
+					continue
+				assert_bool(r["won"]).override_failure_message("trio %s seed %d" % [hero, s]).is_true()
+				assert_float(r["time"]).override_failure_message("trio %s %.1fs" % [hero, r["time"]]).is_between(30.0, 120.0)
+				assert_int(r["max_threats"]).is_less_equal(EnemyAttack.max_concurrent)
+				total += r["time"]
+		var mean: float = total / seeds.size()
+		print("[boss-sim] trio %s mean %.1fs, sloppy damage %s" % [hero, mean, str(hurt)])
+		if slow:
+			assert_float(mean).override_failure_message("trio %s mean %.1fs" % [hero, mean]).is_between(50.0, 100.0)
+
+
+const HERO_REACH := {"yi_sun_sin": [90.0, 170.0], "gwanggaeto": [110.0, 200.0], "sejong": [280.0, 520.0],
+	"shin_saimdang": [150.0, 240.0]}
+
+
+func _trio(group: Array, hero: String, c: Array, s: int, miss: float) -> Dictionary:
+	var grown: Array = await GrownHeroes.take(self, hero, s, GrownHeroes.At.MID)
+	var h: HeroData = grown[0]
+	var sim := BossSim.new(self)
+	sim.use_hero("res://data/heroes/%s.tres" % hero, c[0], c[1])
+	sim.hero_override = h
+	var scaled: Array = group.map(func(d: EnemyData) -> EnemyData: return BossHpScale.for_hero(ResourceLoader.load(d.resource_path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as EnemyData, h))
+	await sim.setup(scaled[0], s)
+	for i in range(1, scaled.size()):
+		sim.group.append(sim.spawner.spawn_elite(Vector2(-220 + 440 * (i - 1), -300), scaled[i]))
+	sim.miss_rate = miss
+	var r := sim.run(BossSim.Bot.DODGE, 120.0)
+	sim.free_all()
+	return r
 
 
 ## 시뮬레이션 (판 시각 GameTime.clock, 한 프레임 안에서 몇 분을 돌린다): 연출이 판 시각으로 끝나 물결이 끝난다.
