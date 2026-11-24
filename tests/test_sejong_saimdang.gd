@@ -48,6 +48,14 @@ func _enemy_at(pos: Vector2) -> Enemy:
 	return e
 
 
+## 박자 타격 (WaveRake: 성좌진 별빛·매화 꽃잎)을 다 끝날 때까지 돌린다.
+func _rake_out(frames: int = 60) -> void:
+	for i in frames:
+		for n in get_children():
+			if n is WaveRake and not n.is_queued_for_deletion():
+				(n as WaveRake)._physics_process(DT)
+
+
 func _of(t: Variant) -> Array:
 	return get_children().filter(func(c: Node) -> bool: return is_instance_of(c, t))
 
@@ -107,6 +115,7 @@ func test_meteor_falls_after_delay_and_stuns() -> void:
 	assert_int(e.health.current).is_equal(e.health.max)
 	for i in 20:
 		run.tick(DT)
+	_rake_out()  # 본 충격 + 여진 (BeatHits), 총 피해는 그대로
 	assert_int(e.health.current).is_equal(e.health.max - s.damage)
 	assert_bool(e.is_stunned()).is_true()
 
@@ -120,6 +129,7 @@ func test_constellation_star_count_and_lines() -> void:
 	var e := _enemy_at(pts[0] * 0.5)  # 첫 선 위
 	var run := s.cast(ctx, 0.5)
 	assert_int(run.hits).is_greater_equal(1)
+	_rake_out()
 	assert_int(e.health.current).is_less(e.health.max)
 
 
@@ -187,4 +197,5 @@ func test_plum_blossom_heals_and_hits() -> void:
 	var e := _enemy_at(Vector2(100, 0))
 	s.cast(ctx, 0.0)
 	assert_int(player.health.current).is_equal(40 + s.heal)
+	_rake_out()  # 꽃잎 여러 번 (BeatHits), 총 피해는 그대로
 	assert_int(e.health.current).is_equal(e.health.max - s.damage)

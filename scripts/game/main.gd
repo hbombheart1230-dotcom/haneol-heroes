@@ -107,6 +107,12 @@ func _ready() -> void:
 	_start_flow()
 
 
+## 안드로이드 뒤로 가기 (project.godot quit_on_go_back=false): 앱을 끄지 않고 설정을 열고 닫는다.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_GO_BACK_REQUEST and settings:
+		settings.back()
+
+
 ## 판 전 화면 순서 (StartFlow). 화면이 다 끝나면 begin_run.
 func _start_flow() -> void:
 	flow.next()

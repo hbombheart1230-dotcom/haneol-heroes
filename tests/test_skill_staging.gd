@@ -50,6 +50,17 @@ func _enemy_at(pos: Vector2) -> Enemy:
 	return e
 
 
+## 기술 진행과 박자 타격 (WaveRake: 성좌진 별빛 등)을 같이 돌린다.
+func _run_beats(run: SkillRun, seconds: float) -> void:
+	var t := 0.0
+	while t < seconds:
+		run.tick(DT)
+		for n in get_children():
+			if n is WaveRake and not n.is_queued_for_deletion():
+				(n as WaveRake)._physics_process(DT)
+		t += DT
+
+
 func _run(run: SkillRun, seconds: float) -> void:
 	var t := 0.0
 	while t < seconds and not run.finished:
@@ -145,9 +156,10 @@ func test_constellation_stars_land_one_by_one() -> void:
 	var first := _enemy_at(pts[0] * 0.5)
 	var last := _enemy_at(pts[pts.size() - 1].lerp(pts[pts.size() - 2], 0.5))
 	var run := s.cast(ctx, 1.0)
+	_run_beats(run, 0.12)  # 첫 별: 선 + 별빛 두 타 (BeatHits)
 	assert_int(first.health.current).is_equal(1000 - s.damage)
 	assert_int(last.health.current).is_equal(1000)  # 마지막 별은 아직
-	_run(run, 2.0)
+	_run_beats(run, 2.0)
 	assert_bool(run.finished).is_true()
 	assert_int(last.health.current).is_equal(1000 - s.damage)
 	assert_int(first.health.current).is_equal(1000 - s.damage)  # 같은 적은 한 번만

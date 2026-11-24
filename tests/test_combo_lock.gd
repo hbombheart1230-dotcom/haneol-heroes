@@ -7,6 +7,8 @@ const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
 const YI := preload("res://data/heroes/yi_sun_sin.tres")
 const SOLDIER := preload("res://data/enemies/waegun_soldier.tres")
 const DT := 1.0 / 60.0
+## 붙기 장치 자체를 보는 켜진 붙기 데이터 (순신 데이터는 사용자 결정으로 꺼짐, 2026-11-24 "순신이한테만 있는 거 빼자").
+var LOCK := ComboLockData.new()
 
 
 func after_test() -> void:
@@ -18,7 +20,9 @@ func _rig() -> Array:
 	var h := Health.new()
 	h.name = "Health"
 	p.add_child(h)
-	p.hero = YI
+	var hd: HeroData = YI.duplicate()
+	hd.combo_lock = LOCK
+	p.hero = hd
 	add_child(p)
 	p.set_physics_process(false)
 	var a := AutoAttack.new()
@@ -121,14 +125,15 @@ func test_pull_toward_target_on_contact() -> void:
 	var p: Player = r[0]
 	var a: AutoAttack = r[1]
 	var e := _enemy(Vector2(130, 0))
-	a.lock.on_contact(YI.combo_lock, p, [e], Vector2.RIGHT)
+	a.lock.on_contact(LOCK, p, [e], Vector2.RIGHT)
 	assert_float(p._recoil_left).is_greater(0.0)
 	assert_float(p._recoil_vel.x).is_greater(0.0)
 	var gap := 130.0 - e.body_radius * e.size_mult - p.body_radius
-	assert_float(p._recoil_vel.x * YI.combo_lock.pull_time).is_less_equal(minf(gap - YI.combo_lock.ideal_gap, YI.combo_lock.pull_max) + 0.5)
+	assert_float(p._recoil_vel.x * LOCK.pull_time).is_less_equal(minf(gap - LOCK.ideal_gap, LOCK.pull_max) + 0.5)
 
 
 func test_other_heroes_off() -> void:
+	assert_bool(YI.combo_lock.enabled).is_false()  # 순신도 끔 (데이터로, 장치는 남김)
 	for id in ["gwanggaeto", "sejong", "shin_saimdang"]:
 		assert_object((load("res://data/heroes/%s.tres" % id) as HeroData).combo_lock).is_null()
 
@@ -141,12 +146,14 @@ func test_horde_clear_time_with_and_without_lock() -> void:
 			for v in [0, 1]:
 				var sim := HordeSim.new(self)
 				await sim.setup(null, s)
-				if v == 0:
-					sim.player.hero.combo_lock = null
+				sim.player.hero.combo_lock = null if v == 0 else LOCK  # 켜진 붙기와 비교 (순신 데이터는 꺼짐)
 				sim.spawn_horde(n, 5.0)
 				var res := sim.run_horde(HordeSim.HordeBot.MELEE)
 				print(HordeSim.horde_line("lock %s n%d s%d" % ["off" if v == 0 else "on ", n, s], res))
 				sums[v] += res["time"]
 				sim.free_all()
 	print("[horde-sim] mean clear: lock off %.1fs, on %.1fs" % [sums[0] / 9.0, sums[1] / 9.0])
-	assert_float(sums[1]).is_less_equal(sums[0] * 1.1)
+	# 붙기는 지금 어느 영웅도 켜지 않았다 (순신도 데이터로 끔, 2026-11-24): 켠 영웅이 있을 때만 상한(+10%)을 지킨다.
+	# 순신 전진을 광개토 수준으로 줄인 뒤 켜 보면 +12% (82.3 → 84.1초 상한 넘음): 다시 켜려면 전진·틈 값부터 맞출 것.
+	if YI.combo_lock and YI.combo_lock.enabled:
+		assert_float(sums[1]).is_less_equal(sums[0] * 1.1)

@@ -15,6 +15,8 @@ var skill: SkillDef
 var defer_stop: bool = false
 ## 충전 조준 (SkillDef.charge_aim): 모으는 동안 잡은 방향. ZERO면 없음.
 var aim_dir: Vector2 = Vector2.ZERO
+## 모으는 동안 끌어서 잡았는지 (끌지 않았으면 자동인 기술은 예전처럼, SkillDef.charge_aim_auto).
+var aim_steered: bool = false
 var _thud_done: bool = false
 
 

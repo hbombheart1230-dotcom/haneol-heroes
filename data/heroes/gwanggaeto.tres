@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="HeroData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Resource" path="res://data/heroes/charge_steps/gwanggaeto.tres" id="charge_steps"]
 [ext_resource type="Texture2D" path="res://assets/ui/heroes/gwanggaeto.png" id="card_art"]
 [ext_resource type="Script" path="res://scripts/data/basic_attack_data.gd" id="2_attack"]
 [ext_resource type="Script" path="res://scripts/skills/skill_kit.gd" id="3_kit"]
@@ -120,6 +121,9 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_lightning")
 impact_sfx = &"gugak_big"
 cast_anim = &"cast_charge"
+charge_scaling = ExtResource("charge_steps")
+charge_aim = true
+charge_aim_auto = true
 cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_conq"]
@@ -147,6 +151,7 @@ cast_lead = 0.2
 [sub_resource type="Resource" id="Kit_gw"]
 script = ExtResource("3_kit")
 tap = SubResource("Skill_quake")
+finisher_recover = 0.3
 dash = SubResource("Skill_trail")
 charge = SubResource("Skill_bolt")
 counter = SubResource("Skill_conq")
