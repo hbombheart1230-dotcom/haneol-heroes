@@ -56,6 +56,7 @@ func run_horde(bot: HordeBot, limit: float = 60.0) -> Dictionary:
 			caster.combo_tap()
 		atk.tick(DT, list)
 		_tick_shots(list)
+		_tick_rakes()  # 기술 박자 타격 (WaveRake): 손으로 굴려 물리 틱이 돌지 않는다 (BossSim과 같이)
 		_tick_world(list, res)
 		if player.skill_invuln_left() > 0.0:
 			inv += DT
