@@ -26,6 +26,9 @@ var _len: float = 3.0
 ## 띠 글자 (보스가 사라진 뒤에도 그리려고 들고 있는다).
 var _sub: String = ""
 var _name: String = "적장"
+## 한꺼번에 나온 중간 우두머리 이름들 (띠에 한 줄씩). 첫 이름이 뜬 뒤 _collect초 안에 나온 이웃을 모은다.
+var _names: PackedStringArray = PackedStringArray()
+var _collect: float = 0.0
 var _tint: CanvasModulate
 
 
@@ -35,8 +38,13 @@ func _ready() -> void:
 	if spawner:
 		spawner.boss_spawned.connect(show_boss)
 		spawner.elite_spawned.connect(func(e: Enemy) -> void:
-			if e.data and e.data.boss_feel and not boss_alive():  # 중간 보스 (무리면 처음 하나만 띠)
-				show_boss(e))
+			if not (e.data and e.data.boss_feel):
+				return
+			if _collect > 0.0:  # 같이 나온 이웃: 같은 띠에 이름만 더한다
+				add_name(e)
+			elif not boss_alive():  # 중간 보스 (무리면 처음 하나가 띠를 연다)
+				show_boss(e)
+				_collect = WaveBannerData.default().group_collect_time)
 
 
 func show_boss(b: Enemy) -> void:
@@ -48,12 +56,20 @@ func show_boss(b: Enemy) -> void:
 	if b and b.data and b.data.boss_feel and b.data.boss_feel.intro_subtitle != "":
 		_sub = b.data.boss_feel.intro_subtitle
 	_name = b.data.display_name if b and b.data and b.data.display_name != "" else "적장"
+	_names = PackedStringArray([_name])
+	_collect = 0.0
 	if b and b.data and b.data.boss_feel:
 		b.killed.connect(_on_boss_killed.bind(b.data.boss_feel), CONNECT_ONE_SHOT)
 	if Feedback.instance:
 		Feedback.instance.add_trauma(0.8)
 		Feedback.instance.haptic(120, 1.0)
 		Feedback.instance.play(&"counter")
+
+
+## 같은 띠에 이웃 이름 더하기 (이름이 없으면 적지 않는다).
+func add_name(e: Enemy) -> void:
+	if e and e.data and e.data.display_name != "" and not _names.has(e.data.display_name):
+		_names.append(e.data.display_name)
 
 
 ## 처치 띠: 승리 화면이 뜨기 조금 전에 빠지게 (승리하면 멈춘 채 남지 않도록).
@@ -75,6 +91,7 @@ func boss_alive() -> bool:
 
 func step(delta: float) -> void:
 	_t += delta
+	_collect = maxf(_collect - delta, 0.0)
 	if _t < pulse_time and boss_alive() and not defeated:  # 0 → 1 → 0을 pulses번 (깜박임)
 		mood = 0.5 - 0.5 * cos(TAU * pulses * _t / maxf(pulse_time, 0.01))
 	else:
@@ -141,16 +158,27 @@ func _draw_banner(vp: Vector2) -> void:
 	var k_in := clampf(_t / 0.3, 0.0, 1.0)
 	var a := minf(k_in, clampf((_len - _t) / 0.5, 0.0, 1.0))
 	var cy := vp.y * 0.34
-	var band := Rect2(0, cy - 100, vp.x, 200)
+	var d := WaveBannerData.default()
+	var lines := _names if not defeated and _names.size() > 1 else PackedStringArray([_name])
+	var extra := (lines.size() - 1) * d.group_line_gap
+	var px := name_px if lines.size() == 1 else d.group_name_px
+	var band := Rect2(0, cy - 100, vp.x, 200 + extra)
 	draw_rect(band, Color(0.05, 0.02, 0.02, 0.8 * a))
 	var half := vp.x * 0.42 * (1.0 - pow(1.0 - k_in, 3.0))
 	UiStyle.gold_rule(self, Vector2(vp.x * 0.5, band.position.y + 14), half, a)
 	UiStyle.gold_rule(self, Vector2(vp.x * 0.5, band.end.y - 14), half, a)
 	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, cy - 44), _sub, 40 if defeated else 32, Color(UiStyle.PAPER, a), vp.x,
 		Color(0, 0, 0, 0.8 * a), 6)
-	var name_text := _name
 	var pop := 1.0 + 0.35 * (1.0 - k_in)
 	draw_set_transform(Vector2(vp.x * 0.5, cy + 46), 0.0, Vector2.ONE * pop)
-	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-vp.x * 0.5, 0), name_text, name_px,
-		Color(EnemyNameTag.BOSS_COLOR, a), vp.x, Color(0, 0, 0, 0.9 * a), 10)
+	for i in lines.size():
+		var fit := fit_px(lines[i], px, vp.x - d.group_side_margin * 2.0)
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-vp.x * 0.5, i * d.group_line_gap), lines[i], fit,
+			Color(EnemyNameTag.BOSS_COLOR, a), vp.x, Color(0, 0, 0, 0.9 * a), 10)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## 한 줄이 max_w 안에 들게 줄인 글자 크기 (붓글씨 제목 글꼴 기준; 긴 이름이 세로 화면 폭에서 잘리지 않게).
+static func fit_px(text: String, px: int, max_w: float) -> int:
+	var w := UiStyle.TITLE_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	return px if w <= max_w else maxi(int(floor(px * max_w / w)), 16)

@@ -73,7 +73,7 @@ func stop() -> void:
 
 ## 지금 보이는 글이 차지하는 자리 (화면 좌표, 안 보이면 빈 칸). 영웅 대사가 이 자리를 피한다.
 func text_rect() -> Rect2:
-	if _n == 0 or _alpha <= 0.0 or data == null:
+	if _n == 0 or _alpha <= 0.0 or data == null or _under_boss_banner():
 		return Rect2()
 	var px := size_for(_n, finishing(), data)
 	var vp := size if size.x > 0.0 else get_viewport_rect().size
@@ -134,8 +134,17 @@ static func size_for(n: int, finishing_now: bool, d: ComboTextData) -> int:
 	return mini(d.size_base + d.size_step * maxi(n - 1, 0), d.size_max)
 
 
+## 우두머리 등장 띠(이름)나 물결 알림 띠가 떠 있는 동안은 글씨를 그리지 않는다 (이름 위에 겹쳐 읽기 어렵지 않게). 수는 계속 센다.
+func _under_boss_banner() -> bool:
+	var b := get_node_or_null("../BossBanner") as BossBanner
+	if b != null and b.banner_visible():
+		return true
+	var hud := get_parent() as Hud
+	return hud != null and hud.wave_banner_showing()
+
+
 func _draw() -> void:
-	if _n == 0 or data == null:
+	if _n == 0 or data == null or _under_boss_banner():
 		return
 	var fin := finishing()
 	var px := size_for(_n, fin, data)
