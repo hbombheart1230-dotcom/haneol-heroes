@@ -2,7 +2,7 @@
 
   python tools/art/korean_title_art.py
 글꼴: assets/fonts/DeogonPrincess.ttf (국립한글박물관 덕온공주체, 게임 글꼴과 같다)
-만드는 것: assets/ui/title_bg.png (720x1280), assets/ui/splash.png (450x800), assets/store/feature_graphic_1024x500.png
+만드는 것: assets/ui/splash.png (450x800, assets/ui/title_bg.png 원본에 제목을 얹음), assets/store/feature_graphic_1024x500.png
 """
 import os
 
@@ -50,16 +50,11 @@ def title(img: Image.Image, cy: int, scale: float) -> Image.Image:
 
 
 def main() -> None:
-    k = Image.open(os.path.join(ROOT, "assets/concept/keyart/keyart_portrait.png")).convert("RGB")
-    w, h = k.size
-    cw = int(h * 9 / 16)
-    x0 = (w - cw) // 2
-    t = k.crop((x0, 0, x0 + cw, h)).resize((720, 1280), Image.LANCZOS)
-    t = title(cover(t, int(1280 * 0.63), int(1280 * 0.93)), int(1280 * 0.75), 1.0).convert("RGB")
-    t.save(os.path.join(ROOT, "assets/ui/title_bg.png"), optimize=True)
-    t.resize((450, 800), Image.LANCZOS).quantize(80, method=Image.Quantize.MEDIANCUT,
-                                                 dither=Image.Dither.FLOYDSTEINBERG).save(
-        os.path.join(ROOT, "assets/ui/splash.png"), optimize=True)
+    # title_bg.png는 사용자 그림 원본(글자 없음, 화면에서 제목을 따로 그린다). 스플래시만 제목을 얹어 만든다.
+    t = Image.open(os.path.join(ROOT, "assets/ui/title_bg.png")).convert("RGB")
+    sp = t.resize((450, 800), Image.LANCZOS)
+    sp = title(cover(sp, int(800 * 0.74), 800), int(800 * 0.85), 450 / 720).convert("RGB")
+    sp.save(os.path.join(ROOT, "assets/ui/splash.png"), optimize=True)
     lw = Image.open(os.path.join(ROOT, "assets/concept/keyart/keyart_landscape.png")).convert("RGB")
     W, H = lw.size
     ch = int(W * 500 / 1024)

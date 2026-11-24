@@ -5,6 +5,7 @@ extends Control
 signal entered
 
 const BG := preload("res://assets/ui/title_bg.png")
+const DARK := Color(0.05, 0.04, 0.04)  # 그림 아래 어둠과 이어지는 빈자리 색
 
 var _t: float = 0.0
 var _press_index: int = -1
@@ -71,40 +72,52 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 
-## 키아트 전체가 보이게 맞춘다 (세로로 긴 폰에서 양옆 영웅 얼굴이 잘리지 않게).
-## 남는 위아래는 그림 가장자리 띠를 늘여 잇고 바깥으로 갈수록 어둡게. 스플래시(Keep)와 같은 크기.
+## 키아트(원본 그대로, 글자 없음): 가로를 화면에 맞추고 위쪽에 붙인다 (좌우 영웅이 잘리지 않게).
+## 아래가 모자라면(긴 폰) 그림 아랫가장자리 띠를 늘여 잇고 아래로 갈수록 어둡게 — 제목·단추 자리.
+## 가로로 넓은 화면(태블릿)은 높이를 맞추고 양옆을 어둡게 채운다. 스플래시(Keep)와 같은 위치.
 func art_rect(vp: Vector2) -> Rect2:
 	var ts := Vector2(BG.get_width(), BG.get_height())
 	var s := ts * minf(vp.x / ts.x, vp.y / ts.y)
-	return Rect2((vp - s) * 0.5, s)
+	return Rect2(Vector2((vp.x - s.x) * 0.5, 0.0), s)
 
 
 func _draw_art(vp: Vector2) -> void:
 	var r := art_rect(vp)
 	var ts := Vector2(BG.get_width(), BG.get_height())
-	var edge := 6.0
-	if r.position.y > 0.5:  # 위·아래 띠
-		draw_texture_rect_region(BG, Rect2(r.position.x, 0, r.size.x, r.position.y + 1), Rect2(0, 0, ts.x, edge))
-		draw_texture_rect_region(BG, Rect2(r.position.x, r.end.y - 1, r.size.x, vp.y - r.end.y + 1),
-			Rect2(0, ts.y - edge, ts.x, edge))
-		_fade(Rect2(0, 0, vp.x, r.position.y), true)
-		_fade(Rect2(0, r.end.y, vp.x, vp.y - r.end.y), false)
+	if r.end.y < vp.y - 0.5:  # 아래 빈자리: 그림 끝 어둠과 같은 색으로 채운다
+		draw_rect(Rect2(0, r.end.y - 1.0, vp.x, vp.y - r.end.y + 1.0), DARK)
 	if r.position.x > 0.5:  # 가로로 넓은 화면 (태블릿): 양옆
 		draw_rect(Rect2(0, 0, r.position.x, vp.y), Color(0.04, 0.035, 0.05))
 		draw_rect(Rect2(r.end.x, 0, vp.x - r.end.x, vp.y), Color(0.04, 0.035, 0.05))
 	draw_texture_rect(BG, r, false)
+	if r.end.y < vp.y - 0.5:  # 그림 아래 12%를 점점 어둡게 → 빈자리와 이음매 없이 이어진다
+		_fade(Rect2(0, r.end.y - r.size.y * 0.12, vp.x, r.size.y * 0.12 + 1.0), 1.0)
 
 
-## 그림에서 멀어질수록 어둡게 (dark_at_top: 위쪽 띠는 맨 위가 가장 어둡다).
-func _fade(r: Rect2, dark_at_top: bool) -> void:
-	if r.size.y <= 0.0:
-		return
-	var far := Color(0.04, 0.035, 0.05, 0.95)
-	var near := Color(0.04, 0.035, 0.05, 0.35)
-	var top := far if dark_at_top else near
-	var bottom := near if dark_at_top else far
+## 위는 투명, 아래로 갈수록 어둡게 (끝 불투명도 a).
+func _fade(r: Rect2, a: float) -> void:
+	var near := Color(DARK, 0.0)
+	var far := Color(DARK, a)
 	draw_polygon(PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)]),
-		PackedColorArray([top, top, bottom, bottom]))
+		PackedColorArray([near, near, far, far]))
+
+
+## 붓글씨 제목 "한얼 영웅들" + 작은 글줄 + 붉은 낙관(한·얼). 화면 너비에 맞춰 키운다 (720px 너비 기준 1.0).
+func _title_center_y(vp: Vector2) -> float:
+	return minf(vp.y * 0.8, vp.y - 330.0 * vp.x / 720.0)
+
+
+func _draw_title(vp: Vector2) -> void:
+	var k := vp.x / 720.0
+	var cy := _title_center_y(vp)
+	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0.0, cy + 46.0 * k), "한얼 영웅들", int(132.0 * k), UiStyle.GOLD, vp.x)
+	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0.0, cy + 100.0 * k), "역사의 전장에 선 네 영웅", int(34.0 * k), UiStyle.PAPER, vp.x)
+	var sz := 70.0 * k  # 낙관
+	var seal := Rect2(vp.x * 0.5 + 270.0 * k, cy - 40.0 * k, sz, sz)
+	draw_rect(seal, Color(0.69, 0.12, 0.09))
+	for i in 2:
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(seal.position.x, seal.position.y + sz * (0.44 + 0.42 * i)),
+			"한얼".substr(i, 1), int(30.0 * k), Color(0.98, 0.92, 0.86), sz)
 
 
 func _draw() -> void:
@@ -112,10 +125,10 @@ func _draw() -> void:
 		return
 	var vp := _vp()
 	_draw_art(vp)
-	# 아래쪽 어둡게 (단추가 잘 보이게)
-	for i in 12:
-		var y := vp.y * (0.62 + i * 0.032)
-		draw_rect(Rect2(0, y, vp.x, vp.y * 0.032 + 1.0), Color(0, 0, 0, 0.06 * i))
+	# 아래쪽 어둡게 (제목·단추가 잘 보이게): 제목 위부터 서서히
+	var dy := _title_center_y(vp) - 200.0 * vp.x / 720.0
+	_fade(Rect2(0, dy, vp.x, vp.y - dy), 0.88)
+	_draw_title(vp)
 	var r := button_rect()
 	var pulse := 1.0 + sin(_t * 3.0) * 0.03
 	var pr := Rect2(r.get_center() - r.size * pulse * 0.5, r.size * pulse)
