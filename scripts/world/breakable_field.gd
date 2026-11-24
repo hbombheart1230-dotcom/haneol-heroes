@@ -152,7 +152,7 @@ func _draw() -> void:
 		var glint := 0.6 + 0.3 * sin(_t * 3.0)
 		for p in jars:  # 발밑 금빛 먹 고리: 깰 수 있는 물건 표시
 			draw_set_transform(p, 0.0, Vector2(1.0, 0.4))
-			draw_arc(Vector2.ZERO, data.radius * 1.2, 0.0, TAU, 40, Color(Ink.GOLD, glint), 5.0)
+			InkPaint.ring(self, Vector2.ZERO, data.radius * 1.2, Color(Ink.GOLD, glint))
 			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 			draw_texture_rect(data.texture, StageProps.picture_rect(p, size), false)
 	for pot in potions:
@@ -169,8 +169,8 @@ func _draw_potion(p: Vector2, age: float) -> void:
 	if left < 3.0 and fmod(left, 0.4) < 0.15:
 		return
 	draw_set_transform(p, 0.0, Vector2(1.0, 0.45))
-	draw_circle(Vector2(0, 30), 26.0 * POTION_SCALE, Color(0, 0, 0, 0.2))
-	draw_circle(Vector2.ZERO, (40.0 + sin(_t * 4.0) * 5.0) * POTION_SCALE, Color(0.55, 0.9, 0.5, 0.28))
+	InkPaint.wash(self, Vector2(0, 30), 26.0 * POTION_SCALE, Color(0, 0, 0, 0.25))
+	InkPaint.wash(self, Vector2.ZERO, (40.0 + sin(_t * 4.0) * 5.0) * POTION_SCALE, Color(0.55, 0.9, 0.5, 0.4))
 	var base := Transform2D(0.0, Vector2.ONE * POTION_SCALE, 0.0, p + Vector2(0, sin(_t * 3.0 + p.x) * 4.0))
 	draw_set_transform_matrix(base)
 	var bowl := Color(0.95, 0.94, 0.88)
