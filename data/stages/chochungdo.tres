@@ -26,6 +26,8 @@
 [ext_resource type="Resource" path="res://data/enemies/cc_grasshopper.tres" id="e_cc_grasshopper"]
 [ext_resource type="Resource" path="res://data/enemies/cc_beetle.tres" id="e_cc_beetle"]
 [ext_resource type="Resource" path="res://data/enemies/cc_mantis.tres" id="e_cc_mantis"]
+[ext_resource type="Resource" path="res://data/enemies/cc_hopper_captain.tres" id="e_hopper_captain"]
+[ext_resource type="Resource" path="res://data/enemies/cc_beetle_drummer.tres" id="e_beetle_drummer"]
 [ext_resource type="Resource" path="res://data/enemies/cc_frog.tres" id="e_cc_frog"]
 [ext_resource type="Resource" path="res://data/breakables/chochungdo.tres" id="b_chochungdo"]
 [ext_resource type="Resource" path="res://data/songs/chochungdo.tres" id="song"]
@@ -56,6 +58,7 @@ first_count = 6
 max_alive = 8
 elite_last = true
 elite_when_left = 2
+elite_group = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mantis"), ExtResource("e_hopper_captain"), ExtResource("e_beetle_drummer")])
 
 [sub_resource type="Resource" id="Wave_4"]
 script = ExtResource("w_wave")
