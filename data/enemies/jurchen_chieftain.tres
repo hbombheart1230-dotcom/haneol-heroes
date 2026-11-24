@@ -68,7 +68,7 @@ script = ExtResource("2_attack")
 kind = 4
 anim = &"run"
 trigger_range = 460.0
-windup = 0.6
+windup = 0.8
 length = 450.0
 width = 100.0
 miss_overshoot = 60.0
@@ -112,12 +112,28 @@ min_range = 320.0
 follow_up = SubResource("Ju_back")
 follow_gap = 0.35
 
+[sub_resource type="Resource" id="Ju_far_single"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"run"
+trigger_range = 620.0
+windup = 0.9
+length = 450.0
+width = 100.0
+miss_overshoot = 60.0
+miss_recovery = 1.6
+damage = 20
+cooldown = 2.0
+recovery = 1.2
+bypass_cap = true
+min_range = 320.0
+
 [sub_resource type="Resource" id="Ju_ring_outer"]
 script = ExtResource("2_attack")
 kind = 2
 anim = &"attack2"
 trigger_range = 260.0
-windup = 0.55
+windup = 0.8
 radius = 360.0
 damage = 20
 cooldown = 2.0
@@ -135,6 +151,7 @@ damage = 20
 cooldown = 2.0
 recovery = 0.3
 bypass_cap = true
+chain_repeat = true
 follow_up = SubResource("Ju_ring_outer")
 follow_gap = 0.35
 
@@ -151,7 +168,7 @@ stagger_gauge_mult = 1.5
 [sub_resource type="Resource" id="Phase_3"]
 script = ExtResource("4_phase")
 hp_frac = 0.33
-patterns = Array[ExtResource("2_attack")]([SubResource("Ju_there_back"), SubResource("Ju_ring2"), SubResource("Ju_slam"), SubResource("Ju_far_back")])
+patterns = Array[ExtResource("2_attack")]([SubResource("Ju_there_back"), SubResource("Ju_ring2"), SubResource("Ju_slam"), SubResource("Ju_far_single")])
 cooldown_mult = 0.75
 summon = Array[ExtResource("1_enemy")]([ExtResource("5_soldier"), ExtResource("5_soldier"), ExtResource("6_archer")])
 invuln_time = 1.8
@@ -178,11 +195,11 @@ reach_px = 26.0
 color = Color(0.7, 0.55, 0.2, 1)
 knockback_scale = 0.1
 stun_scale = 0.3
-patterns = Array[ExtResource("2_attack")]([SubResource("Ju_charge"), SubResource("Ju_slam"), SubResource("Ju_far_back")])
+patterns = Array[ExtResource("2_attack")]([SubResource("Ju_charge"), SubResource("Ju_slam"), SubResource("Ju_far_single")])
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
 boss_hp_by_hero = {
-"gwanggaeto": 0.85,
+"gwanggaeto": 0.75,
 "sejong": 1.0,
 "shin_saimdang": 0.78,
 "yi_sun_sin": 1.05

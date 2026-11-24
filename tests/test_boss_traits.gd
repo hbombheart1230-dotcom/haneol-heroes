@@ -165,8 +165,8 @@ func test_gyeongbok_boss_traits() -> void:
 	for ph: BossPhaseData in d.phases:
 		assert_float(ph.stagger_gauge_mult).is_greater(1.0)
 	assert_float((d.phases[1] as BossPhaseData).stagger_immune).is_greater(0.0)
-	var far: EnemyAttackData = d.patterns.filter(func(a: EnemyAttackData) -> bool: return a.min_range > 0.0)[0]
-	assert_int(int(far.kind)).is_equal(int(EnemyAttackData.Kind.CHARGE))
+	assert_int(int((d.patterns.filter(func(a: EnemyAttackData) -> bool: return a.min_range > 0.0)[0] as EnemyAttackData).kind)).is_equal(int(EnemyAttackData.Kind.CHARGE))  # 1단계는 홑 돌진
+	var far: EnemyAttackData = (d.phases[0] as BossPhaseData).patterns.filter(func(a: EnemyAttackData) -> bool: return a.min_range > 0.0)[0]
 	assert_float(far.length).is_equal(450.0)
 	assert_int(int(far.follow_up.kind)).is_equal(int(EnemyAttackData.Kind.CHARGE))  # 갔다가 돌아온다
 	var rings: Array = (d.phases[0] as BossPhaseData).patterns.filter(func(a: EnemyAttackData) -> bool:
