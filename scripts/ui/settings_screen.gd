@@ -10,8 +10,8 @@ signal closed
 signal opened
 signal exit_confirmed(mode: StringName)
 
-const ROWS: Array[StringName] = [&"sfx", &"music", &"haptics", &"story", &"skill_button", &"enemy_hp", &"combo_text", &"stats", &"tutorial"]
-const LABELS := {&"sfx": "효과음", &"music": "음악", &"haptics": "타격 진동", &"story": "이야기",
+const ROWS: Array[StringName] = [&"sfx", &"music", &"vocals", &"haptics", &"story", &"skill_button", &"enemy_hp", &"combo_text", &"stats", &"tutorial"]
+const LABELS := {&"sfx": "효과음", &"music": "음악", &"vocals": "노랫소리", &"haptics": "타격 진동", &"story": "이야기",
 	&"skill_button": "기술 단추", &"enemy_hp": "적 체력", &"combo_text": "연타 글씨", &"stats": "개발 수치", &"tutorial": "조작 안내"}
 const ROW_STEP := 92.0
 const SLIDERS: Array[StringName] = [&"sfx", &"music"]
@@ -125,6 +125,7 @@ func value_of(row: StringName) -> Variant:
 	match row:
 		&"sfx": return GameSettings.sfx_volume
 		&"music": return GameSettings.music_volume
+		&"vocals": return GameSettings.vocals_enabled
 		&"haptics": return GameSettings.haptics_enabled
 		&"story": return GameSettings.story_enabled
 		&"skill_button": return GameSettings.skill_button_enabled
@@ -139,6 +140,7 @@ func set_value(row: StringName, v: Variant) -> void:
 	match row:
 		&"sfx": GameSettings.sfx_volume = clampf(float(v), 0.0, 1.0)
 		&"music": GameSettings.music_volume = clampf(float(v), 0.0, 1.0)
+		&"vocals": GameSettings.vocals_enabled = bool(v)
 		&"haptics":
 			GameSettings.haptics_enabled = bool(v)
 			Haptics.pulse(60, 0.7)  # 켜면 바로 한 번 떨려서 알려 준다

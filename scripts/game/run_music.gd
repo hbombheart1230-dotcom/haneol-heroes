@@ -8,6 +8,8 @@ extends RefCounted
 const SONG_SECTION := {&"stage": &"verse", &"boss": &"chorus", &"victory": &"outro", &"defeat": &"intro"}
 
 var main: Node
+## 마지막 음악 신호 (설정에서 노랫소리를 바꿀 때 같은 장면을 다시 틀기 위해).
+var _kind: StringName = &""
 
 
 func _init(m: Node) -> void:
@@ -20,12 +22,29 @@ func cue(kind: StringName) -> void:
 	if jingle and Feedback.instance:
 		Feedback.instance.play_music(jingle, 0.4)
 		return
+	_kind = kind
 	var cfg: RunConfig = main.run_config
 	var song: StageSong = cfg.stage.song if cfg and cfg.stage else null
-	if song:
+	var off := vocal_off_stream(kind, song)
+	if off and Feedback.instance:  # 노랫소리 끔: 판 중(무대·우두머리)만 반주 반복, 우두머리 전환은 짧게 겹쳐 넘김
+		Feedback.instance.play_music(off, song.boss_fade * 0.5)
+	elif song:
 		MusicDirector.play(song, section_for(kind, song))
 	elif Feedback.instance and stage_track(kind):
 		Feedback.instance.play_music(stage_track(kind), 0.6)
+
+
+## 노랫소리 끔일 때 판 중(&"stage"·&"boss") 음악. 해당 없으면 null (원곡 그대로).
+static func vocal_off_stream(kind: StringName, song: StageSong) -> AudioStream:
+	if GameSettings.vocals_enabled or song == null or not (kind == &"stage" or kind == &"boss"):
+		return null
+	return song.vocal_off_stream(kind == &"boss")
+
+
+## 설정에서 노랫소리를 바꿨을 때: 판 중이면 지금 장면의 음악을 다시 (페이드로) 튼다.
+func refresh() -> void:
+	if _kind == &"stage" or _kind == &"boss":
+		cue(_kind)
 
 
 ## 신호 → 구간. 보스는 보스 판이 있으면 그것, 없으면 후렴.

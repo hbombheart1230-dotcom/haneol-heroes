@@ -59,7 +59,7 @@ Korean pansori fusion, epic naval battle, jajinmori 12/8 rhythm, steady tempo 96
 
 [End]
 ```
-**쓴 판:** 첫 번째 버전 (`build/music_src/hansan_1592_v1.mp3`), 72.1 BPM, 첫 박 0.02s — 전주 0–2 / 1절 2–19 / 후렴 19–27 / 후주 54–끝 마디.
+**옛 기록 (지금 쓰는 판은 문서 맨 아래 "실제 쓰는 판" 표):** 첫 번째 버전 (`build/music_src/hansan_1592_v1.mp3`), 72.1 BPM, 첫 박 0.02s — 전주 0–2 / 1절 2–19 / 후렴 19–27 / 후주 54–끝 마디.
 두 번째 버전은 `hansan_1592_v2.mp3`에 보관.
 
 ## 2. 광개토 — 만주 벌판 `영락의 천둥` (비장하게, 멜로디 바꾸기)
@@ -102,7 +102,7 @@ Korean traditional epic, solemn tragic heroism, Goguryeo war march, jungmori 12/
 [End]
 ```
 **주의 (2026-11-21):** 순신 곡과 화음·조성이 거의 같아(크로마 유사도 0.99) 들으면 같은 노래로 느껴짐 → 원곡 오디오 없이(페르소나, 오디오 영향 0) 다른 조성으로 다시 만들 것.
-**쓴 판:** 첫 번째 버전 (`manchuria_395_v1.mp3`), 72 BPM, 첫 박 0.2s — 전주 0–2 / 1절 2–19 / 후렴 19–27 / 후주 56–끝.
+**옛 기록 (지금 쓰는 판은 문서 맨 아래 "실제 쓰는 판" 표):** 첫 번째 버전 (`manchuria_395_v1.mp3`), 72 BPM, 첫 박 0.2s — 전주 0–2 / 1절 2–19 / 후렴 19–27 / 후주 56–끝.
 두 번째 버전은 `manchuria_395_v2.mp3`에 보관.
 
 ## 3. 세종 — 경복궁 `나랏말씀` (궁중·대취타, 멜로디 많이 바꾸기)
@@ -149,7 +149,7 @@ Korean royal court music meets battle march, daechwita royal military procession
 후렴: 백성의 소리를 글로 새겨 / 어둠을 밝히는 빛이 되라 / 하늘의 별이 글이 되니 / 이 나라를 내가 지키리 / 둥 둥 둥 둥 / 나랏말씀이 빛나리라
 (새 곡이 오면 다시 자른다.)
 
-**쓴 판 (v1, 교체 예정):** `gyeongbokgung_1433_v1.mp3`, 122 BPM, 첫 박 0.17s — 전주 0–7 / 1절 7–23 / 후렴 23–31 / 후주 62–끝.
+**옛 기록 (지금은 맨 아래 표):** `gyeongbokgung_1433_v1.mp3`, 122 BPM, 첫 박 0.17s — 전주 0–7 / 1절 7–23 / 후렴 23–31 / 후주 62–끝.
 
 ## 4. 사임당 — 초충도 `먹빛 정원` (가야금 산조·굿거리)
 
@@ -191,7 +191,7 @@ Korean traditional sanjo fantasy, dreamy ink-painting garden, gutgeori 12/8 rhyt
 
 [End]
 ```
-**쓴 판:** `chochungdo_v1.mp3`, 84 BPM, 첫 박 0.26s — 전주 0–4 / 1절 4–20 / 후렴 28–36 / 후주 44–끝.
+**옛 기록 (지금 쓰는 판은 문서 맨 아래 "실제 쓰는 판" 표):** `chochungdo_v1.mp3`, 84 BPM, 첫 박 0.26s — 전주 0–4 / 1절 4–20 / 후렴 28–36 / 후주 44–끝.
 
 ## 5. 오프닝 영상 곡 (Suno 곡 + Suno 뮤비 MP4, 입장 화면 앞)
 
@@ -287,3 +287,22 @@ Korean traditional epic overture, cinematic game opening theme, four heroes awak
 `tools/audio/cut_boss.py`로 뒤쪽 힘찬 구간을 반복용으로 자름 (8마디 단위):
 한산도 152 BPM 68–124마디 (111–201초) · 만주 112.3 BPM 56–96 (119–203초) · 경복궁 123 BPM 48–104 (96–207초) · 초충도 161.5 BPM 60–124 (92–190초).
 보스 등장 → 0.8초 겹쳐 보스 판으로 (StageSong.boss).
+
+## 실제 쓰는 판 (2026-11-24, 잘라 둔 ogg와 원곡을 파형 맞춤으로 확인한 정본)
+
+원곡 mp3는 `build/music_src/` (깃 제외). 위 "옛 기록"의 쓴 판 줄은 낡았으니 이 표를 따른다.
+
+| 무대 | 몸통 (전주·1절·후렴·후주) | 우두머리 판 (`boss/`) |
+|---|---|---|
+| 한산 hansan_1592 | `hansan_jindo_v2.mp3` | `boss/hansan_1592.mp3` |
+| 만주 manchuria_395 | `manchuria_miryang_v1.mp3` | `boss/manchuria_395.mp3` |
+| 경복궁 gyeongbokgung_1433 | `gyeongbok_arirang_v1.mp3` | `boss/gyeongbokgung_1433.mp3` |
+| 초충도 chochungdo | `chochungdo_jeongseon_v1.mp3` | `boss/chochungdo.mp3` |
+
+첫 화면 `menu/hanul_arirang.mp3`, 승리 `menu/m4.mp3`, 패배 `menu/m2.mp3`. 나머지 v2·옛 판은 보관용 (노랫소리 끔용 반주 재료로 일부 씀).
+
+### 노랫소리 끔용 반주
+
+설정 "노랫소리"를 끄면 판 중(무대·우두머리)에만 목소리 없는 반주 반복 곡이 나온다 (첫 화면·이야기·승리·패배는 그대로).
+원곡에서 목소리 없는 구간(전주·간주·후주)만 모아 이은 것: 계획 `tools/audio/vocal_off_plan.json`, 만들기 `python tools/audio/make_vocal_off.py`.
+짧은 곡 (한산 무대 34초, 만주 우두머리 25초, 초충도 우두머리 34초)은 Suno에서 "반주만" 판을 받아 `assets/audio/music/<무대>/instrumental_stage.ogg`·`instrumental_boss.ogg`로 갈아 끼우면 된다 (코드·데이터 변경 없음).

@@ -19,6 +19,8 @@ static var skill_button_enabled: bool = false
 static var sfx_volume: float = 0.8
 static var music_volume: float = 0.8
 static var haptics_enabled: bool = true
+## 노랫소리 (설정 "노랫소리", 저장, 처음엔 켬): 끄면 판 중 음악이 목소리 없는 반주로 나온다 (첫 화면·이야기·승리·패배는 그대로).
+static var vocals_enabled: bool = true
 static var story_enabled: bool = true
 ## 왼쪽 아래 개발용 수치 (초당 장면 수·적 수·대시 판정 글자). 처음엔 끔 (설정 "개발 수치"로 켬).
 ## 예전 저장 키(show_stats, 처음 값 켬)는 읽지 않는다 → 이미 깐 폰에서도 꺼진 채로 시작.
@@ -126,6 +128,7 @@ static func load_settings(path: String = "") -> void:
 	sfx_volume = clampf(float(cfg.get_value("sound", "sfx_volume", sfx_volume)), 0.0, 1.0)
 	music_volume = clampf(float(cfg.get_value("sound", "music_volume", music_volume)), 0.0, 1.0)
 	haptics_enabled = bool(cfg.get_value("sound", "haptics", haptics_enabled))
+	vocals_enabled = bool(cfg.get_value("sound", "vocals", true))
 	story_enabled = bool(cfg.get_value("game", "story_enabled", story_enabled))
 	show_stats = bool(cfg.get_value("display", "dev_stats", false))
 	enemy_hp_bars = bool(cfg.get_value("display", "enemy_hp_bars", enemy_hp_bars))
@@ -151,6 +154,7 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("sound", "sfx_volume", sfx_volume)
 	cfg.set_value("sound", "music_volume", music_volume)
 	cfg.set_value("sound", "haptics", haptics_enabled)
+	cfg.set_value("sound", "vocals", vocals_enabled)
 	cfg.set_value("game", "story_enabled", story_enabled)
 	cfg.set_value("display", "dev_stats", show_stats)
 	cfg.set_value("display", "enemy_hp_bars", enemy_hp_bars)

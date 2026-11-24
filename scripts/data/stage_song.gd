@@ -12,6 +12,10 @@ const SECTIONS: Array[StringName] = [&"intro", &"verse", &"chorus", &"outro", &"
 @export var chorus: AudioStream
 @export var outro: AudioStream
 @export var boss: AudioStream
+## 노랫소리 끔용 반주 (판 중에만): 원곡에서 목소리 없는 구간을 이어 붙인 반복 곡 (tools/audio/make_vocal_off.py).
+## 짧은 곡은 같은 이름으로 파일만 갈아 끼우면 된다. 없으면 노랫소리를 꺼도 원곡이 나온다.
+@export var instrumental_stage: AudioStream
+@export var instrumental_boss: AudioStream
 ## 보스 판의 빠르기 (본곡과 다르다).
 @export var boss_bpm: float = 120.0
 ## 보스 판으로 겹쳐 넘어가는 시간(초).
@@ -23,6 +27,20 @@ const SECTIONS: Array[StringName] = [&"intro", &"verse", &"chorus", &"outro", &"
 @export var fade_beats: float = 1.0
 
 var _built: AudioStreamInteractive
+var _loops: Dictionary = {}
+
+
+## 노랫소리 끔용 반복 곡 (boss면 우두머리용). 없으면 null. 원본 리소스는 건드리지 않고 반복만 켠 사본.
+func vocal_off_stream(boss_part: bool) -> AudioStream:
+	var src: AudioStream = instrumental_boss if boss_part else instrumental_stage
+	if src == null:
+		return null
+	if not _loops.has(boss_part):
+		var c := src.duplicate() as AudioStream
+		if c is AudioStreamOggVorbis:
+			(c as AudioStreamOggVorbis).loop = true
+		_loops[boss_part] = c
+	return _loops[boss_part]
 
 
 func section_stream(name: StringName) -> AudioStream:
