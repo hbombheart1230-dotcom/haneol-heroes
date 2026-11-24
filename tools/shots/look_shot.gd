@@ -51,7 +51,10 @@ func _run() -> void:
 	if args.size() > 3 and float(args[3]) > 0.0:
 		cam.zoom = Vector2.ONE * float(args[3])
 		cam.set_meta(&"base_zoom", cam.zoom)
-	for it in arena.props.items:  # 소품 빛(화톳불·석등)이 화면에 들어오게 그 옆으로
+	var at := OS.get_environment("SHOT_AT")  # "x,y" 월드 좌표로 영웅을 옮긴다 (가장자리·소품 구경용)
+	if at != "":
+		player.global_position = Vector2(float(at.split(",")[0]), float(at.split(",")[1]))
+	for it in ([] if at != "" else arena.props.items):  # 소품 빛(화톳불·석등)이 화면에 들어오게 그 옆으로
 		var lit := arena.theme.look.lit_props if arena.theme.look else PackedStringArray(["brazier"])
 		if it[1] == 2 and lit.has(arena.theme.prop_textures[it[3]].resource_path.get_file().get_basename()):
 			player.global_position = (it[0] as Vector2) + Vector2(-150 if it[0].x > 0 else 150, 160)

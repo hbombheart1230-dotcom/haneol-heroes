@@ -13,6 +13,8 @@ var props: StageProps
 var map: MapLayer
 ## 바닥 빛 웅덩이 (무대 look이 있을 때만).
 var lights: LightPools
+## 가장자리 겹침 그림 (무대 look.overlay_texture, 지도 위·빛 아래).
+var edge: MapLayer
 var border: Node2D
 var obstacles: Obstacles
 ## 화면 가장자리 먹 비네트 (HUD 아래, 무대 vignette가 0이면 숨김).
@@ -36,6 +38,9 @@ func _ready() -> void:
 	map = MapLayer.new()
 	map.use_parent_material = false
 	add_child(map)
+	edge = MapLayer.new()
+	edge.use_parent_material = false
+	add_child(edge)
 	lights = LightPools.new()
 	add_child(lights)
 	props = StageProps.new()
@@ -69,6 +74,11 @@ func apply_theme(t: StageTheme) -> void:
 		if map.material:
 			(map.material as ShaderMaterial).set_shader_parameter("map_px", map.rect.size)
 		map.queue_redraw()
+	if edge:
+		edge.texture = t.look.overlay_texture if t.look else null
+		edge.rect = map.rect if map else rect
+		edge.modulate = Color(1, 1, 1, t.look.overlay_alpha if t.look else 1.0)
+		edge.queue_redraw()
 	if vignette:
 		vignette.set_strength(t.vignette)
 	if border:
