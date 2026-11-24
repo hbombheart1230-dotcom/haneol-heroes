@@ -180,6 +180,7 @@ script = ExtResource("3_kit")
 tap = SubResource("Skill_haeryong")
 finisher_recover = 0.11
 finisher_after_strike = 0.04
+dash_auto = true
 dash = SubResource("Skill_pado")
 charge = SubResource("Skill_haeil")
 counter = SubResource("Skill_counter")

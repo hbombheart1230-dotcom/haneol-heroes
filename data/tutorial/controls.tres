@@ -46,11 +46,11 @@ practice_distance = 130.0
 [sub_resource type="Resource" id="dash"]
 script = ExtResource("2_step")
 caption = "내닫기"
-hint = "화면을 빠르게 튕기면 그쪽으로 돌진하고
-손을 떼는 순간 둘째 기술이 나갑니다"
+hint = "적 쪽으로 화면을 빠르게 튕기면
+내닫으며 둘째 기술이 저절로 나갑니다"
 hero_hints = {
-"yi_sun_sin": "적 쪽으로 튕기면 베며 돌진, 반대쪽은 뒤로 빠지기
-손을 떼는 순간 둘째 기술이 나갑니다"
+"yi_sun_sin": "적 쪽으로 튕기면 베며 내닫고 둘째 기술이 저절로,
+반대쪽으로 튕기면 뒤로 빠지기"
 }
 event = &"skill_dash"
 practice_enemy = ExtResource("4_dummy")

@@ -100,7 +100,7 @@ func test_pado_aggregate_hits_count_every_strike_in_range() -> void:
 	e.health.current = 10
 	var c: SkillCaster = auto_free(SkillCaster.new())
 	c.player = p
-	c.kit = HERO.kit
+	c.kit = _old_rule_kit(HERO.kit)  # 예전 "내닫고 떼기" 규칙 (dash_auto 끔). 새 규칙은 test_dash_auto_skill
 	c.enemy_source = func() -> Array: return [e]
 	add_child(c)
 	c.set_physics_process(false)
@@ -118,3 +118,10 @@ func test_skill_fx_colors_match_pre_refactor() -> void:
 	assert_object(HERO.kit.dash.fx_color).is_equal(Color(0.4, 0.9, 1.0))
 	assert_object(HERO.kit.tap.color).is_equal(Color(0.2, 0.5, 0.9))
 	assert_object(HERO.kit.dash.color).is_equal(Color(0.2, 0.85, 0.95))
+
+
+## 내닫아 치기(kit.dash_auto)를 끈 사본: 내닫는 중·직후 손 떼기·탭·단추 = 둘째 기술 (영웅별로 되돌릴 때의 길).
+static func _old_rule_kit(k: SkillKit) -> SkillKit:
+	var c := k.duplicate() as SkillKit
+	c.dash_auto = false
+	return c
