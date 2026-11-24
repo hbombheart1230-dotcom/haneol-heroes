@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="HeroData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Resource" path="res://data/heroes/charge_steps/sejong.tres" id="charge_steps"]
 [ext_resource type="Script" path="res://scripts/data/basic_attack_data.gd" id="2_attack"]
 [ext_resource type="Script" path="res://scripts/skills/skill_kit.gd" id="3_kit"]
 [ext_resource type="Texture2D" path="res://assets/ui/heroes/sejong.png" id="card_art"]
@@ -119,6 +120,7 @@ aim_assist_range = 600.0
 aim_fallback_nearest = true
 impact_sfx = &"gugak_pyeon"
 cast_anim = &"cast_charge"
+charge_scaling = ExtResource("charge_steps")
 cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_counter"]

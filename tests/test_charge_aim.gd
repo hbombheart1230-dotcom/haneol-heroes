@@ -164,9 +164,9 @@ func test_aim_path_draws() -> void:
 	caster.cancel_input()
 
 
-## 이번 적용은 순신만: 다른 영웅 충전 기술은 그대로 (조준 보정 유지, 곡선 없음).
+## 조준은 순신만: 다른 영웅 충전 기술은 조준 없음 (조준 보정 유지). 마디(ChargeScaling)는 넷 다 (다른 셋은 계단, 2026-11-24).
 func test_other_heroes_unchanged() -> void:
 	for id in ["gwanggaeto", "sejong", "shin_saimdang"]:
 		var h: HeroData = load("res://data/heroes/%s.tres" % id)
 		assert_bool(h.kit.charge.charge_aim).is_false()
-		assert_object(h.kit.charge.charge_scaling).is_null()
+		assert_bool(h.kit.charge.charge_scaling.stepped).is_true()

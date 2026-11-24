@@ -22,12 +22,16 @@ extends SkillDef
 @export var crackle_interval: float = 0.045
 
 
+## 모은 만큼 벼락 수 (charge_scaling이 있으면 그 마디대로 계단, 다 모으면 max_bolts).
 func bolt_count(charge: float) -> int:
+	if charge_scaling:
+		return roundi(charge_scaling.between(min_bolts, max_bolts, charge))
 	return roundi(lerpf(min_bolts, max_bolts, clampf(charge, 0.0, 1.0)))
 
 
 func cast(ctx: SkillContext, charge: float) -> SkillRun:
 	var center := ctx.player.global_position
+	ChargeRelease.play(ctx, self, charge, center, ctx.player.facing)  # 모은 만큼 흔들림, 다 모았으면 번쩍임
 	# 죽어서 지워지기 전인 적은 빼고 고른다 (벼락이 헛되이 쓰이지 않게, Codex f7fa7cd).
 	var targets: Array[Enemy] = []
 	for en in ctx.enemies_in_radius(center, search_radius):

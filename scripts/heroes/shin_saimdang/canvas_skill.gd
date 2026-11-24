@@ -19,19 +19,29 @@ extends SkillDef
 @export var damage_mult: float = 1.0
 
 
+## 모은 만큼 화폭 반경·가두는 시간 (charge_scaling이 있으면 그 마디대로 계단, 다 모으면 max).
 func radius_for(charge: float) -> float:
-	return lerpf(min_radius, max_radius, clampf(charge, 0.0, 1.0))
+	return _between(min_radius, max_radius, charge)
+
+
+func hold_for(charge: float) -> float:
+	return _between(min_hold, max_hold, charge)
+
+
+func _between(lo: float, hi: float, charge: float) -> float:
+	return charge_scaling.between(lo, hi, charge) if charge_scaling else lerpf(lo, hi, clampf(charge, 0.0, 1.0))
 
 
 func cast(ctx: SkillContext, charge: float) -> SkillRun:
 	var c := clampf(charge, 0.0, 1.0)
 	var center := ctx.player.global_position
 	var r := radius_for(c)
+	ChargeRelease.play(ctx, self, c, center, ctx.player.facing)  # 모은 만큼 흔들림, 다 모았으면 번쩍임
 	ctx.foretell(center)  # 펼쳐질 화폭으로 먹 기운이 모인다
 	var trapped: Array[Enemy] = []
 	for en in ctx.enemies_in_radius(center, r):
 		if en.health.is_alive():
-			en.stun(lerpf(min_hold, max_hold, c))
+			en.stun(hold_for(c))
 			trapped.append(en)
 	ctx.impact(center, Vector2.ZERO, r)  # 두루마리가 가두는 동안 가운데부터 양옆으로 펼쳐진다 (판정 크기)
 	if ctx.fx:
