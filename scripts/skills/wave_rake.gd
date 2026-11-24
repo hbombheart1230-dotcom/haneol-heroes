@@ -27,6 +27,10 @@ var wave: Projectile
 var total_hits: int = 0
 ## false면 다 끝나도 마무리 멈춤을 걸지 않는다 (반격 사방 검기: 반격이 이미 멈춘 뒤라 한 번만).
 var finale: bool = true
+## true면 앞 타들도 마지막 타처럼 묵직한 한 타 충격 (광개토 쿵-쿵-쾅: 적은 타수에 무게).
+var heavy_ticks: bool = false
+## 비어 있지 않으면 적마다 마지막 타가 들어간 뒤 on_last.call(enemy) (살아 있을 때: 마지막 타에 크게 날리기 등).
+var on_last: Callable
 
 var _en: Array[Enemy] = []
 var _next := PackedFloat32Array()
@@ -189,7 +193,9 @@ func _strike(i: int) -> bool:
 	en.apply_knockback(dv * _push[i][k])
 	var d := SkillMultiHit.data()
 	var from := en.global_position - dv * 200.0
-	HitImpact.on_enemy(en, from, HitImpact.data().skill_step if last else d.tick_step, ctx.spark_color())
+	HitImpact.on_enemy(en, from, HitImpact.data().skill_step if last or heavy_ticks else d.tick_step, ctx.spark_color())
+	if last and on_last.is_valid() and en.health.is_alive():
+		on_last.call(en)
 	if spray:
 		Feedback.vfx_burst(spray, en.global_position, dv, spray_level + (1 if last else 0))
 	var fb := Feedback.instance
