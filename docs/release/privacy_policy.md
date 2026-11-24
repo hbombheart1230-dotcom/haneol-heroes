@@ -1,12 +1,12 @@
 # 개인정보처리방침 초안 — 한얼: 영웅들
 
-> 초안 (2026-11-24, 버전 0.4.0 기준). 연락처는 사용자 결정 (2026-11-24). 공개 주소에 올리는 것은 사용자가 정한다 (아래 "올릴 곳 후보").
+> 게시: https://hbombheart1230-dotcom.github.io/haneol-heroes/ (GitHub Pages, 방침만 담은 `privacy-policy` 가지, 사용자 결정 2026-11-24). 고치면 그 가지의 `index.html`도 같이 고친다.
 
 ## 한국어
 
 **한얼: 영웅들 개인정보처리방침**
 
-시행일: [시행일]
+시행일: 2026년 11월 24일
 
 「한얼: 영웅들」(이하 "게임")은 이용자의 개인정보를 수집하지 않습니다.
 
@@ -22,7 +22,7 @@
 
 **Haneol: Heroes — Privacy Policy**
 
-Effective date: [effective date]
+Effective date: November 24, 2026
 
 Haneol: Heroes ("the game") does not collect any personal information.
 
