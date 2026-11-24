@@ -180,7 +180,7 @@ func cancel_input() -> void:
 
 # --- 한 손 제스처 (이동 손가락) ---
 #   제자리 짧게 탭            → tap (대시 직후면 dash 기술)
-#   제자리 꾹 누르기 → 충전   → 그대로 드래그해 이동 가능 → 떼면 charge
+#   제자리 꾹 누르기 → 충전   → 끌면 조준만 (걷지 않음) → 떼면 charge, 튕기면(내닫기) 모으기 취소 + 내닫기
 #   tap_slop 이상 움직이면 그 누름은 이동이므로 스킬 없음
 
 var _gesture_origin: Vector2 = Vector2.ZERO
@@ -302,6 +302,8 @@ func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float 
 
 
 func tick(delta: float, time: float) -> void:
+	if player:
+		player.walk_locked = _is_charging_alive()  # 모으는 동안 이동 잠금, 끌기는 조준만 (네 영웅 모두, 손가락·버튼 모두)
 	for k in _cd.keys():
 		_cd[k] = maxf(float(_cd[k]) - delta, 0.0)
 	_counter_left = maxf(_counter_left - delta, 0.0)
