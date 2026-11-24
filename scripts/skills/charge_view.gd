@@ -4,6 +4,9 @@ extends RefCounted
 ## 조준 기술이면 먹선 길(ChargeAim). 고리·길 상태는 SkillCaster(_marker(), aim)에 그대로.
 
 static var _fallback: ChargeMarkerData
+static var _sc_src: SkillDef
+static var _sc_level: int = -1
+static var _sc: SkillDef
 
 
 static func _now() -> float:
@@ -33,8 +36,15 @@ static func draw(c: SkillCaster) -> void:
 	var k := c.input.charge_ratio(_now()) if charging else 1.0
 	var m := c._marker()
 	m.draw(c, charging, k)
+	if not charging:
+		_sc = null  # 모을 때마다 새로 (강화로 바뀐 값도 따라간다)
 	if charging and aims(c):
-		c.aim.draw(c, c.kit.charge.aim_length(k), aim_width(c, k), k, m.data if m.data else _default_data())
+		var md := m.data if m.data else _default_data()
+		var d := c.kit.charge
+		if d.charge_aim_auto and not c.aim.steered:
+			return  # 끌지 않으면 예전 자동: 표시 없음
+		if not scaled(d).draw_aim(c, k, c.aim.dir, md):
+			c.aim.draw(c, d.aim_length(k), aim_width(c, k), k, md)
 
 
 ## 조준 길 폭: 쏘는 물결과 같은 성장 단계 배율 (SkillCaster.cast가 SkillGrowthData.scaled_def로 키운 판정과 맞춘다).
@@ -42,6 +52,15 @@ static func aim_width(c: SkillCaster, k: float) -> float:
 	var d := c.kit.charge
 	var w: float = d.aim_width(k)
 	return w * SkillGrowthData.get_default().size_at(d.vfx_level) if SkillGrowthData.applies(d) else w
+
+
+## 성장 단계 배율이 들어간 사본 (발동 때와 같은 SkillGrowthData.scaled_def): 그린 모양 = 판정. 모으기 한 번에 한 번 만든다.
+static func scaled(d: SkillDef) -> SkillDef:
+	if d != _sc_src or d.vfx_level != _sc_level or _sc == null:
+		_sc_src = d
+		_sc_level = d.vfx_level
+		_sc = SkillGrowthData.get_default().scaled_def(d)
+	return _sc
 
 
 ## 충전 기술이 조준하는지 (SkillDef.charge_aim).

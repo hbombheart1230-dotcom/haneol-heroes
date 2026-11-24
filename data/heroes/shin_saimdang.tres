@@ -123,6 +123,8 @@ vfx_impact = ExtResource("vs_canvas")
 sfx_layers = Array[StringName]([&"gugak_gaya"])
 cast_anim = &"cast_charge"
 charge_scaling = ExtResource("charge_steps")
+charge_aim = true
+charge_aim_auto = true
 cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_counter"]

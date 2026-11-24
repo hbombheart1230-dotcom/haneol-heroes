@@ -287,6 +287,7 @@ func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float 
 	ctx.skill = d
 	if slot == Slot.CHARGE:
 		ctx.aim_dir = aim.aim_dir()
+		ctx.aim_steered = aim.active and aim.steered
 		last_charge = charge
 	if d.vfx_cast:
 		Feedback.vfx_burst(d.vfx_cast, d.cast_point(ctx), player.facing, d.vfx_level)  # 세종 정음진은 겨눈 적 자리

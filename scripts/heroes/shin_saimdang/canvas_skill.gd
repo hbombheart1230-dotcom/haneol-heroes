@@ -14,6 +14,9 @@ extends SkillDef
 @export var squeeze_hits: int = 5
 @export var squeeze_start: float = 0.12
 @export var squeeze_accel: float = 0.75
+@export_group("모으며 조준 (끌면)")
+## 모으는 동안 끌면 화폭 가운데를 그 방향으로 이만큼(px) 옮긴다 (끌지 않으면 영웅 자리).
+@export var steer_offset: float = 200.0
 @export_group("큰 변형 · 병풍")
 ## 피해 배율 (큰 변형으로 커진다).
 @export var damage_mult: float = 1.0
@@ -35,6 +38,8 @@ func _between(lo: float, hi: float, charge: float) -> float:
 func cast(ctx: SkillContext, charge: float) -> SkillRun:
 	var c := clampf(charge, 0.0, 1.0)
 	var center := ctx.player.global_position
+	if charge_aim and ctx.aim_steered:  # 끌어서 잡은 자리가 가운데
+		center += aim(ctx) * steer_offset
 	var r := radius_for(c)
 	ChargeRelease.play(ctx, self, c, center, ctx.player.facing)  # 모은 만큼 흔들림, 다 모았으면 번쩍임
 	ctx.foretell(center)  # 펼쳐질 화폭으로 먹 기운이 모인다
@@ -105,3 +110,9 @@ class TrapRun extends SkillRun:
 			ctx.shake(0.25)
 			finished = true
 		return finished
+
+
+## 조준 표시: 끈 방향 steer_offset 자리에 지금 충전의 화폭 반경 원.
+func draw_aim(canvas: CanvasItem, c: float, dir: Vector2, d: ChargeMarkerData) -> bool:
+	ChargeAim.draw_circle_aim(canvas, dir * steer_offset, radius_for(c), c, d)
+	return true

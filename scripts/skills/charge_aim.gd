@@ -6,6 +6,8 @@ extends RefCounted
 
 var dir: Vector2 = Vector2.ZERO
 var active: bool = false
+## 모으는 동안 한 번이라도 끌었는지 (끌지 않으면 자동인 기술은 지금처럼: SkillDef.charge_aim_auto).
+var steered: bool = false
 var _pts := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])  # 길 띠 (돌려 씀)
 var _head := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
 
@@ -17,9 +19,11 @@ func tick(charging: bool, facing: Vector2, move: Vector2, min_input: float) -> v
 		return
 	if not active:
 		active = true
+		steered = false
 		dir = facing.normalized() if facing.length_squared() > 0.0001 else Vector2.DOWN
 	if move.length() >= min_input and move.length_squared() > 0.0001:
 		dir = move.normalized()
+		steered = true
 
 
 ## 모으는 중 잡힌 방향 (모으지 않으면 ZERO).
@@ -46,3 +50,23 @@ func draw(canvas: CanvasItem, length: float, width: float, c: float, d: ChargeMa
 	_head[1] = to - dir * h * 0.4 + dir.orthogonal() * h * 0.6
 	_head[2] = to - dir * h * 0.4 - dir.orthogonal() * h * 0.6
 	canvas.draw_colored_polygon(_head, Color(d.aim_ink, d.aim_ink.a * a))
+
+
+## 바닥 먹 원 (자리를 잡는 기술: 낙뢰·화폭): center(영웅 발밑 기준)에 반경 r. c = 충전 0~1.
+static func draw_circle_aim(canvas: CanvasItem, center: Vector2, r: float, c: float, d: ChargeMarkerData) -> void:
+	if r <= 0.0:
+		return
+	var a := lerpf(d.aim_alpha_min, d.aim_alpha_max, c)
+	canvas.draw_circle(center, r, Color(d.aim_fill, d.aim_fill.a * a))
+	canvas.draw_arc(center, r, 0.0, TAU, 48, Color(d.aim_ink, d.aim_ink.a * a), d.aim_line_width)
+
+
+## 바닥 먹 꺾은선 (별자리): pts를 폭 width로 잇고 마디마다 점. c = 충전 0~1.
+static func draw_polyline_aim(canvas: CanvasItem, pts: PackedVector2Array, width: float, c: float, d: ChargeMarkerData) -> void:
+	if pts.size() < 2:
+		return
+	var a := lerpf(d.aim_alpha_min, d.aim_alpha_max, c)
+	canvas.draw_polyline(pts, Color(d.aim_fill, d.aim_fill.a * a), width)
+	canvas.draw_polyline(pts, Color(d.aim_ink, d.aim_ink.a * a), d.aim_line_width)
+	for p in pts:
+		canvas.draw_circle(p, d.aim_line_width * 2.5, Color(d.aim_ink, d.aim_ink.a * a))

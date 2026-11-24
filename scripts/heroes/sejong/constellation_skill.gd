@@ -47,7 +47,7 @@ func cast(ctx: SkillContext, charge: float) -> SkillRun:
 	var dir := aim(ctx)
 	ChargeRelease.play(ctx, self, charge, from, dir)  # 모은 만큼 흔들림, 다 모았으면 번쩍임
 	var far := -1.0
-	if SkillAim.enabled(ctx):  # 세종: 별자리가 겨눈 적까지 뻗어 마지막 별이 그 적에게 박힌다
+	if SkillAim.enabled(ctx) and not (charge_aim and ctx.aim_steered):  # 세종 (끌지 않았을 때): 별자리가 겨눈 적까지 뻗어 마지막 별이 그 적에게 박힌다
 		var to := SkillAim.point(ctx) - from
 		if to.length() > 1.0:
 			dir = to.normalized()
@@ -115,3 +115,11 @@ class StarChainRun extends SkillRun:
 			next += 1
 			wait += skill.star_step
 		return finished
+
+
+## 조준 표시: 끈 방향으로 지금 충전의 별자리 (영웅 → 별들, 선 폭 = 맞는 폭).
+func draw_aim(canvas: CanvasItem, c: float, dir: Vector2, d: ChargeMarkerData) -> bool:
+	var pts := PackedVector2Array([Vector2.ZERO])
+	pts.append_array(star_points(Vector2.ZERO, dir, star_count(c)))
+	ChargeAim.draw_polyline_aim(canvas, pts, line_width, c, d)
+	return true

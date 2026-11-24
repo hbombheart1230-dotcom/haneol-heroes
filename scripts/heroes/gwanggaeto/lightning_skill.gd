@@ -8,6 +8,10 @@ extends SkillDef
 @export var damage: int = 40
 ## 벼락 하나의 피해 반경 (맞은 적 주변도 함께).
 @export var splash_radius: float = 60.0
+@export_group("모으며 조준 (끌면)")
+## 모으는 동안 끌면 그 방향 steer_reach px 자리를 가운데로 반경 steer_radius 안 적부터 벼락 (끌지 않으면 영웅 주변 자동).
+@export var steer_reach: float = 240.0
+@export var steer_radius: float = 220.0
 @export_group("큰 변형 · 연쇄")
 ## 벼락마다 가까운 적에게 이만큼 더 튄다 (피해 chain_ratio배).
 @export var chain_count: int = 0
@@ -32,9 +36,13 @@ func bolt_count(charge: float) -> int:
 func cast(ctx: SkillContext, charge: float) -> SkillRun:
 	var center := ctx.player.global_position
 	ChargeRelease.play(ctx, self, charge, center, ctx.player.facing)  # 모은 만큼 흔들림, 다 모았으면 번쩍임
+	var r := search_radius
+	if charge_aim and ctx.aim_steered:  # 끌어서 잡은 자리가 가운데
+		center += aim(ctx) * steer_reach
+		r = steer_radius
 	# 죽어서 지워지기 전인 적은 빼고 고른다 (벼락이 헛되이 쓰이지 않게, Codex f7fa7cd).
 	var targets: Array[Enemy] = []
-	for en in ctx.enemies_in_radius(center, search_radius):
+	for en in ctx.enemies_in_radius(center, r):
 		if en.health.is_alive():
 			targets.append(en)
 	targets.sort_custom(func(x: Enemy, y: Enemy) -> bool:
@@ -106,3 +114,9 @@ func _nearest_unstruck(ctx: SkillContext, from: Vector2, struck: Dictionary) -> 
 			best_d = d
 			best = en
 	return best
+
+
+## 조준 표시: 끈 방향 steer_reach 자리에 반경 steer_radius 원 (벼락이 떨어질 곳).
+func draw_aim(canvas: CanvasItem, c: float, dir: Vector2, d: ChargeMarkerData) -> bool:
+	ChargeAim.draw_circle_aim(canvas, dir * steer_reach, steer_radius, c, d)
+	return true
