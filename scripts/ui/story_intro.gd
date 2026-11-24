@@ -174,12 +174,15 @@ func _draw() -> void:
 			draw_texture_rect(s.image, Rect2((vp - sz) * 0.5 + s.pan * vp * p, sz), false, s.tint)
 	if s.lines.size() > 0:  # 아래쪽 먹빛 (글 잘 보이게)
 		_gradient(vp.y * 0.48, vp.y, 0.0, 0.8, vp.x)
+	# 글자 자리: 그림 위 하늘 (fit_width 장면은 그림 높이 기준이라 영웅·산을 가리지 않는다)
+	var art_h := vp.x * s.image.get_height() / s.image.get_width() if s.fit_width and s.image else vp.y
+	var cap_y := art_h * (0.12 if s.fit_width else 0.16)
 	if s.caption != "":
-		_gradient(0.0, vp.y * 0.3, 0.6, 0.0, vp.x)
+		_gradient(0.0, art_h * (0.24 if s.fit_width else 0.3), 0.7 if s.fit_width else 0.6, 0.0, vp.x)
 	if s.caption != "":
 		var ca := clampf((local - data.fade * 0.5) / 1.0, 0.0, 1.0)
-		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, vp.y * 0.16), s.caption, 64, Color(UiStyle.GOLD, ca), vp.x)
-		UiStyle.gold_rule(self, Vector2(vp.x * 0.5, vp.y * 0.16 + 26.0), vp.x * 0.22 * ca, ca)
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, cap_y), s.caption, 64, Color(UiStyle.GOLD, ca), vp.x, Color(0, 0, 0, 0.9), 9)
+		UiStyle.gold_rule(self, Vector2(vp.x * 0.5, cap_y + 26.0), vp.x * 0.22 * ca, ca)
 	var n := s.lines.size()
 	var y0 := vp.y * 0.64 - maxf(n - 3, 0) * 26.0
 	for k in n:
