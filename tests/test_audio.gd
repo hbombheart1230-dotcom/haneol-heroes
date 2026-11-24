@@ -107,3 +107,24 @@ func test_music_switch_crossfades_without_a_silent_gap() -> void:
 	await get_tree().create_timer(0.5).timeout
 	assert_int(fb.get_tree().root.get_child_count()).is_equal(kids)  # 옛 곡 플레이어는 스스로 사라진다
 	assert_float(Feedback._music.volume_db).is_equal_approx(fb.music_volume_db, 0.01)
+
+
+## 무대 노래(인터랙티브 곡)에서 넘어갈 때는 옛 곡을 새 플레이어로 다시 틀지 않는다 (처음 구절부터 다시 들리던 결함).
+## 지금 플레이어가 지금 구간을 그대로 줄이고, 다 줄어든 뒤 새 곡으로 바뀐다.
+func test_interactive_song_is_not_restarted_on_switch() -> void:
+	var fb: Feedback = auto_free(Feedback.new())
+	add_child(fb)
+	var song: AudioStream = (load("res://data/stages/hansan_1592.tres") as StageTheme).song.interactive()
+	assert_bool(song is AudioStreamInteractive).is_true()
+	assert_bool(MusicCrossfade.can_copy(song)).is_false()
+	assert_bool(MusicCrossfade.can_copy(AudioStreamOggVorbis.new())).is_true()
+	fb.play_music(song)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var kids := fb.get_tree().root.get_child_count()
+	var jingle := AudioStreamOggVorbis.new()
+	fb.play_music(jingle, 0.3)
+	assert_int(fb.get_tree().root.get_child_count()).is_equal(kids)  # 옛 곡을 다시 트는 플레이어가 없다
+	assert_object(Feedback.current_music()).is_same(song)  # 아직 지금 곡을 줄이는 중
+	await get_tree().create_timer(0.8).timeout
+	assert_object(Feedback.current_music()).is_same(jingle)

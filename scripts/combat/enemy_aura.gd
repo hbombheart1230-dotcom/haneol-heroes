@@ -27,5 +27,6 @@ static func draw(e: Enemy) -> void:
 	var a := e.data.aura if e.data else null
 	if a == null or a.field_slow_mult >= 1.0:
 		return
-	e.draw_circle(Vector2.ZERO, a.radius, Color(Ink.INK, a.field_alpha))
-	e.draw_arc(Vector2.ZERO, a.radius, 0.0, TAU, 40, Color(Ink.INK, a.field_alpha * 2.0), 3.0)
+	var st := InkUiStyle.default()  # 둘레(반지름)는 그대로, 겉모습만 먹 번짐 + 붓 고리
+	InkPaint.wash(e, Vector2.ZERO, a.radius, Color(Ink.INK, a.field_alpha * st.wash_alpha_mult))
+	InkPaint.ring(e, Vector2.ZERO, a.radius, Color(Ink.INK, a.field_alpha * 2.0 * st.ring_alpha_mult))

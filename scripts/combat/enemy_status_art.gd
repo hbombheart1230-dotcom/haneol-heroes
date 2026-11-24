@@ -25,9 +25,8 @@ static func _draw_poise(e: Enemy) -> void:
 	var ai := Enemy.ai_data()
 	var w := maxf(e.body_radius * e.size_mult * 2.2, 36.0)
 	var at := Vector2(-w * 0.5, e.body_radius * e.size_mult + 6.0)
-	e.draw_rect(Rect2(at, Vector2(w, ai.poise_bar_height)), Color(Ink.INK, 0.55))
 	var col := ai.armor_bar_color if p.armor_max > 0.0 else ai.stagger_bar_color
 	if p.armor_max > 0.0 and not p.is_armored():
 		col = Color(col, 0.35)  # 깨짐: 흐리게 (다시 차는 중)
 		ratio = 1.0 - p.regen_left / maxf(ai.armor_regen_delay, 0.01)
-	e.draw_rect(Rect2(at, Vector2(w * clampf(ratio, 0.0, 1.0), ai.poise_bar_height)), col)
+	InkPaint.bar(e, Rect2(at, Vector2(w, ai.poise_bar_height)), ratio, col, Color(1, 1, 1, 0.55), 2.0)

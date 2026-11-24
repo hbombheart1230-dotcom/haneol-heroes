@@ -116,16 +116,23 @@ func _draw_boss_bar() -> void:
 		BossBarDrawer.draw(self, b, _boss_chip, size.x, BossBarDrawer.TOP_FREE.y, BossBarDrawer.TOP_FREE.x)  # 단계 눈금·자국·전환 무적
 
 
+## 내닫기 충전: 먹 붓 고리 칸 (영웅 체력 띠와 같은 먹·금). 찬 칸 = 금빛 번짐이 속을 채움,
+## 차는 중 = 고리를 따라 금빛 호가 도는 빈 칸, 빈 칸 = 옅은 먹 고리만.
 func _draw_dash_pips() -> void:
 	var d := player.dash
+	var st := InkUiStyle.default()
 	var origin := Vector2(48, size.y - 64)
 	for i in d.max_charges:
 		var c := origin + Vector2(i * 56, 0)
-		draw_circle(c, 20, Color(0, 0, 0, 0.5))
+		var r := st.pip_radius
 		if i < d.charges:
-			draw_circle(c, 16, Color(0.4, 0.8, 1.0))
-		elif i == d.charges:
-			draw_arc(c, 16, -PI / 2, -PI / 2 + TAU * d.get_recharge_ratio(), 24, Color(0.4, 0.8, 1.0, 0.8), 4.0)
+			InkPaint.wash(self, c, r * st.pip_fill_scale, st.pip_gold)
+			InkPaint.ring(self, c, r, st.pip_ring)
+			draw_arc(c, r * 0.9, 0.0, TAU, 24, Color(st.pip_gold, 0.9), 2.0)  # 찼다: 금 테두리가 한 바퀴 닫힘
+		else:
+			InkPaint.ring(self, c, r, st.pip_empty)
+			if i == d.charges:
+				draw_arc(c, r * 0.9, -PI / 2, -PI / 2 + TAU * d.get_recharge_ratio(), 24, Color(st.pip_gold, 0.85), 4.0)
 
 
 func _draw_result() -> void:
