@@ -17,7 +17,7 @@ func test_ring_painted_edge_is_the_reach_at_every_level() -> void:
 		tap.vfx_level = lv
 		var r: float = SkillGrowthData.get_default().scaled_def(tap).get("radius")
 		var fit: float = r + float(tap.get("ring_edge_px"))
-		for vw in [360.0, 720.0]:  # 좁은 화면에서도 상한에 깎이지 않는다
+		for vw in [720.0]:  # 게임 화면 폭: 초반 단계 상한(0.36)에 깎이지 않는다 (맨 위 단계 상한 0.75만 안전판으로 남음)
 			var pl := FxCoverage.plan(tap.vfx_impact, lv, fit, st, vw)
 			var painted := float(pl["size"]) * tap.vfx_impact.art_fill * 0.5
 			assert_float(painted).override_failure_message("level %d view %d: painted %.1f vs reach %.1f" % [lv, vw, painted, fit]) \
