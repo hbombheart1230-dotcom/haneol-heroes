@@ -79,15 +79,21 @@ func test_yi_strike_and_evade_poses_and_rim() -> void:
 	assert_float(rim.strength()).is_equal(p.hero.dash_look.evade_rim)
 
 
-## 돌진 타격이 없는 영웅 (광개토·사임당·세종)은 적 쪽으로 튕겨도 피하는 내닫기.
-func test_heroes_without_dash_strike_always_evade_look() -> void:
+## 네 영웅 모두 치는 내닫기 (사용자 승인 2026-11-24): 적 쪽 = 내지르는 칸, 반대쪽 = 피하는 칸.
+func test_other_heroes_strike_toward_and_evade_away() -> void:
 	for id: String in ["gwanggaeto", "shin_saimdang", "sejong"]:
 		var p := _player(id)
 		_enemy(p.global_position + Vector2(150, 0))
 		await get_tree().physics_frame
 		p.request_dash(Vector2.RIGHT)
-		assert_bool(DashLook.is_evade(p)).override_failure_message(id).is_true()
-		assert_int(DashLook.pose_frame(p, p.hero.sprite_sheet)).is_equal(p.hero.dash_look.evade_frame)
+		assert_bool(DashLook.is_strike(p)).override_failure_message(id).is_true()
+		assert_int(DashLook.pose_frame(p, p.hero.sprite_sheet)).is_equal(p.hero.dash_look.strike_frame)
+		var q := _player(id)
+		_enemy(q.global_position + Vector2(150, 0))
+		await get_tree().physics_frame
+		q.request_dash(Vector2.LEFT)
+		assert_bool(DashLook.is_evade(q)).override_failure_message(id).is_true()
+		assert_int(DashLook.pose_frame(q, q.hero.sprite_sheet)).is_equal(q.hero.dash_look.evade_frame)
 
 
 ## 잔상은 피하는 내닫기에만 남고, 치는 내닫기에는 없다. 영웅 회피의 지나간 길 띠는 끈다.

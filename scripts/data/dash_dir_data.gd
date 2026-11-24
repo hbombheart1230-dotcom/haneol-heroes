@@ -14,6 +14,11 @@ extends Resource
 ## 돌진 피해 = 평타 1타 피해 × 이 값 (1타급 이하), 닿는 폭(px, 영웅 중심에서 + 적 몸 반경).
 @export var strike_damage_mult: float = 0.8
 @export var strike_radius: float = 40.0
+## 영웅 성격 (사용자 승인 2026-11-24, 네 영웅으로 넓힘): 맞은 몹을 내닫는 쪽으로 밀쳐내기 (px 충격, 0이면 없음: 광개토는 묵직하게),
+## 맞은 몹 느리게 (배율·초, 시간 0이면 없음: 원거리 영웅은 약한 피해 대신 묶기).
+@export var strike_push: float = 0.0
+@export var strike_slow: float = 1.0
+@export var strike_slow_time: float = 0.0
 ## 연속 대시: 앞 대시가 끝난 뒤 이 시간(초) 안에 시작한 대시는 타격 없음 (연속 대시에서는 첫 대시만).
 @export var chain_gap: float = 0.6
 ## 돌진 타격의 대가: 맞힌 게 있으면 대시 충전을 이만큼 더 쓴다 (0이면 없음).

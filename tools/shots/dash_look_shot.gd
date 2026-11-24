@@ -1,8 +1,8 @@
 extends SceneTree
 ## 내닫기 생김새 나누기 전·후 (DashLookData): 실제 한산 장면, 3D 순신 오른쪽에 왜군 병사.
 ## 윗줄 = 치는 내닫기 (적 쪽): 대시 중 · 도착 직후 (칼 궤적). 아랫줄 = 피하는 내닫기 (반대쪽): 대시 중 · 도착 직후 (잔상·금테).
-## "before"면 같은 판에서 dash_look을 비워 예전 그림.
-## godot --path . --resolution 720x1280 -s res://tools/shots/dash_look_shot.gd -- <before|after> <출력 png>
+## "before"면 같은 판에서 dash_look을 비워 예전 그림, "nostrike"면 돌진 타격(dash_dir)만 비움 (치는 내닫기를 네 영웅으로 넓히기 전).
+## godot --path . --resolution 720x1280 -s res://tools/shots/dash_look_shot.gd -- <before|nostrike|after> <출력 png> [영웅 id=yi_sun_sin]
 
 const CROP := Vector2i(420, 420)
 
@@ -13,12 +13,15 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
-	var main: Node = await ShotStage.open(self)
+	var main: Node = await ShotStage.open(self, &"hansan_1592", StringName(args[2]) if args.size() > 2 else &"yi_sun_sin")
 	await _wait(3.2)
 	var player := main.get_node("Player") as Player
 	if args[0] == "before":
 		player.hero = player.hero.duplicate()
 		player.hero.dash_look = null
+	elif args[0] == "nostrike":
+		player.hero = player.hero.duplicate()
+		player.hero.dash_dir = null
 	var atk := player.get_node_or_null("AutoAttack")
 	if atk:
 		atk.set_physics_process(false)

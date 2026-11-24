@@ -101,29 +101,65 @@ func test_toggle_and_other_heroes() -> void:
 	p.request_dash(Vector2.RIGHT)
 	assert_int(p.dash_kind).is_equal(DashDirection.Kind.CHARGE)
 	assert_bool(p.dash_strikes).is_false()
-	for id in ["gwanggaeto", "sejong", "shin_saimdang"]:
-		assert_object((load("res://data/heroes/%s.tres" % id) as HeroData).dash_dir).is_null()
 
 
-## 잡몹 떼 6/8/10 × 씨앗 셋: 돌진만 쓰는 봇이 평타 봇보다 유리하지 않다 (잡는 시간이 더 길거나 받은 피해가 더 크다).
+
+## 네 영웅 모두 같은 규칙 (사용자 승인 2026-11-24): 충전 하나 더 + 끝 경직. 성격은 데이터로: 광개토는 묵직하게 밀쳐냄, 원거리(세종·사임당)는 약한 피해 + 다른 효과.
+func test_every_hero_strikes_with_the_same_cost() -> void:
+	var yi_mult := YI.dash_dir.strike_damage_mult
+	for id in ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]:
+		var d := (load("res://data/heroes/%s.tres" % id) as HeroData).dash_dir
+		assert_object(d).override_failure_message(id).is_not_null()
+		assert_bool(d.strike_enabled).override_failure_message(id).is_true()
+		assert_int(d.strike_extra_charge).override_failure_message(id).is_equal(1)
+		assert_float(d.strike_end_lag).override_failure_message(id).is_greater(0.0)
+	var gw := (load("res://data/heroes/gwanggaeto.tres") as HeroData).dash_dir
+	assert_float(gw.strike_push).is_greater(0.0)
+	for id in ["sejong", "shin_saimdang"]:
+		var d := (load("res://data/heroes/%s.tres" % id) as HeroData).dash_dir
+		assert_float(d.strike_damage_mult).override_failure_message(id).is_less(yi_mult)
+		assert_bool(d.strike_push > 0.0 or d.strike_slow_time > 0.0).override_failure_message(id).is_true()
+
+
+## 밀쳐내기·느리게: 돌진 타격이 맞힌 몹에 데이터 값대로.
+func test_strike_push_and_slow() -> void:
+	var p := _player()
+	var e := _enemy(Vector2(40, 0))
+	var d: DashDirData = YI.dash_dir.duplicate()
+	d.strike_push = 300.0
+	d.strike_slow = 0.5
+	d.strike_slow_time = 1.0
+	var h: HeroData = YI.duplicate()
+	h.dash_dir = d
+	p.hero = h
+	p.request_dash(Vector2.RIGHT)
+	assert_bool(p.dash_strikes).is_true()
+	p.velocity = Vector2.RIGHT * 800.0
+	DashDirection.tick(p, [e], DT)
+	assert_bool(p.dash_struck.has(e.get_instance_id())).is_true()
+	assert_float(e.knockback.x).is_greater(0.0)
+	assert_float(e.speed_scale()).is_less(0.6)
+
+
+## 잡몹 떼 6/8/10 × 씨앗 셋, 네 영웅: 돌진만 쓰는 봇이 평타 봇보다 유리하지 않다 (잡는 시간이 더 길거나 받은 피해가 더 크다).
 func test_dash_only_bot_is_not_better_than_melee() -> void:
-	var rows: Array = []
-	var dash_better := 0
-	for n in [6, 8, 10]:
-		for s in [1, 2, 3]:
-			var r: Array = []
-			for bot in [HordeSim.HordeBot.MELEE, HordeSim.HordeBot.DASH]:
-				var sim := HordeSim.new(self)
-				await sim.setup(null, s)
-				sim.spawn_horde(n, 5.0)
-				var res := sim.run_horde(bot)
-				print(HordeSim.horde_line("%s n%d s%d" % ["melee" if bot == HordeSim.HordeBot.MELEE else "dash ", n, s], res))
-				r.append(res)
-				sim.free_all()
-			rows.append([n, s, r[0], r[1]])
-			if r[1]["cleared"] and r[1]["time"] < r[0]["time"] and r[1]["damage"] <= r[0]["damage"]:
-				dash_better += 1
-	assert_int(dash_better).is_equal(0)
+	var better: Array = []
+	for id in ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]:
+		for n in [6, 8, 10]:
+			for s in [1, 2, 3]:
+				var r: Array = []
+				for bot in [HordeSim.HordeBot.MELEE, HordeSim.HordeBot.DASH]:
+					var sim := HordeSim.new(self)
+					sim.hero_path = "res://data/heroes/%s.tres" % id
+					await sim.setup(null, s)
+					sim.spawn_horde(n, 5.0)
+					var res := sim.run_horde(bot)
+					print(HordeSim.horde_line("%s %s n%d s%d" % [id, "melee" if bot == HordeSim.HordeBot.MELEE else "dash ", n, s], res))
+					r.append(res)
+					sim.free_all()
+				if r[1]["cleared"] and r[1]["time"] < r[0]["time"] and r[1]["damage"] <= r[0]["damage"]:
+					better.append("%s n%d s%d" % [id, n, s])
+	assert_array(better).is_empty()
 
 
 ## 예고 범위 안에서 시작한 대시 = 회피: 적 쪽이어도 돌진 타격·대가 없음 (메인 결정: 회피를 방해하지 않게).
