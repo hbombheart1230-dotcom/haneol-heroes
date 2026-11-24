@@ -100,7 +100,7 @@ finale_subtitle = "정예 격파"
 [resource]
 script = ExtResource("1_enemy")
 id = &"jurchen_elite"
-max_hp = 900
+max_hp = 1800
 xp = 20
 move_speed = 80.0
 contact_damage = 0

@@ -11,6 +11,8 @@
 [ext_resource type="Resource" path="res://data/enemies/archer.tres" id="e_archer"]
 [ext_resource type="Resource" path="res://data/enemies/heavy.tres" id="e_heavy"]
 [ext_resource type="Resource" path="res://data/enemies/elite_warrior.tres" id="e_elite"]
+[ext_resource type="Resource" path="res://data/enemies/khitan_bow_captain.tres" id="e_bow_captain"]
+[ext_resource type="Resource" path="res://data/enemies/khitan_shaman.tres" id="e_shaman"]
 [ext_resource type="Resource" path="res://data/enemies/boss_general.tres" id="e_boss"]
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/cart.png" id="p_cart"]
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/fence.png" id="p_fence"]
@@ -51,6 +53,7 @@ first_count = 6
 max_alive = 8
 elite_last = true
 elite_when_left = 2
+elite_group = Array[ExtResource("3_enemy")]([ExtResource("e_elite"), ExtResource("e_bow_captain"), ExtResource("e_shaman")])
 
 [sub_resource type="Resource" id="Wave_4"]
 script = ExtResource("w_wave")

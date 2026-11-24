@@ -1,0 +1,90 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+[ext_resource type="Resource" path="res://assets/sprites/cc_grasshopper/cc_grasshopper.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://data/enemies/feel/chochung_mid_group_feel.tres" id="feel"]
+
+[sub_resource type="Resource" id="Shot_3"]
+script = ExtResource("2_attack")
+kind = 1
+anim = &"attack"
+trigger_range = 480.0
+windup = 0.55
+damage = 10
+cooldown = 2.2
+recovery = 1.2
+bypass_cap = true
+chain_repeat = true
+projectile_speed = 580.0
+projectile_range = 650.0
+projectile_radius = 14.0
+
+[sub_resource type="Resource" id="Shot_2"]
+script = ExtResource("2_attack")
+kind = 1
+anim = &"attack"
+trigger_range = 480.0
+windup = 0.55
+damage = 10
+cooldown = 2.2
+recovery = 0.2
+bypass_cap = true
+chain_repeat = true
+follow_up = SubResource("Shot_3")
+follow_gap = 0.2
+projectile_speed = 580.0
+projectile_range = 650.0
+projectile_radius = 14.0
+
+[sub_resource type="Resource" id="Shot_1"]
+script = ExtResource("2_attack")
+kind = 1
+anim = &"attack"
+trigger_range = 480.0
+windup = 0.9
+damage = 10
+cooldown = 2.2
+recovery = 0.2
+bypass_cap = true
+chain_repeat = true
+follow_up = SubResource("Shot_2")
+follow_gap = 0.2
+projectile_speed = 580.0
+projectile_range = 650.0
+projectile_radius = 14.0
+kite_while_aiming = 0.5
+
+[resource]
+script = ExtResource("1_enemy")
+id = &"cc_hopper_captain"
+display_name = "방아깨비 명궁"
+max_hp = 1200
+xp = 3
+move_speed = 95.0
+contact_damage = 0
+body_radius = 26.0
+reach_px = 20.0
+color = Color(0.35, 0.75, 0.4, 1)
+patterns = Array[ExtResource("2_attack")]([SubResource("Shot_1")])
+preferred_range = 320.0
+knockback_scale = 0.15
+stun_scale = 0.5
+is_elite = true
+boss_feel = ExtResource("feel")
+boss_hp_by_hero = {
+"shin_saimdang": 0.8
+}
+sprite_sheet = ExtResource("3_sheet")
+sprite_scale = 1.75
+sprite_tint = Color(1, 0.85, 0.6, 1)
+sprite_offset = Vector2(0, -79)
+launch_scale = 0.4
+rim_color = Color(0.85, 0.55, 0.2, 0.95)
+rim_halo = 0.8
+rim_width = 5.0
+body_lift = 0.05
+body_contrast = 1.1
+army_tint = Color(1, 1, 1, 1)
+tint_mix = 0.0
+death_style = &"paper"
