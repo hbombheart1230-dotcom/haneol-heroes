@@ -111,12 +111,34 @@ func test_role_values_match_hansan() -> void:
 
 
 ## 잡몹 떼: 근접 잡몹은 그 무대 영웅의 평타 두 대(무거운 3타면 한 대)에 죽고, 한 대로는 안 죽는다.
-func test_trash_dies_in_one_or_two_hero_hits() -> void:
+## 잡몹은 한 타에 죽지 않고, 세 타 이내 그리고 첫 타가 닿은 뒤 처치까지 TRASH_KILL_TIME초 이내 (손 평타 간격으로 잰다).
+## 예전 규칙 "한두 타"를 바꾼 까닭: 순신 쾌검(#167, 한 타 13 → 10, 0.25초 간격)은 타 수가 늘어도 더 빨리 죽인다 —
+## 잡몹 체력은 그대로 (사용자 2026-11-24 "너무 종잇장 같으면 타격감이 없음"), 느린 영웅은 시간 때문에 종전처럼 한두 타.
+const TRASH_MAX_HITS := 3
+const TRASH_KILL_TIME := 0.6
+
+
+## 영웅이 잡몹 하나를 죽이는 [타 수, 첫 타 뒤 처치까지 초] (손 평타 박자: 평타 간격 × 타별 간격 배율).
+static func trash_kill(hero: HeroData, hp: int) -> Array:
+	var a := hero.attack
+	var hit := maxi(a.melee_damage, a.ranged_damage)
+	var hits := ceili(float(hp) / maxf(hit, 1))
+	var interval := a.ranged_interval if hero.kit and hero.kit.ranged_taps else a.melee_interval
+	var t := 0.0
+	for k in range(2, hits + 1):
+		t += interval * ComboSteps.at(a.step_gap_mults, k, hero.kit.tap_min_gap_mult if hero.kit else 1.0)
+	return [hits, t]
+
+
+func test_trash_dies_fast_but_not_in_one_hit() -> void:
 	for id in STAGES:
 		var hero := load(StageSim.hero_of(_st(id))) as HeroData
-		var hit := maxi(hero.attack.melee_damage, hero.attack.ranged_damage)
 		var hp := _enemy(ROLES[id]["melee"]).max_hp
-		assert_int(hp).override_failure_message("%s: hp %d, hit %d" % [id, hp, hit]).is_between(hit + 1, hit * 2)
+		var r := trash_kill(hero, hp)
+		var msg := "%s: hp %d, %d hits, %.2fs" % [id, hp, r[0], r[1]]
+		print("[trash-kill] " + msg)
+		assert_int(r[0]).override_failure_message(msg).is_between(2, TRASH_MAX_HITS)
+		assert_float(r[1]).override_failure_message(msg).is_less_equal(TRASH_KILL_TIME + 0.001)
 
 
 ## 떼는 근접 위주: 원거리는 물결마다 적게 (0 · 3 · 0 · 4), 물결 상한 8 · 10 · 8 · 14 (사용자: 5웨이브, 약 4분).
