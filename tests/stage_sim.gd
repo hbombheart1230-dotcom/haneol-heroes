@@ -113,6 +113,18 @@ func run_waves(limit: float = 300.0) -> Dictionary:
 	return res
 
 
+## 우두머리전(BossSim.run)에서도 장치를 굴리고 줄을 비킨다.
+func _tick_extra(res: Dictionary) -> void:
+	for k in ["hz_strikes", "hz_enemy_hits", "hz_hero_hits"]:
+		if not res.has(k):
+			res[k] = 0
+	_tick_hazards(res)
+
+
+func _extra_dodge() -> bool:
+	return _dodge_hazard()
+
+
 ## 무대 장치를 한 틀 굴리고 포격 결과를 센다.
 func _tick_hazards(res: Dictionary) -> void:
 	if hazards == null:

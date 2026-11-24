@@ -174,7 +174,7 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 		for c in spawner.get_children():  # 새로 나온 부하·예고·화살도 손으로 굴린다
 			c.set_physics_process(false)
 		var list := enemies()
-		if bot != Bot.IDLE:
+		if bot != Bot.IDLE and not _extra_dodge():  # 무대 장치(포격 줄)부터 비킨다 (StageSim)
 			_steer(bot, list)
 		player._physics_process(DT)
 		caster.tick(DT, _t)
@@ -186,6 +186,7 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 		_tick_shots(list)
 		_tick_world(list, res)
 		_sample(list)
+		_tick_extra(res)
 		if not is_instance_valid(boss) or boss.health.is_dead():
 			var nxt := _next_alive()
 			if nxt == null:
@@ -244,6 +245,15 @@ func _tick_shots(list: Array) -> void:
 				pr._on_area_entered(e.get_node("HurtBox2D"))
 				if pr.ignore_collisions:
 					break
+
+
+## 우두머리전에도 무대 장치를 굴리고(포격) 그 줄을 비킨다 (StageSim이 덮어쓴다). 기본은 없음.
+func _tick_extra(_res: Dictionary) -> void:
+	pass
+
+
+func _extra_dodge() -> bool:
+	return false
 
 
 ## 매 틱 재기 (RunSim이 덮어써 잡몹 경직·공격 시작을 센다). 기본은 아무것도 안 한다.

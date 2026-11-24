@@ -72,7 +72,7 @@ func test_role_values_match_hansan() -> void:
 	var keys := {"melee": ["contact_damage", "stagger_time", "hit_resets_attack"],
 		"ranged": ["max_hp", "stagger_time", "hit_resets_attack"],
 		"heavy": ["max_hp", "contact_damage", "super_armor"], "captain": ["max_hp", "contact_damage", "is_elite"],
-		"elite": ["max_hp", "contact_damage", "is_elite"]}  # 처치 점수는 3물결 합으로 (한산은 무리 셋의 합, 위 시험)
+		"elite": ["contact_damage", "is_elite"]}  # 체력은 무대마다 다르다 (한산은 무리 셋, 영웅 배율·궁합)  # 처치 점수는 3물결 합으로 (한산은 무리 셋의 합, 위 시험)
 	for id in STAGES.slice(1):
 		for role in keys:
 			var mine := _enemy(ROLES[id][role])

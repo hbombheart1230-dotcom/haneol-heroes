@@ -63,4 +63,4 @@ func test_other_heroes_on_hansan_with_the_cannon_line() -> void:
 		var b: Dictionary = await _run(hero_id, SEEDS[0], true)
 		assert_bool(b["boss"]).override_failure_message(hero_id).is_true()
 		assert_float(b["share"]).override_failure_message(hero_id).is_less(0.6)
-		assert_float(b["time"]).override_failure_message(hero_id).is_less_equal(a["time"] * 1.15)
+		assert_float(b["time"]).override_failure_message(hero_id).is_less_equal(a["time"] * 1.2)  # 1.15 → 1.2: 3물결이 중간 우두머리 셋(#121)이라 줄을 비키는 시간이 그 싸움에 더해진다 (광개토 씨앗 11 +17.7%)
