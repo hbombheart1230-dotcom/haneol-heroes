@@ -312,7 +312,7 @@ func _update_damage_mult() -> void:
 		return
 	var facing := attack.aim_dir if attack and attack.is_busy() else EnemySteer.dir_to_target(self)
 	_bonus = EnemyHits.bonus_flags(self)
-	var m := brain.damage_mult(attack, facing, EnemySteer.dir_to_target(self), affix.damage_taken_mult if affix else 1.0) 		* HitBonus.mult(_bonus, EnemyHits.impact()) * (0.0 if phase_invuln > 0.0 else 1.0)
+	var m := brain.damage_mult(attack, facing, EnemySteer.dir_to_target(self), affix.damage_taken_mult if affix else 1.0) 		* HitBonus.mult(_bonus, EnemyHits.impact()) * HeroGrowth.run_damage_mult * (0.0 if phase_invuln > 0.0 else 1.0)  # 영웅 성장 피해 배율
 	if is_equal_approx(m, _damage_mult):
 		return
 	_damage_mult = m

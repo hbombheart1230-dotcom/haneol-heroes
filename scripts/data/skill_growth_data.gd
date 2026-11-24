@@ -9,19 +9,22 @@ extends Resource
 const PATH := "res://data/feel/skill_growth.tres"
 
 ## 이 vfx_level부터 그 단계 (오름차순, 첫 값 0).
-@export var stage_from: PackedInt32Array = PackedInt32Array([0, 1, 3, 6])
+@export var stage_from: PackedInt32Array = PackedInt32Array([0, 1, 3, 6, 9])
 ## 판정·그림 크기 배율 (기본 0.75는 tests/test_growth_sim.gd 근거). 기본은 지금보다 작게 시작한다.
-@export var size: PackedFloat32Array = PackedFloat32Array([0.75, 0.88, 1.0, 1.3])
+@export var size: PackedFloat32Array = PackedFloat32Array([0.75, 0.88, 1.0, 1.3, 1.45])
 ## 입자 수 배율, 빛 세기 배율, 밝기 배율.
-@export var count: PackedFloat32Array = PackedFloat32Array([0.6, 1.0, 1.5, 2.2])
-@export var glow: PackedFloat32Array = PackedFloat32Array([0.6, 1.0, 1.4, 1.9])
-@export var bright: PackedFloat32Array = PackedFloat32Array([0.9, 1.0, 1.15, 1.3])
+@export var count: PackedFloat32Array = PackedFloat32Array([0.6, 1.0, 1.5, 2.2, 2.6])
+@export var glow: PackedFloat32Array = PackedFloat32Array([0.6, 1.0, 1.4, 1.9, 2.2])
+@export var bright: PackedFloat32Array = PackedFloat32Array([0.9, 1.0, 1.15, 1.3, 1.35])
 ## 그림 겹 추가 (돌며 겹치는 그림 한 장씩 더).
-@export var layers: PackedInt32Array = PackedInt32Array([0, 0, 1, 2])
+@export var layers: PackedInt32Array = PackedInt32Array([0, 0, 1, 2, 2])
 ## 이 단계부터 금빛 고리.
 @export var ring_stage: int = 2
+## 맨 위 이 수만큼의 단계는 많이 깬 영웅의 판에서만 열린다 (top_open, HeroGrowth가 판 시작에 정한다).
+## 성장 0인 판은 우두머리 때 이미 vfx_level 7~14라, 닫아 두지 않으면 성장 0 기준 균형이 바뀐다.
+@export var gated_stages: int = 1
 ## 화면 너비 대비 상한 (SkillStageFeel.screen_cap 대신). 마지막 단계는 지금(0.58)보다 크게.
-@export var screen_cap: PackedFloat32Array = PackedFloat32Array([0.36, 0.46, 0.58, 0.75])
+@export var screen_cap: PackedFloat32Array = PackedFloat32Array([0.36, 0.46, 0.58, 0.75, 0.75])
 
 ## 판정 크기 속성 이름 (있는 것만, 숫자면 size배). 기술 vfx_impact.growth가 켜진 기술에만.
 @export var hit_props: PackedStringArray = PackedStringArray(["radius", "outer_radius", "end_burst_radius",
@@ -30,13 +33,15 @@ const PATH := "res://data/feel/skill_growth.tres"
 
 @export_group("발동 연출")
 ## 발동 순간 화면 흔들림 (단계별, 0이면 없음).
-@export var cast_shake: PackedFloat32Array = PackedFloat32Array([0.0, 0.0, 0.08, 0.16])
+@export var cast_shake: PackedFloat32Array = PackedFloat32Array([0.0, 0.0, 0.08, 0.16, 0.16])
 ## 발동 순간 더 겹쳐 울리는 소리 (단계별, 빈 이름 = 없음).
-@export var cast_sfx: Array[StringName] = [&"", &"", &"gugak_buk", &"gugak_big"]
+@export var cast_sfx: Array[StringName] = [&"", &"", &"gugak_buk", &"gugak_big", &"gugak_big"]
 ## 이 단계부터 컷인 (먹 띠 + 영웅 그림 + 기술 이름). 기술이 cutin이면 늘.
 @export var cutin_stage: int = 3
 
 static var _cached: SkillGrowthData
+## 이번 판에 맨 위 단계(gated_stages)가 열렸나. 판마다 GrowthApply가 정하고, 시뮬은 reset_globals가 닫는다.
+static var top_open: bool = false
 
 
 static func get_default() -> SkillGrowthData:
@@ -50,7 +55,8 @@ static func get_default() -> SkillGrowthData:
 ## vfx_level → 단계 번호 (0 ~ stage_from.size() - 1).
 func stage_of(level: int) -> int:
 	var s := 0
-	for i in stage_from.size():
+	var last := stage_from.size() - 1 - (0 if top_open else maxi(gated_stages, 0))
+	for i in mini(stage_from.size(), last + 1):
 		if level >= stage_from[i]:
 			s = i
 	return s
