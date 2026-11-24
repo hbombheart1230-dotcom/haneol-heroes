@@ -3,6 +3,8 @@
 [ext_resource type="Resource" path="res://data/breakables/manchuria_395.tres" id="b_manchuria_395"]
 [ext_resource type="Resource" path="res://data/stages/looks/manchuria_395.tres" id="look"]
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="Resource" path="res://data/stages/hazards/manchuria_fire.tres" id="h_fire"]
+[ext_resource type="Script" path="res://scripts/data/stage_hazard_data.gd" id="h_script"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 [ext_resource type="Resource" path="res://data/enemies/elite_warrior_captain.tres" id="e_elite_warrior_captain"]
 [ext_resource type="Resource" path="res://data/enemies/chaser.tres" id="e_chaser"]
@@ -67,6 +69,7 @@ xp_mult = 1.53
 
 [resource]
 script = ExtResource("1_theme")
+hazards = Array[ExtResource("h_script")]([ExtResource("h_fire")])
 id = &"manchuria_395"
 year_label = "395년"
 title = "만주 벌판"

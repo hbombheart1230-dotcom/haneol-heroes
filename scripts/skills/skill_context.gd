@@ -111,6 +111,8 @@ func on_projectile_hit(p: Projectile, hb: HurtBox2D) -> void:
 ## 기술이 내리꽂히는 자리: vfx_impact 입자 + (설정돼 있으면) 하늘에서 번개 줄기.
 ## radius > 0이면 그림을 그 판정 반경에 맞춘다 (판정과 그림 크기가 같아야 "맞을 것 같은" 대로 맞는다).
 func impact(pos: Vector2, dir: Vector2 = Vector2.ZERO, radius: float = 0.0) -> void:
+	if skill and skill.element != &"":
+		ElementEvents.emit(skill.element, pos, radius)  # 무대 장치 반응 (들불 붙이기·끄기)
 	if skill == null or skill.vfx_impact == null:
 		return
 	var v := skill.vfx_impact
@@ -188,6 +190,8 @@ func spawn_projectile_configured(configure: Callable) -> Projectile:
 		return null
 	var p := projectile_scene.instantiate() as Projectile
 	configure.call(p)
+	if skill and skill.element != &"":
+		p.set_meta(&"element", skill.element)  # 날아가는 길에 무대 장치 반응 (물결이 불을 끈다)
 	p.action_applied.connect(func(hb: HurtBox2D) -> void: on_projectile_hit(p, hb))  # 기술 탄도 맞을 때마다 타격감
 	p.global_position = player.global_position
 	var parent := world if world else player.get_parent()

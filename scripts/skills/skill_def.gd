@@ -14,6 +14,8 @@ extends Resource
 @export var icon: Texture2D
 ## 발동 소리 (SoundBank 종류). 비우면 칸에 따라 기본 (베기·반격).
 @export var sfx: StringName = &""
+## 기술 성질 (무대 장치 반응: 만주 들불은 thunder·meteor가 붙이고 water가 끈다). 비우면 반응 없음.
+@export var element: StringName = &""
 @export_group("시전 동작")
 ## 영웅 시트의 시전 동작 이름 (비거나 시트에 없으면 연타 1타 "attack"). 피해는 지금처럼 누르는 순간 나가므로,
 ## 동작은 맞닿는 칸(시트 strike_frames) cast_lead초 앞에서 시작해 칼이 닿는 그림이 피해와 거의 같이 보인다.

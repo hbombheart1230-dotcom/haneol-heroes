@@ -104,7 +104,10 @@ func test_only_hansan_has_the_cannon_line_and_other_stages_stay_empty() -> void:
 	var gb: StageTheme = load("res://data/stages/gyeongbokgung_1433.tres")
 	assert_int(gb.hazards.size()).is_equal(1)
 	assert_object(gb.hazards[0] as CoverData).is_not_null()
-	for id in ["manchuria_395", "chochungdo"]:
+	var mc: StageTheme = load("res://data/stages/manchuria_395.tres")
+	assert_int(mc.hazards.size()).is_equal(1)
+	assert_object(mc.hazards[0] as FireData).is_not_null()
+	for id in ["chochungdo"]:
 		var st: StageTheme = load("res://data/stages/%s.tres" % id)
 		assert_array(st.hazards).is_empty()
 
