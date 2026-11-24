@@ -156,7 +156,8 @@ func test_tap_after_link_window_is_tap_skill() -> void:
 	assert_array(casts).is_equal([SkillCaster.Slot.DASH, SkillCaster.Slot.TAP])
 
 
-func test_hold_in_place_charges_then_move_and_release_fires_charge() -> void:
+## 모으는 중 끌기 = 조준만 (걷지 않음, 이동 잠금은 tests/test_charge_move_lock.gd).
+func test_hold_in_place_charges_then_drag_aims_and_release_fires_charge() -> void:
 	_down(0, Vector2(400, 900), 0.0)
 	var t := 0.0
 	for i in 24:  # 0.4초 정지 → 충전 시작 (임계 0.3)
@@ -164,11 +165,12 @@ func test_hold_in_place_charges_then_move_and_release_fires_charge() -> void:
 		_step(t)
 	assert_bool(caster.is_gesture_charging()).is_true()
 	assert_vector(player.move_input).is_equal(Vector2.ZERO)
-	for i in 20:  # 충전한 채 왼쪽으로 이동
+	for i in 20:  # 충전한 채 왼쪽으로 끌기 (천천히: 튕기기 아님)
 		t += DT
 		_drag(0, Vector2(400 - i * 6, 900), t)
 		_step(t)
 	assert_float(player.move_input.x).is_less(-0.5)
+	assert_vector(player.walk_velocity()).is_equal(Vector2.ZERO)
 	assert_bool(caster.is_gesture_charging()).is_true()
 	_up(0, Vector2(280, 900), t + DT)
 	assert_array(casts).is_equal([SkillCaster.Slot.CHARGE])

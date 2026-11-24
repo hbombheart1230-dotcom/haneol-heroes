@@ -71,10 +71,9 @@ func _on_drag(index: int, pos: Vector2, time: float) -> bool:
 	if skill_caster:
 		skill_caster.gesture_move(index, pos, time)
 	var flick := touch_input.touch_move(index, pos, time)
-	if not _is_charging():  # 충전 중 대시 연계는 P0 범위 밖
-		_on_flick(flick, time)
-	elif flick != Vector2.ZERO:
-		dash_note = "대시 막힘: 해일검기 충전 중"
+	if flick != Vector2.ZERO and skill_caster and skill_caster.is_charging():
+		skill_caster.cancel_input()  # 모으기 취소는 내닫기나 손 떼기로만: 튕기면 모으기를 버리고 내닫는다
+	_on_flick(flick, time)
 	return true
 
 
@@ -95,9 +94,11 @@ func _on_up(index: int, pos: Vector2, time: float, canceled: bool) -> bool:
 	var charging := _is_charging()
 	var flick := touch_input.touch_up(index, pos, time)
 	if not charging:
+		if flick != Vector2.ZERO and skill_caster and skill_caster.is_charging():
+			skill_caster.cancel_input()  # 버튼으로 모으는 중 이동 손가락 내닫기 = 모으기 취소
 		_on_flick(flick, time)  # 대시를 먼저 시작해야 아래에서 대시 연계로 판정된다
 	elif flick != Vector2.ZERO:
-		dash_note = "대시 막힘: 해일검기 충전 중"
+		dash_note = "모으기 놓음 (손 떼기는 늘 발동, 취소는 끄는 중 튕기기)"
 	if flick == Vector2.ZERO:
 		_note_check()
 	if skill_caster:
