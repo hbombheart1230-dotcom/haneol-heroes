@@ -18,11 +18,11 @@ func _init(m: Node) -> void:
 
 ## 음악 신호: &"stage" / &"boss" / &"victory" / &"defeat".
 func cue(kind: StringName) -> void:
+	_kind = kind  # 승리·패배 짧은 곡도 기록: 결과 화면에서 설정을 바꿔도 판 음악이 되살아나지 않게
 	var jingle: AudioStream = {&"victory": main.victory_track, &"defeat": main.defeat_track}.get(kind)
 	if jingle and Feedback.instance:
 		Feedback.instance.play_music(jingle, 0.4)
 		return
-	_kind = kind
 	var cfg: RunConfig = main.run_config
 	var song: StageSong = cfg.stage.song if cfg and cfg.stage else null
 	var off := vocal_off_stream(kind, song)

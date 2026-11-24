@@ -97,3 +97,24 @@ func test_switching_mid_run_changes_music_without_restarting_the_run() -> void:
 	m.music.refresh()
 	await get_tree().create_timer(1.3).timeout
 	assert_object(Feedback.current_music()).is_same(stage.song.interactive())
+
+
+## 결과 화면(승리·패배 짧은 곡)에서 설정을 바꿔도 판 음악으로 돌아가지 않는다.
+func test_settings_change_after_victory_keeps_the_jingle() -> void:
+	var fb: Feedback = auto_free(Feedback.new())
+	add_child(fb)
+	var stage: StageTheme = load("res://data/stages/manchuria_395.tres")
+	var m: Node2D = auto_free(preload("res://scripts/game/main.gd").new())
+	var cfg := RunConfig.new()
+	cfg.stage = stage
+	m.run_config = cfg
+	m.victory_track = preload("res://data/stages/manchuria_395.tres").song.vocal_off_stream(false)  # 아무 짧은 곡 (판 음악과 다른 것)
+	await get_tree().process_frame
+	m.music.cue(&"boss")
+	m.music.cue(&"victory")
+	await get_tree().create_timer(0.6).timeout
+	var jingle := Feedback.current_music()
+	GameSettings.vocals_enabled = false
+	m.music.refresh()
+	await get_tree().create_timer(1.3).timeout
+	assert_object(Feedback.current_music()).is_same(jingle)
