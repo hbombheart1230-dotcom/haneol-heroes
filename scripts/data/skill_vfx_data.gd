@@ -213,6 +213,9 @@ enum PieceMode { RADIAL, SCROLL }
 ## 고리 그림의 띠 안쪽 끝 uv 반지름 (0~0.5, 0 = 끔). 켜면 판정 끝에 맞춰 키울 때 띠 두께는 keep_band 반경 때 그대로
 ## (BandFan, SkillContext.impact의 band_radius). 바다용 고리 sea_dragon_ring.png: 알파가 0.46×반 폭부터 → 0.22.
 @export var band_inner_uv: float = 0.0
+## true면 판정에 맞춘 그림이 처음부터 끝까지 판정 끝에 머문다: 화면 상한·커지기 없이, 금빛 고리도 같은 둘레
+## (해룡참: 사용자 7ce32eb "원이 초기에 칼날 길이랑 안 맞는다" — 기본 단계에선 상한에 깎여 판정의 0.86배였다).
+@export var fit_exact: bool = false
 
 @export_group("연출 · 움직이는 그림 (프레임 시트)")
 ## 비어 있지 않으면 decal 대신 이 시트를 프레임으로 재생한다 (docs/skill_vfx_sheets.md 규격). strip_sheet는 띠용.
