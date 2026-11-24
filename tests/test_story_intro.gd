@@ -215,5 +215,5 @@ func test_title_art_is_never_cropped_and_title_clears_button() -> void:
 		assert_float(r.size.x).is_less_equal(vp.x + 0.01)
 		assert_float(r.size.y).is_less_equal(vp.y + 0.01)
 		assert_float(r.size.x / r.size.y).is_equal_approx(941.0 / 1672.0, 0.001)  # 원본 비율 그대로
-		var sub_bottom := title._title_center_y(vp) + 100.0 * vp.x / 720.0 + 12.0
+		var sub_bottom: float = title._title_center_y(vp) + 100.0 * vp.x / 720.0 + 12.0
 		assert_float(sub_bottom).is_less(title.button_rect().position.y)  # 작은 글줄이 단추를 가리지 않는다
