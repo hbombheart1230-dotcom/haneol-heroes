@@ -4,7 +4,8 @@ extends Node2D
 ## 두른 붓 줄기·먹 튐이 주. 3타·큰 기술은 영웅마다 다른 줄기 (물보라·번개와 흙·금빛 획·먹과 꽃잎, HeroData.impact_style).
 ## 닿기 직전 칼끝의 작은 흰 불꽃(spark)도 여기서. 고정 크기 고리 버퍼를 돌려 쓴다 (타격마다·프레임마다 할당 없음).
 
-enum Style { INK, WATER, THUNDER, GOLD, PETAL, STAR }  # STAR: 세종 글자·별빛 견본 (아직 영웅에 안 붙임)
+enum Style { INK, WATER, THUNDER, GOLD, PETAL }
+const BOLT_PTS := 6  ## 번개 줄기 점 수 (마디 다섯)
 const SPARK := 0  ## _step 값: 칼끝 불꽃 (충격이 아님)
 
 var data: HitImpactData
@@ -15,7 +16,8 @@ var _step := PackedInt32Array()
 var _style := PackedInt32Array()
 var _color := PackedColorArray()
 var _seed := PackedFloat32Array()
-var _bolt := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])  # 번개 줄기 점 (돌려 씀)
+var _bp := PackedVector2Array()  # 번개 마디 점 (돌려 씀)
+var _quad := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
 var _next: int = 0
 var _active: int = 0
 var _glow: Node2D
@@ -33,6 +35,7 @@ func _init(p_data: HitImpactData = null) -> void:
 	_color.resize(n)
 	for i in n:
 		_t[i] = -1.0
+	_bp.resize(BOLT_PTS)
 	z_as_relative = false
 	z_index = data.draw_z  # 검기(영웅 쪽) 위에 그린다
 	_glow = Node2D.new()  # 심의 빛 번짐만 더하기 섞기로 (줄기·먹은 보통 섞기)
@@ -126,10 +129,10 @@ func _draw_one(i: int) -> void:
 	var p := _pos[i]
 	var d := _dir[i]
 	var core := HitImpactData.at_f(data.core_radius, s, 24.0)
-	var style := _style[i]  # 영웅별 모양은 1·2타부터 (3타는 같은 모양이 더 굵고 크다). 금빛 획만 1·2타는 일반 획
-	if s < 3 and style == Style.GOLD:
-		style = Style.INK
+	var style := _style[i]  # 영웅별 모양은 1·2타부터 (3타는 같은 모양이 더 굵고 크다)
 	var n := HitImpactData.at_i(data.streak_count, s, 5)
+	if style == Style.THUNDER:  # 번개는 이어진 줄기 한두 가닥 (3타 셋)
+		n = mini(n, 3 if s >= 3 else 2)
 	var length := HitImpactData.at_f(data.streak_length, s, 40.0) * (0.55 + 0.45 * sqrt(k))
 	var w := data.streak_width * (1.0 - k) * (1.3 if style == Style.GOLD else 1.0)
 	var spread := deg_to_rad(data.streak_spread_deg)
@@ -143,18 +146,19 @@ func _draw_one(i: int) -> void:
 		var to := p + v * (core * 0.4 + length * (0.8 + 0.2 * cos(_seed[i] * 2.0 + j)))
 		var thick := w * (data.brush_thick_heavy if s >= 3 else data.brush_thick_mult)
 		match style:
-			Style.THUNDER:  # 번개: 꺾이는 마디 셋, 3타는 가지도 하나
+			Style.THUNDER:  # 번개: 끊기지 않고 이어지는 지그재그 줄기, 3타는 곁가지 하나
 				_draw_bolt(from, to, v, length, thick, col, ink, fade, j, s >= 3)
-			Style.WATER:  # 물결: 휘어지다 끝이 말리는 파도 머리 (획마다 뒤집어 출렁임을 섞는다)
-				_brush(from, to, thick * 2.2, col, ink, fade, InkPaint.WAVE, j % 2 == 1)
+			Style.WATER:  # 물결: 획 전체가 S자로 굽이치고 끝에 물마루·물방울 (획마다 뒤집어 섞는다)
+				_brush(from, to, thick * 2.6, col, ink, fade, InkPaint.WAVE, j % 2 == 1)
+				_draw_drop_at(to + v * w * 1.5, w * 0.5, fade, data.water_drop_color)
 			Style.PETAL:  # 붓: 뿌리에 먹 번짐 + 획 + 삐침
 				InkPaint.wash(self, from, thick * 0.9, Color(data.ink_color, 0.35 * fade))
 				_brush(from, to, thick, col, ink, fade)
 				var fp := from.lerp(to, 0.8)
 				_brush(fp, fp + v.rotated(0.65 * (1.0 if j % 2 == 0 else -1.0)) * length * 0.2, thick * 0.5, col, ink, fade)
-			Style.STAR:  # 글자·별빛 견본: 금빛 획 끝에 네 갈래 별
+			Style.GOLD:  # 금빛 획 + 끝의 작은 별빛
 				_brush(from, to, thick, col, ink, fade)
-				_draw_star(to, w * 1.6 + 3.0, Color(col.lightened(0.5), fade))
+				_draw_star(to, w * 1.4 + 3.0, Color(data.thunder_color, fade))
 			_:
 				_brush(from, to, thick, col, ink, fade)
 		if s >= 3:
@@ -183,18 +187,47 @@ func _brush(from: Vector2, to: Vector2, thick: float, col: Color, ink: Color, fa
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 
-## 번개 줄기: from→to 사이를 옆으로 어긋난 마디 셋으로 꺾는다 (끝으로 갈수록 가늘게). branch면 가운데서 가지 하나.
+## 번개 줄기: from→to를 옆으로 어긋난 마디 다섯으로 이어 꺾고, 끝으로 갈수록 가늘다. 금빛 겉에 흰노랑 심, 얇은 먹 테.
 func _draw_bolt(from: Vector2, to: Vector2, v: Vector2, length: float, thick: float, col: Color, ink: Color,
 		fade: float, j: int, branch: bool) -> void:
-	var o := v.orthogonal() * length * 0.16
+	var o := v.orthogonal() * length * 0.06
 	var sg := 1.0 if j % 2 == 0 else -1.0
-	var m1 := from.lerp(to, 0.33) + o * sg
-	var m2 := from.lerp(to, 0.66) - o * sg * 0.8
-	_brush(from, m1, thick * 0.5, col, ink, fade)
-	_brush(m1, m2, thick * 0.4, col, ink, fade)
-	_brush(m2, to, thick * 0.3, col, ink, fade)
+	for q in BOLT_PTS:
+		var t := float(q) / (BOLT_PTS - 1)
+		var side := 0.0 if q == 0 or q == BOLT_PTS - 1 else (1.0 if q % 2 == 1 else -1.0) * sg
+		_bp[q] = from.lerp(to, t) + o * side
+	_ribbon(thick * 0.38 + data.outline, ink)
+	_ribbon(thick * 0.38, Color(data.gold_color, minf(fade * 1.5, 1.0)))
+	_ribbon(thick * 0.16, Color(col, minf(fade * 1.5, 1.0)))
 	if branch:
-		_brush(m1, m1 + v.rotated(0.7 * sg) * length * 0.35, thick * 0.5, col, ink, fade)
+		var b0 := _bp[2]
+		var b1 := b0 + v.rotated(0.8 * sg) * length * 0.3
+		_bp[0] = b0
+		_bp[1] = b0.lerp(b1, 0.5) + v.orthogonal() * length * 0.04
+		_bp[2] = b1
+		_ribbon(thick * 0.3 + data.outline * 0.6, ink, 3)
+		_ribbon(thick * 0.3, Color(data.gold_color, minf(fade * 1.5, 1.0)), 3)
+
+
+## _bp의 앞 count개 점을 이은 줄기: 마디마다 끝으로 갈수록 가는 사각형 + 이음 원 (오목 다각형을 쓰지 않아 꺾여도 안 깨진다).
+func _ribbon(half: float, color: Color, count: int = BOLT_PTS) -> void:
+	for q in count - 1:
+		var h0 := half * (1.0 - float(q) / (count - 1)) + 0.4
+		var h1 := half * (1.0 - float(q + 1) / (count - 1)) + 0.4
+		var nrm := (_bp[q + 1] - _bp[q]).normalized().orthogonal()
+		_quad[0] = _bp[q] + nrm * h0
+		_quad[1] = _bp[q + 1] + nrm * h1
+		_quad[2] = _bp[q + 1] - nrm * h1
+		_quad[3] = _bp[q] - nrm * h0
+		draw_colored_polygon(_quad, color)
+		draw_circle(_bp[q + 1], h1, color)
+
+
+func _draw_drop_at(at: Vector2, r: float, fade: float, c: Color) -> void:
+	if r < 0.4:
+		return
+	draw_circle(at, r + data.outline * 0.5, Color(data.ink_color, data.ink_color.a * fade))
+	draw_circle(at, r, Color(c, fade))
 
 
 ## 네 갈래 별 (세종 견본).
@@ -223,7 +256,7 @@ func _stroke_color(style: int, hero: Color) -> Color:
 	match style:
 		Style.WATER:
 			return data.water_color
-		Style.GOLD, Style.STAR:
+		Style.GOLD:
 			return data.gold_color
 		Style.PETAL:
 			return data.petal_stroke_color

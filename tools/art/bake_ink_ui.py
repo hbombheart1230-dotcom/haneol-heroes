@@ -139,26 +139,20 @@ def make_streak() -> None:
 
 
 def make_wave() -> None:
-    """물결 획 (흰 바탕): 맞은 쪽이 굵고, S자로 출렁이다 끝이 말려 올라가는 파도 머리. 4배로 그려 줄인다."""
+    """물결 획 (흰 바탕): 맞은 쪽이 굵고, 획 전체가 S자로 굽이치다 끝에 작은 물마루. 4배로 그려 줄인다."""
     from PIL import ImageDraw
     S = 4
     W, H = 256, 64
     im = Image.new("RGBA", (W * S, H * S), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
     pts = []
-    n = 220
+    n = 240
     for k in range(n + 1):
         t = k / n
-        x = 4 + t * (W - 40)
-        y = H * 0.62 + 9.0 * np.sin(t * np.pi * 1.9)
-        if t > 0.7:  # 끝이 위로 말려 파도 머리가 된다 (원호로 되감김)
-            u = (t - 0.7) / 0.3
-            th = u * np.pi * 1.25
-            R = 13.0
-            x0 = 4 + 0.7 * (W - 40)
-            y0 = H * 0.62 + 9.0 * np.sin(0.7 * np.pi * 1.9)
-            x = x0 + R * np.sin(th) + 6.0 * u
-            y = y0 - R * (1 - np.cos(th)) - 4.0 * u
+        x = 4 + t * (W - 12)
+        y = H * 0.55 + 13.0 * np.sin(t * np.pi * 2.6) * (1.0 - 0.25 * t)  # 획 전체가 S자로 굽이친다
+        if t > 0.9:  # 끝에 작은 물마루
+            y -= 9.0 * ((t - 0.9) / 0.1) ** 2
         pts.append((x, y, 0.5 + 6.5 * (1 - t) ** 0.8))
     for x, y, r in pts:
         d.ellipse([(x - r) * S, (y - r) * S, (x + r) * S, (y + r) * S], fill=(255, 255, 255, 255))

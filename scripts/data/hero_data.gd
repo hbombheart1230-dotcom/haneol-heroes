@@ -13,7 +13,7 @@ extends Resource
 @export var portrait: Texture2D
 ## false면 고르기 화면에 "준비 중"으로만 보인다 (아직 기술·모델이 없는 영웅).
 @export var playable: bool = true
-## 3타·큰 기술의 한 타 충격 줄기 모양 (HitImpactLayer.Style): 순신 물보라, 광개토 번개와 흙, 세종 금빛 획, 사임당 먹과 꽃잎.
+## 한 타 충격 줄기 모양 (HitImpactLayer.Style, 1·2타부터): 순신 물결, 광개토 번개, 세종 금빛 획과 별빛, 사임당 먹 붓 (3타·큰 기술은 같은 모양이 더 큼).
 @export_enum("ink", "water", "thunder", "gold", "petal") var impact_style: int = 0
 ## 이 영웅이 처음 서는 무대 (StageTheme.id). 이기면 무대 순서대로 다음 전장으로 이어간다.
 @export var home_stage: StringName = &""
