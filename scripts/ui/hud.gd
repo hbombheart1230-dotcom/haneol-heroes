@@ -124,6 +124,11 @@ var hold_stage_title: bool = false
 
 
 ## 무대 시작 문구: 연도 · 전장 이름 · 한 줄 설명. 처음 STAGE_TITLE_TIME초, 끝 1초 동안 흐려진다.
+## 물결 시작 알림이 떠 있거나 뜰 차례 (영웅 대사가 그 띠와 겹치지 않게 기다린다).
+func wave_banner_busy() -> bool:
+	return _wave_banner.is_showing() or _wave_banner.is_pending()
+
+
 func stage_title_alpha() -> float:
 	if stage == null or state == null or not state.is_playing() or hold_stage_title:
 		return 0.0

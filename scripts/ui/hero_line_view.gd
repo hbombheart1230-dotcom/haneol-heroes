@@ -13,7 +13,7 @@ extends Control
 ## 연타 글씨와 띄울 위아래 간격, 옆으로 이만큼 안이면 "가깝다" (화면 px). 가까우면 대사를 연타 글씨 위로 올린다.
 @export var combo_gap := 24.0
 @export var combo_reach := 140.0
-## 다른 문구(무대 시작 문구·우두머리 띠)가 사라지고 이만큼 더 기다린다 (흐려지는 끝자락과 겹치지 않게, 초).
+## 다른 문구(무대 시작 문구·물결 알림·우두머리 띠)가 사라지고 이만큼 더 기다린다 (흐려지는 끝자락과 겹치지 않게, 초).
 @export var settle_time := 0.6
 ## 화면 위쪽 (우두머리 체력 띠) 아래로만.
 @export var top_margin := 150.0
@@ -65,10 +65,10 @@ func allowed() -> bool:
 	return not (main.tutorial_director and main.tutorial_director.running())
 
 
-## 다른 문구(무대 시작 문구·우두머리 띠)가 떠 있어 잠깐 기다릴 때.
+## 다른 문구(무대 시작 문구·물결 알림·우두머리 띠)가 떠 있어 잠깐 기다릴 때.
 func blocked() -> bool:
-	if main.hud and main.hud.stage_title_alpha() > 0.0:
-		return true
+	if main.hud and (main.hud.stage_title_alpha() > 0.0 or main.hud.wave_banner_busy()):
+		return true  # 물결 알림 띠(#169)와 같은 때 뜨면 대사가 띠에 겹친다
 	var banner: Node = main.get_node_or_null("HUD/BossBanner")
 	return banner != null and banner.banner_visible()
 

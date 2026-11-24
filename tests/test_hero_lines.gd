@@ -43,8 +43,15 @@ func _run(hero: StringName, stage: StringName = &"") -> HeroLineView:
 	return main.hero_lines
 
 
+## 무대 시작 문구 뒤 첫 물결 알림(#169)을 다 띄워 보낸다: 대사는 그 띠가 사라진 뒤에 뜬다 (시험은 HUD _process를 돌리지 않는다).
+func _pass_wave_banner() -> void:
+	main.hud._wave_banner.tick(0.0, false)
+	main.hud._wave_banner.tick(WaveBannerData.default().show_time + 0.1, false)
+
+
 func _after_title(v: HeroLineView) -> void:
 	main.state.elapsed = Hud.STAGE_TITLE_TIME + 0.1
+	_pass_wave_banner()
 	v.step(0.016)
 	v.step(v.settle_time)  # 문구가 사라지고 조금 더 기다린 뒤
 
