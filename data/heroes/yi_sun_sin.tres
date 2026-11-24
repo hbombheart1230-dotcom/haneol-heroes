@@ -186,6 +186,7 @@ finisher_recover = 0.26
 finisher_after_strike = 0.04
 dash_auto = true
 dash_auto_damage_mult = 0.5
+dash_auto_cone_deg = 90.0
 dash = SubResource("Skill_pado")
 charge = SubResource("Skill_haeil")
 counter = SubResource("Skill_counter")
