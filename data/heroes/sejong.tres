@@ -144,6 +144,7 @@ cast_lead = 0.15
 script = ExtResource("3_kit")
 ranged_taps = true
 tap = SubResource("Skill_tap")
+finisher_recover = 0.35
 dash = SubResource("Skill_dash")
 charge = SubResource("Skill_charge")
 counter = SubResource("Skill_counter")
