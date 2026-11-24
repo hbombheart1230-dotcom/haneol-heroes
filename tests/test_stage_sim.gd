@@ -43,7 +43,7 @@ func test_every_stage_reaches_the_boss_without_stalling() -> void:
 			for w: WaveData in st.waves.waves:
 				planned += w.enemies.size()
 			assert_int(r["spawned"]).override_failure_message(line).is_greater_equal(planned)  # 물결 적 다 + 정예 + 보스 (중간 보스 소환은 더)
-			assert_int(r["max_alive"]).override_failure_message(line).is_less_equal(st.waves.max_alive + 1)  # 화면 상한 (+ 정예 한 마리)
+			assert_int(r["max_alive"]).override_failure_message(line).is_less_equal(st.waves.max_alive + st.waves.alive_cap_add + 1)  # 화면 상한 (밀도 더하기 + 정예 한 마리)
 
 
 ## 접촉 피해까지 켜면 봇(둘러싸여도 제자리)이 씨앗마다 크게 갈린다 (한산: 같은 코드에서 피해 0 ↔ 접촉 100이 씨앗만 바꿔 뒤집힘):

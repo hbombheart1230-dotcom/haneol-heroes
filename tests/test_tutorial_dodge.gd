@@ -207,14 +207,12 @@ func test_practice_enemy_ignores_the_swarm_multiplier() -> void:
 	var main := _main()
 	await get_tree().process_frame
 	var dir: TutorialDirector = main.tutorial_director
-	if main.spawner.waves:
-		main.spawner.waves.data.melee_count_mult = 1.5
+	if main.spawner.waves:  # D안: 무대 기본이 이미 1.5 (캐시된 무대 자원을 바꾸지 않는다)
+		assert_float(main.spawner.waves.data.melee_count_mult).is_greater(1.0)
 	_to_evade(dir.run)
 	var e := dir.sparring.enemy
 	assert_bool(TutorialSparring.is_practice(e)).is_true()
 	assert_int(e.health.max).is_equal(PRACTICE.max_hp)
 	assert_int(main.spawner.get_tree().get_nodes_in_group("enemies").filter(func(n: Node) -> bool: return n is Enemy and not n.is_queued_for_deletion()).size()).is_equal(1)
-	if main.spawner.waves:
-		main.spawner.waves.data.melee_count_mult = 1.0
 	dir.run.skip()
 	_cleanup(main)

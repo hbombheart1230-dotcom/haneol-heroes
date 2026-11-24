@@ -52,6 +52,7 @@ func test_expand_only_adds_melee() -> void:
 func test_runner_queue_grows_but_elite_stays_last() -> void:
 	var st := ResourceLoader.load("res://data/stages/chochungdo.tres", "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as StageTheme
 	var ws := st.waves
+	ws.melee_count_mult = 1.0  # 무대 기본(D안 1.5)과 견준다: 배율 없는 수
 	var off := WaveRunner.new(ws, 0.0)
 	off.tick(0.01, 0, false)
 	var n_off := off._queue.size()
