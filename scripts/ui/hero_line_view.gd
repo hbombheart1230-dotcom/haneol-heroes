@@ -67,6 +67,8 @@ func allowed() -> bool:
 
 ## 다른 문구(무대 시작 문구·물결 알림·우두머리 띠)가 떠 있어 잠깐 기다릴 때.
 func blocked() -> bool:
+	if main.is_choosing():
+		return true  # 패 고르기 화면 위에 대사를 띄우지 않는다 (지는 대사는 결과 화면 멈춤 중에 떠야 해서 멈춤은 보지 않는다)
 	if main.hud and (main.hud.stage_title_alpha() > 0.0 or main.hud.wave_banner_busy()):
 		return true  # 물결 알림 띠(#169)와 같은 때 뜨면 대사가 띠에 겹친다
 	var banner: Node = main.get_node_or_null("HUD/BossBanner")

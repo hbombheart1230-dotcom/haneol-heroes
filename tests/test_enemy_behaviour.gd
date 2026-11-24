@@ -173,7 +173,8 @@ func test_frog_tongue_pulls_player() -> void:
 	var p: Player = auto_free(Player.new())
 	add_child(p)
 	fr.target = p
-	fr.attack.set_patterns([fr.attack.patterns[1]])
+	var pulls := fr.attack.patterns.filter(func(x: EnemyAttackData) -> bool: return x.kind == EnemyAttackData.Kind.PULL)
+	fr.attack.set_patterns([pulls[0]])  # 패턴 순서가 바뀌어도 혀를 고른다
 	fr.attack.aim_dir = Vector2.LEFT
 	EnemyActions.on_attack_result(fr, EnemyAttack.Result.HIT)
 	assert_float(p._recoil_vel.x).is_greater(0.0)  # 개구리(오른쪽) 쪽으로

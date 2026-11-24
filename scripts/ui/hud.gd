@@ -38,7 +38,9 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_tick_boss_chip(delta)
 	_tick_wave_track(delta)
-	_wave_banner.tick(delta, stage_title_alpha() > 0.0, hold_stage_title)
+	# 패 고르기·멈춤 동안은 띠를 그리지 않으니 시간도 세지 않는다 (안 보인 채 지나가지 않게)
+	var banner_blocked := stage_title_alpha() > 0.0 or FxLayer.numbers_hidden or get_tree().paused
+	_wave_banner.tick(delta, banner_blocked, hold_stage_title)
 	badge.player = player
 	badge.tick(delta)
 	queue_redraw()
@@ -123,12 +125,12 @@ func _draw() -> void:
 var hold_stage_title: bool = false
 
 
-## 무대 시작 문구: 연도 · 전장 이름 · 한 줄 설명. 처음 STAGE_TITLE_TIME초, 끝 1초 동안 흐려진다.
 ## 물결 시작 알림이 떠 있거나 뜰 차례 (영웅 대사가 그 띠와 겹치지 않게 기다린다).
 func wave_banner_busy() -> bool:
 	return _wave_banner.is_showing() or _wave_banner.is_pending()
 
 
+## 무대 시작 문구: 연도 · 전장 이름 · 한 줄 설명. 처음 STAGE_TITLE_TIME초, 끝 1초 동안 흐려진다.
 func stage_title_alpha() -> float:
 	if stage == null or state == null or not state.is_playing() or hold_stage_title:
 		return 0.0
