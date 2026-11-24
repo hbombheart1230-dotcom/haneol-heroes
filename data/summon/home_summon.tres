@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="HomeSummonData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/home_summon_data.gd" id="1_data"]
+[ext_resource type="Script" path="res://scripts/data/home_summon_entry.gd" id="2_entry"]
+
+[sub_resource type="Resource" id="e_yi"]
+script = ExtResource("2_entry")
+hero_id = &"yi_sun_sin"
+damage_scale = 4.3
+
+[sub_resource type="Resource" id="e_gw"]
+script = ExtResource("2_entry")
+hero_id = &"gwanggaeto"
+damage_scale = 5.9
+
+[sub_resource type="Resource" id="e_sj"]
+script = ExtResource("2_entry")
+hero_id = &"sejong"
+damage_scale = 11.0
+
+[sub_resource type="Resource" id="e_ss"]
+script = ExtResource("2_entry")
+hero_id = &"shin_saimdang"
+damage_scale = 8.3
+
+[resource]
+script = ExtResource("1_data")
+; 순신 해일검기 · 광개토 낙뢰 · 세종 성좌진 · 사임당 화폭 펼치기 (모두 모으기 칸, 다 모은 세기)
+entries = Array[ExtResource("2_entry")]([SubResource("e_yi"), SubResource("e_gw"), SubResource("e_sj"), SubResource("e_ss")])
