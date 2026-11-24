@@ -102,7 +102,21 @@ func _run() -> void:
 		var ls := n as LaneStrike
 		ls._begin_warn()
 		ls.clock.warn = ls.data.warn_time * 0.55
+	var bosses: Array = []  # 우두머리가 둘 뜰 수 있어(물결 끝에 저절로 나온 것) 모두 같은 상태로
+	for n in main.get_tree().get_nodes_in_group(Enemy.BOSS_GROUP):  # HUD 막대가 따르는 무리
+		bosses.append(n)
+	for bb in bosses:
+		_hurt(bb, 0.8)
+		bb.phase_invuln = 0.0
+	_hurt(boss, 0.8)  # 평소 상태(붉은 획): 단계 문턱 위로 되돌리고 무적을 끈다
+	boss.phase_invuln = 0.0
+	await _frames(40)  # HUD가 새 체력·무적으로 다시 그릴 때까지
 	await _shot(dir, tag + "_hansan")
+	for bb in bosses:
+		_hurt(bb, 0.62)
+		bb.phase_invuln = 5.0  # 단계 전환 무적: 금빛
+	await _frames(10)
+	await _shot(dir, tag + "_hansan_guard")
 	main.queue_free()
 	sv.queue_free()
 	await _frames(2)

@@ -37,4 +37,4 @@ func _draw() -> void:
 	for b in bars():
 		var w := width * (1.4 if b[2] else 1.0)
 		var r := Rect2(b[0] - Vector2(w * 0.5, 0), Vector2(w, st.enemy_bar_height))
-		InkPaint.bar(self, r, b[1], st.elite_fill if b[2] else st.enemy_fill, st.bar_back, 3.0)
+		InkPaint.bar(self, r, b[1], st.elite_fill if b[2] else st.enemy_fill, st.bar_back, 3.0, st.bar_under)

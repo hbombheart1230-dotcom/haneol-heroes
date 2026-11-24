@@ -16,7 +16,9 @@ const EDGE := preload("res://assets/vfx/ink_edge.png")
 ## 붓으로 그은 막대: 옅은 먹 획 바탕 위에 붉은 획이 왼쪽에서 찬다. 획 그림 한 장을 찬 만큼 가로로 늘여 쓴다
 ## (시작은 굵고 둥글고 끝은 가늘게 빠지는 한 획이라, 얼마를 채우든 끝이 붓끝으로 맺힌다).
 static func bar(c: CanvasItem, rect: Rect2, ratio: float, fill: Color, back: Color = Color(1, 1, 1, 0.55),
-		pad: float = 3.0) -> void:
+		pad: float = 3.0, under: Color = Color(0, 0, 0, 0)) -> void:
+	if under.a > 0.0:  # 어두운 바닥에서도 빈 자리가 보이게 옅은 한지색 밑칠 (먹 번짐 사각 판)
+		wash_rect(c, rect.grow_individual(pad * 2.5, pad * 1.6, pad * 2.5, pad * 1.6), under)
 	c.draw_texture_rect(BAR_BACK, rect.grow_individual(pad * 2.0, pad, pad * 2.0, pad), false, back)
 	fill_part(c, rect, ratio, fill)
 

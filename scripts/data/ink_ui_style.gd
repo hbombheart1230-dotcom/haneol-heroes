@@ -10,6 +10,8 @@ static var _cached: InkUiStyle
 @export var enemy_bar_height: float = 18.0
 ## 바탕 먹선에 곱하는 색 (투명도로 옅게).
 @export var bar_back: Color = Color(1, 1, 1, 0.55)
+## 빈 자리 밑칠 (옅은 한지색): 막대가 어두운 바닥에 묻히지 않게.
+@export var bar_under: Color = Color(0.9, 0.84, 0.7, 0.26)
 @export var enemy_fill: Color = Color(0.86, 0.2, 0.16)
 @export var elite_fill: Color = Color(0.94, 0.74, 0.28)
 @export_group("내닫기 충전 표시")
