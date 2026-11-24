@@ -44,6 +44,9 @@ static func on_fired(a: AutoAttack, p: Projectile) -> void:
 	if p == null:
 		return
 	var d := data()
+	var hero_id: StringName = a.player.hero.id if a and a.player and a.player.hero else &""
+	if not d.applies_to(hero_id):
+		return  # 이 영웅은 아직 원거리 연출 없음 (RangedFeelData.heroes)
 	var step := clampi(a._release_step if a else 1, 1, 3)
 	var col := color_of(a)
 	var dir := p.direction
@@ -112,20 +115,29 @@ static func on_hit(p: Projectile, hb: HurtBox2D, step: int, col: Color) -> void:
 	var en := hb.get_parent() as Enemy if hb else null
 	if en == null or not is_instance_valid(en):
 		return
-	var d := data()
-	var dir := p.direction
-	en.apply_knockback(dir * d.knock_extra(step))  # 탄 방향으로 툭 (BasicAttackData.ranged_knockback에 더함)
-	var from := en.global_position - dir * 200.0  # 탄이 온 쪽: 섬광 줄기가 탄 진행 방향으로 튄다
-	HitImpact.on_enemy(en, from, step, col)
-	var first := p.hits <= 1
-	if first:
-		HitImpact.on_swing(step)  # 퍽 (연타 번호별 음높이) + 짧은 진동, 한 발에 한 번
 	if not p.pierce:
 		p.set_meta(&"ranged_burst", true)
+	strike(en, p.direction, step, col, p.hits <= 1, null if p.pierce else p.art,
+		shot_size(p) * p.size_scale, "" if p.pierce else p.glyph, not p.pierce)
+
+
+## 원거리·중거리 공통 한 번 닿음 (탄이 아니어도: 사임당 먹 털기 등): 탄 방향 밀림, 접점 섬광·줄기, 퍽·진동(first),
+## 부서져 흩어짐(burst, 그림 tex 또는 글자 glyph), 강타 규칙(first이고 연타 번호가 heavy_step 이상).
+static func strike(en: Enemy, dir: Vector2, step: int, col: Color, first: bool, tex: Texture2D = null,
+		size: Vector2 = Vector2.ZERO, glyph: String = "", burst: bool = false) -> void:
+	if en == null or not is_instance_valid(en):
+		return
+	var d := data()
+	en.apply_knockback(dir * d.knock_extra(step))  # 탄 방향으로 툭 (BasicAttackData.ranged_knockback에 더함)
+	var from := en.global_position - dir * 200.0  # 온 쪽: 섬광 줄기가 진행 방향으로 튄다
+	HitImpact.on_enemy(en, from, step, col)
+	if first:
+		HitImpact.on_swing(step)  # 퍽 (연타 번호별 음높이) + 짧은 진동, 한 번에 한 번
+	if burst:
 		var at := HitImpact.contact_point(en, from) if Feedback.instance else en.global_position
 		var l := layer()
-		if l:
-			l.burst(at, dir, step, col, p.art, shot_size(p) * p.size_scale, p.glyph)
+		if l and (tex or glyph != ""):
+			l.burst(at, dir, step, col, tex, size, glyph)
 		var fb := Feedback.instance
 		if fb and fb.kill_fx:
 			fb.kill_fx.drops(at, dir, HitImpactData.at_i(d.burst_drops, step, 3))

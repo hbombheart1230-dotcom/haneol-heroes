@@ -6,6 +6,10 @@ extends Resource
 
 const PATH := "res://data/feel/ranged_feel.tres"
 
+## 이 연출을 쓰는 영웅 (HeroData.id). 비면 모두. 원거리 평타는 세종 전용으로 정해졌다
+## (순신·광개토는 근접만, 사임당은 중거리 먹 털기로 바뀌어 RangedFeel.strike 등 공통 조각만 나중에 쓴다).
+@export var heroes: PackedStringArray = PackedStringArray(["sejong"])
+
 @export_group("쏘는 순간")
 ## 손·무기 끝 섬광: 심 반지름(px), 앞으로 뻗는 줄기 수·길이(px), 보이는 시간(초), 먹 방울 수.
 @export var muzzle_core: PackedFloat32Array = PackedFloat32Array([18.0, 20.0, 26.0])
@@ -73,6 +77,10 @@ static func get_default() -> RangedFeelData:
 		if _cached == null:
 			_cached = RangedFeelData.new()
 	return _cached
+
+
+func applies_to(hero_id: StringName) -> bool:
+	return heroes.is_empty() or heroes.has(String(hero_id))
 
 
 func is_heavy(step: int) -> bool:

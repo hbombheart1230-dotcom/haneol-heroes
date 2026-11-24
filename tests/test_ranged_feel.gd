@@ -5,6 +5,18 @@ const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
 const PROJECTILE_SCENE := preload("res://scenes/projectile.tscn")
 
 
+var _heroes: PackedStringArray
+
+
+func before_test() -> void:
+	_heroes = RangedFeelData.get_default().heroes
+	RangedFeelData.get_default().heroes = PackedStringArray()  # 영웅 없는 시험용 플레이어도 연출을 받게
+
+
+func after_test() -> void:
+	RangedFeelData.get_default().heroes = _heroes
+
+
 func _player_at(pos: Vector2) -> Player:
 	var p: Player = auto_free(Player.new())
 	var h := Health.new()
@@ -127,3 +139,28 @@ func test_attach_once() -> void:
 	var n := a.projectile_fired.get_connections().size()
 	RangedFeel.attach(a)
 	assert_int(a.projectile_fired.get_connections().size()).is_equal(n)
+
+
+func test_only_sejong_by_default() -> void:
+	var d := RangedFeelData.new()
+	assert_bool(d.applies_to(&"sejong")).is_true()
+	assert_bool(d.applies_to(&"yi_sun_sin")).is_false()
+	assert_bool(d.applies_to(&"gwanggaeto")).is_false()
+	d.heroes = PackedStringArray()
+	assert_bool(d.applies_to(&"yi_sun_sin")).is_true()
+
+
+func test_other_heroes_shots_untouched() -> void:
+	RangedFeelData.get_default().heroes = PackedStringArray(["sejong"])
+	var stats := BasicAttackData.new()
+	var pr := _fire_one()  # 영웅 없는 플레이어 = 목록 밖
+	assert_float(pr.speed).is_equal(stats.ranged_speed)
+	assert_object(pr.get_node_or_null("RangedGlow")).is_null()
+	pr.queue_free()
+
+
+func test_strike_works_without_a_projectile() -> void:
+	var e := _enemy_at(Vector2(200, 0))
+	var before := e.knockback
+	RangedFeel.strike(e, Vector2.RIGHT, 1, Color.WHITE, true)  # 사임당 먹 털기 같은 탄 없는 닿음
+	assert_float(e.knockback.x - before.x).is_greater(0.0)
