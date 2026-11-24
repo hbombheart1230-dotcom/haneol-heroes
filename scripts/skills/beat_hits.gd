@@ -27,6 +27,7 @@ static func open(ctx: SkillContext, at: Vector2, interval: float, heavy: bool = 
 	var rake := WaveRake.standalone(ctx, at, interval)
 	rake.heavy_ticks = heavy
 	rake.sfx = sfx
+	rake.keep_cast_mult = true  # 나눠도 판정은 누른 순간 하나 (처벌·반격 배율 그대로)
 	return rake
 
 

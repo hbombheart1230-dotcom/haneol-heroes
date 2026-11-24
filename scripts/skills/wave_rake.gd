@@ -31,6 +31,9 @@ var finale: bool = true
 var heavy_ticks: bool = false
 ## 비어 있지 않으면 적마다 마지막 타가 들어간 뒤 on_last.call(enemy) (살아 있을 때: 마지막 타에 크게 날리기 등).
 var on_last: Callable
+## true면 적마다 맡긴 순간(schedule)의 받는 피해 배율(경직 처벌·반격·뒤치기, Enemy._damage_mult)로 모든 타를 친다:
+## 한 번에 치던 기술을 나눠도 판정은 누른 순간 하나 (회피 직후 반격이 처벌 창을 놓치지 않게). 그 사이 무적(배율 0)이면 0.
+var keep_cast_mult: bool = false
 
 var _en: Array[Enemy] = []
 var _next := PackedFloat32Array()
@@ -39,6 +42,7 @@ var _gap := PackedFloat32Array()
 var _tdir := PackedVector2Array()
 var _dmg: Array[PackedInt32Array] = []
 var _push: Array[PackedFloat32Array] = []
+var _mult := PackedFloat32Array()
 var _start: Array[Callable] = []
 var _fx_at := PackedFloat32Array()
 var _fx_call: Array[Callable] = []
@@ -119,6 +123,7 @@ func _add(en: Enemy, at: float, done: int, dmg: PackedInt32Array, push: PackedFl
 	_dmg.append(dmg)
 	_push.append(push)
 	_start.append(on_start)
+	_mult.append(en._damage_mult if en else 1.0)
 
 
 func _on_wave_gone() -> void:
@@ -182,7 +187,10 @@ func _strike(i: int) -> bool:
 	if k == 0 and _start[i].is_valid():
 		_start[i].call()
 	FxLayer.stack_key = en.get_instance_id() if k > 0 else 0  # 첫 타는 새 숫자, 이어지는 타는 그 숫자에 쌓는다
-	var ok := ctx.hit(en, dmg[k], false)
+	var amount := dmg[k]
+	if keep_cast_mult and en._damage_mult > 0.0:
+		amount = roundi(amount * _mult[i] / en._damage_mult)
+	var ok := ctx.hit(en, amount, false)
 	FxLayer.stack_key = 0
 	if not ok:
 		return false
@@ -217,6 +225,7 @@ func _remove(i: int) -> void:
 	_dmg.remove_at(i)
 	_push.remove_at(i)
 	_start.remove_at(i)
+	_mult.remove_at(i)
 
 
 ## 물결 p에 붙은 긁기 (없으면 null).
