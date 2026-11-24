@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="EnemyData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Resource" path="res://data/enemies/answers/waegun_drummer.tres" id="answer"]
 [ext_resource type="Script" path="res://scripts/data/enemy_aura_data.gd" id="2_aura"]
 [ext_resource type="Resource" path="res://assets/sprites/waegun_soldier/waegun_soldier.tres" id="3_sheet"]
 [ext_resource type="Script" path="res://scripts/data/boss_phase_data.gd" id="4_phase"]
@@ -29,6 +30,7 @@ seal_label = "북을 울려라!"
 
 [resource]
 script = ExtResource("1_enemy")
+answer = ExtResource("answer")
 id = &"waegun_drummer"
 display_name = "왜군 망령 북잡이"
 max_hp = 1000

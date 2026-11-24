@@ -23,7 +23,7 @@ func before_test() -> void:
 	add_child(player)
 	caster = auto_free(SkillCaster.new())
 	caster.player = player
-	caster.kit = HERO.kit
+	caster.kit = _old_rule_kit(HERO.kit)  # 예전 "내닫고 떼기" 규칙 (dash_auto 끔). 새 규칙은 test_dash_auto_skill
 	caster.projectile_scene = PROJECTILE_SCENE
 	caster.world = self
 	caster.enemy_source = func() -> Array: return enemies
@@ -269,3 +269,10 @@ func test_button_held_then_release_flick_casts_only_dash_skill() -> void:
 		caster.tick(DT, 0.1 + DT * i)
 	assert_array(casts).is_equal([SkillCaster.Slot.DASH])
 	assert_bool(caster.is_ready(SkillCaster.Slot.TAP)).is_true()
+
+
+## 내닫아 치기(kit.dash_auto)를 끈 사본: 내닫는 중·직후 손 떼기·탭·단추 = 둘째 기술 (영웅별로 되돌릴 때의 길).
+static func _old_rule_kit(k: SkillKit) -> SkillKit:
+	var c := k.duplicate() as SkillKit
+	c.dash_auto = false
+	return c

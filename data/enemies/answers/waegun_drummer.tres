@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="EnemyAnswerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_answer_data.gd" id="1_answer"]
+
+[resource]
+script = ExtResource("1_answer")
+kind = "charge"
+mult = 2.5
+others_mult = 0.6
