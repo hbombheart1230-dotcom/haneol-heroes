@@ -112,6 +112,15 @@ func _away_dir() -> Vector2:
 	return d.rotated(PI * 0.5 * tries)  # 벽·장애물에 막혔으면 옆으로
 
 
+## 연습 상대 쪽 (내닫아 치기: 닿아야 둘째 기술). 상대가 아직 없으면 위.
+func _toward_dir() -> Vector2:
+	var e: Enemy = main.tutorial_director.sparring.enemy
+	if e == null or not is_instance_valid(e):
+		return Vector2.UP
+	var d: Vector2 = (e.global_position - main.player.global_position).normalized()
+	return d if d != Vector2.ZERO else Vector2.UP
+
+
 ## 지금 단계를 한 번 해 본다.
 func act(ev: StringName) -> void:
 	match ev:
@@ -127,8 +136,8 @@ func act(ev: StringName) -> void:
 		&"skill_tap":
 			await tap()
 			await seconds(0.5)
-		&"skill_dash":
-			await flick(Vector2.RIGHT)
+		&"skill_dash":  # 내닫아 치기: 연습 상대 쪽으로 튕겨 닿게 (DashAutoSkill)
+			await flick(_toward_dir())
 			await seconds(0.6)
 		&"skill_charge":
 			await hold(1.2)

@@ -23,6 +23,15 @@ extends Resource
 @export var counter_window: float = 1.0
 ## 대시가 끝난 뒤에도 dash 기술로 인정하는 시간(초).
 @export var dash_link_window: float = 0.45
+## 내닫아 치기 (DashAutoSkill): 켜면 내닫기 길이 적에 닿을 때 둘째 기술이 저절로 나가고, 내닫는 중·직후 손 떼기·탭·기술 단추는
+## 둘째 기술을 내지 않는다 (반격은 그대로). 끄면 예전 "내닫고 떼기".
+@export var dash_auto: bool = false
+## 닿음 판정: 내닫기 길에서 적 몸 둘레까지 이 거리(px) 안.
+@export var dash_auto_reach: float = 30.0
+## 0보다 크면 내닫는 쪽 이 각도(전체, 도) 안의 적에 닿을 때만 (적을 향해 내닫을 때만). 0이면 닿기만 하면.
+@export var dash_auto_cone_deg: float = 0.0
+## 저절로 나간 둘째 기술의 피해 배율 (내닫기만 마구 해도 연타보다 세지 않게, 메인 결정 2026-11-24 ②). 1이면 그대로.
+@export var dash_auto_damage_mult: float = 1.0
 ## 이 시간 이상 누르면 충전으로 본다(초).
 @export var hold_threshold: float = 0.2
 ## 충전 시작 후 최대 충전까지(초).
