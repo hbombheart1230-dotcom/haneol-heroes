@@ -27,6 +27,13 @@ extends Resource
 @export var launch_scale: float = 1.0
 ## 죽는 모양: &"smoke" (망령 → 푸른 연기), &"paper" (초충도 생물 → 조각난 종이 + 먹).
 @export var death_style: StringName = &"smoke"
+## 쓰러지는 죽음 (EnemyDeathPose): 죽는 동작("death" 클립·시트)이 있으면 처치부터 사라지기 시작까지(초, 판 시각).
+## 음수 = 처치 연출(boss_feel.finale_time) 안에 다 사라지게 맞춤 (연출이 없으면 쓰지 않음). 0 = 쓰지 않고 바로 날아간다.
+@export var death_hold: float = -1.0
+## 그 가운데 다 쓰러진 뒤 누워 있는 시간(초). 나머지 시간에 죽는 동작이 끝까지 돈다.
+@export var death_rest: float = 0.45
+## 누운 몸이 죽음 모양(연기·종이 + 먹 자국)과 함께 옅어져 사라지는 시간(초).
+@export var death_fade: float = 0.35
 ## 기절 시간 배율 (보스·정예는 작게). 1 미만이면 예고 공격을 끊지 않는다.
 @export var stun_scale: float = 1.0
 ## 잡몹 경직(초, 하데스 OnHitStun 0.5): 음수면 공통값 (HitReactionData.stagger_time).

@@ -74,7 +74,7 @@ func _ready() -> void:
 func alive_count() -> int:
 	var n := 0
 	for c in get_children():
-		if c is Enemy and not c.is_queued_for_deletion():
+		if c is Enemy and not c.is_queued_for_deletion() and not EnemyDeathPose.of(c):  # 쓰러진 몸은 세지 않는다
 			n += 1
 	return n
 

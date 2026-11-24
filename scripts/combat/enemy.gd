@@ -355,12 +355,16 @@ func _on_died(_entity: Node) -> void:
 		brain.forget()
 	remove_from_group(GROUP)
 	remove_from_group(BOSS_GROUP)
-	Feedback.enemy_died(self, _last_hit_dir, _last_damage)
+	var posed := EnemyDeathPose.begin(self)  # 죽는 동작이 있으면 몸이 쓰러졌다 사라진다 (없으면 바로 날아감)
+	Feedback.enemy_died(self, _last_hit_dir, _last_damage, posed)
 	killed.emit(self)
-	queue_free()
+	if not posed:
+		queue_free()
 
 
 func _draw() -> void:
+	if has_meta(EnemyDeathPose.META):
+		return  # 쓰러진 몸: 이름표·막대·예고 없이 그림만
 	EnemyArt.draw(self)
 	EnemyNameTag.draw(self)  # 네임드 이름·변종 이름
 	EnemyStatusArt.draw(self, _slow_left > 0.0, _stun_left > 0.0)  # 느려짐·기절 고리, 갑옷·경직 막대

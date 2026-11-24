@@ -7,6 +7,7 @@ const Library := preload("res://scripts/art/live3d/live3d_library.gd")
 const TreeBuilder := preload("res://scripts/art/live3d/live3d_tree.gd")
 
 var data: Live3DHeroData
+var _cam: Camera3D
 var viewport: SubViewport
 var pivot: Node3D
 var tree: AnimationTree
@@ -46,6 +47,12 @@ func setup(d: Live3DHeroData, durations: Dictionary) -> void:
 	play_body("idle", true, 0.0, 1.0)
 
 
+## 화면 칸과 카메라 폭을 같은 배율로 넓힌다: 그림 크기·가운데는 그대로, 칸 밖으로 나가던 몸(누운 몸)이 보인다.
+func widen(k: float) -> void:
+	viewport.size = Vector2i(roundi(data.frame * k), roundi(data.frame * k))
+	_cam.size = data.ortho_size * k
+
+
 func texture() -> Texture2D:
 	return viewport.get_texture()
 
@@ -57,6 +64,7 @@ func _add_camera(world: Node3D, d: Live3DHeroData) -> void:
 	cam.transform = Transform3D(Basis.looking_at(d.cam_target - d.cam_pos, Vector3.UP), d.cam_pos)
 	world.add_child(cam)
 	cam.current = true
+	_cam = cam
 
 
 ## 굽기(bake_sprites.gd _setup)와 같은 조명. 그림자는 끈다 (발밑 먹 그림자는 2D가 그린다).

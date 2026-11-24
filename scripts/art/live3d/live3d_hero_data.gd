@@ -11,6 +11,8 @@ extends Resource
 ## 카메라 (굽기와 같은 각도): 직교 크기(m), 위치, 바라보는 점. 화면 크기(px)는 구운 칸과 같다.
 @export var ortho_size: float = 2.0
 @export var frame: int = 256
+## 칸을 벗어나는 자세(쓰러져 누운 몸)에서 화면 칸·카메라를 함께 넓히는 배율 (Live3DRig.widen, 크기·가운데는 그대로).
+@export var wide_view: float = 1.6
 @export var cam_pos: Vector3 = Vector3(0, 6.0, 7.0)
 @export var cam_target: Vector3 = Vector3(0, 0.9, 0)
 ## 조명 (굽기 작업의 "light"와 같은 키).
