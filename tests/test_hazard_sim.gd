@@ -57,10 +57,18 @@ func test_cannon_line_keeps_hansan_winnable_and_not_slower() -> void:
 	assert_float(_mean(raw, "share")).is_less(0.8)  # 줄을 무시해도 포격만으로 죽지 않는다 (한 번 10)
 
 
+## 씨앗 하나로는 판 길이가 ±20% 흔들린다 (세종 씨앗 11: 장치 없음 100.4초 ↔ 비킴 124.0초 +23.5%, 씨앗 23은 141.5 ↔ 111.3초 −21%,
+## 세 씨앗 평균은 120.4 ↔ 120.1초) — 영웅마다 세 씨앗 평균으로 견준다.
 func test_other_heroes_on_hansan_with_the_cannon_line() -> void:
 	for hero_id in ["gwanggaeto", "sejong", "shin_saimdang"]:
-		var a: Dictionary = await _run(hero_id, SEEDS[0], false)
-		var b: Dictionary = await _run(hero_id, SEEDS[0], true)
-		assert_bool(b["boss"]).override_failure_message(hero_id).is_true()
-		assert_float(b["share"]).override_failure_message(hero_id).is_less(0.6)
-		assert_float(b["time"]).override_failure_message(hero_id).is_less_equal(a["time"] * 1.2)  # 1.15 → 1.2: 3물결이 중간 우두머리 셋(#121)이라 줄을 비키는 시간이 그 싸움에 더해진다 (광개토 씨앗 11 +17.7%)
+		var off := []
+		var on := []
+		for s in SEEDS:
+			off.append(await _run(hero_id, s, false))
+			on.append(await _run(hero_id, s, true))
+		var msg := "%s 평균 장치 없음 %.1f초 ↔ 비킴 %.1f초" % [hero_id, _mean(off, "time"), _mean(on, "time")]
+		print("[hazard-sim] " + msg)
+		for r: Dictionary in on:
+			assert_bool(r["boss"]).override_failure_message(hero_id).is_true()
+		assert_float(_mean(on, "share")).override_failure_message(msg).is_less(0.6)
+		assert_float(_mean(on, "time")).override_failure_message(msg).is_less_equal(_mean(off, "time") * 1.2)
