@@ -159,10 +159,10 @@ func run_stage_id() -> StringName:
 	return HeroRoute.current(stages, hero, GameSettings.hero_stages)
 
 
-## 이 영웅의 난이도 단계 = 이 영웅이 이긴 전장 수.
+## 이 영웅의 난이도 단계 = 이 영웅이 처음 이긴 전장 수 (목록 크기). 옛 저장의 hero_clears가 더 크면 그것 (갑자기 쉬워지지 않게).
 func difficulty_tier() -> int:
-	var hid := String(player.hero.id) if player and player.hero else ""
-	return int(GameSettings.hero_clears.get(hid, 0))
+	var hid := player.hero.id if player and player.hero else &""
+	return maxi(int(GameSettings.hero_clears.get(String(hid), 0)), HeroGrowth.points(GameSettings.hero_cleared, hid))
 
 
 func stage_by_id(id: StringName) -> StageTheme:
@@ -183,6 +183,7 @@ func _begin_build() -> void:
 	if player:
 		build.begin(player, player.get_node_or_null("SkillCaster") as SkillCaster,
 			player.get_node_or_null("AutoAttack") as AutoAttack)
+		GrowthApply.apply(build, HeroGrowth.points(GameSettings.hero_cleared, player.hero.id))  # 판 밖 성장 (깬 전장마다)
 
 
 ## 렌더 프레임 기준 성능 기록 (플레이 중에만).
