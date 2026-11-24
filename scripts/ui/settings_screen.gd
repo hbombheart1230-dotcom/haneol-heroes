@@ -60,6 +60,18 @@ func is_open() -> bool:
 	return visible
 
 
+## 안드로이드 뒤로 가기: 닫혀 있으면 연다 (판은 멈춤), 나가기 확인 중이면 확인만 거두고, 열려 있으면 닫는다.
+## 앱은 뒤로 가기로 꺼지지 않는다 (끝내기는 설정의 "끝내기" → "끝낼까요?" 확인으로만).
+func back() -> void:
+	if not visible:
+		open()
+	elif _confirming:
+		_confirming = false
+		queue_redraw()
+	else:
+		close()
+
+
 func _vp() -> Vector2:
 	return size if size.x > 0.0 else get_viewport_rect().size
 
@@ -214,6 +226,8 @@ func _slide(i: int, pos: Vector2) -> void:
 func _input(event: InputEvent) -> void:
 	if not visible:
 		return
+	# 먼저 잡아 둔다: "전장 나가기" 확인이면 이 누름 안에서 장면이 바뀌어 이 노드가 트리에서 빠진다.
+	var vp := get_viewport()
 	if event is InputEventScreenTouch:
 		var t := event as InputEventScreenTouch
 		handle_touch(t.index, t.position, t.pressed)
@@ -225,7 +239,7 @@ func _input(event: InputEvent) -> void:
 		handle_touch(1000, m.position, m.pressed)
 	elif event is InputEventMouseMotion:
 		handle_drag(1000, (event as InputEventMouseMotion).position)
-	get_viewport().set_input_as_handled()
+	vp.set_input_as_handled()
 
 
 func _draw() -> void:
