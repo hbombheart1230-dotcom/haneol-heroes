@@ -64,6 +64,7 @@ func hit(en: Enemy, dmg: int, stop: bool = true) -> bool:
 	var h := en.get_node_or_null("Health") as Health
 	if h == null or not h.is_alive():
 		return false
+	dmg = SynergyState.adjust(self, en, dmg)  # 강화 패 짝 (표식·배율)
 	h.damage(dmg)
 	if stop and not defer_stop and hit_stop_enabled and player and player.is_inside_tree():
 		SkillHitStop.request(player.get_tree(), dmg)
@@ -101,6 +102,7 @@ func on_projectile_hit(p: Projectile, hb: HurtBox2D) -> void:
 	var en := hb.get_parent() as Enemy if hb else null
 	if en == null or not is_instance_valid(en) or player == null:
 		return
+	SynergyState.on_projectile_hit(self, p, en)
 	var from := en.global_position - p.direction * 200.0
 	HitImpact.on_enemy(en, from, HitImpact.data().skill_step, spark_color())
 	if not _thud_done:

@@ -3,6 +3,8 @@ extends Resource
 ## 영웅 하나의 성장 선택지 목록 (영웅 데이터에서 참조).
 
 @export var upgrades: Array[UpgradeDef] = []
+## 패 짝 (둘 다 가지면 맞물리는 효과, SynergyDef). 비어 있으면 없음.
+@export var synergies: Array[SynergyDef] = []
 
 
 ## 아직 최대로 고르지 않은 것 중 가중치로 count개를 겹치지 않게 뽑는다.
