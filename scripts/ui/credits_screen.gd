@@ -12,6 +12,8 @@ const BODY_PX := 22
 const LICENSE_PX := 15
 const TOP := 170.0
 const BOTTOM := 150.0
+## 소제목 (화면 글: 우리말. "Godot Engine"은 고유 이름이라 원문).
+const HEADINGS: Array[String] = ["출처 표시", "함께 쓴 도구", "Godot Engine", "고마운 자료"]
 
 var data: CreditsData
 var scroll: ScrollContainer
@@ -85,15 +87,15 @@ func _build() -> void:
 	_box = VBoxContainer.new()
 	_box.add_theme_constant_override("separation", 14)
 	scroll.add_child(_box)
-	_head("출처 표시")
+	_head(HEADINGS[0])
 	for s in data.required:
 		_line(s, BODY_PX, UiStyle.PAPER)
-	_head("함께 쓴 소프트웨어")
+	_head(HEADINGS[1])
 	for s in data.licenses:
 		_line(s, LICENSE_PX, Color(UiStyle.PAPER, 0.85), true)
-	_head("Godot Engine")
+	_head(HEADINGS[2])
 	_line(engine_notice(), LICENSE_PX, Color(UiStyle.PAPER, 0.85), true)
-	_head("고마운 자료")
+	_head(HEADINGS[3])
 	for s in data.thanks:
 		_line(s, BODY_PX, Color(UiStyle.PAPER, 0.8))
 

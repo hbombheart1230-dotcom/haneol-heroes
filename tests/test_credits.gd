@@ -102,3 +102,14 @@ func test_button_fits_and_does_not_overlap() -> void:
 	assert_float(w).is_less(screen.credits_rect().size.x - 24.0)
 	var c := screen.credits
 	assert_bool(c.scroll_rect().intersects(c.close_rect())).is_false()
+
+
+func test_headings_follow_korean_wording_rules() -> void:
+	var rules: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/ui/wording_rules.json"))
+	var text := screen.credits.all_text()
+	for h in CreditsScreen.HEADINGS:
+		assert_bool(text.contains(h)).is_true()
+		for w in rules["banned"]:
+			assert_bool(h.contains(w)).override_failure_message("%s ← %s" % [h, w]).is_false()
+	assert_bool(text.contains("함께 쓴 도구")).is_true()
+	assert_bool(text.contains("소프트웨어")).is_false()
