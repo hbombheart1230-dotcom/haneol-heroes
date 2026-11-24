@@ -31,6 +31,12 @@ func _init(d: LaneStrikeData) -> void:
 	rim.z_index = Enemy.ai_data().telegraph_rim_z
 	rim.draw.connect(_draw_rim)
 	add_child(rim)
+	add_to_group(StepGuard.GROUP)
+
+
+## 연타 전진이 예고 중인 줄 안으로 들어가지 않게 (StepGuard).
+func step_danger_at(p: Vector2, r: float) -> bool:
+	return clock.warning() and row >= 0 and row < data.rows.size() and LanePlan.in_lane(data.rows[row], data.half_width, p, r)
 
 
 func _physics_process(delta: float) -> void:

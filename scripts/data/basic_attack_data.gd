@@ -58,6 +58,12 @@ extends Resource
 @export var step_in_time: float = 0.1
 ## 끄면 전진 없음.
 @export var step_in_enabled: bool = true
+## 마무리(4타) 전진(px, 0 = 없음). 대상 쪽, 같은 제한 (사용자 2026-11-25 "근접 연타에 실제 전진").
+@export var finisher_step_in_px: float = 0.0
+## 대상이 없을 때 전진 배율 (바라보는 쪽으로 조금만).
+@export var step_in_no_target_mult: float = 1.0
+## 이동 막대가 치는 쪽과 이 내적보다 반대면 전진하지 않는다 (-2 = 끔).
+@export var step_in_against_input: float = -2.0
 ## 타별 내딛는 그림 (px): 휘두를 때 영웅 그림이 치는 쪽으로 나갔다 돌아온다 (판정·위치는 그대로, 자동 평타에도).
 @export var lunge_px: PackedFloat32Array = PackedFloat32Array([14.0, 18.0, 30.0])
 ## 나가는 시간·돌아오는 시간 (초).
