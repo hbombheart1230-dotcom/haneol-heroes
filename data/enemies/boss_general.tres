@@ -22,19 +22,6 @@ recovery = 1.3
 bypass_cap = true
 kite_while_aiming = 0.8
 
-[sub_resource type="Resource" id="Gu_sweep_follow"]
-script = ExtResource("2_attack")
-kind = 3
-anim = &"attack2"
-trigger_range = 220.0
-windup = 0.85
-radius = 230.0
-angle_degrees = 140.0
-damage = 20
-cooldown = 2.0
-recovery = 1.3
-bypass_cap = true
-
 [sub_resource type="Resource" id="Gu_sweep"]
 script = ExtResource("2_attack")
 kind = 3
@@ -61,21 +48,6 @@ recovery = 1.1
 bypass_cap = true
 kite_while_aiming = 0.8
 
-[sub_resource type="Resource" id="Gu_charge"]
-script = ExtResource("2_attack")
-kind = 4
-anim = &"run"
-trigger_range = 320.0
-windup = 0.9
-length = 440.0
-width = 100.0
-miss_overshoot = 80.0
-miss_recovery = 1.6
-damage = 20
-cooldown = 1.7
-recovery = 1.0
-bypass_cap = true
-
 [sub_resource type="Resource" id="Gu_sweep_combo"]
 script = ExtResource("2_attack")
 kind = 3
@@ -91,48 +63,133 @@ bypass_cap = true
 follow_up = SubResource("Gu_chop_follow")
 follow_gap = 0.35
 
-[sub_resource type="Resource" id="Gu_charge_combo"]
+[sub_resource type="Resource" id="Gu_arrow3"]
+script = ExtResource("2_attack")
+kind = 1
+anim = &"attack"
+trigger_range = 560.0
+windup = 0.8
+damage = 12
+cooldown = 2.4
+recovery = 1.2
+bypass_cap = true
+chain_repeat = true
+projectile_speed = 600.0
+projectile_range = 700.0
+projectile_radius = 14.0
+
+[sub_resource type="Resource" id="Gu_arrow2"]
+script = ExtResource("2_attack")
+kind = 1
+anim = &"attack"
+trigger_range = 560.0
+windup = 0.8
+damage = 12
+cooldown = 2.4
+recovery = 0.2
+bypass_cap = true
+chain_repeat = true
+follow_up = SubResource("Gu_arrow3")
+follow_gap = 0.2
+projectile_speed = 600.0
+projectile_range = 700.0
+projectile_radius = 14.0
+
+[sub_resource type="Resource" id="Gu_arrow1"]
+script = ExtResource("2_attack")
+kind = 1
+anim = &"attack"
+trigger_range = 560.0
+windup = 0.9
+damage = 12
+cooldown = 2.4
+recovery = 0.2
+bypass_cap = true
+chain_repeat = true
+follow_up = SubResource("Gu_arrow2")
+follow_gap = 0.2
+min_range = 280.0
+projectile_speed = 600.0
+projectile_range = 700.0
+projectile_radius = 14.0
+kite_while_aiming = 0.9
+
+[sub_resource type="Resource" id="Gu_arrow_single"]
+script = ExtResource("2_attack")
+kind = 1
+anim = &"attack"
+trigger_range = 560.0
+windup = 0.9
+damage = 12
+cooldown = 2.0
+recovery = 1.0
+bypass_cap = true
+min_range = 280.0
+projectile_speed = 600.0
+projectile_range = 700.0
+projectile_radius = 14.0
+kite_while_aiming = 0.9
+
+[sub_resource type="Resource" id="Gu_spin"]
+script = ExtResource("2_attack")
+kind = 3
+anim = &"attack2"
+trigger_range = 260.0
+windup = 0.8
+radius = 210.0
+angle_degrees = 360.0
+damage = 20
+cooldown = 2.0
+recovery = 1.4
+bypass_cap = true
+
+[sub_resource type="Resource" id="Gu_charge_spin"]
 script = ExtResource("2_attack")
 kind = 4
 anim = &"run"
-trigger_range = 320.0
+trigger_range = 460.0
 windup = 0.9
-length = 440.0
+length = 480.0
 width = 100.0
 damage = 20
-cooldown = 1.7
-recovery = 0.4
+cooldown = 2.0
+recovery = 0.3
 bypass_cap = true
-follow_up = SubResource("Gu_sweep_follow")
-follow_gap = 0.4
+follow_up = SubResource("Gu_spin")
+follow_gap = 0.3
 
 [sub_resource type="Resource" id="Phase_2"]
 script = ExtResource("4_phase")
 hp_frac = 0.66
-patterns = Array[ExtResource("2_attack")]([SubResource("Gu_sweep_combo"), SubResource("Gu_charge"), SubResource("Gu_chop")])
+patterns = Array[ExtResource("2_attack")]([SubResource("Gu_sweep_combo"), SubResource("Gu_charge_spin"), SubResource("Gu_chop"), SubResource("Gu_arrow1")])
 summon = Array[ExtResource("1_enemy")]([ExtResource("5_chaser"), ExtResource("6_archer")])
 invuln_time = 1.8
 seal_art = ExtResource("7_seal")
 seal_label = "치고 빠져라!"
+stagger_gauge_mult = 1.5
 
 [sub_resource type="Resource" id="Phase_3"]
 script = ExtResource("4_phase")
 hp_frac = 0.33
-patterns = Array[ExtResource("2_attack")]([SubResource("Gu_sweep_combo"), SubResource("Gu_charge_combo"), SubResource("Gu_chop")])
-cooldown_mult = 0.85
+patterns = Array[ExtResource("2_attack")]([SubResource("Gu_sweep"), SubResource("Gu_charge_spin"), SubResource("Gu_chop"), SubResource("Gu_arrow1")])
+cooldown_mult = 0.75
 summon = Array[ExtResource("1_enemy")]([ExtResource("5_chaser"), ExtResource("5_chaser"), ExtResource("6_archer")])
 invuln_time = 1.8
 seal_art = ExtResource("7_seal")
 seal_label = "짓밟아라!"
+stagger_gauge_mult = 1.5
+stagger_immune = 8.0
 
 [sub_resource type="Resource" id="Boss_feel"]
 script = ExtResource("8_feel")
+chase_speed = 135.0
+phase_anim = &"attack2"
 
 [resource]
 script = ExtResource("1_enemy")
 id = &"boss_general"
 display_name = "거란 망령 부족장"
-max_hp = 2700
+max_hp = 2400
 xp = 0
 move_speed = 85.0
 contact_damage = 0
@@ -141,13 +198,13 @@ reach_px = 26.0
 color = Color(0.7, 0.55, 0.2, 1)
 knockback_scale = 0.1
 stun_scale = 0.3
-patterns = Array[ExtResource("2_attack")]([SubResource("Gu_sweep"), SubResource("Gu_chop")])
+patterns = Array[ExtResource("2_attack")]([SubResource("Gu_sweep"), SubResource("Gu_chop"), SubResource("Gu_arrow_single")])
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
 boss_hp_by_hero = {
 "gwanggaeto": 0.88,
-"shin_saimdang": 0.9,
-"yi_sun_sin": 1.7
+"shin_saimdang": 0.83,
+"yi_sun_sin": 1.5
 }
 boss_feel = SubResource("Boss_feel")
 sprite_sheet = ExtResource("3_sheet")
