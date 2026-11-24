@@ -256,7 +256,9 @@ func auto_attack() -> AutoAttack:
 			_attack.ranged_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
 			_attack.melee_swung.connect(func(_d: Vector2, hits: int) -> void: _on_manual_land(hits > 0 and _attack.swing_manual))
 			_attack.projectile_fired.connect(func(_p: Projectile) -> void: _on_manual_land(_attack.shot_manual))
-			player.dash_started.connect(func(_d: Vector2) -> void: ComboSteps.cancel_swing(_attack))
+			player.dash_started.connect(func(_d: Vector2) -> void:
+				ComboSteps.cancel_swing(_attack)
+				combo.on_finish())  # 내닫기가 연타를 끊는다: 다음 탭은 1타 (마무리가 새지 않게)
 	return _attack
 
 
@@ -282,6 +284,8 @@ func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float 
 	d = SkillGrowthData.get_default().scaled_def(d)  # 성장 단계: 판정도 그림과 같은 비율로
 	if slot == Slot.COUNTER:
 		_counter_left = 0.0
+	if slot != Slot.TAP:  # 다른 기술이 연타를 끊는다 (1·2·3 뒤 해일검기 → 다음 탭이 마무리로 새던 경로)
+		combo.on_finish()
 	skill_started.emit(slot, d)
 	var ctx := _context()
 	ctx.skill = d
