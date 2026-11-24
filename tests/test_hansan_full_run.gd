@@ -28,6 +28,8 @@ func test_hansan_full_run_report() -> void:
 					st.waves.spawn_stagger = float(OS.get_environment("HH_STAGGER"))
 				if OS.get_environment("HH_ELITE_HEAL") != "":  # 중간 우두머리 물결 뒤 회복 비율 (견본)
 					st.waves.elite_clear_heal = float(OS.get_environment("HH_ELITE_HEAL"))
+				if OS.get_environment("HH_BOSS_HEAL") != "":  # 우두머리 직전 회복 비율 (견본)
+					st.waves.boss_entry_heal = float(OS.get_environment("HH_BOSS_HEAL"))
 				var sim := RunSim.new(self)
 				sim.use_hazards = true
 				await sim.setup_run(st, s, [], true)

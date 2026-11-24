@@ -22,6 +22,7 @@ func test_default_is_off_on_every_stage() -> void:
 		var st := load("res://data/stages/%s.tres" % id) as StageTheme
 		assert_int(st.waves.alive_cap_add).override_failure_message(id).is_equal(0)
 		assert_float(st.waves.elite_clear_heal).override_failure_message(id).is_equal(0.0)
+		assert_float(st.waves.boss_entry_heal).override_failure_message(id).is_equal(0.0)
 
 
 func test_cap_add_raises_wave_and_stage_cap() -> void:
@@ -53,4 +54,18 @@ func test_heal_only_after_elite_wave_and_only_when_on() -> void:
 	r.index = 1
 	assert_int(WaveBreath.on_cleared(r, h)).is_equal(25)
 	assert_int(h.current).is_equal(65)
+	h.free()
+
+
+func test_boss_entry_heal_only_when_on() -> void:
+	var ws := _wave_set([8], -1)
+	var r := WaveRunner.new(ws)
+	var h := Health.new()
+	h.max = 100
+	h.current = 30
+	assert_int(WaveBreath.on_boss(r, h)).is_equal(0)
+	ws.boss_entry_heal = 0.25
+	assert_int(WaveBreath.on_boss(r, h)).is_equal(25)
+	h.current = 90
+	assert_int(WaveBreath.on_boss(r, h)).is_equal(10)  # 최대를 넘지 않는다
 	h.free()

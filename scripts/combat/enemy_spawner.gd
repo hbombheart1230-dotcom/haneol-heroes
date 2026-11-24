@@ -272,6 +272,7 @@ func _tick_waves(delta: float) -> void:
 			WaveBreath.on_cleared(waves, target.get("health") as Health if target else null)
 			breather.emit(true)
 		WaveRunner.Event.BOSS:
+			WaveBreath.on_boss(waves, target.get("health") as Health if target else null)
 			spawn_boss()
 	while true:
 		var r := waves.next_spawn(alive_count() + _warnings, max_alive)

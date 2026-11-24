@@ -10,3 +10,12 @@ static func on_cleared(runner: WaveRunner, health: Health) -> int:
 	var before := health.current
 	health.heal(roundi(health.max * runner.data.elite_clear_heal))
 	return health.current - before
+
+
+## 우두머리가 나올 때 회복 (WaveSetData.boss_entry_heal). 회복한 양.
+static func on_boss(runner: WaveRunner, health: Health) -> int:
+	if runner == null or health == null or health.is_dead() or runner.data.boss_entry_heal <= 0.0:
+		return 0
+	var before := health.current
+	health.heal(roundi(health.max * runner.data.boss_entry_heal))
+	return health.current - before
