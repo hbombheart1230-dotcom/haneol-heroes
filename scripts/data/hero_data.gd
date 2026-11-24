@@ -91,3 +91,5 @@ extends Resource
 @export var major_pool: UpgradePool
 ## 판 안 레벨이 오를 때마다 바로 적용하는 작은 능력치 상승 (UpgradeDef의 mods만 쓴다. 기술 모습은 LevelRules.vfx_every).
 @export var level_up: UpgradeDef
+## 우두머리를 쓰러뜨린 뒤 결과 화면 전 승리 동작 길이(초, HeroVictory, 1.5 안쪽). 0이면 바로 결과 화면.
+@export var victory_time: float = 1.2

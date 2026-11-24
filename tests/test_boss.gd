@@ -174,8 +174,12 @@ func test_main_scene_boss_kill_ends_with_victory() -> void:
 	var feel := boss.data.boss_feel
 	boss.health.kill()
 	await get_tree().physics_frame
-	if feel:  # 처치 연출(실제 시간) 뒤 승리
-		await get_tree().create_timer(feel.finale_time + 0.2, true, false, true).timeout
+	if feel:  # 처치 연출(실제 시간) → 영웅 승리 동작(HeroVictory, 판 시각) → 승리
+		await get_tree().create_timer(feel.finale_time + 0.1, true, false, true).timeout
+		var v := main.get_node_or_null("HeroVictory") as HeroVictory
+		assert_object(v).is_not_null()
+		assert_int(main.state.result).is_equal(GameState.Result.PLAYING)  # 승리 동작 중엔 아직 결과 화면이 아니다
+		await get_tree().create_timer(HeroVictory.time_for(main.player) + 0.2, true, false, true).timeout
 	assert_int(main.state.result).is_equal(GameState.Result.VICTORY)
 	assert_bool(main.state.boss_killed).is_true()
 	get_tree().paused = false
