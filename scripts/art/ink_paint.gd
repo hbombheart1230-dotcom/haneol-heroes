@@ -11,6 +11,7 @@ const RING := preload("res://assets/vfx/ink_ring.png")
 const ARROW := preload("res://assets/vfx/ink_arrow.png")
 const TAIL := preload("res://assets/vfx/ink_tail.png")
 const STREAK := preload("res://assets/vfx/ink_streak.png")
+const WAVE := preload("res://assets/vfx/ink_wave.png")
 const EDGE := preload("res://assets/vfx/ink_edge.png")
 
 

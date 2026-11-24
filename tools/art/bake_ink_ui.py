@@ -138,6 +138,40 @@ def make_streak() -> None:
     save(img, "ink_streak.png")
 
 
+def make_wave() -> None:
+    """물결 획 (흰 바탕): 맞은 쪽이 굵고, S자로 출렁이다 끝이 말려 올라가는 파도 머리. 4배로 그려 줄인다."""
+    from PIL import ImageDraw
+    S = 4
+    W, H = 256, 64
+    im = Image.new("RGBA", (W * S, H * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    pts = []
+    n = 220
+    for k in range(n + 1):
+        t = k / n
+        x = 4 + t * (W - 40)
+        y = H * 0.62 + 9.0 * np.sin(t * np.pi * 1.9)
+        if t > 0.7:  # 끝이 위로 말려 파도 머리가 된다 (원호로 되감김)
+            u = (t - 0.7) / 0.3
+            th = u * np.pi * 1.25
+            R = 13.0
+            x0 = 4 + 0.7 * (W - 40)
+            y0 = H * 0.62 + 9.0 * np.sin(0.7 * np.pi * 1.9)
+            x = x0 + R * np.sin(th) + 6.0 * u
+            y = y0 - R * (1 - np.cos(th)) - 4.0 * u
+        pts.append((x, y, 0.5 + 6.5 * (1 - t) ** 0.8))
+    for x, y, r in pts:
+        d.ellipse([(x - r) * S, (y - r) * S, (x + r) * S, (y + r) * S], fill=(255, 255, 255, 255))
+    a = np.asarray(im.resize((W, H), Image.LANCZOS)).astype(float)
+    grain = noise1(W, 6, 18.0)[None, :] * 0.5 + 0.5
+    row = rng.uniform(0, 1, (H, 1))
+    t = np.arange(W)[None, :] / W
+    gap = np.clip(row * (0.15 + 0.9 * t ** 1.5) * 0.5 + (1 - grain) * 0.12, 0, 0.8)
+    a[..., 3] *= (1.0 - gap)
+    a[..., :3] = 255
+    save(a / 255.0, "ink_wave.png")
+
+
 def make_edge() -> None:
     """예고 줄 가장자리용 거친 붓 획 (흰 바탕, 가로로 길게 늘여 쓴다)."""
     img = stroke_bar(512, 32, 0.9, 0.9, 0.9, 0.30, np.array([1.0, 1.0, 1.0]), False, False)
@@ -203,5 +237,6 @@ if __name__ == "__main__":
     make_wash()
     make_wash_rect()
     make_ring()
-    make_streak()  # 마지막에: 앞 그림의 난수 순서를 바꾸지 않는다
+    make_streak()  # 마지막에 덧붙인다: 앞 그림의 난수 순서를 바꾸지 않게
+    make_wave()
     print("구움: assets/vfx/ink_*.png")

@@ -32,9 +32,10 @@ func _run() -> void:
 	seed(7)
 	var col := hero.attack.swing_color
 	col.a = 1.0
-	layer.add(Vector2(300, 1100), Vector2(0.8, -0.6), 1, col)
-	layer.add(Vector2(300, 1500), Vector2(0.9, 0.3), 2, col)
-	layer.add(Vector2(780, 1200), Vector2(-0.8, -0.5), 3, col, hero.impact_style)
+	var sty: int = hero.impact_style if args.size() < 4 else int(args[3])  # 4번째 인자: 모양 번호 덮어쓰기 (5 = 세종 별빛 견본)
+	layer.add(Vector2(300, 1100), Vector2(0.8, -0.6), 1, col, sty)
+	layer.add(Vector2(300, 1500), Vector2(0.9, 0.3), 2, col, sty)
+	layer.add(Vector2(780, 1200), Vector2(-0.8, -0.5), 3, col, sty)
 	if args.size() > 2:  # 굵기 견본: 기준(3.2) 대비 비율
 		layer.data.brush_thick_mult = 3.2 * float(args[2])
 		layer.data.brush_thick_heavy = 3.2 * float(args[2]) * 1.35
