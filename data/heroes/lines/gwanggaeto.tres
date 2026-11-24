@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="HeroLines" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_lines.gd" id="1_lines"]
+
+[resource]
+script = ExtResource("1_lines")
+; 자기 전장 · 원정 · 우두머리 앞 · 이김 · 쓰러짐 · 소환되어 도울 때 (사용자 확정 2026-11-24)
+lines = PackedStringArray("이 벌판은 아직 내 것이다", "이 싸움에도 천둥을 보태마", "네 깃발을 꺾으러 왔다", "땅이 이름을 되찾았다", "여기서 멈출 내가 아니다", "벼락이여, 떨어져라!")

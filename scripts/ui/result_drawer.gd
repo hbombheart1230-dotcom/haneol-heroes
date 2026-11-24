@@ -34,6 +34,11 @@ static func draw(hud: Hud) -> void:
 			Color(1, 1, 0.6, 0.8), w, Color(0, 0, 0, 0.6), 3)
 
 
+## 결과 판 위쪽 끝 y (영웅 대사가 판을 가리지 않게 그 위에 뜬다).
+static func panel_top(view: Vector2) -> float:
+	return _panel(view).position.y
+
+
 static func _panel(view: Vector2) -> Rect2:
 	return Rect2(view.x * 0.5 - 300.0, view.y * 0.26, 600.0, 470.0)
 
