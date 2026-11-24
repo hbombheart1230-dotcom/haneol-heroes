@@ -18,11 +18,24 @@ static func step_in(want: float, max_px: float, gap_to_enemy: float, in_danger: 
 	return clampf(minf(want, max_px), 0.0, maxf(gap_to_enemy, 0.0))
 
 
+## 이번 타가 바라는 실제 전진(px): step 0 = 마무리(finisher_step_in_px), 대상이 없으면 step_in_no_target_mult배,
+## 이동 막대가 반대쪽(step_in_against_input)이면 0. 적 몸·적 예고·위험 칸은 step_in과 StepGuard가 자른다.
+static func want_step(d: BasicAttackData, step: int, dir: Vector2, has_target: bool, move_input: Vector2) -> float:
+	var px := at(d.step_in_px, step, 0.0) if step > 0 else d.finisher_step_in_px
+	if not has_target:
+		px *= d.step_in_no_target_mult
+	if move_input.length() > 0.3 and move_input.normalized().dot(dir) < d.step_in_against_input:
+		return 0.0
+	return px
+
+
 ## 적 목록 중 하나라도 공격 예고가 pos를 덮고 있는지.
 static func in_windup(enemy_list: Array, pos: Vector2) -> bool:
 	for n in enemy_list:
+		if not is_instance_valid(n):  # 지워진 몹 (as 변환 전에, "freed object" 오류)
+			continue
 		var e := n as Enemy
-		if e and is_instance_valid(e) and e.attack and e.attack.state == EnemyAttack.State.WINDUP and e.attack.contains(pos):
+		if e and e.attack and e.attack.state == EnemyAttack.State.WINDUP and e.attack.contains(pos):
 			return true
 	return false
 
@@ -31,8 +44,10 @@ static func in_windup(enemy_list: Array, pos: Vector2) -> bool:
 static func gap_ahead(enemy_list: Array, from: Vector2, dir: Vector2, my_radius: float, cone_deg: float = 60.0) -> float:
 	var best := INF
 	for n in enemy_list:
+		if not is_instance_valid(n):
+			continue
 		var e := n as Enemy
-		if e == null or not is_instance_valid(e):
+		if e == null:
 			continue
 		var off := e.global_position - from
 		var d := off.length()

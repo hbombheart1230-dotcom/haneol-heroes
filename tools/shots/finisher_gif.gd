@@ -4,7 +4,7 @@ extends SceneTree
 ## GIF는 tools/shots/frames_to_gif.py가 times.txt의 실제 간격으로 만든다.
 ## 표시: h = 몹이 피해를 입음, s = 타 시작, f = 마무리 시작.
 ## godot --path . --resolution 720x1280 -s res://tools/shots/finisher_gif.gd -- <영웅 id> <출력 폴더> [초=1.2] [시작 타=3]
-## 시작 타 1이면 1·2·3·4타 전체 (초 1.4 안팎).
+## 시작 타 1이면 1·2·3·4타 전체 (초 1.4 안팎). [적 거리 px]: 주면 적을 그 거리에 한 번만 두고 따라 붙이지 않는다 (연타 전진 보기).
 
 const CROP := Vector2i(300, 300)
 
@@ -22,6 +22,7 @@ func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	var seconds := float(args[2]) if args.size() > 2 else 1.2
 	var from_step := int(args[3]) if args.size() > 3 else 3
+	var fixed_px := float(args[4]) if args.size() > 4 else 0.0
 	DirAccess.make_dir_recursive_absolute(args[1])
 	var main: Node = await ShotStage.open(self, &"hansan_1592", StringName(args[0]))
 	await _wait(6.0)  # 물결 알림 띠가 지나간 뒤
@@ -32,6 +33,8 @@ func _run() -> void:
 	ShotStage.move_hero(main, spot)
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	var reach := atk.stats().melee_range * 0.6 if atk.stats().use_melee else 200.0
+	if fixed_px > 0.0:
+		reach = fixed_px
 	var e := spawner.spawn_at(load("res://data/enemies/waegun_soldier.tres"), spot + Vector2(reach, 0))
 	e.health.max = 999999
 	e.health.current = 999999
@@ -49,7 +52,8 @@ func _run() -> void:
 	var lines: PackedStringArray = []
 	var shots: Array[Image] = []
 	while true:
-		e.global_position = player.global_position + Vector2(reach, 0)
+		if fixed_px <= 0.0:
+			e.global_position = player.global_position + Vector2(reach, 0)
 		if Time.get_ticks_msec() >= tap_next:
 			tap_next += 50
 			caster.combo_tap()
