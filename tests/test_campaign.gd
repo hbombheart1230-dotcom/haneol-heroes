@@ -121,7 +121,7 @@ func test_stage_select_locks_coming_and_expedition_views_other_heroes() -> void:
 	assert_str(String(picked[0])).is_equal(String(other))
 
 
-func test_only_first_win_of_own_stage_raises_tier() -> void:
+func test_every_first_win_raises_tier_including_away() -> void:
 	var saved := [GameSettings.hero_cleared, GameSettings.hero_clears, GameSettings.cleared_stages, GameSettings.stage_records]
 	GameSettings.hero_cleared = {}
 	GameSettings.hero_clears = {}
@@ -130,17 +130,18 @@ func test_only_first_win_of_own_stage_raises_tier() -> void:
 	var yi: HeroData = load("res://data/heroes/yi_sun_sin.tres")
 	var sejong: HeroData = load("res://data/heroes/sejong.tres")
 	var away: StringName = sejong.campaign.slots[0].id
-	assert_bool(RunEnd.raises_tier(yi, yi.home_stage)).is_true()
-	assert_bool(RunEnd.raises_tier(yi, away)).is_false()
-	RunEnd.apply(yi, away, 5, true, 200.0)  # 원정 첫 승: 이긴 기록은 남지만 단계는 그대로
-	assert_int(int(GameSettings.hero_clears.get("yi_sun_sin", 0))).is_equal(0)
-	assert_bool(PackedStringArray(GameSettings.hero_cleared.get("yi_sun_sin", PackedStringArray())).has(String(away))).is_true()
+	# 의도된 규칙 (사용자 2026-11-24 "깰수록 성장하는 게 좋지"): 자기 전장이든 원정이든 처음 이긴 전장마다 +1
 	RunEnd.apply(yi, yi.home_stage, 5, false, 100.0)  # 지면 그대로
 	assert_int(int(GameSettings.hero_clears.get("yi_sun_sin", 0))).is_equal(0)
 	RunEnd.apply(yi, yi.home_stage, 6, true, 220.0)  # 자기 전장 첫 승: +1
 	assert_int(int(GameSettings.hero_clears.get("yi_sun_sin", 0))).is_equal(1)
 	RunEnd.apply(yi, yi.home_stage, 7, true, 210.0)  # 다시 이겨도 그대로
 	assert_int(int(GameSettings.hero_clears.get("yi_sun_sin", 0))).is_equal(1)
+	RunEnd.apply(yi, away, 5, true, 200.0)  # 원정 첫 승도 +1
+	assert_int(int(GameSettings.hero_clears.get("yi_sun_sin", 0))).is_equal(2)
+	assert_bool(PackedStringArray(GameSettings.hero_cleared.get("yi_sun_sin", PackedStringArray())).has(String(away))).is_true()
+	RunEnd.apply(yi, away, 6, true, 190.0)  # 원정도 다시 이기면 그대로
+	assert_int(int(GameSettings.hero_clears.get("yi_sun_sin", 0))).is_equal(2)
 	GameSettings.hero_cleared = saved[0]
 	GameSettings.hero_clears = saved[1]
 	GameSettings.cleared_stages = saved[2]
