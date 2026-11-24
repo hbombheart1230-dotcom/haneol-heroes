@@ -5,13 +5,16 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/jurchen_archer/run.png" id="t1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/jurchen_archer/attack.png" id="t2"]
 [ext_resource type="Texture2D" path="res://assets/sprites/jurchen_archer/hit.png" id="t3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/jurchen_archer/down.png" id="t4"]
 
 [resource]
 script = ExtResource("1_set")
 frame_size = 160
 directions = 8
-anim_names = PackedStringArray("idle", "run", "attack", "hit")
-textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3")])
-frame_counts = PackedInt32Array(4, 6, 6, 3)
-fps = PackedFloat32Array(6.0, 10.0, 10.0, 12.0)
-loops = Array[bool]([true, true, false, false])
+anim_names = PackedStringArray("idle", "run", "attack", "hit", "down")
+textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3"), ExtResource("t4")])
+frame_counts = PackedInt32Array(4, 8, 6, 3, 8)
+fps = PackedFloat32Array(6.0, 9.8, 10.0, 12.0, 10.0)
+loops = Array[bool]([true, true, false, false, false])
+strike_frames = PackedInt32Array(-1, -1, 5, -1, -1)
+tips = Array[PackedVector2Array]([PackedVector2Array(), PackedVector2Array(), PackedVector2Array(24.8, 17.8, 43.5, -22.0, 28.5, -43.8, 35.9, -27.2, 28.7, -29.7, 28.6, -24.8, 16.5, 33.1, 25.8, -4.9, 32.8, -28.3, 38.9, -10.1, 30.6, -15.3, 21.3, -12.9, -23.1, 23.4, -8.1, 47.8, 15.4, -6.5, 24.1, 6.6, 14.7, 55.9, 2.8, 36.2, -38.8, 7.8, -36.4, -12.1, -21.3, -9.3, -20.4, 19.0, -22.8, 4.5, -18.3, -10.1, -27.8, -9.5, -42.5, -31.6, -37.5, -25.6, -29.9, 1.1, -28.7, -12.4, -27.6, -21.5, -32.8, -34.4, -28.4, -50.3, -32.0, -40.7, -38.9, -15.9, -32.3, -27.9, -24.8, -35.5, 23.1, -18.1, 8.1, -57.5, -15.4, -54.0, -24.1, -40.7, -14.7, -50.0, -2.8, -47.6, 33.6, 3.6, 39.0, -43.0, 9.3, -53.0, 17.0, -43.1, 12.4, -40.6, 15.7, -34.7), PackedVector2Array(), PackedVector2Array()])

@@ -1,10 +1,10 @@
 {
   "name": "jurchen_soldier",
-  "image": "assets/concept/enemies/jurchen/soldier.png",
+  "image": "assets/concept/redesign/jurchen/soldier.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
-    "pose_mode": "a-pose",
+    "pose_mode": "",
     "should_remesh": true,
     "topology": "triangle",
     "target_polycount": 20000,
@@ -46,10 +46,13 @@
     {
       "key": "attack",
       "match": "attack|slash|shot|swing|thrust|chop",
-      "action_id": 97,
+      "action_id": 219,
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "start": 0.1,
+      "end": 1.1,
+      "strike": 0.55
     },
     {
       "key": "hit",
@@ -58,6 +61,16 @@
       "frames": 3,
       "fps": 12.0,
       "loop": false
+    },
+    {
+      "key": "down",
+      "match": "down",
+      "action_id": 100,
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "start": 0.55,
+      "end": 6.3
     }
   ]
 }

@@ -1,0 +1,90 @@
+[gd_resource type="Resource" script_class="Live3DHeroData" format=3]
+
+[ext_resource type="Script" path="res://scripts/art/live3d/live3d_hero_data.gd" id="1_cld5m"]
+
+[resource]
+script = ExtResource("1_cld5m")
+model_path = "res://assets/live3d/gwanggaeto/model.scn"
+clips = Array[Dictionary]([{
+"file": "res://assets/live3d/gwanggaeto/anims/idle.res",
+"key": "idle",
+"loop": true
+}, {
+"file": "res://assets/live3d/gwanggaeto/anims/run2.res",
+"key": "run",
+"loop": true
+}, {
+"file": "res://assets/live3d/gwanggaeto/anims/leanforwardsprint.res",
+"key": "dash",
+"loop": false
+}, {
+"end": 0.8,
+"file": "res://assets/live3d/gwanggaeto/anims/doublebladespin.res",
+"key": "attack",
+"loop": false,
+"start": 0.0
+}, {
+"file": "res://assets/live3d/gwanggaeto/anims/hitreaction.res",
+"key": "hit",
+"loop": false
+}, {
+"file": "res://assets/live3d/gwanggaeto/anims/dead.res",
+"key": "death",
+"loop": false
+}, {
+"end": 1.55,
+"file": "res://assets/live3d/gwanggaeto/anims/doublebladespin.res",
+"key": "attack2",
+"loop": false,
+"start": 0.75
+}, {
+"end": 4.9,
+"file": "res://assets/live3d/gwanggaeto/anims/doublebladespin.res",
+"key": "attack3",
+"loop": false,
+"start": 3.85
+}, {
+"end": 3.8,
+"file": "res://assets/live3d/gwanggaeto/anims/overshoulderthrow.res",
+"key": "throw",
+"loop": false,
+"start": 2.6
+}, {
+"end": 2.4,
+"file": "res://assets/live3d/gwanggaeto/anims/thrustslash.res",
+"key": "cast_tap",
+"loop": false,
+"start": 1.5
+}, {
+"end": 1.65,
+"file": "res://assets/live3d/gwanggaeto/anims/thrustslash.res",
+"key": "cast_dash",
+"loop": false,
+"start": 1.0
+}, {
+"end": 2.1,
+"file": "res://assets/live3d/gwanggaeto/anims/swordshout.res",
+"key": "cast_charge",
+"loop": false,
+"start": 0.5
+}, {
+"end": 2.3,
+"file": "res://assets/live3d/gwanggaeto/anims/triplecomboattack.res",
+"key": "cast_counter",
+"loop": false,
+"start": 1.1
+}, {
+"end": 3.0,
+"file": "res://assets/live3d/gwanggaeto/anims/web_victory.res",
+"key": "victory",
+"loop": false,
+"start": 1.0
+}])
+ortho_size = 2.6
+ink = {
+"grain": 0.0,
+"inner_line": 0.0,
+"line_px": 1.6,
+"wash_amount": 0.25
+}
+upper_bones = PackedStringArray("Spine02", "Spine01", "Spine", "neck", "Head", "head_end", "headfront", "LeftShoulder", "LeftArm", "LeftForeArm", "LeftHand", "RightShoulder", "RightArm", "RightForeArm", "RightHand")

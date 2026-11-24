@@ -1,10 +1,10 @@
 {
   "name": "jurchen_archer",
-  "image": "assets/concept/enemies/jurchen/archer.png",
+  "image": "assets/concept/redesign/jurchen/archer.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
-    "pose_mode": "a-pose",
+    "pose_mode": "",
     "should_remesh": true,
     "topology": "triangle",
     "target_polycount": 20000,
@@ -24,7 +24,63 @@
       "wash_amount": 0.5,
       "grain": 0.05
     },
-    "lossy_quality": 0.5
+    "lossy_quality": 0.5,
+    "rigid": {
+      "bone": "LeftHand",
+      "boxes": [
+        [
+          0.305,
+          0.17,
+          0.01,
+          0.42,
+          0.46,
+          0.13
+        ],
+        [
+          0.34,
+          0.3,
+          0.045,
+          0.38,
+          0.43,
+          0.09,
+          0.04
+        ],
+        [
+          0.38,
+          0.43,
+          0.09,
+          0.435,
+          0.56,
+          0.155,
+          0.04
+        ],
+        [
+          0.435,
+          0.56,
+          0.155,
+          0.435,
+          0.8,
+          0.165,
+          0.04
+        ],
+        [
+          0.39,
+          0.8,
+          0.1,
+          0.48,
+          1.0,
+          0.23
+        ],
+        [
+          0.355,
+          1.0,
+          0.09,
+          0.5,
+          1.66,
+          0.27
+        ]
+      ]
+    }
   },
   "anims": [
     {
@@ -33,23 +89,35 @@
       "action_id": 0,
       "frames": 4,
       "fps": 6.0,
-      "loop": true
+      "loop": true,
+      "web": "Idle"
     },
     {
       "key": "run",
       "match": "run|walk",
       "action_id": 14,
-      "frames": 6,
-      "fps": 10.0,
-      "loop": true
+      "frames": 8,
+      "fps": 9.8,
+      "loop": true,
+      "web": "Walking"
     },
     {
       "key": "attack",
       "match": "attack|slash|shot|swing|thrust|chop",
-      "action_id": 224,
+      "action_id": 225,
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "web": "Archery_Shot_1",
+      "times": [
+        0.0,
+        0.27,
+        0.45,
+        0.64,
+        0.82,
+        1.0
+      ],
+      "strike": 1.0
     },
     {
       "key": "hit",
@@ -57,7 +125,32 @@
       "action_id": 178,
       "frames": 3,
       "fps": 12.0,
-      "loop": false
+      "loop": false,
+      "web": "Hit_Reaction_to_Waist",
+      "times": [
+        0.15,
+        0.35,
+        0.6
+      ]
+    },
+    {
+      "key": "down",
+      "match": "down",
+      "action_id": 100,
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "web": "Dead",
+      "times": [
+        0.31,
+        1.56,
+        1.72,
+        1.87,
+        1.95,
+        2.03,
+        2.34,
+        2.97
+      ]
     }
   ]
 }

@@ -61,3 +61,30 @@ static func splash(canvas: CanvasItem, center: Vector2, radius: float, color: Co
 ## 바닥 그림자 (옅은 먹 번짐).
 static func shadow(canvas: CanvasItem, center: Vector2, radius: float) -> void:
 	blob(canvas, center, radius, Color(INK, 0.18), 1.3, 0.08, 0.4)
+
+
+## 무게감 그림자: 번진 옅은 가장자리 + 진한 먹 속 (발이 땅을 누르는 느낌). alpha = 속 진하기.
+## 매 프레임 그리므로 모양(반지름 1)은 한 번만 만들어 두고 크기만 바꿔 그린다 (Codex 22d062c 지적).
+static var _shadow_rim: PackedVector2Array
+static var _shadow_core: PackedVector2Array
+
+
+static func unit_blob(seed: float, rough: float, squash: float) -> PackedVector2Array:
+	var pts := PackedVector2Array()
+	var n := 18
+	for i in n:
+		var a := TAU * i / n
+		var wobble := 1.0 + rough * (sin(a * 3.0 + seed) * 0.6 + sin(a * 7.0 + seed * 2.3) * 0.4)
+		pts.append(Vector2(cos(a), sin(a) * squash) * wobble)
+	return pts
+
+
+static func weight_shadow(canvas: CanvasItem, center: Vector2, radius: float, alpha: float) -> void:
+	if _shadow_rim.is_empty():
+		_shadow_rim = unit_blob(1.3, 0.1, 0.4)
+		_shadow_core = unit_blob(2.1, 0.08, 0.36)
+	canvas.draw_set_transform(center, 0.0, Vector2(radius, radius))
+	canvas.draw_colored_polygon(_shadow_rim, Color(INK, alpha * 0.5))
+	canvas.draw_set_transform(center, 0.0, Vector2(radius, radius) * 0.66)
+	canvas.draw_colored_polygon(_shadow_core, Color(INK, alpha))
+	canvas.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

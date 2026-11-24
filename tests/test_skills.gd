@@ -79,8 +79,9 @@ func test_tap_casts_haeryong_damage_and_knockback_in_radius() -> void:
 	var far := _enemy_at(Vector2(400, 0))
 	caster.on_press(0, 0.0)
 	assert_int(caster.on_release(0, 0.1)).is_equal(SkillCaster.Slot.TAP)
+	caster.tick(0.3, 0.4)  # 해룡 붓이 한 바퀴 휘감는 동안 차례로 베인다 (SweepRun)
 	assert_int(near.health.current).is_equal(near.health.max - caster.kit.tap.damage)
-	assert_float(near.knockback.x).is_greater(0.0)
+	assert_float(near.knockback.x + (near.launch._dir.x if near.launch.active() else 0.0)).is_greater(0.0)  # 바깥으로 (크게 날리기)
 	assert_int(far.health.current).is_equal(far.health.max)
 
 
@@ -95,6 +96,7 @@ func test_haeryong_cooldown_4s() -> void:
 	caster.tick(caster.kit.tap.cooldown, 4.5)
 	caster.on_press(0, 4.5)
 	assert_int(caster.on_release(0, 4.55)).is_equal(SkillCaster.Slot.TAP)
+	caster.tick(0.3, 4.9)
 	assert_int(e.health.current).is_equal(1000 - 2 * caster.kit.tap.damage)
 
 
@@ -192,8 +194,20 @@ func test_hold_release_fires_haeil_scaled_by_charge() -> void:
 			proj = c
 	assert_object(proj).is_not_null()
 	assert_bool(proj.pierce).is_true()
-	assert_int(proj.damage).is_equal(caster.kit.charge.max_damage)
-	assert_float(proj.size_scale).is_equal_approx(caster.kit.charge.max_scale, 0.001)
+	var rake: WaveRake = null  # 긁기: 물결 첫 타 + 나머지 타 = 다 모은 피해
+	for c in get_children():
+		if c is WaveRake:
+			rake = c
+	assert_object(rake).is_not_null()
+	var sum := 0
+	for v in rake.damages:
+		sum += v
+	assert_int(proj.damage).is_equal(rake.damages[0])
+	assert_int(sum).is_equal(caster.kit.charge.max_damage)
+	rake.queue_free()
+	var g := SkillGrowthData.get_default()  # 성장 단계: 판정(물결 크기)도 단계 배율
+	var k := g.size_at(caster.kit.charge.vfx_level) if SkillGrowthData.applies(caster.kit.charge) else 1.0
+	assert_float(proj.size_scale).is_equal_approx(caster.kit.charge.max_scale * k, 0.001)
 	proj.queue_free()
 
 
@@ -201,7 +215,9 @@ func test_haeil_min_charge_damage() -> void:
 	caster.on_press(0, 0.0)
 	var t := caster.input.hold_threshold + 0.001
 	var p := (caster.cast(SkillCaster.Slot.CHARGE, 0.0).get_meta(&"projectile") as Projectile)
-	assert_int(p.damage).is_equal(caster.kit.charge.min_damage)
+	var rake := WaveRake.of(p)  # 긁기: 타마다 나눈 피해의 합 = 바로 놓은 피해
+	assert_int(rake.total_damage()).is_equal(caster.kit.charge.min_damage)
+	rake.queue_free()
 	p.queue_free()
 	caster.cancel_input()
 
@@ -288,3 +304,15 @@ func test_flick_dash_then_button_press_is_pado() -> void:
 	c.handle_event(_touch(1, c.skill_button_center(), true), 0.08)
 	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_false()
 	assert_int(e.health.current).is_less(e.health.max)
+
+
+func test_haeryong_announces_once_at_press_then_sweeps() -> void:
+	var got: Array = []
+	caster.skill_cast.connect(func(s: SkillCaster.Slot, h: int) -> void: got.append([s, h]))
+	_enemy_at(Vector2(-100, 0))  # 붓이 나중에 지나는 자리
+	caster.on_press(0, 0.0)
+	caster.on_release(0, 0.1)
+	assert_int(got.size()).is_equal(1)  # 소리·흔들림은 누르는 순간
+	assert_int(got[0][1]).is_equal(1)
+	caster.tick(0.5, 0.6)
+	assert_int(got.size()).is_equal(1)  # 끝날 때 다시 울리지 않는다

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="LaneStrikeData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/lane_strike_data.gd" id="1_lane"]
+[ext_resource type="Resource" path="res://data/vfx/stage/cannon_muzzle.tres" id="2_muzzle"]
+[ext_resource type="Resource" path="res://data/vfx/stage/cannon_splinter.tres" id="3_splinter"]
+
+[resource]
+script = ExtResource("1_lane")
+rows = PackedVector3Array(-749, -808, 766, -485, -907, 848, -154, -940, 929, 227, -991, 980, 607, -1024, 1013)
+muzzle_vfx = ExtResource("2_muzzle")
+splinter_vfx = ExtResource("3_splinter")

@@ -1,15 +1,21 @@
 class_name EnemyArt
 extends RefCounted
 ## 적 임시 그래픽: 수묵풍 실루엣 + 인주 빛 예고 영역. 정식 그래픽 교체 시 이 파일만 바꾼다.
-## 종류는 data.id로 구분: chaser(창), archer(활), heavy(두꺼운 갑옷), boss(투구·대검·금빛).
+## 종류는 data.id로 구분: chaser(창), archer(활), heavy(두꺼운 갑옷). 보스(is_boss)는 모두 투구·대검·금빛.
 
 
 static func draw(e: Enemy) -> void:
+	EnemyAura.draw(e)  # 먹물 장판은 맨 아래
 	_telegraph(e)
 	var r := e.body_radius
 	var id: StringName = e.data.id if e.data else &"chaser"
+	if e.data and e.data.is_boss:
+		id = &"boss"
 	var seed := float(e.get_instance_id() % 97)
-	Ink.shadow(e, Vector2(0, r * 0.7), r * 1.05)
+	var feel := Feedback.feel_data()  # 큰 적일수록 넓고 진한 먹 그림자 (무게감)
+	var rr := r * e.size_mult
+	var big := clampf((rr - 18.0) / maxf(feel.enemy_shadow_big_radius - 18.0, 1.0), 0.0, 1.0)
+	Ink.weight_shadow(e, Vector2(0, r * 0.7), rr * feel.enemy_shadow_scale, lerpf(feel.enemy_shadow_alpha, feel.enemy_shadow_alpha_big, big))
 	if e.sprite:
 		return  # 몸은 구워진 스프라이트가 그린다
 	var body := Color(1, 1, 1) if e.flash_left() > 0.0 else Ink.INK
@@ -18,6 +24,10 @@ static func draw(e: Enemy) -> void:
 		var d := e.target.global_position - e.global_position
 		if d.length_squared() > 1.0:
 			to_target = d.normalized()
+	if e.data and e.data.aura and e.data.move_speed <= 0.0:  # 깃발 (서 있기만 하는 적): 깃대 + 인주 깃발
+		Ink.stroke(e, Vector2(0, r * 0.6), Vector2(0, -r * 2.6), 5.0, body)
+		e.draw_colored_polygon(PackedVector2Array([Vector2(2, -r * 2.6), Vector2(r * 1.6, -r * 2.2), Vector2(2, -r * 1.7)]), Ink.SEAL)
+		return
 	match id:
 		&"archer":
 			Ink.blob(e, Vector2(0, -r * 0.3), r * 0.85, body, seed, 0.2, 1.1)
@@ -30,7 +40,7 @@ static func draw(e: Enemy) -> void:
 				var y := -r * 0.6 + k * r * 0.4
 				e.draw_line(Vector2(-r * 0.7, y), Vector2(r * 0.7, y), Color(0.55, 0.45, 0.65), 4.0)
 			e.draw_circle(Vector2(0, -r * 1.2), r * 0.4, Color(0.4, 0.3, 0.5))
-		&"boss_general":
+		&"boss":
 			Ink.blob(e, Vector2(0, -r * 0.3), r * 1.05, body, seed, 0.1, 1.1)
 			Ink.ring(e, Vector2(0, -r * 0.3), r * 0.9, 6.0, Ink.GOLD, 1.0, seed)
 			e.draw_circle(Vector2(0, -r * 1.3), r * 0.42, Ink.GOLD)  # 투구
@@ -44,19 +54,33 @@ static func draw(e: Enemy) -> void:
 			Ink.stroke(e, -to_target * r * 0.6, to_target * r * 1.5, 4.0, Color(0.35, 0.25, 0.15))
 
 
+## 공격 직후 경직(빈틈): 머리 위 흰 먹 소용돌이 (이때 치면 더 아프다).
+static func _opening(e: Enemy) -> void:
+	var a := e.attack
+	if a == null or a.state != EnemyAttack.State.RECOVER:
+		return
+	var top := Vector2(0, -e.body_radius * 2.4)
+	var spin := -Time.get_ticks_msec() * 0.006
+	e.draw_arc(top, e.body_radius * 0.55, spin, spin + PI * 1.5, 12, Color(Ink.PAPER, 0.95), 4.0)
+	e.draw_arc(top, e.body_radius * 0.55, spin, spin + PI * 1.5, 12, Color(Ink.INK, 0.6), 1.5)
+
+
 ## 예고 영역: 인주 빛으로 차오르고 먹선 테두리.
 static func _telegraph(e: Enemy) -> void:
+	_opening(e)
 	var a := e.attack
 	if a == null or a.state != EnemyAttack.State.WINDUP:
 		return
 	var k := a.windup_ratio()
-	var fill := Color(Ink.SEAL, 0.12 + 0.3 * k)
-	var edge := Color(Ink.SEAL, 0.85)
+	# 공통 예고 규칙: 붉은 먹 채움이 진해지고 (fill), 테두리는 처음부터 (edge), 맞기 직전엔 번쩍 (밝고 두껍게).
+	var flash := a.is_flashing(Enemy.ai_data().strike_flash_time)
+	var fill := Color(Ink.SEAL, (0.12 + 0.3 * k) + (0.2 if flash else 0.0))
+	var edge := Color(Ink.SEAL.lightened(0.45), 1.0) if flash else Color(Ink.SEAL, 0.85)
 	var origin := e.to_local(a.aim_origin)
 	match a.data.kind:
 		EnemyAttackData.Kind.SHOOT:
 			var end := a.aim_dir * a.data.projectile_range
-			Ink.stroke(e, Vector2.ZERO, end, 3.0 + 7.0 * k, Color(Ink.SEAL, 0.2 + 0.4 * k))
+			Ink.stroke(e, Vector2.ZERO, end, 3.0 + 7.0 * k + (4.0 if flash else 0.0), edge if flash else Color(Ink.SEAL, 0.2 + 0.4 * k))
 		EnemyAttackData.Kind.CONE:
 			var half := deg_to_rad(a.data.angle_degrees * 0.5)
 			var a0 := a.aim_dir.angle()
@@ -66,7 +90,7 @@ static func _telegraph(e: Enemy) -> void:
 			e.draw_colored_polygon(pts, fill)
 			pts.append(origin)
 			e.draw_polyline(pts, edge, 4.0)
-		EnemyAttackData.Kind.CHARGE:
+		EnemyAttackData.Kind.CHARGE, EnemyAttackData.Kind.PULL, EnemyAttackData.Kind.THRUST:
 			var d := a.aim_dir
 			var n := d.orthogonal() * a.data.width * 0.5
 			var back := origin - d * a.data.width * 0.5

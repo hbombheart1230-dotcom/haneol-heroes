@@ -3,6 +3,9 @@ extends Node2D
 ## 몸 주위를 도는 글자 고리 (세종 정음진). 글자에 닿은 적은 같은 적마다 hit_interval초에 한 번 피해.
 ## 플레이어를 따라다닌다 (부모가 아니라 follow를 매 프레임 따라감: 월드에 붙여 히트스톱·정지와 같이 움직임).
 
+## 글자 글꼴 크기(px). 써지는 동안 크게 찍히는 것은 늘려 그린다.
+const GLYPH_PX := 46
+
 var ctx: SkillContext
 var follow: Node2D
 var glyphs: String = "ㄱㄴㄷㅁㅅㅇ"
@@ -13,10 +16,26 @@ var hit_interval: float = 0.5
 var spin_speed: float = 3.2
 ## 글자 하나의 판정 반경(px).
 var glyph_radius: float = 30.0
+## 고리 밑에 깔리는 그림 (정음 자모 고리, 함께 돈다)과 크기 배율(반지름 대비)·투명도.
+var art: Texture2D
+var art_scale: float = 2.4
+var art_alpha: float = 0.55
+## 붓으로 써지듯 등장: 글자마다 이 간격(초)으로 차례로, 한 글자가 써지는 시간(초). 고리 그림은 draw_in초에 펼쳐진다.
+var glyph_stagger: float = 0.07
+var glyph_write: float = 0.16
+var draw_in: float = 0.3
+
+## 따라가는 적(가운데)도 hit_interval마다 친다. 두 겹 고리의 바깥 고리는 끈다 (피해가 두 배가 되지 않게).
+var hit_core: bool = true
 
 var hits: int = 0
 var _age: float = 0.0
 var _last_hit: Dictionary = {}
+
+
+## 글자 i가 써진 정도 (0 = 아직, 1 = 다 씀). 순수 계산.
+static func write_progress(age: float, i: int, stagger: float, write: float) -> float:
+	return clampf((age - stagger * i) / maxf(write, 0.01), 0.0, 1.0)
 
 
 func glyph_positions() -> PackedVector2Array:
@@ -41,7 +60,14 @@ func _physics_process(delta: float) -> void:
 				if now - float(_last_hit.get(id, -INF)) < hit_interval:
 					continue
 				_last_hit[id] = now
-				if ctx.hit(en, damage):
+				if ctx.tick_hit(en, damage, now + hit_interval > duration):  # 마지막 한 바퀴는 크게
+					hits += 1
+		var core: Enemy = follow as Enemy if follow and is_instance_valid(follow) else null  # 적에게 씌운 고리 (세종 SkillAim): 가운데 그 적도 같은 간격으로 맞는다
+		if hit_core and core and core.health and core.health.is_alive():
+			var cid := core.get_instance_id()
+			if now - float(_last_hit.get(cid, -INF)) >= hit_interval:
+				_last_hit[cid] = now
+				if ctx.tick_hit(core, damage, now + hit_interval > duration):  # 글자와 같은 연속 타격감 (마지막은 크게)
 					hits += 1
 	if _age >= duration:
 		queue_free()
@@ -50,9 +76,27 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	var fade := clampf((duration - _age) / 0.4, 0.0, 1.0)
-	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(UiStyle.GOLD, 0.25 * fade), 2.0)
+	var grow := 1.0 - pow(1.0 - clampf(_age / maxf(draw_in, 0.01), 0.0, 1.0), 3.0)
+	if art:  # 고리 그림: 감겨 들며 펼쳐진다
+		var s := radius * art_scale * lerpf(0.55, 1.0, grow)
+		draw_set_transform(Vector2.ZERO, _age * spin_speed * 0.5 - (1.0 - grow) * 1.2, Vector2.ONE)
+		draw_texture_rect(art, Rect2(-s * 0.5, -s * 0.5, s, s), false, Color(1, 1, 1, art_alpha * fade * grow))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	else:
+		draw_arc(Vector2.ZERO, radius, 0.0, TAU, 48, Color(UiStyle.GOLD, 0.25 * fade), 2.0)
 	var n := maxi(glyphs.length(), 1)
+	var blot := Feedback.feel_data().splat_art
 	for i in n:
+		var w := write_progress(_age, i, glyph_stagger, glyph_write)
+		if w <= 0.0:
+			continue
 		var p := Vector2.from_angle(_age * spin_speed + TAU * i / n) * radius
-		UiStyle.text(self, UiStyle.TITLE_FONT, p + Vector2(-22, 16), glyphs[i], 46, Color(UiStyle.GOLD, fade), 44.0,
-			Color(0, 0, 0, 0.7 * fade), 5)
+		if blot and w < 1.0:  # 붓이 찍히는 먹 자국 (써지는 동안만)
+			var bs := 70.0 * (0.5 + w)
+			draw_texture_rect(blot, Rect2(p - Vector2.ONE * bs * 0.5, Vector2.ONE * bs), false,
+				Color(0.08, 0.06, 0.04, 0.7 * (1.0 - w)))
+		# 써지며 줄어드는 크기는 늘려 그린다 (글꼴은 GLYPH_PX 하나: 프레임마다 새 크기 글자 그림을 만들지 않게, FxWarmup)
+		draw_set_transform(p, 0.0, Vector2.ONE * lerpf(1.7, 1.0, 1.0 - pow(1.0 - w, 3.0)))
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-GLYPH_PX * 0.48, GLYPH_PX * 0.35), glyphs[i], GLYPH_PX,
+			Color(UiStyle.GOLD, fade * minf(w * 1.6, 1.0)), GLYPH_PX * 0.96, Color(0, 0, 0, 0.7 * fade * w), 5)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

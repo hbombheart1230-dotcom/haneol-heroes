@@ -1,0 +1,6 @@
+[gd_resource type="Resource" script_class="SkillHitFeelData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/skill_hit_feel_data.gd" id="1_hits"]
+
+[resource]
+script = ExtResource("1_hits")

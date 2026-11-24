@@ -1,8 +1,12 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Resource" path="res://data/breakables/manchuria_395.tres" id="b_manchuria_395"]
+[ext_resource type="Resource" path="res://data/stages/looks/manchuria_395.tres" id="look"]
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="Resource" path="res://data/stages/hazards/manchuria_fire.tres" id="h_fire"]
+[ext_resource type="Script" path="res://scripts/data/stage_hazard_data.gd" id="h_script"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
+[ext_resource type="Resource" path="res://data/enemies/elite_warrior_captain.tres" id="e_elite_warrior_captain"]
 [ext_resource type="Resource" path="res://data/enemies/chaser.tres" id="e_chaser"]
 [ext_resource type="Resource" path="res://data/enemies/archer.tres" id="e_archer"]
 [ext_resource type="Resource" path="res://data/enemies/heavy.tres" id="e_heavy"]
@@ -20,10 +24,52 @@
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/spear_grass.png" id="p_spear_grass"]
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/spears.png" id="p_spears"]
 [ext_resource type="Texture2D" path="res://assets/props/manchuria/wheel.png" id="p_wheel"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395/verse.ogg" id="2_music"]
+[ext_resource type="Resource" path="res://data/songs/manchuria_395.tres" id="song"]
+
+[ext_resource type="Script" path="res://scripts/data/wave_data.gd" id="w_wave"]
+[ext_resource type="Script" path="res://scripts/data/wave_set_data.gd" id="w_set"]
+
+[sub_resource type="Resource" id="Wave_1"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser")])
+first_count = 8
+max_alive = 8
+elite_last = false
+
+[sub_resource type="Resource" id="Wave_2"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser")])
+first_count = 10
+max_alive = 10
+elite_last = false
+
+[sub_resource type="Resource" id="Wave_3"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser")])
+first_count = 6
+max_alive = 8
+elite_last = true
+elite_when_left = 2
+
+[sub_resource type="Resource" id="Wave_4"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_elite_warrior_captain")])
+first_count = 14
+max_alive = 14
+elite_last = false
+
+[sub_resource type="Resource" id="Waves"]
+script = ExtResource("w_set")
+waves = Array[ExtResource("w_wave")]([SubResource("Wave_1"), SubResource("Wave_2"), SubResource("Wave_3"), SubResource("Wave_4")])
+max_alive = 14
+next_when_left = 2
+refill_each = true
+xp_mult = 1.53
 
 [resource]
 script = ExtResource("1_theme")
+hazards = Array[ExtResource("h_script")]([ExtResource("h_fire")])
 id = &"manchuria_395"
 year_label = "395년"
 title = "만주 벌판"
@@ -33,11 +79,15 @@ spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResourc
 spawn_weights = PackedFloat32Array(6, 2, 1)
 unlock_times = PackedFloat32Array(0, 10, 20)
 elite = ExtResource("e_elite")
+waves = SubResource("Waves")
 boss = ExtResource("e_boss")
 card_art = ExtResource("p_flags")
 subtitle = "광개토대왕릉비에 새겨진 비려 정벌의 전장"
 floor_base = Color(0.666, 0.560, 0.473, 1)
 floor_stain = Color(0.28, 0.3, 0.18, 1)
+vignette = 0.4
+look = ExtResource("look")
+camera_zoom = 1.09
 grass_per_mpx = 0.0
 rock_per_mpx = 0.0
 grass_color = Color(0.3, 0.31, 0.17, 0.75)
@@ -46,6 +96,7 @@ clear_radius = 260.0
 seed = 395
 prop_textures = Array[Texture2D]([ExtResource("p_cart"), ExtResource("p_fence"), ExtResource("p_flags"), ExtResource("p_grass"), ExtResource("p_planks"), ExtResource("p_rack"), ExtResource("p_rock_sharp"), ExtResource("p_rocks_big"), ExtResource("p_rocks_grass"), ExtResource("p_spear_grass"), ExtResource("p_spears"), ExtResource("p_wheel")])
 picture_props_per_mpx = 2.0
+song = ExtResource("song")
 music = ExtResource("2_music")
 background_path = "res://assets/backgrounds/manchuria_395.png"
 background_rect = Rect2(-1068, -1711, 2124, 3186)

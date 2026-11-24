@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="EnemyBehaviourData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_behaviour_data.gd" id="1_beh"]
+[ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+
+[sub_resource type="Resource" id="Lunge"]
+script = ExtResource("2_attack")
+kind = 4
+trigger_range = 280.0
+windup = 0.45
+length = 300.0
+width = 90.0
+damage = 28
+cooldown = 2.5
+recovery = 0.5
+miss_overshoot = 80.0
+miss_recovery = 0.9
+
+[resource]
+script = ExtResource("1_beh")
+style = 2
+attack = SubResource("Lunge")
+uses_token = false
+ambush_range = 320.0
+ambush_alpha = 0.22
+ambush_speed_mult = 0.4

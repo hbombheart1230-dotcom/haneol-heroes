@@ -6,8 +6,10 @@ extends Resource
 ##   SHOCKWAVE : 자기 주변 원 → 충격파
 ##   CONE  : 플레이어 방향 부채꼴 → 베기
 ##   CHARGE: 플레이어 방향 직사각형 → 그 끝까지 돌진
+##   PULL  : 플레이어 방향 직사각형 → 맞으면 적 쪽으로 끌어당김 (개구리 혀)
+##   THRUST: 플레이어 방향 좁고 긴 직사각형 → 제자리 찌르기 (창, 타격감 2차 E3)
 
-enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE }
+enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE, PULL, THRUST }
 
 @export var kind: Kind = Kind.SLAM
 ## 예고·공격 중 보여 줄 스프라이트 동작 (시트에 없으면 "attack"). 보스 패턴마다 다르게.
@@ -32,8 +34,42 @@ enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE }
 ## 타격 후 경직(초). 이 동안 움직이지 않는다.
 @export var recovery: float = 0.3
 
+@export_group("고르기 조건 (보스)")
+## 0보다 크면 영웅이 이 거리(px)보다 멀 때만 고른다 (원거리 대응: 뒷걸음질만으로 이기지 못하게, 근접 영웅 판은 그대로).
+@export var min_range: float = 0.0
+## 타격 순간 예고 자리(target_point)에 이 적을 세운다 (깃발 꽂기). 같은 적이 spawn_cap 이상 있으면 세우지 않는다.
+@export var spawn_on_strike: EnemyData
+@export var spawn_cap: int = 2
+
+@export_group("이어치기 (보스 조합)")
+## 있으면 이 공격 뒤 바로 이어 쓰는 공격 (쓸기 → 돌진). 이어치기는 거리와 상관없이 나간다.
+## 이 공격의 cooldown 대신 follow_gap초 뒤 이어치기 예고가 시작된다 (recovery가 더 길면 그 뒤).
+@export var follow_up: EnemyAttackData
+@export var follow_gap: float = 0.3
+## 같은 공격을 일부러 잇는 이어치기 (격노 3연 돌진, 3연사): 다시 겨눈다. 시험의 "이어치기 종류 다름" 규칙에서 뺀다.
+@export var chain_repeat: bool = false
+
+@export_group("소리·이펙트 (타격감 2차 E1)")
+## 예고 시작·타격(발사) 순간 소리 (SoundBank 종류). 비우면 EnemyAIData.attack_sfx의 종류별 기본값.
+@export var windup_sfx: StringName = &""
+@export var strike_sfx: StringName = &""
+## 발사 순간 무기 끝에서 터지는 이펙트 (조총 불꽃·연기). 비우면 없음.
+@export var fire_vfx: SkillVfxData
+
 @export_group("사격 (SHOOT)")
 @export var projectile_speed: float = 520.0
 @export var projectile_range: float = 650.0
 ## 화살 판정 반지름(px).
 @export var projectile_radius: float = 14.0
+
+@export_group("군대별 동작")
+## 사격 예고 중에도 뒤로 물러나며 쏜다 (비려 기마 궁수, 파르티아식). 물러나는 속도 배율 (0 = 멈춰서 쏨).
+@export var kite_while_aiming: float = 0.0
+## 일제 사격: 같은 박자(EnemyAIData.volley_interval)에만 조준을 시작해 여럿이 함께 쏜다 (왜군 철포).
+@export var volley: bool = false
+## 돌진이 빗나가면 이만큼(px) 더 미끄러지고, 경직이 miss_recovery초로 길어진다 (여진 기병).
+@export var miss_overshoot: float = 0.0
+@export var miss_recovery: float = 0.0
+## PULL: 맞은 플레이어를 적 쪽으로 끌어오는 거리(px)와 시간(초).
+@export var pull_distance: float = 0.0
+@export var pull_time: float = 0.25

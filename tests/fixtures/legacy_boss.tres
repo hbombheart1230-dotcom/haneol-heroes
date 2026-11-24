@@ -1,0 +1,70 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+[ext_resource type="Resource" path="res://assets/sprites/biryeo_chieftain/biryeo_chieftain.tres" id="3_sheet"]
+
+[sub_resource type="Resource" id="Boss_cone"]
+script = ExtResource("2_attack")
+kind = 3
+anim = &"attack2"
+trigger_range = 220.0
+windup = 0.8
+radius = 240.0
+angle_degrees = 110.0
+damage = 30
+cooldown = 0.6
+recovery = 0.5
+bypass_cap = true
+
+[sub_resource type="Resource" id="Boss_charge"]
+script = ExtResource("2_attack")
+kind = 4
+anim = &"run"
+trigger_range = 520.0
+windup = 0.9
+length = 460.0
+width = 110.0
+damage = 35
+cooldown = 0.6
+recovery = 0.7
+bypass_cap = true
+
+[sub_resource type="Resource" id="Boss_shockwave"]
+script = ExtResource("2_attack")
+kind = 2
+anim = &"attack"
+trigger_range = 260.0
+windup = 1.0
+radius = 250.0
+damage = 30
+cooldown = 0.6
+recovery = 0.8
+bypass_cap = true
+
+[resource]
+script = ExtResource("1_enemy")
+id = &"legacy_boss"
+display_name = "옛 방식 보스 (시험용)"
+max_hp = 600
+xp = 0
+move_speed = 85.0
+contact_damage = 25
+body_radius = 46.0
+color = Color(0.7, 0.55, 0.2, 1)
+knockback_scale = 0.1
+stun_scale = 0.3
+patterns = Array[ExtResource("2_attack")]([SubResource("Boss_cone"), SubResource("Boss_charge"), SubResource("Boss_shockwave")])
+is_boss = true
+sprite_sheet = ExtResource("3_sheet")
+sprite_scale = 1.35
+sprite_offset = Vector2(0, -66)
+launch_scale = 0.4
+rim_color = Color(0.12, 0.07, 0.04, 0.9)
+rim_width = 5.0
+body_lift = 0.0
+body_contrast = 1.05
+army_tint = Color(1, 1, 1, 1)
+tint_mix = 0.0
+ghost_color = Color(0.85, 0.7, 0.45, 0.5)
+ghost_fire_scale = 1.6

@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="ChargeMarkerData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/charge_marker_data.gd" id="1_mark"]
+[ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="2_vfx"]
+[ext_resource type="Texture2D" path="res://assets/vfx/ink.png" id="t_ink"]
+[ext_resource type="Texture2D" path="res://assets/vfx/plum.png" id="t_plum"]
+
+[sub_resource type="Resource" id="Spark"]
+script = ExtResource("2_vfx")
+shape = 2
+count = 2
+aim = 2
+spread_deg = 160.0
+speed = Vector2(40, 110)
+gravity = 120.0
+spawn_radius = 70.0
+life = Vector2(0.5, 0.8)
+size = Vector2(14, 22)
+spin = 6.0
+color = Color(0.92, 0.45, 0.6, 1)
+color_end = Color(0.9, 0.7, 0.78, 0)
+
+[sub_resource type="Resource" id="Full"]
+script = ExtResource("2_vfx")
+decal = ExtResource("t_plum")
+shape = 2
+count = 12
+speed = Vector2(100, 240)
+gravity = 140.0
+life = Vector2(0.5, 0.8)
+size = Vector2(16, 26)
+spin = 7.0
+color = Color(0.92, 0.45, 0.6, 1)
+color_end = Color(0.9, 0.7, 0.78, 0)
+decal_size = 250.0
+decal_time = 0.5
+decal_spin = 2.5
+glow = 0.3
+glow_color = Color(1, 0.55, 0.75, 1)
+
+[resource]
+script = ExtResource("1_mark")
+art = ExtResource("t_ink")
+art2 = ExtResource("t_plum")
+tint = Color(0.75, 0.55, 0.9, 1)
+tint2 = Color(1, 0.8, 0.88, 0.9)
+spin = 1.2
+spin2 = -2.0
+spark_vfx = SubResource("Spark")
+full_vfx = SubResource("Full")
+alpha_min = 0.45

@@ -13,7 +13,6 @@ static func draw(canvas: CanvasItem, controller: TouchController, font: Font) ->
 		_draw_button(canvas, controller, sc, font)
 	else:
 		_draw_status(canvas, controller, sc, font)
-	_draw_toggle(canvas, controller, font)
 
 
 ## 회피 성공 후 반격 가능 시간: 화면 가장자리 강조 + "반격!" + 남은 시간 막대.
@@ -59,7 +58,7 @@ static func _draw_button(canvas: CanvasItem, controller: TouchController, sc: Sk
 ## 버튼 없이 제스처로 쓸 때: 오른쪽 아래에 기술 3개 쿨타임 (탭 / 튕기고 탭 / 꾹).
 static func _draw_status(canvas: CanvasItem, controller: TouchController, sc: SkillCaster, font: Font) -> void:
 	var slots := [SkillCaster.Slot.TAP, SkillCaster.Slot.DASH, SkillCaster.Slot.CHARGE]
-	var hints := ["탭", "대시 후 떼기", "꾹"]
+	var hints := ["톡", "내닫고 떼기", "꾹"]
 	var size := controller.viewport_size()
 	var r := 32.0
 	for i in slots.size():
@@ -71,16 +70,6 @@ static func _draw_status(canvas: CanvasItem, controller: TouchController, sc: Sk
 		_draw_face(canvas, def, def.color, c, r, sc.is_ready(slot), sc.cooldown_ratio(slot))
 		canvas.draw_string(font, c + Vector2(-40, -r - 8), def.display_name, HORIZONTAL_ALIGNMENT_CENTER, 80, 16, Color(1, 1, 1, 0.85))
 		canvas.draw_string(font, c + Vector2(-40, r + 18), hints[i], HORIZONTAL_ALIGNMENT_CENTER, 80, 14, Color(1, 1, 1, 0.6))
-
-
-static func _draw_toggle(canvas: CanvasItem, controller: TouchController, font: Font) -> void:
-	var rect := controller.toggle_rect()
-	var on := controller.skill_button_enabled
-	canvas.draw_rect(rect, Color(0, 0, 0, 0.4))
-	canvas.draw_rect(rect, Color(1, 1, 1, 0.35), false, 2.0)
-	var label := "버튼 켬" if on else "버튼 끔"
-	canvas.draw_string(font, rect.position + Vector2(0, rect.size.y * 0.66), label, HORIZONTAL_ALIGNMENT_CENTER,
-		rect.size.x, 22, Color(1, 1, 1, 0.9 if on else 0.6))
 
 
 ## 기술 얼굴: 아이콘이 있으면 아이콘(쿨타임은 위에서부터 어둡게 덮음), 없으면 색 원 + 부채꼴.

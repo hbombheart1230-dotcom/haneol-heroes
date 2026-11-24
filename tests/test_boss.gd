@@ -2,7 +2,7 @@ extends GdUnitTestSuite
 ## 2단계 첫 보스: 영역 모양(부채꼴·돌진·충격파), 패턴 순환, 등장·처치 승리.
 
 const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
-const BOSS := preload("res://data/enemies/boss_general.tres")
+const BOSS := preload("res://tests/fixtures/legacy_boss.tres")  ## 옛 방식 보스 (쓸기·돌진·충격파 차례, boss_feel 없음)
 const CHASER := preload("res://data/enemies/chaser.tres")
 const DT := 1.0 / 60.0
 
@@ -171,8 +171,15 @@ func test_main_scene_boss_kill_ends_with_victory() -> void:
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	var boss := spawner.spawn_boss()
 	assert_object(boss).is_not_null()
+	var feel := boss.data.boss_feel
 	boss.health.kill()
 	await get_tree().physics_frame
+	if feel:  # 처치 연출(실제 시간) → 영웅 승리 동작(HeroVictory, 판 시각) → 승리
+		await get_tree().create_timer(feel.finale_time + 0.1, true, false, true).timeout
+		var v := main.get_node_or_null("HeroVictory") as HeroVictory
+		assert_object(v).is_not_null()
+		assert_int(main.state.result).is_equal(GameState.Result.PLAYING)  # 승리 동작 중엔 아직 결과 화면이 아니다
+		await get_tree().create_timer(HeroVictory.time_for(main.player) + 0.2, true, false, true).timeout
 	assert_int(main.state.result).is_equal(GameState.Result.VICTORY)
 	assert_bool(main.state.boss_killed).is_true()
 	get_tree().paused = false
@@ -193,7 +200,10 @@ func _skip_hero_select() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.hero_picked = true
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
+	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"

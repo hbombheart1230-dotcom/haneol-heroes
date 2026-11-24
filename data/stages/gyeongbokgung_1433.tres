@@ -1,7 +1,10 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
+[ext_resource type="Resource" path="res://data/stages/hazards/gyeongbok_cover.tres" id="h_cover"]
+[ext_resource type="Script" path="res://scripts/data/stage_hazard_data.gd" id="h_script"]
+[ext_resource type="Resource" path="res://data/stages/looks/gyeongbokgung_1433.tres" id="look"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/gyeongbokgung_1433/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/arrows_a.png" id="p_arrows_a"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/arrows_b.png" id="p_arrows_b"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/banner_blue.png" id="p_banner_blue"]
@@ -16,16 +19,59 @@
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/rank_stones.png" id="p_rank_stones"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/roof_tiles.png" id="p_roof_tiles"]
 [ext_resource type="Texture2D" path="res://assets/props/gyeongbokgung/stone_lantern.png" id="p_stone_lantern"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_elite_captain.tres" id="e_jurchen_elite_captain"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_soldier.tres" id="e_jurchen_soldier"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_archer.tres" id="e_jurchen_archer"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_heavy.tres" id="e_jurchen_heavy"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_elite.tres" id="e_jurchen_elite"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_chieftain.tres" id="e_jurchen_chieftain"]
 [ext_resource type="Resource" path="res://data/breakables/gyeongbokgung_1433.tres" id="b_gyeongbokgung_1433"]
+[ext_resource type="Resource" path="res://data/songs/gyeongbokgung_1433.tres" id="song"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
+
+[ext_resource type="Script" path="res://scripts/data/wave_data.gd" id="w_wave"]
+[ext_resource type="Script" path="res://scripts/data/wave_set_data.gd" id="w_set"]
+
+[sub_resource type="Resource" id="Wave_1"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier")])
+first_count = 8
+max_alive = 8
+elite_last = false
+
+[sub_resource type="Resource" id="Wave_2"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier")])
+first_count = 10
+max_alive = 10
+elite_last = false
+
+[sub_resource type="Resource" id="Wave_3"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier")])
+first_count = 6
+max_alive = 8
+elite_last = true
+elite_when_left = 2
+
+[sub_resource type="Resource" id="Wave_4"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_elite_captain"), ExtResource("e_jurchen_soldier")])
+first_count = 14
+max_alive = 14
+elite_last = false
+
+[sub_resource type="Resource" id="Waves"]
+script = ExtResource("w_set")
+waves = Array[ExtResource("w_wave")]([SubResource("Wave_1"), SubResource("Wave_2"), SubResource("Wave_3"), SubResource("Wave_4")])
+max_alive = 14
+next_when_left = 2
+refill_each = true
+xp_mult = 1.53
 
 [resource]
 script = ExtResource("1_theme")
+hazards = Array[ExtResource("h_script")]([ExtResource("h_cover")])
 id = &"gyeongbokgung_1433"
 year_label = "1433년"
 title = "경복궁"
@@ -33,14 +79,19 @@ subtitle = "세종 15년, 최윤덕이 파저강의 여진을 토벌한 해"
 music = ExtResource("2_music")
 hero_hint = "세종"
 breakable = ExtResource("b_gyeongbokgung_1433")
+song = ExtResource("song")
 spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_heavy")])
 spawn_weights = PackedFloat32Array(6, 2, 1)
 unlock_times = PackedFloat32Array(0, 10, 20)
 elite = ExtResource("e_jurchen_elite")
+waves = SubResource("Waves")
 boss = ExtResource("e_jurchen_chieftain")
 card_art = ExtResource("p_palace_gate")
 floor_base = Color(0.532, 0.461, 0.423, 1)
 floor_stain = Color(0.35, 0.34, 0.33, 1)
+vignette = 0.4
+look = ExtResource("look")
+camera_zoom = 1.09
 grass_per_mpx = 0.0
 grass_color = Color(0.32, 0.36, 0.22, 0.55)
 rock_per_mpx = 0.0

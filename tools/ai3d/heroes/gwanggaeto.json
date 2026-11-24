@@ -1,10 +1,10 @@
 {
   "name": "gwanggaeto",
-  "image": "assets/concept/gwanggaeto/front_apose.png",
+  "image": "assets/concept/redesign/heroes/gwanggaeto.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
-    "pose_mode": "a-pose",
+    "pose_mode": "",
     "should_remesh": true,
     "topology": "triangle",
     "target_polycount": 20000,
@@ -24,7 +24,44 @@
       "wash_amount": 0.25,
       "grain": 0.0
     },
-    "lossy_quality": 0.58
+    "lossy_quality": 0.58,
+    "rigid": {
+      "bone": "RightHand",
+      "boxes": [
+        [
+          -0.5,
+          0.0,
+          0.12,
+          -0.35,
+          0.92,
+          0.3
+        ],
+        [
+          -0.75,
+          0.92,
+          0.0,
+          -0.42,
+          1.25,
+          0.45
+        ],
+        [
+          -0.45,
+          0.92,
+          0.16,
+          -0.36,
+          1.25,
+          0.27
+        ],
+        [
+          -0.75,
+          1.25,
+          0.05,
+          -0.34,
+          2.0,
+          0.45
+        ]
+      ]
+    }
   },
   "anims": [
     {
@@ -54,10 +91,13 @@
     {
       "key": "attack",
       "match": "slash|attack",
-      "action_id": 242,
       "frames": 6,
       "fps": 16.0,
-      "loop": false
+      "loop": false,
+      "clip_of": "combo2",
+      "start": 0.0,
+      "end": 0.8,
+      "strike": 0.5
     },
     {
       "key": "hit",
@@ -74,6 +114,116 @@
       "fps": 10.0,
       "loop": false,
       "action_id": 8
+    },
+    {
+      "key": "combo",
+      "match": "combo",
+      "action_id": 105,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "attack2",
+      "clip_of": "combo2",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "start": 0.75,
+      "end": 1.55,
+      "strike": 1.24
+    },
+    {
+      "key": "attack3",
+      "clip_of": "combo2",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "start": 3.85,
+      "end": 4.9,
+      "strike": 4.46
+    },
+    {
+      "key": "throw",
+      "match": "throw|cast",
+      "action_id": 421,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "start": 2.6,
+      "end": 3.8,
+      "strike": 3.5
+    },
+    {
+      "key": "combo2",
+      "match": "combo",
+      "action_id": 91,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "shout_src",
+      "match": "",
+      "action_id": 101,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "cast_tap",
+      "clip_of": "attack",
+      "frames": 7,
+      "fps": 18.0,
+      "loop": false,
+      "start": 1.5,
+      "end": 2.4,
+      "strike": 2.02
+    },
+    {
+      "key": "cast_dash",
+      "clip_of": "attack",
+      "frames": 6,
+      "fps": 18.0,
+      "loop": false,
+      "start": 1.0,
+      "end": 1.65,
+      "strike": 1.46
+    },
+    {
+      "key": "cast_charge",
+      "clip_of": "shout_src",
+      "frames": 8,
+      "fps": 16.0,
+      "loop": false,
+      "start": 0.5,
+      "end": 2.1,
+      "strike": 1.3
+    },
+    {
+      "key": "cast_counter",
+      "clip_of": "combo",
+      "frames": 8,
+      "fps": 16.0,
+      "loop": false,
+      "start": 1.1,
+      "end": 2.3,
+      "strike": 2.0
+    },
+    {
+      "key": "victory",
+      "reuse": {
+        "src": "victory",
+        "from": "res://assets/live3d/gwanggaeto/anims/web_victory.res"
+      },
+      "frames": 8,
+      "fps": 8.0,
+      "loop": false,
+      "start": 1.0,
+      "end": 3.0
     }
   ]
 }

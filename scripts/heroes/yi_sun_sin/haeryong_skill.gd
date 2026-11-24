@@ -1,10 +1,13 @@
 class_name HaeryongSkill
 extends SkillDef
 ## 이순신 · 해룡참: 주변 광역 베기 + 넉백 (푸른 물결 고리).
+## 해룡 그림이 바라보는 방향부터 한 바퀴 휘감기며 펼쳐지고, 그 붓이 지나는 순서대로 적이 베인다 (SweepRun).
 
 @export var radius: float = 170.0
 @export var damage: int = 25
 @export var knockback: float = 420.0
+## 0보다 크면 넉백 대신 이만큼(px) 바깥으로 크게 날린다 (큰 기술 = 크게 날림, EnemyLaunch).
+@export var launch_px: float = 0.0
 @export_group("큰 변형 · 소용돌이")
 ## 0보다 크면 베기 뒤 그 자리에 소용돌이가 이 시간(초) 남는다 (정예 보상으로 켜진다).
 @export var whirl_time: float = 0.0
@@ -15,13 +18,8 @@ extends SkillDef
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	var center := ctx.player.global_position
-	var hits := 0
-	for en in ctx.enemies_in_radius(center, radius):
-		var off := en.global_position - center
-		var dir := off.normalized() if off.length_squared() > 0.01 else Vector2.RIGHT
-		en.apply_knockback(dir * knockback)
-		ctx.hit(en, damage)
-		hits += 1  # 범위 안 대상 수 (리팩터링 전과 동일한 집계)
+	var targets := ctx.enemies_in_radius(center, radius)  # 대상은 누르는 순간 정해진다
+	ctx.impact(center, Vector2.ZERO, radius)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.35, fx_color)
 	if whirl_time > 0.0:
@@ -34,4 +32,6 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		z.pull = whirl_pull
 		z.color = fx_color
 		ctx.add_to_world(z, center)
-	return SkillRun.instant(hits)
+	return ctx.sweep(center, targets, func(en: Enemy) -> bool:
+		ComboSteps.push_out(en, center, launch_px, knockback)  # 휘감는 순서대로 한 마리씩 날아간다
+		return ctx.hit(en, damage))

@@ -1,9 +1,12 @@
 """CC0 효과음·음악을 게임용으로 다듬는다: 잘라내기, 끝 부드럽게, 크기 맞추기, 모노 OGG로 작게.
 
-  python tools/audio/prepare_audio.py <원본 폴더>
+  python tools/audio/prepare_audio.py <원본 폴더> [종류 ...]
+종류를 주면 그 효과음만 다시 만든다 (음악은 건너뜀). 예: ... <폴더> hurt
 원본 (모두 CC0, OpenGameArt — README 외부 자산 표):
   sword - StarNinjas/*.ogg, sword_clash.*.ogg (StarNinjas, 20 Sword Sound Effects)
   RPG Sound Pack/** (artisticdude), asianoriental1_0.ogg (Asianoriental1)
+  hits/hit*.mp3.flac (Independent.nu, 37 hits/punches)
+  rpg80/*.ogg (rubberduck, 80 CC0 RPG SFX), scifi/*.ogg (rubberduck, 50 CC0 Sci-Fi SFX)
 결과: assets/audio/sfx/<종류>_<번호>.ogg, assets/audio/music/<이름>.ogg
 """
 import glob
@@ -17,16 +20,42 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 SFX_RATE = 32000
 MUSIC_RATE = 22050
 
-## 종류 → [(원본 경로 패턴, 최대 길이 초, 음량 배율)]
+## 종류 → [(원본 경로 패턴, 최대 길이 초, 음량 배율[, 재생 속도])]. 재생 속도 < 1이면 낮고 묵직하게.
 SFX = {
     "slash": [("sword - StarNinjas/sword.3.ogg", 0.45, 0.8), ("sword - StarNinjas/sword.4.ogg", 0.45, 0.8),
               ("sword - StarNinjas/sword.6.ogg", 0.45, 0.8)],
-    "hit": [("sword_clash.5.ogg", 0.22, 0.45), ("sword_clash.10.ogg", 0.22, 0.45)],
+    # 명중 몸통 ("퍽"): 모든 영웅 공통. 재질 겹은 영웅 데이터 hit_sfx (mat_*)
+    "hit": [("hits/hit17.mp3.flac", 0.2, 0.8), ("hits/hit22.mp3.flac", 0.2, 0.8), ("hits/hit28.mp3.flac", 0.2, 0.8),
+            ("hits/hit32.mp3.flac", 0.2, 0.8)],
+    "mat_blade": [("rpg80/blade_01.ogg", 0.18, 0.8), ("rpg80/blade_03.ogg", 0.18, 0.8)],
+    "mat_water": [("RPG Sound Pack/inventory/bubble.wav", 0.22, 0.9), ("rpg80/creature_slime_03.ogg", 0.22, 0.8)],
+    "mat_fire": [("rpg80/spell_fire_06.ogg", 0.3, 0.8), ("rpg80/spell_fire_06.ogg", 0.3, 0.8, 0.88)],
+    "mat_blunt": [("rpg80/stones_01.ogg", 0.22, 0.9), ("rpg80/stones_04.ogg", 0.15, 0.9)],
+    "mat_lightning": [("scifi/shoot_02.ogg", 0.15, 0.7), ("scifi/misc_07.ogg", 0.16, 0.7)],
+    "mat_glyph": [("rpg80/item_gem_01.ogg", 0.18, 0.7), ("rpg80/item_gem_03.ogg", 0.12, 0.7)],
+    "mat_ink": [("rpg80/creature_slime_03.ogg", 0.22, 0.8, 0.9), ("RPG Sound Pack/NPC/slime/slime1.wav", 0.1, 0.8)],
+    "mat_brush": [("RPG Sound Pack/inventory/cloth.wav", 0.22, 0.9), ("RPG Sound Pack/inventory/cloth-heavy.wav", 0.2, 0.9)],
+    # 확인음: 큰 타격 "팅", 정예·보스 처치 "쿵" (낮게)
+    "confirm_big": [("RPG Sound Pack/inventory/metal-ringing.wav", 0.35, 0.8)],
+    "confirm_kill": [("hits/hit35.mp3.flac", 0.6, 1.0, 0.7), ("hits/hit19.mp3.flac", 0.6, 1.0, 0.7)],
+    # 적 공격 (타격감 2차 E1): 예고 "스릉", 휘두름 "휙", 무거운 내려침 "쿵", 조총 "철컥"·"탕", 활 "팅"
+    "e_windup": [("RPG Sound Pack/battle/sword-unsheathe.wav", 0.3, 0.7), ("RPG Sound Pack/battle/sword-unsheathe3.wav", 0.3, 0.7)],
+    "e_swing": [("RPG Sound Pack/battle/swing2.wav", 0.25, 0.9, 0.85), ("RPG Sound Pack/battle/swing3.wav", 0.25, 0.9, 0.85)],
+    "e_heavy": [("rpg80/stones_02.ogg", 0.4, 1.0, 0.8), ("hits/hit35.mp3.flac", 0.45, 1.0, 0.6)],
+    "e_gun_windup": [("rpg80/lock_01.ogg", 0.25, 0.8)],
+    "e_gun": [("scifi/explosion_01.ogg", 0.5, 1.0, 0.85), ("scifi/explosion_02.ogg", 0.5, 1.0, 0.85)],
+    "e_bow": [("rpg80/misc_02.ogg", 0.2, 0.9), ("rpg80/misc_03.ogg", 0.2, 0.9)],
+    # 영웅 근접 무기 (던파 벤치마크 B9): 칼 "챙", 창 "턱", 붓 "착", 두루마리 "탁", 3타째 강타 "쾅" (낮게)
+    "w_sword": [("rpg80/blade_02.ogg", 0.2, 0.8), ("rpg80/metal_02.ogg", 0.18, 0.7)],
+    "w_spear": [("rpg80/wood_03.ogg", 0.18, 0.9, 0.85), ("hits/hit12.mp3.flac", 0.16, 0.8, 0.85)],
+    "w_brush": [("rpg80/book_02.ogg", 0.2, 0.9), ("rpg80/book_03.ogg", 0.2, 0.9)],
+    "w_scroll": [("rpg80/book_04.ogg", 0.18, 0.9), ("rpg80/item_wood_01.ogg", 0.15, 0.8)],
+    "w_heavy": [("hits/hit35.mp3.flac", 0.4, 1.0, 0.75), ("rpg80/stones_03.ogg", 0.35, 1.0, 0.8)],
     "dash": [("RPG Sound Pack/battle/swing.wav", 0.25, 0.9), ("RPG Sound Pack/battle/swing2.wav", 0.2, 0.9)],
     "evade": [("RPG Sound Pack/battle/swing3.wav", 0.2, 1.0)],
     "counter": [("sword_clash.1.ogg", 0.8, 1.0)],
     "magic": [("RPG Sound Pack/battle/magic1.wav", 0.8, 0.9)],
-    "hurt": [("RPG Sound Pack/inventory/armor-light.wav", 0.4, 0.9)],
+    "hurt": [("hits/hit26.mp3.flac", 0.35, 1.0, 0.85), ("hits/hit30.mp3.flac", 0.35, 1.0, 0.85)],  # 둔탁한 타격 (갑옷 부스럭 대신)
     "die": [("RPG Sound Pack/NPC/gutteral beast/mnstr1.wav", 0.45, 0.6),
             ("RPG Sound Pack/NPC/gutteral beast/mnstr12.wav", 0.45, 0.6),
             ("RPG Sound Pack/NPC/gutteral beast/mnstr15.wav", 0.4, 0.6)],
@@ -62,16 +91,31 @@ def shape(m: np.ndarray, rate: int, max_s: float, gain: float) -> np.ndarray:
     return np.clip(m / peak * 0.95 * gain, -1.0, 1.0)
 
 
-def main(src: str) -> None:
+def slow(m: np.ndarray, speed: float) -> np.ndarray:
+    """speed배 빠르기로 (1보다 작으면 길고 낮아짐)."""
+    if abs(speed - 1.0) < 1e-6:
+        return m
+    n = int(len(m) / speed)
+    return np.interp(np.linspace(0, len(m) - 1, n), np.arange(len(m)), m)
+
+
+def main(src: str, only: list) -> None:
     out = os.path.join(ROOT, "assets", "audio", "sfx")
     os.makedirs(out, exist_ok=True)
     total = 0
     for kind, items in SFX.items():
-        for i, (pat, max_s, gain) in enumerate(items):
+        if only and kind not in only:
+            continue
+        for i, item in enumerate(items):
+            pat, max_s, gain = item[:3]
+            speed = item[3] if len(item) > 3 else 1.0
             dest = os.path.join(out, f"{kind}_{i + 1}.ogg")
-            sf.write(dest, shape(load_mono(find(src, pat), SFX_RATE), SFX_RATE, max_s, gain), SFX_RATE,
-                     format="OGG", subtype="VORBIS")
+            m = slow(load_mono(find(src, pat), SFX_RATE), speed)
+            sf.write(dest, shape(m, SFX_RATE, max_s, gain), SFX_RATE, format="OGG", subtype="VORBIS")
             total += os.path.getsize(dest)
+    if only:
+        print(f"total {total // 1024} KiB")
+        return
     mdir = os.path.join(ROOT, "assets", "audio", "music")
     os.makedirs(mdir, exist_ok=True)
     for name, (pat, gain) in MUSIC.items():
@@ -87,4 +131,4 @@ def main(src: str) -> None:
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    main(sys.argv[1], sys.argv[2:])

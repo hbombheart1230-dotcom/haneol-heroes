@@ -63,6 +63,9 @@ var _pivot: Node3D
 ## "style": "ink"이면 3D 렌더를 수묵 후처리 셰이더로 한 번 더 그린 화면 (없으면 null).
 var _post: SubViewport
 var _skel: Skeleton3D
+var _cam: Camera3D
+## 지금 칸이 바라보는 방향(라디안, 동작별 yaw를 더하기 전). 무기 끝 찾기는 이 방향으로 걷는다.
+var _face := 0.0
 
 
 func _initialize() -> void:
@@ -132,6 +135,11 @@ static func name_matches(anim_name: String, cand: String) -> bool:
 
 ## 동작이 다른 .glb에 따로 있으면 (웹에서 동작별로 받은 파일) 같은 뼈대로 보고 가져와 붙인다.
 static func import_anim(ap: AnimationPlayer, from_path: String, src: String, key: String) -> String:
+	if from_path.get_extension() in ["res", "tres"]:  # 다른 뼈대에서 이 뼈대로 옮겨 둔 동작 (tools/live3d/retarget_clip.gd)
+		if not ap.has_animation_library(&"ext"):
+			ap.add_animation_library(&"ext", AnimationLibrary.new())
+		ap.get_animation_library(&"ext").add_animation(key, (load(from_path) as Animation).duplicate(true))
+		return "ext/" + key
 	var other: Node = (load(from_path) as PackedScene).instantiate()
 	var oap := other.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	var found := ""
@@ -146,7 +154,9 @@ static func import_anim(ap: AnimationPlayer, from_path: String, src: String, key
 	if found != "":
 		if not ap.has_animation_library(&"ext"):
 			ap.add_animation_library(&"ext", AnimationLibrary.new())
-		ap.get_animation_library(&"ext").add_animation(key, oap.get_animation(found).duplicate(true))
+		var anim := oap.get_animation(found).duplicate(true) as Animation
+		ClipRetarget.apply(anim, ap, other)  # 다른 뼈대 파일(웹 SmartRigArmature)의 동작
+		ap.get_animation_library(&"ext").add_animation(key, anim)
 		result = "ext/" + key
 	other.free()
 	return result
@@ -168,23 +178,60 @@ func _setup(job: Dictionary) -> AnimationPlayer:
 	cam.transform = Transform3D(Basis.looking_at(Vector3(0, 0.9, 0) - cam_pos, Vector3.UP), cam_pos)
 	world.add_child(cam)
 	cam.current = true
+	_cam = cam
+	# 조명 (작업의 "light"로 바꿀 수 있다): 주광 + 주변광 + 뒤쪽 테두리 빛. 기본값은 예전 그대로.
+	var light: Dictionary = job.get("light", {})
 	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-50, -30, 0)
-	sun.light_energy = 1.2
+	sun.rotation_degrees = Vector3(float(light.get("key_pitch", -50.0)), float(light.get("key_yaw", -30.0)), 0)
+	sun.light_energy = float(light.get("key", 1.2))
+	sun.light_color = Color(light.get("key_color", "#ffffff"))
 	world.add_child(sun)
+	var rim_energy := float(light.get("rim", 0.0))
+	if rim_energy > 0.0:
+		var rim := DirectionalLight3D.new()
+		rim.rotation_degrees = Vector3(-25, 160, 0)  # 뒤 위쪽에서: 윤곽이 빛나 입체감
+		rim.light_energy = rim_energy
+		rim.light_color = Color(light.get("rim_color", "#cfe0ff"))
+		world.add_child(rim)
 	var env := WorldEnvironment.new()
 	env.environment = Environment.new()
 	env.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.environment.ambient_light_color = Color(0.9, 0.88, 0.85)
-	env.environment.ambient_light_energy = 0.6
+	env.environment.ambient_light_energy = float(light.get("ambient", 0.6))
 	world.add_child(env)
 	_pivot = Node3D.new()
 	world.add_child(_pivot)
 	var model: Node3D = (load(job["model"]) as PackedScene).instantiate()
 	_pivot.add_child(model)
+	if job.has("rigid"):  # 무기를 손뼈에만 묶어 구겨지지 않게
+		print("rigid weapon verts: ", RigidWeapon.apply(model, job["rigid"]))
+	if job.has("recolor"):
+		_recolor(model, job["recolor"])
 	_post = _make_post(job) if job.get("style", "") == "ink" else null
 	_skel = _find_skeleton(model)
 	return model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+
+
+## 작업의 "recolor": {"stops": [어둠, 중간, 밝음, 빛 (#rrggbb)], "mix", "contrast", "roughness", "specular"}
+## 모든 메시 표면을 원래 텍스처를 쓰는 다시 칠하기 셰이더로 바꾼다 (recolor.gdshader).
+static func _recolor(model: Node, cfg: Dictionary) -> void:
+	var shader := load("res://tools/bake/recolor.gdshader") as Shader
+	var stops: Array = cfg.get("stops", [])
+	for mi in model.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		for i in m.mesh.get_surface_count():
+			var src := m.get_active_material(i) as BaseMaterial3D
+			var mat := ShaderMaterial.new()
+			mat.shader = shader
+			if src and src.albedo_texture:
+				mat.set_shader_parameter("albedo_tex", src.albedo_texture)
+			for k in mini(stops.size(), 4):
+				mat.set_shader_parameter("c%d" % k, Color(stops[k]))
+			mat.set_shader_parameter("mix_amount", float(cfg.get("mix", 0.85)))
+			mat.set_shader_parameter("contrast", float(cfg.get("contrast", 1.25)))
+			mat.set_shader_parameter("roughness_v", float(cfg.get("roughness", 0.55)))
+			mat.set_shader_parameter("specular_v", float(cfg.get("specular", 0.45)))
+			m.set_surface_override_material(i, mat)
 
 
 static func locked_root_position(rest: Vector3, pose: Vector3) -> Vector3:
@@ -234,6 +281,8 @@ func _bake(job: Dictionary) -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_dir))
 	var meta: Array = []
 	for anim in job["anims"]:
+		if anim.get("live3d_only", false):  # 3D에서만 쓰는 동작 (예: 대장 사망 — 넘어지지 않아 그림이 나올 일이 없다)
+			continue
 		var frames: int = int(anim["frames"])
 		var sheet := Image.create(FRAME * frames, FRAME * DIRS, false, Image.FORMAT_RGBA8)
 		var src := ""
@@ -244,13 +293,17 @@ func _bake(job: Dictionary) -> void:
 		if src == "":
 			continue
 		var a: Animation = ap.get_animation(src)
+		var win := BakeTip.window(anim, a.length)  # 굽기 구간 (start~end, 없으면 전체)
+		var want_tips := BakeTip.wants_tips(anim["key"]) and BakeTip.hand_bone(_skel) >= 0
+		var tips := PackedVector2Array()
 		for d in DIRS:
 			# 방향 d: 화면 오른쪽(0)부터 시계 방향 45도씩 (화면 y는 아래)
 			var sd := Vector2.from_angle(d * TAU / DIRS)
-			_pivot.rotation.y = atan2(sd.x, sd.y)
+			_face = atan2(sd.x, sd.y)
+			_pivot.rotation.y = _face + BakeTip.yaw_offset(anim)
 			for f in frames:
 				ap.play(src)
-				var t := a.length * f / float(frames if anim["loop"] else maxi(frames - 1, 1))
+				var t := BakeTip.sample_time(anim, win, f, frames, anim["loop"])
 				ap.seek(minf(t, a.length), true)
 				ap.pause()
 				_lock_root(job)
@@ -260,16 +313,27 @@ func _bake(job: Dictionary) -> void:
 					await RenderingServer.frame_post_draw
 				var img := (_post if _post else _vp).get_texture().get_image()
 				img.convert(Image.FORMAT_RGBA8)
+				if want_tips:
+					tips.append(_tip(img))
 				sheet.blit_rect(img, Rect2i(0, 0, FRAME, FRAME), Vector2i(f * FRAME, d * FRAME))
 		var png := "%s/%s.png" % [out_dir, anim["key"]]
 		sheet.save_png(ProjectSettings.globalize_path(png))
 		_write_import(png, float(job.get("lossy_quality", 0.5 if _post else 0.75)))
-		meta.append({"key": anim["key"], "png": png, "frames": frames, "fps": float(anim["fps"]), "loop": anim["loop"]})
+		meta.append({"key": anim["key"], "png": png, "frames": frames, "fps": float(anim["fps"]), "loop": anim["loop"],
+			"strike": BakeTip.strike_frame(anim, win, frames, anim["loop"]), "tips": tips})
 		print("baked ", png)
 	_write_set(job["name"], out_dir, meta, FRAME)
 	_vp.queue_free()
 	if _post:
 		_post.queue_free()
+
+
+## 무기 끝 (칸 가운데 기준 px): 오른손에서 모델 앞쪽(+Z)으로 걸어 마지막 불투명 픽셀.
+func _tip(img: Image) -> Vector2:
+	var hand := _skel.global_transform * _skel.get_bone_global_pose(BakeTip.hand_bone(_skel)).origin
+	var fwd := Basis(Vector3.UP, _face) * Vector3(0, 0, 1)
+	var pr := BakeTip.project(_cam, hand, fwd, Vector2.ONE)
+	return BakeTip.find_tip(img, pr[0], pr[1])
 
 
 ## 처음 구운 시트는 손실 압축으로 가져오게 한다 (APK 30 MiB 제한). 이미 있으면 그대로 둔다.
@@ -300,7 +364,14 @@ func _write_set(name: String, out_dir: String, meta: Array, frame_px: int) -> vo
 	var counts: Array = []
 	var fps: Array = []
 	var loops: Array = []
+	var strikes: Array = []
+	var tips: Array = []
 	for i in meta.size():
+		strikes.append(str(meta[i].get("strike", -1)))
+		var pts := PackedStringArray()
+		for v in (meta[i].get("tips", PackedVector2Array()) as PackedVector2Array):
+			pts.append("%.1f, %.1f" % [v.x, v.y])
+		tips.append("PackedVector2Array(%s)" % ", ".join(pts))
 		keys.append('"%s"' % meta[i]["key"])
 		tex.append('ExtResource("t%d")' % i)
 		counts.append(str(meta[i]["frames"]))
@@ -311,6 +382,8 @@ func _write_set(name: String, out_dir: String, meta: Array, frame_px: int) -> vo
 	lines.append("frame_counts = PackedInt32Array(%s)" % ", ".join(counts))
 	lines.append("fps = PackedFloat32Array(%s)" % ", ".join(fps))
 	lines.append("loops = Array[bool]([%s])" % ", ".join(loops))
+	lines.append("strike_frames = PackedInt32Array(%s)" % ", ".join(strikes))
+	lines.append("tips = Array[PackedVector2Array]([%s])" % ", ".join(tips))
 	var f := FileAccess.open("%s/%s.tres" % [out_dir, name], FileAccess.WRITE)
 	f.store_string("\n".join(lines) + "\n")
 	f.close()

@@ -13,8 +13,9 @@ debug_symbols = "no"
 vulkan = "no"
 # swappy=no 는 build_templates.ps1이 명령줄로 넘긴다 (production=yes가 명령줄 값만 받는다). Swappy는 Vulkan 드라이버에서만 쓰인다.
 
-# 2D 게임: 3D·내비게이션·XR 제외 (3D는 tools/bake 데스크톱 굽기 도구에서만 쓴다)
-disable_3d = "yes"
+# 영웅·보스는 실시간 3D 모델(SubViewport, docs/research/live3d_spike.md, 2026-11-23)이라 3D를 켠다.
+# 3D 물리·내비게이션·glTF(가져오기 때 .scn으로 바뀐다)·XR은 계속 끈다. 3D를 끈 예전 2D 템플릿은 build/templates_2d/에 보관.
+disable_3d = "no"
 disable_navigation_2d = "yes"
 
 # 한글은 조합이 끝난 음절(U+AC00–D7A3)만 쓰므로 복잡한 셰이핑(HarfBuzz/ICU)이 필요 없다.
@@ -40,7 +41,7 @@ module_godot_physics_3d_enabled = "no"
 module_gltf_enabled = "no"
 module_gridmap_enabled = "no"
 module_hdr_enabled = "no"
-module_interactive_music_enabled = "no"
+module_interactive_music_enabled = "yes"  # 무대 노래 구간 넘나들기 (AudioStreamInteractive, 2026-11-20)
 module_jolt_physics_enabled = "no"
 module_jpg_enabled = "no"
 module_jsonrpc_enabled = "no"
@@ -59,7 +60,7 @@ module_openxr_enabled = "no"
 module_raycast_enabled = "no"
 module_regex_enabled = "no"
 module_tga_enabled = "no"
-module_theora_enabled = "no"
+module_theora_enabled = "yes"  # 오프닝 영상 (VideoStreamTheora, 2026-11-21)
 module_tinyexr_enabled = "no"
 module_upnp_enabled = "no"
 module_vhacd_enabled = "no"

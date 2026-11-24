@@ -3,10 +3,19 @@
 [ext_resource type="Script" path="res://scripts/run/upgrade_pool.gd" id="1_pool"]
 [ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="2_up"]
 [ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="3_mod"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/haeryong.png" id="i_haeryong"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/pado.png" id="i_pado"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/haeil.png" id="i_haeil"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/counter.png" id="i_counter"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/haeryong_wide.png" id="icon_haeryong_wide"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/haeryong_deep.png" id="icon_haeryong_deep"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/haeryong_quick.png" id="icon_haeryong_quick"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/pado_more.png" id="icon_pado_more"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/pado_long.png" id="icon_pado_long"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/haeil_big.png" id="icon_haeil_big"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/haeil_fast.png" id="icon_haeil_fast"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/counter_power.png" id="icon_counter_power"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/counter_window.png" id="icon_counter_window"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/dash_breath.png" id="icon_dash_breath"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/vitality.png" id="icon_vitality"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/blade.png" id="icon_blade"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/swift.png" id="icon_swift"]
 
 [sub_resource type="Resource" id="Mod_haeryong_wide_0"]
 script = ExtResource("3_mod")
@@ -20,7 +29,7 @@ script = ExtResource("2_up")
 id = &"haeryong_wide"
 title = "해룡참 · 넓은 물결"
 description = "베기 범위 +25%"
-icon = ExtResource("i_haeryong")
+icon = ExtResource("icon_haeryong_wide")
 color = Color(0.2, 0.5, 0.9, 1)
 max_stacks = 3
 weight = 1.0
@@ -38,7 +47,7 @@ script = ExtResource("2_up")
 id = &"haeryong_deep"
 title = "해룡참 · 깊은 베기"
 description = "피해 +40%"
-icon = ExtResource("i_haeryong")
+icon = ExtResource("icon_haeryong_deep")
 color = Color(0.2, 0.5, 0.9, 1)
 max_stacks = 3
 weight = 1.0
@@ -55,8 +64,8 @@ value = 0.8
 script = ExtResource("2_up")
 id = &"haeryong_quick"
 title = "해룡참 · 빠른 손"
-description = "재사용 대기 -20%"
-icon = ExtResource("i_haeryong")
+description = "재사용 대기 -20% (연타 마무리 포함)"
+icon = ExtResource("icon_haeryong_quick")
 color = Color(0.2, 0.5, 0.9, 1)
 max_stacks = 3
 weight = 1.0
@@ -74,7 +83,7 @@ script = ExtResource("2_up")
 id = &"pado_more"
 title = "파도격 · 연파"
 description = "연타 +1회"
-icon = ExtResource("i_pado")
+icon = ExtResource("icon_pado_more")
 color = Color(0.2, 0.85, 0.95, 1)
 max_stacks = 3
 weight = 1.0
@@ -99,7 +108,7 @@ script = ExtResource("2_up")
 id = &"pado_long"
 title = "파도격 · 긴 물길"
 description = "길이 +25%, 폭 +15%"
-icon = ExtResource("i_pado")
+icon = ExtResource("icon_pado_long")
 color = Color(0.2, 0.85, 0.95, 1)
 max_stacks = 2
 weight = 1.0
@@ -125,7 +134,7 @@ id = &"haeil_big"
 title = "해일검기 · 큰 해일"
 description = "최대 피해 +35%
 최대 크기 +20%"
-icon = ExtResource("i_haeil")
+icon = ExtResource("icon_haeil_big")
 color = Color(0.3, 0.6, 1, 1)
 max_stacks = 3
 weight = 1.0
@@ -143,7 +152,7 @@ script = ExtResource("2_up")
 id = &"haeil_fast"
 title = "해일검기 · 빠른 충전"
 description = "충전 시간 -25%"
-icon = ExtResource("i_haeil")
+icon = ExtResource("icon_haeil_fast")
 color = Color(0.3, 0.6, 1, 1)
 max_stacks = 2
 weight = 1.0
@@ -169,7 +178,7 @@ id = &"counter_power"
 title = "반격 · 노도"
 description = "반격 피해 +50%
 범위 +15%"
-icon = ExtResource("i_counter")
+icon = ExtResource("icon_counter_power")
 color = Color(0.95, 0.75, 0.3, 1)
 max_stacks = 3
 weight = 1.0
@@ -187,7 +196,7 @@ script = ExtResource("2_up")
 id = &"counter_window"
 title = "반격 · 기회"
 description = "반격 가능 시간 +0.35초"
-icon = ExtResource("i_counter")
+icon = ExtResource("icon_counter_window")
 color = Color(0.95, 0.75, 0.3, 1)
 max_stacks = 2
 weight = 0.8
@@ -204,7 +213,8 @@ value = 0.8
 script = ExtResource("2_up")
 id = &"dash_breath"
 title = "무영보 · 고른 숨"
-description = "대시 충전 시간 -20%"
+description = "내닫기 충전 시간 -20%"
+icon = ExtResource("icon_dash_breath")
 color = Color(0.25, 0.55, 0.85, 1)
 max_stacks = 2
 weight = 1.0
@@ -222,6 +232,7 @@ script = ExtResource("2_up")
 id = &"vitality"
 title = "강건"
 description = "최대 체력 +25 (그만큼 회복)"
+icon = ExtResource("icon_vitality")
 color = Color(0.72, 0.13, 0.1, 1)
 max_stacks = 3
 weight = 1.0
@@ -246,6 +257,7 @@ script = ExtResource("2_up")
 id = &"blade"
 title = "기본 검 · 날 세우기"
 description = "기본 공격 피해 +30%"
+icon = ExtResource("icon_blade")
 color = Color(0.5, 0.5, 0.55, 1)
 max_stacks = 3
 weight = 1.0
@@ -263,6 +275,7 @@ script = ExtResource("2_up")
 id = &"swift"
 title = "발놀림"
 description = "이동 속도 +10%"
+icon = ExtResource("icon_swift")
 color = Color(0.3, 0.7, 0.4, 1)
 max_stacks = 2
 weight = 0.8

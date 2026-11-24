@@ -60,6 +60,8 @@ def resolve_actions(cfg: dict) -> list:
     picked = []
     everything = api.library() if any("action_id" in a for a in cfg["anims"]) else []
     for anim in cfg["anims"]:
+        if is_free(anim):
+            continue
         if "action_id" in anim:
             entry = next((e for e in everything if e.get("action_id") == anim["action_id"]), None)
         else:
@@ -132,7 +134,13 @@ def new_anims(cfg: dict, state: dict) -> list:
     done = {a["key"] for a in state.get("actions", [])}
     for extra in state.get("extras", []):
         done |= {a["key"] for a in extra["actions"]}
-    return [a for a in cfg["anims"] if a["key"] not in done]
+    return [a for a in cfg["anims"] if a["key"] not in done and not is_free(a)]
+
+
+def is_free(anim: dict) -> bool:
+    """돈 드는 요청이 없는 동작: clip_of(받은 동작을 다시 자름), reuse(이미 PC에 있는 .glb의 동작을 씀 —
+    받은 파일에 덤으로 든 동작이나 같은 Meshy 뼈대인 다른 캐릭터의 동작)."""
+    return "clip_of" in anim or "reuse" in anim
 
 
 def add_anims(cfg: dict, args: argparse.Namespace) -> None:
@@ -168,12 +176,39 @@ def add_anims(cfg: dict, args: argparse.Namespace) -> None:
     print("완료")
 
 
+## 단계 → 그 단계부터 다시 받을 파일 (다시 요청하면 옛 파일을 지워야 새 결과를 받는다).
+STAGE_FILES = {"model": "model", "rig": "rigged", "anim": "animated"}
+
+
+def meshy_dir() -> str:
+    return rel(os.path.join("assets", "models", "meshy"))
+
+
+def clear_downloads(out_dir: str, restart: str) -> None:
+    """restart 단계부터의 받은 .glb와 Godot이 뽑은 그림·가져오기 파일을 지운다 (download_all은 있으면 건너뛴다).
+    지우는 곳은 assets/models/meshy/<영문 소문자 이름> 폴더 안으로만 (이름에 ..·경로가 섞이면 거절)."""
+    name = os.path.basename(os.path.normpath(out_dir))
+    base = os.path.realpath(meshy_dir())
+    real = os.path.realpath(out_dir)
+    if not re.fullmatch(r"[a-z0-9_]+", name) or os.path.dirname(real) != base:
+        raise SystemExit(f"지울 폴더가 assets/models/meshy/<이름> 이 아닙니다: {out_dir}")
+    for s in STAGES[STAGES.index(restart):]:
+        for f in glob.glob(os.path.join(real, glob.escape(STAGE_FILES[s]) + "*")):
+            if os.path.isfile(f) and os.path.dirname(os.path.realpath(f)) == real:
+                os.remove(f)
+
+
 def download_all(state: dict, out_dir: str) -> None:
     for key, file in (("model_glb_url", "model.glb"), ("rigged_glb_url", "rigged.glb"),
                       ("anim_glb_url", "animated.glb")):
         dest = os.path.join(out_dir, file)
         if state.get(key) and not os.path.exists(dest):
             api.download(state[key], dest)
+
+
+## 굽기 구간·맞닿는 순간 (초, 동작 원본 기준), 칸마다 시각 times, 몸 더 돌리기 yaw(도).
+## 설정의 동작에 있으면 굽기 작업으로 그대로 넘긴다 (bake_sprites.gd·bake_tip.gd).
+TRIM_KEYS = ("start", "end", "strike", "times", "yaw", "live3d_only")  # live3d_only: 3D 동작만 (그림으로 굽지 않음)
 
 
 def write_bake_job(cfg: dict, state: dict) -> str:
@@ -184,15 +219,29 @@ def write_bake_job(cfg: dict, state: dict) -> str:
         for a in extra["actions"]:
             names[a["key"]] = a["name"]
             extra_file[a["key"]] = f"res://assets/models/meshy/{cfg['name']}/{extra['file']}"
+    got, got_file = dict(names), dict(extra_file)  # clip_of는 받은 동작 기준 (설정이 그 키를 다른 자르기로 바꿔도
+    for a in cfg["anims"]:  # 예: attack이 연타 동작 자르기여도 clip_of "attack" = 처음 받은 Attack 동작)
+        if "clip_of" in a and a["clip_of"] in got:  # clip_of: 이미 받은 동작의 다른 구간 (연계 2·3타를 한 동작에서 자르기)
+            names[a["key"]] = got[a["clip_of"]]
+            extra_file.pop(a["key"], None)
+            if a["clip_of"] in got_file:
+                extra_file[a["key"]] = got_file[a["clip_of"]]
+    for a in cfg["anims"]:  # reuse: {"src": 동작 이름, "from": res://...glb (없거나 ""면 이 캐릭터의 animated.glb)}
+        if "reuse" in a:
+            names[a["key"]] = a["reuse"]["src"]
+            extra_file.pop(a["key"], None)
+            if a["reuse"].get("from"):
+                extra_file[a["key"]] = a["reuse"]["from"]
     job = {
         "name": cfg["name"],
         "model": f"res://assets/models/meshy/{cfg['name']}/animated.glb",
         "ortho_size": cfg["bake"]["ortho_size"], "frame": cfg["bake"]["frame"],
-        **{k: cfg["bake"][k] for k in ("style", "ink", "lossy_quality") if k in cfg["bake"]},  # 수묵·압축
+        **{k: cfg["bake"][k] for k in ("style", "ink", "lossy_quality", "rigid") if k in cfg["bake"]},  # 수묵·압축·무기 묶기
         "anims": [dict({"key": a["key"], "src": names[a["key"]], "frames": a["frames"],
                         "fps": a["fps"], "loop": a["loop"]}, **({"from": extra_file[a["key"]]}
-                                                                 if a["key"] in extra_file else {}))
-                  for a in cfg["anims"] if a["key"] in names],
+                                                                 if a["key"] in extra_file else {}),
+                       **{k: a[k] for k in TRIM_KEYS if k in a})
+                  for a in cfg["anims"] if a["key"] in names and not a.get("skip_bake")],  # skip_bake: 자르기 원본만
     }
     path = rel(f"tools/bake/jobs/{cfg['name']}.json")
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -248,7 +297,8 @@ def apply_to_hero(cfg: dict) -> None:
 
 def plan(cfg: dict, state: dict) -> int:
     todo = [s for s in STAGES if not state.get(f"{s}_done")]
-    credits = sum(COST["anim_each"] * len(cfg["anims"]) if s == "anim" else COST[s] for s in todo)
+    paid = [a for a in cfg["anims"] if not is_free(a)]
+    credits = sum(COST["anim_each"] * len(paid) if s == "anim" else COST[s] for s in todo)
     print(f"[{cfg['name']}] 남은 단계: {', '.join(todo) or '없음 (굽기만)'} / 예상 약 {credits} 크레딧")
     return credits
 
@@ -259,6 +309,8 @@ def run(cfg: dict, args: argparse.Namespace) -> None:
     if args.restart:
         for s in STAGES[STAGES.index(args.restart):]:
             state.pop(f"{s}_done", None)
+        clear_downloads(out_dir, args.restart)
+        state.pop("extras", None)  # 옛 뼈대에 붙여 둔 추가 동작은 새 모델과 맞지 않는다 (설정의 동작은 이번에 다 다시 만든다)
     if plan(cfg, state) > 0 and not args.yes:
         raise SystemExit("유료 작업입니다. 확인했으면 --yes를 붙여 다시 실행하세요.")
     for s, fn in zip(STAGES, (stage_model, stage_rig, stage_anim)):

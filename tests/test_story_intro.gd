@@ -4,6 +4,10 @@ extends GdUnitTestSuite
 const INTRO := preload("res://data/intro/story_intro.tres")
 
 
+func after_test() -> void:
+	GameSettings.want_stage_list = false
+
+
 func test_timeline_slides_fades_and_lines() -> void:
 	var tl := IntroTimeline.new(PackedFloat32Array([5.0, 4.0]), 0.8)
 	assert_float(tl.total()).is_equal(9.0)
@@ -60,9 +64,13 @@ func test_intro_finishes_by_itself() -> void:
 func test_enter_prologue_hero_hero_story_then_run() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = false
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = false
 	GameSettings.seen_stories = PackedStringArray()
 	GameSettings.hero_picked = false
+	GameSettings.hero_id = &""  # 처음 하는 사람 (마지막 영웅 없음 → 영웅 고르기)
+	GameSettings.hero_cleared = {}  # 아직 이긴 전장 없음
+	GameSettings.cleared_stages = PackedStringArray()
 	GameSettings.stage_picked = false
 	GameSettings.hero_stages = {}
 	GameSettings.save_settings()
@@ -89,11 +97,16 @@ func test_enter_prologue_hero_hero_story_then_run() -> void:
 	assert_object(intro.data).is_same(hero.story)
 	intro.finish()
 	assert_bool(GameSettings.seen_stories.has(String(hero.id))).is_true()
+	var list: StageSelect = main.stage_select
+	assert_bool(list.is_open()).is_true()  # 영웅 이야기 뒤 그 영웅의 전장 목록
+	assert_bool(list.highlight(0)).is_true()  # 처음 하는 사람: 첫 전장이 빛난다
+	list.press(0)
 	assert_bool(main.waiting_pick).is_false()
-	assert_str(String(main.run_config.stage.id)).is_equal(String(hero.home_stage))  # 그 영웅의 무대로
+	assert_str(String(main.run_config.stage.id)).is_equal(String(hero.home_stage))  # 그 영웅의 첫 전장으로
 	get_tree().paused = false
 	main.queue_free()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
@@ -124,6 +137,7 @@ func test_prologue_plays_every_time_by_default() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.story_once = false
 	GameSettings.title_seen = false
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true  # 전에 봤어도
 	GameSettings.hero_picked = false
 	GameSettings.save_settings()
@@ -135,6 +149,7 @@ func test_prologue_plays_every_time_by_default() -> void:
 	get_tree().paused = false
 	main.queue_free()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.save_settings()
@@ -144,8 +159,12 @@ func test_story_once_skips_what_was_seen() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.story_once = true  # 나중에 켤 "다시 안 보기"
 	GameSettings.title_seen = false
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
+	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
 	GameSettings.hero_picked = false
+	GameSettings.hero_id = &""  # 마지막 영웅이 없어야 영웅 고르기
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
@@ -157,6 +176,7 @@ func test_story_once_skips_what_was_seen() -> void:
 	main.queue_free()
 	GameSettings.story_once = false
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.save_settings()
@@ -175,3 +195,25 @@ func test_next_button_advances_and_last_says_start() -> void:
 	assert_int(intro.timeline.slide_at(intro.t)).is_equal(1)
 	assert_bool(intro.is_open()).is_true()
 	assert_bool(intro.skip_rect().intersects(intro.next_rect())).is_false()
+
+
+func test_last_scene_fits_width_and_pins_to_top() -> void:
+	var data: IntroData = load("res://data/intro/story_intro.tres")
+	var last: IntroSlide = data.slides[data.slides.size() - 1]
+	assert_bool(last.fit_width).is_true()  # 네 영웅이 가로로 펼쳐져 있어 좌우를 자르면 안 된다
+	assert_bool(data.slides[0].fit_width).is_false()
+	var tex := last.image.get_size()
+	assert_int(int(tex.x)).is_equal(1024)  # 원본 크기 (줄이지 않음)
+
+
+func test_title_art_is_never_cropped_and_title_clears_button() -> void:
+	var title: TitleScreen = auto_free(TitleScreen.new())
+	for vp in [Vector2(1080, 2400), Vector2(720, 1280), Vector2(1080, 2640), Vector2(1080, 1920)]:
+		title.size = vp
+		var r := title.art_rect(vp)
+		assert_float(r.position.y).is_equal(0.0)  # 위쪽에 붙는다
+		assert_float(r.size.x).is_less_equal(vp.x + 0.01)
+		assert_float(r.size.y).is_less_equal(vp.y + 0.01)
+		assert_float(r.size.x / r.size.y).is_equal_approx(941.0 / 1672.0, 0.001)  # 원본 비율 그대로
+		var sub_bottom: float = title._title_center_y(vp) + 100.0 * vp.x / 720.0 + 12.0
+		assert_float(sub_bottom).is_less(title.button_rect().position.y)  # 작은 글줄이 단추를 가리지 않는다

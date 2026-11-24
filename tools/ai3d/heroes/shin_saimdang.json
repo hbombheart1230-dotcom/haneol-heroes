@@ -1,10 +1,10 @@
 {
   "name": "shin_saimdang",
-  "image": "assets/concept/shin_saimdang/front_apose.png",
+  "image": "assets/concept/redesign/heroes/shin_saimdang.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
-    "pose_mode": "a-pose",
+    "pose_mode": "",
     "should_remesh": true,
     "topology": "triangle",
     "target_polycount": 20000,
@@ -24,7 +24,36 @@
       "wash_amount": 0.25,
       "grain": 0.0
     },
-    "lossy_quality": 0.58
+    "lossy_quality": 0.58,
+    "rigid": {
+      "bone": "RightHand",
+      "boxes": [
+        [
+          -0.58,
+          0.0,
+          0.09,
+          -0.47,
+          0.92,
+          0.21
+        ],
+        [
+          -0.55,
+          0.92,
+          0.1,
+          -0.47,
+          1.12,
+          0.19
+        ],
+        [
+          -0.62,
+          1.12,
+          0.04,
+          -0.445,
+          1.8,
+          0.25
+        ]
+      ]
+    }
   },
   "anims": [
     {
@@ -37,11 +66,11 @@
     },
     {
       "key": "run",
-      "match": "run",
+      "match": "walk",
       "frames": 8,
-      "fps": 14.0,
+      "fps": 16.0,
       "loop": true,
-      "action_id": 14
+      "action_id": 1
     },
     {
       "key": "dash",
@@ -54,10 +83,13 @@
     {
       "key": "attack",
       "match": "cast|spell|attack",
-      "action_id": 129,
       "frames": 6,
       "fps": 16.0,
-      "loop": false
+      "loop": false,
+      "clip_of": "combo2",
+      "start": 0.0,
+      "end": 0.65,
+      "strike": 0.5
     },
     {
       "key": "hit",
@@ -74,6 +106,107 @@
       "fps": 10.0,
       "loop": false,
       "action_id": 8
+    },
+    {
+      "key": "combo",
+      "match": "combo",
+      "action_id": 105,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "attack2",
+      "clip_of": "combo2",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "start": 0.62,
+      "end": 1.25,
+      "strike": 1.0
+    },
+    {
+      "key": "attack3",
+      "clip_of": "combo2",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "start": 1.25,
+      "end": 2.25,
+      "strike": 1.8
+    },
+    {
+      "key": "throw",
+      "match": "throw|cast",
+      "action_id": 129,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "start": 0.3,
+      "end": 1.0,
+      "strike": 0.6
+    },
+    {
+      "key": "combo2",
+      "match": "combo",
+      "action_id": 92,
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "cast_tap",
+      "clip_of": "combo",
+      "frames": 8,
+      "fps": 20.0,
+      "loop": false,
+      "start": 1.3,
+      "end": 2.4,
+      "strike": 1.9
+    },
+    {
+      "key": "cast_dash",
+      "clip_of": "combo",
+      "frames": 6,
+      "fps": 18.0,
+      "loop": false,
+      "start": 0.3,
+      "end": 1.1,
+      "strike": 0.7
+    },
+    {
+      "key": "cast_charge",
+      "clip_of": "attack",
+      "frames": 8,
+      "fps": 18.0,
+      "loop": false,
+      "start": 1.2,
+      "end": 2.6,
+      "strike": 2.2
+    },
+    {
+      "key": "cast_counter",
+      "clip_of": "attack",
+      "frames": 8,
+      "fps": 16.0,
+      "loop": false,
+      "start": 3.0,
+      "end": 4.6,
+      "strike": 3.96
+    },
+    {
+      "key": "victory",
+      "reuse": {
+        "src": "victory",
+        "from": "res://assets/live3d/shin_saimdang/anims/web_victory.res"
+      },
+      "frames": 8,
+      "fps": 8.0,
+      "loop": false,
+      "start": 1.0,
+      "end": 3.0
     }
   ]
 }

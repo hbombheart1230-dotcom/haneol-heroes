@@ -1,10 +1,10 @@
 {
   "name": "biryeo_heavy",
-  "image": "assets/concept/enemies/biryeo/heavy.png",
+  "image": "assets/concept/redesign/khitan/heavy.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
-    "pose_mode": "a-pose",
+    "pose_mode": "",
     "should_remesh": true,
     "topology": "triangle",
     "target_polycount": 20000,
@@ -46,10 +46,13 @@
     {
       "key": "attack",
       "match": "attack|slash|shot|swing|thrust",
-      "action_id": 128,
+      "action_id": 220,
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "start": 0.2,
+      "end": 1.3,
+      "strike": 0.75
     },
     {
       "key": "hit",

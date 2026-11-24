@@ -29,7 +29,7 @@ func test_synth_makes_every_sound() -> void:
 func test_static_calls_are_safe_without_instance() -> void:
 	Feedback.instance = null
 	Feedback.enemy_hit(Vector2.ZERO, 10)
-	Feedback.enemy_died(Vector2.ZERO)
+	Feedback.enemy_died(null, Vector2.ZERO, 0)
 	Feedback.player_hurt()
 	assert_object(Feedback.instance).is_null()
 

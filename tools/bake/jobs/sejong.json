@@ -22,8 +22,8 @@
     {
       "key": "run",
       "src": "Run 2",
-      "frames": 8,
-      "fps": 14.0,
+      "frames": 12,
+      "fps": 21.0,
       "loop": true
     },
     {
@@ -38,7 +38,10 @@
       "src": "Charged Spell Cast",
       "frames": 6,
       "fps": 16.0,
-      "loop": false
+      "loop": false,
+      "start": 0.9,
+      "end": 2.67,
+      "strike": 2.1
     },
     {
       "key": "hit",
@@ -53,6 +56,91 @@
       "frames": 6,
       "fps": 10.0,
       "loop": false
+    },
+    {
+      "key": "throw",
+      "src": "Mage Soell Cast 4",
+      "frames": 8,
+      "fps": 18.0,
+      "loop": false,
+      "start": 0.0,
+      "end": 2.2,
+      "strike": 0.85
+    },
+    {
+      "key": "throw2",
+      "src": "Mage Soell Cast 3",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/sejong/animated_extra1.glb",
+      "start": 0.4,
+      "end": 1.4,
+      "strike": 1.05
+    },
+    {
+      "key": "throw3",
+      "src": "Mage Soell Cast 6",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/sejong/animated_extra1.glb",
+      "start": 0.2,
+      "end": 1.3,
+      "strike": 1.0
+    },
+    {
+      "key": "cast_tap",
+      "src": "Charged Spell Cast 1",
+      "frames": 8,
+      "fps": 18.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/sejong/animated_extra2.glb",
+      "start": 1.5,
+      "end": 3.3,
+      "strike": 1.75
+    },
+    {
+      "key": "cast_dash",
+      "src": "Mage Soell Cast 2",
+      "frames": 7,
+      "fps": 18.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/sejong/animated_extra2.glb",
+      "start": 0.6,
+      "end": 1.7,
+      "strike": 1.4
+    },
+    {
+      "key": "cast_charge",
+      "src": "Charged Spell Cast",
+      "frames": 8,
+      "fps": 18.0,
+      "loop": false,
+      "start": 0.72,
+      "end": 2.3,
+      "strike": 2.0
+    },
+    {
+      "key": "cast_counter",
+      "src": "Charged Ground Slam",
+      "frames": 8,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/sejong/animated_extra2.glb",
+      "start": 1.2,
+      "end": 2.5,
+      "strike": 1.62
+    },
+    {
+      "key": "victory",
+      "src": "victory",
+      "frames": 8,
+      "fps": 8.0,
+      "loop": false,
+      "from": "res://assets/live3d/sejong/anims/web_victory.res",
+      "start": 1.0,
+      "end": 3.0
     }
   ]
 }

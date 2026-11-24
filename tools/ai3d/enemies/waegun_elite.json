@@ -1,10 +1,10 @@
 {
   "name": "waegun_elite",
-  "image": "assets/concept/enemies/waegun/elite.png",
+  "image": "assets/concept/redesign/waegun/elite.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
-    "pose_mode": "a-pose",
+    "pose_mode": "",
     "should_remesh": true,
     "topology": "triangle",
     "target_polycount": 20000,
@@ -33,23 +33,38 @@
       "action_id": 0,
       "frames": 4,
       "fps": 6.0,
-      "loop": true
+      "loop": true,
+      "start": 0.0,
+      "end": 0.8
     },
     {
       "key": "run",
       "match": "run|walk",
       "action_id": 14,
-      "frames": 6,
-      "fps": 10.0,
-      "loop": true
+      "frames": 8,
+      "fps": 5.5,
+      "loop": true,
+      "reuse": {
+        "src": "Walk_Fight_Forward",
+        "from": "res://assets/models/meshy/waegun_heavy/animated.glb"
+      }
     },
     {
       "key": "attack",
       "match": "attack|slash|shoot|swing|thrust",
-      "action_id": 240,
+      "action_id": 219,
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "strike": 0.6,
+      "times": [
+        0.1,
+        0.3,
+        0.45,
+        0.6,
+        0.85,
+        1.25
+      ]
     },
     {
       "key": "hit",
@@ -57,7 +72,47 @@
       "action_id": 178,
       "frames": 3,
       "fps": 12.0,
-      "loop": false
+      "loop": false,
+      "times": [
+        0.15,
+        0.35,
+        0.6
+      ]
+    },
+    {
+      "key": "shout",
+      "reuse": {
+        "src": "Sword_Shout",
+        "from": "res://assets/live3d/waegun_elite/anims/web_swordshout.res"
+      },
+      "frames": 8,
+      "fps": 8.0,
+      "loop": false,
+      "start": 0.6,
+      "end": 2.4,
+      "strike": 1.8
+    },
+    {
+      "key": "death",
+      "reuse": {
+        "src": "Dead",
+        "from": "res://assets/live3d/waegun_elite/anims/web_dead.res"
+      },
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "start": 0.0,
+      "end": 2.4,
+      "times": [
+        0.0,
+        0.15,
+        0.4,
+        0.9,
+        1.4,
+        1.65,
+        1.95,
+        2.4
+      ]
     }
   ]
 }

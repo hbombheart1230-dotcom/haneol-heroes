@@ -3,10 +3,20 @@
 [ext_resource type="Script" path="res://scripts/run/upgrade_pool.gd" id="1_pool"]
 [ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="2_up"]
 [ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="3_mod"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/canvas.png" id="i_canvas"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/critters.png" id="i_critters"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/ink_bleed.png" id="i_ink_bleed"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/plum.png" id="i_plum"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/critter_more.png" id="icon_critter_more"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/critter_dmg.png" id="icon_critter_dmg"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/critter_long.png" id="icon_critter_long"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/critter_quick.png" id="icon_critter_quick"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/ink_long.png" id="icon_ink_long"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/ink_heavy.png" id="icon_ink_heavy"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/ink_dmg.png" id="icon_ink_dmg"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/canvas_wide.png" id="icon_canvas_wide"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/canvas_hold.png" id="icon_canvas_hold"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/canvas_dmg.png" id="icon_canvas_dmg"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/plum_heal.png" id="icon_plum_heal"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/plum_dmg.png" id="icon_plum_dmg"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/vitality.png" id="icon_vitality"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/shin_saimdang/brush.png" id="icon_brush"]
 
 [sub_resource type="Resource" id="Mod_critter_more_0"]
 script = ExtResource("3_mod")
@@ -18,9 +28,9 @@ value = 1.0
 [sub_resource type="Resource" id="Up_critter_more"]
 script = ExtResource("2_up")
 id = &"critter_more"
-icon = ExtResource("i_critters")
 title = "풀벌레 · 한 마리 더"
 description = "소환 +1"
+icon = ExtResource("icon_critter_more")
 color = Color(0.85, 0.4, 0.55, 1)
 max_stacks = 2
 weight = 1.0
@@ -36,9 +46,9 @@ value = 1.4
 [sub_resource type="Resource" id="Up_critter_dmg"]
 script = ExtResource("2_up")
 id = &"critter_dmg"
-icon = ExtResource("i_critters")
 title = "풀벌레 · 날카로운 턱"
 description = "소환물 피해 +40%"
+icon = ExtResource("icon_critter_dmg")
 color = Color(0.85, 0.4, 0.55, 1)
 max_stacks = 3
 weight = 1.0
@@ -54,9 +64,9 @@ value = 2.0
 [sub_resource type="Resource" id="Up_critter_long"]
 script = ExtResource("2_up")
 id = &"critter_long"
-icon = ExtResource("i_critters")
 title = "풀벌레 · 긴 숨"
 description = "소환 시간 +2초"
+icon = ExtResource("icon_critter_long")
 color = Color(0.85, 0.4, 0.55, 1)
 max_stacks = 2
 weight = 1.0
@@ -72,9 +82,9 @@ value = 0.8
 [sub_resource type="Resource" id="Up_critter_quick"]
 script = ExtResource("2_up")
 id = &"critter_quick"
-icon = ExtResource("i_critters")
 title = "풀벌레 · 빠른 붓"
-description = "재사용 대기 -20%"
+description = "재사용 대기 -20% (연타 마무리 포함)"
+icon = ExtResource("icon_critter_quick")
 color = Color(0.85, 0.4, 0.55, 1)
 max_stacks = 3
 weight = 1.0
@@ -90,9 +100,9 @@ value = 1.0
 [sub_resource type="Resource" id="Up_ink_long"]
 script = ExtResource("2_up")
 id = &"ink_long"
-icon = ExtResource("i_ink_bleed")
 title = "발묵 · 깊은 먹"
 description = "번짐 지속 +1초"
+icon = ExtResource("icon_ink_long")
 color = Color(0.2, 0.2, 0.25, 1)
 max_stacks = 2
 weight = 1.0
@@ -108,9 +118,9 @@ value = 0.8
 [sub_resource type="Resource" id="Up_ink_heavy"]
 script = ExtResource("2_up")
 id = &"ink_heavy"
-icon = ExtResource("i_ink_bleed")
 title = "발묵 · 진한 먹"
 description = "더 느리게 (속도 -20%)"
+icon = ExtResource("icon_ink_heavy")
 color = Color(0.2, 0.2, 0.25, 1)
 max_stacks = 2
 weight = 1.0
@@ -126,9 +136,9 @@ value = 1.5
 [sub_resource type="Resource" id="Up_ink_dmg"]
 script = ExtResource("2_up")
 id = &"ink_dmg"
-icon = ExtResource("i_ink_bleed")
 title = "발묵 · 스미는 먹"
 description = "번짐 피해 +50%"
+icon = ExtResource("icon_ink_dmg")
 color = Color(0.2, 0.2, 0.25, 1)
 max_stacks = 3
 weight = 1.0
@@ -144,9 +154,9 @@ value = 1.2
 [sub_resource type="Resource" id="Up_canvas_wide"]
 script = ExtResource("2_up")
 id = &"canvas_wide"
-icon = ExtResource("i_canvas")
 title = "화폭 · 넓은 화폭"
 description = "최대 반경 +20%"
+icon = ExtResource("icon_canvas_wide")
 color = Color(0.55, 0.3, 0.62, 1)
 max_stacks = 2
 weight = 1.0
@@ -162,9 +172,9 @@ value = 0.5
 [sub_resource type="Resource" id="Up_canvas_hold"]
 script = ExtResource("2_up")
 id = &"canvas_hold"
-icon = ExtResource("i_canvas")
 title = "화폭 · 오래 가둠"
 description = "최대 가둠 +0.5초"
+icon = ExtResource("icon_canvas_hold")
 color = Color(0.55, 0.3, 0.62, 1)
 max_stacks = 2
 weight = 1.0
@@ -180,9 +190,9 @@ value = 1.35
 [sub_resource type="Resource" id="Up_canvas_dmg"]
 script = ExtResource("2_up")
 id = &"canvas_dmg"
-icon = ExtResource("i_canvas")
 title = "화폭 · 짙은 채색"
 description = "피해 +35%"
+icon = ExtResource("icon_canvas_dmg")
 color = Color(0.55, 0.3, 0.62, 1)
 max_stacks = 3
 weight = 1.0
@@ -198,9 +208,9 @@ value = 8.0
 [sub_resource type="Resource" id="Up_plum_heal"]
 script = ExtResource("2_up")
 id = &"plum_heal"
-icon = ExtResource("i_plum")
 title = "매화 · 향기"
 description = "반격 회복 +8"
+icon = ExtResource("icon_plum_heal")
 color = Color(0.85, 0.4, 0.55, 1)
 max_stacks = 2
 weight = 1.0
@@ -216,9 +226,9 @@ value = 1.5
 [sub_resource type="Resource" id="Up_plum_dmg"]
 script = ExtResource("2_up")
 id = &"plum_dmg"
-icon = ExtResource("i_plum")
 title = "매화 · 만개"
 description = "반격 피해 +50%"
+icon = ExtResource("icon_plum_dmg")
 color = Color(0.85, 0.4, 0.55, 1)
 max_stacks = 3
 weight = 1.0
@@ -236,6 +246,7 @@ script = ExtResource("2_up")
 id = &"vitality"
 title = "강건"
 description = "최대 체력 +25 (그만큼 회복)"
+icon = ExtResource("icon_vitality")
 color = Color(0.72, 0.13, 0.1, 1)
 max_stacks = 3
 weight = 1.0
@@ -260,6 +271,7 @@ script = ExtResource("2_up")
 id = &"brush"
 title = "붓 · 날 세우기"
 description = "기본 공격 피해 +30%"
+icon = ExtResource("icon_brush")
 color = Color(0.5, 0.5, 0.55, 1)
 max_stacks = 3
 weight = 1.0

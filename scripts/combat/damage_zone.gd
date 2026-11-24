@@ -25,6 +25,7 @@ func _physics_process(delta: float) -> void:
 	if _next <= 0.0 and ctx:
 		_next += interval
 		ticks += 1
+		var last := _age + interval > duration  # 다음 틱 전에 사라진다 = 마지막 타 (크게 한 번)
 		for en in ctx.enemies_in_radius(global_position, radius):
 			if not en.health.is_alive():
 				continue  # 죽어서 지워지기 전인 적은 끌지 않는다
@@ -32,7 +33,7 @@ func _physics_process(delta: float) -> void:
 				en.slow(slow_factor, interval + 0.1)
 			if pull > 0.0:
 				en.apply_knockback((global_position - en.global_position).normalized() * pull)
-			ctx.hit(en, damage)
+			ctx.tick_hit(en, damage, last)
 	if _age >= duration:
 		queue_free()
 	queue_redraw()
@@ -40,8 +41,14 @@ func _physics_process(delta: float) -> void:
 
 func _draw() -> void:
 	var k := clampf(1.0 - _age / maxf(duration, 0.001), 0.0, 1.0)
+	var art := Feedback.feel_data().pool_art
+	if art:  # 붓으로 그린 웅덩이가 천천히 돈다 (기술 색)
+		var s := radius * 2.2
+		draw_set_transform(Vector2.ZERO, _age * 0.8, Vector2.ONE)
+		draw_texture_rect(art, Rect2(-s * 0.5, -s * 0.5, s, s), false, Color(color, 0.8 * k))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
 	var spin := _age * 6.0
 	for i in 3:
 		var a := spin + i * TAU / 3.0
 		draw_arc(Vector2.ZERO, radius * (0.45 + 0.2 * i), a, a + PI * 0.9, 24, Color(color, 0.55 * k), 6.0 - i)
-	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 40, Color(Ink.INK, 0.25 * k), 2.0)

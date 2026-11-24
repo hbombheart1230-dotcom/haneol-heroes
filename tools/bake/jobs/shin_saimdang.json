@@ -11,6 +11,35 @@
     "grain": 0.0
   },
   "lossy_quality": 0.58,
+  "rigid": {
+    "bone": "RightHand",
+    "boxes": [
+      [
+        -0.58,
+        0.0,
+        0.09,
+        -0.47,
+        0.92,
+        0.21
+      ],
+      [
+        -0.55,
+        0.92,
+        0.1,
+        -0.47,
+        1.12,
+        0.19
+      ],
+      [
+        -0.62,
+        1.12,
+        0.04,
+        -0.445,
+        1.8,
+        0.25
+      ]
+    ]
+  },
   "anims": [
     {
       "key": "idle",
@@ -21,9 +50,9 @@
     },
     {
       "key": "run",
-      "src": "Run 2",
+      "src": "Walking Woman",
       "frames": 8,
-      "fps": 14.0,
+      "fps": 16.0,
       "loop": true
     },
     {
@@ -35,10 +64,14 @@
     },
     {
       "key": "attack",
-      "src": "Mage Soell Cast",
+      "src": "Double Combo Attack",
       "frames": 6,
       "fps": 16.0,
-      "loop": false
+      "loop": false,
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra4.glb",
+      "start": 0.0,
+      "end": 0.65,
+      "strike": 0.5
     },
     {
       "key": "hit",
@@ -53,6 +86,93 @@
       "frames": 6,
       "fps": 10.0,
       "loop": false
+    },
+    {
+      "key": "attack2",
+      "src": "Double Combo Attack",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra4.glb",
+      "start": 0.62,
+      "end": 1.25,
+      "strike": 1.0
+    },
+    {
+      "key": "attack3",
+      "src": "Double Combo Attack",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra4.glb",
+      "start": 1.25,
+      "end": 2.25,
+      "strike": 1.8
+    },
+    {
+      "key": "throw",
+      "src": "Mage Soell Cast",
+      "frames": 6,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra3.glb",
+      "start": 0.3,
+      "end": 1.0,
+      "strike": 0.6
+    },
+    {
+      "key": "cast_tap",
+      "src": "Triple Combo Attack",
+      "frames": 8,
+      "fps": 20.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra2.glb",
+      "start": 1.3,
+      "end": 2.4,
+      "strike": 1.9
+    },
+    {
+      "key": "cast_dash",
+      "src": "Triple Combo Attack",
+      "frames": 6,
+      "fps": 18.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra2.glb",
+      "start": 0.3,
+      "end": 1.1,
+      "strike": 0.7
+    },
+    {
+      "key": "cast_charge",
+      "src": "Reaping Swing",
+      "frames": 8,
+      "fps": 18.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra1.glb",
+      "start": 1.2,
+      "end": 2.6,
+      "strike": 2.2
+    },
+    {
+      "key": "cast_counter",
+      "src": "Reaping Swing",
+      "frames": 8,
+      "fps": 16.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/shin_saimdang/animated_extra1.glb",
+      "start": 3.0,
+      "end": 4.6,
+      "strike": 3.96
+    },
+    {
+      "key": "victory",
+      "src": "victory",
+      "frames": 8,
+      "fps": 8.0,
+      "loop": false,
+      "from": "res://assets/live3d/shin_saimdang/anims/web_victory.res",
+      "start": 1.0,
+      "end": 3.0
     }
   ]
 }

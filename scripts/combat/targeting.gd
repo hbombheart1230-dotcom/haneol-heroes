@@ -18,11 +18,42 @@ static func nearest(nodes: Array, from: Vector2, max_range: float) -> Node2D:
 	return best
 
 
+## 방향 기술 조준 보정 (Brawl Stars식 자동 조준 + 부채꼴): facing ±cone_deg/2 안·max_range 안에서 각도가 가장
+## 가까운 적 쪽. 그 안에 없으면 fallback이면 가장 가까운 적 쪽, 아니면 facing 그대로. cone_deg 0이면 끔.
+static func assist_dir(nodes: Array, from: Vector2, facing: Vector2, cone_deg: float, max_range: float, fallback: bool) -> Vector2:
+	var f := facing.normalized() if facing.length_squared() > 0.0001 else Vector2.DOWN
+	if cone_deg <= 0.0:
+		return f
+	var cos_half := cos(deg_to_rad(cone_deg * 0.5))
+	var best: Vector2 = Vector2.ZERO
+	var best_dot := cos_half
+	for n in nodes:
+		var node := n as Node2D
+		if node == null or not is_instance_valid(node):
+			continue
+		var off := node.global_position - from
+		var d := off.length()
+		if d < 1.0 or d > max_range:
+			continue
+		var dot := f.dot(off / d)
+		if dot >= best_dot:
+			best_dot = dot
+			best = off / d
+	if best != Vector2.ZERO:
+		return best
+	if fallback:
+		var near := nearest(nodes, from, max_range)
+		if near and from.distance_squared_to(near.global_position) > 1.0:
+			return (near.global_position - from).normalized()
+	return f
+
+
 ## from 기준 facing 방향 arc_degrees 부채꼴, radius 안의 노드들.
 static func in_arc(nodes: Array, from: Vector2, facing: Vector2, radius: float, arc_degrees: float) -> Array[Node2D]:
 	var out: Array[Node2D] = []
 	var dir := facing.normalized() if facing.length_squared() > 0.0001 else Vector2.DOWN
-	var cos_half := cos(deg_to_rad(arc_degrees * 0.5))
+	# 360° 이상은 둘레 전체: cos(>180°)는 -1보다 커져 바로 뒤의 적을 놓친다.
+	var cos_half := -2.0 if arc_degrees >= 360.0 else cos(deg_to_rad(arc_degrees * 0.5))
 	for n in nodes:
 		var node := n as Node2D
 		if node == null or not is_instance_valid(node):

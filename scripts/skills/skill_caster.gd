@@ -6,8 +6,13 @@ extends Node2D
 ##   짧게 눌렀다 뗌            → kit.tap
 ##   길게 눌러 충전 후 뗌      → kit.charge (이동하며 충전 가능)
 ##   회피 성공 후 counter_window 안 누름 → kit.counter (최우선, 기획서 §6.3)
+## 탭 연타 (kit.tap_combo, 한 손 제스처만): 제자리 탭 = 평타 한 타, combo_hits타 뒤 탭 = kit.tap 마무리 (TapCombo).
 
 signal skill_cast(slot: Slot, hits: int)
+## 누르는 순간 (여러 프레임 기술도 시작할 때 한 번): 영웅 시전 동작용. def = 실제로 쓰인 기술.
+signal skill_started(slot: Slot, def: SkillDef)
+## 손 연타가 이어진 타 수 (평타가 적에 닿을 때 1·2·3, 원거리 평타는 쏠 때, 마무리 = combo_hits + 1): 연타 글씨용.
+signal combo_count(n: int)
 
 enum Slot { NONE, TAP, DASH, CHARGE, COUNTER }
 
@@ -22,6 +27,9 @@ enum Slot { NONE, TAP, DASH, CHARGE, COUNTER }
 @export var hit_stop_enabled: bool = true
 
 var input := SkillInput.new()
+var _charge_marker: ChargeMarker
+## 충전 조준 (charge_aim 기술): 모으는 동안 잡은 방향과 바닥 길 표시.
+var aim := ChargeAim.new()
 ## 적 목록 공급자. 테스트에서 교체할 수 있다.
 var enemy_source: Callable = func() -> Array: return get_tree().get_nodes_in_group(Enemy.GROUP)
 
@@ -30,9 +38,15 @@ var _cd := {Slot.TAP: 0.0, Slot.DASH: 0.0, Slot.CHARGE: 0.0, Slot.COUNTER: 0.0}
 var _counter_left: float = 0.0
 ## 진행 중인 기술: [[slot, SkillRun], ...]
 var _runs: Array = []
+## 탭 연타 상태와 손 평타를 낼 자동 공격 (영웅의 AutoAttack).
+var combo := TapCombo.new()
+var _attack: AutoAttack
+## 마지막으로 낸 충전 기술의 모은 정도 (0~1): 다 모아 맞히면 점수 (ScoreFeed).
+var last_charge: float = 0.0
 
 
 func _ready() -> void:
+	show_behind_parent = true  # 충전 표시는 바닥 (영웅 그림 아래)
 	if kit == null and player and player.hero:
 		kit = player.hero.kit
 	apply_kit(kit)
@@ -95,6 +109,11 @@ func is_ready(slot: Slot) -> bool:
 	return def_of(slot) != null and float(_cd[slot]) <= 0.0
 
 
+## 쿨타임을 바로 끝낸다 (조작 안내가 그 기술 단계를 열 때: 앞서 쓴 쿨타임에 막혀 기다리지 않게).
+func reset_cooldown(slot: Slot) -> void:
+	_cd[slot] = 0.0
+
+
 ## 0~1, 남은 쿨타임 비율.
 func cooldown_ratio(slot: Slot) -> float:
 	var d := def_of(slot)
@@ -134,6 +153,7 @@ func on_release(index: int, time: float) -> Slot:
 	if player == null or player.is_dead():
 		input.reset()
 		return Slot.NONE
+	var src := input.source
 	var r := input.release(index, time)
 	match r["kind"]:
 		"tap":
@@ -142,6 +162,8 @@ func on_release(index: int, time: float) -> Slot:
 			if instant != Slot.NONE:
 				cast(instant)
 				return instant
+			if src == SkillInput.Source.GESTURE and kit.tap_combo and auto_attack() != null:  # 평타가 없으면 예전대로
+				return combo_tap()
 			if is_ready(Slot.TAP):
 				cast(Slot.TAP)
 				return Slot.TAP
@@ -158,7 +180,7 @@ func cancel_input() -> void:
 
 # --- 한 손 제스처 (이동 손가락) ---
 #   제자리 짧게 탭            → tap (대시 직후면 dash 기술)
-#   제자리 꾹 누르기 → 충전   → 그대로 드래그해 이동 가능 → 떼면 charge
+#   제자리 꾹 누르기 → 충전   → 끌면 조준만 (걷지 않음) → 떼면 charge, 튕기면(내닫기) 모으기 취소 + 내닫기
 #   tap_slop 이상 움직이면 그 누름은 이동이므로 스킬 없음
 
 var _gesture_origin: Vector2 = Vector2.ZERO
@@ -214,26 +236,81 @@ func is_gesture_charging() -> bool:
 	return input.is_from(SkillInput.Source.GESTURE) and input.state == SkillInput.State.CHARGING
 
 
+# --- 탭 연타 (A안) ---
+
+## 제자리 탭 하나 (TapChain): 평타 한 타, 연계가 찼으면 tap 기술 마무리, 너무 빠르면 잠깐 기억.
+func combo_tap() -> Slot:
+	return TapChain.tap(self)
+
+
+## 손 평타 최소 간격(초) (TapChain).
+func tap_gap() -> float:
+	return TapChain.gap(self)
+
+
+func auto_attack() -> AutoAttack:
+	if _attack == null and player:
+		_attack = player.get_node_or_null("AutoAttack") as AutoAttack
+		if _attack:  # 자동 평타를 연계 수에 넣을지는 kit.combo_auto_counts
+			_attack.melee_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
+			_attack.ranged_windup.connect(func(_d: Vector2) -> void: _on_auto_swing())
+			_attack.melee_swung.connect(func(_d: Vector2, hits: int) -> void: _on_manual_land(hits > 0 and _attack.swing_manual))
+			_attack.projectile_fired.connect(func(_p: Projectile) -> void: _on_manual_land(_attack.shot_manual))
+			player.dash_started.connect(func(_d: Vector2) -> void: ComboSteps.cancel_swing(_attack))
+	return _attack
+
+
+## 손 평타가 닿았다 (원거리는 쏘았다): 연타 글씨.
+func _on_manual_land(landed: bool) -> void:
+	if landed and combo.streak > 0:
+		combo_count.emit(combo.streak)
+
+
+func _on_auto_swing() -> void:
+	if kit and kit.combo_auto_counts and _attack and not _attack.last_manual:
+		combo.on_auto_hit(kit.combo_hits)
+
+
 ## 쿨타임을 걸고 기술을 발동한다. 반환: 진행 상태.
-func cast(slot: Slot, charge: float = 0.0) -> SkillRun:
+## damage_scale: 피해 배율 (탭 연타 마무리), cd: 0 이상이면 이 쿨타임.
+func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float = -1.0) -> SkillRun:
 	var d := def_of(slot)
 	if d == null or player == null or player.is_dead():
 		return null
-	_cd[slot] = d.cooldown
+	_cd[slot] = cd if cd >= 0.0 else d.cooldown
+	d = TapCombo.scaled_def(d, damage_scale)
+	d = SkillGrowthData.get_default().scaled_def(d)  # 성장 단계: 판정도 그림과 같은 비율로
 	if slot == Slot.COUNTER:
 		_counter_left = 0.0
-	var run := d.cast(_context(), charge)
+	skill_started.emit(slot, d)
+	var ctx := _context()
+	ctx.skill = d
+	if slot == Slot.CHARGE:
+		ctx.aim_dir = aim.aim_dir()
+		ctx.aim_steered = aim.active and aim.steered
+		last_charge = charge
+	if d.vfx_cast:
+		Feedback.vfx_burst(d.vfx_cast, d.cast_point(ctx), player.facing, d.vfx_level)  # 세종 정음진은 겨눈 적 자리
+	SkillStageFx.on_cast(get_tree() if is_inside_tree() else null, d, player.hero)  # 컷인 + 소리 층
+	var run := d.cast(ctx, charge)
 	if run.finished:
-		skill_cast.emit(slot, run.hits)
+		skill_cast.emit(slot, run.hits if run.announce_hits < 0 else run.announce_hits)
 	else:
+		if run.announce_hits >= 0:
+			skill_cast.emit(slot, run.announce_hits)
 		_runs.append([slot, run])
 	return run
 
 
 func tick(delta: float, time: float) -> void:
+	if player:
+		player.walk_locked = _is_charging_alive()  # 모으는 동안 이동 잠금, 끌기는 조준만 (네 영웅 모두, 손가락·버튼 모두)
 	for k in _cd.keys():
 		_cd[k] = maxf(float(_cd[k]) - delta, 0.0)
 	_counter_left = maxf(_counter_left - delta, 0.0)
+	if kit:
+		combo.tick(delta, kit.combo_window)
+		TapChain.flush(self)
 	# 선입력: 버튼을 누른 채(탭 판정 전) 대시가 시작되거나 반격 시간이 열리면 그 기술로 (반격 우선, Codex e593772 지적).
 	if input.is_from(SkillInput.Source.BUTTON) and input.state == SkillInput.State.PRESSED \
 			and player and (player.is_dashing() or is_counter_open()):
@@ -246,7 +323,8 @@ func tick(delta: float, time: float) -> void:
 		var run: SkillRun = entry[1]
 		if run.tick(delta):
 			_runs.erase(entry)
-			skill_cast.emit(entry[0], run.hits)
+			if run.announce_hits < 0:
+				skill_cast.emit(entry[0], run.hits)
 
 
 func _context() -> SkillContext:
@@ -260,14 +338,35 @@ func _context() -> SkillContext:
 	return ctx
 
 
+## 충전 중인지 (영웅 모으는 자세용).
+func is_charging() -> bool:
+	return _is_charging_alive()
+
+
+## 살아서 모으는 중인지 (죽으면 손을 떼기 전이라도 표시·입자·번쩍임 없음).
+func is_charging_alive() -> bool:
+	return _is_charging_alive()
+
+
+func _is_charging_alive() -> bool:
+	return input.state == SkillInput.State.CHARGING and player != null and not player.is_dead()
+
+
+## 영웅별 충전 표시 (영웅이 바뀌면 다시 만든다).
+func _marker() -> ChargeMarker:
+	var d := player.hero.charge_marker if player and player.hero else null
+	if _charge_marker == null or _charge_marker.data != d:
+		var m := ChargeMarker.new(d)
+		m.carry_from(_charge_marker)
+		_charge_marker = m
+	return _charge_marker
+
+
 func _physics_process(delta: float) -> void:
 	tick(delta, Time.get_ticks_usec() / 1_000_000.0)
+	ChargeView.tick(self, delta)
 	queue_redraw()
 
 
 func _draw() -> void:
-	# 충전 중 표시: 플레이어 발밑 고리
-	if input.state != SkillInput.State.CHARGING:
-		return
-	var c := input.charge_ratio(Time.get_ticks_usec() / 1_000_000.0)
-	draw_arc(Vector2.ZERO, 36.0 + 20.0 * c, -PI / 2, -PI / 2 + TAU * maxf(c, 0.02), 32, Color(0.4, 0.8, 1.0, 0.9), 5.0)
+	ChargeView.draw(self)  # 충전 중 표시: 플레이어 발밑 (show_behind_parent로 영웅 그림 아래)

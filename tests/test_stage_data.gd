@@ -61,7 +61,10 @@ func test_mark_cleared_saves_once() -> void:
 func test_each_stage_run_uses_its_own_army() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
+	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
@@ -74,8 +77,9 @@ func test_each_stage_run_uses_its_own_army() -> void:
 		await get_tree().process_frame
 		var st := _stage(id)
 		assert_array(main.spawner.spawn_table).is_equal(st.spawn_table)
-		assert_object(main.spawner.boss_data).is_same(st.boss)
-		assert_object(main.spawner.elite_data).is_same(st.elite)
+		# 보스·중간 보스는 영웅 배율이 1이 아니면 사본(BossHpScale.for_hero)이라 같은 물체가 아니라 같은 id로 본다
+		assert_str(String(main.spawner.boss_data.id)).is_equal(String(st.boss.id))
+		assert_str(String(main.spawner.elite_data.id)).is_equal(String(st.elite.id))
 		get_tree().paused = false
 		main.free()
 	GameSettings.stage_id = &"manchuria_395"

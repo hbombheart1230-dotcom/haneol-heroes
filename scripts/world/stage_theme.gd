@@ -8,7 +8,9 @@ extends Resource
 @export var year_label: String = ""
 @export var title: String = ""
 @export_multiline var subtitle: String = ""
-## 무대 배경 음악 (반복).
+## 무대 노래 (구간 넘나들기: 1절 평소 → 후렴 보스 → 후주 승리, 전주는 메뉴·이야기). 있으면 아래 곡들 대신 쓴다.
+@export var song: StageSong
+## 무대 배경 음악 (반복). song이 없을 때만.
 @export var music: AudioStream
 ## 보스가 나오면 바꿔 트는 곡 (반복). 비우면 무대 곡을 그대로.
 @export var boss_music: AudioStream
@@ -33,6 +35,10 @@ extends Resource
 ## 깨면 탕약(체력 회복)이 나오는 물건. 비우면 없음.
 @export var breakable: BreakableData
 
+@export_group("무대 장치")
+## 전장마다 플레이를 바꾸는 장치 (중립: 적에게 훨씬 세게). 비우면 없음. docs/research/stage_identity.md.
+@export var hazards: Array[StageHazardData] = []
+
 @export_group("적 (망령 군대)")
 ## 비어 있으면 장면(EnemySpawner)에 정해 둔 적을 그대로 쓴다.
 @export var spawn_table: Array[EnemyData] = []
@@ -48,6 +54,23 @@ extends Resource
 @export_group("바닥")
 @export var floor_base: Color = Color(0.92, 0.88, 0.79)
 @export var floor_stain: Color = Color(0.09, 0.09, 0.11)
+## 배경 지도 명도·채도 배율 (하데스식 대비, 1이면 그대로)과 화면 가장자리 먹 비네트 진하기 (0이면 없음).
+@export var floor_value: float = 1.0
+@export var floor_saturation: float = 1.0
+@export var vignette: float = 0.0
+## 그림 소품 아래 먹 그림자 농도 배율 (1 = 그대로, 밝은 한지 무대는 낮춘다).
+@export var prop_shadow: float = 1.0
+## 조명 한 벌 (바닥 색 보정 + 빛 웅덩이). 있으면 floor_value·floor_saturation 대신 쓴다.
+@export var look: StageLook
+
+@export_group("카메라")
+## 카메라 확대 (1 = 기본). 영웅이 화면 높이에서 차지하는 비율을 키운다 (하데스 13%, 한얼 기본 9.5%).
+## 스프라이트 배율 대신 카메라로 맞춰 판정·그림자·이펙트 비율은 그대로. 시야가 1/zoom로 줄어든다.
+@export var camera_zoom: float = 1.0
+
+@export_group("물결·보스 (하데스 슬라이스)")
+## 있으면 시간 따라 계속 나오는 대신 물결 모드 (WaveSetData). 없으면 지금 방식 그대로.
+@export var waves: WaveSetData
 
 @export_group("소품 (코드로 그리는 수묵)")
 ## 바닥 1000×1000px당 풀포기·바위 수.

@@ -3,10 +3,20 @@
 [ext_resource type="Script" path="res://scripts/run/upgrade_pool.gd" id="1_pool"]
 [ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="2_up"]
 [ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="3_mod"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/constellation.png" id="i_constellation"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/jeongeum.png" id="i_jeongeum"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/meteor.png" id="i_meteor"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/sundial.png" id="i_sundial"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/jeong_dmg.png" id="icon_jeong_dmg"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/jeong_wide.png" id="icon_jeong_wide"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/jeong_long.png" id="icon_jeong_long"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/jeong_quick.png" id="icon_jeong_quick"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/meteor_dmg.png" id="icon_meteor_dmg"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/meteor_wide.png" id="icon_meteor_wide"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/star_more.png" id="icon_star_more"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/star_dmg.png" id="icon_star_dmg"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/star_fast.png" id="icon_star_fast"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/sundial_long.png" id="icon_sundial_long"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/sundial_dmg.png" id="icon_sundial_dmg"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/vitality.png" id="icon_vitality"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/letters.png" id="icon_letters"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/sejong/swift.png" id="icon_swift"]
 
 [sub_resource type="Resource" id="Mod_jeong_dmg_0"]
 script = ExtResource("3_mod")
@@ -18,9 +28,9 @@ value = 1.4
 [sub_resource type="Resource" id="Up_jeong_dmg"]
 script = ExtResource("2_up")
 id = &"jeong_dmg"
-icon = ExtResource("i_jeongeum")
 title = "정음진 · 굳센 획"
 description = "글자 피해 +40%"
+icon = ExtResource("icon_jeong_dmg")
 color = Color(0.86, 0.68, 0.32, 1)
 max_stacks = 3
 weight = 1.0
@@ -36,9 +46,9 @@ value = 1.2
 [sub_resource type="Resource" id="Up_jeong_wide"]
 script = ExtResource("2_up")
 id = &"jeong_wide"
-icon = ExtResource("i_jeongeum")
 title = "정음진 · 넓은 고리"
 description = "고리 반경 +20%"
+icon = ExtResource("icon_jeong_wide")
 color = Color(0.86, 0.68, 0.32, 1)
 max_stacks = 2
 weight = 1.0
@@ -54,9 +64,9 @@ value = 1.5
 [sub_resource type="Resource" id="Up_jeong_long"]
 script = ExtResource("2_up")
 id = &"jeong_long"
-icon = ExtResource("i_jeongeum")
 title = "정음진 · 긴 울림"
 description = "지속 +1.5초"
+icon = ExtResource("icon_jeong_long")
 color = Color(0.86, 0.68, 0.32, 1)
 max_stacks = 2
 weight = 1.0
@@ -72,9 +82,9 @@ value = 0.8
 [sub_resource type="Resource" id="Up_jeong_quick"]
 script = ExtResource("2_up")
 id = &"jeong_quick"
-icon = ExtResource("i_jeongeum")
 title = "정음진 · 빠른 붓"
-description = "재사용 대기 -20%"
+description = "재사용 대기 -20% (연타 마무리 포함)"
+icon = ExtResource("icon_jeong_quick")
 color = Color(0.86, 0.68, 0.32, 1)
 max_stacks = 3
 weight = 1.0
@@ -90,9 +100,9 @@ value = 1.4
 [sub_resource type="Resource" id="Up_meteor_dmg"]
 script = ExtResource("2_up")
 id = &"meteor_dmg"
-icon = ExtResource("i_meteor")
 title = "유성 · 무거운 별"
 description = "피해 +40%"
+icon = ExtResource("icon_meteor_dmg")
 color = Color(0.3, 0.45, 0.8, 1)
 max_stacks = 3
 weight = 1.0
@@ -108,9 +118,9 @@ value = 1.25
 [sub_resource type="Resource" id="Up_meteor_wide"]
 script = ExtResource("2_up")
 id = &"meteor_wide"
-icon = ExtResource("i_meteor")
 title = "유성 · 큰 별"
 description = "범위 +25%"
+icon = ExtResource("icon_meteor_wide")
 color = Color(0.3, 0.45, 0.8, 1)
 max_stacks = 2
 weight = 1.0
@@ -126,9 +136,9 @@ value = 1.0
 [sub_resource type="Resource" id="Up_star_more"]
 script = ExtResource("2_up")
 id = &"star_more"
-icon = ExtResource("i_constellation")
 title = "성좌진 · 많은 별"
 description = "최대 별 +1"
+icon = ExtResource("icon_star_more")
 color = Color(0.86, 0.68, 0.32, 1)
 max_stacks = 3
 weight = 1.0
@@ -144,9 +154,9 @@ value = 1.35
 [sub_resource type="Resource" id="Up_star_dmg"]
 script = ExtResource("2_up")
 id = &"star_dmg"
-icon = ExtResource("i_constellation")
 title = "성좌진 · 밝은 별"
 description = "피해 +35%"
+icon = ExtResource("icon_star_dmg")
 color = Color(0.86, 0.68, 0.32, 1)
 max_stacks = 3
 weight = 1.0
@@ -162,9 +172,9 @@ value = 0.75
 [sub_resource type="Resource" id="Up_star_fast"]
 script = ExtResource("2_up")
 id = &"star_fast"
-icon = ExtResource("i_constellation")
 title = "성좌진 · 빠른 관측"
 description = "충전 시간 -25%"
+icon = ExtResource("icon_star_fast")
 color = Color(0.86, 0.68, 0.32, 1)
 max_stacks = 2
 weight = 1.0
@@ -180,9 +190,9 @@ value = 0.5
 [sub_resource type="Resource" id="Up_sundial_long"]
 script = ExtResource("2_up")
 id = &"sundial_long"
-icon = ExtResource("i_sundial")
 title = "해시계 · 긴 그림자"
 description = "느려짐 +0.5초"
+icon = ExtResource("icon_sundial_long")
 color = Color(0.72, 0.15, 0.12, 1)
 max_stacks = 2
 weight = 1.0
@@ -198,9 +208,9 @@ value = 1.5
 [sub_resource type="Resource" id="Up_sundial_dmg"]
 script = ExtResource("2_up")
 id = &"sundial_dmg"
-icon = ExtResource("i_sundial")
 title = "해시계 · 정오"
 description = "반격 피해 +50%"
+icon = ExtResource("icon_sundial_dmg")
 color = Color(0.72, 0.15, 0.12, 1)
 max_stacks = 3
 weight = 1.0
@@ -218,6 +228,7 @@ script = ExtResource("2_up")
 id = &"vitality"
 title = "강건"
 description = "최대 체력 +20 (그만큼 회복)"
+icon = ExtResource("icon_vitality")
 color = Color(0.72, 0.13, 0.1, 1)
 max_stacks = 3
 weight = 1.0
@@ -242,6 +253,7 @@ script = ExtResource("2_up")
 id = &"letters"
 title = "문자탄 · 또렷한 글자"
 description = "기본 공격 피해 +30%"
+icon = ExtResource("icon_letters")
 color = Color(0.5, 0.5, 0.55, 1)
 max_stacks = 3
 weight = 1.0
@@ -259,6 +271,7 @@ script = ExtResource("2_up")
 id = &"swift"
 title = "걸음"
 description = "이동 속도 +10%"
+icon = ExtResource("icon_swift")
 color = Color(0.3, 0.7, 0.4, 1)
 max_stacks = 2
 weight = 0.8

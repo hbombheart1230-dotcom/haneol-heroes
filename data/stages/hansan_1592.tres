@@ -1,7 +1,9 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/manchuria_395.ogg" id="2_music"]
+[ext_resource type="Resource" path="res://data/stages/hazards/hansan_cannon.tres" id="h_cannon"]
+[ext_resource type="Script" path="res://scripts/data/stage_hazard_data.gd" id="h_script"]
+[ext_resource type="AudioStream" path="res://assets/audio/music/hansan_1592/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/banner_blue.png" id="p_banner_blue"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/banner_dragon.png" id="p_banner_dragon"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/banner_phoenix.png" id="p_banner_phoenix"]
@@ -17,17 +19,64 @@
 [ext_resource type="Texture2D" path="res://assets/props/hansan/planks.png" id="p_planks"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/rope.png" id="p_rope"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/shields.png" id="p_shields"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_gunner_captain.tres" id="e_gunner_captain"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_drummer.tres" id="e_drummer"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_soldier.tres" id="e_waegun_soldier"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_gunner.tres" id="e_waegun_gunner"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_heavy.tres" id="e_waegun_heavy"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_elite.tres" id="e_waegun_elite"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_captain.tres" id="e_waegun_captain"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_commander.tres" id="e_waegun_commander"]
 [ext_resource type="Resource" path="res://data/breakables/hansan_1592.tres" id="b_hansan_1592"]
+[ext_resource type="Resource" path="res://data/songs/hansan_1592.tres" id="song"]
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="3_enemy"]
 [ext_resource type="Texture2D" path="res://assets/props/hansan/geobukseon.png" id="p_geobukseon"]
 
+[ext_resource type="Resource" path="res://data/stages/looks/hansan_1592.tres" id="look"]
+[ext_resource type="Script" path="res://scripts/data/wave_data.gd" id="w_wave"]
+[ext_resource type="Script" path="res://scripts/data/wave_set_data.gd" id="w_set"]
+
+[sub_resource type="Resource" id="Wave_1"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier")])
+first_count = 8
+max_alive = 8
+elite_last = false
+
+[sub_resource type="Resource" id="Wave_2"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier")])
+first_count = 10
+max_alive = 10
+elite_last = false
+
+[sub_resource type="Resource" id="Wave_3"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier")])
+first_count = 6
+max_alive = 8
+elite_last = true
+elite_when_left = 2
+elite_group = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_elite"), ExtResource("e_gunner_captain"), ExtResource("e_drummer")])
+
+[sub_resource type="Resource" id="Wave_4"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_captain")])
+first_count = 14
+max_alive = 14
+elite_last = false
+
+[sub_resource type="Resource" id="Waves"]
+script = ExtResource("w_set")
+waves = Array[ExtResource("w_wave")]([SubResource("Wave_1"), SubResource("Wave_2"), SubResource("Wave_3"), SubResource("Wave_4")])
+max_alive = 14
+next_when_left = 2
+refill_each = true
+xp_mult = 1.53
+
 [resource]
 script = ExtResource("1_theme")
+hazards = Array[ExtResource("h_script")]([ExtResource("h_cannon")])
 id = &"hansan_1592"
 year_label = "1592년"
 title = "한산도"
@@ -35,6 +84,7 @@ subtitle = "학익진으로 왜 수군을 크게 무찌른 한산도 대첩"
 music = ExtResource("2_music")
 hero_hint = "순신"
 breakable = ExtResource("b_hansan_1592")
+song = ExtResource("song")
 spawn_table = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_heavy")])
 spawn_weights = PackedFloat32Array(6, 2, 1)
 unlock_times = PackedFloat32Array(0, 10, 20)
@@ -43,6 +93,10 @@ boss = ExtResource("e_waegun_commander")
 card_art = ExtResource("p_geobukseon")
 floor_base = Color(0.490, 0.459, 0.429, 1)
 floor_stain = Color(0.25, 0.18, 0.12, 1)
+vignette = 0.4
+look = ExtResource("look")
+camera_zoom = 1.09
+waves = SubResource("Waves")
 grass_per_mpx = 0.0
 grass_color = Color(0.2, 0.16, 0.12, 0.0)
 rock_per_mpx = 0.0

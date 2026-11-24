@@ -1,10 +1,10 @@
 {
   "name": "jurchen_heavy",
-  "image": "assets/concept/enemies/jurchen/heavy.png",
+  "image": "assets/concept/redesign/jurchen/heavy.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
-    "pose_mode": "a-pose",
+    "pose_mode": "",
     "should_remesh": true,
     "topology": "triangle",
     "target_polycount": 20000,
@@ -46,10 +46,13 @@
     {
       "key": "attack",
       "match": "attack|slash|shot|swing|thrust|chop",
-      "action_id": 237,
+      "action_id": 128,
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "start": 0.5,
+      "end": 1.83,
+      "strike": 1.45
     },
     {
       "key": "hit",

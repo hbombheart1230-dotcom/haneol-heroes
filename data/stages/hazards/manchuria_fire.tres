@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="FireData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/fire_data.gd" id="1_fire"]
+[ext_resource type="Resource" path="res://data/vfx/stage/fire_burst.tres" id="2_burn"]
+[ext_resource type="Resource" path="res://data/vfx/stage/steam_puff.tres" id="3_steam"]
+
+[resource]
+script = ExtResource("1_fire")
+first_delay = 8.0
+period = 16.0
+warn_time = 1.5
+enemy_damage = 8
+hero_damage = 2
+patches = PackedVector3Array(-450, -700, 240, 430, -500, 220, -520, 250, 230, 480, 420, 250, 0, -1150, 220, 30, 950, 240)
+burn_vfx = ExtResource("2_burn")
+steam_vfx = ExtResource("3_steam")

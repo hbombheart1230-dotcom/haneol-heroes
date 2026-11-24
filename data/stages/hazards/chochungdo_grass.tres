@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="GrassData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/grass_data.gd" id="1_grass"]
+
+[resource]
+script = ExtResource("1_grass")
+patches = PackedVector3Array(-380, -640, 170, 360, -560, 160, -330, 380, 175, 380, 560, 165, 0, -1000, 150, 20, 980, 150)

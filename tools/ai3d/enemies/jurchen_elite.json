@@ -1,10 +1,10 @@
 {
   "name": "jurchen_elite",
-  "image": "assets/concept/enemies/jurchen/elite.png",
+  "image": "assets/concept/redesign/jurchen/elite.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
-    "pose_mode": "a-pose",
+    "pose_mode": "",
     "should_remesh": true,
     "topology": "triangle",
     "target_polycount": 20000,
@@ -49,7 +49,10 @@
       "action_id": 240,
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "start": 0.0,
+      "end": 1.0,
+      "strike": 0.55
     },
     {
       "key": "hit",

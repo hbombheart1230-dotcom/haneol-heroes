@@ -1,10 +1,10 @@
 {
   "name": "waegun_soldier",
-  "image": "assets/concept/enemies/waegun/soldier.png",
+  "image": "assets/concept/redesign/waegun/soldier.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
-    "pose_mode": "a-pose",
+    "pose_mode": "",
     "should_remesh": true,
     "topology": "triangle",
     "target_polycount": 20000,
@@ -24,7 +24,13 @@
       "wash_amount": 0.5,
       "grain": 0.05
     },
-    "lossy_quality": 0.5
+    "lossy_quality": 0.5,
+    "rigid": {
+      "bone": "RightHand",
+      "boxes": [
+        [-0.475, 0.0, 0.15, -0.471, 1.25, 0.225, 0.035], [-0.6, 1.25, 0.1, -0.35, 1.95, 0.4]
+      ]
+    }
   },
   "anims": [
     {
@@ -39,17 +45,31 @@
       "key": "run",
       "match": "run|walk",
       "action_id": 14,
-      "frames": 6,
-      "fps": 10.0,
-      "loop": true
+      "frames": 8,
+      "fps": 8.0,
+      "loop": true,
+      "reuse": {
+        "src": "Walk_Fight_Forward",
+        "from": "res://assets/models/meshy/waegun_heavy/animated.glb"
+      }
     },
     {
       "key": "attack",
       "match": "attack|slash|shoot|swing|thrust",
-      "action_id": 97,
+      "action_id": 240,
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "strike": 2.1,
+      "times": [
+        1.45,
+        1.65,
+        1.8,
+        2.1,
+        2.3,
+        2.6
+      ],
+      "yaw": 180
     },
     {
       "key": "hit",
@@ -57,7 +77,30 @@
       "action_id": 178,
       "frames": 3,
       "fps": 12.0,
-      "loop": false
+      "loop": false,
+      "times": [
+        0.15,
+        0.35,
+        0.6
+      ]
+    },
+    {
+      "key": "down",
+      "match": "down",
+      "action_id": 100,
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "times": [
+        0.9,
+        1.1,
+        1.35,
+        1.6,
+        2.6,
+        4.2,
+        5.4,
+        6.3
+      ]
     }
   ]
 }

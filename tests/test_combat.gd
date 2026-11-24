@@ -48,6 +48,15 @@ func test_in_arc_only_front() -> void:
 	assert_array(hits).contains_exactly([front])
 
 
+## 360° 넘는 부채꼴(사임당 3타 110 × 3.3 = 363°)은 바로 뒤의 적도 맞힌다.
+func test_in_arc_full_circle_hits_directly_behind() -> void:
+	var front := _node_at(Vector2(60, 0))
+	var back := _node_at(Vector2(-60, 0))
+	var far := _node_at(Vector2(-300, 0))
+	var hits := Targeting.in_arc([front, back, far], Vector2.ZERO, Vector2.RIGHT, 200, 363)
+	assert_array(hits).contains_exactly_in_any_order([front, back])
+
+
 # --- Enemy ---
 
 func test_enemy_chases_target() -> void:
@@ -277,7 +286,10 @@ func _skip_hero_select() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.hero_picked = true
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
+	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"

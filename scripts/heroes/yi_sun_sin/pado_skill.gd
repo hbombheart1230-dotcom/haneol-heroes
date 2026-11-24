@@ -19,7 +19,8 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		dir = ctx.player.facing
 	var a := ctx.player.global_position - dir * 30.0
 	var b := ctx.player.global_position + dir * length
-	if ctx.fx:
+	ctx.strip(a, b)  # 앞으로 밀려가는 물결 띠
+	if ctx.fx and (vfx_impact == null or vfx_impact.strip == null):
 		ctx.fx.add_slash(a, b, width * 0.5, 0.3, fx_color)
 	var run := PadoRun.new(self, ctx, a, b)
 	run.strike()
@@ -43,9 +44,14 @@ class PadoRun extends SkillRun:
 		left = p_skill.hit_count
 
 	func strike() -> void:
+		var last := left <= 1  # 마지막 연타는 크게 한 번 멈춤
+		var struck := false
 		for en in ctx.enemies_near_segment(a, b, skill.width * 0.5):
-			ctx.hit(en, skill.damage_per_hit)
+			if ctx.hit(en, skill.damage_per_hit):
+				struck = true
 			hits += 1  # 타격마다 경로 위 대상 수 (리팩터링 전과 동일한 집계)
+		if last and struck:
+			SkillMultiHit.finale(ctx)
 		left -= 1
 		timer += skill.hit_interval
 		if ctx.fx and left >= 0:
@@ -53,6 +59,7 @@ class PadoRun extends SkillRun:
 			ctx.fx.add_slash(a + side, b + side, 10.0, 0.18, Color(0.7, 0.95, 1.0))
 		if left <= 0:
 			finished = true
+			ctx.impact(b, b - a)  # 물보라
 			if skill.end_burst_radius > 0.0:
 				for en in ctx.enemies_in_radius(b, skill.end_burst_radius):
 					ctx.hit(en, skill.end_burst_damage)

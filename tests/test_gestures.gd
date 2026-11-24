@@ -156,7 +156,8 @@ func test_tap_after_link_window_is_tap_skill() -> void:
 	assert_array(casts).is_equal([SkillCaster.Slot.DASH, SkillCaster.Slot.TAP])
 
 
-func test_hold_in_place_charges_then_move_and_release_fires_charge() -> void:
+## 모으는 중 끌기 = 조준만 (걷지 않음, 이동 잠금은 tests/test_charge_move_lock.gd).
+func test_hold_in_place_charges_then_drag_aims_and_release_fires_charge() -> void:
 	_down(0, Vector2(400, 900), 0.0)
 	var t := 0.0
 	for i in 24:  # 0.4초 정지 → 충전 시작 (임계 0.3)
@@ -164,11 +165,12 @@ func test_hold_in_place_charges_then_move_and_release_fires_charge() -> void:
 		_step(t)
 	assert_bool(caster.is_gesture_charging()).is_true()
 	assert_vector(player.move_input).is_equal(Vector2.ZERO)
-	for i in 20:  # 충전한 채 왼쪽으로 이동
+	for i in 20:  # 충전한 채 왼쪽으로 끌기 (천천히: 튕기기 아님)
 		t += DT
 		_drag(0, Vector2(400 - i * 6, 900), t)
 		_step(t)
 	assert_float(player.move_input.x).is_less(-0.5)
+	assert_vector(player.walk_velocity()).is_equal(Vector2.ZERO)
 	assert_bool(caster.is_gesture_charging()).is_true()
 	_up(0, Vector2(280, 900), t + DT)
 	assert_array(casts).is_equal([SkillCaster.Slot.CHARGE])
@@ -212,17 +214,6 @@ func test_button_hit_area_larger_than_visual() -> void:
 	assert_bool(ctrl.is_on_skill_button(outside)).is_false()
 
 
-func test_toggle_area_switches_button() -> void:
-	var p := ctrl.toggle_rect().get_center()
-	_down(0, p, 0.0)
-	assert_bool(ctrl.skill_button_enabled).is_true()
-	assert_bool(ctrl.touch_input.is_active()).is_false()
-	_up(0, p, 0.05)
-	_down(1, p, 0.2)
-	assert_bool(ctrl.skill_button_enabled).is_false()
-	GameSettings.skill_button_enabled = false
-
-
 func test_button_press_overrides_pending_gesture() -> void:
 	ctrl.skill_button_enabled = true
 	_down(0, Vector2(200, 900), 0.0)  # 이동 손가락 (제스처 판정 전)
@@ -264,18 +255,6 @@ func test_dead_player_charge_release_never_casts() -> void:
 	_up(0, Vector2(300, 900), 0.5)
 	assert_array(casts).is_empty()
 	assert_bool(caster.input.is_down()).is_false()
-
-
-func test_second_finger_on_toggle_does_not_toggle_back() -> void:
-	var p := ctrl.toggle_rect().get_center()
-	_down(0, p, 0.0)
-	_down(1, p, 0.01)
-	assert_bool(ctrl.skill_button_enabled).is_true()
-	_up(1, p, 0.05)
-	_up(0, p, 0.06)
-	_down(2, p, 0.3)  # 손을 다 뗀 뒤 다시 누르면 정상 전환
-	assert_bool(ctrl.skill_button_enabled).is_false()
-	GameSettings.skill_button_enabled = false
 
 
 func test_button_held_then_release_flick_casts_only_dash_skill() -> void:

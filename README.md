@@ -21,10 +21,10 @@
 
 | 영웅 | 칭호 | 역할 | 상태 |
 |---|---|---|---|
-| 순신 (이순신) | 푸른 해류의 검 | 근접·원거리 복합형 검사 | P0 플레이어블 |
-| 광개토 (광개토대왕) | 천둥의 정복자 | 중량급 돌진형 전사 | 플레이어블 (임시 모델) |
-| 세종 (세종대왕) | 천문의 지배자 | 원거리 마법형 | 기획 |
-| 사임당 (신사임당) | 수묵의 술사 | 자연·소환·광역 마법형 | 기획 |
+| 순신 (이순신) | 푸른 해류의 검 | 근접 검사 (평타는 근접만, 빠르고 고른 연타) | P0 플레이어블 |
+| 광개토 (광개토대왕) | 천둥의 정복자 | 중량급 돌진형 전사 (평타는 근접만, 느리고 길고 묵직) | 플레이어블 (임시 모델) |
+| 세종 (세종대왕) | 천문의 지배자 | 원거리 마법형 (평타는 글자 원거리만, 붙은 적에게도 쏨) | 플레이어블 |
+| 사임당 (신사임당) | 수묵의 술사 | 자연·소환·광역 마법형 (평타는 중거리 붓 털기 약 230px: 가로 털기 → 세로 털기 → 원으로 뿌리기) | 플레이어블 |
 
 ## 조작
 
@@ -34,8 +34,8 @@
 |---|---|---|
 | 화면 아무 곳이나 터치·드래그 | 이동 (터치 시작점 기준, 고정 조이스틱 없음) | 구현 |
 | 빠른 플릭 | 대시 — 무영보 (2회 충전, 대시 중 무적) | 구현 |
-| 자동 | 기본 공격: 근접 부채꼴 베기 + 원거리 검기 (이동 중에도 유지) | 구현 |
-| 제자리 짧게 탭 (한 손) | 해룡참: 주변 광역·넉백 | 구현 |
+| 자동 | 기본 공격 (영웅 역할대로): 순신·광개토는 근접 사거리 안의 적만 베고 (밖이면 다가가야 한다), 세종은 글자를 쏘고, 사임당은 중거리 붓 털기. 이동 중에도 유지 | 구현 |
+| 제자리 탭 연타 (한 손) | 탭마다 평타 한 타: 한 연타 동작에서 이어 자른 1·2·3타 (빠름·빠름·묵직, 3타 앞 짧은 모으기, 타마다 짧은 전진·다른 궤적, 3타는 좁고 길게 / 세종은 글자 하나·둘·큰 하나), 앞 타가 닿은 뒤 다음 탭이 끊고 들어감, 연타 사이엔 마지막 자세 유지. 넷째 탭 = 해룡참 마무리 (피해 ×0.6, 마무리 뒤 쿨타임 = 원래의 절반). 너무 빠른 탭은 0.2초 기억, 1.2초 안 치면 연계 끊김. 안 눌러도 자동 평타는 그대로 | 구현 |
 | 대시 중·직후 손 떼기 (튕기며 떼면 대시+파도격) | 파도격: 대시 방향 관통 3연격 | 구현 |
 | 제자리 꾹 누르기 → 이동 → 떼기 (한 손) | 해일검기: 충전 관통 물결, 이동하며 충전 | 구현 |
 | 스킬 버튼 (선택, 오른쪽 위 토글로 켜기·끄기, 기본 끔) | 짧게 = 해룡참, 대시 중·직후 = 파도격, 길게 = 해일검기 | 구현 |
@@ -59,6 +59,8 @@
 P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서버, 광고·결제, 멀티플레이, 정식 그래픽. (성장은 사용자 결정으로 3단계에서 런 안 성장만 추가)
 
 ### 보류 항목 (나중에)
+- 새 영웅 디자인(`assets/concept/redesign/heroes`, 2026-11-21)에 맞춰 나중에 따로: 입장 그림(2026-11-24 사용자 그림으로 교체됨) + 앱 아이콘(`tools/art/make_icons.py`가 입장 그림에서 자동). 광개토 이야기 첫 장면(`assets/intro/gwanggaeto/s1.png`)도 옛 디자인. 오프닝 영상은 그 뒤
+- 강화 카드 그림 12개(기술에 안 묶인 체력·기본 공격·이동·대시 강화)는 기존 그림을 얹은 임시 그림. GPT 그림을 받으면 `assets/concept/upgrade_icons/`에 넣고 `tools/art/make_upgrade_icons.py` 재실행 (프롬프트: `docs/upgrade_icon_prompts.md`)
 
 가벼운 조정·마감 항목. 핵심 단계 진행을 막지 않는다.
 
@@ -171,13 +173,29 @@ Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-ag
 | (임시 효과음) | — | 자체 합성 (`scripts/fx/sfx_synth.gd`) | 엔진 AudioStreamWAV. 정식 효과음은 아트·사운드 단계에서 교체 |
 | KayKit Character Pack: Adventurers (Knight·Barbarian, 임시 캐릭터) | 1.0 | CC0 (`assets/models/kaykit/LICENSE.txt`) | https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0 (Kay Lousberg) |
 | KayKit Character Pack: Skeletons (Minion·Rogue·Warrior, 임시 적) | 1.0 | CC0 (`assets/models/kaykit_skeletons/LICENSE.txt`) | https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0 (Kay Lousberg) |
-| 나눔손글씨 붓 (NanumBrushScript, 제목 글꼴) | Google Fonts | OFL 1.1 (`assets/fonts/OFL_NanumBrushScript.txt`) | https://github.com/google/fonts/tree/main/ofl/nanumbrushscript — 게임에서 쓰는 글자만 남김 (`tools/fonts/subset_fonts.py`) |
-| 송명 (Song Myung, 본문 글꼴, 옛 목판 인쇄풍) | Google Fonts | OFL 1.1 (`assets/fonts/OFL_SongMyung.txt`) | https://github.com/google/fonts/tree/main/ofl/songmyung — 같은 방식으로 줄임 |
+| 입장 배경 `assets/ui/title_bg.png`(941×1672)·이야기 마지막 장면 `assets/intro/s5_four_heroes.png`(1024×1536)·스플래시 `assets/ui/splash.png`(앞 그림에 제목을 얹음, `tools/art/korean_title_art.py`) | 2026-11-24 (같은 날 다시 그린 판으로 교체) | 사용자 제공 그림 (사용자가 GPT로 만듦, 한지 수묵풍). 원본 그대로, 무손실 가져오기 | 사용자. 입장 화면은 제목·낙관을 화면에서 글꼴로 그린다 |
+| 덕온공주체 (DeogonPrincess, 게임 글꼴 하나, 궁체) | 2021-10 TTF (sha256 `35ae40e5…`) | 공공누리 제3유형: 상업 사용 가능, 출처 표시, 변경 금지 (`assets/fonts/LICENSE_DeogonPrincess.txt`) | https://hanfont.hangeul.go.kr/relaxfont/font/deokon.do (국립한글박물관·윤디자인그룹) — 원본 파일 그대로 넣음 (글자 줄이기 안 함, `tests/test_fonts.gd`가 해시 확인). 출처는 설정 화면 아래에 표시 |
 | 20 Sword Sound Effects (StarNinjas, 칼 휘두름·부딪힘) | — | CC0 | https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes — 잘라 줄임 (`tools/audio/prepare_audio.py`) |
-| RPG Sound Pack (artisticdude, 대시·마법·피격·적 쓰러짐·단추) | — | CC0 | https://opengameart.org/content/rpg-sound-pack — 같은 방식 |
+| RPG Sound Pack (artisticdude, 대시·마법·적 쓰러짐·단추, 명중 재질: 물방울·옷 스침, 큰 타격 확인음, 적 공격 예고 "스릉"·휘두름 "휙") | `rpg_sound_pack.zip` | CC0 | https://opengameart.org/content/rpg-sound-pack — 같은 방식 |
+| 80 CC0 RPG SFX (rubberduck, 명중 재질: 칼·불·돌·먹(점액)·글자(보석), 적 공격: 돌 내려침·조총 철컥·활 팅, 영웅 무기: 칼 챙(blade_02·metal_02)·창 턱(wood_03)·붓 착(book_02·03)·두루마리 탁(book_04·item_wood_01)·강타 돌(stones_03)) | `80-CC0-RPG-SFX_0.zip` (2026-11-21 받음) | CC0 | https://opengameart.org/content/80-cc0-rpg-sfx — 잘라 줄임 (`tools/audio/prepare_audio.py ... mat_*`) |
+| 50 CC0 Sci-Fi SFX (rubberduck, 명중 재질: 세종 번개 지지직, 적 조총 "탕": explosion_01·02를 0.85배로 낮춤) | `sci-fi-sfx.zip` (2026-11-21 받음) | CC0 | https://opengameart.org/content/50-cc0-sci-fi-sfx — shoot_02·misc_07만 잘라 씀 |
+| 37 hits/punches (Independent.nu, 영웅 피격음·명중 몸통 "퍽"·정예 처치 "쿵") | `independent_nu_ljudbank-hits_and_punches.7z` (2026-11-21 받음) | CC0 | https://opengameart.org/content/37-hitspunches — hit26·hit30을 0.85배 빠르기로 낮추고 0.35초로 자름 (`tools/audio/prepare_audio.py ... hurt`). 명중 몸통 hit17·22·28·32 (0.2초), 처치 확인 hit35·hit19 (0.7배 빠르기). 영웅 창 hit12, 3타째 강타 hit35 (0.75배 빠르기, `... w_*`) |
+| 전통악기 장구·꽹과리 연주 (국악 덧소리: 큰 타격 꽹과리, 정예·보스 처치 장구) | 전통악기_장구_치다_보통속도_Ver.1_MKH418_ST_192 (wrtSn=13287485), 전통악기_꽹과리_치다_연주_MKH418_ST_192 (wrtSn=13287481), 2026-11-21 받음 | 공공누리 제1유형 (출처표시, 상업·변경 가능) — 저작권자 (재)전주정보문화산업진흥원. 출처는 설정 화면 아래에 표시 | https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=13287485&menuNo=200020 , https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=13287481&menuNo=200020 — 센 한 타씩 골라 0.35·0.7초로 자름 (`tools/audio/cut_gugak.py`) |
+| 국악기 합성음 북·징·편경·가야금 (기술 소리 층), 방울 (일반 보상, 2026-11-23 추가) | 저장소가 직접 합성 (녹음·외부 파일 없음), 2026-11-22 | 저장소 자산 (외부 라이선스 없음) | `tools/audio/make_gugak_synth.py` → `assets/audio/sfx/gugak_{buk,jing,pyeon,gaya,bang}_*.ogg`. 실제 녹음(CC0)을 구하면 같은 이름으로 바꿔 넣는다 |
+| 노랫소리 끔용 반주 8개 (`assets/audio/music/<무대>/instrumental_stage·boss.ogg`, 설정 "노랫소리" 끔일 때 판 중에만): 원곡(Suno, 사용자 Voice)에서 목소리 없는 구간(전주·간주·후주)만 잘라 한 줄로 이은 반복 곡. 분리(demucs)는 쓰지 않음 — 원음 그대로, 음량만 맞춤. 짧은 곡은 Suno 반주 판으로 같은 이름 파일을 갈아 끼울 수 있다 | 2026-11-24 | 사용자 소유 Suno 곡 (원곡 mp3는 `build/music_src/`, 깃 제외) | 구간 계획 `tools/audio/vocal_off_plan.json`, 만드는 스크립트 `tools/audio/make_vocal_off.py` (구간 찾기 기록: `build/music_work/medley.json`, 깃 제외) |
 | Asianoriental1 (무대 1 음악) | — | CC0 | https://opengameart.org/content/asianoriental1 — 모노 22kHz로 줄임 |
 | Health, HitBoxes, HurtBoxes and HitScans | 5.0.4 + HH 패치 | MIT (`addons/health_hitbox_hurtbox/LICENSE`) | https://github.com/cluttered-code/godot-health-hitbox-hurtbox |
+| 바닥 결 재질 (한산 판자·만주 풀밭·경복궁 판석: 밝기만 남긴 회색 결 층으로 가공해 바닥 그림에 곱함, `tools/art/make_grain.py`) | Poly Haven `weathered_brown_planks`·`grass_ground`·`monastery_stone_floor` 2K diffuse (2026-11-23 받음, 원본 `assets/concept/textures_src/`) | CC0 (https://polyhaven.com/license: "Our assets are all licensed as CC0", 상업 이용·변형 가능, 출처 표시 불필요) | https://polyhaven.com/a/weathered_brown_planks |
+| 바닥 결 재질 (초충도 한지: 밝기만 남긴 회색 결 층으로 가공해 바닥 그림에 곱함, `tools/art/make_grain.py` → `assets/textures/grain/hanji_paper.png`) | ambientCG `Paper006` 2K-JPG Color (2026-11-23 받음, 원본 `assets/concept/textures_src/Paper006_2K-JPG_Color.jpg`) | CC0 (https://docs.ambientcg.com/license/ — 상업 이용·변형 가능, 출처 표시 불필요) | https://ambientcg.com/view?id=Paper006 |
+| 초충도 병풍 그림 소품 (식물·열매·나비·잠자리를 종이 바탕에서 잘라 `assets/props/chochungdo/screen_*.png`로: `tools/art/cut_chochungdo.py`, 크기만 줄임) | 전 신사임당필 초충도(신수3550) 8폭, 국립중앙박물관 (사용자가 2026-11-23 박물관에서 받은 그림만 잘린 판, 판당 약 15MB라 **저장소에는 올리지 않고** 로컬 `assets/concept/chochungdo_src/`에만 둠) | 공공누리 제1유형 (출처 표시, 상업 이용·변형 가능; 페이지 표기 "공공누리 1유형 - 출처표시") | https://www.museum.go.kr/site/main/relic/search/view?relicId=2061 — 게임 안 표기 문구는 `docs/credits_draft.md` |
+| 한산 갑판 가장자리 먹선·용머리 (귀갑문·방패판 원 무늬 띠·용머리를 선만 뽑아 겹침 그림으로 합성: `tools/art/make_hansan_edge.py`) | 『이충무공전서』 전라좌수영 귀선(1795), 일본 국립국회도서관 소장, Wikimedia Commons `Geobukseon2.jpg` (2026-11-23 받음, 원본 1425px 인쇄물 1.8MB는 `assets/concept/gwiseon_src/`에 커밋) | 퍼블릭 도메인 (Commons 파일 페이지: PD + "Public Domain Mark 1.0") | https://commons.wikimedia.org/wiki/File:Geobukseon2.jpg |
+| 만주 벌판 가장자리 먹선 (산 물결·사슴·말 탄 사냥꾼·호랑이의 검은 선만 뽑아 지도 위에 한 겹, `tools/art/make_manchuria_edge.py`; 원본 사본 `assets/concept/stage_edge_src/`) | 무용총 수렵도 (고구려 5세기 벽화), 국립문화재연구원(현 국립문화유산연구원) 문화유산 지식e음 포털 공개 사진 — Wikimedia Commons `Muyongchong Suryeopdo.jpg` 경유 (Commons 출처: https://portal.nrich.go.kr/kor/filePopUpImage.do?relmenucd=617&relkey=165&fileTypeCd=364&popType=P&file_idx=203903) | 공공누리 제1유형 (출처표시, 상업 이용·변형 가능) — 게임 안 표기 문구는 `docs/credits_draft.md` | https://commons.wikimedia.org/wiki/File:Muyongchong_Suryeopdo.jpg |
+| 경복궁 가장자리 먹선 (행각 마당 배치·궁성 담장 곡선의 연필 선만 뽑아 지도 위에 한 겹, 격자 종이는 제거, `tools/art/make_gyeongbokgung_edge.py`; 원본 사본 `assets/concept/stage_edge_src/`) | 북궐후원도형 (조선 말 도면, 서울대 규장각한국학연구원 소장), Wikimedia Commons `북궐후원도형.jpg` | 퍼블릭 도메인 (Commons 표기) | https://commons.wikimedia.org/wiki/File:북궐후원도형.jpg |
 | Meshy API (AI 3D 생성 서비스, 개발 도구에서 호출) | openapi v1 | 유료 플랜 산출물 사용 조건은 Meshy 약관 | https://docs.meshy.ai/en/api |
+| 순신 실시간 3D 모델 (Meshy 유료 플랜 산출물을 가공: 뼈대·스킨 메시, 1024² 텍스처, 동작 9개) | 2026-11-22 생성 (Meshy 작업 01a200c7·01a200c8, 동작 Idle·Run 2·Roll Dodge·Hit Reaction·Dead·Triple Combo Attack·Charged Upward Slash·Right-hand Sword Slash·Double Blade Spin) | 유료 플랜 산출물 — Meshy 약관 (원본 .glb·state.json은 저장소에 없음) | `assets/live3d/yi_sun_sin/` ← `tools/live3d/pack_model.gd`가 `assets/models/meshy/yi_sun_sin/*.glb`(gitignore)에서 만든다. 패치: LOD·그림자 메시·동작 트랙 제거, 텍스처 2048→1024 (Lanczos, VRAM 압축), 동작은 .res로 따로 |
+| 한산 대장(왜군 지휘관) 실시간 3D 모델 (Meshy 유료 플랜 산출물을 가공: 뼈대·스킨 메시, 1024² 텍스처, 동작 5개) | 2026-11-23 가공 (Meshy 작업 01a2009c·01a2009e, 동작 Idle·Walk Fight Forward·Hit Reaction·Charged Spell Cast·Charged Slash) | 유료 플랜 산출물 — Meshy 약관 (원본 .glb·state.json은 저장소에 없음) | `assets/live3d/waegun_commander/` ← `tools/live3d/pack_model.gd waegun_commander`가 `assets/models/meshy/waegun_commander/*.glb`(gitignore)에서 만든다. 패치: 순신과 같음 + 공격 동작에 구운 시트의 칸 시각(times) 덧붙임 (`data/live3d/waegun_commander.tres`) |
+| 여진 궁수 v2 구운 그림 (Meshy 웹 생성 모델 + 웹 뼈대·동작, 크레딧 27) | 2026-11-23 생성 (`jurchen_archer_v2_web_meshyrig.glb`, MeshyRig 20,961면, 동작 Idle·Walking·Archery_Shot_1·Hit_Reaction_to_Waist·Dead) | Meshy 산출물 — Meshy 약관 (원본 .glb는 저장소에 없음) | `assets/sprites/jurchen_archer/` ← `meshy_pipeline.py import … --no-bake` + `bake_sprites.gd --only=jurchen_archer`. 패치: 활이 왼손 손가락·왼 정강이 뼈에 나뉘어 묶여 꺾여서 활 전체를 LeftHand에 단단히 묶음 (`bake.rigid`, 상자 셋·캡슐 둘) |
+| Meshy 웹 뼈대 동작 (0크레딧) → 기존 뼈대로 옮긴 동작 (.res): 대장 돌진·땅 찍기·외침·사망, 정예 외침·사망, 영웅 넷 승리 | 2026-11-23 받음 (웹 MeshyRig 파일: Male_Head_Down_Charge·Charged_Ground_Slam·Sword_Shout·Dead·Victory 등) | Meshy 산출물 — Meshy 약관 (원본 .glb는 저장소에 없음) | `assets/live3d/<캐릭터>/anims/web_*.res` ← `tools/live3d/retarget_clip.gd` (뼈마다 기본 자세에서 돈 만큼, 엉덩이 위치는 메시 키 비율). 굽기와 3D가 같은 클립을 쓴다 (`reuse.from`) |
 
 HH 패치: `health/health.gd`의 피격 로그를 `verbose_debug`(기본 꺼짐)일 때만 출력하도록 변경. 원본은 매 피격마다 출력해 적 30마리 전투에서 성능 부담이 있다.
 | awesome-gamedev-agent-skills (`godot` 플러그인, 개발용) | — | Apache-2.0 | https://github.com/gamedev-skills/awesome-gamedev-agent-skills |

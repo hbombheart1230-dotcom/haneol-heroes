@@ -65,11 +65,14 @@ class PipelineTest(unittest.TestCase):
         with open(os.path.join(mp.ROOT, "tools/ai3d/heroes/yi_sun_sin.json"), encoding="utf-8") as f:
             self.cfg = json.load(f)
         self.cfg.update({"name": "hero_t", "image": "assets/concept/front.png", "hero_data": "data/heroes/h.tres"})
+        self.cfg["anims"] = self.cfg["anims"][:6]  # 기본 여섯 동작만 (연계 자르기는 따로 시험)
         # 실제 설정은 Meshy 동작 번호를 고정해 두므로, 테스트는 가짜 라이브러리(LIB)에 맞춘 동작 목록을 쓴다
         for a, how in zip(self.cfg["anims"], [{"search": "idle"}, {"search": "run"}, {"search": "dodge"},
                                               {"action_id": 4}, {"search": "hit"}, {"search": "death"}]):
             a.pop("action_id", None)
             a.pop("search", None)
+            a.pop("clip_of", None)  # 실제 설정의 attack은 연타 동작에서 잘라 쓴다 (여기서는 제 동작으로 시험)
+            a.pop("reuse", None)  # 실제 설정의 attack은 옮겨 둔 웹 동작을 쓴다 (여기서는 제 동작으로 시험)
             a.update(how)
         self.root = mock.patch.object(mp, "ROOT", self.tmp)
         self.root.start()
@@ -161,6 +164,22 @@ class PipelineTest(unittest.TestCase):
         self.assertTrue(by_key["attack"]["from"].endswith("hero_Attack.glb"))
         self.assertNotIn("hit", by_key)  # 파일 없는 동작은 건너뜀 (게임은 대기로 대신)
 
+    def test_import_web_names_trims_and_bake_style(self):
+        """웹 .glb (Meshy 웹 뼈대·동작 무료): 동작 이름은 web, 자르기·맞닿는 칸·수묵은 API 경로와 같게 옮긴다."""
+        cfg = json.loads(json.dumps(self.cfg))
+        cfg["bake"].update({"style": "ink", "ink": {"line_px": 1.6}, "lossy_quality": 0.5})
+        cfg["anims"][0]["web"] = "Idle"
+        cfg["anims"][-1].update({"web": "Archery_Shot", "times": [2.3, 4.15], "strike": 4.15, "start": 2.3, "end": 4.15})
+        mp.import_files(cfg, [self._glb("archer_web_meshyrig.glb")])
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        self.assertEqual(job["style"], "ink")
+        self.assertEqual(job["ink"], {"line_px": 1.6})
+        self.assertEqual(job["anims"][0]["src"], "Idle")
+        last = job["anims"][-1]
+        self.assertEqual(last["src"], "Archery_Shot")
+        self.assertEqual((last["start"], last["end"], last["strike"]), (2.3, 4.15, 4.15))
+        self.assertEqual(last["times"], [2.3, 4.15])
+
     def test_name_matching_is_word_based(self):
         self.assertTrue(mp.name_matches("hero_Running", "run"))
         self.assertTrue(mp.name_matches("HitReaction", "hit"))
@@ -203,6 +222,69 @@ class PipelineTest(unittest.TestCase):
         self.assertNotIn("from", job["anims"][0])
         again = self._add({"status": "SUCCEEDED", "expires_at": 0})  # 두 번째엔 새 동작 없음
         self.assertEqual(again.created, [])
+
+    def test_clip_of_reuses_one_paid_clip_for_several_cuts(self):
+        self._ran_once()
+        self.cfg["anims"] += [
+            {"key": "combo", "search": "kick", "frames": 6, "fps": 16.0, "loop": False, "skip_bake": True},
+            {"key": "attack2", "clip_of": "combo", "frames": 6, "fps": 16.0, "loop": False, "start": 0.8, "end": 1.6},
+            {"key": "attack3", "clip_of": "combo", "frames": 6, "fps": 16.0, "loop": False, "start": 2.0, "end": 3.4}]
+        fake = self._add({"status": "SUCCEEDED", "expires_at": 0})
+        self.assertEqual(fake.created[0][1]["action_ids"], [77, 77])  # kick + combo만 돈을 낸다 (자르기는 무료)
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        keys = {a["key"]: a for a in job["anims"]}
+        self.assertNotIn("combo", keys)  # 원본은 굽지 않는다
+        self.assertEqual(keys["attack2"]["src"], "Kick")
+        self.assertEqual(keys["attack3"]["start"], 2.0)
+        self.assertTrue(keys["attack3"]["from"].endswith("animated_extra1.glb"))
+
+    def test_clip_of_uses_received_clip_even_when_key_is_recut(self):
+        """attack을 연타 동작 자르기로 바꿔도 clip_of "attack"은 처음 받은 Attack 동작 (기술 시전 동작 재사용)."""
+        self._ran_once()
+        self.cfg["anims"] += [
+            {"key": "combo", "search": "kick", "frames": 6, "fps": 16.0, "loop": False, "skip_bake": True}]
+        self._add({"status": "SUCCEEDED", "expires_at": 0})
+        for a in self.cfg["anims"]:
+            if a["key"] == "attack":
+                a["clip_of"] = "combo"
+        self.cfg["anims"].append({"key": "cast_dash", "clip_of": "attack", "frames": 6, "fps": 16.0,
+                                  "loop": False, "start": 0.4, "end": 1.0, "strike": 0.6})
+        state = mp.load_state(os.path.join(self.tmp, "assets/models/meshy/hero_t"))
+        mp.write_bake_job(self.cfg, state)
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        keys = {a["key"]: a for a in job["anims"]}
+        self.assertEqual(keys["attack"]["src"], "Kick")
+        self.assertTrue(keys["attack"]["from"].endswith("animated_extra1.glb"))
+        self.assertEqual(keys["cast_dash"]["src"], "Attack")
+        self.assertNotIn("from", keys["cast_dash"])
+        self.assertEqual(keys["cast_dash"]["strike"], 0.6)
+
+    def test_reuse_bakes_clip_already_on_disk_without_paying(self):
+        """reuse: 받은 파일에 덤으로 든 동작·다른 캐릭터(같은 뼈대)의 동작을 쓴다. 새 요청 없음, times·yaw는 그대로 넘김."""
+        self._ran_once()
+        self.cfg["anims"] = [a for a in self.cfg["anims"] if a["key"] != "kick"]  # 유료 새 동작 없이
+        other = "res://assets/models/meshy/other/animated.glb"
+        self.cfg["anims"] += [
+            {"key": "down", "reuse": {"src": "Spin", "from": other}, "frames": 8, "fps": 10.0, "loop": False,
+             "times": [0.9, 1.2, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0]}]
+        for a in self.cfg["anims"]:
+            if a["key"] == "attack":
+                a["reuse"] = {"src": "Left_Slash"}
+                a["yaw"] = 180
+        self.assertEqual([a["key"] for a in mp.new_anims(self.cfg, mp.load_state(
+            os.path.join(self.tmp, "assets/models/meshy/hero_t")))], [])
+        fake = self._add({"status": "SUCCEEDED", "expires_at": 0})
+        self.assertEqual(fake.created, [])  # 돈 드는 요청 없음
+        state = mp.load_state(os.path.join(self.tmp, "assets/models/meshy/hero_t"))
+        mp.write_bake_job(self.cfg, state)
+        job = json.load(open(os.path.join(self.tmp, "tools/bake/jobs/hero_t.json"), encoding="utf-8"))
+        keys = {a["key"]: a for a in job["anims"]}
+        self.assertEqual(keys["down"]["src"], "Spin")
+        self.assertEqual(keys["down"]["from"], other)
+        self.assertEqual(keys["down"]["times"][0], 0.9)
+        self.assertEqual(keys["attack"]["src"], "Left_Slash")
+        self.assertNotIn("from", keys["attack"])
+        self.assertEqual(keys["attack"]["yaw"], 180)
 
     def test_add_anims_rerigs_from_saved_model_after_expiry(self):
         self._ran_once()
@@ -247,6 +329,26 @@ class PipelineTest(unittest.TestCase):
         root = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
         with open(os.path.join(root, ".gitignore"), encoding="utf-8") as f:
             self.assertIn(".env", [line.strip() for line in f])
+
+
+
+class ClearDownloadsTest(unittest.TestCase):
+    def test_refuses_paths_outside_the_meshy_folder(self):
+        for bad in [os.path.join(mp.meshy_dir(), "..", "x"), os.path.join(mp.meshy_dir(), "a", "..", "..", "b"),
+                    os.path.join(mp.meshy_dir(), "Bad-Name"), tempfile.gettempdir()]:
+            with self.assertRaises(SystemExit):
+                mp.clear_downloads(bad, "model")
+
+    def test_deletes_only_restarted_stage_files(self):
+        d = os.path.join(mp.meshy_dir(), "zz_test_clear")
+        os.makedirs(d, exist_ok=True)
+        try:
+            for f in ("model.glb", "rigged.glb", "animated.glb", "state.json"):
+                open(os.path.join(d, f), "w").close()
+            mp.clear_downloads(d, "rig")
+            self.assertEqual(sorted(os.listdir(d)), ["model.glb", "state.json"])
+        finally:
+            shutil.rmtree(d)
 
 
 if __name__ == "__main__":

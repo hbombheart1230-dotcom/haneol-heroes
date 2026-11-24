@@ -1,10 +1,10 @@
 {
   "name": "waegun_gunner",
-  "image": "assets/concept/enemies/waegun/gunner.png",
+  "image": "assets/concept/redesign/waegun/gunner.png",
   "image_to_3d": {
     "ai_model": "latest",
     "should_texture": true,
-    "pose_mode": "a-pose",
+    "pose_mode": "",
     "should_remesh": true,
     "topology": "triangle",
     "target_polycount": 20000,
@@ -39,17 +39,25 @@
       "key": "run",
       "match": "run|walk",
       "action_id": 14,
-      "frames": 6,
-      "fps": 10.0,
-      "loop": true
+      "frames": 8,
+      "fps": 7.0,
+      "loop": true,
+      "reuse": {
+        "src": "Walk_Fight_Forward",
+        "from": "res://assets/models/meshy/waegun_heavy/animated.glb"
+      }
     },
     {
       "key": "attack",
       "match": "attack|slash|shoot|swing|thrust",
-      "action_id": 222,
+      "action_id": 104,
       "frames": 6,
       "fps": 10.0,
-      "loop": false
+      "loop": false,
+      "start": 0.9,
+      "end": 2.7,
+      "strike": 2.4,
+      "yaw": 180
     },
     {
       "key": "hit",
@@ -57,6 +65,37 @@
       "action_id": 178,
       "frames": 3,
       "fps": 12.0,
+      "loop": false,
+      "times": [
+        0.15,
+        0.35,
+        0.6
+      ]
+    },
+    {
+      "key": "down",
+      "match": "down",
+      "action_id": 100,
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "times": [
+        0.9,
+        1.1,
+        1.35,
+        1.6,
+        2.6,
+        4.2,
+        5.4,
+        6.3
+      ]
+    },
+    {
+      "key": "attack_stand",
+      "match": "shoot",
+      "action_id": 234,
+      "frames": 6,
+      "fps": 10.0,
       "loop": false
     }
   ]

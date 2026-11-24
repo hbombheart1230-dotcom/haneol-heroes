@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="HeroData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Resource" path="res://data/heroes/charge_steps/gwanggaeto.tres" id="charge_steps"]
 [ext_resource type="Texture2D" path="res://assets/ui/heroes/gwanggaeto.png" id="card_art"]
 [ext_resource type="Script" path="res://scripts/data/basic_attack_data.gd" id="2_attack"]
 [ext_resource type="Script" path="res://scripts/skills/skill_kit.gd" id="3_kit"]
@@ -16,22 +17,55 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/lightning.png" id="i_lightning"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/conqueror.png" id="i_conqueror"]
 [ext_resource type="Resource" path="res://data/intro/story_gwanggaeto.tres" id="story"]
+[ext_resource type="Resource" path="res://data/vfx/gwanggaeto_cast.tres" id="vfx_cast"]
+[ext_resource type="Resource" path="res://data/vfx/gwanggaeto_hit.tres" id="vfx_hit"]
+[ext_resource type="Resource" path="res://data/vfx/gwanggaeto_impact.tres" id="vfx_impact"]
+[ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_quake.tres" id="vs_quake"]
+[ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_thunder_trail.tres" id="vs_thunder_trail"]
+[ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_lightning.tres" id="vs_lightning"]
+[ext_resource type="Resource" path="res://data/vfx/skill/gwanggaeto_conqueror.tres" id="vs_conqueror"]
+[ext_resource type="Resource" path="res://data/heroes/dash/gwanggaeto.tres" id="dash_style"]
+[ext_resource type="Texture2D" path="res://assets/vfx/proj_spear.png" id="proj_art"]
+[ext_resource type="Resource" path="res://data/heroes/charge/gwanggaeto.tres" id="charge_marker"]
+[ext_resource type="Texture2D" path="res://assets/ui/portraits/gwanggaeto.png" id="portrait"]
+[ext_resource type="Resource" path="res://data/heroes/levels/gwanggaeto_level_up.tres" id="lv_up"]
+[ext_resource type="Resource" path="res://data/campaigns/gwanggaeto.tres" id="campaign"]
+[ext_resource type="Resource" path="res://data/heroes/dash_look/gwanggaeto.tres" id="dash_look"]
+[ext_resource type="Resource" path="res://data/heroes/dash_dir/gwanggaeto.tres" id="dash_dir"]
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
-melee_interval = 0.8
-melee_range = 140.0
-melee_arc_degrees = 180.0
-melee_damage = 22
+melee_interval = 0.76
+melee_range = 175.0
+melee_arc_degrees = 100.0
+melee_damage = 21
+use_ranged = false
+step_gap_mults = PackedFloat32Array(0.921, 0.592, 0.658)
 melee_knockback = 220.0
+swing_color = Color(0.95, 0.55, 0.1, 0.95)
+melee_recoil = 6.0
 ranged_interval = 1.2
 ranged_range = 320.0
 ranged_damage = 12
 ranged_speed = 800.0
 ranged_lifetime = 0.45
-
+ranged_knockback = 90.0
+proj_art = ExtResource("proj_art")
+proj_size = Vector2(170, 52)
+proj_trail_color = Color(1, 0.85, 0.3, 0.6)
+proj_trail_len = 90.0
+release_delay = -1.0
+ranged_anim = &"throw"
+ranged_anim_time = 0.375
+release_offset = Vector2(36, 44)
+melee_delay = -1.0
+engage_mult = 1.8
+melee_hit_sfx = &"w_spear"
+heavy_hit_sfx = &"w_heavy"
 [sub_resource type="Resource" id="Skill_quake"]
 script = ExtResource("4_quake")
+growth = true
+launch_px = 110.0
 icon = ExtResource("i_quake")
 id = &"quake"
 display_name = "뇌진격"
@@ -42,33 +76,60 @@ radius = 180.0
 damage = 30
 stun_time = 0.5
 knockback = 160.0
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vs_quake")
+impact_sfx = &"gugak_buk"
+cast_anim = &"cast_tap"
+cast_lead = 0.1
 
 [sub_resource type="Resource" id="Skill_trail"]
 script = ExtResource("5_trail")
+growth = true
 icon = ExtResource("i_thunder_trail")
 id = &"thunder_trail"
 display_name = "벽력돌파"
+element = &"thunder"
 cooldown = 3.0
 color = Color(0.55, 0.45, 0.9, 1)
 fx_color = Color(0.75, 0.7, 1, 1)
 delay = 0.3
 width = 110.0
 damage = 35
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vs_thunder_trail")
+impact_sfx = &"gugak_big"
+cast_anim = &"cast_dash"
+cast_lead = 0.06
 
 [sub_resource type="Resource" id="Skill_bolt"]
 script = ExtResource("6_bolt")
+growth = true
 icon = ExtResource("i_lightning")
 id = &"lightning"
 display_name = "낙뢰"
+element = &"thunder"
 cooldown = 5.0
 color = Color(0.55, 0.45, 0.9, 1)
 fx_color = Color(0.85, 0.85, 1, 1)
 min_bolts = 1
 max_bolts = 6
 damage = 40
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vs_lightning")
+impact_sfx = &"gugak_big"
+cast_anim = &"cast_charge"
+charge_scaling = ExtResource("charge_steps")
+charge_aim = true
+charge_aim_auto = true
+cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_conq"]
 script = ExtResource("7_conq")
+growth = true
+launch_px = 120.0
 icon = ExtResource("i_conqueror")
 id = &"conqueror"
 display_name = "정복자의 일격"
@@ -78,10 +139,19 @@ fx_color = Color(1, 0.8, 0.35, 1)
 radius = 280.0
 damage = 70
 stun_time = 1.2
+vfx_cast = ExtResource("vfx_cast")
+vfx_hit = ExtResource("vfx_hit")
+vfx_impact = ExtResource("vs_conqueror")
+cutin = true
+sfx_layers = Array[StringName]([&"gugak_jing"])
+impact_sfx = &"gugak_buk"
+cast_anim = &"cast_counter"
+cast_lead = 0.2
 
 [sub_resource type="Resource" id="Kit_gw"]
 script = ExtResource("3_kit")
 tap = SubResource("Skill_quake")
+finisher_recover = 0.3
 dash = SubResource("Skill_trail")
 charge = SubResource("Skill_bolt")
 counter = SubResource("Skill_conq")
@@ -93,27 +163,49 @@ full_charge_time = 1.1
 [resource]
 script = ExtResource("1_hero")
 id = &"gwanggaeto"
+impact_style = 2
 story = ExtResource("story")
 home_stage = &"manchuria_395"
+campaign = ExtResource("campaign")
 display_name = "광개토"
 card_art = ExtResource("card_art")
+portrait = ExtResource("portrait")
 tagline = "천둥의 정복자
 들어가서 터뜨린다"
 body_color = Color(0.55, 0.25, 0.15, 1)
 sprite_sheet = ExtResource("8_sheet")
-sprite_scale = 0.98
-sprite_offset = Vector2(0, -62)
+sprite_scale = 1.06
+sprite_offset = Vector2(0, -67)
 max_hp = 140
-move_speed = 300.0
+move_speed = 265.0
+move_accel_time = 0.12
+move_decel_time = 0.13
 hurt_invuln_time = 0.6
 evade_invuln_time = 1.0
 dash_distance = 200.0
 dash_duration = 0.14
 max_dash_charges = 2
-dash_recharge_time = 1.1
+dash_recharge_time = 1.4
+shadow_scale = 1.3
+shadow_alpha = 0.42
+land_squash = Vector2(1.18, 0.8)
+land_time = 0.16
+land_hold = 0.07
+land_drops = 8
+land_trauma = 0.2
+land_kick_px = 7.0
+stop_slide_px = 9.0
+stop_slide_time = 0.18
 dash_shove = 520.0
 dash_shove_radius = 80.0
 attack = SubResource("Attack_gw")
 kit = SubResource("Kit_gw")
+boss_hp_mult = 1.9
 upgrade_pool = ExtResource("9_upgrades")
 major_pool = ExtResource("10_major")
+level_up = ExtResource("lv_up")
+dash_style = ExtResource("dash_style")
+dash_look = ExtResource("dash_look")
+dash_dir = ExtResource("dash_dir")
+charge_marker = ExtResource("charge_marker")
+hit_sfx = Array[StringName]([&"mat_fire", &"mat_blunt"])

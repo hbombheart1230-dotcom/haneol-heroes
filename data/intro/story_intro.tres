@@ -48,9 +48,10 @@ script = ExtResource("2_slide")
 image = ExtResource("10_s5")
 caption = "역사가 전설이 된다"
 duration = 5.5
-zoom_from = 1.1
+zoom_from = 1.04
 zoom_to = 1.0
 pan = Vector2(0, 0)
+fit_width = true
 
 [resource]
 script = ExtResource("1_data")

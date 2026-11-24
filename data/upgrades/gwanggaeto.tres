@@ -3,10 +3,20 @@
 [ext_resource type="Script" path="res://scripts/run/upgrade_pool.gd" id="1_pool"]
 [ext_resource type="Script" path="res://scripts/run/upgrade_def.gd" id="2_up"]
 [ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="3_mod"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/conqueror.png" id="i_conqueror"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/lightning.png" id="i_lightning"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/quake.png" id="i_quake"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/thunder_trail.png" id="i_thunder_trail"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/quake_wide.png" id="icon_quake_wide"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/quake_heavy.png" id="icon_quake_heavy"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/quake_daze.png" id="icon_quake_daze"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/quake_quick.png" id="icon_quake_quick"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/trail_power.png" id="icon_trail_power"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/trail_wide.png" id="icon_trail_wide"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/bolt_more.png" id="icon_bolt_more"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/bolt_power.png" id="icon_bolt_power"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/bolt_fast.png" id="icon_bolt_fast"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/conq_power.png" id="icon_conq_power"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/conq_window.png" id="icon_conq_window"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/dash_breath.png" id="icon_dash_breath"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/vitality.png" id="icon_vitality"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/blade.png" id="icon_blade"]
 
 [sub_resource type="Resource" id="Mod_quake_wide_0"]
 script = ExtResource("3_mod")
@@ -18,9 +28,9 @@ value = 1.25
 [sub_resource type="Resource" id="Up_quake_wide"]
 script = ExtResource("2_up")
 id = &"quake_wide"
-icon = ExtResource("i_quake")
 title = "뇌진격 · 넓은 진동"
 description = "충격파 범위 +25%"
+icon = ExtResource("icon_quake_wide")
 color = Color(0.85, 0.7, 0.2, 1)
 max_stacks = 3
 weight = 1.0
@@ -36,9 +46,9 @@ value = 1.4
 [sub_resource type="Resource" id="Up_quake_heavy"]
 script = ExtResource("2_up")
 id = &"quake_heavy"
-icon = ExtResource("i_quake")
 title = "뇌진격 · 무거운 검"
 description = "피해 +40%"
+icon = ExtResource("icon_quake_heavy")
 color = Color(0.85, 0.7, 0.2, 1)
 max_stacks = 3
 weight = 1.0
@@ -54,9 +64,9 @@ value = 0.3
 [sub_resource type="Resource" id="Up_quake_daze"]
 script = ExtResource("2_up")
 id = &"quake_daze"
-icon = ExtResource("i_quake")
 title = "뇌진격 · 혼절"
 description = "기절 +0.3초"
+icon = ExtResource("icon_quake_daze")
 color = Color(0.85, 0.7, 0.2, 1)
 max_stacks = 2
 weight = 0.9
@@ -72,9 +82,9 @@ value = 0.8
 [sub_resource type="Resource" id="Up_quake_quick"]
 script = ExtResource("2_up")
 id = &"quake_quick"
-icon = ExtResource("i_quake")
 title = "뇌진격 · 연타"
-description = "재사용 대기 -20%"
+description = "재사용 대기 -20% (연타 마무리 포함)"
+icon = ExtResource("icon_quake_quick")
 color = Color(0.85, 0.7, 0.2, 1)
 max_stacks = 3
 weight = 1.0
@@ -90,9 +100,9 @@ value = 1.4
 [sub_resource type="Resource" id="Up_trail_power"]
 script = ExtResource("2_up")
 id = &"trail_power"
-icon = ExtResource("i_thunder_trail")
 title = "벽력돌파 · 굉음"
 description = "피해 +40%"
+icon = ExtResource("icon_trail_power")
 color = Color(0.55, 0.45, 0.9, 1)
 max_stacks = 3
 weight = 1.0
@@ -108,9 +118,9 @@ value = 1.3
 [sub_resource type="Resource" id="Up_trail_wide"]
 script = ExtResource("2_up")
 id = &"trail_wide"
-icon = ExtResource("i_thunder_trail")
 title = "벽력돌파 · 넓은 벼락"
 description = "폭 +30%"
+icon = ExtResource("icon_trail_wide")
 color = Color(0.55, 0.45, 0.9, 1)
 max_stacks = 2
 weight = 1.0
@@ -126,9 +136,9 @@ value = 1.0
 [sub_resource type="Resource" id="Up_bolt_more"]
 script = ExtResource("2_up")
 id = &"bolt_more"
-icon = ExtResource("i_lightning")
 title = "낙뢰 · 많은 벼락"
 description = "최대 벼락 +1"
+icon = ExtResource("icon_bolt_more")
 color = Color(0.55, 0.45, 0.9, 1)
 max_stacks = 3
 weight = 1.0
@@ -144,9 +154,9 @@ value = 1.35
 [sub_resource type="Resource" id="Up_bolt_power"]
 script = ExtResource("2_up")
 id = &"bolt_power"
-icon = ExtResource("i_lightning")
 title = "낙뢰 · 강한 벼락"
 description = "피해 +35%"
+icon = ExtResource("icon_bolt_power")
 color = Color(0.55, 0.45, 0.9, 1)
 max_stacks = 3
 weight = 1.0
@@ -162,9 +172,9 @@ value = 0.75
 [sub_resource type="Resource" id="Up_bolt_fast"]
 script = ExtResource("2_up")
 id = &"bolt_fast"
-icon = ExtResource("i_lightning")
 title = "낙뢰 · 빠른 충전"
 description = "충전 시간 -25%"
+icon = ExtResource("icon_bolt_fast")
 color = Color(0.55, 0.45, 0.9, 1)
 max_stacks = 2
 weight = 1.0
@@ -187,10 +197,10 @@ value = 1.15
 [sub_resource type="Resource" id="Up_conq_power"]
 script = ExtResource("2_up")
 id = &"conq_power"
-icon = ExtResource("i_conqueror")
 title = "정복자의 일격 · 위엄"
 description = "반격 피해 +50%
 범위 +15%"
+icon = ExtResource("icon_conq_power")
 color = Color(0.8, 0.3, 0.2, 1)
 max_stacks = 3
 weight = 1.0
@@ -206,9 +216,9 @@ value = 0.35
 [sub_resource type="Resource" id="Up_conq_window"]
 script = ExtResource("2_up")
 id = &"conq_window"
-icon = ExtResource("i_conqueror")
 title = "정복자의 일격 · 기회"
 description = "반격 가능 시간 +0.35초"
+icon = ExtResource("icon_conq_window")
 color = Color(0.8, 0.3, 0.2, 1)
 max_stacks = 2
 weight = 0.8
@@ -226,6 +236,7 @@ script = ExtResource("2_up")
 id = &"dash_breath"
 title = "돌격 · 숨 고르기"
 description = "돌격 충전 시간 -20%"
+icon = ExtResource("icon_dash_breath")
 color = Color(0.25, 0.55, 0.85, 1)
 max_stacks = 2
 weight = 1.0
@@ -243,6 +254,7 @@ script = ExtResource("2_up")
 id = &"vitality"
 title = "강건"
 description = "최대 체력 +30 (그만큼 회복)"
+icon = ExtResource("icon_vitality")
 color = Color(0.72, 0.13, 0.1, 1)
 max_stacks = 3
 weight = 1.0
@@ -267,6 +279,7 @@ script = ExtResource("2_up")
 id = &"blade"
 title = "대검 · 날 세우기"
 description = "기본 공격 피해 +30%"
+icon = ExtResource("icon_blade")
 color = Color(0.5, 0.5, 0.55, 1)
 max_stacks = 3
 weight = 1.0

@@ -32,6 +32,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	GameSettings.want_stage_list = false
 	for c in get_children():
 		if c is DamageZone or c is Projectile:
 			remove_child(c)
@@ -120,15 +121,19 @@ func test_quake_hits_and_stuns_and_aftershock() -> void:
 	assert_int(run.hits).is_equal(1)
 	assert_bool(near.is_stunned()).is_true()
 	assert_bool(far.is_stunned()).is_false()
+	_rake_out()  # 쿵-쾅 (BeatHits): 박자대로 다 들어간 뒤
+	assert_int(near.health.current).is_equal(near.health.max - s.damage)  # 총 피해는 그대로
 	s.aftershock_delay = 0.5
 	var hp: int = near.health.current
 	run = s.cast(ctx, 0.0)
+	_rake_out()
 	var after_first: int = near.health.current
 	assert_int(after_first).is_less(hp)
 	assert_bool(run.finished).is_false()
 	for i in 40:
 		run.tick(DT)
 	assert_bool(run.finished).is_true()
+	_rake_out()
 	assert_int(near.health.current).is_less(after_first)
 
 
@@ -143,6 +148,7 @@ func test_thunder_trail_strikes_dash_path_after_delay() -> void:
 	assert_int(on_path.health.current).is_equal(hp)  # 아직 (한 박자 늦게)
 	for i in 30:
 		run.tick(DT)
+	_rake_out()  # 우르릉-쾅 (BeatHits)
 	assert_int(on_path.health.current).is_equal(hp - s.damage)
 	assert_int(off_path.health.current).is_equal(off_path.health.max)
 	s.field_time = 2.0
@@ -150,6 +156,14 @@ func test_thunder_trail_strikes_dash_path_after_delay() -> void:
 	for i in 30:
 		run.tick(DT)
 	assert_int(get_children().filter(func(c: Node) -> bool: return c is DamageZone).size()).is_equal(1)
+
+
+## 벼락·사슬은 박자대로 (WaveRake): 다 끝날 때까지 돌린다.
+func _rake_out(frames: int = 60) -> void:
+	for i in frames:
+		for n in get_children():
+			if n is WaveRake and not n.is_queued_for_deletion():
+				(n as WaveRake)._physics_process(DT)
 
 
 func test_lightning_bolts_scale_with_charge_and_chain() -> void:
@@ -160,11 +174,13 @@ func test_lightning_bolts_scale_with_charge_and_chain() -> void:
 	var b := _enemy_at(Vector2(250, 0))  # a에서 연쇄 거리(180) 안
 	var c := _enemy_at(Vector2(380, 0))  # b에서 연쇄 거리 안
 	s.cast(ctx, 0.0)  # 벼락 1개 → 가장 가까운 a, 연쇄 없음
+	_rake_out()
 	assert_int(a.health.current).is_less(a.health.max)
 	assert_int(b.health.current).is_equal(b.health.max)
 	assert_int(c.health.current).is_equal(c.health.max)
 	s.chain_count = 2
 	s.cast(ctx, 0.0)
+	_rake_out()
 	assert_int(b.health.current).is_less(b.health.max)  # a → b로 튐
 	assert_int(c.health.current).is_less(c.health.max)
 
@@ -176,6 +192,7 @@ func test_lightning_skips_dead_enemies() -> void:
 	dead.health.kill()
 	var live := _enemy_at(Vector2(200, 0))
 	s.cast(ctx, 0.0)  # 벼락 1개
+	_rake_out()
 	assert_int(live.health.current).is_less(live.health.max)
 
 
@@ -201,6 +218,7 @@ func test_conqueror_wide_stun_and_field() -> void:
 	s.field_time = 3.0
 	s.cast(ctx, 0.0)
 	assert_bool(e.is_stunned()).is_true()
+	_rake_out()  # 쿵-쿵-쾅 (BeatHits)
 	assert_int(e.health.current).is_equal(e.health.max - s.damage)
 	assert_int(get_children().filter(func(c: Node) -> bool: return c is DamageZone).size()).is_equal(1)
 
@@ -261,7 +279,12 @@ func test_main_waits_for_hero_then_runs_chosen_hero() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
 	GameSettings.hero_picked = false
 	GameSettings.title_seen = true
+	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true
+	GameSettings.tutorial_done = true
+	GameSettings.hero_clears = {}
+	GameSettings.hero_cleared = {}  # 깬 전장 수만큼 성장(#134): 앞 시험의 기록이 체력을 바꾸지 않게
+	GameSettings.cleared_stages = PackedStringArray()  # 옛 저장 기록도 (hero_cleared가 비면 Main이 영웅별로 옮긴다)
 	GameSettings.seen_stories = PackedStringArray(["gwanggaeto", "sejong", "shin_saimdang", "yi_sun_sin"])
 	GameSettings.stage_picked = true
 	GameSettings.stage_id = &"manchuria_395"
@@ -281,6 +304,8 @@ func test_main_waits_for_hero_then_runs_chosen_hero() -> void:
 	sel.handle_touch(0, c, false)
 	assert_bool(main.story_intro.is_open()).is_true()  # 고른 직후 그 영웅 이야기
 	main.story_intro.finish()
+	assert_bool(main.stage_select.is_open()).is_true()  # 이야기 뒤 전장 목록
+	main.stage_select.press(0)
 	var p: Player = main.get_node("Player")
 	assert_bool(main.waiting_pick).is_false()
 	assert_bool(get_tree().paused).is_false()
@@ -290,7 +315,6 @@ func test_main_waits_for_hero_then_runs_chosen_hero() -> void:
 	assert_int(p.health.max).is_equal(GW.max_hp)
 	assert_object((p.get_node("SkillCaster") as SkillCaster).kit.tap).is_instanceof(QuakeSkill)
 	assert_str(String(GameSettings.hero_id)).is_equal("gwanggaeto")
-	assert_bool(main.is_change_hero_area(Vector2(10, main.get_viewport().get_visible_rect().size.y - 10))).is_true()
 	get_tree().paused = false
 	main.queue_free()
 	GameSettings.hero_picked = true

@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
 [ext_resource type="Resource" path="res://assets/sprites/biryeo_archer/biryeo_archer.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://data/enemies/behaviour/biryeo_kite.tres" id="beh"]
 
 [sub_resource type="Resource" id="Attack_shoot"]
 script = ExtResource("2_attack")
@@ -10,7 +11,7 @@ kind = 1
 trigger_range = 420.0
 windup = 0.7
 damage = 12
-cooldown = 2.2
+cooldown = 1.6
 recovery = 0.3
 projectile_speed = 520.0
 projectile_range = 650.0
@@ -20,10 +21,12 @@ projectile_radius = 14.0
 script = ExtResource("1_enemy")
 id = &"archer"
 display_name = "거란 망령 궁수"
-max_hp = 20
+stagger_time = 0.3
+hit_resets_attack = true
+max_hp = 25
 xp = 2
 move_speed = 100.0
-contact_damage = 5
+contact_damage = 0
 body_radius = 18.0
 color = Color(0.35, 0.75, 0.4, 1)
 attack = SubResource("Attack_shoot")
@@ -32,3 +35,12 @@ knockback_scale = 1.0
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.33
 sprite_offset = Vector2(0, -62)
+rim_color = Color(0.12, 0.07, 0.04, 0.9)
+rim_width = 3.0
+body_lift = 0.0
+body_contrast = 1.05
+army_tint = Color(1, 1, 1, 1)
+tint_mix = 0.0
+behaviour = ExtResource("beh")
+ghost_color = Color(0.85, 0.7, 0.45, 0.5)
+ghost_fire_scale = 1.0

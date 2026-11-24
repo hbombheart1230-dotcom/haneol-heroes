@@ -6,25 +6,38 @@
 
 [sub_resource type="Resource" id="Attack_slam"]
 script = ExtResource("2_attack")
-trigger_range = 130.0
+trigger_range = 170.0
 windup = 0.6
 radius = 80.0
-damage = 20
-cooldown = 2.5
-recovery = 0.3
+damage = 15
+cooldown = 1.8
+recovery = 0.35
+kind = 6
+length = 170.0
+width = 50.0
 
 [resource]
 script = ExtResource("1_enemy")
 id = &"waegun_soldier"
 display_name = "왜군 망령 졸병"
-max_hp = 30
+stagger_time = 0.3
+hit_resets_attack = true
+max_hp = 26
 xp = 1
 move_speed = 120.0
-contact_damage = 10
+contact_damage = 0
 body_radius = 20.0
 color = Color(0.75, 0.2, 0.25, 1)
 attack = SubResource("Attack_slam")
 sprite_sheet = ExtResource("3_sheet")
-sprite_tint = Color(0.82, 0.9, 1, 1)
 sprite_scale = 1.33
 sprite_offset = Vector2(0, -62)
+rim_color = Color(1, 0.72, 0.3, 0.9)
+rim_width = 3.0
+body_lift = 0.0
+body_contrast = 1.05
+army_tint = Color(1, 1, 1, 1)
+tint_mix = 0.0
+ghost_color = Color(0.78, 0.48, 0.7, 0.5)
+ghost_fire_scale = 1.0
+reach_px = 30.0

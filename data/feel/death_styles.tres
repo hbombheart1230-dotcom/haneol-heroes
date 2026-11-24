@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="DeathStyleData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/death_style_data.gd" id="1_death"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_1.png" id="w1"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_2.png" id="w2"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_3.png" id="w3"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_4.png" id="w4"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_5.png" id="w5"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/water_clump_6.png" id="w6"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_1.png" id="a1"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_2.png" id="a2"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_3.png" id="a3"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_4.png" id="a4"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_5.png" id="a5"]
+[ext_resource type="Texture2D" path="res://assets/vfx/parts/ember_6.png" id="a6"]
+[ext_resource type="Texture2D" path="res://assets/vfx/water_stain.png" id="stain"]
+[ext_resource type="Texture2D" path="res://assets/vfx/star_burst.png" id="star"]
+
+[resource]
+script = ExtResource("1_death")
+water_parts = Array[Texture2D]([ExtResource("w1"), ExtResource("w2"), ExtResource("w3"), ExtResource("w4"), ExtResource("w5"), ExtResource("w6")])
+water_stain = ExtResource("stain")
+ash_parts = Array[Texture2D]([ExtResource("a1"), ExtResource("a2"), ExtResource("a3"), ExtResource("a4"), ExtResource("a5"), ExtResource("a6")])
+star_art = ExtResource("star")

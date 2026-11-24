@@ -13,6 +13,8 @@ var casts: Array = []
 
 
 func before_test() -> void:
+	GameTime.reset()
+	SkillCutin.reset()
 	EnemyAttack.active_windups = 0
 	enemies = []
 	casts = []
@@ -33,7 +35,8 @@ func before_test() -> void:
 
 
 func after_test() -> void:
-	Engine.time_scale = 1.0
+	GameTime.reset()  # 반격 컷인의 느린 시간이 다음 테스트로 새지 않게 (Codex 41741bc 지적)
+	SkillCutin.reset()
 	EnemyAttack.active_windups = 0
 
 
@@ -173,7 +176,7 @@ func test_counter_hit_stop_restores_time_scale() -> void:
 	ctx.player = player
 	ctx.hit_stop(0.05)
 	assert_float(Engine.time_scale).is_less(0.5)
-	await get_tree().create_timer(0.15, true, false, true).timeout
+	await _wait_real(0.15)
 	assert_float(Engine.time_scale).is_equal(1.0)
 
 
@@ -267,9 +270,9 @@ func test_overlapping_hit_stops_restore_only_after_the_last() -> void:
 	await get_tree().process_frame
 	ctx.hit_stop(0.05)
 	ctx.hit_stop(0.25)
-	await get_tree().create_timer(0.12, true, false, true).timeout
+	await _wait_real(0.12)
 	assert_float(Engine.time_scale).is_less(0.5)  # 첫 번째가 끝나도 두 번째 진행 중
-	await get_tree().create_timer(0.25, true, false, true).timeout
+	await _wait_real(0.25)
 	assert_float(Engine.time_scale).is_equal(1.0)
 
 
@@ -280,3 +283,10 @@ func test_held_button_during_evade_casts_counter_not_dash_skill() -> void:
 	caster.tick(DT, DT)
 	assert_array(casts).is_equal([SkillCaster.Slot.COUNTER])
 	assert_bool(caster.is_ready(SkillCaster.Slot.DASH)).is_true()
+
+
+## 실제 시간으로 기다린다 (ignore_time_scale 타이머는 느린 시간에서 일찍 끝난다).
+func _wait_real(seconds: float) -> void:
+	var end := Time.get_ticks_msec() + int(seconds * 1000.0)
+	while Time.get_ticks_msec() < end:
+		await get_tree().process_frame
