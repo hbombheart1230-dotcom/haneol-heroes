@@ -70,7 +70,7 @@ func _on_drag(index: int, pos: Vector2, time: float) -> bool:
 		return false
 	if skill_caster:
 		skill_caster.gesture_move(index, pos, time)
-	var flick := touch_input.touch_move(index, pos, time)
+	var flick := touch_input.touch_move(index, pos, time, skill_caster != null and skill_caster.is_charging())  # 모으며 조준 중엔 세게 튕겨야 내닫기
 	if flick != Vector2.ZERO and skill_caster and skill_caster.is_charging():
 		skill_caster.cancel_input()  # 모으기 취소는 내닫기나 손 떼기로만: 튕기면 모으기를 버리고 내닫는다
 	_on_flick(flick, time)
