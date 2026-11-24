@@ -142,9 +142,12 @@ func test_strike_push_and_slow() -> void:
 
 
 ## 잡몹 떼 6/8/10 × 씨앗 셋, 네 영웅: 돌진만 쓰는 봇이 평타 봇보다 유리하지 않다 (잡는 시간이 더 길거나 받은 피해가 더 크다).
+## 한 판은 5% 넘게 빨라야 "유리" (#142 뒤 순신 n6 s2: 돌진 8.4초 vs 평타 8.7초, 둘 다 피해 0 = 시뮬 흔들림 안),
+## 영웅마다 아홉 판 합은 돌진만 쓰는 쪽이 짧으면 안 된다 (판 하나의 흔들림이 아닌 진짜 유리함을 잡는다).
 func test_dash_only_bot_is_not_better_than_melee() -> void:
 	var better: Array = []
 	for id in ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]:
+		var sums := [0.0, 0.0]
 		for n in [6, 8, 10]:
 			for s in [1, 2, 3]:
 				var r: Array = []
@@ -157,8 +160,13 @@ func test_dash_only_bot_is_not_better_than_melee() -> void:
 					print(HordeSim.horde_line("%s %s n%d s%d" % [id, "melee" if bot == HordeSim.HordeBot.MELEE else "dash ", n, s], res))
 					r.append(res)
 					sim.free_all()
-				if r[1]["cleared"] and r[1]["time"] < r[0]["time"] and r[1]["damage"] <= r[0]["damage"]:
+				sums[0] += float(r[0]["time"])
+				sums[1] += float(r[1]["time"])
+				if r[1]["cleared"] and r[1]["time"] < r[0]["time"] * 0.95 and r[1]["damage"] <= r[0]["damage"]:
 					better.append("%s n%d s%d" % [id, n, s])
+		print("[horde-sim] %s sum: melee %.1fs, dash-only %.1fs" % [id, sums[0], sums[1]])
+		if sums[1] < sums[0]:
+			better.append("%s sum" % id)
 	assert_array(better).is_empty()
 
 
