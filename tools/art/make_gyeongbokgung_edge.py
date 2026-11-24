@@ -72,8 +72,8 @@ def main(src_path=SRC, out=OUT):
     place(canvas, m["rows"], 430, -1250, 600, 0.9, flip=True, fade="up")
     place(canvas, m["hall"], -380, 1260, 420, 0.95, fade="down")
     place(canvas, m["field"], 470, 1250, 300, 0.85, fade="down")
-    place(canvas, m["wallL"], -820, -330, 700, 0.8)
-    place(canvas, m["wallR"], 830, 250, 560, 0.8, flip=True)
+    place(canvas, m["wallL"], -820, -330, 700, 0.5)
+    place(canvas, m["wallR"], 830, 250, 560, 0.5, flip=True)
     rgba = np.zeros(canvas.shape + (4,), dtype=np.uint8)
     rgba[..., 0], rgba[..., 1], rgba[..., 2] = LINE
     rgba[..., 3] = (np.clip(canvas, 0, 1) * 255).astype(np.uint8)
