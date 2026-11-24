@@ -8,6 +8,7 @@
 param([string]$Out = "build/android/haneol-heroes.aab")
 $ErrorActionPreference = "Stop"
 $started = Get-Date
+$oldGradleOpts = $env:GRADLE_OPTS
 try {
     $keyFile = Join-Path $env:USERPROFILE ".haneol-keys\upload-key.txt"
     if (-not (Test-Path $keyFile)) { throw "업로드 키 정보가 없습니다: $keyFile" }
@@ -19,6 +20,8 @@ try {
     $env:GODOT_ANDROID_KEYSTORE_RELEASE_PATH = $k["path"]
     $env:GODOT_ANDROID_KEYSTORE_RELEASE_USER = $k["alias"]
     $env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD = $k["password"]
+    # gradle 데몬을 끈다: 데몬이 Godot 의 출력을 붙잡고 있어 빌드(약 2분)가 끝나도 Godot 가 몇 시간 안 끝났다 (2026-11-25)
+    $env:GRADLE_OPTS = ("$oldGradleOpts -Dorg.gradle.daemon=false").Trim()
     if (-not $env:JAVA_HOME) { $env:JAVA_HOME = Join-Path $env:LOCALAPPDATA "Programs\Temurin\jdk-17.0.21+9" }
     $godot = if ($env:GODOT_BIN) { $env:GODOT_BIN } else {
         (Get-ChildItem (Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Packages\*Godot*\Godot_v4*_console.exe") | Select-Object -Last 1).FullName
@@ -58,6 +61,7 @@ finally {
     Remove-Item Env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD -ErrorAction SilentlyContinue
     Remove-Item Env:GODOT_ANDROID_KEYSTORE_RELEASE_USER -ErrorAction SilentlyContinue
     Remove-Item Env:GODOT_ANDROID_KEYSTORE_RELEASE_PATH -ErrorAction SilentlyContinue
+    if ($null -eq $oldGradleOpts) { Remove-Item Env:GRADLE_OPTS -ErrorAction SilentlyContinue } else { $env:GRADLE_OPTS = $oldGradleOpts }
 }
 "{0} ({1:N2} MiB, {2:N0}s)" -f $Out, ((Get-Item $Out).Length / 1MB), ((Get-Date) - $started).TotalSeconds
 & (Join-Path $PSScriptRoot "check_aab_manifest.ps1") -Aab $Out
