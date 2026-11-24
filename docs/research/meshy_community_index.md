@@ -405,3 +405,65 @@
 - **노량 중간 보충·왜군 창병**: 69·71이 창병, 72·73이 중간 보충 후보. 70은 문양 확인 전까지 보류.
 - **기마(광개토)**: 서양 기사만 나와 62번 외엔 없음. **왜구**: 만화 해적뿐이라 없음. **궁궐 수비**: 오스만·인도풍이라 제외(조선 군졸 1개는 조선 복식이라 적 부적합).
 - 후보판: `candidates_거란_명궁.jpg`, `candidates_거란_무당.jpg`, `candidates_여진_전사.jpg`, `candidates_왜군_창병_노량중간.jpg`, `candidates_초충도_생물.jpg`.
+
+## 전장 소품 P1~ (2026-11-25, 사용자 지시: "메시 소품 모아", 모두 CC0 표시 확인·0 크레딧, 로그인 상태)
+저장: `build/meshy_agent/community/props/<전장>/P<번호>_<이름>/model.glb` (커밋 안 함, 모두 100MB 미만). 미리보기판: `build/preview/meshy_community/props_<전장>.jpg`. 주소는 `https://www.meshy.ai/ko/posts/<주소>`. 게임에 넣는 일(면 줄이기·굽기)은 하지 않음. 전장별 P 번호는 따로 매김.
+
+**한산** (판옥선 갑판) — 8개 (`props_hansan.jpg`)
+| P | 이름 | 주소 | 면 수 | 크기 | 평 |
+|---|---|---|---|---|---|
+| 1 | 낡은 청동 함포 | 0197cf34-446b-78ea-bc08-863d2a54790d | 10,000 | 1.6MB | 바퀴 달린 포 (조선 포와 모양 다름, 쓸 만함) |
+| 2 | 큰 닻 | a-massive-ship-anchor-01a18180-b2ac-7676-bc15-c50780ea37b4 | 15,622 | 7.7MB | 쓸 만함 |
+| 3 | 종이 등롱 (파일명 Traditional Korean funeral memorial) | korean-paper-lantern-texture-019ff907-9988-7d68-a79e-65454a190292 | 585,406 | 30MB | 쓸 만함 |
+| 4 | 그물 말림틀 | 019f0ad5-7a60-79a6-83a7-6a4fd6533546 | 1,139,234 | 46MB | 쓸 만함, 면 많음 |
+| 5 | 유리 부표 그물더미 | fishing-net-01a1600d-fc9d-73e6-a26c-5c9cde1b01f7 | 10,454 | 6.7MB | 쓸 만함 |
+| 6 | 낡은 노 | 019d859c-03fc-7a67-b49d-9b96bf3342c9 | 2,999 | 5.3MB | 쓸 만함 |
+| 7 | 창·칼 걸이 | 01976a2c-2864-7423-b177-da8b9c985ecf | 10,000 | 1.7MB | 쓸 만함 |
+| 8 | 무기 걸이 두 틀 | 019514e9-eccc-7284-a498-9b57bb778b1a | 222,356 | 8.5MB | 쓸 만함 |
+- 못 받음: 포탄 더미(검색 결과가 미국 독립전쟁풍·알 모양뿐이라 "dino eggs" 후보 0193e3a8-9e64-795d-a166-86e01bd8aac4를 시도했으나 파일이 안 내려옴). 방패 난간은 못 찾음.
+
+**만주** — 7개 (`props_manju.jpg`)
+| P | 이름 | 주소 | 면 수 | 크기 | 평 |
+|---|---|---|---|---|---|
+| 1 | Weathered Nomad Tent | 019d0c2c-ea64-7d3f-8634-371a93b70be6 | 911,826 | 37MB | 낡은 천막 |
+| 2 | Weathered Wagon | 019e02ee-5e91-7431-9e3a-554a2c62c794 | 458,695 | 48MB | 쓸 만함 |
+| 3 | Weathered Wooden Palisade | 01a1542b-5213-725d-bd5b-7c054cecdaa5 | 753,952 | 32MB | 말뚝 울타리 |
+| 4 | 깃대 (medieval banner) | 019e25c7-2634-756b-a477-fb4b1c9c43e4 | 88,631 | 11MB | 서양 중세풍이라 애매 |
+| 5 | Blazing Campfire | 01a0b12a-cc8d-7176-8672-9aba18c69541 | 98,863 | 17MB | 화톳불 |
+| 6 | 속 빈 고목 | 0194cc2f-a11f-7793-9e93-7ffdf1a70f79 | 558,657 | 20MB | 마른 나무 |
+| 7 | Boulder Cluster | 019cdff0-0aea-79af-a3b5-d1d556bab382 | 664,359 | 31MB | 바위 |
+- 못 받음: 유르타(кочевая юрта 0193d339-b95a-7489-bfeb-89b736293c25, 396,651면) — 받기 시도했으나 파일이 안 내려옴. 천막 P1로 대신 가능. 무기 더미는 못 찾음(해골 더미·방패 더미뿐).
+
+**경복궁** — 8개 (`props_gyeongbokgung.jpg`)
+| P | 이름 | 주소 | 면 수 | 크기 | 평 |
+|---|---|---|---|---|---|
+| 1 | Garden Stone Lantern | 019e27e5-d9c2-7604-88c8-304e0be95cc8 | 2,942 | 3.7MB | 석등 |
+| 2 | 향로 (ancient Chinese incense burner) | 01952ce6-5cbc-75b6-b4d2-21d09c297f2d | 10,044 | 1.7MB | 중국풍 청동 향로 |
+| 3 | Mossbound Guardian (사자 석상) | 01a1fbc6-1969-7574-a0af-d06319c127d0 | 720,012 | 50MB | 해태와 닮은 석상+받침 |
+| 4 | Giant war drums decorated | 0194e568-c3fa-7861-a7f5-d48c9d3757ea | 109,583 | 5.1MB | 장식 북 한 쌍 |
+| 5 | Traditional Drum | 01988d7a-44cf-7c2b-8923-ef4b4e4fed70 | 1,007,195 | 38MB | 받침 달린 북 |
+| 6 | Ancient Stone Pedestal | 019a8219-55cf-7d9e-82d2-709f115263d6 | 401,240 | 19MB | 기둥 받침 |
+| 7 | Ivory Fan Pattern Jar | 01a1ee17-12be-7691-946d-cb6e6571d9ba | 1,880,674 | 75MB | 백자풍 항아리, 면 많음 |
+| 8 | Teal ceramic pot with lid | 019d0c62-a723-7d2b-ad32-5df8351a8380 | 324,820 | 14MB | 청자풍 단지 |
+- 못 찾음: 기와 더미(전각 통째·담장만 있음).
+
+**명량·노량** — 6개 (`props_myeongnyang_noryang.jpg`)
+| P | 이름 | 주소 | 면 수 | 크기 | 평 |
+|---|---|---|---|---|---|
+| 1 | 난파선 조각 (파일명 The Broken Leviathan) | shipwreck-pirate-01a17b68-62c2-7263-960b-93a93e0ea411 | 14,739 | 8.0MB | 부서진 배 조각 |
+| 2 | Rope-bound Log Raft | Ropebound-Log-Raft-019fddb1-7032-7784-b416-6937bbb3287c | 4,288 | 8.7MB | 떠다니는 뗏목 |
+| 3 | dock (판자) | 019d863c-67ed-7e22-b861-a9d7092e5844 | 8,728 | 7.5MB | 떠다니는 판자 |
+| 4 | 잔해 더미 (제목 러시아어 "건설 쓰레기") | 0195edc7-9c7e-7017-bce6-e81853b48c4a | 390,130 | 15MB | 애매(건설 쓰레기 느낌) |
+| 5 | Ironbound Oak Barrel | wooden-barrel-01a1e596-320b-72c4-b09a-036d3581b08a | 991,920 | 89MB | 통, 용량 큼 |
+| 6 | 흰 세로 깃발 "不動心" | 019e1555-11d9-7de5-829f-52a8bc80ca1d | 119,357 | 30MB | 일본풍 깃발. 글자 뜻 확인 필요(부동심) |
+- 못 찾음: 왜선 깃발은 일본풍 노보리 위 P6뿐(붉은 원 문양 18번은 욱일기 연상이라 제외). 등불은 한산 P3 재사용 가능.
+
+**초충도** — 5개 (`props_chochungdo.jpg`)
+| P | 이름 | 주소 | 면 수 | 크기 | 평 |
+|---|---|---|---|---|---|
+| 1 | Watermelon Delight | 0198a252-5e5d-7858-89b8-b8716baab078 | 10,418 | 3.2MB | 수박+조각 |
+| 2 | 가지 | 0196eb03-a563-7687-ac8b-6231848ecde5 | 148,599 | 5.2MB | 쓸 만함 |
+| 3 | Arid Flowers (주황 꽃) | 019aec8f-2e52-7d71-910d-ef5fefce6084 | 미확인 | 43MB | 꽃 |
+| 4 | Hawkweed (노란 들꽃) | 019e9d87-8b98-7657-90b5-42d379e95455 | 미확인 | 22MB | 들꽃 |
+| 5 | 이끼 바위 | 019977d5-14c6-717c-bbf7-98d8ce866f45 | 미확인 | 92MB | 크기 큼 |
+- 초충도는 그림 속 세계라 3D 소품이 어울릴 때만 쓸 것.
