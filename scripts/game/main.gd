@@ -31,6 +31,8 @@ extends Node2D
 @export var difficulty: DifficultyCurve
 var _base_spawn := {}
 var tutorial_director: TutorialDirector
+## 영웅 머리 위 한 줄 대사 (HeroLines 데이터).
+var hero_lines: HeroLineView
 ## 깨면 탕약이 나오는 물건들 (무대마다 다름).
 @export var breakables: BreakableField
 ## 결과 화면에서 재시작 입력을 받기까지 대기(초). 연타로 바로 넘어가는 것을 막는다.
@@ -90,6 +92,8 @@ func _ready() -> void:
 		seal_choice.chosen.connect(_on_upgrade_chosen)
 	state = GameState.new(survive_time)
 	state.ended.connect(_on_ended)
+	if hud:
+		hero_lines = HeroLineView.attach(self)  # 영웅 머리 위 한 줄 대사
 	if player and player.health:
 		player.health.died.connect(func(_e: Node) -> void: state.player_died())
 	if spawner:
@@ -243,6 +247,9 @@ func _on_ended(result: GameState.Result) -> void:
 	music_cue(&"victory" if result == GameState.Result.VICTORY else &"defeat")
 	_end_time = 0.0
 	RunEnd.record(self, result == GameState.Result.VICTORY)  # 이긴 전장·난이도 단계·경지·시간 기록
+	var combo := get_node_or_null("HUD/ComboCounter") as ComboCounter
+	if combo:
+		combo.stop()  # 연타 글씨가 결과 판 위에 남지 않게
 	if seal_choice:
 		seal_choice.close()
 	GameTime.reset()

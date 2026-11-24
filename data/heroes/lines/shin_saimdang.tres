@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="HeroLines" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_lines.gd" id="1_lines"]
+
+[resource]
+script = ExtResource("1_lines")
+; 자기 전장 · 원정 · 우두머리 앞 · 이김 · 쓰러짐 · 소환되어 도울 때 (사용자 확정 2026-11-24)
+lines = PackedStringArray("내 그림 속이 어지럽구나", "이 전장도 한 폭에 담자", "이 화폭에 너는 없다", "그림이 숨을 되찾았다", "다시 그리면 된다", "매화여, 피어나라!")
