@@ -1,9 +1,13 @@
 [gd_resource type="Resource" script_class="StageLook" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_look.gd" id="1_look"]
+[ext_resource type="Texture2D" path="res://assets/textures/grain/steppe_grass.png" id="2_grain"]
 
 [resource]
 script = ExtResource("1_look")
+detail_texture = ExtResource("2_grain")
+detail_px = 700.0
+detail_strength = 0.45
 value_mult = 0.53
 saturation = 0.7
 contrast = 3.0
