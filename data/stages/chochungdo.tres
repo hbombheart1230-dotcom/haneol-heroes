@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="Resource" path="res://data/stages/hazards/chochungdo_grass.tres" id="h_grass"]
+[ext_resource type="Script" path="res://scripts/data/stage_hazard_data.gd" id="h_script"]
 [ext_resource type="Resource" path="res://data/stages/looks/chochungdo.tres" id="look"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/chochungdo/verse.ogg" id="2_music"]
 [ext_resource type="Texture2D" path="res://assets/props/chochungdo/brush.png" id="p_brush"]
@@ -72,6 +74,7 @@ xp_mult = 1.53
 
 [resource]
 script = ExtResource("1_theme")
+hazards = Array[ExtResource("h_script")]([ExtResource("h_grass")])
 id = &"chochungdo"
 year_label = "그림 속"
 title = "초충도"

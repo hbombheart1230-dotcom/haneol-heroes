@@ -29,11 +29,19 @@ func _run() -> void:
 	GameSettings.tutorial_enabled = false
 	GameSettings.story_enabled = false
 	GameSettings.enemy_hp_bars = false
+	GameSettings.want_stage_list = false  # 전장 목록을 열지 않고 바로 판
 	GameSettings.save_settings()
 	main = load("res://scenes/main.tscn").instantiate()
 	root.add_child(main)
-	for i in 200:
+	for i in 40:
 		await process_frame
+	(main.get_node("EnemySpawner") as EnemySpawner).active = false
+	(main.get_node("Player") as Player).grant_invulnerability(9999.0)
+	for i in 160:
+		await process_frame
+	if main.is_choosing():  # 판 앞 몇 초 사이 레벨이 올라 고르기가 열렸으면 첫 카드
+		main.seal_choice.pick(0)
+	paused = false
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	var player := main.get_node("Player") as Player
 	var arena := main.get_node("Arena") as Arena

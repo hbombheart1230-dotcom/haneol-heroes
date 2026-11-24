@@ -91,7 +91,7 @@ func test_in_lane_counts_the_body_edge_and_lane_ends() -> void:
 	assert_bool(LanePlan.in_lane(row, 70.0, Vector2(530, 100), 20.0)).is_false()
 
 
-func test_only_hansan_has_the_cannon_line_and_other_stages_stay_empty() -> void:  # 무대마다 제 장치 하나씩, 아직 없는 무대는 비어 있다
+func test_each_stage_has_its_own_hazard() -> void:  # 한산 포격선 · 경복궁 엄폐 · 만주 들불 · 초충도 풀숲
 	var hansan: StageTheme = load("res://data/stages/hansan_1592.tres")
 	assert_int(hansan.hazards.size()).is_equal(1)
 	var lane := hansan.hazards[0] as LaneStrikeData
@@ -107,9 +107,9 @@ func test_only_hansan_has_the_cannon_line_and_other_stages_stay_empty() -> void:
 	var mc: StageTheme = load("res://data/stages/manchuria_395.tres")
 	assert_int(mc.hazards.size()).is_equal(1)
 	assert_object(mc.hazards[0] as FireData).is_not_null()
-	for id in ["chochungdo"]:
-		var st: StageTheme = load("res://data/stages/%s.tres" % id)
-		assert_array(st.hazards).is_empty()
+	var cc: StageTheme = load("res://data/stages/chochungdo.tres")
+	assert_int(cc.hazards.size()).is_equal(1)
+	assert_object(cc.hazards[0] as GrassData).is_not_null()
 
 
 func _host() -> StageHazards:
