@@ -99,7 +99,7 @@ godot --headless --path . -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gd
 
 1. 한 번만: `%APPDATA%\Godot\export_templates\4.7.2.stable\android_source.zip`을 `android/build/`에 풀고, `android/.build_version`에 `4.7.2.stable`을 적고, `android/build/.gdignore`를 만든다 (`android/`는 용량이 커서 깃에서 제외).
 2. 업로드 서명 키는 저장소 밖 `%USERPROFILE%\.haneol-keys\`(`upload.jks`, `upload-key.txt`)에만 둔다. **따로 백업한다.**
-3. `powershell -ExecutionPolicy Bypass -File tools/build/export_aab.ps1` → `build/android/haneol-heroes.aab` (내보내기 설정 "Android Play (AAB)", arm64 + armeabi-v7a).
+3. `powershell -ExecutionPolicy Bypass -File tools/build/export_aab_official.ps1` → `build/android/haneol-heroes.aab` (공식 4.7.2 엔진, 내보내기 설정 "Android Play (AAB)", arm64 + armeabi-v7a; `libs/release` aar를 `android_source.zip`의 공식 것으로 되돌린 뒤 내보낸다). 직접 만든 엔진으로 만들 때는 `export_aab.ps1`. versionCode는 Console에 올리기 직전에만 +1 (versionName 0.4.x 함께).
 4. 스토어 대표 그래픽: `assets/store/feature_graphic_1024x500.png` (APK 제외).
 
 ### 커스텀 내보내기 템플릿 (엔진 다이어트)
