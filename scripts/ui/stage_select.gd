@@ -12,6 +12,9 @@ const CARD_H := 206.0
 const GAP := 22.0
 const HEAD := Vector2(96, 140)  # 초상 중심
 const HEAD_R := 64.0
+const CHANGE_W := 220.0
+## 원정 단추 아래 한 줄 글자 크기.
+const SUB_PX := 18
 
 ## 판을 뛸 영웅 (지금 영웅).
 var hero: HeroData
@@ -82,8 +85,10 @@ func card_rect(i: int) -> Rect2:
 	return Rect2(24, top + i * (CARD_H + GAP), vp.x - 48, CARD_H)
 
 
+## 아래 줄 왼쪽 "영웅 바꾸기" (원정 보기에서는 "내 전장"). 한 손 엄지 자리, 오른쪽 위 톱니와 겹치지 않게.
 func change_rect() -> Rect2:
-	return Rect2(_vp().x - 214, 64, 190, 64)
+	var vp := _vp()
+	return Rect2(24, vp.y - 150, CHANGE_W, 96)
 
 
 func head_rect() -> Rect2:
@@ -92,7 +97,8 @@ func head_rect() -> Rect2:
 
 func expedition_rect() -> Rect2:
 	var vp := _vp()
-	return Rect2(24, vp.y - 150, vp.x - 48, 96)
+	var x := 24.0 + CHANGE_W + 16.0
+	return Rect2(x, vp.y - 150, vp.x - 24.0 - x, 96)
 
 
 func what_at(pos: Vector2) -> int:
@@ -139,7 +145,7 @@ func press(w: int) -> bool:
 			return true
 		-2:
 			if not progress.expedition_open(hero) or others.is_empty():
-				_say("자기 전장을 모두 이기면 원정이 열립니다")
+				_say(progress.expedition_reason(hero) if not progress.expedition_open(hero) else "다른 영웅이 없습니다")
 				return false
 			set_expedition(true)
 			return true
@@ -225,7 +231,7 @@ func _draw_head() -> void:
 	if expedition:
 		line = "▶ 다음 영웅의 전장"
 	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(188, 178), line, 22, Color(UiStyle.PAPER, 0.8), -1, Color(0, 0, 0, 0.6), 3)
-	UiStyle.button(self, change_rect(), "내 전장" if expedition else "영웅 바꾸기", 26)
+	UiStyle.button(self, change_rect(), "내 전장" if expedition else "영웅 바꾸기", 30)
 
 
 ## 위 한 줄: "깬 전장 n · 영웅 성장 +x% · 기술 n단계 시작" (HeroGrowth, 깬 전장 목록에서).
@@ -242,6 +248,11 @@ func _build_head() -> void:
 		_head_uvs.append(Vector2(0.5, 0.5) + d * 0.5)
 
 
+## 잠긴 원정 단추 아래 한 줄 (왜 잠겼는지, 영웅 이름과 전장 이름).
+func locked_line() -> String:
+	return progress.expedition_reason(hero) if progress and not progress.expedition_open(hero) else "다른 영웅이 없습니다"
+
+
 func _draw_expedition() -> void:
 	if expedition:
 		return
@@ -251,6 +262,6 @@ func _draw_expedition() -> void:
 		UiStyle.GOLD if open else UiStyle.GOLD_DIM)
 	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(r.position.x, r.position.y + 48), "원정", 40,
 		UiStyle.GOLD if open else UiStyle.GOLD_DIM, r.size.x)
-	var sub := "다른 영웅의 전장으로" if open else "자기 전장을 모두 이기면 열린다"
-	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, r.position.y + 80), sub, 20,
+	var sub := "다른 영웅의 전장으로" if open else locked_line()
+	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, r.position.y + 80), sub, SUB_PX,
 		Color(UiStyle.PAPER, 0.85 if open else 0.55), r.size.x, Color(0, 0, 0, 0.6), 3)

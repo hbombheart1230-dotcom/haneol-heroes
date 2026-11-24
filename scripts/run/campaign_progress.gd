@@ -52,18 +52,51 @@ func expedition_state(player: HeroData, owner: HeroData, i: int) -> State:
 	return State.CLEARED if has_cleared(player, id) else State.OPEN
 
 
-## 자기 전장을 다 이겼는지 (만든 전장 기준: 곧 열림 칸은 빼고, 하나 이상 이김). 그러면 원정이 열린다.
+## 원정이 열렸는지: 원정에 필요한 자기 전장(HeroCampaign.expedition_needs, 만든 것만)을 모두 이겼으면.
 func expedition_open(hero: HeroData) -> bool:
+	return not expedition_needed(hero).is_empty() and expedition_missing(hero).is_empty()
+
+
+## 원정에 필요한 자기 전장 칸 id (앞에서부터 expedition_needs개, 0이면 모두. 곧 열림 칸은 뺀다).
+func expedition_needed(hero: HeroData) -> Array[StringName]:
+	var out: Array[StringName] = []
 	if hero == null or hero.campaign == null:
-		return false
-	var any := false
-	for i in hero.campaign.slots.size():
-		match state(hero, i):
-			State.CLEARED:
-				any = true
-			State.OPEN, State.LOCKED:
-				return false
-	return any
+		return out
+	var c := hero.campaign
+	var n := c.slots.size() if c.expedition_needs <= 0 else mini(c.expedition_needs, c.slots.size())
+	for i in n:
+		if stage_of(c.slots[i].id) != null:
+			out.append(c.slots[i].id)
+	return out
+
+
+## 원정에 필요한데 아직 못 이긴 자기 전장 id.
+func expedition_missing(hero: HeroData) -> Array[StringName]:
+	var out: Array[StringName] = []
+	for id in expedition_needed(hero):
+		if not has_cleared(hero, id):
+			out.append(id)
+	return out
+
+
+## 잠긴 원정의 까닭 한 줄: "순신의 전장(한산)을 먼저 깨야 합니다". 열렸으면 "".
+func expedition_reason(hero: HeroData) -> String:
+	if hero == null or expedition_open(hero):
+		return ""
+	var names := PackedStringArray()
+	for id in expedition_missing(hero):
+		names.append(_title(hero, id))
+	if names.is_empty():
+		return "%s의 전장이 아직 없습니다" % hero.display_name
+	return "%s의 전장(%s)을 먼저 깨야 합니다" % [hero.display_name, "·".join(names)]
+
+
+func _title(hero: HeroData, id: StringName) -> String:
+	for sl in hero.campaign.slots:
+		if sl.id == id and sl.title != "":
+			return sl.title
+	var st := stage_of(id)
+	return st.title if st and st.title != "" else String(id)
 
 
 ## 이 영웅이 지금 이어 갈 전장 (열린 첫 칸, 다 이겼으면 마지막으로 이긴 칸). 없으면 &"".
