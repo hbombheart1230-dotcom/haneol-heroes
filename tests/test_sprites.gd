@@ -121,12 +121,17 @@ func test_bake_root_lock_returns_to_rest_horizontally_keeps_height() -> void:
 
 ## 넘어질 수 없는 적(슈퍼아머·정예·보스)은 넘어짐 시트를 싣지 않는다 (APK 용량: 보이지 않는 그림).
 func test_unfallable_enemies_ship_no_down_sheet() -> void:
+	var shared_with_fallers := {}  # 넘어지는 잡몹과 같이 쓰는 시트 (한산 북잡이·조총 명수가 졸병·철포병 시트를 빌림)는 어차피 실린다
+	var all: Array[EnemyData] = []
 	for file in DirAccess.get_files_at("res://data/enemies"):
-		if not file.ends_with(".tres"):
-			continue
-		var d := load("res://data/enemies/" + file) as EnemyData
-		if d == null or d.sprite_sheet == null:
-			continue
+		if file.ends_with(".tres"):
+			var e := load("res://data/enemies/" + file) as EnemyData
+			if e and e.sprite_sheet:
+				all.append(e)
+				if HitReaction.tier_of(e, false) == HitReaction.Tier.TRASH and not e.super_armor:
+					shared_with_fallers[e.sprite_sheet] = true
+	for d: EnemyData in all:
+		var file := d.resource_path.get_file()
 		var falls := HitReaction.tier_of(d, false) == HitReaction.Tier.TRASH and not d.super_armor
-		if not falls:
+		if not falls and not shared_with_fallers.has(d.sprite_sheet):
 			assert_bool(d.sprite_sheet.has_anim("down")).override_failure_message(file + " never falls but has a down sheet").is_false()

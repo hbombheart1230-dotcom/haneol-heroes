@@ -24,3 +24,5 @@ knockback_scale = 0.0
 stun_scale = 0.0
 aura = SubResource("Aura")
 launch_scale = 0.0
+rim_color = Color(1, 0.72, 0.3, 0.9)
+rim_width = 3.0
