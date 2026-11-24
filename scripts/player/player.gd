@@ -372,14 +372,20 @@ func _physics_process(delta: float) -> void:
 	if is_dead():
 		velocity = Vector2.ZERO
 		return
+	# 마지막 대시 프레임도 대시: compute_velocity가 남은 시간만큼 마지막 걸음을 주면서 대시를 끝내므로 그 전에 잡아 둔다
+	# (그 걸음의 돌진 타격·밀쳐내기·대시 틱, 그 프레임 무적 — 외부 감사 84b0930).
+	var dash_frame := is_dashing()
+	var struck_before := dash_struck.size()
 	velocity = compute_velocity(delta)
-	if dash_runner and is_dashing():
+	if dash_runner and dash_frame:
 		dash_runner.tick(delta, global_position)
-	if is_dashing() and hero and hero.dash_shove > 0.0:
+	if dash_frame and hero and hero.dash_shove > 0.0:
 		shove_enemies(get_tree().get_nodes_in_group(Enemy.GROUP))
-	if is_dashing() and dash_strikes:
+	if dash_frame and dash_strikes:
 		DashDirection.tick(self, get_tree().get_nodes_in_group(Enemy.GROUP), delta)
-	apply_contact_damage(delta, _touching_damage())
+		if not is_dashing() and struck_before == 0 and not dash_struck.is_empty():
+			DashDirection.end(self)  # 마지막 걸음에서 처음 맞혔다: 끝날 때(dash_ended) 못 붙인 대가를 지금
+	apply_contact_damage(delta, 0 if dash_frame else _touching_damage())  # 대시 프레임은 끝 프레임까지 무적
 	move_and_slide()
 	if arena_rect.has_area():
 		global_position = global_position.clamp(arena_rect.position, arena_rect.end)
