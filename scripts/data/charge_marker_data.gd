@@ -55,3 +55,16 @@ extends Resource
 @export var aim_ink: Color = Color(0.09, 0.09, 0.11, 0.85)
 @export var aim_alpha_min: float = 0.55
 @export var aim_alpha_max: float = 1.0
+
+@export_group("쿨타임 중 모으기")
+## 모으기 기술이 아직 쿨타임일 때 꾹 누르면 (떼도 나가지 않음): 고리·마디·조준 길을 이 배율로 흐리게,
+## 입자·다 찬 번쩍임·마디 소리는 내지 않고, 고리 아래에 남은 시간(숫자만)을 쓴다 (사용자 7ce32eb 결정 (c)).
+## 색 규칙: 붉은 인주색은 적 위험 전용이라 쓰지 않는다 (한지색 글자 + 먹 테두리).
+@export var wait_dim: float = 0.35
+@export var wait_font_px: int = 42
+@export var wait_color: Color = Color(0.95, 0.91, 0.82, 0.95)
+@export var wait_outline: Color = Color(0.09, 0.09, 0.11, 0.9)
+@export var wait_outline_px: int = 8
+## 글자 자리: 발밑 고리 지름 × wait_ring_k (그림의 칠해진 아래쪽 끝, 바닥이라 납작) + wait_gap(px).
+@export var wait_ring_k: float = 0.22
+@export var wait_gap: float = 4.0

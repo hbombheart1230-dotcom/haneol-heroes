@@ -11,6 +11,8 @@ var _age: float = 0.0
 var _stage: int = 0
 var _stages: int = 0
 var _pulse_left: float = 0.0
+## 모으기 기술 쿨타임 남은 시간(초) (0이면 낼 수 있음).
+var wait: float = 0.0
 
 
 func _init(p_data: ChargeMarkerData = null) -> void:
@@ -19,12 +21,14 @@ func _init(p_data: ChargeMarkerData = null) -> void:
 
 ## 매 프레임: charging = 모으는 중, c = 0~1. 입자·다 찬 순간 번쩍임을 낸다. 반환: 이번에 다 찼으면 true.
 ## stages > 0이면 (ChargeScaling) 마디 점을 그리고, 마디를 넘을 때 소리 + 고리가 잠깐 커진다.
-func tick(delta: float, charging: bool, c: float, pos: Vector2, stage: int = 0, stages: int = 0) -> bool:
+## wait > 0: 모으기 기술 쿨타임이 이만큼 남음 → 입자·번쩍임·소리 없이 흐린 고리 + 남은 시간 (draw).
+func tick(delta: float, charging: bool, c: float, pos: Vector2, stage: int = 0, stages: int = 0, p_wait: float = 0.0) -> bool:
 	_age += delta
 	_flash_left = maxf(_flash_left - delta, 0.0)
 	_pulse_left = maxf(_pulse_left - delta, 0.0)
 	_stages = stages
-	if not charging:
+	wait = p_wait if charging else 0.0
+	if not charging or wait > 0.0:
 		_was_full = false
 		_spark_cd = 0.0
 		_stage = 0
@@ -90,17 +94,37 @@ func draw(canvas: CanvasItem, charging: bool, c: float) -> void:
 	var flash := _flash_left > 0.0
 	var pulse := lerpf(1.0, data.stage_pulse_scale, _pulse_left / maxf(data.stage_pulse_time, 0.001))
 	var size := lerpf(data.size_min, data.size_max, c) * (lerpf(data.full_flash_scale, 1.0, k) if flash else 1.0) * pulse
-	var a := lerpf(data.alpha_min, data.alpha_max, c)
+	var dim := data.wait_dim if waiting() else 1.0
+	var a := lerpf(data.alpha_min, data.alpha_max, c) * dim
 	var bright := lerpf(data.full_flash_bright, 1.0, k) if flash else 1.0
 	_tex(canvas, data.art, size, _age * data.spin, Color(data.tint * bright, data.tint.a * a))
 	if data.art2:
 		_tex(canvas, data.art2, size * data.inner_scale, _age * data.spin2, Color(data.tint2 * bright, data.tint2.a * a))
 	if charging:
-		_draw_pips(canvas, size)
+		_draw_pips(canvas, size, dim)
+	if charging and waiting():
+		_draw_wait(canvas, size)
+
+
+func waiting() -> bool:
+	return wait > 0.0
+
+
+## 남은 시간 글자 (숫자만): 1초 이상은 올림 정수, 그 아래는 소수 한 자리.
+static func wait_text(left: float) -> String:
+	return str(ceili(left)) if left >= 1.0 else "%.1f" % maxf(left, 0.1)
+
+
+func _draw_wait(canvas: CanvasItem, ring: float) -> void:
+	var t := wait_text(wait)
+	var at := Vector2(-80.0, ring * data.wait_ring_k + data.wait_gap + data.wait_font_px * 0.8)  # 발밑 고리 아래쪽 칠 바로 밑
+	canvas.draw_string_outline(UiStyle.TITLE_FONT, at, t, HORIZONTAL_ALIGNMENT_CENTER, 160.0, data.wait_font_px,
+		data.wait_outline_px, data.wait_outline)
+	canvas.draw_string(UiStyle.TITLE_FONT, at, t, HORIZONTAL_ALIGNMENT_CENTER, 160.0, data.wait_font_px, data.wait_color)
 
 
 ## 마디 점: 고리 아래쪽 둘레에 stages개, 넘은 마디는 한지색으로 찬다.
-func _draw_pips(canvas: CanvasItem, ring: float) -> void:
+func _draw_pips(canvas: CanvasItem, ring: float, dim: float = 1.0) -> void:
 	if _stages <= 0:
 		return
 	var r := maxf(ring * 0.5, data.pip_radius)
@@ -108,11 +132,11 @@ func _draw_pips(canvas: CanvasItem, ring: float) -> void:
 		var t := PI * 0.5 - (i - (_stages - 1) * 0.5) * 0.42  # 발 아래 (영웅 그림에 가리지 않게), 왼쪽부터
 		var at := Vector2(cos(t), sin(t)) * r
 		var lit := i < _stage
-		InkPaint.wash(canvas, at, data.pip_size + 3.0, Color(0.09, 0.09, 0.11, 0.6))  # 먹 번짐 바탕
+		InkPaint.wash(canvas, at, data.pip_size + 3.0, Color(0.09, 0.09, 0.11, 0.6 * dim))  # 먹 번짐 바탕
 		if lit:
-			InkPaint.wash(canvas, at, data.pip_size, data.pip_full)
+			InkPaint.wash(canvas, at, data.pip_size, Color(data.pip_full, data.pip_full.a * dim))
 		else:
-			InkPaint.ring(canvas, at, data.pip_size, data.pip_empty)  # 빈 마디: 한지색 붓 고리
+			InkPaint.ring(canvas, at, data.pip_size, Color(data.pip_empty, data.pip_empty.a * dim))  # 빈 마디: 한지색 붓 고리
 
 
 func _tex(canvas: CanvasItem, tex: Texture2D, size: float, rot: float, col: Color) -> void:
