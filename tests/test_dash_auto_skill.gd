@@ -16,6 +16,9 @@ var casts: Array = []
 
 
 func before_test() -> void:
+	BossSim.reset_globals()
+	# 도착 효과 간격은 DashStyleRunner.clock (비면 실제 시간)으로 잰다: 실제 시간이면 판마다 갈리니 고정 시계
+	DashStyleRunner.clock = func() -> float: return 100.0
 	enemies = []
 	casts = []
 	player = auto_free(Player.new())
@@ -45,7 +48,7 @@ func after_test() -> void:
 		if c is Projectile or c is DamageZone or c is WaveRake:
 			remove_child(c)
 			c.free()
-	EnemyAttack.active_windups = 0
+	BossSim.reset_globals()
 
 
 func _enemy_at(pos: Vector2) -> Enemy:
