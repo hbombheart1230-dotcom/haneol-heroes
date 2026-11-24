@@ -7,6 +7,8 @@ extends Resource
 @export var max_alive: int = 8
 ## 살아 있는 적이 이 수 이하가 되면 남은 적이 이어서 나온다.
 @export var next_when_left: int = 2
+## 근접 잡몹 수 배율 (WaveSwarm): 1 = 배율 없음. 무대 .tres가 정한다 (D안 1.5). 체력은 그대로, 원거리·정예·무리·우두머리는 늘지 않는다.
+@export var melee_count_mult: float = 1.0
 ## 켜면 하데스식 보충: 상한에 닿은 뒤로는 한 마리가 죽을 때마다 한 마리 (first_count·next_when_left는 쓰지 않음).
 @export var refill_each: bool = false
 ## 등장: 영웅에게서 이 거리(px, 화면 안)에 먹 번짐 예고를 warn_time초 보인 뒤 나타난다. 예고끼리 간격(초).
@@ -25,3 +27,7 @@ extends Resource
 @export var one_pick_per_break: bool = true
 ## RunConfig.levels가 없을 때만: 그 한 번이 올려 주는 단계 수 (있으면 적립 카드 계획 LevelRules.plan을 따른다).
 @export var pick_stacks: int = 2
+## 화면 동시 상한에 더하는 수 (물결마다·무대 전체, 밀도 변형): 0 = 지금 (꺼짐). 늘어난 자리는 나올 차례의 적이 채운다.
+@export var alive_cap_add: int = 0
+## 중간 우두머리 물결(정예·무리)을 깬 뒤 최대 체력의 이 비율만큼 회복 (우두머리 앞 숨 고르기): 0 = 꺼짐.
+@export var elite_clear_heal: float = 0.0
