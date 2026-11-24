@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="BossFeelData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/boss_feel_data.gd" id="1_feel"]
+
+[resource]
+script = ExtResource("1_feel")
+group_windup_cap = 2
+intro_hold = 1.2
+transition_hold = 0.8
+summon_delay = 0.4
+summon_distance = 170.0
+phase_pick = false
+phase_anim = &""
+intro_subtitle = "정예 출현"
+finale_time = 1.4
+finale_slow_scale = 0.35
+finale_slow_time = 0.5
+finale_slow_back = 0.3
+finale_zoom = 1.12
+finale_zoom_in = 0.2
+finale_zoom_hold = 0.5
+finale_zoom_out = 0.5
+finale_flash_alpha = 0.35
+finale_flash_time = 0.8
+finale_subtitle = "정예 격파"

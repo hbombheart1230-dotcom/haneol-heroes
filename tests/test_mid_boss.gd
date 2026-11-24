@@ -255,19 +255,29 @@ func test_breather_waits_for_mid_boss_finale() -> void:
 ## 한산 3물결 중간 우두머리 무리 (돌격·조총 3연사·북잡이): 네 영웅 (3물결까지 성장한 사본) 모두 이기고, 셋 다 잡는 데
 ## 포격선 없이 씨앗 평균 50~100초 (기록용) — 한산 판에서는 포격선(#114)이 무리에도 맞아 약 절반, 실제 목표 30~40초는
 ## tests/test_hansan_full_run.gd (HH_HANSAN=1)로 잰다. 보통 실행은 씨앗 하나라 한 판 15~120초만. HH_SLOW=1이면 씨앗 셋 × 피하기·서툰 사람, 피해를 로그로.
+## 다른 무대의 무리 셋 (만주 백인장·명궁·무당 …)도 같은 틀로 이기고 한 판 15~120초인지 본다 (평균 목표는 장치와 함께 한 판 전체로).
 func test_hansan_trio_fight() -> void:
+	for id in ["hansan_1592", "manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
+		var stage := load("res://data/stages/%s.tres" % id) as StageTheme
+		var group: Array = (stage.waves.waves[2] as WaveData).elite_group
+		if not group.is_empty():
+			await _stage_trio(id, group)
+
+
+func _stage_trio(id: String, group: Array) -> void:
 	var slow := OS.get_environment("HH_SLOW") == "1"
 	var seeds := [11, 23, 37] if slow else [11]
-	var stage := load("res://data/stages/hansan_1592.tres") as StageTheme
-	var group: Array = (stage.waves.waves[2] as WaveData).elite_group
-	for hero in ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]:
+	var heroes: Array = ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]
+	if OS.get_environment("HH_ONLY_HERO") != "":
+		heroes = [OS.get_environment("HH_ONLY_HERO")]
+	for hero in heroes:
 		var c: Array = HERO_REACH[hero]
 		var total := 0.0
 		var hurt: Array = []
 		for s in seeds:
 			for miss in ([0.0, 0.3] if slow else [0.0]):
 				var r := await _trio(group, hero, c, s, miss)
-				print(BossSim.line("trio %s seed %d %s" % [hero, s, "dodge" if miss == 0.0 else "sloppy"], r))
+				print(BossSim.line("trio %s %s seed %d %s" % [id, hero, s, "dodge" if miss == 0.0 else "sloppy"], r))
 				if miss > 0.0:
 					hurt.append(r["damage"])
 					continue
@@ -276,8 +286,8 @@ func test_hansan_trio_fight() -> void:
 				assert_int(r["max_threats"]).is_less_equal(EnemyAttack.max_concurrent)
 				total += r["time"]
 		var mean: float = total / seeds.size()
-		print("[boss-sim] trio %s mean %.1fs, sloppy damage %s" % [hero, mean, str(hurt)])
-		if slow:
+		print("[boss-sim] trio %s %s mean %.1fs, sloppy damage %s" % [id, hero, mean, str(hurt)])
+		if slow and id == "hansan_1592":
 			assert_float(mean).override_failure_message("trio %s mean %.1fs" % [hero, mean]).is_between(50.0, 100.0)
 
 
