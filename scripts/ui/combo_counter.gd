@@ -134,10 +134,13 @@ static func size_for(n: int, finishing_now: bool, d: ComboTextData) -> int:
 	return mini(d.size_base + d.size_step * maxi(n - 1, 0), d.size_max)
 
 
-## 우두머리 등장 띠(이름)가 떠 있는 동안은 글씨를 그리지 않는다 (이름 위에 겹쳐 읽기 어렵지 않게). 수는 계속 센다.
+## 우두머리 등장 띠(이름)나 물결 알림 띠가 떠 있는 동안은 글씨를 그리지 않는다 (이름 위에 겹쳐 읽기 어렵지 않게). 수는 계속 센다.
 func _under_boss_banner() -> bool:
 	var b := get_node_or_null("../BossBanner") as BossBanner
-	return b != null and b.banner_visible()
+	if b != null and b.banner_visible():
+		return true
+	var hud := get_parent() as Hud
+	return hud != null and hud.wave_banner_showing()
 
 
 func _draw() -> void:

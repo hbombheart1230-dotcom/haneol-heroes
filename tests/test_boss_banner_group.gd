@@ -74,3 +74,17 @@ func test_combo_text_hides_under_boss_banner() -> void:
 	assert_bool(combo.text_rect().has_area()).is_false()
 	banner.step(10.0)
 	assert_bool(combo.text_rect().has_area()).is_true()
+
+
+func test_combo_text_hides_under_wave_banner() -> void:
+	var hud: Hud = auto_free(Hud.new())
+	var combo: ComboCounter = ComboCounter.new()
+	hud.add_child(combo)
+	add_child(hud)
+	combo.add_hits(2)
+	assert_bool(combo.text_rect().has_area()).is_true()
+	hud._wave_banner.request(0, false)
+	hud._wave_banner.tick(0.0, false)
+	assert_bool(combo.text_rect().has_area()).is_false()
+	hud._wave_banner.tick(10.0, false)
+	assert_bool(combo.text_rect().has_area()).is_true()
