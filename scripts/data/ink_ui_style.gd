@@ -7,9 +7,9 @@ const PATH := "res://data/ui/ink_ui.tres"
 static var _cached: InkUiStyle
 
 @export_group("적 체력 막대")
-@export var enemy_bar_height: float = 12.0
+@export var enemy_bar_height: float = 18.0
 ## 바탕 먹선에 곱하는 색 (투명도로 옅게).
-@export var bar_back: Color = Color(1, 1, 1, 0.62)
+@export var bar_back: Color = Color(1, 1, 1, 0.55)
 @export var enemy_fill: Color = Color(0.86, 0.2, 0.16)
 @export var elite_fill: Color = Color(0.94, 0.74, 0.28)
 @export_group("내닫기 충전 표시")
@@ -22,9 +22,9 @@ static var _cached: InkUiStyle
 @export var pip_fill_scale: float = 0.78
 @export_group("예고 겉모습")
 ## 안쪽 먹 번짐 알파 곱 (범위 그대로, 겉모습만).
-@export var wash_alpha_mult: float = 1.0
+@export var wash_alpha_mult: float = 1.35
 ## 붓 고리 알파 곱.
-@export var ring_alpha_mult: float = 1.0
+@export var ring_alpha_mult: float = 1.5
 
 
 static func default() -> InkUiStyle:

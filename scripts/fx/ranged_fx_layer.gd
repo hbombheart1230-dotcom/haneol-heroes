@@ -140,9 +140,12 @@ func _draw_muzzle(i: int, k: float) -> void:
 		var a := -spread * 0.5 + spread * (j + 0.5 + 0.25 * sin(_seed[i] + j * 1.9)) / n
 		var v := _dir[i].rotated(a)
 		var to := p + v * (core * 0.5 + length * (0.75 + 0.25 * cos(_seed[i] + j)))
-		Ink.stroke(self, p + v * core * 0.3, to, 8.0 * fade + 1.5, Color(INK, INK.a * fade))
-		Ink.stroke(self, p + v * core * 0.3, to, 5.0 * fade + 1.0, Color(col, fade))
+		var from := p + v * core * 0.3
+		var len := from.distance_to(to)
+		InkPaint.tail(self, from, v, len * 1.15, 13.0 * fade + 3.0, Color(INK, INK.a * fade))  # 먹 꼬리 획 → 색 획
+		InkPaint.tail(self, from, v, len, 8.0 * fade + 2.0, Color(col, fade))
 	var ck := 1.0 - pow(k, 0.6)
+	InkPaint.wash(self, p, core * (0.9 + 0.9 * k), Color(INK, 0.55 * ck))  # 먹 방울
 	InkPaint.wash(self, p, core * (0.6 + 0.6 * k), Color(col, 0.5 * ck))  # 먹 번짐 위에 밝은 속
 	InkPaint.wash(self, p, core * 0.55 * ck + 1.0, Color(CORE, ck))
 

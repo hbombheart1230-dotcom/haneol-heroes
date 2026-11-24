@@ -11,13 +11,13 @@ class Painter:
 		InkPaint.ring(self, Vector2(100, 100), 40.0, Color.WHITE)
 		InkPaint.wash(self, Vector2(100, 100), 40.0, Color(1, 1, 1, 0.3))
 		InkPaint.wash_rect(self, Rect2(0, 200, 300, 80), Color(1, 0, 0, 0.3))
-		draw_texture_rect(InkPaint.ARROW, Rect2(-42.0, -9.0, 72.0, 18.0), false)
+		draw_texture_rect(InkPaint.ARROW, Rect2(-96.0, -15.0, 120.0, 30.0), false)
 
 
-func test_style_loads_with_unit_multipliers() -> void:
+func test_style_loads_with_sane_multipliers() -> void:
 	var st := InkUiStyle.default()
-	assert_float(st.wash_alpha_mult).is_equal(1.0)  # 예고 겉모습 알파는 기본 그대로
-	assert_float(st.ring_alpha_mult).is_equal(1.0)
+	assert_float(st.wash_alpha_mult).is_between(0.5, 2.0)  # 예고 겉모습 알파 배율 (범위와 무관, 보이는 정도만)
+	assert_float(st.ring_alpha_mult).is_between(0.5, 2.0)
 	assert_float(st.enemy_bar_height).is_greater(6.0)
 
 

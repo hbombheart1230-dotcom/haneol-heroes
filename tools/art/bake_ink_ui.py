@@ -2,9 +2,11 @@
 
   python tools/art/bake_ink_ui.py
 만드는 것 (assets/vfx/, 흰색 그림은 코드에서 색을 입힌다):
-  ink_bar_back.png  256x32  먹선 바탕 (양 끝이 가늘고 가장자리가 붓처럼 흔들림, 먹색 그대로)
-  ink_bar_fill.png  256x32  획으로 차는 막대 (흰 바탕, 마른 붓결)
-  ink_arrow.png     128x32  적 화살 (나무 대, 먹 촉, 붉은 깃, 먹 꼬리)
+  ink_bar_back.png  512x64  옅은 먹 획 바탕 (시작이 굵고 끝이 가는 붓 획, 갈필 가장자리, 먹색 그대로)
+  ink_bar_fill.png  512x64  차는 붓 획 (흰 바탕, 끝으로 갈수록 마른 붓결·튄 방울; 찬 만큼 가로로 늘여 써도 한 획)
+  ink_arrow.png     192x48  적 화살 (쇠 화살촉·미늘, 나무 대, 양쪽 깃털, 먹 꼬리)
+  ink_tail.png      128x32  탄 뒤 먹 꼬리 획 (흰 바탕)
+  ink_edge.png      512x32  예고 줄 가장자리 거친 붓 획 (흰 바탕)
   ink_wash.png      128x128 먹 번짐 원판 (흰 바탕, 얼룩, 반지름 1 안에 있음)
   ink_wash_rect.png 256x64  먹 번짐 판 (흰 바탕, 모서리 안쪽으로만 흔들림)
   ink_ring.png      256x256 붓으로 그은 고리 (흰 바탕, 바깥 가장자리가 반지름 1, 굵기가 오르내림)
@@ -21,13 +23,19 @@ rng = np.random.default_rng(20261124)
 
 
 def noise1(n: int, octaves: int = 4, base: float = 3.0) -> np.ndarray:
-    """0 둘레 -1~1 부드러운 1차원 잡음."""
+    """-1~1 값 잡음 (옥타브마다 무작위 매듭을 부드럽게 이음): 사인 합처럼 되풀이되는 톱니가 생기지 않는다."""
     x = np.linspace(0.0, 1.0, n)
     out = np.zeros(n)
     amp = 1.0
     for o in range(octaves):
-        out += amp * np.sin(2 * np.pi * (base * 2 ** o) * x + rng.uniform(0, 2 * np.pi))
-        amp *= 0.5
+        k = int(base * 2 ** o) + 2
+        knots = rng.uniform(-1, 1, k)
+        pos = x * (k - 1)
+        i = np.minimum(pos.astype(int), k - 2)
+        f = pos - i
+        f = f * f * (3 - 2 * f)
+        out += amp * (knots[i] * (1 - f) + knots[i + 1] * f)
+        amp *= 0.55
     return out / max(np.abs(out).max(), 1e-6)
 
 
@@ -39,54 +47,95 @@ def save(a: np.ndarray, name: str) -> None:
     Image.fromarray((np.clip(a, 0, 1) * 255).astype(np.uint8), "RGBA").save(os.path.join(OUT, name), optimize=True)
 
 
-def bar(w: int, h: int, half_frac: float, color: np.ndarray, dry: float, lit: bool) -> np.ndarray:
-    """가로 막대 획: 위아래 가장자리를 흔들고 양 끝을 가늘게, 마른 붓결을 알파에 건다."""
+def stroke_bar(w: int, h: int, start: float, end: float, dry: float, edge: float, color, lit: bool,
+               drops: bool) -> np.ndarray:
+    """붓 획: 왼쪽 시작이 둥글고 굵고 오른쪽 끝으로 가늘게 빠진다. 가장자리는 갈필처럼 거칠고,
+    끝으로 갈수록 먹이 마른다 (알파에 가로 결과 빈틈). 늘여 써도 같은 획 모양이 남게 가로 전체가 한 획이다."""
     xs = np.arange(w)
     t = xs / (w - 1)
-    cy = h / 2 + 0.8 * noise1(w, 2, 1.5)
-    half = h * half_frac * (0.5 + 0.045 * noise1(w, 3, 2.5))
-    taper = np.minimum(1.0, np.minimum(t, 1.0 - t) / 0.09) ** 0.5  # 양 끝 가늘어지는 자리는 InkPaint가 늘이지 않고 그대로 붙인다 (캡 28칸 안)
+    prof = start + (end - start) * t ** 0.8  # 반두께(높이 비율)
+    cap = np.clip(t / 0.035, 0, 1) ** 0.5  # 시작 끝은 둥글게
+    tip = np.clip((1.0 - t) / 0.03, 0, 1) ** 0.6  # 끝은 짧게 빠진다 (너무 길게 뾰족하면 칼날로 보인다)
+    half = h * 0.5 * prof * cap * tip
+    cy = h / 2 + 0.9 * noise1(w, 2, 1.5)
+    rough_top = 1.0 + edge * noise1(w, 6, 22.0)
+    rough_bot = 1.0 + edge * noise1(w, 6, 25.0)
     ys = np.arange(h)[:, None]
-    top = cy - half * taper
-    bot = cy + half * taper
-    cover = smooth(np.minimum(ys - top[None, :], bot[None, :] - ys), 1.6)
-    streak = 1.0 - dry * np.clip(noise1(w, 5, 9.0)[None, :] * 0.5 + rng.uniform(0, 1, (h, 1)) * 0.6 - 0.15, 0, 1)
-    a = cover * streak
+    top = cy - half * rough_top
+    bot = cy + half * rough_bot
+    cover = smooth(np.minimum(ys - top[None, :], bot[None, :] - ys), 1.3)
+    # 갈필: 가로로 긴 결, 끝(t 큼)일수록 더 비어 있다
+    row = np.clip(rng.uniform(0, 1, (h, 1)) * 1.4 - 0.2, 0, 1)
+    grain = noise1(w, 6, 14.0)[None, :] * 0.5 + 0.5
+    gap = np.clip(row * (0.3 + 1.2 * t[None, :] ** 1.3) * dry + (1 - grain) * 0.18 * dry, 0, 0.95)
+    a = cover * (1.0 - gap)
     rgb = np.ones((h, w, 3)) * color
-    if lit:  # 위쪽이 밝고 아래가 어두운 획 (붓에 먹이 모인 느낌)
-        shade = 1.0 - 0.28 * np.clip((ys - top[None, :]) / np.maximum(bot - top, 1)[None, :], 0, 1)
+    if lit:
+        shade = 1.0 - 0.30 * np.clip((ys - top[None, :]) / np.maximum(bot - top, 1)[None, :], 0, 1)
         rgb = rgb * shade[..., None]
-    return np.dstack([rgb, a])
+    img = np.dstack([rgb, a])
+    if drops:  # 끝 너머로 튄 먹 방울 몇 개
+        for _ in range(5):
+            dx = int(w * rng.uniform(0.9, 0.995))
+            dy = int(h * rng.uniform(0.3, 0.7))
+            r = rng.uniform(1.2, 2.6)
+            yy, xx = np.mgrid[0:h, 0:w]
+            img[..., 3] = np.maximum(img[..., 3], smooth(r - np.hypot(xx - dx, yy - dy), 1.0))
+    return img
 
 
 def make_bar() -> None:
-    save(bar(256, 32, 0.98, np.array([0.09, 0.09, 0.11]), 0.10, False), "ink_bar_back.png")
-    save(bar(256, 32, 0.78, np.array([1.0, 1.0, 1.0]), 0.22, True), "ink_bar_fill.png")
+    save(stroke_bar(512, 64, 0.92, 0.72, 0.5, 0.10, np.array([0.09, 0.09, 0.11]), False, False), "ink_bar_back.png")
+    save(stroke_bar(512, 64, 0.80, 0.58, 0.7, 0.14, np.array([1.0, 1.0, 1.0]), True, True), "ink_bar_fill.png")
 
 
 def make_arrow() -> None:
+    """화살 그림: 쇠 화살촉(양쪽 미늘)·나무 대·양쪽 깃털·시위 자리 + 뒤로 짧은 먹 꼬리. 4배로 그려 줄인다."""
+    from PIL import ImageDraw
+    S = 4
+    W, H = 192, 48
+    im = Image.new("RGBA", (W * S, H * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    cy = H * S // 2
+
+    def P(x, y):
+        return (x * S, cy + y * S)
+
+    # 먹 꼬리: 뒤(왼쪽)로 가늘고 옅게 흩어지는 획 + 방울
+    d.polygon([P(0, 0.2), P(36, -3.2), P(70, -1.4), P(70, 1.4), P(36, 3.6)], fill=(24, 22, 28, 150))
+    for x, y, r in ((8, -3.5, 1.4), (20, 4.5, 1.2), (4, 2.5, 1.0)):
+        d.ellipse([P(x - r, y - r), P(x + r, y + r)], fill=(24, 22, 28, 170))
+    # 대: 나무색 + 윗결
+    d.polygon([P(36, -2.0), P(150, -1.8), P(150, 2.0), P(36, 2.2)], fill=(122, 84, 48, 255))
+    d.polygon([P(36, -2.0), P(150, -1.8), P(150, -0.4), P(36, -0.6)], fill=(176, 128, 78, 255))
+    # 깃털: 양쪽 두 쌍, 뒤로 젖힌 붉은 깃 + 흰 끝
+    for k in range(2):
+        x0 = 40 + k * 15
+        for sg in (-1, 1):
+            d.polygon([P(x0 + 4, 0), P(x0, sg * 9.0), P(x0 + 9, sg * 9.0), P(x0 + 14, 0)], fill=(188, 36, 28, 255))
+            d.polygon([P(x0, sg * 9.0), P(x0 + 9, sg * 9.0), P(x0 + 8, sg * 6.4), P(x0 + 1.5, sg * 6.4)], fill=(240, 230, 214, 255))
+    # 시위 자리
+    d.rectangle([P(33, -3.0), P(37, 3.0)], fill=(60, 40, 24, 255))
+    # 쇠 화살촉: 잎 모양 + 양쪽 미늘, 윗면이 밝은 쇠
+    d.polygon([P(148, -2.6), P(160, -8.5), P(190, 0), P(160, 8.5), P(148, 2.6)], fill=(46, 48, 58, 255))
+    d.polygon([P(148, -2.6), P(160, -8.5), P(190, 0), P(160, -0.8)], fill=(150, 156, 170, 255))
+    d.polygon([P(148, -2.4), P(143, -6.5), P(152, -4.0)], fill=(46, 48, 58, 255))
+    d.polygon([P(148, 2.4), P(143, 6.5), P(152, 4.0)], fill=(46, 48, 58, 255))
+    im = im.resize((W, H), Image.LANCZOS)
+    im.save(os.path.join(OUT, "ink_arrow.png"), optimize=True)
+
+
+def make_tail() -> None:
+    """먹 꼬리 획 (흰 바탕, 색을 입혀 쓴다): 왼쪽(탄 쪽)이 굵고 둥글고 오른쪽으로 가늘게 빠진다."""
     w, h = 128, 32
-    img = np.zeros((h, w, 4))
-    ys = np.arange(h)[:, None]
-    xs = np.arange(w)[None, :]
-    wob = 0.6 * noise1(w, 3, 2.0)[None, :]
-    # 먹 꼬리: 뒤(왼쪽)로 갈수록 옅고 가는 먹 줄
-    tail = np.clip((xs - 0.0) / 60.0, 0, 1) * (np.abs(ys - 16 - wob) < (1.0 + 2.2 * np.clip(xs / 60.0, 0, 1))) * (xs < 70)
-    img[..., 3] = np.maximum(img[..., 3], 0.35 * tail)
-    img[..., :3] = np.where(tail[..., None] > 0, np.array([0.09, 0.09, 0.11]), img[..., :3])
-    # 대: 갈색
-    shaft = (xs >= 18) & (xs <= 108) & (np.abs(ys - 16 - wob) < 2.6)
-    img[shaft] = [0.42, 0.28, 0.16, 1.0]
-    # 깃: 붉은 두 획
-    for sign in (-1, 1):
-        for k in range(3):
-            x0 = 14 + k * 6
-            line = (np.abs((ys - 16) - sign * (xs - x0 + 2) * 0.6) < 2.2) & (xs >= x0 - 2) & (xs <= x0 + 9)
-            img[line] = [0.72, 0.13, 0.10, 1.0]
-    # 촉: 먹 마름모
-    head = (xs >= 100) & (xs <= 126) & (np.abs(ys - 16) < (126 - xs) * 0.52)
-    img[head] = [0.07, 0.07, 0.09, 1.0]
-    save(img, "ink_arrow.png")
+    img = stroke_bar(w, h, 0.05, 0.9, 0.5, 0.18, np.array([1.0, 1.0, 1.0]), False, False)
+    save(img, "ink_tail.png")
+
+
+def make_edge() -> None:
+    """예고 줄 가장자리용 거친 붓 획 (흰 바탕, 가로로 길게 늘여 쓴다)."""
+    img = stroke_bar(512, 32, 0.9, 0.9, 0.9, 0.30, np.array([1.0, 1.0, 1.0]), False, False)
+    save(img, "ink_edge.png")
 
 
 def make_wash() -> None:
@@ -112,14 +161,18 @@ def noise2(n: int, freq: float) -> np.ndarray:
 
 
 def make_wash_rect() -> None:
+    """먹 번짐 판: 가운데가 옅고 가장자리로 짙어지며, 얼룩이 크게 진다 (가로로 늘여 써도 번짐 무늬가 보이게)."""
     w, h = 256, 64
     yy, xx = np.mgrid[0:h, 0:w]
     ex = np.minimum(xx, w - 1 - xx).astype(float)
     ey = np.minimum(yy, h - 1 - yy).astype(float)
     jit = 2.0 + 1.6 * noise1(w, 4, 5.0)[None, :] + 1.2 * noise1(h, 3, 3.0)[:, None]
     d = np.minimum(ex, ey) - jit
-    mott = 0.82 + 0.18 * np.clip(noise2(256, 5.0)[:h, :w] * 0.5 + 0.5, 0, 1)
-    save(np.dstack([np.ones((h, w, 3)), smooth(d, 3.0) * mott]), "ink_wash_rect.png")
+    n1 = noise2(256, 3.0)[:h, :w]
+    n2 = noise2(256, 9.0)[:h, :w]
+    edge_dark = 1.0 - np.clip(np.minimum(ey / (h * 0.5), 1.0), 0, 1)  # 위아래 가장자리일수록 1
+    mott = 0.55 + 0.30 * (n1 * 0.5 + 0.5) + 0.25 * (n2 * 0.5 + 0.5) + 0.35 * edge_dark
+    save(np.dstack([np.ones((h, w, 3)), smooth(d, 3.0) * np.clip(mott, 0, 1)]), "ink_wash_rect.png")
 
 
 def make_ring() -> None:
@@ -139,6 +192,8 @@ def make_ring() -> None:
 if __name__ == "__main__":
     make_bar()
     make_arrow()
+    make_tail()
+    make_edge()
     make_wash()
     make_wash_rect()
     make_ring()

@@ -19,6 +19,9 @@ func _frames(n: int) -> void:
 
 func _boot(stage: StringName, hero: StringName) -> Node:
 	GameSettings.settings_path = GameSettings.test_path()
+	DirAccess.remove_absolute(GameSettings.settings_path)  # 앞 장면에서 저장된 설정이 섞이지 않게
+	GameSettings.hero_stages = {}
+	GameSettings.hero_clears = {}
 	GameSettings.title_seen = true
 	GameSettings.opening_seen = true
 	GameSettings.intro_seen = true

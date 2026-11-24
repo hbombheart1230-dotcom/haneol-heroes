@@ -115,15 +115,15 @@ func _draw() -> void:
 		var t := clock.warn_ratio()
 		var c := data.warn_color
 		var wm := InkUiStyle.default().wash_alpha_mult  # 범위(rect)는 그대로, 안쪽만 먹 번짐
-		InkPaint.wash_rect(self, rect, Color(c, lerpf(data.fill_alpha.x, data.fill_alpha.y, t) * wm))
+		InkPaint.wash_rect(self, rect, Color(c, lerpf(data.fill_alpha.x, data.fill_alpha.y, t) * wm * (1.0 + 0.5 * _beat_flash)))  # 박자마다 번짐이 짙어진다
 		var half := rect.size.x * 0.5 * t  # 양 끝 대포에서 가운데로 차오른다
 		var fill := Color(c, (data.fill_alpha.y + 0.1) * wm)
 		InkPaint.wash_rect(self, Rect2(rect.position, Vector2(half, rect.size.y)), fill)
 		InkPaint.wash_rect(self, Rect2(Vector2(rect.end.x - half, rect.position.y), Vector2(half, rect.size.y)), fill)
 		var w := data.edge_width * (1.0 + 0.8 * _beat_flash)
 		var edge := Color(c, 0.75 + 0.25 * _beat_flash)
-		Ink.stroke(self, rect.position, Vector2(rect.end.x, rect.position.y), w, edge)
-		Ink.stroke(self, Vector2(rect.position.x, rect.end.y), rect.end, w, edge)
+		InkPaint.edge(self, rect.position.x, rect.end.x, rect.position.y, w * 2.4, edge)  # 위아래 경계: 거친 붓 획
+		InkPaint.edge(self, rect.position.x, rect.end.x, rect.end.y, w * 2.4, edge)
 		_draw_offscreen(r.x, c)
 	if _flash > 0.0:
 		var k := _flash / maxf(data.flash_time, 0.001)

@@ -50,6 +50,6 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 
 
-## 그림 한 장 (나무 대·먹 촉·붉은 깃·먹 꼬리, InkPaint.ARROW). 판정(radius)과는 별개로 겉모습만.
+## 그림 한 장 (쇠 화살촉·나무 대·양쪽 깃털·먹 꼬리, InkPaint.ARROW). 촉 끝이 옛 그림 끝(+20)과 비슷하게 오고 몸통은 뒤로 길다. 판정(radius)과는 별개로 겉모습만.
 func _draw() -> void:
-	draw_texture_rect(InkPaint.ARROW, Rect2(-42.0, -9.0, 72.0, 18.0), false)
+	draw_texture_rect(InkPaint.ARROW, Rect2(-96.0, -15.0, 120.0, 30.0), false)

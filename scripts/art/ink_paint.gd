@@ -9,40 +9,29 @@ const WASH := preload("res://assets/vfx/ink_wash.png")
 const WASH_RECT := preload("res://assets/vfx/ink_wash_rect.png")
 const RING := preload("res://assets/vfx/ink_ring.png")
 const ARROW := preload("res://assets/vfx/ink_arrow.png")
+const TAIL := preload("res://assets/vfx/ink_tail.png")
+const EDGE := preload("res://assets/vfx/ink_edge.png")
 
 
-## 막대 그림의 양 끝 (가늘어지는 자리) 폭: 늘이지 않고 높이에 맞춘 크기로 그대로 붙인다.
-const CAP_SRC := 28.0
-
-
-## 붓으로 그은 먹선 바탕 위에 획이 차는 막대. rect = 막대 자리, ratio 0~1.
-static func bar(c: CanvasItem, rect: Rect2, ratio: float, fill: Color, back: Color = Color(1, 1, 1, 0.8),
+## 붓으로 그은 막대: 옅은 먹 획 바탕 위에 붉은 획이 왼쪽에서 찬다. 획 그림 한 장을 찬 만큼 가로로 늘여 쓴다
+## (시작은 굵고 둥글고 끝은 가늘게 빠지는 한 획이라, 얼마를 채우든 끝이 붓끝으로 맺힌다).
+static func bar(c: CanvasItem, rect: Rect2, ratio: float, fill: Color, back: Color = Color(1, 1, 1, 0.55),
 		pad: float = 3.0) -> void:
-	_patch(c, BAR_BACK, rect.grow_individual(pad * 2.0, pad, pad * 2.0, pad), back)
+	c.draw_texture_rect(BAR_BACK, rect.grow_individual(pad * 2.0, pad, pad * 2.0, pad), false, back)
 	fill_part(c, rect, ratio, fill)
 
 
-## 막대 자리 rect에 획 하나를 ratio만큼 (자국·겹쳐 그리기용). 끝은 둥글게 맺힌다.
+## 막대 자리 rect에 획 하나를 ratio만큼 (자국·겹쳐 그리기용).
 static func fill_part(c: CanvasItem, rect: Rect2, ratio: float, fill: Color) -> void:
 	ratio = clampf(ratio, 0.0, 1.0)
 	if ratio <= 0.0:
 		return
-	_patch(c, BAR_FILL, Rect2(rect.position, Vector2(rect.size.x * ratio, rect.size.y)), fill)
+	c.draw_texture_rect(BAR_FILL, Rect2(rect.position, Vector2(maxf(rect.size.x * ratio, rect.size.y * 0.8), rect.size.y)), false, fill)
 
 
-## 가운데만 늘이고 양 끝은 그대로 (너무 짧으면 통째로 늘임).
-static func _patch(c: CanvasItem, tex: Texture2D, dst: Rect2, color: Color) -> void:
-	var th := float(tex.get_height())
-	var tw := float(tex.get_width())
-	var cap := CAP_SRC * dst.size.y / th
-	if dst.size.x < cap * 2.0 + 2.0:
-		c.draw_texture_rect(tex, dst, false, color)
-		return
-	c.draw_texture_rect_region(tex, Rect2(dst.position, Vector2(cap, dst.size.y)), Rect2(0, 0, CAP_SRC, th), color)
-	c.draw_texture_rect_region(tex, Rect2(dst.position + Vector2(cap, 0), Vector2(dst.size.x - cap * 2.0, dst.size.y)),
-		Rect2(CAP_SRC, 0, tw - CAP_SRC * 2.0, th), color)
-	c.draw_texture_rect_region(tex, Rect2(dst.position + Vector2(dst.size.x - cap, 0), Vector2(cap, dst.size.y)),
-		Rect2(tw - CAP_SRC, 0, CAP_SRC, th), color)
+## 예고 줄 가장자리: 거친 붓 획 한 줄 (x0~x1, y가 줄 가운데, 두께 thick).
+static func edge(c: CanvasItem, x0: float, x1: float, y: float, thick: float, color: Color) -> void:
+	c.draw_texture_rect(EDGE, Rect2(x0, y - thick * 0.5, x1 - x0, thick), false, color)
 
 
 ## 붓으로 그은 고리: 바깥 가장자리가 반지름 radius에 닿는다.
@@ -58,3 +47,10 @@ static func wash(c: CanvasItem, center: Vector2, radius: float, color: Color) ->
 ## 먹 번짐 사각 판 (rect 안).
 static func wash_rect(c: CanvasItem, rect: Rect2, color: Color) -> void:
 	c.draw_texture_rect(WASH_RECT, rect, false, color)
+
+
+## 먹 꼬리 획: from에서 시작해 dir 방향으로 length만큼 가늘게 빠진다 (굵은 쪽이 from).
+static func tail(c: CanvasItem, from: Vector2, dir: Vector2, length: float, thick: float, color: Color) -> void:
+	c.draw_set_transform(from, dir.angle(), Vector2.ONE)
+	c.draw_texture_rect(TAIL, Rect2(0.0, -thick * 0.5, length, thick), false, color)
+	c.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
