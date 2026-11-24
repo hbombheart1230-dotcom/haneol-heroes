@@ -87,6 +87,8 @@ extends Resource
 @export var recoil_time: float = 0.06
 ## 연타 흐름: 공격 동작이 끝난 뒤 마지막 자세를 이만큼(초) 붙잡는다 (다음 타 전에 대기 자세로 돌아가 튀지 않게).
 @export var combo_hold_time: float = 0.35
+## 기술 그림 위에 그리는 시전 동작(SkillDef.hero_over_fx)의 영웅 z: FxLayer(5) 위, 보상 그림(7) 아래.
+@export var cast_over_fx_z: int = 6
 ## 연계 흐름 (사용자: "연계가 뚝뚝 끊어지는것"): 동작이 바뀔 때 앞 그림을 겹쳐 흐리게 지우는 시간(초)·처음 진하기,
 ## 타 사이에 내딛은 그림 위치를 유지할지 (예전: 타마다 제자리로 돌아왔다 다시 나가 덜컥거림).
 @export var anim_blend_time: float = 0.08

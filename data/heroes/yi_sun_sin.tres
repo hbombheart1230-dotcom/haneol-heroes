@@ -96,8 +96,9 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_haeryong")
 sfx_layers = Array[StringName]([&"gugak_buk"])
 cast_anim = &"cast_tap"
-cast_speed = 0.8
-cast_lead = 0.08
+cast_speed = 1.0
+cast_lead = 0.04
+hero_over_fx = true
 
 [sub_resource type="Resource" id="Skill_pado"]
 script = ExtResource("5_pado")
@@ -182,8 +183,8 @@ script = ExtResource("3_kit")
 combo_finisher_free = true
 combo_finisher_mult = 0.58
 tap = SubResource("Skill_haeryong")
-finisher_recover = 0.26
-finisher_after_strike = 0.04
+finisher_recover = 0.25
+finisher_after_strike = 0.08
 dash_auto = true
 dash_auto_damage_mult = 0.5
 dash_auto_cone_deg = 90.0
