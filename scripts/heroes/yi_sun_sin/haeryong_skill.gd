@@ -8,6 +8,9 @@ extends SkillDef
 @export var knockback: float = 420.0
 ## 0보다 크면 넉백 대신 이만큼(px) 바깥으로 크게 날린다 (큰 기술 = 크게 날림, EnemyLaunch).
 @export var launch_px: float = 0.0
+## 물결 고리 그림(vfx_impact)의 바깥 끝 = 칼이 닿는 끝: 반경 + 적 몸 (왜군 병사 몸 20px, SkillContext.edge_of).
+## 예전엔 반경에만 맞춰 몸이 고리 밖에 있어도 베였다 (사용자 07f0d8f "원 둘레 크기를 칼질에 맞게").
+@export var ring_edge_px: float = 20.0
 @export_group("큰 변형 · 소용돌이")
 ## 0보다 크면 베기 뒤 그 자리에 소용돌이가 이 시간(초) 남는다 (정예 보상으로 켜진다).
 @export var whirl_time: float = 0.0
@@ -19,7 +22,7 @@ extends SkillDef
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	var center := ctx.player.global_position
 	var targets := ctx.enemies_in_radius(center, radius)  # 대상은 누르는 순간 정해진다
-	ctx.impact(center, Vector2.ZERO, radius)
+	ctx.impact(center, Vector2.ZERO, radius, radius + ring_edge_px)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.35, fx_color)
 	if whirl_time > 0.0:

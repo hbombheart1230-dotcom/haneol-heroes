@@ -82,7 +82,9 @@ func strip_for(d: SkillVfxData, a: Vector2, b: Vector2, level: int = 0) -> void:
 
 ## 그림 터뜨리기. level = 기술 강화 단계 (클수록 크고 밝고 겹이 많다).
 ## fit_radius > 0이면 (기술이 판정 반경을 알려 줌) 그림 지름을 판정에 맞춘다 (SkillVfxData.fit_to_hit).
-func burst(d: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: int = 0, fit_radius: float = 0.0) -> void:
+## band_radius > 0이면 고리 띠 두께는 그 반경에 맞췄을 때 그대로 (조각 그림, SkillVfxData.band_inner_uv).
+func burst(d: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: int = 0, fit_radius: float = 0.0,
+		band_radius: float = 0.0) -> void:
 	if d == null or not d.has_decal():
 		return
 	var base_rot := randf() * TAU
@@ -95,6 +97,8 @@ func burst(d: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: in
 	var bright := d.bright_for(level)
 	ground.mark(d, pos, level, float(pl["ground_k"]))
 	if d.piece_count > 0:  # 조각으로 펼침 (한 장 통째 대신)
+		if band_radius > 0.0 and size > 0.0:
+			pl["band_k"] = d.fitted_size(band_radius) / size
 		pieces.pieces(d, pos, dir, level, size, pl)
 	for i in (0 if d.piece_count > 0 else d.layers_for(level)):
 		_items.append({"data": d, "pos": pos, "rot": base_rot + feel.decal_layer_turn * i,

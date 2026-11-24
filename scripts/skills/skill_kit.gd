@@ -46,6 +46,9 @@ extends Resource
 @export var combo_finisher_mult: float = 0.6
 ## 마무리 뒤 tap 기술 쿨타임 = cooldown × 이 값 (연타로 쿨타임 없이 쏟아붓지 않게). 쿨타임 중 넷째 탭은 평타.
 @export var combo_finisher_cd_ratio: float = 0.5
+## 켜면 연타 마무리는 tap 기술 쿨타임과 따로: 1·2·3 뒤 넷째 탭은 늘 마무리, 단추 쿨타임을 쓰지도 기다리지도 않는다
+## (순신·광개토, 사용자 2026-11-24 "해보자"). 끄면 예전대로 (세종 정음진·사임당 풀벌레는 남는 기술이라 쌓임 방지).
+@export var combo_finisher_free: bool = false
 ## 손 평타 최소 간격 = 평타 간격(근접 melee_interval·원거리 ranged_interval) × 이 값 (무한 연타 방지, 공격속도 강화를 따른다).
 @export var tap_min_gap_mult: float = 0.7
 ## 너무 빨리 친 탭을 기억하는 시간(초).

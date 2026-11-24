@@ -8,7 +8,7 @@ extends RefCounted
 static func tap(c: SkillCaster) -> SkillCaster.Slot:
 	var atk := c.auto_attack()
 	var can := atk != null and atk.can_manual(c.tap_gap())
-	match c.combo.decide(c.kit.combo_hits, can, c.is_ready(SkillCaster.Slot.TAP)):
+	match c.combo.decide(c.kit.combo_hits, can, finisher_ok(c)):
 		TapCombo.Action.FINISH:
 			if not ComboSteps.finisher_ready(atk, c.kit.finisher_after_strike):
 				c.combo.buffer(c.kit.finisher_buffer)  # 3타가 닿을 때까지 기억 (F1)
@@ -22,7 +22,8 @@ static func tap(c: SkillCaster) -> SkillCaster.Slot:
 			var bite := c.player.hero.blade_bite if c.player and c.player.hero else null
 			if bite and bite.enabled:  # 마무리 명중 멈춤 = 칼이 박히는 멈춤 길이 하나로 (풀릴 때 쉭)
 				SkillHitStop.force_next(bite.finisher_stop, bite.release_sfx, bite.release_pitch)
-			c.cast(SkillCaster.Slot.TAP, 0.0, c.kit.combo_finisher_mult, c.kit.tap.cooldown * c.kit.combo_finisher_cd_ratio)
+			var cd := c.cooldown_left(SkillCaster.Slot.TAP) if c.kit.combo_finisher_free 				else c.kit.tap.cooldown * c.kit.combo_finisher_cd_ratio  # 따로 도는 마무리는 단추 쿨타임을 그대로 둔다
+			c.cast(SkillCaster.Slot.TAP, 0.0, c.kit.combo_finisher_mult, cd)
 			if atk:  # 마무리 동작이 끝날 때까지 다음 1타(손·자동)가 끼어들지 않게
 				atk.busy_for(recover(c))
 			c.combo_count.emit(c.kit.combo_hits + 1)  # 마무리 = 4타
@@ -35,6 +36,16 @@ static func tap(c: SkillCaster) -> SkillCaster.Slot:
 			if atk:
 				atk.hold_auto(keep)
 	return SkillCaster.Slot.NONE
+
+
+## 연타 마무리를 낼 수 있는지 (쿨타임 면에서): 따로 도는 마무리면 늘, 아니면 tap 기술 쿨타임이 끝났을 때.
+static func finisher_ok(c: SkillCaster) -> bool:
+	return c.kit != null and c.kit.tap != null and (c.kit.combo_finisher_free or c.is_ready(SkillCaster.Slot.TAP))
+
+
+## 다음 탭이 마무리인 상태 (1·2·3을 이었고 낼 수 있음) — 준비 표시도 이것만 본다 (표시가 뜨면 반드시 마무리).
+static func finisher_armed(c: SkillCaster) -> bool:
+	return c.kit != null and c.combo.streak >= c.kit.combo_hits and finisher_ok(c)
 
 
 ## 마무리 뒤 평타를 막는 시간(초): kit.finisher_recover, 음수면 마무리 시전 동작 길이 (그림이 없으면 0).
@@ -67,6 +78,6 @@ static func flush(c: SkillCaster) -> void:
 		c.cast(instant)
 		return
 	var atk := c.auto_attack()
-	var finish := c.combo.streak >= c.kit.combo_hits and c.is_ready(SkillCaster.Slot.TAP)
+	var finish := finisher_armed(c)
 	if finish or (atk and atk.can_manual(c.tap_gap())):
 		tap(c)

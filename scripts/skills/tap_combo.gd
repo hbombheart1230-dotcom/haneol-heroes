@@ -30,8 +30,10 @@ func decide(hits_needed: int, can_hit: bool, finisher_ready: bool) -> Action:
 
 
 ## 손으로 한 타 냈다. 반환: 이번 타의 연계 동작 번호 (1·2·3).
+## 이미 다 찼는데 마무리 대신 친 타(마무리 쿨타임 중)는 1타부터 다시 센다 — 쿨타임이 풀린 뒤 1타 하나 뒤
+## 탭이 마무리로 새던 경로 (사용자 판 07f0d8f "4타가 아무 때나").
 func on_hit(hits_needed: int, chain_len: int) -> int:
-	streak = mini(streak + 1, maxi(hits_needed, 1))
+	streak = 1 if streak >= maxi(hits_needed, 1) else streak + 1
 	step = step % maxi(chain_len, 1) + 1
 	_since = 0.0
 	_buffer = 0.0
@@ -40,10 +42,11 @@ func on_hit(hits_needed: int, chain_len: int) -> int:
 
 ## 자동 평타 (데이터가 셈에 넣으라고 할 때만 부른다).
 func on_auto_hit(hits_needed: int) -> void:
-	streak = mini(streak + 1, maxi(hits_needed, 1))
+	streak = 1 if streak >= maxi(hits_needed, 1) else streak + 1
 	_since = 0.0
 
 
+## 연타를 처음부터 (마무리, 다른 기술·내닫기로 연타가 끊겼을 때).
 func on_finish() -> void:
 	streak = 0
 	step = 0
