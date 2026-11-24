@@ -7,6 +7,8 @@ static var _fallback: ChargeMarkerData
 static var _sc_src: SkillDef
 static var _sc_level: int = -1
 static var _sc: SkillDef
+static var _dim_src: ChargeMarkerData
+static var _dim: ChargeMarkerData
 
 
 static func _now() -> float:
@@ -26,7 +28,8 @@ static func tick(c: SkillCaster, delta: float) -> void:
 		m.cancel()  # 죽으면 번쩍임까지 바로 지운다
 		return
 	var sc := scaling(c)
-	m.tick(delta, charging, k, c.player.global_position, sc.stage_of(k) if sc else 0, sc.stages if sc else 0)
+	m.tick(delta, charging, k, c.player.global_position, sc.stage_of(k) if sc else 0, sc.stages if sc else 0,
+		c.cooldown_left(SkillCaster.Slot.CHARGE))  # 쿨타임이면 흐린 고리 + 남은 시간 (떼도 안 나감)
 
 
 static func draw(c: SkillCaster) -> void:
@@ -43,6 +46,8 @@ static func draw(c: SkillCaster) -> void:
 		var d := c.kit.charge
 		if d.charge_aim_auto and not c.aim.steered:
 			return  # 끌지 않으면 예전 자동: 표시 없음
+		if m.waiting():  # 쿨타임이면 조준 길도 흐리게 (마디 점·고리와 같은 배율)
+			md = _dimmed(md)
 		if not scaled(d).draw_aim(c, k, c.aim.dir, md):
 			c.aim.draw(c, d.aim_length(k), aim_width(c, k), k, md)
 
@@ -77,3 +82,13 @@ static func _default_data() -> ChargeMarkerData:
 	if _fallback == null:
 		_fallback = ChargeMarkerData.new()
 	return _fallback
+
+
+## 쿨타임 중 조준 길용 흐린 사본 (데이터마다 한 번 만든다).
+static func _dimmed(md: ChargeMarkerData) -> ChargeMarkerData:
+	if _dim_src != md or _dim == null:
+		_dim_src = md
+		_dim = md.duplicate() as ChargeMarkerData
+		_dim.aim_fill.a *= md.wait_dim
+		_dim.aim_ink.a *= md.wait_dim
+	return _dim
