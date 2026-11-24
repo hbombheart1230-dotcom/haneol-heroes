@@ -111,3 +111,29 @@ func test_walk_comes_back_after_charge() -> void:
 		player.set_move_input(Vector2.LEFT)
 		player.compute_velocity(DT)
 	assert_float(player.walk_velocity().x).is_less(0.0)
+
+
+## 실제 터치 끌기로: 모으는 중 끌어도 그림은 모으는 자세 그대로 (뛰기·서기로 바뀌지 않음), 몸은 끄는 쪽을 본다 (사용자 6d0635c 결함).
+func test_drag_while_charging_keeps_the_charge_pose() -> void:
+	for id in HEROES:
+		_setup(id)
+		remove_child(caster)  # 게임처럼 SkillCaster는 Player 아래 (그림이 모으는 중인지 거기서 읽는다)
+		caster.name = "SkillCaster"
+		player.add_child(caster)
+		var view := PlayerView.new()
+		view.player = player
+		player.add_child(view)
+		view.set_physics_process(false)
+		var pose := CastAnim.charge_pose(caster.def_of(SkillCaster.Slot.CHARGE), player.hero.sprite_sheet)
+		var t := _charge(Vector2(400, 900))
+		assert_str(view.current_anim()).override_failure_message(id + " before drag").is_equal(pose)
+		for i in 30:
+			t += DT
+			_drag(0, Vector2(400 - i * 5, 900 + i * 2), t)
+			_step(t)
+			assert_str(view.current_anim()).override_failure_message("%s drag %d: %s" % [id, i, view.current_anim()]).is_equal(pose)
+		assert_bool(view.is_moving()).override_failure_message(id).is_false()
+		assert_float(player.facing.x).override_failure_message(id + " faces the drag").is_less(-0.5)
+		_touch(0, Vector2(250, 960), t + DT, false)
+		player.remove_child(view)
+		view.free()
