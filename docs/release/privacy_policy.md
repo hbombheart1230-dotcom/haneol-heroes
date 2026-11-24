@@ -1,6 +1,6 @@
 # 개인정보처리방침 초안 — 한얼: 영웅들
 
-> 초안 (2026-11-24, 버전 0.4.0 기준). `[연락처 이메일]`은 사용자가 채운다. 공개 주소에 올리는 것은 사용자가 정한다 (아래 "올릴 곳 후보").
+> 초안 (2026-11-24, 버전 0.4.0 기준). 연락처는 사용자 결정 (2026-11-24). 공개 주소에 올리는 것은 사용자가 정한다 (아래 "올릴 곳 후보").
 
 ## 한국어
 
@@ -16,7 +16,7 @@
 4. **권한:** 타격 진동을 위한 진동 권한만 사용합니다.
 5. **아동:** 게임은 만 13세 이상을 대상으로 하며, 아동의 정보를 따로 수집하지 않습니다.
 6. **변경:** 방침이 바뀌면 이 페이지에 시행일과 함께 알립니다.
-7. **문의:** [연락처 이메일]
+7. **문의:** hbombheart1230@gmail.com
 
 ## English
 
@@ -32,7 +32,7 @@ Haneol: Heroes ("the game") does not collect any personal information.
 4. **Permissions:** Vibration only, for hit feedback.
 5. **Children:** The game is intended for ages 13 and up and does not knowingly collect information from children.
 6. **Changes:** Any change will be posted on this page with a new effective date.
-7. **Contact:** [contact email]
+7. **Contact:** hbombheart1230@gmail.com
 
 ---
 
