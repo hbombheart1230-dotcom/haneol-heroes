@@ -1,0 +1,87 @@
+[gd_resource type="Resource" script_class="UpgradeReadoutData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/upgrade_readout_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+kinds = {
+&"cooldown": &"fast",
+&"count": &"more",
+&"counter_window": &"long",
+&"damage": &"strong",
+&"dash_recharge_time": &"fast",
+&"duration": &"long",
+&"full_charge_time": &"fast",
+&"heal": &"heal",
+&"hit_count": &"more",
+&"length": &"wide",
+&"lifetime": &"long",
+&"max_bolts": &"more",
+&"max_damage": &"strong",
+&"max_hold": &"long",
+&"max_hp": &"tough",
+&"max_radius": &"wide",
+&"max_stars": &"more",
+&"melee_damage": &"strong",
+&"move_speed": &"swift",
+&"radius": &"wide",
+&"ranged_damage": &"strong",
+&"slow_factor": &"slow",
+&"slow_time": &"long",
+&"stun_time": &"long",
+&"width": &"wide"
+}
+default_kind = &"strong"
+kind_words = {
+&"fast": "빠르게",
+&"heal": "낫게",
+&"long": "오래",
+&"more": "많이",
+&"slow": "느리게",
+&"strong": "세게",
+&"swift": "날쌔게",
+&"tough": "튼튼히",
+&"wide": "넓게"
+}
+kind_colors = {
+&"fast": Color(0.2, 0.5, 0.85, 1),
+&"heal": Color(0.2, 0.6, 0.45, 1),
+&"long": Color(0.5, 0.32, 0.72, 1),
+&"more": Color(0.72, 0.58, 0.12, 1),
+&"slow": Color(0.3, 0.36, 0.7, 1),
+&"strong": Color(0.86, 0.5, 0.14, 1),
+&"swift": Color(0.14, 0.6, 0.62, 1),
+&"tough": Color(0.66, 0.36, 0.5, 1),
+&"wide": Color(0.24, 0.6, 0.3, 1)
+}
+major_word = "큰 변형"
+major_color = Color(0.78, 0.6, 0.18, 1)
+labels = {
+&"cooldown": "재사용 대기",
+&"count": "소환 수",
+&"counter_window": "반격 시간",
+&"damage": "피해",
+&"dash_recharge_time": "충전 시간",
+&"duration": "지속",
+&"full_charge_time": "모으는 시간",
+&"heal": "반격 회복",
+&"hit_count": "연타",
+&"length": "길이",
+&"lifetime": "소환 시간",
+&"max_bolts": "벼락 수",
+&"max_damage": "최대 피해",
+&"max_hold": "가두는 시간",
+&"max_hp": "최대 체력",
+&"max_radius": "최대 범위",
+&"max_stars": "별 수",
+&"melee_damage": "평타 피해",
+&"move_speed": "이동 속도",
+&"radius": "범위",
+&"ranged_damage": "평타 피해",
+&"slow_factor": "적 빠르기",
+&"slow_time": "느려짐",
+&"stun_time": "기절",
+&"width": "폭"
+}
+seconds = Array[StringName]([&"cooldown", &"counter_window", &"dash_recharge_time", &"duration", &"full_charge_time", &"lifetime", &"max_hold", &"slow_time", &"stun_time"])
+percents = Array[StringName]([&"slow_factor"])

@@ -37,6 +37,7 @@ static func attach(m: Node) -> HeroLineView:
 
 
 func _ready() -> void:
+	add_to_group(SealChoice.BATTLE_TEXT)  # 패 고르기 화면 동안 숨김
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_preset(Control.PRESET_FULL_RECT)

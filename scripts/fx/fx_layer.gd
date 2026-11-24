@@ -6,6 +6,8 @@ extends Node2D
 var _fx: Array[Dictionary] = []
 ## 0이 아니면 다음 피해 숫자를 이 열쇠(적 id)의 숫자에 더한다 (WaveRake가 타 직전에 넣고 바로 지운다: 다다닥 쌓이는 합산 숫자).
 static var stack_key: int = 0
+## 패 고르기 화면이 떠 있는 동안 피해 숫자·글자를 그리지 않는다 (SealChoice).
+static var numbers_hidden: bool = false
 ## 쌓인 숫자는 타마다 이만큼 커진다 (최대 STACK_GROW_MAX배, 글꼴 크기는 그대로 늘려 그림).
 const STACK_GROW := 0.07
 const STACK_GROW_MAX := 1.6
@@ -126,6 +128,8 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	var feel := Feedback.feel_data()
 	for f in _fx:
+		if numbers_hidden and f["kind"] == "number":
+			continue
 		var k := float(f["t"]) / float(f["dur"])
 		var c: Color = f["color"]
 		match f["kind"]:

@@ -1,21 +1,35 @@
 class_name UpgradeCards
 extends Control
-## 강화 고르기 카드 (화면 좌표): 가운데에 카드 셋 — 그림, 이름, 효과 한 줄, 몇 단계인지.
+## 강화 고르기 카드 (화면 좌표): 가운데에 카드 셋 — 맨 위 종류 띠(우리말 한 낱말·종류 색), 그림, 기술 이름,
+## 패 이름(붓글씨), 바뀌는 값 "지금 → 고른 뒤"(UpgradeReadout, 금색 숫자), 몇 단계인지. 큰 변형은 금 띠·금 테에 설명 한 줄.
 ## 카드를 눌렀다 떼면 고른다 (누른 카드와 뗀 카드가 같아야). 열린 직후 잠깐은 누름을 받지 않는다 (싸우다 잘못 누름 방지).
 ## 고르는 규칙·게임 멈춤은 SealChoice가 한다. 여기는 그리기와 누름만.
 
 signal card_picked(index: int)
 
 ## 카드 크기와 사이, 열린 뒤 누름을 받기까지(실제 초).
-@export var card_size: Vector2 = Vector2(212, 340)
+@export var card_size: Vector2 = Vector2(212, 452)
 @export var gap: float = 16.0
 @export var input_delay: float = 0.35
+## 뒤 판을 가리는 어둠 (0~1).
+@export var dim: float = 0.8
+## 종류 띠 높이, 글자 크기 (화면 px, 720 폭 기준).
+@export var band_height: float = 50.0
+@export var band_px: int = 30
+@export var skill_px: int = 24
+@export var name_px: int = 34
+@export var value_label_px: int = 22
+@export var value_px: int = 32
+@export var desc_px: int = 24
+@export var level_px: int = 22
 
 var choices: Array[UpgradeDef] = []
 var major: bool = false
 var stacks: Dictionary = {}
 ## 이번에 고르면 오르는 단계 수 (물결 모드는 한 번에 여러 단계).
 var gain: int = 1
+## 이번 판 수치 (값 "지금 → 뒤" 계산). 없으면 패 설명 글.
+var build: RunBuild
 var _age: float = 0.0
 var _press_index := -1
 var _press_card := -1
@@ -138,7 +152,7 @@ func _draw() -> void:
 		return
 	var vp := _vp()
 	var k := clampf(_age / 0.25, 0.0, 1.0)
-	draw_rect(Rect2(Vector2.ZERO, vp), Color(0, 0, 0, 0.55 * k))
+	draw_rect(Rect2(Vector2.ZERO, vp), Color(0, 0, 0, dim * k))
 	var head := "큰 변형! 하나를 고르세요" if major else "강화를 하나 고르세요"
 	var top := card_rect(0).position.y
 	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, top - 40), head, 46, Color(UiStyle.GOLD, k), vp.x,
@@ -147,17 +161,36 @@ func _draw() -> void:
 		_draw_card(i, k)
 
 
+## 이번에 고르면 실제로 오르는 단계 수.
+func steps_of(u: UpgradeDef) -> int:
+	return maxi(mini(gain, u.max_stacks - int(stacks.get(u.id, 0))), 1)
+
+
+## 띠 낱말과 색.
+func band_of(u: UpgradeDef) -> Array:
+	var d := UpgradeReadout.data()
+	if major:
+		return [d.major_word, d.major_color]
+	var kd := UpgradeReadout.kind(u)
+	return [d.word(kd), d.color(kd)]
+
+
 func _draw_card(i: int, k: float) -> void:
 	var u := choices[i]
 	var rise := (1.0 - k) * 60.0 * (1.0 + i * 0.3)
 	var r := card_rect(i)
 	r.position.y += rise
 	var pressed := _press_card == i
-	var edge := UiStyle.GOLD if major else u.color.lightened(0.2)
-	UiStyle.panel(self, r.grow(4.0 if pressed else 0.0), Color(UiStyle.LACQUER, 0.96 * k), Color(edge, k))
-	draw_rect(Rect2(r.position + Vector2(6, 6), Vector2(r.size.x - 12, 10)), Color(edge, 0.85 * k))
-	var c := Vector2(r.get_center().x, r.position.y + 100)
-	var s := minf(r.size.x - 60.0, 130.0)
+	var band := band_of(u)
+	var band_col: Color = band[1]
+	var edge := UiStyle.GOLD if major else band_col.lightened(0.25)
+	UiStyle.panel(self, r.grow(4.0 if pressed else 0.0), Color(UiStyle.LACQUER, 0.97 * k), Color(edge, k))
+	var br := Rect2(r.position + Vector2(6, 6), Vector2(r.size.x - 12, band_height))
+	draw_rect(br, Color(band_col, 0.95 * k))
+	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(br.position.x, br.position.y + band_height * 0.5 + band_px * 0.36),
+		band[0], band_px, Color(1, 1, 1, k), br.size.x, Color(UiStyle.INK, 0.85 * k), 6)
+	var c := Vector2(r.get_center().x, r.position.y + band_height + 82.0)
+	var s := minf(r.size.x - 60.0, 140.0)
 	if u.icon:
 		draw_texture_rect(u.icon, Rect2(c - Vector2(s, s) * 0.5, Vector2(s, s)), false, Color(1, 1, 1, k))
 	else:  # 그림이 없는 강화: 먹 인장에 이름 첫 글자
@@ -166,25 +199,35 @@ func _draw_card(i: int, k: float) -> void:
 		draw_arc(c, s * 0.42, 0.0, TAU, 40, Color(u.color, k), 5.0)
 		UiStyle.text(self, UiStyle.TITLE_FONT, c + Vector2(-s * 0.5, s * 0.17), name_part.left(1), int(s * 0.45),
 			Color(u.color.darkened(0.3), k), s, Color(0, 0, 0, 0.0), 0)
-	var font := UiStyle.TITLE_FONT
-	var y := r.position.y + 196.0
+	var y := c.y + s * 0.5 + 34.0
+	var w := r.size.x
 	var parts := u.title.split(" · ")
-	if parts.size() > 1:  # "기술 · 강화 이름": 기술은 작게 위에, 강화 이름은 크게
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, y), parts[0], 20, Color(UiStyle.GOLD_DIM, k),
-			r.size.x, Color(0, 0, 0, 0.7 * k), 4)
-		y += 32.0
-	for line in wrap_lines(font, parts[-1], 30, r.size.x - 20.0, 2):
-		UiStyle.text(self, font, Vector2(r.position.x, y), line, 30, Color(UiStyle.GOLD, k), r.size.x, Color(0, 0, 0, 0.8 * k), 5)
-		y += 34.0
-	y += 6.0
-	var desc := u.description.split("\n")[0]
-	for line in wrap_lines(UiStyle.BODY_FONT, desc, 22, r.size.x - 24.0, 3):
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, y), line, 22, Color(UiStyle.PAPER, k), r.size.x,
-			Color(0, 0, 0, 0.7 * k), 4)
-		y += 27.0
+	if parts.size() > 1:  # "기술 · 강화 이름": 기술 이름은 본문 글꼴, 강화 이름만 붓글씨
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, y), parts[0], skill_px, Color(UiStyle.PAPER, k),
+			w, Color(0, 0, 0, 0.8 * k), 5)
+		y += skill_px + 14.0
+	for line in wrap_lines(UiStyle.TITLE_FONT, parts[-1], name_px, w - 20.0, 2):
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(r.position.x, y), line, name_px, Color(UiStyle.GOLD, k), w,
+			Color(0, 0, 0, 0.85 * k), 6)
+		y += name_px + 6.0
+	y += 10.0
+	var vals := UpgradeReadout.lines(u, build, steps_of(u)) if not major else ([] as Array[Dictionary])
+	if vals.is_empty():
+		for line in wrap_lines(UiStyle.BODY_FONT, u.description.replace("
+", " "), desc_px, w - 24.0, 3):
+			UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, y), line, desc_px, Color(UiStyle.PAPER, k), w,
+				Color(0, 0, 0, 0.8 * k), 5)
+			y += desc_px + 8.0
+	for v in vals.slice(0, 2):  # 값 이름은 작게, "지금 → 뒤"는 크게 금색
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, y), v["label"], value_label_px,
+			Color(UiStyle.PAPER, k), w, Color(0, 0, 0, 0.8 * k), 5)
+		y += value_px + 4.0
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, y), "%s → %s" % [v["from"], v["to"]], value_px,
+			Color(UiStyle.GOLD, k), w, Color(0, 0, 0, 0.9 * k), 6)
+		y += value_label_px + 16.0
 	var have := int(stacks.get(u.id, 0))
 	if u.max_stacks > 1:
 		var to := mini(have + gain, u.max_stacks)
 		var lv := "%d단계 → %d단계" % [have, to] if have > 0 else ("새 강화" if to <= 1 else "새 강화 → %d단계" % to)
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, r.end.y - 18), lv, 20,
-			Color(UiStyle.GOLD_DIM if have > 0 else UiStyle.GOLD, k), r.size.x, Color(0, 0, 0, 0.7 * k), 4)
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, r.end.y - 20), lv, level_px,
+			Color(UiStyle.PAPER if have > 0 else UiStyle.GOLD, k), w, Color(0, 0, 0, 0.8 * k), 5)
