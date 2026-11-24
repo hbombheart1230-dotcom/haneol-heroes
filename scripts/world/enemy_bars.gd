@@ -3,8 +3,7 @@ extends Node2D
 ## 적 머리 위 체력 막대 (설정 "적 체력"). 다친 적만, 보스는 빼고 (보스는 HUD 위쪽 막대).
 ## 적 스크립트를 건드리지 않고 한 노드에서 모두 그린다.
 
-@export var width: float = 52.0
-@export var height: float = 6.0
+@export var width: float = 64.0
 
 
 func _ready() -> void:
@@ -34,8 +33,8 @@ func bars() -> Array:
 
 
 func _draw() -> void:
+	var st := InkUiStyle.default()
 	for b in bars():
 		var w := width * (1.4 if b[2] else 1.0)
-		var r := Rect2(b[0] - Vector2(w * 0.5, 0), Vector2(w, height))
-		draw_rect(r.grow(1.5), Color(0, 0, 0, 0.6))
-		draw_rect(Rect2(r.position, Vector2(w * b[1], height)), UiStyle.GOLD if b[2] else Color(0.85, 0.2, 0.18))
+		var r := Rect2(b[0] - Vector2(w * 0.5, 0), Vector2(w, st.enemy_bar_height))
+		InkPaint.bar(self, r, b[1], st.elite_fill if b[2] else st.enemy_fill, st.bar_back, 3.0, st.bar_under)

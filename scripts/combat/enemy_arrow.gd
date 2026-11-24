@@ -50,8 +50,6 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 
 
+## 그림 한 장 (쇠 화살촉·나무 대·양쪽 깃털·먹 꼬리, InkPaint.ARROW). 촉 끝이 옛 그림 끝(+20)과 비슷하게 오고 몸통은 뒤로 길다. 판정(radius)과는 별개로 겉모습만.
 func _draw() -> void:
-	draw_line(Vector2(-16, 0), Vector2(14, 0), Color(0.35, 0.25, 0.15), 3.0)
-	draw_colored_polygon(PackedVector2Array([Vector2(20, 0), Vector2(8, -6), Vector2(8, 6)]), Ink.INK)
-	draw_line(Vector2(-18, -4), Vector2(-12, 0), Ink.SEAL, 2.0)
-	draw_line(Vector2(-18, 4), Vector2(-12, 0), Ink.SEAL, 2.0)
+	draw_texture_rect(InkPaint.ARROW, Rect2(-96.0, -15.0, 120.0, 30.0), false)
