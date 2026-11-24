@@ -17,10 +17,12 @@ func _wave_set(caps: Array, elite_at: int) -> WaveSetData:
 	return ws
 
 
-func test_default_is_off_on_every_stage() -> void:
+## 사용자 결정 (D안): 동시 상한 +8, 등장 간격 0.06초. 무리 물결 뒤 회복은 꺼짐.
+func test_every_stage_uses_plan_d_density() -> void:
 	for id in STAGES:
 		var st := load("res://data/stages/%s.tres" % id) as StageTheme
-		assert_int(st.waves.alive_cap_add).override_failure_message(id).is_equal(0)
+		assert_int(st.waves.alive_cap_add).override_failure_message(id).is_equal(8)
+		assert_float(st.waves.spawn_stagger).override_failure_message(id).is_equal_approx(0.06, 0.0001)
 		assert_float(st.waves.elite_clear_heal).override_failure_message(id).is_equal(0.0)
 
 

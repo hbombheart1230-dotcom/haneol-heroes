@@ -17,10 +17,11 @@ func _count(list: Array, d: EnemyData) -> int:
 	return list.filter(func(x: EnemyData) -> bool: return x == d).size()
 
 
-func test_default_is_off_on_every_stage() -> void:
+## 사용자 결정 (D안): 네 무대 모두 근접 잡몹 ×1.5.
+func test_every_stage_uses_one_and_a_half_melee() -> void:
 	for id in STAGES:
 		var st := load("res://data/stages/%s.tres" % id) as StageTheme
-		assert_float(st.waves.melee_count_mult).override_failure_message(id).is_equal(1.0)
+		assert_float(st.waves.melee_count_mult).override_failure_message(id).is_equal(1.5)
 
 
 func test_melee_trash_kinds() -> void:

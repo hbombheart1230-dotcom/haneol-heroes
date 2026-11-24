@@ -7,7 +7,7 @@ extends Resource
 @export var max_alive: int = 8
 ## 살아 있는 적이 이 수 이하가 되면 남은 적이 이어서 나온다.
 @export var next_when_left: int = 2
-## 근접 잡몹 수 배율 (WaveSwarm): 1 = 지금 수 (꺼짐). 체력은 그대로, 원거리·정예·무리·우두머리는 늘지 않는다.
+## 근접 잡몹 수 배율 (WaveSwarm): 1 = 배율 없음. 무대 .tres가 정한다 (D안 1.5). 체력은 그대로, 원거리·정예·무리·우두머리는 늘지 않는다.
 @export var melee_count_mult: float = 1.0
 ## 켜면 하데스식 보충: 상한에 닿은 뒤로는 한 마리가 죽을 때마다 한 마리 (first_count·next_when_left는 쓰지 않음).
 @export var refill_each: bool = false
