@@ -133,7 +133,7 @@
       ]
     },
     {
-      "key": "down",
+      "key": "death",
       "reuse": {
         "src": "Dead",
         "from": "res://assets/live3d/waegun_commander/anims/web_dead.res"

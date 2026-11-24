@@ -91,6 +91,28 @@
       "start": 0.6,
       "end": 2.4,
       "strike": 1.8
+    },
+    {
+      "key": "death",
+      "reuse": {
+        "src": "Dead",
+        "from": "res://assets/live3d/waegun_elite/anims/web_dead.res"
+      },
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "start": 0.0,
+      "end": 2.4,
+      "times": [
+        0.0,
+        0.15,
+        0.4,
+        0.9,
+        1.4,
+        1.65,
+        1.95,
+        2.4
+      ]
     }
   ]
 }

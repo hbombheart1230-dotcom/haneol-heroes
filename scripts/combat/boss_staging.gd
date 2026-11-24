@@ -166,7 +166,8 @@ func play_finale(done: Callable, final: bool = true) -> void:
 	if final:
 		spawner.active = false  # 나타나는 중인 부하는 나오지 않는다
 	else:
-		spawner.finale_until_ms = maxi(spawner.finale_until_ms, GameTime.now_ms() + int(feel.finale_time * 1000.0))  # 연출 동안 물결이 끝나지 않는다
+		var wait := maxf(feel.finale_time, EnemyDeathPose.total_time(boss.data) if is_instance_valid(boss) else 0.0)  # 쓰러진 몸이 다 사라질 때까지
+		spawner.finale_until_ms = maxi(spawner.finale_until_ms, GameTime.now_ms() + int(wait * 1000.0))  # 연출 동안 물결이 끝나지 않는다
 	for c in spawner.get_children():
 		if c is SpawnWarning and not final:
 			spawner._warnings = maxi(spawner._warnings - 1, 0)

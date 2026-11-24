@@ -329,18 +329,25 @@ static func shake(amount: float) -> void:
 
 
 ## 적 처치: 시체를 dir 쪽으로 날리고, 정예·보스면 슬로모션.
-static func enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
+## posed = 몸이 쓰러져 남는다 (EnemyDeathPose): 시체를 날리지 않고, 사라질 때 enemy_dissolved가 죽음 모양을 터뜨린다.
+static func enemy_died(e: Enemy, dir: Vector2, last_damage: int, posed: bool = false) -> void:
 	if instance == null:
 		return
-	instance._on_enemy_died(e, dir, last_damage)
+	instance._on_enemy_died(e, dir, last_damage, posed)
 
 
-func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int) -> void:
+## 쓰러진 몸이 사라지기 시작: 그 자리에 군대별 죽음 모양 + 먹 자국.
+static func enemy_dissolved(e: Enemy) -> void:
+	if instance and instance.kill_fx and e and e.data:
+		instance.kill_fx.death_burst(e.global_position, e.data.death_style, e.data.is_boss or e.data.is_elite)
+
+
+func _on_enemy_died(e: Enemy, dir: Vector2, last_damage: int, posed: bool = false) -> void:
 	play(&"die")
 	var d := e.data
 	var finisher := d != null and (d.is_boss or d.is_elite)
 	var elem := DeathCause.burst(self, e, last_damage, finisher)  # 처치한 영웅의 속성 모습 (물·번개·글자·먹)
-	if kill_fx:
+	if kill_fx and not posed:
 		var tex := EnemySprite3D.corpse_texture(e)  # 3D 적은 구운 칸 (화면 텍스처는 적과 함께 지워진다)
 		kill_fx.launch(e.global_position, dir, last_damage, tex, d.sprite_scale if d else 1.0,
 			d.sprite_offset if d else Vector2.ZERO, d.sprite_tint if d else Color.WHITE,

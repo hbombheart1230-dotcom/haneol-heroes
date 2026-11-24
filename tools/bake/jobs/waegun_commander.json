@@ -103,7 +103,7 @@
       ]
     },
     {
-      "key": "down",
+      "key": "death",
       "src": "Dead",
       "frames": 8,
       "fps": 10.0,
