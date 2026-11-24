@@ -94,6 +94,7 @@ func _ready() -> void:
 	state.ended.connect(_on_ended)
 	if hud:
 		hero_lines = HeroLineView.attach(self)  # 영웅 머리 위 한 줄 대사
+		HomeSummonButton.attach(self)  # 원정 전장: 주인 영웅 부르기 단추
 	if player and player.health:
 		player.health.died.connect(func(_e: Node) -> void: state.player_died())
 	if spawner:
