@@ -55,3 +55,22 @@ func test_long_names_shrink_to_fit_portrait_width() -> void:
 			var px := BossBanner.fit_px((g as EnemyData).display_name, WaveBannerData.default().group_name_px, w)
 			var width := UiStyle.TITLE_FONT.get_string_size((g as EnemyData).display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
 			assert_float(width).is_less_equal(w)
+
+
+func test_combo_text_hides_under_boss_banner() -> void:
+	var hud: Control = auto_free(Control.new())
+	var banner: BossBanner = BossBanner.new()
+	banner.name = "BossBanner"
+	var combo: ComboCounter = ComboCounter.new()
+	hud.add_child(banner)
+	hud.add_child(combo)
+	add_child(hud)
+	combo.add_hits(3)
+	assert_bool(combo.text_rect().has_area()).is_true()
+	var e := Enemy.new()
+	e.data = _group("hansan_1592")[0]
+	auto_free(e)
+	banner.show_boss(e)
+	assert_bool(combo.text_rect().has_area()).is_false()
+	banner.step(10.0)
+	assert_bool(combo.text_rect().has_area()).is_true()
