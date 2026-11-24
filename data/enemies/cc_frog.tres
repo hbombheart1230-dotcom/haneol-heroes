@@ -186,7 +186,7 @@ stagger_immune = 8.0
 [sub_resource type="Resource" id="Swamp"]
 script = ExtResource("9_aura")
 radius = 220.0
-field_slow_mult = 0.7
+field_slow_mult = 0.8
 
 [sub_resource type="Resource" id="Boss_feel"]
 script = ExtResource("8_feel")
@@ -211,7 +211,8 @@ phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Pha
 is_boss = true
 boss_hp_by_hero = {
 "gwanggaeto": 0.85,
-"shin_saimdang": 0.88,
+"sejong": 1.05,
+"shin_saimdang": 1.12,
 "yi_sun_sin": 1.12
 }
 boss_feel = SubResource("Boss_feel")
