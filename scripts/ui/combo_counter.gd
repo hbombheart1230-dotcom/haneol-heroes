@@ -26,6 +26,7 @@ var stopped := false
 
 
 func _ready() -> void:
+	add_to_group(SealChoice.BATTLE_TEXT)  # 패 고르기 화면 동안 숨김
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if data == null:
 		data = load(DATA_PATH) as ComboTextData

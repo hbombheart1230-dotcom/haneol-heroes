@@ -198,6 +198,8 @@ func _begin_build() -> void:
 		build.begin(player, player.get_node_or_null("SkillCaster") as SkillCaster,
 			player.get_node_or_null("AutoAttack") as AutoAttack)
 		GrowthApply.apply(build, HeroGrowth.points(GameSettings.hero_cleared, player.hero.id))  # 판 밖 성장 (깬 전장마다)
+	if seal_choice and seal_choice.cards:
+		seal_choice.cards.build = build  # 패에 "지금 → 고른 뒤" 값
 
 
 ## 렌더 프레임 기준 성능 기록 (플레이 중에만).
