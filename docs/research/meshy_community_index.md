@@ -48,6 +48,39 @@
 
 (1차 추천안(1만 면 위주)은 폐기, 이미지는 `v1\`로 옮김.)
 
+## 번호 대응 확인 (사용자가 고른 7개)
+`build/preview/meshy_community/orig_vs_now.jpg` — 원래 칸 그림(왼쪽)과 지금 번호의 모델(오른쪽)을 나란히 둔 표. 7개 모두 같은 모델로 확인(몽골 17번 = 붉은 말 위 유목 기마, 지금 7번). 원래 17번 칸은 `orig_mongol_17.jpg`. 번호 오류 아님 — 사용자는 기마 "참고용"으로 고른 것이었고, 24번(몽골 전사)은 사용자가 고른 적 없는 내가 얹은 후보.
+
+## 추천안 v3 — 만주 우두머리·북방 기마 새 검색 (`shortlist_v3_manchu_1·2.jpg`)
+검색어: mongol khan armor, barbarian warlord fur armor, steppe warlord, jurchen general, nomad king armor, hun king, lamellar armor general, wolf pelt warlord, khitan warrior, mongol khan on horse, armored cavalry commander, tatar khan (각 상위 15~19개 훑음). 모두 CC0.
+
+| 칸 | 이름 | 면 수 | 판정 |
+|---|---|---|---|
+| B | The Iron Khan (`01a1e431-06d9-7238-9f24-db651d6a1dd2`) | 4,194 | 남음 — 방패·깃털 투구·털 어깨 장수. 질감은 왜군 통과작보다 한 단계 낮음 |
+| C | Crimson Knight in the Field (`019f4ab9-f62f-7e99-8c98-d1d15a346c34`) | 771,322 | 남음 — 은 미늘+붉은 천, 칼 휘두르는 역동 자세(자세 손질 필요) |
+| F | Warrior of the Steppes (`019b6062-d777-78b7-a17f-d7eba7cce23b`) | 822,077 | 남음 — 은·붉은 미늘 갑옷, 서 있음. 가장 손질 적음 |
+| H | Warrior of the North (`019e80a3-4256-768b-9059-8c9acf328eda`) | 838,732 | 남음 — 판금+늑대털 어깨, 굽은 칼 (조형은 서양풍) |
+| I | Goryeo Korean general (`019f65c1-db16-763d-b5b6-7f51d199c5fc`) | 587,640 | 참고용 — 고려 장수라 적 진영과 안 맞음 |
+| K | Warrior on Horseback (`019a94d1-da5b-76ea-814a-abae12be3ada`) | 875,356 | 미달 — 현대 군복풍 |
+| L | old cavalry general (`019744c6-f72c-7e1a-8cd8-334827d59ad0`) | 10,000 | 미달 — 기마, 질감 약함 |
+| (제외) | Чингисхан 10,454 / orc chieftain / door god Yuchi / Frostwolf Warlord / Bumin | | 실존 인물 이름·오크·워크래프트 연상 — 조형은 가장 좋으나 제외 규칙 |
+
+결론: 만주 우두머리는 **F·C·H** 정도(왜군 통과작 4·3보다는 아래). **북방 기마는 사용자 선택 7번 외에 같은 급이 없음 → "없음"**.
+새로 만드는 안(Meshy 텍스트→3D, 약 15크레딧/개, 아직 실행 안 함):
+- 만주 우두머리: "full-body standing nomad warlord, ornate layered lamellar armor with red and gold lacing, fur-trimmed shoulders and cloak, horned-crest steel helmet with horsehair plume, curved saber drawn, heavy commanding stance, realistic high-detail PBR, A-pose" (왜군 통과작 4·3의 붉은+금 장식 느낌)
+- 북방 기마 중간 우두머리: 사람과 말을 따로 — 사람: "mounted-archer commander on foot, lamellar armor, fur cap helmet, recurve bow and saber, A-pose", 말: "armored steppe warhorse, lamellar barding, tassels, standing".
+
+## 왜군 승인 5개 — 내려받기 (크레딧 0, 형식 glb)
+다운로드 창에 크레딧 표시 없음, 잔액 1,527 그대로(전후 동일). 크기 조정 꺼짐, 기원 '바닥'. 위치: `build/meshy_agent/community/<번호>_<이름>/model.glb` (build는 gitignore, 커밋 안 함).
+| 번호 | 이름 | 파일 | 삼각형 | 키·폭 비율 | 난점 |
+|---|---|---|---|---|---|
+| 4 | Samurai Warrior in Red Armor | 81MB | 2,262,167 | 1.9 × 폭 1.4 | 활·칼이 몸 밖으로 뻗음, 칼집 분리 필요, 면 수 최대(줄이기 필수) |
+| 3 | Ornate Samuraiwarrior | 73MB | 1,155,088 | 1.9 × 1.1 | 칼 든 비대칭 자세, 늘어진 끈·천 |
+| 5 | Samurai Inferno | 23MB | 475,715 | 2.0 × 1.5 | 웅크린 넓은 자세 → 자세 펴야 함, 칼 둘 |
+| 6 | Warrior in Shadows | 64MB | 1,713,580 | 1.9 × 1.8 | 칼 둘 길게 벌어짐(폭 1.8), 역동 자세, 자세 펴야 함 |
+| 2 | Crimson Samurai | 63MB | 1,505,324 | 1.9 × 0.9 | 똑바로 선 자세, 손질 가장 적음 |
+전부: 메시 1개(통짜), 뼈대·동작 없음, 텍스처 3~4장. 뼈대 붙이기는 다음 단계.
+
 ## 제외한 것 (남의 저작물·실존 인물 연상)
 - Klingon 머리 모델 (칸 검색 17번 — 스타트렉 클링온)
 - "samurai holding a blade" (vic_designs, `samurai-holding-a-blade-01a17cee-1a7b-777c-86f7-560a12b924f6`) — 태그 lightsaber·jedi (스타워즈 연상). 사용자가 고른 옛 ashigaru #24.
