@@ -137,6 +137,22 @@ func _gradient(y0: float, y1: float, a0: float, a1: float, w: float) -> void:
 		PackedColorArray([c0, c0, c1, c1]))
 
 
+## 가로를 화면에 맞추고 위쪽에 붙인다 (IntroSlide.fit_width). 확대는 위쪽 가운데를 기준으로.
+## 그림 아래가 모자라면 어두운 색으로 채우고 그림 끝을 그 색으로 서서히 이어 붙인다.
+func _draw_fit_width(s: IntroSlide, vp: Vector2, p: float) -> void:
+	var ts := s.image.get_size()
+	var sz := ts * (vp.x / ts.x) * lerpf(s.zoom_from, s.zoom_to, p)
+	var r := Rect2(Vector2((vp.x - sz.x) * 0.5, 0.0), sz)
+	var dark := Color(0.05, 0.04, 0.04)
+	if r.end.y < vp.y:  # 아래 빈자리는 그림 끝 어둠과 같은 색
+		draw_rect(Rect2(0.0, r.end.y - 1.0, vp.x, vp.y - r.end.y + 1.0), dark)
+	draw_texture_rect(s.image, r, false, s.tint)
+	if r.end.y < vp.y:  # 그림 아래 12%를 점점 어둡게 → 이음매 없이 이어진다
+		var y0 := r.end.y - sz.y * 0.12
+		draw_polygon(PackedVector2Array([Vector2(0, y0), Vector2(vp.x, y0), Vector2(vp.x, r.end.y), Vector2(0, r.end.y)]),
+			PackedColorArray([Color(dark, 0.0), Color(dark, 0.0), dark, dark]))
+
+
 func _draw() -> void:
 	if not visible or timeline == null:
 		return
@@ -149,10 +165,13 @@ func _draw() -> void:
 	var local := t - timeline.slide_start(i)
 	var p := clampf(local / s.duration, 0.0, 1.0)
 	if s.image:
-		var ts := s.image.get_size()
-		var k := maxf(vp.x / ts.x, vp.y / ts.y) * lerpf(s.zoom_from, s.zoom_to, p)
-		var sz := ts * k
-		draw_texture_rect(s.image, Rect2((vp - sz) * 0.5 + s.pan * vp * p, sz), false, s.tint)
+		if s.fit_width:
+			_draw_fit_width(s, vp, p)
+		else:
+			var ts := s.image.get_size()
+			var k := maxf(vp.x / ts.x, vp.y / ts.y) * lerpf(s.zoom_from, s.zoom_to, p)
+			var sz := ts * k
+			draw_texture_rect(s.image, Rect2((vp - sz) * 0.5 + s.pan * vp * p, sz), false, s.tint)
 	if s.lines.size() > 0:  # 아래쪽 먹빛 (글 잘 보이게)
 		_gradient(vp.y * 0.48, vp.y, 0.0, 0.8, vp.x)
 	if s.caption != "":

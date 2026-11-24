@@ -14,3 +14,5 @@ extends Resource
 @export var zoom_from: float = 1.0
 @export var zoom_to: float = 1.08
 @export var pan: Vector2 = Vector2(0.0, -0.03)
+## 켜면 그림 가로가 화면 가로에 꼭 맞고 위쪽에 붙는다 (좌우 영웅이 잘리지 않게). 남는 아래는 어두운 색으로 이어 글·단추 자리로 쓴다. 끄면 화면을 가득 채우고 넘치는 부분을 자른다.
+@export var fit_width: bool = false
