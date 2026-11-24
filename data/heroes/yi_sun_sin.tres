@@ -95,7 +95,7 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_haeryong")
 sfx_layers = Array[StringName]([&"gugak_buk"])
 cast_anim = &"cast_tap"
-cast_speed = 0.65
+cast_speed = 0.8
 cast_lead = 0.08
 
 [sub_resource type="Resource" id="Skill_pado"]
@@ -179,8 +179,9 @@ cast_lead = 0.06
 [sub_resource type="Resource" id="Kit_yi"]
 script = ExtResource("3_kit")
 combo_finisher_free = true
+combo_finisher_mult = 0.7
 tap = SubResource("Skill_haeryong")
-finisher_recover = 0.32
+finisher_recover = 0.26
 finisher_after_strike = 0.04
 dash = SubResource("Skill_pado")
 charge = SubResource("Skill_haeil")

@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
 ## 순신 4타(해룡참) 동작이 눈에 읽히는 길이로 지켜진다 (사용자 07f0d8f "4타 모션이 없다"):
-## 예전엔 24fps 다섯 칸 0.21초를 틀고 0.11초 뒤 다음 1타가 덮었다. 이제 4타 전용 cast_speed로 0.3초 넘게,
+## 예전엔 24fps 다섯 칸 0.21초를 틀고 0.11초 뒤 다음 1타가 덮었다. 이제 4타 전용 cast_speed로 0.25초 넘게,
 ## 그동안 다음 1타가 끼어들지 않는다 (finisher_recover ≈ 동작 길이). 평타 빠르기와는 따로.
 
 const YI := preload("res://data/heroes/yi_sun_sin.tres")
@@ -9,7 +9,7 @@ const YI := preload("res://data/heroes/yi_sun_sin.tres")
 func test_finisher_motion_is_long_enough_and_guarded() -> void:
 	var c := CastAnim.of(YI.kit.tap, YI.sprite_sheet)
 	assert_str(c.anim).is_equal("cast_tap")
-	assert_float(c.seconds).is_greater_equal(0.3)
+	assert_float(c.seconds).is_greater_equal(0.25)  # 예전 0.11초만 보이던 것의 두 배 넘게, 한 바퀴 0.9초 안팎과 맞춤
 	assert_float(YI.kit.finisher_recover).is_greater_equal(c.seconds - 0.01)  # 동작이 끝날 때까지 다음 1타가 덮지 않는다
 	var caster: SkillCaster = auto_free(SkillCaster.new())
 	var p: Player = auto_free(Player.new())
