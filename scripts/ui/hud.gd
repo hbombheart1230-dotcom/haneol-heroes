@@ -125,6 +125,11 @@ func _draw() -> void:
 var hold_stage_title: bool = false
 
 
+## 물결 시작 알림 띠가 지금 그려지는 중 (연타 글씨가 그 위에 겹치지 않게 숨는다).
+func wave_banner_showing() -> bool:
+	return _wave_banner.is_showing()
+
+
 ## 물결 시작 알림이 떠 있거나 뜰 차례 (영웅 대사가 그 띠와 겹치지 않게 기다린다).
 func wave_banner_busy() -> bool:
 	return _wave_banner.is_showing() or _wave_banner.is_pending()
