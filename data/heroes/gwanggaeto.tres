@@ -150,6 +150,7 @@ cast_lead = 0.2
 
 [sub_resource type="Resource" id="Kit_gw"]
 script = ExtResource("3_kit")
+combo_finisher_free = true
 tap = SubResource("Skill_quake")
 finisher_recover = 0.3
 dash = SubResource("Skill_trail")

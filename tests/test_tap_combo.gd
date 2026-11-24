@@ -189,8 +189,11 @@ func test_auto_hits_do_not_count_by_default() -> void:
 
 ## 사용자 판 (07f0d8f): "4타 스킬이 아무 때나 나온다". 마무리 쿨타임 중 넷째 탭은 1타로 나가는데 연타 수가 3에 남아,
 ## 쿨타임이 풀리면 1타 하나 뒤 탭이 바로 마무리였다. 마무리는 1·2·3을 새로 이은 뒤에만.
+## (순신·광개토는 이제 마무리가 쿨타임과 따로라 이 길이 없다 — 쿨타임을 따르는 영웅(세종·사임당)의 규칙으로 잰다.)
 func test_finisher_needs_a_fresh_1_2_3_after_a_cooldown_hit() -> void:
 	_setup(YI)
+	caster.kit = YI.kit.duplicate()
+	caster.kit.combo_finisher_free = false
 	for i in 3:
 		_tap()
 		_wait(caster.tap_gap() + 0.12)

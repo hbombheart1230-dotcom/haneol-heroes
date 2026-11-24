@@ -36,3 +36,18 @@ func test_ring_edge_is_the_soldier_body() -> void:
 	e.set_physics_process(false)
 	assert_float(h.ring_edge_px).is_equal_approx(SkillContext.edge_of(e), 2.0)
 	assert_float(h.radius).is_equal(170.0)  # 판정 반경은 그대로 (그림만 맞춘다)
+
+
+## 띠 두께 고정 (BandFan): 그림을 판정 끝까지 키워도 고리 띠는 반경에 맞췄을 때 두께 그대로.
+func test_band_keeps_thickness_when_the_ring_grows() -> void:
+	var v: SkillVfxData = (YI.kit.tap as HaeryongSkill).vfx_impact
+	assert_float(v.band_inner_uv).is_greater(0.0)
+	var small := v.fitted_size(128.0)
+	var big := v.fitted_size(148.0)
+	var thick_before := (0.53 - v.band_inner_uv) * small  # 반경에 맞춘 그림의 띠 (VfxPieces: 바깥 테 = 크기 × 0.53)
+	var bk := small / big  # VfxDecals.burst가 넘기는 band_k
+	var thick_after := (0.53 * big - v.band_inner_uv * big) * bk
+	assert_float(thick_after).is_equal_approx(thick_before, 0.01)
+	var inn: Array = BandFan.inner(Vector2.ZERO, Vector2(0.53 * big, 0), thick_after, Vector2.RIGHT, v.band_inner_uv)
+	assert_float((inn[0] as Vector2).x).is_equal_approx(0.53 * big - thick_before, 0.01)
+	assert_int(BandFan.indices(5).size()).is_equal(4 * 9)

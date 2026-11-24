@@ -210,6 +210,9 @@ enum PieceMode { RADIAL, SCROLL }
 @export var fit_to_hit: bool = true
 ## 그림 네모 안에서 칠해진 부분의 반지름 비율 (가장자리 투명 여백 제외, tools/art 측정값).
 @export var art_fill: float = 0.88
+## 고리 그림의 띠 안쪽 끝 uv 반지름 (0~0.5, 0 = 끔). 켜면 판정 끝에 맞춰 키울 때 띠 두께는 keep_band 반경 때 그대로
+## (BandFan, SkillContext.impact의 band_radius). 바다용 고리 sea_dragon_ring.png: 알파가 0.46×반 폭부터 → 0.22.
+@export var band_inner_uv: float = 0.0
 
 @export_group("연출 · 움직이는 그림 (프레임 시트)")
 ## 비어 있지 않으면 decal 대신 이 시트를 프레임으로 재생한다 (docs/skill_vfx_sheets.md 규격). strip_sheet는 띠용.

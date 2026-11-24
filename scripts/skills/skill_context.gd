@@ -112,7 +112,8 @@ func on_projectile_hit(p: Projectile, hb: HurtBox2D) -> void:
 
 ## 기술이 내리꽂히는 자리: vfx_impact 입자 + (설정돼 있으면) 하늘에서 번개 줄기.
 ## radius > 0이면 그림을 그 판정 반경에 맞춘다 (판정과 그림 크기가 같아야 "맞을 것 같은" 대로 맞는다).
-## fit_radius ≥ 0이면 그림만 그 반지름에 맞춘다 (판정·무대 반응은 radius 그대로; 해룡참 고리 = 칼이 닿는 끝).
+## fit_radius ≥ 0이면 그림만 그 반지름에 맞춘다 (판정·무대 반응은 radius 그대로; 해룡참 고리 = 칼이 닿는 끝),
+## 고리 띠 두께는 radius에 맞췄을 때 그대로 (SkillVfxData.band_inner_uv가 켜진 그림만).
 func impact(pos: Vector2, dir: Vector2 = Vector2.ZERO, radius: float = 0.0, fit_radius: float = -1.0) -> void:
 	if skill and skill.element != &"":
 		ElementEvents.emit(skill.element, pos, radius)  # 무대 장치 반응 (들불 붙이기·끄기)
@@ -124,7 +125,8 @@ func impact(pos: Vector2, dir: Vector2 = Vector2.ZERO, radius: float = 0.0, fit_
 			v.bolt_jitter)
 	if dir.length_squared() < 0.0001 and v.piece_count > 0 and player:
 		dir = player.facing  # 조각은 바라보는 방향부터 휘감는다 (SweepRun과 같은 시작)
-	Feedback.vfx_burst(v, pos, dir, skill.vfx_level, fit_radius if fit_radius >= 0.0 else radius)
+	Feedback.vfx_burst(v, pos, dir, skill.vfx_level, fit_radius if fit_radius >= 0.0 else radius,
+		radius if fit_radius >= 0.0 else 0.0)
 	Feedback.impact_haptic()
 	SkillStageFx.play(skill.impact_sfx, 0.06)
 

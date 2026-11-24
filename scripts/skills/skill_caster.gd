@@ -28,6 +28,7 @@ enum Slot { NONE, TAP, DASH, CHARGE, COUNTER }
 
 var input := SkillInput.new()
 var _charge_marker: ChargeMarker
+var finisher_cue := FinisherCue.new()  # 다음 탭이 마무리면 발밑 금빛 고리
 ## 충전 조준 (charge_aim 기술): 모으는 동안 잡은 방향과 바닥 길 표시.
 var aim := ChargeAim.new()
 ## 적 목록 공급자. 테스트에서 교체할 수 있다.
@@ -107,6 +108,10 @@ func display_name(slot: Slot) -> String:
 
 func is_ready(slot: Slot) -> bool:
 	return def_of(slot) != null and float(_cd[slot]) <= 0.0
+
+
+func cooldown_left(slot: Slot) -> float:
+	return float(_cd[slot])
 
 
 ## 쿨타임을 바로 끝낸다 (조작 안내가 그 기술 단계를 열 때: 앞서 쓴 쿨타임에 막혀 기다리지 않게).
@@ -369,8 +374,10 @@ func _marker() -> ChargeMarker:
 func _physics_process(delta: float) -> void:
 	tick(delta, Time.get_ticks_usec() / 1_000_000.0)
 	ChargeView.tick(self, delta)
+	finisher_cue.tick(self, delta)
 	queue_redraw()
 
 
 func _draw() -> void:
 	ChargeView.draw(self)  # 충전 중 표시: 플레이어 발밑 (show_behind_parent로 영웅 그림 아래)
+	finisher_cue.draw(self)

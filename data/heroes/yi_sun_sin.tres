@@ -178,6 +178,7 @@ cast_lead = 0.06
 
 [sub_resource type="Resource" id="Kit_yi"]
 script = ExtResource("3_kit")
+combo_finisher_free = true
 tap = SubResource("Skill_haeryong")
 finisher_recover = 0.32
 finisher_after_strike = 0.04
