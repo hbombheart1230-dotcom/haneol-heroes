@@ -195,3 +195,25 @@ func test_next_button_advances_and_last_says_start() -> void:
 	assert_int(intro.timeline.slide_at(intro.t)).is_equal(1)
 	assert_bool(intro.is_open()).is_true()
 	assert_bool(intro.skip_rect().intersects(intro.next_rect())).is_false()
+
+
+func test_last_scene_fits_width_and_pins_to_top() -> void:
+	var data: IntroData = load("res://data/intro/story_intro.tres")
+	var last: IntroSlide = data.slides[data.slides.size() - 1]
+	assert_bool(last.fit_width).is_true()  # 네 영웅이 가로로 펼쳐져 있어 좌우를 자르면 안 된다
+	assert_bool(data.slides[0].fit_width).is_false()
+	var tex := last.image.get_size()
+	assert_int(int(tex.x)).is_equal(1024)  # 원본 크기 (줄이지 않음)
+
+
+func test_title_art_is_never_cropped_and_title_clears_button() -> void:
+	var title: TitleScreen = auto_free(TitleScreen.new())
+	for vp in [Vector2(1080, 2400), Vector2(720, 1280), Vector2(1080, 2640), Vector2(1080, 1920)]:
+		title.size = vp
+		var r := title.art_rect(vp)
+		assert_float(r.position.y).is_equal(0.0)  # 위쪽에 붙는다
+		assert_float(r.size.x).is_less_equal(vp.x + 0.01)
+		assert_float(r.size.y).is_less_equal(vp.y + 0.01)
+		assert_float(r.size.x / r.size.y).is_equal_approx(941.0 / 1672.0, 0.001)  # 원본 비율 그대로
+		var sub_bottom := title._title_center_y(vp) + 100.0 * vp.x / 720.0 + 12.0
+		assert_float(sub_bottom).is_less(title.button_rect().position.y)  # 작은 글줄이 단추를 가리지 않는다

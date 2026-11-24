@@ -59,7 +59,7 @@
 P0 제외: 영웅 4인 전체, 스토리 캠페인, 수집, 장비, 성장, 서버, 광고·결제, 멀티플레이, 정식 그래픽. (성장은 사용자 결정으로 3단계에서 런 안 성장만 추가)
 
 ### 보류 항목 (나중에)
-- 새 영웅 디자인(`assets/concept/redesign/heroes`, 2026-11-21)에 맞춰 나중에 따로: 입장 그림(`keyart_portrait` → `tools/art/korean_title_art.py`) + 앱 아이콘(`tools/art/make_icons.py`가 입장 그림에서 자동). 광개토 이야기 첫 장면(`assets/intro/gwanggaeto/s1.png`)도 옛 디자인. 오프닝 영상은 그 뒤
+- 새 영웅 디자인(`assets/concept/redesign/heroes`, 2026-11-21)에 맞춰 나중에 따로: 입장 그림(2026-11-24 사용자 그림으로 교체됨) + 앱 아이콘(`tools/art/make_icons.py`가 입장 그림에서 자동). 광개토 이야기 첫 장면(`assets/intro/gwanggaeto/s1.png`)도 옛 디자인. 오프닝 영상은 그 뒤
 - 강화 카드 그림 12개(기술에 안 묶인 체력·기본 공격·이동·대시 강화)는 기존 그림을 얹은 임시 그림. GPT 그림을 받으면 `assets/concept/upgrade_icons/`에 넣고 `tools/art/make_upgrade_icons.py` 재실행 (프롬프트: `docs/upgrade_icon_prompts.md`)
 
 가벼운 조정·마감 항목. 핵심 단계 진행을 막지 않는다.
@@ -173,6 +173,7 @@ Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-ag
 | (임시 효과음) | — | 자체 합성 (`scripts/fx/sfx_synth.gd`) | 엔진 AudioStreamWAV. 정식 효과음은 아트·사운드 단계에서 교체 |
 | KayKit Character Pack: Adventurers (Knight·Barbarian, 임시 캐릭터) | 1.0 | CC0 (`assets/models/kaykit/LICENSE.txt`) | https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0 (Kay Lousberg) |
 | KayKit Character Pack: Skeletons (Minion·Rogue·Warrior, 임시 적) | 1.0 | CC0 (`assets/models/kaykit_skeletons/LICENSE.txt`) | https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0 (Kay Lousberg) |
+| 입장 배경 `assets/ui/title_bg.png`(941×1672)·이야기 마지막 장면 `assets/intro/s5_four_heroes.png`(1024×1536)·스플래시 `assets/ui/splash.png`(앞 그림에 제목을 얹음, `tools/art/korean_title_art.py`) | 2026-11-24 | 사용자 제공 그림 (사용자가 GPT로 만듦). 원본 그대로, 무손실 가져오기 | 사용자. 입장 화면은 제목·낙관을 화면에서 글꼴로 그린다 |
 | 덕온공주체 (DeogonPrincess, 게임 글꼴 하나, 궁체) | 2021-10 TTF (sha256 `35ae40e5…`) | 공공누리 제3유형: 상업 사용 가능, 출처 표시, 변경 금지 (`assets/fonts/LICENSE_DeogonPrincess.txt`) | https://hanfont.hangeul.go.kr/relaxfont/font/deokon.do (국립한글박물관·윤디자인그룹) — 원본 파일 그대로 넣음 (글자 줄이기 안 함, `tests/test_fonts.gd`가 해시 확인). 출처는 설정 화면 아래에 표시 |
 | 20 Sword Sound Effects (StarNinjas, 칼 휘두름·부딪힘) | — | CC0 | https://opengameart.org/content/20-sword-sound-effects-attacks-and-clashes — 잘라 줄임 (`tools/audio/prepare_audio.py`) |
 | RPG Sound Pack (artisticdude, 대시·마법·적 쓰러짐·단추, 명중 재질: 물방울·옷 스침, 큰 타격 확인음, 적 공격 예고 "스릉"·휘두름 "휙") | `rpg_sound_pack.zip` | CC0 | https://opengameart.org/content/rpg-sound-pack — 같은 방식 |
