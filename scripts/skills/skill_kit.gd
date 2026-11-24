@@ -30,6 +30,8 @@ extends Resource
 @export var dash_auto_reach: float = 30.0
 ## 0보다 크면 내닫는 쪽 이 각도(전체, 도) 안의 적에 닿을 때만 (적을 향해 내닫을 때만). 0이면 닿기만 하면.
 @export var dash_auto_cone_deg: float = 0.0
+## 저절로 나간 둘째 기술의 피해 배율 (내닫기만 마구 해도 연타보다 세지 않게, 메인 결정 2026-11-24 ②). 1이면 그대로.
+@export var dash_auto_damage_mult: float = 1.0
 ## 이 시간 이상 누르면 충전으로 본다(초).
 @export var hold_threshold: float = 0.2
 ## 충전 시작 후 최대 충전까지(초).

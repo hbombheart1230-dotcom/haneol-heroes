@@ -123,3 +123,18 @@ func test_cone_option_limits_to_enemies_ahead() -> void:
 func test_all_four_heroes_use_dash_auto() -> void:
 	for id in ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]:
 		assert_bool((load("res://data/heroes/%s.tres" % id) as HeroData).kit.dash_auto).override_failure_message(id).is_true()
+
+
+## 순신만 (메인 결정 ②): 저절로 나간 파도격은 0.8배, 쿨타임 3.5초 — 내닫기만 마구 해도 떼거리에서 연타보다 빠르지 않게
+## (test_dash_direction 잡몹 떼 기준). 다른 영웅은 그대로.
+func test_yi_auto_dash_skill_is_damped() -> void:
+	assert_float(HERO.kit.dash_auto_damage_mult).is_equal_approx(0.8, 0.001)
+	for id in ["gwanggaeto", "sejong", "shin_saimdang"]:
+		assert_float((load("res://data/heroes/%s.tres" % id) as HeroData).kit.dash_auto_damage_mult).is_equal(1.0)
+	var e := _enemy_at(Vector2(120, 0))
+	_flick_right()
+	assert_array(casts).is_equal([SkillCaster.Slot.DASH])
+	for i in 60:
+		caster.tick(DT, 1.0 + DT * i)
+	var full: PadoSkill = HERO.kit.dash
+	assert_int(e.health.max - e.health.current).is_less(full.hit_count * full.damage_per_hit)

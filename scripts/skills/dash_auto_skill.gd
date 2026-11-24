@@ -24,7 +24,7 @@ func tick(c: SkillCaster, delta: float) -> bool:
 		return false
 	_fired = true
 	last_target = hit
-	c.cast(SkillCaster.Slot.DASH)
+	c.cast(SkillCaster.Slot.DASH, 0.0, c.kit.dash_auto_damage_mult)
 	return true
 
 
