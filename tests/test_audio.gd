@@ -89,3 +89,21 @@ func test_restart_during_boss_fade_keeps_stage_music() -> void:
 	await get_tree().create_timer(0.6).timeout
 	assert_object(Feedback.current_music()).is_same(STAGE.music)
 	assert_float(Feedback._music.volume_db).is_equal_approx(fb.music_volume_db, 0.01)
+
+
+func test_music_switch_crossfades_without_a_silent_gap() -> void:
+	var fb: Feedback = auto_free(Feedback.new())
+	add_child(fb)
+	fb.play_music(STAGE.music)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var kids := fb.get_tree().root.get_child_count()
+	var boss := AudioStreamOggVorbis.new()
+	fb.play_music(boss, 0.4)
+	assert_object(Feedback.current_music()).is_same(boss)  # 새 곡이 바로 시작
+	assert_int(fb.get_tree().root.get_child_count()).is_equal(kids + 1)  # 옛 곡이 따로 이어 줄어드는 중
+	await get_tree().create_timer(0.2).timeout
+	assert_float(Feedback._music.volume_db).is_greater(-20.0)  # 겹치는 한가운데서 새 곡은 이미 들린다 (줄었다 커지는 구간이 없다)
+	await get_tree().create_timer(0.5).timeout
+	assert_int(fb.get_tree().root.get_child_count()).is_equal(kids)  # 옛 곡 플레이어는 스스로 사라진다
+	assert_float(Feedback._music.volume_db).is_equal_approx(fb.music_volume_db, 0.01)
