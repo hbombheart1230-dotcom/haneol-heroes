@@ -16,6 +16,13 @@ var progress: RunProgress
 var badge := HeroBadge.new()
 ## 판 시작 때 띄우는 무대 이름 (연도 · 전장).
 var stage: StageTheme
+## 물결 진행 표시: 적 내보내는 쪽 (물결 모드일 때만 그린다).
+var spawner: EnemySpawner
+var _wave_prev_cleared: int = 0
+var _wave_flash: float = 0.0
+var _wave_clock: float = 0.0
+var _wave_flash_at: int = -1
+var _wave_banner := WaveBanner.new()
 const STAGE_TITLE_TIME := 3.2
 ## 보스 막대의 방금 깎인 자국 (비율): CHIP_DELAY초 뒤 CHIP_SPEED/초로 따라 내려간다.
 var _boss_chip: float = 1.0
@@ -30,6 +37,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_tick_boss_chip(delta)
+	_tick_wave_track(delta)
+	_wave_banner.tick(delta, stage_title_alpha() > 0.0, hold_stage_title)
 	badge.player = player
 	badge.tick(delta)
 	queue_redraw()
@@ -45,6 +54,42 @@ func _tick_boss_chip(delta: float) -> void:
 		_chip_wait -= delta
 	else:
 		_boss_chip = move_toward(_boss_chip, pct, CHIP_SPEED * delta)
+
+
+## 물결이 곧 시작됨 (EnemySpawner.wave_announce): 크게 알리고, 위쪽 점도 그 점에서 번진다.
+func on_wave_announce(index: int, elite: bool) -> void:
+	_wave_banner.request(index, elite)
+	_wave_flash = 1.0
+	_wave_flash_at = index
+
+
+func _wave_runner() -> WaveRunner:
+	return spawner.waves if spawner and is_instance_valid(spawner) else null
+
+
+## 끝낸 물결이 늘면 번짐 시작, 시간과 함께 줄인다.
+func _tick_wave_track(delta: float) -> void:
+	_wave_clock += delta
+	var cleared := WaveTrack.cleared_count(_wave_runner())
+	if cleared > _wave_prev_cleared:
+		_wave_flash = 1.0
+		_wave_flash_at = cleared - 1
+	_wave_prev_cleared = cleared
+	_wave_flash = maxf(_wave_flash - delta / maxf(InkUiStyle.default().wave_flash_time, 0.05), 0.0)
+
+
+## 조작 안내 중에는 숨긴다 (연습 상대만 나오고 물결이 아니라서).
+func wave_track_visible() -> bool:
+	return _wave_runner() != null and not hold_stage_title and state != null and state.is_playing()
+
+
+func _draw_wave_track() -> void:
+	if not wave_track_visible():
+		return
+	var runner := _wave_runner()
+	var cx := (BossBarDrawer.TOP_FREE.x + size.x - 70.0) * 0.5  # 우두머리 막대와 같은 가운데
+	WaveTrackDrawer.draw(self, WaveTrack.kinds(runner.data), WaveTrack.states(runner), WaveTrack.shown_number(runner),
+		cx, _wave_flash, _wave_flash_at, _wave_clock)
 
 
 func _boss() -> Enemy:
@@ -64,7 +109,9 @@ func _draw() -> void:
 	if state:
 		_draw_status()
 		_draw_boss_bar()
+		_draw_wave_track()
 		_draw_stage_title()
+		_wave_banner.draw(self, size)
 	if show_touch_debug and GameSettings.show_stats and controller:
 		_draw_touch_debug()
 	if state and not state.is_playing():
