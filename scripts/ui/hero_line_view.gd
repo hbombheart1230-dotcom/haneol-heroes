@@ -9,7 +9,14 @@ extends Control
 @export var show_time := 2.0
 @export var fade_time := 0.6
 ## 영웅 발밑(위치)에서 글 줄까지 높이 (화면 px).
-@export var head_offset := 170.0
+@export var head_offset := 190.0
+## 연타 글씨와 띄울 위아래 간격, 옆으로 이만큼 안이면 "가깝다" (화면 px). 가까우면 대사를 연타 글씨 위로 올린다.
+@export var combo_gap := 24.0
+@export var combo_reach := 140.0
+## 다른 문구(무대 시작 문구·우두머리 띠)가 사라지고 이만큼 더 기다린다 (흐려지는 끝자락과 겹치지 않게, 초).
+@export var settle_time := 0.6
+## 화면 위쪽 (우두머리 체력 띠) 아래로만.
+@export var top_margin := 150.0
 @export var font_px := 34
 
 var main: Node
@@ -18,6 +25,7 @@ var _left := 0.0
 var _pending := -1
 var _said := {}
 var _lines: HeroLines
+var _clear := 0.0
 
 
 ## Main에 붙인다 (HUD 위, 판 상태가 만들어진 뒤).
@@ -89,7 +97,8 @@ func step(delta: float) -> void:
 	if main.state.is_playing() and not _said.has(enter) and _pending == -1 \
 			and main.state.elapsed >= Hud.STAGE_TITLE_TIME:
 		queue(enter)
-	if _pending != -1 and not blocked() and allowed():
+	_clear = 0.0 if blocked() else _clear + delta
+	if _pending != -1 and _clear >= settle_time and allowed():
 		say(_pending)
 	queue_redraw()
 
@@ -104,7 +113,20 @@ func line_pos() -> Vector2:
 	if not main.state.is_playing():
 		return Vector2(vp.x * 0.5, ResultDrawer.panel_top(vp) - 30.0)
 	var p: Vector2 = main.player.get_global_transform_with_canvas().origin
-	return p - Vector2(0, head_offset)
+	return avoid_combo(p - Vector2(0, head_offset), vp)
+
+
+## 대사 줄(가운데 at)이 연타 글씨와 같은 높이에서 가까우면(한 줄처럼 읽히면) 연타 글씨 위로 올린다.
+func avoid_combo(at: Vector2, vp: Vector2) -> Vector2:
+	var combo := main.get_node_or_null("HUD/ComboCounter") as ComboCounter
+	var c := combo.text_rect() if combo else Rect2()
+	if c.size.x <= 0.0 or text == "":
+		return at
+	var w := UiStyle.TITLE_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_px).x
+	var line := Rect2(at.x - w * 0.5, at.y - font_px, w, font_px * 1.3)
+	if not line.grow_individual(combo_reach, combo_gap, combo_reach, combo_gap).intersects(c):
+		return at
+	return Vector2(at.x, maxf(c.position.y - combo_gap, top_margin + font_px))
 
 
 func _draw() -> void:

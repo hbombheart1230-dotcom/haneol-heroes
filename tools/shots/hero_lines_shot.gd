@@ -1,5 +1,5 @@
 extends SceneTree
-## 영웅 대사 장면 사진 (1080×1920): 네 영웅이 자기 전장에 들어설 때, 순신 원정, 우두머리 앞(광개토), 쓰러졌을 때(세종, 결과 판 위).
+## 영웅 대사 장면 사진 (1080×1920): 네 영웅이 자기 전장에 들어설 때, 순신 원정, 우두머리 앞(광개토), 쓰러졌을 때(세종)·이겼을 때(사임당) 결과 판 위.
 ## godot --path . -s res://tools/shots/hero_lines_shot.gd -- <출력 폴더>
 
 var out := "user://lines"
@@ -80,5 +80,13 @@ func _run() -> void:
 	m.player.health.damageable = true
 	m.state.player_died()
 	await _until_line(m, "defeat_sejong")
+	m = await _open(&"shin_saimdang")
+	await _until_line(m, "skip")
+	for i in 40:  # 연타를 쌓은 채로 이긴다 (결과 판 위에 연타 글씨가 남지 않는지)
+		Feedback.hit_serial += 1
+		await process_frame
+	m.hero_lines.step(m.hero_lines.show_time)
+	m.state.boss_defeated()
+	await _until_line(m, "victory_shin_saimdang")
 	DirAccess.remove_absolute(out.path_join("skip.png"))
 	quit()

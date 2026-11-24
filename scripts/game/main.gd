@@ -247,6 +247,9 @@ func _on_ended(result: GameState.Result) -> void:
 	music_cue(&"victory" if result == GameState.Result.VICTORY else &"defeat")
 	_end_time = 0.0
 	RunEnd.record(self, result == GameState.Result.VICTORY)  # 이긴 전장·난이도 단계·경지·시간 기록
+	var combo := get_node_or_null("HUD/ComboCounter") as ComboCounter
+	if combo:
+		combo.stop()  # 연타 글씨가 결과 판 위에 남지 않게
 	if seal_choice:
 		seal_choice.close()
 	GameTime.reset()

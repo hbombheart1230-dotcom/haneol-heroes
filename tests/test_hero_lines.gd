@@ -46,6 +46,7 @@ func _run(hero: StringName, stage: StringName = &"") -> HeroLineView:
 func _after_title(v: HeroLineView) -> void:
 	main.state.elapsed = Hud.STAGE_TITLE_TIME + 0.1
 	v.step(0.016)
+	v.step(v.settle_time)  # 문구가 사라지고 조금 더 기다린 뒤
 
 
 func test_every_hero_has_all_six_lines() -> void:
@@ -62,7 +63,7 @@ func test_every_hero_has_all_six_lines() -> void:
 func test_enter_waits_for_stage_title_then_own_line() -> void:
 	var v := await _run(&"yi_sun_sin")
 	main.state.elapsed = 1.0
-	v.step(0.016)
+	v.step(1.0)
 	assert_str(v.text).is_empty()  # 무대 시작 문구가 떠 있는 동안은 기다린다
 	_after_title(v)
 	assert_str(v.text).is_equal("이 바다를 잊게 두지 않겠다")
@@ -87,6 +88,8 @@ func test_boss_line_waits_for_banner() -> void:
 	assert_str(v.text).is_not_equal("네 깃발을 꺾으러 왔다")  # 등장 띠가 떠 있는 동안 기다림
 	banner._t = 5.0
 	v.step(0.016)
+	assert_str(v.text).is_not_equal("네 깃발을 꺾으러 왔다")  # 띠가 흐려지는 끝자락은 더 기다림
+	v.step(v.settle_time)
 	assert_str(v.text).is_equal("네 깃발을 꺾으러 왔다")
 
 
@@ -94,7 +97,7 @@ func test_defeat_line_sits_above_result_panel() -> void:
 	var v := await _run(&"sejong")
 	_after_title(v)
 	main.state.player_died()
-	v.step(0.016)
+	v.step(v.settle_time)
 	assert_str(v.text).is_equal("아직 쓸 글이 남았다…")
 	var vp := main.get_viewport().get_visible_rect().size
 	assert_float(v.line_pos().y).is_equal(ResultDrawer.panel_top(vp) - 30.0)
@@ -116,3 +119,39 @@ func test_no_lines_during_tutorial() -> void:
 	v.queue(HeroLines.Case.BOSS)
 	v.step(0.016)
 	assert_str(v.text).is_empty()
+
+
+func test_line_steers_clear_of_combo_number() -> void:
+	var v := await _run(&"yi_sun_sin")
+	_after_title(v)
+	var combo: ComboCounter = main.get_node("HUD/ComboCounter")
+	combo.add_hits(4)
+	var c := combo.text_rect()
+	assert_float(c.size.x).is_greater(0.0)
+	var vp := main.get_viewport().get_visible_rect().size
+	var at := v.avoid_combo(c.get_center(), vp)  # 머리 위가 하필 연타 글씨 자리일 때
+	var w := UiStyle.TITLE_FONT.get_string_size(v.text, HORIZONTAL_ALIGNMENT_LEFT, -1, v.font_px).x
+	var line := Rect2(at.x - w * 0.5, at.y - v.font_px, w, v.font_px * 1.3)
+	assert_bool(line.grow_individual(v.combo_reach, 0, v.combo_reach, 0).intersects(c)).is_false()  # 한 줄처럼 붙지 않게
+	assert_float(line.position.y).is_greater_equal(v.top_margin)  # 우두머리 띠 아래
+	var far := v.avoid_combo(Vector2(vp.x * 0.5, c.end.y + 300.0), vp)
+	assert_float(far.y).is_equal_approx(c.end.y + 300.0, 0.01)  # 멀면 그대로 머리 위
+
+
+func test_combo_number_cleared_when_run_ends() -> void:
+	for won in [false, true]:
+		var v := await _run(&"sejong")
+		var combo: ComboCounter = main.get_node("HUD/ComboCounter")
+		combo.add_hits(3)
+		assert_int(combo.shown()).is_equal(3)
+		if won:
+			main.state.boss_defeated()
+		else:
+			main.state.player_died()
+		assert_bool(main.state.is_playing()).is_false()
+		assert_int(combo.shown()).is_equal(0)  # 결과 판 위에 남지 않는다
+		assert_float(combo.text_rect().size.x).is_equal(0.0)
+		main.queue_free()
+		main = null
+		get_tree().paused = false
+		await get_tree().process_frame
