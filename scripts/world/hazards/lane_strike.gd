@@ -18,12 +18,19 @@ var _beats := PackedFloat32Array()
 var _beat_i: int = 0
 var _beat_flash: float = 0.0
 var _flash: float = 0.0
+## 예고 테두리(위아래 붓 획·화면 밖 화살표)만 기술 효과 위 층에 (색 규칙 B, #164: TelegraphRim과 같은 절대 z). 번짐은 바닥에.
+var rim := Node2D.new()
 
 
 func _init(d: LaneStrikeData) -> void:
 	data = d
 	clock = HazardClock.new(d)
 	_beats = LanePlan.beat_times(d.warn_time, d.beats)
+	rim.name = "LaneRim"
+	rim.z_as_relative = false
+	rim.z_index = Enemy.ai_data().telegraph_rim_z
+	rim.draw.connect(_draw_rim)
+	add_child(rim)
 
 
 func _physics_process(delta: float) -> void:
@@ -43,6 +50,7 @@ func _physics_process(delta: float) -> void:
 	_flash = maxf(_flash - delta, 0.0)
 	if clock.warning() or _flash > 0.0 or _beat_flash > 0.0:
 		queue_redraw()
+		rim.queue_redraw()
 
 
 func _begin_warn() -> void:
@@ -55,6 +63,7 @@ func _begin_warn() -> void:
 		row if data.avoid_repeat else -1)
 	_beat_i = 0
 	queue_redraw()
+	rim.queue_redraw()
 
 
 ## 지금 줄에 포격 (예고 끝). 시험이 바로 부를 수도 있다.
@@ -120,14 +129,23 @@ func _draw() -> void:
 		var fill := Color(c, (data.fill_alpha.y + 0.1) * wm)
 		InkPaint.wash_rect(self, Rect2(rect.position, Vector2(half, rect.size.y)), fill)
 		InkPaint.wash_rect(self, Rect2(Vector2(rect.end.x - half, rect.position.y), Vector2(half, rect.size.y)), fill)
-		var w := data.edge_width * (1.0 + 0.8 * _beat_flash)
-		var edge := Color(c, 0.75 + 0.25 * _beat_flash)
-		InkPaint.edge(self, rect.position.x, rect.end.x, rect.position.y, w * 2.4, edge)  # 위아래 경계: 거친 붓 획
-		InkPaint.edge(self, rect.position.x, rect.end.x, rect.end.y, w * 2.4, edge)
-		_draw_offscreen(r.x, c)
 	if _flash > 0.0:
 		var k := _flash / maxf(data.flash_time, 0.001)
 		draw_rect(rect.grow_individual(0, -hw * (1.0 - k), 0, -hw * (1.0 - k)), Color(data.flash_color, data.flash_color.a * k))
+
+
+## 예고 테두리 (rim 층): 위아래 경계 붓 획과 화면 밖 화살표. 번짐·섬광은 _draw (바닥).
+func _draw_rim() -> void:
+	if row < 0 or not clock.warning():
+		return
+	var r := data.rows[row]
+	var hw := data.half_width
+	var c := data.warn_color
+	var w := data.edge_width * (1.0 + 0.8 * _beat_flash)
+	var edge := Color(c, 0.75 + 0.25 * _beat_flash)
+	InkPaint.edge(rim, r.y, r.z, r.x - hw, w * 2.4, edge)  # 위아래 경계: 거친 붓 획
+	InkPaint.edge(rim, r.y, r.z, r.x + hw, w * 2.4, edge)
+	_draw_offscreen(r.x, c)
 
 
 ## 줄이 화면 위·아래 밖이면 그쪽 화면 끝에 화살표 (영웅 x에).
@@ -139,4 +157,4 @@ func _draw_offscreen(y: float, c: Color) -> void:
 	var x := clampf(host.player.global_position.x if host.player else view.get_center().x, view.position.x + 40, view.end.x - 40)
 	var tip := Vector2(x, view.position.y + 24.0 if up else view.end.y - 24.0)
 	var back := tip + (Vector2.DOWN if up else Vector2.UP) * 34.0
-	draw_colored_polygon(PackedVector2Array([tip, back + Vector2(-26, 0), back + Vector2(26, 0)]), Color(c, 0.6 + 0.4 * _beat_flash))
+	rim.draw_colored_polygon(PackedVector2Array([tip, back + Vector2(-26, 0), back + Vector2(26, 0)]), Color(c, 0.6 + 0.4 * _beat_flash))
