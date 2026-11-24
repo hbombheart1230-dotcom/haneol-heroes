@@ -146,7 +146,7 @@ boss_hp_by_hero = {
 "gwanggaeto": 0.85,
 "sejong": 0.93,
 "shin_saimdang": 0.78,
-"yi_sun_sin": 1.1
+"yi_sun_sin": 1.25
 }
 boss_feel = SubResource("Boss_feel")
 sprite_sheet = ExtResource("3_sheet")
