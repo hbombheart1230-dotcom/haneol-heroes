@@ -30,6 +30,9 @@ var _far_t := 0.0
 const NEAR := 260.0
 var _near_t := 0.0
 var _near_dis := 0.0
+## 가장 가까운 잡몹까지 거리 합·틱 수 (평균 싸움 거리).
+var _dist_sum := 0.0
+var _dist_n := 0
 
 
 ## 무대 꾸리기 (await 필요). caps가 비어 있지 않으면 물결별 상한을 바꾼다 (예: [8, 11, 14]).
@@ -69,6 +72,8 @@ func setup_run(st: StageTheme, s: int, caps: Array = [], grow: bool = false) -> 
 	_far_t = 0.0
 	_near_t = 0.0
 	_near_dis = 0.0
+	_dist_sum = 0.0
+	_dist_n = 0
 
 
 ## 많이 깬 영웅: 판 밖 성장 n (GrowthApply, 깬 전장 n개)과 난이도 단계 tier를 건다 (게임의 StageApply.difficulty와 같은 배율).
@@ -105,6 +110,13 @@ func _sample(list: Array) -> void:
 		var k := _wave_key()
 		_by_wave[k] = int(_by_wave.get(k, 0)) + _hp_prev - hp
 	_hp_prev = hp
+	var near := INF
+	for e: Enemy in list:
+		if e.data and not e.data.is_boss and not e.health.is_dead():
+			near = minf(near, e.global_position.distance_to(player.global_position))
+	if near < INF:
+		_dist_sum += near
+		_dist_n += 1
 	for e: Enemy in list:
 		if e.data == null or e.data.is_boss or e.data.is_elite or e.data.boss_feel:
 			continue
@@ -162,6 +174,7 @@ func run_full(miss: float = 0.0) -> Dictionary:
 	why["far"] = snappedf(_far_t / maxf(_alive_t, 0.01), 0.01)
 	out["near_disabled"] = _near_dis / maxf(_near_t, 0.01)
 	out["why"] = why
+	out["avg_dist"] = _dist_sum / maxf(_dist_n, 1)
 	return out
 
 
@@ -174,7 +187,7 @@ static func run_line(name: String, r: Dictionary) -> String:
 
 ## 성장 판 한 줄: 결과·진 물결·물결별 피해·레벨·고른 패.
 static func growth_line(name: String, r: Dictionary) -> String:
-	return "[run-growth] %s: %s%s total %.1fs (boss %.1f), hp %d, level %d, damage by wave %s, picks %s" % [
+	return "[run-growth] %s: %s%s total %.1fs (waves %.1f, boss %.1f, dist %.0f), hp %d, level %d, damage by wave %s, picks %s" % [
 		name, "WIN" if r["won"] else ("LOSE" if r["lost"] else "TIMEOUT"),
-		(" in " + r["died_in"]) if r["died_in"] != "" else "", r["total"], r["boss_time"], r["max_hp"], r["level"],
+		(" in " + r["died_in"]) if r["died_in"] != "" else "", r["total"], r["wave_time"], r["boss_time"], r.get("avg_dist", 0.0), r["max_hp"], r["level"],
 		str(r["by_wave"]), ", ".join(r["picks"])]
