@@ -51,4 +51,4 @@ func _draw() -> void:
 	var spin := _age * 6.0
 	for i in 3:
 		var a := spin + i * TAU / 3.0
-		draw_arc(Vector2.ZERO, radius * (0.45 + 0.2 * i), a, a + PI * 0.9, 24, Color(color, 0.55 * k), 6.0 - i)
+		InkPaint.arc(self, Vector2.ZERO, radius * (0.45 + 0.2 * i), a, a + PI * 0.9, 14.0 - 2.0 * i, Color(color, 0.6 * k))
