@@ -38,13 +38,14 @@ func test_print_hero_table() -> void:
 		print("[melee-table] ", _row(id))
 
 
-## 순신 사거리가 두 영웅 쪽으로 (120 → 155), 1·2·3타 전진·그림 내딛기가 더 크다.
+## 순신 사거리는 두 영웅 쪽으로 (120 → 155) 그대로. 전진·내딛기는 붙기를 뺄 때 (사용자 2026-11-24) 광개토 수준으로 (더 크지 않게).
 func test_yi_reach_and_step_in_raised() -> void:
 	var yi := _row("yi_sun_sin")
+	var gw := _row("gwanggaeto")
 	assert_int(yi["range"][0]).is_greater_equal(150)
-	assert_int(yi["step_in"][0]).is_greater(10)
-	assert_int(yi["step_in"][2]).is_greater(30)
-	assert_int(yi["lunge"][2]).is_greater(30)
+	for i in 3:
+		assert_int(yi["step_in"][i]).is_less_equal(gw["step_in"][i])
+		assert_int(yi["lunge"][i]).is_less_equal(gw["lunge"][i])
 
 
 ## 연타가 이어진다: n타 사거리 끝에서 맞은 적이 밀린 뒤 (n+1)타 전진을 빼면 (n+1)타 사거리 안 (3타 뒤는 마무리가 받는다).
