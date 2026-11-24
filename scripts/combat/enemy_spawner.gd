@@ -277,8 +277,10 @@ func _tick_waves(delta: float) -> void:
 ## 화면 안 등장 자리: center에서 min~max px (전장 안).
 func near_point(center: Vector2, dmin: float, dmax: float) -> Vector2:
 	var p := center
-	for i in maxi(spawn_point_tries, 1):  # 장애물 속이면 다시 뽑는다 (Codex e423e86 지적)
-		p = center + fit_view(Vector2.from_angle(rng.randf_range(0.0, TAU)) * rng.randf_range(dmin, dmax), dmax)
+	var tries := maxi(spawn_point_tries, 1)
+	for i in tries * 3:  # 장애물 속이면 다시 뽑는다 (Codex e423e86 지적); 한 바퀴 다 막히면 둘레를 넓혀 두 바퀴 더 (벽 많은 경복궁)
+		var far := dmax * (1.0 + 0.5 * float(i / tries))
+		p = center + fit_view(Vector2.from_angle(rng.randf_range(0.0, TAU)) * rng.randf_range(dmin, far), far)
 		if arena_rect.has_area():
 			p = p.clamp(arena_rect.position, arena_rect.end)
 		if not blocked_check.is_valid() or not bool(blocked_check.call(p, spawn_clearance)):

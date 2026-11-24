@@ -145,7 +145,9 @@ func test_impact_grows_and_pitch_rises_by_step() -> void:
 	for arr in [d.core_radius, d.streak_length, d.pitch]:
 		assert_float(HitImpactData.at_f(arr, 1, 0.0)).is_less(HitImpactData.at_f(arr, 3, 0.0))
 	assert_int(HitImpactData.at_i(d.haptic_ms, 3, 0)).is_greater(HitImpactData.at_i(d.haptic_ms, 1, 0))
-	assert_int(HitImpactData.at_i(d.streak_count, 1, 0)).is_greater_equal(4)
+	# 붓 획이라 1·2타는 두세 가닥이면 된다 (굵은 획 하나가 곧은 선 둘 몫), 3타는 더 많다
+	assert_int(HitImpactData.at_i(d.streak_count, 1, 0)).is_greater_equal(2)
+	assert_int(HitImpactData.at_i(d.streak_count, 3, 0)).is_greater(HitImpactData.at_i(d.streak_count, 1, 0))
 
 
 ## 해룡참 휘감기: 적마다 멈추지 않고 (SkillHitStop 미룸), 끝날 때 한 번.

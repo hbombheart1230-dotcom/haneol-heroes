@@ -61,6 +61,13 @@ func _run() -> void:
 			e.speed_mult = 0.0
 	for i in 15:
 		await physics_frame
+	if OS.get_environment("HH_SHOT_WINDUP") == "1":  # 적 예고가 떠 있는 때 기술을 쓴다 (예고 테두리가 기술 위에 보이는지)
+		for i in 240:
+			var winding := spawner.get_children().any(func(c: Node) -> bool:
+				return c is Enemy and (c as Enemy).attack and (c as Enemy).attack.windup_ratio() > 0.25)
+			if winding:
+				break
+			await physics_frame
 	player.facing = Vector2.UP
 	caster.aim.active = true
 	caster.aim.dir = Vector2.UP

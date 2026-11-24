@@ -6,6 +6,10 @@ extends Node2D
 
 signal chosen(upgrade: UpgradeDef, major: bool)
 
+## 패 화면이 떠 있는 동안 숨기는 전투 글자 무리 (연타 글씨·영웅 대사·물결 알림 등이 _ready에서 들어온다).
+## 피해 숫자는 FxLayer.numbers_hidden으로.
+const BATTLE_TEXT := &"battle_text"
+
 @export var player: Player
 @export var fx: FxLayer
 ## 고른 뒤 영웅 자리에서 터짐·글자.
@@ -19,6 +23,7 @@ var major: bool = false
 var stacks: Dictionary = {}
 var cards: UpgradeCards
 var _was_paused := false
+var _hidden: Array[CanvasItem] = []
 
 
 func _ready() -> void:
@@ -45,6 +50,7 @@ func open(p_choices: Array[UpgradeDef], _center: Vector2, p_major: bool, p_stack
 	stacks = p_stacks
 	if is_inside_tree():
 		get_tree().paused = true
+		_hide_battle_text(true)
 	if cards:
 		cards.open(choices, major, stacks, gain)
 
@@ -57,6 +63,27 @@ func close() -> void:
 		cards.close()
 	if is_inside_tree():
 		get_tree().paused = _was_paused
+	_hide_battle_text(false)
+
+
+## 전투 글자를 숨기거나 (우리가 숨긴 것만) 되돌린다.
+func _hide_battle_text(on: bool) -> void:
+	FxLayer.numbers_hidden = on
+	if not on:
+		for n in _hidden:
+			if is_instance_valid(n):
+				n.visible = true
+		_hidden.clear()
+		return
+	for n in get_tree().get_nodes_in_group(BATTLE_TEXT):
+		var ci := n as CanvasItem
+		if ci and ci.visible and not _hidden.has(ci):
+			ci.visible = false
+			_hidden.append(ci)
+
+
+func _exit_tree() -> void:
+	FxLayer.numbers_hidden = false
 
 
 func pick(i: int) -> void:

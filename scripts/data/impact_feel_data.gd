@@ -7,7 +7,7 @@ extends Resource
 ## 적이 공격 예고 중일 때 맞히면 피해 배율과 글자.
 @export var counter_mult: float = 1.5
 @export var counter_label: String = "반격!"
-@export var counter_color: Color = Color(0.86, 0.2, 0.12)
+@export var counter_color: Color = Color(1.0, 0.82, 0.3)  # 금빛 (붉은 인주는 적 위험 전용, Ink.SEAL)
 ## 적 등 뒤 back_arc_deg 안에서 맞히면 피해 배율과 글자 (적이 보는 방향 = 겨눈 방향 또는 걷는 방향).
 @export var back_mult: float = 1.25
 @export var back_arc_deg: float = 120.0
@@ -60,9 +60,18 @@ extends Resource
 @export var heavy_slow_scale: float = 0.1
 @export var heavy_slow_hold: float = 0.05
 @export var heavy_slow_back: float = 0.07
-## 3타째 국악 덧소리 (꽹과리 한 타, 파일이 없으면 조용히 건너뜀)와 최소 간격(초).
-@export var heavy_gugak: StringName = &"gugak_big"
+## 3타째 국악 덧소리와 최소 간격(초). 비우면 없음: 국악 타격음은 결정타에 몰아준다 (사용자 2026-11-24 "타격음 좋아").
+@export var heavy_gugak: StringName = &""
 @export var heavy_gugak_gap: float = 0.5
+
+@export_group("국악 타격음 몰아주기 (꽹과리·장구, 효과음 크기 설정을 따른다)")
+## 피해가 큰 명중(CombatFeelData.big_hit_damage 이상)마다 덧소리 (비우면 없음: 평타·보통 기술은 가볍게).
+@export var big_hit_gugak: StringName = &""
+## 결정타 명중: 넷째 탭 마무리·반격·완전 충전 기술이 맞혔을 때 한 번 (꽹과리)과 최소 간격(초).
+@export var accent_gugak: StringName = &"gugak_big"
+@export var accent_gugak_gap: float = 0.15
+## 우두머리 휘청 (포이즈 다 깎임)에 한 번 (장구). 정예·우두머리 처치와 단계 바뀜은 Feedback이 장구.
+@export var stagger_gugak: StringName = &"gugak_kill"
 
 @export_group("피해 숫자 (B6)")
 @export var number_time: float = 0.9
@@ -75,7 +84,7 @@ extends Resource
 @export var number_color: Color = Color(0.96, 0.93, 0.86)
 ## 숫자 외곽선 색 (한지색 숫자에 먹 테두리: 어두워진 바닥에서 읽히게).
 @export var number_outline_color: Color = Color(0.1, 0.08, 0.07)
-@export var number_color_big: Color = Color(0.72, 0.13, 0.1)
+@export var number_color_big: Color = Color(0.95, 0.78, 0.28)  # 금빛 (붉은 인주는 적 위험 전용)
 @export var number_color_heavy: Color = Color(0.9, 0.55, 0.08)
 ## 화면에 동시에 떠 있는 숫자·글자 최대 (떼거리에서 숫자가 화면을 덮지 않게, 넘으면 새 숫자는 생략).
 @export var max_numbers: int = 18

@@ -24,6 +24,8 @@
 [ext_resource type="Resource" path="res://data/enemies/jurchen_archer.tres" id="e_jurchen_archer"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_heavy.tres" id="e_jurchen_heavy"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_elite.tres" id="e_jurchen_elite"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_bow_captain.tres" id="e_bow_captain"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_horn.tres" id="e_horn"]
 [ext_resource type="Resource" path="res://data/enemies/jurchen_chieftain.tres" id="e_jurchen_chieftain"]
 [ext_resource type="Resource" path="res://data/breakables/gyeongbokgung_1433.tres" id="b_gyeongbokgung_1433"]
 [ext_resource type="Resource" path="res://data/songs/gyeongbokgung_1433.tres" id="song"]
@@ -53,6 +55,7 @@ first_count = 6
 max_alive = 8
 elite_last = true
 elite_when_left = 2
+elite_group = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_elite"), ExtResource("e_bow_captain"), ExtResource("e_horn")])
 
 [sub_resource type="Resource" id="Wave_4"]
 script = ExtResource("w_wave")

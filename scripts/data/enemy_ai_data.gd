@@ -79,5 +79,8 @@ extends Resource
 @export var swarm_scale: float = 0.8
 @export var swarm_spread: float = 140.0
 
+## 적 예고 테두리를 그리는 절대 z (TelegraphRim, 색 규칙 B): 기술 효과(검기 4·효과 5·타격 섬광 20·탄 21)보다 위.
+@export var telegraph_rim_z: int = 22
+
 @export_group("정예 변종")
 @export var elite_affixes: Array[EliteAffixData] = []

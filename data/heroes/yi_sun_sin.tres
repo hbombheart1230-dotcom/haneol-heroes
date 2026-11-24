@@ -43,12 +43,13 @@
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
-melee_interval = 0.46
+melee_interval = 0.36
 melee_range = 155.0
 melee_arc_degrees = 150.0
-melee_damage = 13
+melee_damage = 10
 use_ranged = false
-step_gap_mults = PackedFloat32Array(0.978, 0.565, 0.609)
+step_gap_mults = PackedFloat32Array(0.694, 0.694, 0.694)
+step_windup_pause = PackedFloat32Array(0, 0, 0)
 swing_slow_time = 0.15
 melee_knockback = 140.0
 step_knockback_mults = PackedFloat32Array(0.85, 0.85, 1.0)
@@ -95,6 +96,7 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_haeryong")
 sfx_layers = Array[StringName]([&"gugak_buk"])
 cast_anim = &"cast_tap"
+cast_speed = 0.8
 cast_lead = 0.08
 
 [sub_resource type="Resource" id="Skill_pado"]
@@ -115,7 +117,7 @@ hit_interval = 0.07
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_pado")
-sfx_layers = Array[StringName]([&"gugak_kill"])
+sfx_layers = Array[StringName]([&"gugak_buk"])
 cast_anim = &"cast_dash"
 cast_lead = 0.06
 
@@ -177,8 +179,10 @@ cast_lead = 0.06
 
 [sub_resource type="Resource" id="Kit_yi"]
 script = ExtResource("3_kit")
+combo_finisher_free = true
+combo_finisher_mult = 0.58
 tap = SubResource("Skill_haeryong")
-finisher_recover = 0.11
+finisher_recover = 0.26
 finisher_after_strike = 0.04
 dash = SubResource("Skill_pado")
 charge = SubResource("Skill_haeil")

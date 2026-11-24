@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="HeroLines" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hero_lines.gd" id="1_lines"]
+
+[resource]
+script = ExtResource("1_lines")
+; 자기 전장 · 원정 · 우두머리 앞 · 이김 · 쓰러짐 · 소환되어 도울 때 (사용자 확정 2026-11-24)
+lines = PackedStringArray("글자가 길을 밝히리라", "다른 이의 기록도 지키겠다", "네 이름도 바로 적어 주마", "기록은 사라지지 않는다", "아직 쓸 글이 남았다…", "글자여, 빛이 되어라!")

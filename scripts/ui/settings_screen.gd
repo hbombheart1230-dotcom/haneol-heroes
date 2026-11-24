@@ -27,11 +27,15 @@ var _drag_row: StringName = &""
 var _press_index := -1
 ## 나가기를 한 번 누르고 확인을 기다리는 중.
 var _confirming := false
+## "만든 이들" (출처·저작권 고지): 맨 아래 단추로 연다. 열려 있는 동안 입력은 그쪽이 받는다.
+var credits: CreditsScreen
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	credits = CreditsScreen.new()
+	add_child(credits)
 	hide()
 
 
@@ -43,6 +47,7 @@ func open() -> void:
 	_drag_row = &""
 	_press_index = -1
 	_confirming = false
+	credits.close()
 	show()
 	opened.emit()
 	queue_redraw()
@@ -51,6 +56,7 @@ func open() -> void:
 func close() -> void:
 	if not visible:
 		return
+	credits.close()
 	hide()
 	get_tree().paused = _was_paused
 	closed.emit()
@@ -65,6 +71,8 @@ func is_open() -> bool:
 func back() -> void:
 	if not visible:
 		open()
+	elif credits.is_open():
+		credits.close()
 	elif _confirming:
 		_confirming = false
 		queue_redraw()
@@ -79,7 +87,7 @@ func _vp() -> Vector2:
 func panel_rect() -> Rect2:
 	var vp := _vp()
 	var w := minf(vp.x - 48.0, 620.0)
-	var h := 150.0 + ROWS.size() * ROW_STEP + 130.0
+	var h := 150.0 + ROWS.size() * ROW_STEP + 146.0
 	return Rect2((vp.x - w) * 0.5, (vp.y - h) * 0.5, w, h)
 
 
@@ -101,7 +109,13 @@ func toggle_rect(i: int) -> Rect2:
 
 func close_rect() -> Rect2:
 	var p := panel_rect()
-	return Rect2(p.get_center().x - 260.0, p.end.y - 126.0, 250.0, 80.0)  # 아래 출처 두 줄 자리
+	return Rect2(p.get_center().x - 260.0, p.end.y - 142.0, 250.0, 80.0)  # 아래는 "만든 이들" 단추 자리
+
+
+## 맨 아래 "만든 이들" 단추 (출처·저작권 고지 화면).
+func credits_rect() -> Rect2:
+	var p := panel_rect()
+	return Rect2(p.get_center().x - 160.0, p.end.y - 56.0, 320.0, 46.0)
 
 
 func exit_rect() -> Rect2:
@@ -201,6 +215,9 @@ func handle_touch(index: int, pos: Vector2, pressed: bool) -> void:
 			_confirming = false
 			queue_redraw()
 		return
+	if credits_rect().has_point(pos):
+		credits.open()
+		return
 	if exit_rect().has_point(pos):
 		_confirming = true
 		queue_redraw()
@@ -224,7 +241,7 @@ func _slide(i: int, pos: Vector2) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if not visible:
+	if not visible or credits.is_open():
 		return
 	# 먼저 잡아 둔다: "전장 나가기" 확인이면 이 누름 안에서 장면이 바뀌어 이 노드가 트리에서 빠진다.
 	var vp := get_viewport()
@@ -265,10 +282,7 @@ func _draw() -> void:
 				UiStyle.GOLD if on else Color(UiStyle.PAPER, 0.6), t.size.x)
 	UiStyle.button(self, close_rect(), "닫기", 40)
 	UiStyle.button(self, exit_rect(), _exit_text(0), 40)
-	for k in UiStyle.CREDITS.size():  # 출처 (공공누리)
-		var y := p.end.y - 10.0 - (UiStyle.CREDITS.size() - 1 - k) * 20.0
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(p.position.x, y), UiStyle.CREDITS[k], 16,
-			Color(UiStyle.PAPER, 0.5), p.size.x)
+	UiStyle.button(self, credits_rect(), "만든 이들", 26)  # 출처 표시·저작권 고지
 	if _confirming:
 		_draw_confirm()
 

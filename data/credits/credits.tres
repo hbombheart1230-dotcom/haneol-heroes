@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CreditsData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/credits_data.gd" id="1_credits"]
+
+[resource]
+script = ExtResource("1_credits")
+required = PackedStringArray("글꼴: 국립한글박물관 덕온공주체
+이 작품은 국립한글박물관이 공공누리 제3유형으로 개방한 '덕온공주체'를 이용하였으며, 해당 저작물은 국립한글박물관 한글글꼴 누리집(hanfont.hangeul.go.kr)에서 무료로 내려받으실 수 있습니다.", "국악 소리: (재)전주정보문화산업진흥원
+이 작품은 (재)전주정보문화산업진흥원이 공공누리 제1유형으로 개방한 '전통악기_장구_치다_보통속도_Ver.1', '전통악기_꽹과리_치다_연주'를 이용하였으며, 해당 저작물은 공유마당(gongu.copyright.or.kr)에서 무료로 내려받으실 수 있습니다.", "초충도 그림: 국립중앙박물관
+이 작품은 국립중앙박물관이 공공누리 제1유형으로 개방한 '전 신사임당필 초충도(신수3550)'를 이용하였으며, 해당 저작물은 국립중앙박물관 누리집(www.museum.go.kr)에서 무료로 내려받으실 수 있습니다.", "만주 벌판 무늬: 국립문화유산연구원
+이 작품은 국립문화유산연구원(옛 국립문화재연구원)이 공공누리 제1유형으로 개방한 '무용총 수렵도' 사진을 이용하였으며, 해당 저작물은 문화유산 지식e음(portal.nrich.go.kr)에서 무료로 내려받으실 수 있습니다.")
+licenses = PackedStringArray("Health, HitBoxes, HurtBoxes and HitScans (cluttered-code)
+https://github.com/cluttered-code/godot-health-hitbox-hurtbox
+
+MIT License
+
+Copyright (c) 2023 David Clutter
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the \"Software\"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.")
+thanks = PackedStringArray("효과음: OpenGameArt — StarNinjas, artisticdude, rubberduck, Independent.nu (CC0)", "무대 음악 일부: Asianoriental1, OpenGameArt (CC0)", "바닥 질감: Poly Haven, ambientCG (CC0)", "한산 무늬: 『이충무공전서』 귀선도 (퍼블릭 도메인)", "경복궁 무늬: 서울대학교 규장각한국학연구원 소장 북궐후원도형 (퍼블릭 도메인)")

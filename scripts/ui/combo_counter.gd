@@ -21,9 +21,12 @@ var _age: float = INF
 var _alpha: float = 0.0
 var _finish_left: float = 0.0
 var _seen: int = 0
+## 판이 끝나면(이김·쓰러짐) 바로 지우고 더 세지 않는다 (결과 판 위에 남지 않게, Main._on_ended).
+var stopped := false
 
 
 func _ready() -> void:
+	add_to_group(SealChoice.BATTLE_TEXT)  # 패 고르기 화면 동안 숨김
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if data == null:
 		data = load(DATA_PATH) as ComboTextData
@@ -61,6 +64,24 @@ func add_hits(n: int = 1) -> void:
 	queue_redraw()
 
 
+func stop() -> void:
+	stopped = true
+	_n = 0
+	_alpha = 0.0
+	queue_redraw()
+
+
+## 지금 보이는 글이 차지하는 자리 (화면 좌표, 안 보이면 빈 칸). 영웅 대사가 이 자리를 피한다.
+func text_rect() -> Rect2:
+	if _n == 0 or _alpha <= 0.0 or data == null:
+		return Rect2()
+	var px := size_for(_n, finishing(), data)
+	var vp := size if size.x > 0.0 else get_viewport_rect().size
+	var at := vp * data.anchor
+	var w := FONT.get_string_size(_label, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	return Rect2(at.x - w * 0.5, at.y - px, w, px * 1.25)
+
+
 func shown() -> int:
 	return _n
 
@@ -85,6 +106,8 @@ func break_time() -> float:
 
 
 func _process(delta: float) -> void:
+	if stopped:
+		return
 	var serial := Feedback.hit_serial
 	if serial != _seen:
 		add_hits(serial - _seen)

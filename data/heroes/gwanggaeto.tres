@@ -42,7 +42,7 @@ melee_damage = 21
 use_ranged = false
 step_gap_mults = PackedFloat32Array(0.921, 0.592, 0.658)
 melee_knockback = 220.0
-swing_color = Color(0.95, 0.55, 0.1, 0.95)
+swing_color = Color(0.95, 0.62, 0.14, 0.95)
 melee_recoil = 6.0
 ranged_interval = 1.2
 ranged_range = 320.0
@@ -134,7 +134,7 @@ icon = ExtResource("i_conqueror")
 id = &"conqueror"
 display_name = "정복자의 일격"
 cooldown = 0.0
-color = Color(0.8, 0.3, 0.2, 1)
+color = Color(0.85, 0.6, 0.15, 1)
 fx_color = Color(1, 0.8, 0.35, 1)
 radius = 280.0
 damage = 70
@@ -150,6 +150,7 @@ cast_lead = 0.2
 
 [sub_resource type="Resource" id="Kit_gw"]
 script = ExtResource("3_kit")
+combo_finisher_free = true
 tap = SubResource("Skill_quake")
 finisher_recover = 0.3
 dash = SubResource("Skill_trail")

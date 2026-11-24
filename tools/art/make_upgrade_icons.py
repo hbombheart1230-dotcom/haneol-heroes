@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 from icon_badges import badge  # noqa: E402
 from upgrade_icon_spec import HEROES, SPEC  # noqa: E402
 from make_portraits import portrait  # noqa: E402
+import ink_icons  # noqa: E402  (수묵 후처리, 사용자 결정 2026-11-24 "약")
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 BUST_SCALE, BUST_DROP = 1.7, 0.22  # "강건" 상반신: 초상보다 넓게, 어깨가 보이게 아래로
@@ -39,7 +40,10 @@ def _load(rel: str) -> Image.Image:
 
 
 def _icon(name: str) -> Image.Image:
-    return _load(f"assets/ui/icons/{name}.png").resize((WORK, WORK), Image.LANCZOS)
+    """기술 아이콘 원본 (수묵 처리 전, assets/concept/icons_src). 수묵은 아래 make_icon에서 한 번만 건다."""
+    src = f"assets/concept/icons_src/{name}.png"
+    rel = src if os.path.exists(os.path.join(ROOT, src)) else f"assets/ui/icons/{name}.png"
+    return _load(rel).resize((WORK, WORK), Image.LANCZOS)
 
 
 def _inner_mask() -> Image.Image:
@@ -150,6 +154,7 @@ def make_icon(hero: str, uid: str) -> Image.Image:
     frame = _icon(sp["base"][5:] if sp["base"].startswith("icon:") else HEROES[hero]["frame"])
     out = frame.copy()
     out.paste(art, (0, 0), _inner_mask())
+    out = ink_icons.ink(out, ink_icons.LEVELS[ink_icons.APPLIED], ink_icons.HEROES[hero][0])  # 수묵 (효과 표시 얹기 전)
     if sp["badge"] == "major":  # 큰 변형: 안쪽 금빛 테
         ring = Image.new("RGBA", (WORK, WORK), (0, 0, 0, 0))
         ImageDraw.Draw(ring).rounded_rectangle([INSET + 3, INSET + 3, WORK - INSET - 4, WORK - INSET - 4], RADIUS - 3,

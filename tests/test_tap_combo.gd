@@ -75,6 +75,7 @@ func test_combo_logic() -> void:
 	assert_int(c.decide(3, true, true)).is_equal(TapCombo.Action.FINISH)
 	assert_int(c.decide(3, true, false)).is_equal(TapCombo.Action.HIT)  # 마무리 쿨타임 중: 평타
 	assert_int(c.on_hit(3, 3)).is_equal(1)  # 동작은 다시 1타
+	assert_int(c.streak).is_equal(1)  # 연타 수도 다시 1 (마무리가 아무 때나 나오지 않게)
 	assert_int(c.decide(3, false, false)).is_equal(TapCombo.Action.BUFFERED)
 	c.tick(2.0, 1.2)
 	assert_int(c.streak).is_equal(0)  # 연계 끊김
@@ -184,3 +185,45 @@ func test_auto_hits_do_not_count_by_default() -> void:
 	attack.tick(DT, [e])  # 자동 근접
 	assert_int(swings.size()).is_equal(1)
 	assert_int(caster.combo.streak).is_equal(0)
+
+
+## 사용자 판 (07f0d8f): "4타 스킬이 아무 때나 나온다". 마무리 쿨타임 중 넷째 탭은 1타로 나가는데 연타 수가 3에 남아,
+## 쿨타임이 풀리면 1타 하나 뒤 탭이 바로 마무리였다. 마무리는 1·2·3을 새로 이은 뒤에만.
+## (순신·광개토는 이제 마무리가 쿨타임과 따로라 이 길이 없다 — 쿨타임을 따르는 영웅(세종·사임당)의 규칙으로 잰다.)
+func test_finisher_needs_a_fresh_1_2_3_after_a_cooldown_hit() -> void:
+	_setup(YI)
+	caster.kit = YI.kit.duplicate()
+	caster.kit.combo_finisher_free = false
+	for i in 3:
+		_tap()
+		_wait(caster.tap_gap() + 0.12)
+	caster._cd[SkillCaster.Slot.TAP] = 0.5  # 마무리 쿨타임이 아직 남음
+	_tap()  # 넷째 탭 = 1타
+	assert_array(casts).is_empty()
+	assert_int(swings[-1]).is_equal(1)
+	assert_int(caster.combo.streak).is_equal(1)  # 1타부터 다시 센다
+	_wait(0.6)  # 쿨타임 풀림 (연계 시간 안)
+	_tap()
+	assert_array(casts).is_empty()  # 2타 (예전엔 여기서 해룡참)
+	assert_int(swings[-1]).is_equal(2)
+
+
+## 1·2·3타 뒤 다른 기술(모으기 해일검기)이나 내닫기를 썼으면 연타는 처음부터 (다음 탭이 마무리로 새지 않게).
+func test_other_skill_or_dash_resets_the_chain() -> void:
+	_setup(YI)
+	for i in 3:
+		_tap()
+		_wait(caster.tap_gap() + 0.12)
+	caster.cast(SkillCaster.Slot.CHARGE, 1.0)
+	_wait(0.3)
+	_tap()
+	assert_bool(casts.has(SkillCaster.Slot.TAP)).is_false()
+	assert_int(caster.combo.streak).is_equal(1)
+	for i in 2:
+		_wait(caster.tap_gap() + 0.12)
+		_tap()
+	_wait(caster.tap_gap() + 0.12)
+	player.dash_started.emit(Vector2.RIGHT)
+	_tap()
+	assert_bool(casts.has(SkillCaster.Slot.TAP)).is_false()
+	assert_int(caster.combo.streak).is_equal(1)

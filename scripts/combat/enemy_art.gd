@@ -65,9 +65,19 @@ static func _opening(e: Enemy) -> void:
 	e.draw_arc(top, e.body_radius * 0.55, spin, spin + PI * 1.5, 12, Color(Ink.INK, 0.6), 1.5)
 
 
-## 예고 영역: 인주 빛으로 차오르고 먹선 테두리.
+## 예고 그리는 부분: 채움(바닥, 적 노드)과 테두리(기술 효과 위 층, TelegraphRim). 색 규칙 B (사용자 2026-11-24).
+const FILL := 1
+const RIM := 2
+
+
+## 예고 영역: 인주 빛으로 차오르고 먹선 테두리. 테두리는 TelegraphRim이 있으면 그쪽(기술 효과 위)에서 그린다.
 static func _telegraph(e: Enemy) -> void:
 	_opening(e)
+	telegraph_part(e, e, FILL if e.has_node(^"TelegraphRim") else FILL | RIM)
+
+
+## 예고 한 부분을 c(적과 같은 좌표계)에 그린다. part = FILL·RIM 비트.
+static func telegraph_part(e: Enemy, c: CanvasItem, part: int) -> void:
 	var a := e.attack
 	if a == null or a.state != EnemyAttack.State.WINDUP:
 		return
@@ -76,33 +86,44 @@ static func _telegraph(e: Enemy) -> void:
 	var flash := a.is_flashing(Enemy.ai_data().strike_flash_time)
 	var fill := Color(Ink.SEAL, (0.12 + 0.3 * k) + (0.2 if flash else 0.0))
 	var edge := Color(Ink.SEAL.lightened(0.45), 1.0) if flash else Color(Ink.SEAL, 0.85)
+	var do_fill := part & FILL != 0
+	var do_rim := part & RIM != 0
 	var origin := e.to_local(a.aim_origin)
 	match a.data.kind:
-		EnemyAttackData.Kind.SHOOT:
-			var end := a.aim_dir * a.data.projectile_range
-			Ink.stroke(e, Vector2.ZERO, end, 3.0 + 7.0 * k + (4.0 if flash else 0.0), edge if flash else Color(Ink.SEAL, 0.2 + 0.4 * k))
+		EnemyAttackData.Kind.SHOOT:  # 조준선 자체가 테두리
+			if do_rim:
+				var end := a.aim_dir * a.data.projectile_range
+				Ink.stroke(c, Vector2.ZERO, end, 3.0 + 7.0 * k + (4.0 if flash else 0.0), edge if flash else Color(Ink.SEAL, 0.2 + 0.4 * k))
 		EnemyAttackData.Kind.CONE:
 			var half := deg_to_rad(a.data.angle_degrees * 0.5)
 			var a0 := a.aim_dir.angle()
 			var pts := PackedVector2Array([origin])
 			for i in 17:
 				pts.append(origin + Vector2.from_angle(a0 - half + 2.0 * half * i / 16.0) * a.data.radius)
-			e.draw_colored_polygon(pts, fill)
-			pts.append(origin)
-			e.draw_polyline(pts, edge, 4.0)
+			if do_fill:
+				c.draw_colored_polygon(pts, fill)
+			if do_rim:
+				pts.append(origin)
+				c.draw_polyline(pts, edge, 4.0)
 		EnemyAttackData.Kind.CHARGE, EnemyAttackData.Kind.PULL, EnemyAttackData.Kind.THRUST:
 			var d := a.aim_dir
 			var n := d.orthogonal() * a.data.width * 0.5
 			var back := origin - d * a.data.width * 0.5
 			var front := origin + d * a.data.length
 			var rect := PackedVector2Array([back + n, front + n, front - n, back - n])
-			e.draw_colored_polygon(rect, fill)
-			rect.append(back + n)
-			e.draw_polyline(rect, edge, 4.0)
+			if do_fill:
+				c.draw_colored_polygon(rect, fill)
+			if do_rim:
+				rect.append(back + n)
+				c.draw_polyline(rect, edge, 4.0)
 		EnemyAttackData.Kind.SHOCKWAVE:
-			Ink.blob(e, origin, a.data.radius * k, fill, 3.0, 0.06, 0.6)
-			Ink.ring(e, origin, a.data.radius, 4.0, edge)
+			if do_fill:
+				Ink.blob(c, origin, a.data.radius * k, fill, 3.0, 0.06, 0.6)
+			if do_rim:
+				Ink.ring(c, origin, a.data.radius, 4.0, edge)
 		_:  # SLAM: 플레이어 자리
 			var p := e.to_local(a.target_point)
-			Ink.blob(e, p, a.data.radius * k, fill, 4.0, 0.06, 0.6)
-			Ink.ring(e, p, a.data.radius, 4.0, edge)
+			if do_fill:
+				Ink.blob(c, p, a.data.radius * k, fill, 4.0, 0.06, 0.6)
+			if do_rim:
+				Ink.ring(c, p, a.data.radius, 4.0, edge)

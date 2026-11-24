@@ -16,7 +16,7 @@ extends Resource
 ## 글 색 (한지)과 먹 외곽선 (피해 숫자와 같은 색, ImpactFeelData.number_color·number_outline_color), 마무리 글 색 (인주)과 외곽선 굵기.
 @export var color: Color = Color(0.96, 0.93, 0.86, 1)
 @export var outline: Color = Color(0.1, 0.08, 0.07, 1)
-@export var finish_color: Color = Color(0.82, 0.16, 0.1, 1)
+@export var finish_color: Color = Color(0.92, 0.72, 0.22, 1)  # 금빛 (붉은 인주는 적 위험 전용)
 @export var outline_px: int = 10
 ## 글 뒤 먹 붓자국 (가로 길이 = 글 크기 × 이 값, 0이면 없음 = 기본: 회색 상자로 보여 사용자가 테두리만 골랐다)과 색.
 @export var stroke_mult: float = 0.0
