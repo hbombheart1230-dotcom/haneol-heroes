@@ -178,9 +178,11 @@ func test_mid_boss_death_clears_minions_but_keeps_spawner_and_no_victory() -> vo
 func test_hero_boss_hp_mult_applies_to_mid_boss() -> void:
 	var gw: HeroData = load("res://data/heroes/gwanggaeto.tres")
 	var d := _elite()
-	assert_int(BossHpScale.for_hero(d, gw).max_hp).is_equal(roundi(d.max_hp * gw.boss_hp_mult))
+	assert_int(BossHpScale.for_hero(d, gw).max_hp).is_equal(roundi(d.max_hp * BossHpScale.mult(d, gw)))  # 영웅 배율 × 셋별 광개토 칸
 	var plain := SOLDIER
 	assert_object(BossHpScale.for_hero(plain, gw)).is_same(plain)
+	assert_float(BossHpScale.mult(d, gw)).is_equal_approx(gw.boss_hp_mult * float(d.boss_hp_by_hero["gwanggaeto"]), 0.0001)
+	assert_float(BossHpScale.mult(d, gw)).is_less(gw.boss_hp_mult)  # 셋은 광개토 칸으로 깎인다 (셋 싸움 길이)
 
 
 ## 결정적 시뮬레이션: 무대 주인 영웅이 피하며 치면 (영웅 배율 받은 체력) 15~25초 안에 잡고 (등장 대기·소환 포함),
