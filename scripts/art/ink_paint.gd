@@ -58,3 +58,15 @@ static func tail(c: CanvasItem, from: Vector2, dir: Vector2, length: float, thic
 	c.draw_set_transform(from, dir.angle(), Vector2.ONE)
 	c.draw_texture_rect(TAIL, Rect2(0.0, -thick * 0.5, length, thick), false, color)
 	c.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
+## 붓으로 그은 호: center 둘레 반지름 radius, a0→a1(라디안). 굵은 획이 이어 붙어 끝으로 갈수록 가늘다 (thick = 시작 굵기).
+static func arc(c: CanvasItem, center: Vector2, radius: float, a0: float, a1: float, thick: float, color: Color,
+		segs: int = 16) -> void:
+	var step := (a1 - a0) / segs
+	for s in segs:
+		var aa := a0 + step * s
+		var th := thick * (1.0 - 0.55 * float(s) / segs)
+		c.draw_set_transform(center + Vector2.from_angle(aa) * radius, aa + PI * 0.5 * signf(step), Vector2.ONE)
+		c.draw_texture_rect(EDGE, Rect2(0.0, -th * 0.5, absf(step) * radius * 1.3, th), false, color)
+	c.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

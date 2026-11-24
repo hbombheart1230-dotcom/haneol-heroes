@@ -6,11 +6,13 @@ extends RefCounted
 static func draw(e: Enemy, slowed: bool, stunned: bool) -> void:
 	var r := e.body_radius
 	if slowed:  # 느려짐: 발밑 먹 고리
-		e.draw_arc(Vector2(0, r * 0.7), r * 1.1, 0.0, TAU, 20, Color(Ink.INK, 0.35), 3.0)
+		e.draw_set_transform(Vector2(0, r * 0.7), 0.0, Vector2(1.0, 0.6))  # 바닥에 눕힌 붓 고리
+		InkPaint.ring(e, Vector2.ZERO, r * 1.1, Color(Ink.INK, 0.6))
+		e.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	if stunned:  # 기절: 머리 위 번개 고리
 		var top := Vector2(0, -r * 2.2)
 		var spin := Time.get_ticks_msec() * 0.008
-		e.draw_arc(top, r * 0.6, spin, spin + PI * 1.3, 12, Color(1.0, 0.9, 0.3, 0.9), 3.0)
+		InkPaint.arc(e, top, r * 0.6, spin, spin + PI * 1.3, 7.0, Color(1.0, 0.9, 0.3, 0.95), 12)
 	_draw_poise(e)
 
 
