@@ -184,8 +184,9 @@ func _draw_flames(p: Vector2, c: float, i: int) -> void:
 func _draw_ember(p: Vector2) -> void:
 	var t := clock.warn_ratio()
 	var r := data.ember_radius * (1.25 - 0.25 * t)
-	draw_arc(p, r, 0, TAU, 40, Color(data.ember_color, 0.35 + 0.5 * t), 5.0 + 3.0 * t)
-	draw_circle(p, r, Color(data.ember_color, 0.08 + 0.12 * t))
+	var st := InkUiStyle.default()  # 반지름 r은 그대로: 붓 고리의 바깥이 r, 안쪽은 먹 번짐
+	InkPaint.wash(self, p, r, Color(data.ember_color, (0.08 + 0.12 * t) * st.wash_alpha_mult))
+	InkPaint.ring(self, p, r, Color(data.ember_color, (0.45 + 0.5 * t) * st.ring_alpha_mult))
 	var drop := p + Vector2(0, -520.0 * (1.0 - t))
 	Ink.blob(self, drop, 14.0, data.ember_color, 3.0)
 	Ink.stroke(self, drop + Vector2(0, -60), drop, 10.0, Color(data.ember_color, 0.6))

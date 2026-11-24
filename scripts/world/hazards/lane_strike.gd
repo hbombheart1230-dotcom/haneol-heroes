@@ -114,11 +114,12 @@ func _draw() -> void:
 	if clock.warning():
 		var t := clock.warn_ratio()
 		var c := data.warn_color
-		draw_rect(rect, Color(c, lerpf(data.fill_alpha.x, data.fill_alpha.y, t)))
+		var wm := InkUiStyle.default().wash_alpha_mult  # 범위(rect)는 그대로, 안쪽만 먹 번짐
+		InkPaint.wash_rect(self, rect, Color(c, lerpf(data.fill_alpha.x, data.fill_alpha.y, t) * wm))
 		var half := rect.size.x * 0.5 * t  # 양 끝 대포에서 가운데로 차오른다
-		var fill := Color(c, data.fill_alpha.y + 0.1)
-		draw_rect(Rect2(rect.position, Vector2(half, rect.size.y)), fill)
-		draw_rect(Rect2(Vector2(rect.end.x - half, rect.position.y), Vector2(half, rect.size.y)), fill)
+		var fill := Color(c, (data.fill_alpha.y + 0.1) * wm)
+		InkPaint.wash_rect(self, Rect2(rect.position, Vector2(half, rect.size.y)), fill)
+		InkPaint.wash_rect(self, Rect2(Vector2(rect.end.x - half, rect.position.y), Vector2(half, rect.size.y)), fill)
 		var w := data.edge_width * (1.0 + 0.8 * _beat_flash)
 		var edge := Color(c, 0.75 + 0.25 * _beat_flash)
 		Ink.stroke(self, rect.position, Vector2(rect.end.x, rect.position.y), w, edge)
