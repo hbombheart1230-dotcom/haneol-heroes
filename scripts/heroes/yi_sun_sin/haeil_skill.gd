@@ -47,10 +47,8 @@ extends SkillDef
 func cast(ctx: SkillContext, charge: float) -> SkillRun:
 	var c := clampf(charge, 0.0, 1.0)
 	var dir := aim(ctx)
-	if charge_scaling:
-		Feedback.shake(release_shake * charge_scaling.at(charge_scaling.fx, c))
-		if charge_scaling.is_full(c) and vfx_cast and ctx.player:
-			Feedback.vfx_burst(vfx_cast, ctx.player.global_position, dir, vfx_level + full_vfx_level_gain)
+	if ctx.player:
+		ChargeRelease.play(ctx, self, c, ctx.player.global_position, dir, release_shake, full_vfx_level_gain)
 	var p := _rake(ctx, _wave(ctx, dir, c), c)
 	for i in extra_waves:
 		var side := 1.0 if i % 2 == 0 else -1.0

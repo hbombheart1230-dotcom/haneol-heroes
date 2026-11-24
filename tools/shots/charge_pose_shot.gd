@@ -1,9 +1,10 @@
 extends SceneTree
 ## 모으는 중 끌기 (실제 터치 입력, Input.parse_input_event): 누르고 모으기 → 왼쪽으로 천천히 끌기(조준) → 칸 띠.
 ## 칸: 모으기 시작 · 끄는 중 넷. 그림이 모으는 자세를 지키고 몸만 끄는 쪽으로 도는지 본다 (사용자 6d0635c "순신이 일어남").
-## godot --path . --resolution 720x1280 -s res://tools/shots/charge_pose_shot.gd -- <2d|3d> <출력 png> [영웅 id=yi_sun_sin]
+## godot --path . --resolution 720x1280 -s res://tools/shots/charge_pose_shot.gd -- <2d|3d> <출력 png> [영웅 id=yi_sun_sin] [wide]
+## wide: 조준 표시(낙뢰 원·별자리·화폭 원)까지 보이게 넓게 찍는다.
 
-const CROP := Vector2i(260, 300)
+var CROP := Vector2i(260, 300)
 
 
 func _initialize() -> void:
@@ -13,6 +14,8 @@ func _initialize() -> void:
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	ProjectSettings.set_setting("hh/art/live3d", args[0] == "3d")
+	if args.size() > 3 and args[3] == "wide":
+		CROP = Vector2i(560, 640)
 	var main: Node = await ShotStage.open(self, &"hansan_1592", StringName(args[2]) if args.size() > 2 else &"yi_sun_sin")
 	await _wait(3.0)
 	ShotStage.move_hero(main, ShotStage.brazier_spot(main) + Vector2(0, 200))

@@ -10,12 +10,21 @@ extends SkillDef
 @export var damage: int = 30
 ## 별 하나가 박히는 간격(초, 연출: 별이 차례로 이어진다).
 @export var star_step: float = 0.06
+@export_group("박자 (BeatHits, 별빛)")
+## 선에 닿은 적마다 타수 (1이면 예전처럼 한 번에): 선이 긋고 별빛이 한 번 더 반짝이며 친다. 타 사이(초), 마지막 타 비중.
+@export var twinkle_hits: int = 2
+@export var twinkle_interval: float = 0.08
+@export var twinkle_last_weight: float = 1.0
+@export var twinkle_sfx: StringName = &"mat_glyph"
 @export_group("큰 변형 · 북두칠성")
 ## 0보다 크면 별마다 이 반경으로 터진다.
 @export var star_burst_radius: float = 0.0
 
 
+## 모은 만큼 별 수 (charge_scaling이 있으면 그 마디대로 계단, 다 모으면 max_stars).
 func star_count(charge: float) -> int:
+	if charge_scaling:
+		return roundi(charge_scaling.between(min_stars, max_stars, charge))
 	return roundi(lerpf(min_stars, max_stars, clampf(charge, 0.0, 1.0)))
 
 
@@ -36,8 +45,9 @@ func star_points(origin: Vector2, facing: Vector2, n: int, far: float = -1.0) ->
 func cast(ctx: SkillContext, charge: float) -> SkillRun:
 	var from := ctx.player.global_position
 	var dir := aim(ctx)
+	ChargeRelease.play(ctx, self, charge, from, dir)  # 모은 만큼 흔들림, 다 모았으면 번쩍임
 	var far := -1.0
-	if SkillAim.enabled(ctx):  # 세종: 별자리가 겨눈 적까지 뻗어 마지막 별이 그 적에게 박힌다
+	if SkillAim.enabled(ctx) and not (charge_aim and ctx.aim_steered):  # 세종 (끌지 않았을 때): 별자리가 겨눈 적까지 뻗어 마지막 별이 그 적에게 박힌다
 		var to := SkillAim.point(ctx) - from
 		if to.length() > 1.0:
 			dir = to.normalized()
@@ -48,10 +58,18 @@ func cast(ctx: SkillContext, charge: float) -> SkillRun:
 
 
 ## 별 하나를 찍고 앞 별과 잇는다: 그 선에 닿은 적 (별마다 처음 맞는 적만) + 별 터짐. 맞은 수.
-func link(ctx: SkillContext, prev: Vector2, p: Vector2, struck: Dictionary) -> int:
+## rake가 있으면 선에 닿은 적은 twinkle_hits타로 (피해 나눔, 멈춤은 별자리가 다 끝난 뒤 한 번).
+func link(ctx: SkillContext, prev: Vector2, p: Vector2, struck: Dictionary, rake: WaveRake = null) -> int:
 	var hits := 0
+	var pl := WaveRake.plan(damage, twinkle_hits, twinkle_last_weight, 0.0, 0.0) if rake else []
 	for en in ctx.enemies_near_segment(prev, p, line_width * 0.5):
-		if not struck.has(en.get_instance_id()) and ctx.hit(en, damage):
+		if struck.has(en.get_instance_id()) or not en.health.is_alive():
+			continue
+		if rake:
+			struck[en.get_instance_id()] = true
+			rake.schedule(en, 0.0, pl[0], pl[1], (p - prev).normalized())
+			hits += 1
+		elif ctx.hit(en, damage):
 			struck[en.get_instance_id()] = true
 			hits += 1
 	if star_burst_radius > 0.0:
@@ -75,12 +93,16 @@ class StarChainRun extends SkillRun:
 	var next: int = 0
 	var wait: float = 0.0
 	var struck := {}
+	var rake: WaveRake = null
 
 	func _init(p_skill: ConstellationSkill, p_ctx: SkillContext, p_pts: PackedVector2Array) -> void:
 		skill = p_skill
 		ctx = p_ctx
 		pts = p_pts
 		prev = p_ctx.player.global_position
+		if p_skill.twinkle_hits > 1:
+			rake = BeatHits.open(p_ctx, prev, p_skill.twinkle_interval, false, p_skill.twinkle_sfx)
+			rake.schedule_fx(p_skill.star_step * p_pts.size() + 0.02, Callable())  # 별이 다 박힐 때까지 열어 둔다
 
 	func tick(delta: float) -> bool:
 		wait -= delta
@@ -88,8 +110,16 @@ class StarChainRun extends SkillRun:
 			if next >= pts.size():
 				finished = true
 				break
-			hits += skill.link(ctx, prev, pts[next], struck)
+			hits += skill.link(ctx, prev, pts[next], struck, rake)
 			prev = pts[next]
 			next += 1
 			wait += skill.star_step
 		return finished
+
+
+## 조준 표시: 끈 방향으로 지금 충전의 별자리 (영웅 → 별들, 선 폭 = 맞는 폭).
+func draw_aim(canvas: CanvasItem, c: float, dir: Vector2, d: ChargeMarkerData) -> bool:
+	var pts := PackedVector2Array([Vector2.ZERO])
+	pts.append_array(star_points(Vector2.ZERO, dir, star_count(c)))
+	ChargeAim.draw_polyline_aim(canvas, pts, line_width, c, d)
+	return true

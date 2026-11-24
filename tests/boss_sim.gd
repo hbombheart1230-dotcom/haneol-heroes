@@ -185,6 +185,7 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 			caster.combo_tap()
 		atk.tick(DT, list)
 		_tick_shots(list)
+		_tick_rakes()  # 기술 박자 타격 (WaveRake: 낙뢰·화폭·해일검기·쿵-쿵-쾅·꽃잎)
 		_tick_world(list, res)
 		_sample(list)
 		_tick_extra(res)
@@ -224,6 +225,14 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 	res["boss_hp"] = boss.health.current if is_instance_valid(boss) else 0
 	res["phase"] = boss.phase_index if is_instance_valid(boss) else -1
 	return res
+
+
+## 기술 박자 타격 한 틱 (WaveRake): 손으로 굴리는 동안 물리 틱이 돌지 않아, 예전엔 첫 타 뒤 타들이 시뮬에서 빠졌다.
+func _tick_rakes() -> void:
+	for c in suite.get_children():
+		if c is WaveRake and not c.is_queued_for_deletion():
+			c.set_physics_process(false)
+			(c as WaveRake)._physics_process(DT)
 
 
 ## 영웅 탄 한 틱: 움직이고, 적 피격 원(22px)에 닿으면 HitBox2D가 하듯 피해를 준다 (손으로 굴리면 영역 겹침이 갱신되지 않음).

@@ -4,7 +4,8 @@ extends Resource
 ## 기술 자신의 최소·최대 값(피해·크기, 강화가 바꾸는 값)은 기술에 두고 이 곡선으로 잇는다 (between).
 ## 여기 있는 값은 Vector2(바로 놓음, 다 모음). 곡선은 curve(있으면) 또는 c^exponent.
 ## 단계(stages): 모으는 동안 눈에 보이고 소리 나는 마디 (위력은 이어서 커진다). 다 모으면 full_bonus를 더 곱한다.
-## 기술마다 SkillDef에 붙여 쓴다 (지금은 순신 해일검기만).
+## 기술마다 SkillDef에 붙여 쓴다 (순신 해일검기, 광개토 낙뢰, 세종 성좌진, 사임당 화폭 펼치기).
+## stepped면 위력이 마디마다 계단으로 오른다 (마디 사이는 그대로, 다 모은 순간 최대로 뛴다: 다 모은 세기는 직선과 같다).
 
 ## 모은 비율 → 위력 비율 곡선 (0~1 → 0~1). 비면 c^exponent.
 @export var curve: Curve
@@ -20,11 +21,22 @@ extends Resource
 @export var fx: Vector2 = Vector2(0.8, 1.5)
 ## 다 모았을 때 피해에 더 곱하는 값 (다 모은 보상).
 @export var full_bonus: float = 1.0
+## true면 위력 비율이 마디(stage_of / stages)에서만 오른다 (계단). false면 이어서 (해일검기).
+@export var stepped: bool = false
+@export_group("놓는 순간 (ChargeRelease)")
+## 놓는 순간 화면 흔들림 (× fx 배율). 0이면 없음.
+@export var release_shake: float = 0.12
+## 다 모았으면 시전 이펙트(vfx_cast)를 이만큼 높은 단계로 한 번 더 (번쩍임). 0이면 없음.
+@export var full_vfx_gain: int = 2
+## 다 모았으면 이 반경(px, 0이면 없음)의 흰 고리가 한 번 번쩍인다 (범위가 뛰었다는 표시).
+@export var full_ring: float = 0.0
 
 
 ## 위력 비율 0~1.
 func k(c: float) -> float:
 	c = clampf(c, 0.0, 1.0)
+	if stepped:
+		c = float(stage_of(c)) / float(maxi(stages, 1))
 	if curve:
 		return clampf(curve.sample_baked(c), 0.0, 1.0)
 	return pow(c, maxf(exponent, 0.01))

@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="HeroData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/hero_data.gd" id="1_hero"]
+[ext_resource type="Resource" path="res://data/heroes/charge_steps/shin_saimdang.tres" id="charge_steps"]
 [ext_resource type="Script" path="res://scripts/data/basic_attack_data.gd" id="2_attack"]
 [ext_resource type="Script" path="res://scripts/skills/skill_kit.gd" id="3_kit"]
 [ext_resource type="Texture2D" path="res://assets/ui/heroes/shin_saimdang.png" id="card_art"]
@@ -121,6 +122,9 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_canvas")
 sfx_layers = Array[StringName]([&"gugak_gaya"])
 cast_anim = &"cast_charge"
+charge_scaling = ExtResource("charge_steps")
+charge_aim = true
+charge_aim_auto = true
 cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_counter"]
@@ -143,6 +147,7 @@ cast_lead = 0.15
 [sub_resource type="Resource" id="Kit"]
 script = ExtResource("3_kit")
 tap = SubResource("Skill_tap")
+finisher_recover = 0.33
 dash = SubResource("Skill_dash")
 charge = SubResource("Skill_charge")
 counter = SubResource("Skill_counter")

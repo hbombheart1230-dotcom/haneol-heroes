@@ -35,6 +35,8 @@ extends Resource
 ## 충전 기술만: 모으는 동안 이동 손가락(조이스틱)으로 잡은 방향으로 곧게 (조준 보정·유도 없음, ChargeAim).
 ## 방향을 안 잡으면 모으기 시작할 때 바라보던 방향.
 @export var charge_aim: bool = false
+## charge_aim과 함께: 끌지 않으면 예전 자동 (조준 보정·주변 자동·영웅 자리), 끌면 그 방향·자리가 중심 (낙뢰·성좌진·화폭).
+@export var charge_aim_auto: bool = false
 ## 충전 기술만: 모은 시간 비례 곡선·마디 (ChargeScaling, 공통). 기술이 자기 최소·최대 값을 이 곡선으로 잇는다.
 @export var charge_scaling: ChargeScaling
 @export_group("이펙트")
@@ -63,7 +65,7 @@ extends Resource
 ## 반환: 진행 상태. 즉시 끝나는 기술은 SkillRun.instant(hits).
 ## 조준 보정된 방향 (aim_assist_deg 0이면 바라보는 방향).
 func aim(ctx: SkillContext) -> Vector2:
-	if charge_aim:  # 잡은 방향 그대로 (보정 없음)
+	if charge_aim and (ctx.aim_steered or not charge_aim_auto):  # 잡은 방향 그대로 (보정 없음)
 		return ctx.aim_dir.normalized() if ctx.aim_dir.length_squared() > 0.0001 else ctx.player.facing
 	return Targeting.assist_dir(ctx.enemies(), ctx.player.global_position, ctx.player.facing,
 		aim_assist_deg, aim_assist_range, aim_fallback_nearest)
@@ -85,3 +87,9 @@ func aim_length(_c: float) -> float:
 
 func aim_width(_c: float) -> float:
 	return 0.0
+
+
+## 충전 조준 표시를 기술 범위 모양으로 (영웅 발밑 기준, dir = 잡은 방향). 그렸으면 true, 아니면 길 띠 (aim_length·aim_width).
+## 이 기술은 성장 배율이 들어간 사본 (SkillGrowthData.scaled_def)이라 그린 모양 = 판정.
+func draw_aim(_canvas: CanvasItem, _c: float, _dir: Vector2, _d: ChargeMarkerData) -> bool:
+	return false
