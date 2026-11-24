@@ -62,3 +62,12 @@ func test_telegraph_rim_draws_above_skill_effects() -> void:
 	assert_bool(rim.z_as_relative).is_false()
 	assert_int(rim.z_index).is_greater(21)
 	assert_int(rim.z_index).is_greater(HitImpact.data().draw_z)
+
+
+## 포격 줄(LaneStrike)도 같은 규칙: 위아래 경계 붓 획·화면 밖 화살표는 LaneRim 층(적 예고 테두리와 같은 절대 z), 번짐은 바닥.
+func test_lane_strike_rim_draws_above_skill_effects() -> void:
+	var lane: Node2D = auto_free((load("res://data/stages/hazards/hansan_cannon.tres") as LaneStrikeData).make())
+	var rim := lane.get_node_or_null(^"LaneRim") as Node2D
+	assert_object(rim).is_not_null()
+	assert_bool(rim.z_as_relative).is_false()
+	assert_int(rim.z_index).is_equal(Enemy.ai_data().telegraph_rim_z)
