@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_bite")
 swing_speed = 1.5
-stop_times = PackedFloat32Array(0, 0, 0.06)
+stop_times = PackedFloat32Array(0, 0, 0.02)
 finisher_stop = 0.06

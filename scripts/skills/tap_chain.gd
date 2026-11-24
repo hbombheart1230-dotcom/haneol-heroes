@@ -28,7 +28,7 @@ static func tap(c: SkillCaster) -> SkillCaster.Slot:
 			c.combo_count.emit(c.kit.combo_hits + 1)  # 마무리 = 4타
 			return SkillCaster.Slot.TAP
 		TapCombo.Action.HIT:
-			atk.manual_strike(c.combo.on_hit(c.kit.combo_hits, atk.stats().chain_len), c.kit.ranged_taps)
+			atk.manual_strike(c.combo.on_hit(c.kit.combo_hits, atk.stats().chain_len, c.kit.combo_fresh_after_full), c.kit.ranged_taps)
 		TapCombo.Action.BUFFERED:  # 마무리 동작 중이면 풀릴 때까지 한 번 기억 (자동 평타가 먼저 먹지 않게)
 			var keep := c.kit.tap_buffer + (atk.busy_left() if atk else 0.0)
 			c.combo.buffer(keep)

@@ -54,6 +54,9 @@ extends Resource
 @export var combo_window: float = 1.2
 ## 자동 평타도 연계 수에 넣을지 (기본 끔: 마무리는 손으로 연타한 보상).
 @export var combo_auto_counts: bool = false
+## 켜면 연계가 찬 뒤 넷째 탭이 마무리 대신 평타가 되면 (마무리 쿨타임 중) 그 타가 새 1타: 마무리는 언제나 1→2→3을 이은 바로 다음 탭
+## (사용자 2026-11-24 "4타 스킬이 아무 때나 나온다": 끄면 연계 수가 찬 채로 남아 쿨타임이 풀리는 아무 타 뒤에 나간다).
+@export var combo_fresh_after_full: bool = false
 ## 마무리 탭은 3타가 닿고 이만큼(초) 지난 뒤에 나간다 (그 전 탭은 finisher_buffer초 기억, F1): 3타 내려베기가 보이게.
 @export var finisher_after_strike: float = 0.1
 @export var finisher_buffer: float = 0.5

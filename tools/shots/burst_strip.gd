@@ -65,6 +65,14 @@ func _run() -> void:
 	caster.aim.active = true
 	caster.aim.dir = Vector2.UP
 	caster.reset_cooldown(slot)
+	if OS.get_environment("HH_SHOT_RADIUS") == "1" and "radius" in def:  # 판정 원(기술 반경)을 흰 점선으로 겹쳐 그림과 비교
+		var ring := Node2D.new()
+		ring.z_as_relative = false
+		ring.z_index = 30
+		main.add_child(ring)
+		ring.global_position = player.global_position
+		var rad: float = def.get("radius")
+		ring.draw.connect(func() -> void: _dash_circle(ring, rad))
 	var t0 := Time.get_ticks_msec() / 1000.0
 	caster.cast(slot, charge)
 	var shots: Array[Image] = []
@@ -84,3 +92,9 @@ func _run() -> void:
 		out.blit_rect(shots[i], Rect2i(0, 0, w, h), Vector2i((i % 4) * (w + 6), (i / 4) * (h + 6)))
 	out.save_png(args[3])
 	quit()
+
+
+func _dash_circle(c: CanvasItem, r: float) -> void:
+	for i in 48:
+		if i % 2 == 0:
+			c.draw_arc(Vector2.ZERO, r, TAU * i / 48.0, TAU * (i + 1) / 48.0, 4, Color(1, 1, 1, 0.9), 2.0)

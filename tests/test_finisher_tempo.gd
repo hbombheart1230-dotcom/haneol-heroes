@@ -120,3 +120,36 @@ func test_yi_cycle_is_as_fast_as_gwanggaeto_and_saimdang() -> void:
 	for id: String in ["gwanggaeto", "shin_saimdang"]:
 		assert_float(yi["cycle"]).override_failure_message("순신 %.3f vs %s %.3f" % [yi["cycle"], id, m[id]["cycle"]]).is_less_equal(m[id]["cycle"] + 0.001)
 	assert_float(yi["4_to_next1"]).is_less_equal(m["shin_saimdang"]["4_to_next1"] + 0.001)
+
+
+## 4타는 1→2→3을 이은 바로 다음 탭에만 (사용자 2026-11-24 "4타 스킬이 아무 때나 나온다"): 연계가 찬 뒤 마무리 쿨타임이라
+## 넷째 탭이 평타로 나가면, 끄면 연계 수가 찬 채로 남아 다음 아무 타 뒤에 마무리가 나갔다. 켜면 그 타가 새 1타.
+func test_finisher_only_right_after_a_full_chain() -> void:
+	for fresh in [false, true]:
+		var c := TapCombo.new()
+		for i in 3:
+			c.on_hit(3, 3, fresh)
+		assert_int(c.decide(3, true, false)).is_equal(TapCombo.Action.HIT)  # 마무리 쿨타임: 넷째 탭은 평타
+		assert_int(c.on_hit(3, 3, fresh)).is_equal(1)
+		var next := c.decide(3, true, true)  # 쿨타임이 풀린 바로 다음 탭 (이은 타는 1타 하나뿐)
+		if fresh:
+			assert_int(next).is_equal(TapCombo.Action.HIT)
+			c.on_hit(3, 3, fresh)
+			c.on_hit(3, 3, fresh)
+			assert_int(c.decide(3, true, true)).is_equal(TapCombo.Action.FINISH)  # 1→2→3 다시 이으면 마무리
+		else:
+			assert_int(next).is_equal(TapCombo.Action.FINISH)  # 예전 길: 1타 하나 뒤 마무리
+	assert_bool((load("res://data/heroes/yi_sun_sin.tres") as HeroData).kit.combo_fresh_after_full).is_true()
+
+
+## 순신 한 바퀴 (사용자 2026-11-24 "2타 3타 사이 멈칫 없애고 공격속도 더"): 0.85~0.95초, 2→3이 1→2보다 길지 않다 (3타 모으기 0),
+## 마무리 쿨타임이 한 바퀴보다 짧아 매 바퀴 4타가 나간다, 4타 동작은 끝까지 (다음 1타가 그 뒤).
+func test_yi_quick_even_cycle() -> void:
+	var r := measure(self, "yi_sun_sin")
+	assert_float(r["cycle"]).is_between(0.85, 0.95)
+	assert_float(r["g23"]).is_less_equal(r["g12"] + 0.02)
+	var hero: HeroData = load("res://data/heroes/yi_sun_sin.tres")
+	assert_float(hero.kit.tap.cooldown * hero.kit.combo_finisher_cd_ratio).is_less(r["cycle"])
+	var cast := CastAnim.of(hero.kit.tap, hero.sprite_sheet)
+	assert_int(cast.from).is_equal(0)
+	assert_float(r["4_to_next1"]).is_greater_equal(cast.seconds - 0.001)

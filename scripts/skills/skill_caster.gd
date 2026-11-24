@@ -268,7 +268,7 @@ func _on_manual_land(landed: bool) -> void:
 
 func _on_auto_swing() -> void:
 	if kit and kit.combo_auto_counts and _attack and not _attack.last_manual:
-		combo.on_auto_hit(kit.combo_hits)
+		combo.on_auto_hit(kit.combo_hits, kit.combo_fresh_after_full)
 
 
 ## 쿨타임을 걸고 기술을 발동한다. 반환: 진행 상태.

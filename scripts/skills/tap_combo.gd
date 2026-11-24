@@ -30,7 +30,11 @@ func decide(hits_needed: int, can_hit: bool, finisher_ready: bool) -> Action:
 
 
 ## 손으로 한 타 냈다. 반환: 이번 타의 연계 동작 번호 (1·2·3).
-func on_hit(hits_needed: int, chain_len: int) -> int:
+## fresh_after_full: 연계가 이미 찼는데 평타가 나갔다면 (마무리 준비 안 됨) 그 타를 새 1타로 센다 (SkillKit.combo_fresh_after_full).
+func on_hit(hits_needed: int, chain_len: int, fresh_after_full: bool = false) -> int:
+	if fresh_after_full and streak >= maxi(hits_needed, 1):
+		streak = 0
+		step = 0
 	streak = mini(streak + 1, maxi(hits_needed, 1))
 	step = step % maxi(chain_len, 1) + 1
 	_since = 0.0
@@ -39,7 +43,9 @@ func on_hit(hits_needed: int, chain_len: int) -> int:
 
 
 ## 자동 평타 (데이터가 셈에 넣으라고 할 때만 부른다).
-func on_auto_hit(hits_needed: int) -> void:
+func on_auto_hit(hits_needed: int, fresh_after_full: bool = false) -> void:
+	if fresh_after_full and streak >= maxi(hits_needed, 1):
+		streak = 0
 	streak = mini(streak + 1, maxi(hits_needed, 1))
 	_since = 0.0
 
