@@ -2,12 +2,15 @@
 
 [ext_resource type="Script" path="res://scripts/world/stage_look.gd" id="1_look"]
 [ext_resource type="Texture2D" path="res://assets/textures/grain/steppe_grass.png" id="2_grain"]
+[ext_resource type="Texture2D" path="res://assets/textures/overlay/manchuria_edge.png" id="3_edge"]
 
 [resource]
 script = ExtResource("1_look")
 detail_texture = ExtResource("2_grain")
 detail_px = 700.0
 detail_strength = 0.45
+overlay_texture = ExtResource("3_edge")
+overlay_alpha = 1.0
 value_mult = 0.53
 saturation = 0.7
 contrast = 3.0
