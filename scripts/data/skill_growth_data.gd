@@ -29,7 +29,7 @@ const PATH := "res://data/feel/skill_growth.tres"
 ## 판정 크기 속성 이름 (있는 것만, 숫자면 size배). 기술 vfx_impact.growth가 켜진 기술에만.
 @export var hit_props: PackedStringArray = PackedStringArray(["radius", "outer_radius", "end_burst_radius",
 	"star_burst_radius", "min_radius", "max_radius", "width", "length", "line_width", "splash_radius", "fall_size",
-	"critter_size", "min_scale", "max_scale"])
+	"critter_size", "min_scale", "max_scale", "steer_radius"])
 
 @export_group("발동 연출")
 ## 발동 순간 화면 흔들림 (단계별, 0이면 없음).

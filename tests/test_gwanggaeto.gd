@@ -121,15 +121,19 @@ func test_quake_hits_and_stuns_and_aftershock() -> void:
 	assert_int(run.hits).is_equal(1)
 	assert_bool(near.is_stunned()).is_true()
 	assert_bool(far.is_stunned()).is_false()
+	_rake_out()  # 쿵-쾅 (BeatHits): 박자대로 다 들어간 뒤
+	assert_int(near.health.current).is_equal(near.health.max - s.damage)  # 총 피해는 그대로
 	s.aftershock_delay = 0.5
 	var hp: int = near.health.current
 	run = s.cast(ctx, 0.0)
+	_rake_out()
 	var after_first: int = near.health.current
 	assert_int(after_first).is_less(hp)
 	assert_bool(run.finished).is_false()
 	for i in 40:
 		run.tick(DT)
 	assert_bool(run.finished).is_true()
+	_rake_out()
 	assert_int(near.health.current).is_less(after_first)
 
 
@@ -144,6 +148,7 @@ func test_thunder_trail_strikes_dash_path_after_delay() -> void:
 	assert_int(on_path.health.current).is_equal(hp)  # 아직 (한 박자 늦게)
 	for i in 30:
 		run.tick(DT)
+	_rake_out()  # 우르릉-쾅 (BeatHits)
 	assert_int(on_path.health.current).is_equal(hp - s.damage)
 	assert_int(off_path.health.current).is_equal(off_path.health.max)
 	s.field_time = 2.0
@@ -213,6 +218,7 @@ func test_conqueror_wide_stun_and_field() -> void:
 	s.field_time = 3.0
 	s.cast(ctx, 0.0)
 	assert_bool(e.is_stunned()).is_true()
+	_rake_out()  # 쿵-쿵-쾅 (BeatHits)
 	assert_int(e.health.current).is_equal(e.health.max - s.damage)
 	assert_int(get_children().filter(func(c: Node) -> bool: return c is DamageZone).size()).is_equal(1)
 

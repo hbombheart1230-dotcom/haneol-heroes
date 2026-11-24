@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ChargeScaling" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/charge_scaling.gd" id="1_cs"]
+
+[resource]
+script = ExtResource("1_cs")
+exponent = 1.0
+stages = 3
+reach = Vector2(1, 1)
+knockback = Vector2(0, 0)
+fx = Vector2(0.8, 1.5)
+stepped = true
+release_shake = 0.1
+full_vfx_gain = 2
+full_ring = 330.0
