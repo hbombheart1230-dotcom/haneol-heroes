@@ -34,6 +34,10 @@ var chain_window: float = 0.4
 var chain_max_dot: float = 0.5
 var chain_min_distance: float = 40.0
 var chain_min_speed: float = 500.0
+## 기술을 모으며 조준하는 중의 튕기기 (모으기 버리고 내닫기): 손가락이 멈춰 있다가 움직이므로 쉬운 기준이면 조준을
+## 휙 돌리는 손짓도 내닫기가 된다 (사용자 7ce32eb "각도를 돌리다가 취소"). 연속·다시 잡기 쉬운 기준도 쓰지 않는다.
+var charge_min_distance: float = 140.0
+var charge_min_speed: float = 1600.0
 ## 손 떼고 다시 튕기기: 직전 플릭 후 이 시간(초) 안에 새로 댄 손가락의 첫 플릭은 방향과 상관없이 연속 기준.
 var retouch_chain_window: float = 0.5
 ## 그 첫 플릭의 기준 (다시 잡고 이동하려는 손짓과 구분되도록 꺾기 연속보다는 조금 높게).
@@ -105,8 +109,8 @@ func touch_down(index: int, pos: Vector2, time: float) -> bool:
 	return true
 
 
-## 반환: 플릭이 발생하면 방향(단위벡터), 아니면 Vector2.ZERO.
-func touch_move(index: int, pos: Vector2, time: float) -> Vector2:
+## 반환: 플릭이 발생하면 방향(단위벡터), 아니면 Vector2.ZERO. aiming: 기술을 모으며 조준 중 (charge_min_* 기준).
+func touch_move(index: int, pos: Vector2, time: float, aiming: bool = false) -> Vector2:
 	if index != _move_index:
 		return Vector2.ZERO
 	_current = pos
@@ -114,7 +118,7 @@ func touch_move(index: int, pos: Vector2, time: float) -> Vector2:
 	var offset := _current - _anchor
 	if offset.length() > anchor_follow_radius:
 		_anchor = _current - offset.normalized() * anchor_follow_radius
-	var dir := _detect_flick(time)
+	var dir := _detect_flick(time, false, aiming)
 	if dir != Vector2.ZERO and reanchor_after_flick:
 		_anchor = _current
 		_samples.clear()
@@ -149,7 +153,7 @@ func _push_sample(time: float, pos: Vector2) -> void:
 		_samples.pop_front()
 
 
-func _detect_flick(time: float, releasing: bool = false) -> Vector2:
+func _detect_flick(time: float, releasing: bool = false, aiming: bool = false) -> Vector2:
 	if time - _stroke_flick_time < flick_cooldown:
 		return Vector2.ZERO
 	if _samples.size() < 2:
@@ -169,11 +173,14 @@ func _detect_flick(time: float, releasing: bool = false) -> Vector2:
 	var prev_speed := _path_length(prev, base) / prev_dt if prev_dt > 0.0 else 0.0
 	var turned := time - _last_flick_time <= chain_window and (delta / dist).dot(_last_flick_dir) < chain_max_dot
 	var retouch := _retouch_chain and time - _last_flick_time <= retouch_chain_window + 0.3
-	var chained := turned or retouch
-	var easy := prev_speed < rest_speed or chained
+	var chained := (turned or retouch) and not aiming
+	var easy := (prev_speed < rest_speed or chained) and not aiming
 	var need_dist := rest_min_distance if easy else move_min_distance
 	var need_speed := rest_min_speed if easy else move_min_speed
-	if retouch and not turned:
+	if aiming:  # 급가속 조건도 함께 (아래 not easy): 조준을 돌리던 속도에서 확 빨라져야 내닫기
+		need_dist = charge_min_distance
+		need_speed = charge_min_speed
+	elif retouch and not turned:
 		need_dist = retouch_min_distance
 		need_speed = retouch_min_speed
 	elif chained:
