@@ -87,7 +87,7 @@ func test_finisher_def_scales_damage_only() -> void:
 	assert_int(s.get("damage")).is_equal(roundi(int(d.get("damage")) * 0.6))
 	assert_float(s.get("radius")).is_equal(d.get("radius"))
 	assert_float(s.cooldown).is_equal(d.cooldown)
-	assert_int(d.get("damage")).is_equal(20)  # 원본(강화 대상)은 그대로 (쾌검: 한 방은 가볍게 25 → 20)
+	assert_int(d.get("damage")).is_equal(26)  # 원본(강화 대상)은 그대로 (쾌검: 연타 비율대로 25 → 26)
 	assert_object(TapCombo.scaled_def(d, 1.0)).is_same(d)
 
 

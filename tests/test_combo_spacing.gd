@@ -7,9 +7,10 @@ const OLD_MULTS := [0.55, 0.6, 1.0]
 ## 영웅: [예전 간격, 예전 한 타 피해, 바라는 간격 (1→2, 2→3, 3→1), 탭 초당 피해 비율 상한]. 세종은 글자 연사 (ranged).
 ## 순신은 뒤에 사용자가 다시 정함 (2026-11-24: "1타와 2타 사이에 정적이 있다 → 끝 동작을 짧게, 휘두르기 조금 빠르게",
 ## PR #116), 그 뒤 쾌검 (2026-11-24: "공속을 좀 더 빠르게, 1·2·3타 사이 멈춤을 더 줄여 줘"): 0.26·0.28·0.45초, 휘두르기 1.5배,
-## 평타 간격 0.46·한 타 10으로 탭·자동 초당 피해는 예전 그대로 (빠르게 여러 번, 한 방은 가볍게).
+## 평타 간격 0.46, 한 타 13 (졸병 26이 두 타에 죽는 최소값, 메인 결정: "순신이 약해 보인다"가 되살아나지 않게)
+## → 탭 초당 피해 약 30% 오름 (우두머리 세션이 순신 궁합 배율로 우두머리전 길이를 다시 맞춤).
 const HEROES := {
-	"yi_sun_sin": [0.55, 12, [0.26, 0.28, 0.45], 1.05],
+	"yi_sun_sin": [0.55, 12, [0.26, 0.28, 0.45], 1.35],
 	"gwanggaeto": [0.8, 22, [0.45, 0.50, 0.70], 1.05],
 	"shin_saimdang": [0.6, 10, [0.40, 0.42, 0.60], 1.05],
 }
@@ -40,7 +41,7 @@ func test_melee_gaps_match_plan_and_dps_holds() -> void:
 		var old_auto: float = plan[1] * hits / (plan[0] * 3.0)
 		var new_auto := d.melee_damage * hits / (d.melee_interval * 3.0)
 		assert_float(new_tap / old_tap).override_failure_message("%s tap dps %.3f" % [id, new_tap / old_tap]).is_between(0.95, plan[3])
-		assert_float(new_auto / old_auto).override_failure_message(id + " auto dps").is_between(0.95, 1.05)
+		assert_float(new_auto / old_auto).override_failure_message(id + " auto dps").is_between(0.95, plan[3])  # 승인된 영웅별 상한 (순신 쾌검 +30%)
 		assert_float(_sum(gaps)).override_failure_message(id + " tap still faster than auto").is_less(d.melee_interval * 3.0)
 		# 한 타 동작이 간격 안에서 끝까지 보인다 (실제 재생 길이 = 시트 attack 길이 ÷ 휘두르기 배율 ≤ 가장 짧은 간격)
 		var sheet := h.sprite_sheet
