@@ -80,7 +80,7 @@ func test_evade_then_counter_advances_and_practice_enemy_comes_and_goes() -> voi
 	sc.skill_cast.emit(SkillCaster.Slot.COUNTER, 1)
 	assert_str(String(run.current().event)).is_equal("upgrade")
 	assert_object(dir.sparring.enemy).is_null()
-	assert_bool(e.is_queued_for_deletion()).is_true()
+	assert_bool(e.is_queued_for_deletion() or e.health.is_dead()).is_true()  # 단계를 마치면 쓰러진다
 	run.skip()
 	_cleanup(main)
 
@@ -109,7 +109,7 @@ func test_skip_with_practice_enemy_out_removes_it() -> void:
 	_to_evade(dir.run)
 	var e := dir.sparring.enemy
 	dir.run.skip()
-	assert_bool(e.is_queued_for_deletion()).is_true()
+	assert_bool(e.is_queued_for_deletion() or e.health.is_dead()).is_true()
 	assert_object(dir.sparring.enemy).is_null()
 	assert_bool(main.spawner.active).is_true()
 	_cleanup(main)
@@ -168,5 +168,35 @@ func test_real_dash_out_of_the_red_circle_advances_the_dodge_step() -> void:
 		if dir.run.current().event != &"evade":
 			break
 	assert_str(String(dir.run.current().event)).is_equal("skill_counter")
+	dir.run.skip()
+	_cleanup(main)
+
+
+func test_practice_enemy_is_sturdy_and_ignores_hp_multipliers() -> void:
+	assert_int(PRACTICE.max_hp).is_greater_equal(1000)  # 잡몹(수십~백) 수준이 아니다
+	assert_float(PRACTICE.attack.windup).is_greater_equal(1.0)  # 예고가 길다
+	var main := _main()
+	await get_tree().process_frame
+	var dir: TutorialDirector = main.tutorial_director
+	_to_evade(dir.run)
+	var e := dir.sparring.enemy
+	assert_bool(TutorialSparring.is_practice(e)).is_true()
+	assert_float(e.hp_mult).is_equal(1.0)
+	assert_int(e.health.max).is_equal(PRACTICE.max_hp)
+	dir.run.skip()
+	_cleanup(main)
+
+
+func test_practice_enemy_never_dies_before_the_step_is_done() -> void:
+	var main := _main()
+	await get_tree().process_frame
+	var dir: TutorialDirector = main.tutorial_director
+	_to_evade(dir.run)
+	var e := dir.sparring.enemy
+	for i in 30:  # 더 빨라진 평타·기술이 연달아 때려도
+		e.health.damage(int(e.health.max * 0.3))
+		dir.tick(1.0 / 60.0)
+		assert_bool(e.health.is_dead()).is_false()
+	assert_object(dir.sparring.enemy).is_same(e)
 	dir.run.skip()
 	_cleanup(main)
