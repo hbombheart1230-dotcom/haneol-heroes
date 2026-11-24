@@ -9,6 +9,10 @@ const DEFAULT_VIEW_W := 720.0
 
 
 ## 지금 화면에 보이는 세계 너비 (px). 카메라 줌이 크면 (영웅이 크게 보이면) 좁아진다.
+## 맨 위 강화 단계 (상한 표의 마지막 값을 고르는 데 쓴다).
+const TOP_LEVEL := 1 << 20
+
+
 static func view_width(node: Node) -> float:
 	if node == null or not node.is_inside_tree():
 		return DEFAULT_VIEW_W
@@ -60,9 +64,11 @@ static func cover(d: SkillVfxData, size: float, grow: float, glow_k: float, flas
 ## 큰 이펙트면 줄이는 시간·빛, 가운데를 먼저 비우는 세기, 그리고 화면을 덮는 지름(cover)과 그 비율(frac).
 static func plan(d: SkillVfxData, level: int, fit_radius: float, st: SkillStageFeel, view_w: float) -> Dictionary:
 	var fitted := fit_radius > 0.0 and d.fit_to_hit
-	var grow := grow_of(d, fitted, st)
+	var exact := fitted and d.fit_exact  # 판정 끝 그대로 (상한·커지기 없음)
+	var grow := 1.0 if exact else grow_of(d, fitted, st)
 	var raw := VfxDecals.fit_size(d, level, fit_radius)
-	var size := capped(raw, grow, st, view_w, d.screen_cap_for(level, st.screen_cap))  # 성장 단계면 단계별 상한
+	# 성장 단계면 단계별 상한. 판정 끝 그대로인 그림은 단계별 상한(초반 0.36) 대신 맨 위 단계 상한만 (터무니없는 반경 안전판)
+	var size := capped(raw, grow, st, view_w, d.screen_cap_for(TOP_LEVEL if exact else level, st.screen_cap))
 	var big := is_big(size, grow, st, view_w)
 	var glow_k := limit_scale(d.glow_size, size, st, view_w)
 	var flash_k := limit_scale(st.flash_scale * 1.3, size, st, view_w)
@@ -76,4 +82,4 @@ static func plan(d: SkillVfxData, level: int, fit_radius: float, st: SkillStageF
 	var c := cover(d, size, grow, glow_k, flash_k, ground)
 	return {"size": size, "raw": raw, "grow": grow, "glow_k": glow_k, "flash_k": flash_k, "ground_k": ground_k,
 		"big": big, "time": st.big_time if big else 1.0, "light": st.big_light if big else 1.0,
-		"core": st.big_core if big else 1.0, "cover": c, "frac": c / maxf(view_w, 1.0)}
+		"core": st.big_core if big else 1.0, "cover": c, "frac": c / maxf(view_w, 1.0), "exact": exact}

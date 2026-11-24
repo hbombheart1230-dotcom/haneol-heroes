@@ -106,7 +106,10 @@ func burst(d: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.ZERO, level: in
 			"t": 0.0, "life": d.decal_time * float(pl["time"]), "bright": bright, "grow": pl["grow"],
 			"glow_k": pl["glow_k"], "glow": d.glow_for(level) * float(pl["light"]) if i == 0 else 0.0})
 	if d.ring_for(level):
-		_rings.append({"pos": pos, "r": size * feel.flourish_ring_scale, "t": 0.0, "life": feel.flourish_ring_time})
+		if pl.get("exact", false):  # 판정 끝에 고정한 그림: 금빛 고리도 칠해진 둘레 그대로 (커지지도 눌리지도 않음)
+			_rings.append({"pos": pos, "r": size * d.art_fill * 0.5, "t": 0.0, "life": feel.flourish_ring_time, "exact": true})
+		else:
+			_rings.append({"pos": pos, "r": size * feel.flourish_ring_scale, "t": 0.0, "life": feel.flourish_ring_time})
 		while _rings.size() > maxi(feel.max_flourish_rings, 0):
 			_rings.pop_front()
 	while _items.size() > maxi(feel.max_decals, 1):
@@ -179,8 +182,9 @@ func _draw_rings() -> void:
 	var ink := pieces.ink_node()
 	for r in _rings:  # 엔진 draw_arc (GDScript 배열을 매 프레임 만들지 않음), 세로로 눌러 바닥에 깐 고리
 		var k := float(r["t"]) / float(r["life"])
-		ink.draw_set_transform(r["pos"], 0.0, Vector2(1.0, feel.flourish_ring_squash))
-		ink.draw_arc(Vector2.ZERO, float(r["r"]) * (0.5 + k), 0.0, TAU, 40, Color(Ink.GOLD, 1.0 - k),
+		var exact: bool = r.get("exact", false)
+		ink.draw_set_transform(r["pos"], 0.0, Vector2(1.0, 1.0 if exact else feel.flourish_ring_squash))
+		ink.draw_arc(Vector2.ZERO, float(r["r"]) * (1.0 if exact else 0.5 + k), 0.0, TAU, 40, Color(Ink.GOLD, 1.0 - k),
 			feel.flourish_ring_width * (1.0 - k) + 2.0)
 	ink.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
