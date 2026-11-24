@@ -41,6 +41,8 @@ var _counter_left: float = 0.0
 var _runs: Array = []
 ## 탭 연타 상태와 손 평타를 낼 자동 공격 (영웅의 AutoAttack).
 var combo := TapCombo.new()
+## 내닫아 치기: 내닫기가 적에 닿으면 둘째 기술 (kit.dash_auto).
+var dash_auto := DashAutoSkill.new()
 var _attack: AutoAttack
 ## 마지막으로 낸 충전 기술의 모은 정도 (0~1): 다 모아 맞히면 점수 (ScoreFeed).
 var last_charge: float = 0.0
@@ -81,7 +83,7 @@ func is_counter_open() -> bool:
 func _instant_slot() -> Slot:
 	if is_counter_open():
 		return Slot.COUNTER
-	if _dash_link() and is_ready(Slot.DASH):
+	if _dash_link_casts() and is_ready(Slot.DASH):
 		return Slot.DASH
 	return Slot.NONE
 
@@ -129,6 +131,11 @@ func cooldown_ratio(slot: Slot) -> float:
 
 func _dash_link() -> bool:
 	return player != null and kit != null and player.in_dash_link(kit.dash_link_window)
+
+
+## 내닫는 중·직후 입력이 둘째 기술이 되는지 (내닫아 치기를 켜면 아니다: 둘째 기술은 닿을 때 저절로).
+func _dash_link_casts() -> bool:
+	return _dash_link() and not kit.dash_auto
 
 
 ## 지금 버튼을 누르거나 떼면 발동할 기술 (버튼 표시용).
@@ -220,7 +227,7 @@ func try_dash_release() -> bool:
 	if player == null or player.is_dead():
 		return false
 	var slot := Slot.COUNTER if is_counter_open() and _dash_link() else Slot.NONE
-	if slot == Slot.NONE and _dash_link() and is_ready(Slot.DASH):
+	if slot == Slot.NONE and _dash_link_casts() and is_ready(Slot.DASH):
 		slot = Slot.DASH
 	if slot == Slot.NONE:
 		return false
@@ -317,6 +324,7 @@ func tick(delta: float, time: float) -> void:
 	for k in _cd.keys():
 		_cd[k] = maxf(float(_cd[k]) - delta, 0.0)
 	_counter_left = maxf(_counter_left - delta, 0.0)
+	dash_auto.tick(self, delta)
 	if kit:
 		combo.tick(delta, kit.combo_window)
 		TapChain.flush(self)

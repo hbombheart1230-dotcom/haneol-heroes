@@ -21,7 +21,7 @@ func before_test() -> void:
 	player.global_position = Vector2.ZERO
 	caster = auto_free(SkillCaster.new())
 	caster.player = player
-	caster.kit = HERO.kit
+	caster.kit = _old_rule_kit(HERO.kit)  # 예전 "내닫고 떼기" 규칙 (dash_auto 끔). 새 규칙은 test_dash_auto_skill
 	caster.projectile_scene = PROJECTILE_SCENE
 	caster.world = self
 	caster.enemy_source = func() -> Array: return enemies
@@ -316,3 +316,10 @@ func test_haeryong_announces_once_at_press_then_sweeps() -> void:
 	assert_int(got[0][1]).is_equal(1)
 	caster.tick(0.5, 0.6)
 	assert_int(got.size()).is_equal(1)  # 끝날 때 다시 울리지 않는다
+
+
+## 내닫아 치기(kit.dash_auto)를 끈 사본: 내닫는 중·직후 손 떼기·탭·단추 = 둘째 기술 (영웅별로 되돌릴 때의 길).
+static func _old_rule_kit(k: SkillKit) -> SkillKit:
+	var c := k.duplicate() as SkillKit
+	c.dash_auto = false
+	return c
