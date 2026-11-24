@@ -21,7 +21,6 @@ func _line(name: String, rs: Array) -> String:
 	return "%s %.1fs %.2f (숨음 %.1f, 놓친 겨냥 %.1f, 기습 %.1f, 기습 덤 %.0f)" % [name,
 		HazardRuns.mean(rs, "time"), HazardRuns.mean(rs, "share"), HazardRuns.mean(rs, "grass_hides"),
 		HazardRuns.mean(rs, "grass_lost_aims"), HazardRuns.mean(rs, "grass_ambushes"), HazardRuns.mean(rs, "grass_ambush_damage")]
-		]
 
 
 func _check(hero: String, off: Array, on: Array, slack: float) -> void:
