@@ -125,10 +125,11 @@ func test_all_four_heroes_use_dash_auto() -> void:
 		assert_bool((load("res://data/heroes/%s.tres" % id) as HeroData).kit.dash_auto).override_failure_message(id).is_true()
 
 
-## 순신만 (메인 결정 ②): 저절로 나간 파도격은 0.8배, 쿨타임 3.5초 — 내닫기만 마구 해도 떼거리에서 연타보다 빠르지 않게
-## (test_dash_direction 잡몹 떼 기준). 다른 영웅은 그대로.
+## 순신만 (메인 결정 ②): 저절로 나간 파도격은 0.5배, 쿨타임 4.5초 — 내닫기만 마구 해도 떼거리에서 연타보다 빠르지 않게
+## (test_dash_direction 잡몹 떼 기준, #166·#167을 합친 int/next-h에서 다시 맞춤: 0.8·3.5는 n6 s1에서 7.2초 vs 9.6초). 다른 영웅은 피해 그대로.
 func test_yi_auto_dash_skill_is_damped() -> void:
-	assert_float(HERO.kit.dash_auto_damage_mult).is_equal_approx(0.8, 0.001)
+	assert_float(HERO.kit.dash_auto_damage_mult).is_equal_approx(0.5, 0.001)
+	assert_float(HERO.kit.dash.cooldown).is_equal_approx(4.5, 0.001)
 	for id in ["gwanggaeto", "sejong", "shin_saimdang"]:
 		assert_float((load("res://data/heroes/%s.tres" % id) as HeroData).kit.dash_auto_damage_mult).is_equal(1.0)
 	var e := _enemy_at(Vector2(120, 0))
@@ -138,3 +139,20 @@ func test_yi_auto_dash_skill_is_damped() -> void:
 		caster.tick(DT, 1.0 + DT * i)
 	var full: PadoSkill = HERO.kit.dash
 	assert_int(e.health.max - e.health.current).is_less(full.hit_count * full.damage_per_hit)
+
+
+## 광개토는 내닫는 쪽 90도 안의 적에만 (test_cover_sim: 경복궁 가림막 뒤에서 피하는 내닫기가 벽력돌파를 써 버려 받은 피해 0.86 → 0.51).
+func test_gwanggaeto_auto_only_toward_enemies() -> void:
+	assert_float((load("res://data/heroes/gwanggaeto.tres") as HeroData).kit.dash_auto_cone_deg).is_equal_approx(90.0, 0.001)
+	for id in ["yi_sun_sin", "sejong", "shin_saimdang"]:
+		assert_float((load("res://data/heroes/%s.tres" % id) as HeroData).kit.dash_auto_cone_deg).override_failure_message(id).is_equal(0.0)
+
+
+## 한 틱 걸음이 속도 × delta보다 길어도 (내닫기 첫 박차기) 지나친 적을 놓치지 않는다: 지난 틱 자리(첫 틱은 내닫기 시작 자리)부터 본다.
+func test_long_step_does_not_skip_enemy() -> void:
+	var e := _enemy_at(Vector2(120, 0))
+	player.request_dash(Vector2.RIGHT)
+	player.velocity = Vector2.RIGHT * 300.0
+	player.global_position = Vector2(400, 0)  # 한 틱에 400px: 속도 × delta(5px)로는 못 본다
+	assert_object(DashAutoSkill.touched(player, enemies, DT, 30.0, 0.0)).is_null()
+	assert_object(DashAutoSkill.touched(player, enemies, DT, 30.0, 0.0, Vector2.ZERO)).is_same(e)
