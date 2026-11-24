@@ -148,6 +148,8 @@ func swing_speed() -> float:
 func _on_melee_contact(_d: Vector2, hits: int) -> void:
 	if player.bite.active():  # 칼이 박힌 멈춤 (BladeBite): 타마다 정해진 길이, 맞은 수와 상관없이
 		_hitstop_left = player.bite.left()
+	elif player.hero and player.hero.blade_bite and player.hero.blade_bite.enabled:
+		_hitstop_left = 0.0  # 칼 박힘 영웅은 그 데이터만 (쾌검 1·2타 0 = 멈추지 않고 지나감, 일반 역경직으로 돌아가지 않게)
 	elif _oneshot_left > 0.0 and _oneshot.begins_with("attack") and not GameTime.is_stopped():  # 기술 멈춤·마무리 슬로우와 겹치지 않게
 		_hitstop_left = Feedback.feel_data().impact_data().hero_hitstop(hits, _attack != null and _attack.last_heavy)
 

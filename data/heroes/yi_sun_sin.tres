@@ -43,12 +43,12 @@
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
-melee_interval = 0.64
+melee_interval = 0.46
 melee_range = 155.0
 melee_arc_degrees = 150.0
-melee_damage = 14
+melee_damage = 10
 use_ranged = false
-step_gap_mults = PackedFloat32Array(0.9375, 0.5, 0.53)
+step_gap_mults = PackedFloat32Array(0.978, 0.565, 0.609)
 swing_slow_time = 0.15
 melee_knockback = 140.0
 step_knockback_mults = PackedFloat32Array(0.85, 0.85, 1.0)
@@ -88,7 +88,7 @@ cooldown = 4.0
 color = Color(0.2, 0.5, 0.9, 1)
 fx_color = Color(0.35, 0.75, 1, 1)
 radius = 170.0
-damage = 25
+damage = 20
 knockback = 420.0
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
@@ -178,7 +178,8 @@ cast_lead = 0.06
 [sub_resource type="Resource" id="Kit_yi"]
 script = ExtResource("3_kit")
 tap = SubResource("Skill_haeryong")
-finisher_recover = 0.12
+finisher_recover = 0.11
+finisher_after_strike = 0.04
 dash = SubResource("Skill_pado")
 charge = SubResource("Skill_haeil")
 counter = SubResource("Skill_counter")
