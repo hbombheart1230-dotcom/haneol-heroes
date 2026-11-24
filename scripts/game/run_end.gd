@@ -1,8 +1,9 @@
 class_name RunEnd
 extends RefCounted
 ## 판이 끝났을 때 (Main에서 나눔): 기록 남기기, 결과 화면 단추 ("다시 하기" · "전장 목록") 처리.
-## 이기면 그 영웅의 이긴 전장(GameSettings.hero_cleared)에 넣어 다음 전장이 열리고, 처음 이긴 자기 전장이면
-## 난이도 단계(hero_clears)가 하나 오른다 (같은 전장을 다시 이겨도, 원정 = 다른 영웅의 전장을 처음 이겨도 오르지 않는다).
+## 이기면 그 영웅의 이긴 전장(GameSettings.hero_cleared)에 넣어 다음 전장이 열리고, 처음 이긴 전장이면
+## 난이도 단계(hero_clears)가 하나 오른다. 자기 전장이든 원정(다른 영웅의 전장)이든 처음 이긴 전장마다 +1
+## (사용자 2026-11-24: 깰수록 성장). 같은 전장을 다시 이기면 오르지 않는다.
 
 
 ## 판 끝 기록: 이김·경지·시간. 저장까지.
@@ -20,16 +21,10 @@ static func record(main: Node, won: bool) -> void:
 static func apply(hero: HeroData, stage_id: StringName, level: int, won: bool, elapsed: float) -> void:
 	if won:
 		GameSettings.mark_cleared(stage_id)
-		var first := GameSettings.mark_hero_cleared(hero.id, stage_id)  # 처음 이긴 전장: 다음 전장이 열린다
-		if first and raises_tier(hero, stage_id):  # 자기 전장일 때만 난이도 단계 +1
+		if GameSettings.mark_hero_cleared(hero.id, stage_id):  # 처음 이긴 전장 (원정 포함): 다음 전장이 열리고 단계 +1
 			var hid := String(hero.id)
 			GameSettings.hero_clears[hid] = int(GameSettings.hero_clears.get(hid, 0)) + 1
 	GameSettings.record_run(hero.id, stage_id, level, won, elapsed)
-
-
-## 이 전장을 처음 이겼을 때 난이도 단계가 오르나: 그 영웅의 전장 목록에 있는 자기 전장만 (원정은 아님).
-static func raises_tier(hero: HeroData, stage_id: StringName) -> bool:
-	return hero != null and hero.campaign != null and hero.campaign.ids().has(stage_id)
 
 
 ## 결과 화면에서 누른 곳: &"replay" (같은 전장 다시), &"list" (전장 목록), &"" (아무것도 아님).
