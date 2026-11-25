@@ -69,7 +69,7 @@ static func tick(p: Player, list: Array, delta: float) -> void:
 			continue
 		p.dash_struck[en.get_instance_id()] = true
 		striking = true
-		en.health.damage(EnemyAnswer.scaled(en, EnemyAnswer.DASH, dmg))  # 정답 표 (내닫아 치기)
+		en.health.damage(EnemyAnswer.apply(en, EnemyAnswer.DASH, dmg))  # 정답 표 (내닫아 치기)
 		striking = false
 		hit = true
 		if d.strike_push > 0.0:  # 밀쳐내기 = 넉백 + 잡몹 잠깐 경직 (Enemy.shove)

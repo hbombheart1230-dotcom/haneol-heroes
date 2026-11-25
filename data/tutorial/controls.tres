@@ -97,4 +97,6 @@ event = &"upgrade"
 
 [resource]
 script = ExtResource("1_data")
+finish_hint = "적마다 잘 듣는 수가 있습니다 — 그 수로 치면 \"통!\" 하고 크게 들어갑니다"
+finish_time = 3.0
 steps = Array[ExtResource("2_step")]([SubResource("move"), SubResource("combo"), SubResource("finisher"), SubResource("dash"), SubResource("charge"), SubResource("evade"), SubResource("counter"), SubResource("upgrade")])

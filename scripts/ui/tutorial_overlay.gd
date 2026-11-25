@@ -23,7 +23,7 @@ func open(p: TutorialProgress) -> void:
 	run = p
 	_t = 0.0
 	_finish_left = 0.0
-	run.finished.connect(func() -> void: _finish_left = 1.6, CONNECT_ONE_SHOT)
+	run.finished.connect(func() -> void: _finish_left = run.data.finish_time, CONNECT_ONE_SHOT)
 	show()
 
 
@@ -97,6 +97,9 @@ func _draw() -> void:
 		var a := clampf(_finish_left, 0.0, 1.0)
 		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, b.get_center().y + 30), run.data.finish_caption, 84,
 			Color(UiStyle.GOLD, a), _vp().x)
+		if run.data.finish_hint != "":  # 적마다 통하는 수 (AnswerCue "통!")
+			UiStyle.text(self, UiStyle.BODY_FONT, Vector2(0, b.get_center().y + 92), run.data.finish_hint, 28,
+				Color(UiStyle.PAPER, a), _vp().x)
 		return
 	var s := run.current()
 	UiStyle.panel(self, b, Color(UiStyle.LACQUER, 0.82), UiStyle.GOLD)

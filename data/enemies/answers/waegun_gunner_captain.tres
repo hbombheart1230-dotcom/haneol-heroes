@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_answer")
 kind = "dash"
-mult = 2.5
-others_mult = 0.7
+mult = 2.0
+others_mult = 0.85

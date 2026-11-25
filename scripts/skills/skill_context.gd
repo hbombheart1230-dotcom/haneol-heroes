@@ -66,7 +66,7 @@ func hit(en: Enemy, dmg: int, stop: bool = true) -> bool:
 	var h := en.get_node_or_null("Health") as Health
 	if h == null or not h.is_alive():
 		return false
-	h.damage(EnemyAnswer.scaled(en, EnemyAnswer.of_slot(slot), dmg))
+	h.damage(EnemyAnswer.apply(en, EnemyAnswer.of_slot(slot), dmg))
 	if stop and not defer_stop and hit_stop_enabled and player and player.is_inside_tree():
 		SkillHitStop.request(player.get_tree(), dmg)
 	if stop and player:  # 한 번에 끊어 치는 명중: 닿는 자리 섬광·튐 줄기 + 퍽 소리 (평타와 같은 한 타 충격)

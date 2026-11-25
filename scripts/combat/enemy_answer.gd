@@ -33,6 +33,14 @@ static func scaled(en: Enemy, kind: String, dmg: int) -> int:
 	return maxi(roundi(dmg * (a.mult if a.kind == kind else a.others_mult)), 1)
 
 
+## 피해를 넣는 곳이 부른다: 배율을 곱한 피해 (scaled) + 화면·소리 표시 (AnswerCue, "통!"·"튕김").
+static func apply(en: Enemy, kind: String, dmg: int) -> int:
+	var out := scaled(en, kind, dmg)
+	if enabled:
+		AnswerCue.show(en, kind)
+	return out
+
+
 ## 이 적의 정답 조작 ("" = 없음).
 static func answer_of(en: Enemy) -> String:
 	return en.data.answer.kind if en and en.data and en.data.answer else ""

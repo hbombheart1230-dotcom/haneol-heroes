@@ -5,5 +5,5 @@
 [resource]
 script = ExtResource("1_answer")
 kind = "counter"
-mult = 2.0
+mult = 1.5
 others_mult = 1.0
