@@ -26,6 +26,7 @@ bolt_height = 420.0
 bolt_color = Color(1, 0.8, 0.2, 1)
 decal = ExtResource("2_tex")
 decal_size = 280.0
+fit_exact = true
 decal_upright = true
 decal_time = 0.4
 glow = 0.7
