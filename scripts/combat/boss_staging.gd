@@ -16,6 +16,8 @@ var boss: Enemy
 var spawner: EnemySpawner
 ## 예약된 일 [남은 시간(초, 게임 시간), Callable]. 단계 전환 때만 생긴다.
 var _events: Array = []
+## 주기 소환까지 남은 시간 (BossFeelData.summon_every, 꺼져 있으면 INF).
+var _summon_left: float = INF
 
 
 ## 보스에 붙인다 (boss_feel이 없으면 아무것도 하지 않음).
@@ -30,6 +32,8 @@ static func attach(sp: EnemySpawner, e: Enemy) -> BossStaging:
 	sp.add_child(s)
 	e.set_meta(META, s)
 	s._setup_attack()
+	if s.feel.summon_every > 0.0:
+		s._summon_left = s.feel.summon_first if s.feel.summon_first >= 0.0 else s.feel.summon_every
 	if s.feel.chase_speed > 0.0:
 		e.move_speed = s.feel.chase_speed  # 쉬지 않고 쫓아오는 우두머리
 	if not e.data.is_boss:
@@ -140,11 +144,14 @@ func summon(list: Array) -> void:
 
 ## 살아 있는 부하 + 나타나는 중인 자리.
 func minion_count() -> int:
-	return maxi(spawner.alive_count() - (1 if is_instance_valid(boss) and not boss.health.is_dead() else 0), 0) \
-		+ spawner._warnings
+	var n := maxi(spawner.alive_count() - (1 if is_instance_valid(boss) and not boss.health.is_dead() else 0), 0) + spawner._warnings
+	if not feel.cap_counts_group:  # 무리(다른 중간 우두머리)는 빼고 부른 부하만
+		n -= group().size()
+	return maxi(n, 0)
 
 
 func _physics_process(delta: float) -> void:
+	_tick_rhythm(delta)
 	var i := 0
 	while i < _events.size():
 		_events[i][0] -= delta
@@ -183,3 +190,29 @@ func play_finale(done: Callable, final: bool = true) -> void:
 		if done.is_valid():
 			done.call()
 		queue_free())
+
+
+## 주기 소환 (BossFeelData.summon_every): 우두머리가 새 공격을 시작할 수 있을 때 외침 한 박자 → 부하.
+func _tick_rhythm(delta: float) -> void:
+	if _summon_left == INF or not is_instance_valid(boss) or boss.health.is_dead():
+		return
+	_summon_left -= delta
+	if _summon_left > 0.0 or (boss.attack and boss.attack.state != EnemyAttack.State.READY):
+		return
+	_summon_left = feel.summon_every
+	var list := rhythm_list(boss)
+	if list.is_empty() or minion_count() >= feel.max_minions:
+		return
+	if boss.attack:
+		boss.attack.hold(feel.summon_cue)
+	if feel.phase_anim != &"":
+		EnemySprite.show_pose(boss, feel.phase_anim, feel.summon_cue)
+	_events.append([feel.summon_cue * 0.5, summon.bind(list)])
+
+
+## 주기 소환에 부를 부하: 지금 단계의 summon (1단계면 첫 단계 전환의 것), 없으면 빈 배열.
+static func rhythm_list(e: Enemy) -> Array:
+	if e == null or e.data == null or e.data.phases.is_empty():
+		return []
+	var ph: BossPhaseData = e.data.phases[clampi(e.phase_index - 1, 0, e.data.phases.size() - 1)]
+	return ph.summon
