@@ -31,7 +31,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	_ring(ctx, radius, 3.2, center, follow)
 	if outer_radius > 0.0:  # 바깥 고리는 가운데 적을 따로 치지 않는다 (두 겹이어도 가운데 적은 한 번씩)
 		_ring(ctx, outer_radius, -2.4, center, follow).hit_core = false
-	if ctx.fx:
+	if ctx.fx and range_rings:
 		ctx.fx.add_ring(center, radius, 0.3, fx_color)
 	return SkillRun.instant(0)
 

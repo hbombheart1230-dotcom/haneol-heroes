@@ -80,6 +80,7 @@ vfx_impact = ExtResource("vfx_impact")
 ring_art = ExtResource("ring_art")
 sfx_layers = Array[StringName]([&"gugak_pyeon"])
 cast_anim = &"cast_tap"
+range_rings = false
 cast_lead = -1.0
 
 [sub_resource type="Resource" id="Skill_dash"]
@@ -100,6 +101,7 @@ fall_art = ExtResource("fall_art")
 fall_size = 220.0
 impact_sfx = &"gugak_jing"
 cast_anim = &"cast_dash"
+range_rings = false
 cast_lead = 0.08
 
 [sub_resource type="Resource" id="Skill_charge"]
@@ -120,6 +122,7 @@ aim_assist_range = 600.0
 aim_fallback_nearest = true
 impact_sfx = &"gugak_pyeon"
 cast_anim = &"cast_charge"
+range_rings = false
 charge_scaling = ExtResource("charge_steps")
 charge_aim = true
 charge_aim_auto = true
@@ -142,6 +145,7 @@ vfx_impact = ExtResource("vs_sundial")
 cutin = true
 sfx_layers = Array[StringName]([&"gugak_jing"])
 cast_anim = &"cast_counter"
+range_rings = false
 cast_lead = 0.15
 
 [sub_resource type="Resource" id="Kit"]

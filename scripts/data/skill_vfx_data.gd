@@ -85,6 +85,8 @@ func has_bolt() -> bool:
 ## 이 단계부터 그림을 한 겹 더, 이 단계부터 금빛 고리까지 (화려해짐).
 @export var flourish_level: int = 2
 @export var ring_level: int = 4
+## false면 강화 단계가 올라도 금빛 고리를 두르지 않는다 (해룡참: 사용자 27fcdcd "4타 금빛 원은 그냥 빼 줘").
+@export var gold_ring: bool = true
 ## 단계 상한 (이 이상은 더 커지지 않음).
 @export var max_level: int = 6
 ## 강화로 커지는 크기 배율의 상한 (최대 단계에서도 화면을 다 덮지 않게, 띠 두께·입자도).
@@ -135,6 +137,8 @@ func bright_for(level: int) -> float:
 
 ## 금빛 고리를 두를 단계인지.
 func ring_for(level: int) -> bool:
+	if not gold_ring:
+		return false
 	var g := _growth()
 	return g.ring_at(level) if g else level_of(level) >= ring_level
 

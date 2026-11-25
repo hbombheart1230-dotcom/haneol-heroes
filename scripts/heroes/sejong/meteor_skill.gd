@@ -54,14 +54,15 @@ func strike(ctx: SkillContext, at: Vector2, dmg: int, r: float) -> int:
 	if ctx.fx:
 		if fall_art == null:
 			ctx.fx.add_slash(at + Vector2(-120, -420), at, 12.0, 0.25, fx_color)
-		ctx.fx.add_ring(at, r, 0.35, Color(1, 1, 1))
+		if range_rings:
+			ctx.fx.add_ring(at, r, 0.35, Color(1, 1, 1))
 	ctx.shake(0.2)
 	return n
 
 
 ## 여진: 떨어진 자리에서 작은 고리 + 살짝 흔들림.
 func _tremor(ctx: SkillContext, at: Vector2, r: float) -> void:
-	if ctx.fx:
+	if ctx.fx and range_rings:
 		ctx.fx.add_ring(at, r * 0.8, 0.3, Color(fx_color, 0.7))
 	ctx.shake(0.1)
 

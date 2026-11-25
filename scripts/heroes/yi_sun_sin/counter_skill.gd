@@ -30,9 +30,10 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		ctx.hit(en, damage)
 		hits += 1
 	ctx.impact(center, Vector2.ZERO, radius, radius + ring_edge_px)
-	if ctx.fx:
+	if ctx.fx and range_rings:
 		ctx.fx.add_ring(center, radius, 0.45, fx_color)
 		ctx.fx.add_ring(center, radius * 0.6, 0.3, Color(1, 1, 1))
+	if ctx.fx:
 		for i in 4:  # X자 칼자국: 끝이 칼끝 (예전 반경 × 0.9 → 칼끝의 0.83배)
 			var d := Vector2.from_angle(TAU * i / 4.0 + PI / 4.0) * (radius + ring_edge_px)
 			ctx.fx.add_slash(center - d, center + d, 16.0, 0.25, fx_color)

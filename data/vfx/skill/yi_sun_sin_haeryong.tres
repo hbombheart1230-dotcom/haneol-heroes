@@ -47,6 +47,7 @@ twist = 0.5
 art_fill = 0.95
 band_inner_uv = 0.22
 fit_exact = true
+gold_ring = false
 ground_art = ExtResource("art_water_stain_1")
 part_art = Array[Texture2D]([ExtResource("art_water_clump_1"), ExtResource("art_water_clump_2"), ExtResource("art_water_clump_3"), ExtResource("art_water_clump_4"), ExtResource("art_water_clump_5"), ExtResource("art_water_clump_6")])
 growth = true

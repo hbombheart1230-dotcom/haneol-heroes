@@ -33,3 +33,4 @@ glow = 0.7
 glow_color = Color(1, 0.85, 0.4, 1)
 flicker = 0.8
 growth = true
+gold_ring = false

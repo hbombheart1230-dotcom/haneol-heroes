@@ -40,3 +40,14 @@ func test_other_fitted_effects_keep_the_old_plan() -> void:
 	var pl := FxCoverage.plan(v, 0, 400.0, SkillStageFeel.new(), 720.0)
 	assert_bool(bool(pl["exact"])).is_false()
 	assert_float(float(pl["grow"])).is_greater(1.0)
+
+
+## 사용자 27fcdcd "4타 금빛 원은 그냥 빼 줘": 해룡참은 강화 단계가 올라도 금빛 고리 없음 (단추로 쓸 때도 같은 그림). 다른 기술은 그대로.
+func test_haeryong_has_no_gold_ring_at_any_level() -> void:
+	var v := _tap().vfx_impact
+	assert_bool(v.gold_ring).is_false()
+	for lv in [0, 3, 6, 9]:
+		assert_bool(v.ring_for(lv)).is_false()
+	var other := SkillVfxData.new()
+	other.growth = true
+	assert_bool(other.ring_for(9)).is_true()

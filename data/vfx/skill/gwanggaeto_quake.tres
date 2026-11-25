@@ -42,3 +42,4 @@ flicker = 0.5
 art_fill = 0.91
 fit_exact = true
 growth = true
+gold_ring = false
