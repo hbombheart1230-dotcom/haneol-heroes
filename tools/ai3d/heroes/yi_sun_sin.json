@@ -67,19 +67,23 @@
     },
     {
       "key": "attack",
-      "clip_of": "combo2_src",
+      "match": "attack|slash|punch",
+      "reuse": {
+        "src": "Weapon_Combo_1",
+        "from": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo1.res"
+      },
       "frames": 6,
       "fps": 16.0,
-      "start": 0.37,
-      "end": 1.1,
-      "strike": 0.9,
+      "start": 0.33,
+      "end": 1.07,
+      "strike": 0.8,
       "times": [
-        0.37,
-        0.55,
-        0.7,
-        0.9,
-        1.0,
-        1.1
+        0.33,
+        0.5,
+        0.66,
+        0.8,
+        0.93,
+        1.07
       ],
       "loop": false
     },
