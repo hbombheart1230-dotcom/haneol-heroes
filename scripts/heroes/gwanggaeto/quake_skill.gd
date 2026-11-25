@@ -9,6 +9,8 @@ extends SkillDef
 @export var knockback: float = 160.0
 ## 0보다 크면 넉백 대신 이만큼(px) 바깥으로 크게 날린다 (큰 기술 = 크게 날림, EnemyLaunch).
 @export var launch_px: float = 0.0
+## 고리 그림(vfx_impact) 끝 = 닿는 끝: 반경 + 적 몸 (왜군 병사 몸 20px, SkillContext.edge_of) — 해룡참·반격과 같음.
+@export var ring_edge_px: float = 20.0
 @export_group("박자 (BeatHits, 쿵-쾅)")
 ## 적마다 타수 (1이면 예전처럼 한 번에), 타 사이(초), 마지막 타 비중.
 @export var beats: int = 2
@@ -47,7 +49,7 @@ func strike(ctx: SkillContext, center: Vector2, dmg: int) -> int:
 		for b in range(1, beats):
 			var last := b == beats - 1
 			rake.schedule_fx(beat_interval * b, func() -> void: _ring(ctx, center, 1.15 if last else 0.8, 0.35 if last else 0.2))
-	ctx.impact(center, Vector2.ZERO, radius)
+	ctx.impact(center, Vector2.ZERO, radius, radius + ring_edge_px)
 	_ring(ctx, center, 1.0, 0.35 if beats <= 1 else 0.22)
 	return targets.size()
 

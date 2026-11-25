@@ -9,6 +9,8 @@ extends SkillDef
 @export var knockback: float = 380.0
 ## 0보다 크면 넉백 대신 이만큼(px) 바깥으로 크게 날린다 (큰 기술 = 크게 날림, EnemyLaunch).
 @export var launch_px: float = 0.0
+## 고리 그림(vfx_impact) 끝 = 닿는 끝: 반경 + 적 몸 (왜군 병사 몸 20px, SkillContext.edge_of) — 해룡참·반격과 같음.
+@export var ring_edge_px: float = 20.0
 @export_group("박자 (BeatHits, 쿵-쿵-쾅)")
 ## 적마다 타수 (1이면 예전처럼 한 번에), 타 사이(초), 마지막 타 비중.
 @export var beats: int = 3
@@ -44,7 +46,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 					ctx.shake(0.5))
 			else:
 				rake.schedule_fx(beat_interval * b, func() -> void: _quake(ctx, center, 0.8, 0.3))
-	ctx.impact(center, Vector2.ZERO, radius)
+	ctx.impact(center, Vector2.ZERO, radius, radius + ring_edge_px)
 	if field_time > 0.0:
 		var z := DamageZone.new()
 		z.ctx = ctx
@@ -71,5 +73,5 @@ func _burst(ctx: SkillContext, center: Vector2) -> void:
 	ctx.fx.add_ring(center, radius, 0.5, fx_color)
 	ctx.fx.add_ring(center, radius * 0.7, 0.35, Color(1, 1, 1))
 	for i in 6:
-		var d := Vector2.from_angle(TAU * i / 6.0) * radius
+		var d := Vector2.from_angle(TAU * i / 6.0) * (radius + ring_edge_px)  # 사방 획 끝 = 닿는 끝
 		ctx.fx.add_slash(center, center + d, 8.0, 0.3, fx_color)
