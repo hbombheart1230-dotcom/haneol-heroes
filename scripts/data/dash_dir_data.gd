@@ -33,3 +33,13 @@ extends Resource
 @export var back_fallback: StringName = &"hit"
 ## 돌진 타격 소리 (SoundBank 종류).
 @export var strike_sfx: StringName = &"w_sword"
+
+@export_group("백스텝 (순신 시험, 던파 백스텝 참고)")
+## 켜면 뒤로 빠지기를 백스텝으로: 기준은 지금 치고 있는 대상(연타 대상, 없으면 가장 가까운 적), 짧고 빠르게,
+## 연달아 튕기면 둘째부터는 일반 내닫기, 내닫기 자동 기술 없음. 끄면 예전 뒤로 빠지기 (가장 가까운 적, 일반 거리).
+@export var backstep_enabled: bool = false
+## 거리·시간 배율 (일반 내닫기 대비): 거리 0.5, 시간 0.4 = 1.25배 빠르기.
+@export var backstep_dist_mult: float = 0.5
+@export var backstep_time_mult: float = 0.4
+## 연타 대상이 없을 때 마지막에 친 적을 기준으로 삼는 시간(초): 그보다 오래 안 쳤으면 가장 가까운 적.
+@export var backstep_target_memory: float = 1.0

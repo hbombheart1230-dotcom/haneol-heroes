@@ -62,6 +62,12 @@ var dash_runner: DashStyleRunner
 var _arrive_pending: bool = false
 var _glide_left: float = 0.0
 var _dash_time_left: float = 0.0
+## 이번 내닫기의 거리·시간 배율 (백스텝 DashDirData.backstep_*, 평소 1).
+## 손 평타로 마지막에 겨눈 적과 그 뒤 흐른 시간 (백스텝 기준, DashDirection.reference).
+var strike_target: Enemy
+var since_strike: float = INF
+var _dash_dk: float = 1.0
+var _dash_tk: float = 1.0
 ## 마지막 대시가 끝난 뒤 지난 시간(초). 대시 직후 연계 입력 판정용.
 var _since_dash_end: float = INF
 ## 마지막 대시 시작 후 지난 시간(초)과 시작 위치 (회피 판정용).
@@ -290,6 +296,7 @@ func compute_velocity(delta: float) -> Vector2:
 	dash.update(delta)
 	bite.tick(delta)
 	_since_dash_start += delta
+	since_strike += delta
 	_skill_invuln = maxf(_skill_invuln - delta, 0.0)
 	if not is_dashing():
 		_since_dash_end += delta
