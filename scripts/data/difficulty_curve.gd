@@ -62,6 +62,7 @@ func scaled(e: EnemyData, tier: int) -> EnemyData:
 	if e == null or tier <= 0:
 		return e
 	var c := e.duplicate() as EnemyData
+	c.set_meta(&"hp_base", e.get_meta(&"hp_base", e.max_hp))  # 배율 전 체력 (HomeSummonRules.hp_factor)
 	c.max_hp = maxi(1, roundi(e.max_hp * hp(tier)))
 	c.contact_damage = roundi(e.contact_damage * damage(tier))
 	c.move_speed = e.move_speed * speed(tier)

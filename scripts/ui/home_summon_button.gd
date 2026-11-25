@@ -15,6 +15,8 @@ var _hint_left := 0.0
 var line := ""
 var _line_left := 0.0
 var _press_index := -1
+var _press_pos := Vector2.ZERO
+var _press_time := 0.0
 var _begun := false
 var _runs: Array[SkillRun] = []
 var _flash := 0.0
@@ -72,7 +74,8 @@ func is_on(pos: Vector2) -> bool:
 
 
 ## 누름 처리 (테스트에서 직접 부른다). 단추 위의 누름이면 true (영웅 조작으로 넘기지 않음).
-func handle_touch(index: int, pos: Vector2, pressed: bool) -> bool:
+func handle_touch(index: int, pos: Vector2, pressed: bool, time: float = -1.0) -> bool:
+	var now := time if time >= 0.0 else Time.get_ticks_msec() / 1000.0
 	if not visible or not shown():
 		_press_index = -1
 		return false
@@ -80,12 +83,22 @@ func handle_touch(index: int, pos: Vector2, pressed: bool) -> bool:
 		if not is_on(pos):
 			return false
 		_press_index = index
+		_press_pos = pos
+		_press_time = now
 		return true
 	if index != _press_index:
 		return false
 	_press_index = -1
-	if is_on(pos):
+	if is_on(pos) and now - _press_time <= data.tap_max_time:  # 짧게 톡 누른 것만 (꾹·끌기는 부르지 않음)
 		summon()
+	return true
+
+
+## 누른 손가락이 끌림. 반환: 움직이기로 넘겼으면 true (그 뒤 끌기·떼기는 영웅 조작이 받는다).
+func handle_drag(index: int, pos: Vector2) -> bool:
+	if index != _press_index or pos.distance_to(_press_pos) <= data.tap_slop:
+		return false
+	_press_index = -1
 	return true
 
 
@@ -94,8 +107,8 @@ func summon() -> bool:
 	if not shown() or not rules.can_use():
 		return false
 	var caster := main.player.get_node_or_null("SkillCaster") as SkillCaster
-	var stage: StageTheme = main.stage_by_id(main.run_stage_id())
-	var k := rules.damage_scale(main.spawner.boss_data, stage.boss if stage else null)
+	var foe := HomeSummonCast.target_of(caster)  # 겨눌 적의 체력 배율로 (중간 우두머리·졸병이면 그 적 것)
+	var k := rules.damage_scale_for(foe.data if foe else null)
 	var run := HomeSummonCast.cast(caster, rules.home, rules.skill(), data.charge, k)
 	if run == null:
 		return false
@@ -119,8 +132,27 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton and (event as InputEventMouseButton).button_index == MOUSE_BUTTON_LEFT:
 		var m := event as InputEventMouseButton
 		used = handle_touch(1000, _to_local(m.position), m.pressed)
+	elif event is InputEventScreenDrag:
+		var d := event as InputEventScreenDrag
+		if d.index == _press_index:
+			if handle_drag(d.index, _to_local(d.position)):
+				_hand_to_move(d.index, d.position)  # 이 끌기부터는 영웅 조작으로 (처리했다고 표시하지 않음)
+			else:
+				used = true  # 아직 단추 위의 작은 흔들림
 	if used:
 		get_viewport().set_input_as_handled()
+
+
+## 단추에서 시작해 끌린 손가락을 영웅 조작에 누름으로 넘긴다 (움직이려던 손가락).
+func _hand_to_move(index: int, screen_pos: Vector2) -> void:
+	var tc := main.get_node_or_null("TouchController") as TouchController if main else null
+	if tc == null:
+		return
+	var e := InputEventScreenTouch.new()
+	e.index = index
+	e.position = screen_pos
+	e.pressed = true
+	tc.handle_event(e, Time.get_ticks_usec() / 1_000_000.0)
 
 
 ## 화면 좌표 → 이 칸 좌표 (HUD는 화면 전체).

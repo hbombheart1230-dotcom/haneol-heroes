@@ -193,3 +193,42 @@ func test_button_sits_below_the_badge_and_the_combo_text() -> void:
 		assert_float(c.y - d.button_radius - 7.0).is_greater(HeroBadge.BOTTOM)
 		assert_float(c.y - d.button_radius - 7.0).is_greater(vp.y * combo.anchor.y + 10.0)
 		assert_float(c.x + d.button_radius + 7.0).is_less(150.0)
+
+
+## 잘못 눌림 (독립 검토 ①): 단추에서 시작해 움직이면 영웅 움직이기로 넘기고 부르지 않는다. 꾹 눌렀다 떼도 부르지 않는다.
+func test_drag_from_the_button_moves_and_holding_does_not_summon() -> void:
+	var b := _button("sejong", "yi_sun_sin")
+	var c := b.center()
+	var d := b.data
+	assert_bool(b.handle_touch(0, c, true, 10.0)).is_true()
+	assert_bool(b.handle_drag(0, c + Vector2(d.tap_slop * 0.5, 0))).is_false()  # 작은 흔들림은 단추 위 그대로
+	assert_bool(b.handle_drag(0, c + Vector2(d.tap_slop + 4.0, 0))).is_true()  # 넘김
+	assert_bool(b.handle_touch(0, c + Vector2(d.tap_slop + 4.0, 0), false, 10.2)).is_false()  # 떼기도 영웅 조작 몫
+	assert_int(b.rules.charges).is_equal(1)
+	b.handle_touch(0, c, true, 20.0)
+	b.handle_touch(0, c, false, 20.0 + d.tap_max_time + 0.1)  # 꾹 눌렀다 뗌
+	assert_int(b.rules.charges).is_equal(1)
+	b.handle_touch(0, c, true, 30.0)
+	b.handle_touch(0, c, false, 30.1)  # 톡
+	assert_int(b.rules.charges).is_equal(0)
+
+
+## 피해 배율은 겨눈 적의 체력 배율 (독립 검토 ②): 최종 우두머리·중간 우두머리 배율이 달라도, 졸병이면 1.
+func test_summon_scale_follows_the_targeted_enemy() -> void:
+	var base := EnemyData.new()
+	base.max_hp = 1000
+	base.is_boss = true
+	var hero := HeroData.new()
+	hero.boss_hp_mult = 1.5
+	var scaled := BossHpScale.for_hero(base, hero)
+	assert_float(HomeSummonRules.hp_factor(scaled)).is_equal_approx(1.5, 0.001)
+	var curve := load("res://data/difficulty/curve.tres") as DifficultyCurve
+	var tiered := curve.scaled(scaled, 1)
+	assert_float(HomeSummonRules.hp_factor(tiered)).is_equal_approx(1.5 * curve.hp(1), 0.01)  # 배율 전 체력은 원본 그대로
+	var trash := EnemyData.new()
+	trash.max_hp = 26
+	assert_float(HomeSummonRules.hp_factor(trash)).is_equal(1.0)
+	assert_float(HomeSummonRules.hp_factor(null)).is_equal(1.0)
+	var r := HomeSummonRules.new()
+	r.begin(_heroes(), _by_id(_heroes(), "sejong"), &"hansan_1592")
+	assert_float(r.damage_scale_for(scaled, 1.0)).is_equal_approx(r.entry.damage_scale * 1.5, 0.001)

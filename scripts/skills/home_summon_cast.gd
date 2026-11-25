@@ -27,22 +27,35 @@ static func cast(caster: SkillCaster, home: HeroData, d: SkillDef, charge: float
 
 ## 겨눌 쪽: 가장 가까운 우두머리, 없으면 가장 가까운 적. 적이 없으면 ZERO (영웅이 보던 쪽).
 static func aim_dir(ctx: SkillContext) -> Vector2:
+	var best := target(ctx)
+	if best == null or ctx.player.global_position.distance_to(best.global_position) < 1.0:
+		return Vector2.ZERO
+	return (best.global_position - ctx.player.global_position).normalized()
+
+
+## 겨눌 적: 우두머리 > 중간 우두머리(boss_feel) > 그 밖의 적, 같은 급이면 가장 가까운 것. 없으면 null.
+static func target(ctx: SkillContext) -> Enemy:
 	var from := ctx.player.global_position
 	var best: Enemy = null
 	var best_d := INF
-	var best_boss := false
+	var best_rank := -1
 	for e in ctx.enemies():
 		if not is_instance_valid(e):
 			continue
 		var en := e as Enemy
 		if en == null or en.health == null or en.health.is_dead():
 			continue
-		var boss := en.data != null and en.data.is_boss
+		var rank := 0 if en.data == null else (2 if en.data.is_boss else (1 if en.data.boss_feel else 0))
 		var dist := from.distance_to(en.global_position)
-		if (boss and not best_boss) or (boss == best_boss and dist < best_d):
+		if rank > best_rank or (rank == best_rank and dist < best_d):
 			best = en
 			best_d = dist
-			best_boss = boss
-	if best == null or best_d < 1.0:
-		return Vector2.ZERO
-	return (best.global_position - from).normalized()
+			best_rank = rank
+	return best
+
+
+## caster 자리에서 겨눌 적 (HomeSummonButton이 피해 배율을 그 적에 맞춘다).
+static func target_of(caster: SkillCaster) -> Enemy:
+	if caster == null or caster.player == null:
+		return null
+	return target(caster._context())
