@@ -21,6 +21,10 @@ extends SkillDef
 @export var wave_surge: float = 0.08
 @export var wave_wake: SkillVfxData
 @export var wave_flicker: float = 0.9
+## 앞 물마루를 판정 크기로 (Projectile.crest_reach: 적 몸 px, 0이면 예전처럼 큰 물결이 곧 판정처럼 보임)과
+## 뒤 큰 물결·날·잔상의 흐림 (사용자 7ce32eb 결정 (b): 판정은 그대로, 큰 느낌은 흐리게 남김).
+@export var crest_reach: float = 22.0
+@export var back_alpha: float = 0.25
 ## 움직이는 물결 시트 (있으면 wave_art 대신 되풀이 재생, docs/skill_vfx_sheets.md) 와 칸 수·초당 장 수.
 @export var wave_sheet: Texture2D
 @export var wave_sheet_grid: Vector2i = Vector2i(4, 2)
@@ -121,5 +125,7 @@ func _wave_configure(pr: Projectile, dir: Vector2, c: float) -> void:
 		pr.surge = wave_surge
 		pr.wake = wave_wake
 		pr.flicker = wave_flicker
+		pr.crest_reach = crest_reach
+		pr.back_alpha = back_alpha
 		var k := charge_scaling.k(c) if charge_scaling else c
 		pr.blades = roundi(lerpf(rake_blades.x, rake_blades.y, k)) if rake_hits.y > 1 else 0

@@ -38,3 +38,15 @@ func test_big_skills_draw_the_hero_over_their_art() -> void:
 	var k := _kit()
 	for d in [k.tap, k.dash, k.charge, k.counter]:
 		assert_bool((d as SkillDef).hero_over_fx).override_failure_message(String(d.id)).is_true()
+
+
+## 해일검기 (사용자 결정 (b)): 앞 물마루의 앞 끝·옆 끝 = 판정 원(12px × 크기) + 적 몸 22px, 뒤 큰 물결은 흐리게.
+func test_haeil_crest_matches_the_hit_circle() -> void:
+	var haeil := _kit().charge as HaeilSkill
+	assert_float(haeil.back_alpha).is_less(0.5)
+	for c in [0.0, 0.5, 1.0]:
+		var p := Projectile.new()
+		haeil._wave_configure(p, Vector2.RIGHT, c)
+		var hit := Projectile.HIT_R * p.size_scale + 22.0
+		assert_float(p.crest_half() * p.size_scale).override_failure_message("charge %.1f" % c).is_equal_approx(hit, 0.5)
+		p.free()
