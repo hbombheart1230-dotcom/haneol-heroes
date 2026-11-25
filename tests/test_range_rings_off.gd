@@ -5,8 +5,9 @@ extends GdUnitTestSuite
 ## 조작에 쓰는 표시(조준 길·모으는 고리·다음 탭 마무리 표시)와 예고(유성 떨어질 자리)는 그대로 (데이터로 켤 수 있음).
 
 const HEROES := ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]
-## 범위 먹 테가 기술 본체 그림이라 되살린 것: 사임당 4번 화폭 펼치기 (가두는 먹 테). 금빛 고리는 그대로 끔.
-const KEEP_RINGS := ["shin_saimdang/canvas"]
+## 고리가 기술 본체 그림(판을 채우는 물·먹·빛 번짐)이라 되살린 것 (사용자 d311b10 "사임당 4번 허접해졌는데", "그런 거 또 있는지 찾아";
+## 9e19cfb 대 d311b10 같은 장면 비교에서 "본체가 사라짐·조금 허전"). 금빛 고리(gold_ring)는 모두 그대로 끔.
+const KEEP_RINGS := ["shin_saimdang/canvas", "shin_saimdang/plum", "yi_sun_sin/haeryong", "yi_sun_sin/counter", "gwanggaeto/conqueror"]
 
 
 func test_no_range_rings_on_any_hero_skill() -> void:
