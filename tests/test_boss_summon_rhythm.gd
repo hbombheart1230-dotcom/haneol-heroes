@@ -85,9 +85,25 @@ func test_first_summon_after_first_seconds_and_capped() -> void:
 func test_group_members_count_toward_cap_unless_turned_off() -> void:
 	var d := ResourceLoader.load("res://data/enemies/waegun_elite.tres", "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as EnemyData
 	d.boss_feel = d.boss_feel.duplicate() as BossFeelData
+	d.boss_feel.cap_counts_group = true
 	var a := sp.spawn_elite(Vector2(0, -200), d)
 	sp.spawn_elite(Vector2(200, -200), d)
 	var stg := BossStaging.of(a)
 	assert_int(stg.minion_count()).is_equal(1)  # 지금: 무리 한 명도 부하로 센다
 	d.boss_feel.cap_counts_group = false
 	assert_int(stg.minion_count()).is_equal(0)  # 끄면 부른 부하만
+
+
+## 사용자 요청 "우두머리가 잡몹을 더 빨리 소환" (L1안): 네 최종 우두머리와 셋 12종 모두 첫 8초, 15초마다, 셋끼리는 상한에서 뺌.
+func test_bosses_and_trios_use_plan_l1() -> void:
+	var ids := BOSSES.duplicate()
+	for st_id in ["hansan_1592", "manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
+		var st := load("res://data/stages/%s.tres" % st_id) as StageTheme
+		for e: EnemyData in (st.waves.waves[2] as WaveData).elite_group:
+			ids.append(String(e.resource_path.get_file().get_basename()))
+	assert_int(ids.size()).is_equal(16)
+	for id in ids:
+		var f := (load("res://data/enemies/%s.tres" % id) as EnemyData).boss_feel
+		assert_float(f.summon_every).override_failure_message(id).is_equal(15.0)
+		assert_float(f.summon_first).override_failure_message(id).is_equal(8.0)
+		assert_bool(f.cap_counts_group).override_failure_message(id).is_false()
