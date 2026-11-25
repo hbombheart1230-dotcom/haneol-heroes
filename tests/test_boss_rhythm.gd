@@ -249,6 +249,19 @@ func test_charge_stops_before_blocked_point_and_arena_edge() -> void:
 	assert_float(end.y).is_less_equal(300.0 - b.body_radius)
 
 
+## 걸을 수 있는 곳이 전장 사각보다 넓으면 (한산 갑판 x ±960) 사각 밖에서도 돌진하고, 다각형 끝 앞에서 멈춘다.
+func test_charge_uses_walk_area_beyond_arena_rect() -> void:
+	sp.arena_rect = Rect2(-300, -300, 600, 600)
+	sp.walk_area = PackedVector2Array([Vector2(-600, -600), Vector2(600, -600), Vector2(600, 600), Vector2(-600, 600)])
+	var b := _boss(COMMANDER, Vector2(400, 0))
+	var end := EnemyActions.charge_stop(b, Vector2(400, 200))
+	assert_vector(end).is_equal(Vector2(400, 200))  # 사각 밖이어도 다각형 안이면 그대로
+	end = EnemyActions.charge_stop(b, Vector2(900, 0))
+	assert_float(end.x).is_greater(450.0)
+	assert_float(end.x).is_less_equal(600.0 - b.body_radius * b.size_mult)
+	sp.walk_area = PackedVector2Array()
+
+
 ## 회복 중 휘청(cancel)으로 끊겨도 이미 친 공격을 다시 내지 않는다 (이어치기도 끊긴다).
 func test_stagger_during_recovery_moves_on_without_chain() -> void:
 	var b := _boss()

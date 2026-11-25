@@ -47,9 +47,13 @@ static func charge_stop(e: Enemy, end: Vector2) -> Vector2:
 	var last := from
 	var room := e.body_radius * e.size_mult
 	var r := sp.arena_rect.grow(-room) if sp.arena_rect.has_area() else Rect2()
+	# 걸을 수 있는 곳(#216)이 있으면 그것이 전장 끝이다 (사각보다 넓은 무대에서 돌진이 제자리에 멈추지 않게): 몸 앞끝까지 안이어야
+	var poly := sp.walk_area
+	var ahead := (end - from).normalized() * room
 	for i in range(1, n + 1):
 		var p := from.lerp(end, float(i) / n)
-		if (r.has_area() and not r.has_point(p)) or (sp.blocked_check.is_valid() and bool(sp.blocked_check.call(p, room * 0.6))):
+		var outside := (not WalkArea.contains(poly, p) or not WalkArea.contains(poly, p + ahead)) if poly.size() >= 3 				else (r.has_area() and not r.has_point(p))
+		if outside or (sp.blocked_check.is_valid() and bool(sp.blocked_check.call(p, room * 0.6))):
 			return last
 		last = p
 	return end
