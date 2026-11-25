@@ -22,6 +22,13 @@ func test_hansan_full_run_report() -> void:
 				st.hero_hint = HINTS[hero]
 				if OS.get_environment("HH_SWARM") != "":  # 근접 잡몹 수 배율 비교 (WaveSwarm)
 					st.waves.melee_count_mult = float(OS.get_environment("HH_SWARM"))
+				if OS.get_environment("HH_SUMMON_EVERY") != "":  # 우두머리·중간 우두머리 주기 소환 비교 (SummonOverride)
+					st.boss = SummonOverride.apply(st.boss)
+					for w: WaveData in st.waves.waves:
+						var g: Array[EnemyData] = []
+						for e: EnemyData in w.elite_group:
+							g.append(SummonOverride.apply(e))
+						w.elite_group = g
 				if OS.get_environment("HH_CAP_ADD") != "":  # 밀도 변형: 동시 상한 더하기
 					st.waves.alive_cap_add = int(OS.get_environment("HH_CAP_ADD"))
 				if OS.get_environment("HH_STAGGER") != "":  # 등장 간격(초)

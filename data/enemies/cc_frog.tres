@@ -190,6 +190,9 @@ field_slow_mult = 0.8
 
 [sub_resource type="Resource" id="Boss_feel"]
 script = ExtResource("8_feel")
+summon_every = 15.0
+summon_first = 8.0
+cap_counts_group = false
 chase_speed = 135.0
 phase_anim = &"attack2"
 

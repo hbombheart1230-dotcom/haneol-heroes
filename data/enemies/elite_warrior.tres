@@ -83,6 +83,9 @@ seal_label = "꿰뚫어라!"
 
 [sub_resource type="Resource" id="Mid_feel"]
 script = ExtResource("7_feel")
+summon_every = 15.0
+summon_first = 8.0
+cap_counts_group = false
 intro_hold = 1.2
 transition_hold = 0.8
 summon_delay = 0.4
