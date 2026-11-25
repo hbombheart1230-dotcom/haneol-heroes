@@ -216,6 +216,8 @@ func apply_contact_damage(delta: float, amount: int) -> bool:
 
 ## 피해 공통: 무적(피해 비례) + 주변 적 밀어내기(숨 돌릴 틈) + 연출.
 func _take_hit(amount: int) -> void:
+	if swing_guarded():  # 광개토: 휘두르는 동안 버팀 (HeroData.swing_guard)
+		amount = maxi(roundi(amount * hero.swing_guard.damage_taken_mult), 1)
 	health.damage(amount)
 	var react := Feedback.feel_data().reaction_data()
 	_hurt_total = HurtResponse.invuln_for(amount, health.max, hurt_invuln_time, react)
@@ -337,3 +339,10 @@ func _physics_process(delta: float) -> void:
 		global_position = global_position.clamp(arena_rect.position, arena_rect.end)
 	if _arrive_pending:
 		_dash_arrived()
+
+
+## 휘두르는 동안 버티는 중 (HeroData.swing_guard, ComboSteps.swinging).
+func swing_guarded() -> bool:
+	if hero == null or hero.swing_guard == null:
+		return false
+	return ComboSteps.swinging(get_node_or_null("AutoAttack") as AutoAttack, hero.swing_guard.tail)
