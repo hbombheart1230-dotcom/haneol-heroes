@@ -13,11 +13,11 @@ extends RefCounted
 static var enabled: bool = true
 ## 마지막 예열에 걸린 시간(ms, 그리기 한 번 제외)과 모은 수 (측정 보고용).
 static var last_ms: float = 0.0
-## 원인 나누기 (측정 도구): 건너뛸 부분 — "sheets" 시트 자르기, "shapes" 입자 그림, "flow" 잡음 재질, "draw" 그리기 한 번, "3d" 3D 적.
+## 원인 나누기 (측정 도구): 건너뛸 부분 — "sheets" 시트 자르기, "shapes" 입자 그림, "flow" 잡음 재질, "draw" 그리기 한 번.
 static var skip: PackedStringArray = PackedStringArray()
 static var last_counts: String = ""
-## 따라 내려갈 깊이 상한: 영웅 → 기술 → 효과 → 그림, 무대 → 물결 → 무리 → 적 → 단계 → 부하 (6이면 무리 우두머리의 단계·죽음 그림이 빠졌다).
-static var max_depth: int = 8
+## 따라 내려갈 깊이 상한 (영웅 → 기술 → 효과 → 그림이면 충분).
+const MAX_DEPTH := 6
 
 
 ## 이 판 예열: 모으고, 미리 만들고, 그리기 한 번을 parent 밑에 건다. 반환: 모은 것 (없으면 빈 사전).
@@ -32,8 +32,6 @@ static func run(parent: Node, hero: HeroData, stage: StageTheme) -> Dictionary:
 		layer.textures = found["textures"]
 		layer.words = found["words"]
 		parent.add_child(layer)
-	if not skip.has("3d"):  # 3D 적 (한산 대장 등): 모델·3D 셰이더 첫 컴파일 (FxWarmup3D)
-		FxWarmup3D.run(parent, stage)
 	last_ms = (Time.get_ticks_usec() - t0) / 1000.0
 	last_counts = "%s textures %d vfx %d sheets %d words %d" % [hero.id if hero else &"-", found["textures"].size(),
 		found["vfx"].size(), found["sheets"].size(), found["words"].size()]
@@ -58,7 +56,7 @@ static func collect(start: Array) -> Dictionary:
 
 
 static func _walk(v: Variant, found: Dictionary, seen: Dictionary, depth: int) -> void:
-	if depth > max_depth:
+	if depth > MAX_DEPTH:
 		return
 	if v is Array:
 		for x in v:
