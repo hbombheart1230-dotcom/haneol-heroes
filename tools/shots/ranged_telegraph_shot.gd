@@ -47,7 +47,7 @@ func _run() -> void:
 		var e := spawner.spawn_at(d, player.global_position + Vector2.from_angle(ang) * dist)
 		if e:
 			shooters.append(e)
-	for k in [0.3, 0.75, 0.97]:
+	for k in [0.15, 0.3, 0.75, 0.97]:
 		await _until(shooters, k)
 		_save("%s_k%d.png" % [args[2], int(k * 100)])
 	quit()

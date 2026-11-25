@@ -5,8 +5,8 @@ extends GdUnitTestSuite
 func test_data_defaults_are_sane() -> void:
 	var d := RangedTelegraphData.default()
 	assert_int(d.style).is_between(0, 2)
-	assert_float(d.fill_alpha_to).is_greater(d.fill_alpha_from)
-	assert_float(d.flash_alpha).is_less(1.0)  # 영웅이 밑에 비친다
+	assert_float(d.alpha_to).is_greater(d.alpha_from)
+	assert_float(d.width_to).is_less(12.0)  # 가늘고 날렵하게
 
 
 func test_shoot_windup_draws_band_for_every_style() -> void:
