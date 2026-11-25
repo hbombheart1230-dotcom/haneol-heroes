@@ -272,6 +272,7 @@ func _physics_process(delta: float) -> void:
 		EnemySprite.update(self, busy)
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
 	move_and_slide()
+	WalkArea.keep_enemy(self)  # 밀려나도 걸을 수 있는 곳 안
 	EnemySteer.note_obstacle(self)
 	if _flash > 0.0:
 		_flash = maxf(_flash - delta, 0.0)
@@ -284,6 +285,7 @@ func _drift(delta: float) -> void:
 	velocity = knockback + launch.tick(delta)
 	knockback = knockback.move_toward(Vector2.ZERO, knockback.length() * knockback_damping * delta + 1.0)
 	move_and_slide()
+	WalkArea.keep_enemy(self)  # 밀려나도 걸을 수 있는 곳 안
 	_flash = maxf(_flash - delta, 0.0)
 	if sprite:
 		EnemySprite.update(self, false)
