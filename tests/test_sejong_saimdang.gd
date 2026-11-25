@@ -158,8 +158,9 @@ func test_critters_summon_and_bite() -> void:
 			(c as SummonCritter)._physics_process(DT)
 	assert_int(e.health.current).is_less(e.health.max)
 	s.extra_butterflies = 3
-	s.cast(ctx, 0.0)
-	assert_int(_of(SummonCritter).size()).is_equal(s.count * 2 + 3)
+	s.cast(ctx, 0.0)  # 한꺼번에 max_alive마리까지만 (오래된 것부터 사라짐, 사용자 9e19cfb "나비 사기")
+	var alive := _of(SummonCritter).filter(func(c: Node) -> bool: return not c.is_queued_for_deletion())
+	assert_int(alive.size()).is_equal(mini(s.count + 3, s.max_alive) if s.max_alive > 0 else s.count * 2 + 3)
 
 
 func test_ink_bleed_lays_slowing_zones_on_dash_path() -> void:
