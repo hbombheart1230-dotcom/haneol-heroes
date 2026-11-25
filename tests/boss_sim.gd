@@ -48,6 +48,8 @@ var hero_path := YI_PATH
 var hero_override: HeroData
 var want := 90.0
 var tap_range := 170.0
+## true면 모으기 기술을 쿨타임마다 다 모아 우두머리 쪽으로 쓴다 (보고용, 기본은 탭만: 기존 균형 시험은 그대로).
+var use_charge := false
 ## 탄이 이미 맞힌 적 (관통 탄은 같은 적을 한 번만).
 var _proj_hits := {}
 ## 판 전부터 있던 suite 자식 (판이 끝나면 그 밖의 것은 다 지운다: 탄·기술 노드가 지운 생성기를 부르지 않게).
@@ -183,6 +185,9 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 		if bot != Bot.IDLE and tap_t <= 0.0 and player.global_position.distance_to(boss.global_position) <= tap_range:
 			tap_t = TAP_GAP
 			caster.combo_tap()
+		if use_charge and bot != Bot.IDLE and caster.is_ready(SkillCaster.Slot.CHARGE) 				and player.global_position.distance_to(boss.global_position) <= tap_range:
+			player.facing = (boss.global_position - player.global_position).normalized()
+			caster.cast(SkillCaster.Slot.CHARGE, 1.0)
 		atk.tick(DT, list)
 		_tick_shots(list)
 		_tick_rakes()  # 기술 박자 타격 (WaveRake: 낙뢰·화폭·해일검기·쿵-쿵-쾅·꽃잎)

@@ -123,6 +123,8 @@ cast_anim = &"cast_charge"
 charge_scaling = ExtResource("charge_steps")
 charge_aim = true
 charge_aim_auto = true
+reach = 525.0
+line_width = 62.0
 cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_counter"]

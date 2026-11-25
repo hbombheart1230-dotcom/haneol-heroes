@@ -54,6 +54,7 @@ func _run(boss: String, hero: String, s: int, miss: float, tier: int = 0) -> Dic
 	var h: HeroData = grown[0]
 	await sim.setup(boss_for(BOSSES[boss], h, tier), s)
 	sim.miss_rate = miss
+	sim.use_charge = OS.get_environment("HH_USE_CHARGE") == "1"  # 보고용: 모으기도 쿨타임마다 쓴다
 	var r := sim.run(BossSim.Bot.DODGE, 200.0)
 	sim.free_all()
 	return r
