@@ -7,6 +7,7 @@
 [ext_resource type="Resource" path="res://data/enemies/waegun_soldier.tres" id="5_soldier"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_gunner.tres" id="6_gunner"]
 [ext_resource type="Script" path="res://scripts/data/boss_feel_data.gd" id="7_feel"]
+[ext_resource type="Resource" path="res://data/enemies/weight/elite.tres" id="hit_weight"]
 
 [sub_resource type="Resource" id="El_charge_follow"]
 script = ExtResource("2_attack")
@@ -103,6 +104,7 @@ finale_subtitle = "정예 격파"
 
 [resource]
 script = ExtResource("1_enemy")
+hit_weight = ExtResource("hit_weight")
 id = &"waegun_elite"
 max_hp = 1800
 xp = 10

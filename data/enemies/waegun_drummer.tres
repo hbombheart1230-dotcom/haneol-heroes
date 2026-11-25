@@ -7,6 +7,7 @@
 [ext_resource type="Resource" path="res://data/enemies/waegun_soldier.tres" id="5_soldier"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_gunner.tres" id="6_gunner"]
 [ext_resource type="Resource" path="res://data/enemies/feel/hansan_mid_group_feel.tres" id="feel"]
+[ext_resource type="Resource" path="res://data/enemies/weight/elite.tres" id="hit_weight"]
 
 [sub_resource type="Resource" id="Aura"]
 script = ExtResource("2_aura")
@@ -29,6 +30,7 @@ seal_label = "북을 울려라!"
 
 [resource]
 script = ExtResource("1_enemy")
+hit_weight = ExtResource("hit_weight")
 id = &"waegun_drummer"
 display_name = "왜군 망령 북잡이"
 max_hp = 1000

@@ -29,6 +29,15 @@ func active() -> bool:
 	return _t >= 0.0
 
 
+## 0~1 날아간 진행 (날아가지 않으면 0), 날아가는 방향.
+func progress() -> float:
+	return clampf(_t / maxf(_hold + _time, 0.001), 0.0, 1.0) if _t >= 0.0 else 0.0
+
+
+func dir() -> Vector2:
+	return _dir
+
+
 ## 이번 프레임 속도 (px/s). 곡선: 남은 거리가 (1-u)^3 로 줄어든다 (처음 빠르고 끝에서 부드럽게 선다).
 func tick(delta: float) -> Vector2:
 	if _t < 0.0:

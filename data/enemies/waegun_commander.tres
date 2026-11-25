@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" path="res://assets/vfx/boss_phase_seal.png" id="art_boss_phase_seal_1"]
 [ext_resource type="Script" path="res://scripts/data/boss_feel_data.gd" id="7_feel"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_flag.tres" id="8_flag"]
+[ext_resource type="Resource" path="res://data/enemies/weight/elite.tres" id="hit_weight"]
 
 [sub_resource type="Resource" id="Boss_charge_follow"]
 script = ExtResource("2_attack")
@@ -213,6 +214,7 @@ chase_speed = 135.0
 
 [resource]
 script = ExtResource("1_enemy")
+hit_weight = ExtResource("hit_weight")
 id = &"waegun_commander"
 display_name = "왜군 망령 수군 장수"
 max_hp = 2875

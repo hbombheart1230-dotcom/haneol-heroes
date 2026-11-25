@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
 [ext_resource type="Resource" path="res://assets/sprites/waegun_heavy/waegun_heavy.tres" id="3_sheet"]
 [ext_resource type="Resource" path="res://data/enemies/behaviour/waegun_shield.tres" id="beh"]
+[ext_resource type="Resource" path="res://data/enemies/weight/heavy.tres" id="hit_weight"]
 
 [sub_resource type="Resource" id="Attack_heavy_slam"]
 script = ExtResource("2_attack")
@@ -17,6 +18,7 @@ recovery = 0.6
 
 [resource]
 script = ExtResource("1_enemy")
+hit_weight = ExtResource("hit_weight")
 id = &"waegun_heavy"
 display_name = "왜군 망령 무사"
 max_hp = 140

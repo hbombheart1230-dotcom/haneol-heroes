@@ -5,6 +5,7 @@
 [ext_resource type="Resource" path="res://assets/sprites/waegun_gunner/waegun_gunner.tres" id="3_sheet"]
 [ext_resource type="Resource" path="res://data/vfx/enemy_muzzle.tres" id="muzzle"]
 [ext_resource type="Resource" path="res://data/enemies/feel/hansan_mid_group_feel.tres" id="feel"]
+[ext_resource type="Resource" path="res://data/enemies/weight/elite.tres" id="hit_weight"]
 
 [sub_resource type="Resource" id="Shot_3"]
 script = ExtResource("2_attack")
@@ -64,6 +65,7 @@ fire_vfx = ExtResource("muzzle")
 
 [resource]
 script = ExtResource("1_enemy")
+hit_weight = ExtResource("hit_weight")
 id = &"waegun_gunner_captain"
 display_name = "왜군 망령 조총 명수"
 max_hp = 1000
