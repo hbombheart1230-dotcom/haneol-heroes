@@ -5,8 +5,9 @@ extends SceneTree
 ##  - 투사체 (해일검기 물결·글자): 날아가는 동안 투사체마다 원 (판정 원 12px × 크기 + 적 HurtBox 22px)
 ## godot --path . --resolution 720x1280 -s res://tools/shots/skill_reach_strip.gd -- <출력 png> <영웅> <무대> <칸 tap|dash|charge|counter> [vfx_level=0] [charge=1]
 
-const CROP := Vector2i(560, 560)
-const SHOTS := [0, 3, 6, 10, 16, 24]
+## 환경 변수 HH_SHOTS="0,10,30"·HH_CROP=800으로 바꿀 수 있다 (큰 기술·늦게 펼쳐지는 기술).
+var CROP := Vector2i(560, 560)
+var SHOTS: Array = [0, 3, 6, 10, 16, 24]
 const HURT_R := 22.0  # enemy.tscn HurtBox2D
 
 
@@ -38,6 +39,10 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	if OS.has_environment("HH_SHOTS"):
+		SHOTS = Array(OS.get_environment("HH_SHOTS").split(",")).map(func(x: String) -> int: return int(x))
+	if OS.has_environment("HH_CROP"):
+		CROP = Vector2i.ONE * int(OS.get_environment("HH_CROP"))
 	var a := OS.get_cmdline_user_args()
 	var hero := StringName(a[1])
 	var slot_name := a[3]
@@ -53,18 +58,30 @@ func _run() -> void:
 		"charge": SkillCaster.Slot.CHARGE, "counter": SkillCaster.Slot.COUNTER}[slot_name]
 	var def: SkillDef = caster.def_of(slot)
 	def.vfx_level = level
+	if OS.has_environment("HH_SET"):  # 비교용 값 바꾸기: HH_SET="back_alpha=0.45,crest_reach=22"
+		for kv in OS.get_environment("HH_SET").split(","):
+			var pair := kv.split("=")
+			def.set(pair[0], float(pair[1]))
 	var grown := SkillGrowthData.get_default().scaled_def(def)
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
-	var foe := spawner.spawn_at(load("res://data/enemies/waegun_soldier.tres"), player.global_position + Vector2(900, 0))
+	var foe := spawner.spawn_at(load("res://data/enemies/waegun_soldier.tres"), player.global_position + Vector2(float(OS.get_environment("HH_FOE_X")) if OS.has_environment("HH_FOE_X") else 900.0, 0))
 	foe.set_physics_process(false)
 	var edge := SkillContext.edge_of(foe)
 	var ov := Overlay.new()
 	ov.z_index = 100
 	main.add_child(ov)
 	var at := player.global_position
+	var actx := caster._context()
+	actx.skill = grown
+	if SkillAim.enabled(actx) and slot != SkillCaster.Slot.CHARGE:  # 세종: 겨눈 적 자리 (없으면 앞 기본 거리)
+		at = SkillAim.point(actx, slot == SkillCaster.Slot.COUNTER)
 	if "radius" in grown and float(grown.get("radius")) > 0.0:
 		ov.circles.append([at, float(grown.get("radius")) + edge])
 		print("[reach] %s %s lv%d: radius %.0f reach %.0f" % [hero, slot_name, level, grown.get("radius"), float(grown.get("radius")) + edge])
+	if grown.has_method("radius_for"):  # 모은 만큼 반경 (사임당 화폭)
+		var rc: float = grown.call("radius_for", charge)
+		ov.circles.append([at, rc + edge])
+		print("[reach] %s %s lv%d c%.1f: radius %.0f reach %.0f" % [hero, slot_name, level, charge, rc, rc + edge])
 	if "length" in grown and "width" in grown:
 		var b := at + Vector2.RIGHT * float(grown.get("length"))
 		ov.capsules.append([at - Vector2.RIGHT * 30.0, b, float(grown.get("width")) * 0.5 + edge])

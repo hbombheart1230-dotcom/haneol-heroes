@@ -24,7 +24,7 @@ extends SkillDef
 ## 앞 물마루를 판정 크기로 (Projectile.crest_reach: 적 몸 px, 0이면 예전처럼 큰 물결이 곧 판정처럼 보임)과
 ## 뒤 큰 물결·날·잔상의 흐림 (사용자 7ce32eb 결정 (b): 판정은 그대로, 큰 느낌은 흐리게 남김).
 @export var crest_reach: float = 22.0
-@export var back_alpha: float = 0.25
+@export var back_alpha: float = 0.45
 ## 움직이는 물결 시트 (있으면 wave_art 대신 되풀이 재생, docs/skill_vfx_sheets.md) 와 칸 수·초당 장 수.
 @export var wave_sheet: Texture2D
 @export var wave_sheet_grid: Vector2i = Vector2i(4, 2)
