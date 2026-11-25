@@ -27,7 +27,8 @@ func tick(c: SkillCaster, delta: float) -> bool:
 	_prev = p.global_position
 	if _fired or not c.is_ready(SkillCaster.Slot.DASH):
 		return false
-	var hit := touched(p, c.enemy_source.call(), delta, c.kit.dash_auto_reach, c.kit.dash_auto_cone_deg, prev)
+	var list: Array = c.enemy_source.call()
+	var hit := touched(p, list, delta, c.kit.dash_auto_reach, c.kit.dash_auto_cone_deg, prev) if c.kit.dash_auto_needs_touch 		else ahead(p, list, c.kit.dash_auto_ahead_range, c.kit.dash_auto_cone_deg)
 	if hit == null:
 		return false
 	_fired = true
@@ -60,3 +61,25 @@ static func touched(p: Player, list: Array, delta: float, reach: float, cone_deg
 				continue
 		return en
 	return null
+
+
+## 닿지 않아도 되는 영웅 (SkillKit.dash_auto_needs_touch 끔): 내닫는 쪽 cone_deg(전체) 안, range px 안의 가장 가까운 적.
+static func ahead(p: Player, list: Array, range_px: float, cone_deg: float) -> Enemy:
+	var dir := p.get_dash_direction()
+	if dir.length_squared() < 0.0001:
+		return null
+	var half := deg_to_rad(maxf(cone_deg, 1.0) * 0.5)
+	var best: Enemy = null
+	var best_d := range_px
+	for e in list:
+		if not is_instance_valid(e):
+			continue
+		var en := e as Enemy
+		if en == null or en.health.is_dead():
+			continue
+		var off := en.global_position - p.global_position
+		var d := off.length()
+		if d <= best_d and (d < 1.0 or absf(dir.angle_to(off)) <= half):
+			best_d = d
+			best = en
+	return best

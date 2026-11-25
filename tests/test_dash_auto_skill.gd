@@ -161,3 +161,20 @@ func test_long_step_does_not_skip_enemy() -> void:
 	player.global_position = Vector2(400, 0)  # 한 틱에 400px: 속도 × delta(5px)로는 못 본다
 	assert_object(DashAutoSkill.touched(player, enemies, DT, 30.0, 0.0)).is_null()
 	assert_object(DashAutoSkill.touched(player, enemies, DT, 30.0, 0.0, Vector2.ZERO)).is_same(e)
+
+
+
+## 세종만 닿지 않아도 (사용자 결정 2026-11-25): 적 쪽 원뿔 안·사거리 안에 적이 있으면 내달을 때 나간다. 다른 셋은 닿아야.
+func test_sejong_fires_toward_enemy_without_touch() -> void:
+	for id in ["yi_sun_sin", "gwanggaeto", "shin_saimdang"]:
+		assert_bool((load("res://data/heroes/%s.tres" % id) as HeroData).kit.dash_auto_needs_touch).override_failure_message(id).is_true()
+	var sj := (load("res://data/heroes/sejong.tres") as HeroData).kit
+	assert_bool(sj.dash_auto_needs_touch).is_false()
+	var far := _enemy_at(Vector2(300, 0))  # 내닫기(260px)로 닿지 않는 거리
+	player.request_dash(Vector2.RIGHT)
+	assert_object(DashAutoSkill.ahead(player, enemies, sj.dash_auto_ahead_range, sj.dash_auto_cone_deg)).is_same(far)
+	player.request_dash(Vector2.LEFT)  # 반대쪽으로 내달으면 없음
+	assert_object(DashAutoSkill.ahead(player, enemies, sj.dash_auto_ahead_range, sj.dash_auto_cone_deg)).is_null()
+	far.global_position = Vector2(sj.dash_auto_ahead_range + 50.0, 0)
+	player.request_dash(Vector2.RIGHT)  # 사거리 밖이면 없음
+	assert_object(DashAutoSkill.ahead(player, enemies, sj.dash_auto_ahead_range, sj.dash_auto_cone_deg)).is_null()

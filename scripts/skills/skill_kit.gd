@@ -32,6 +32,10 @@ extends Resource
 @export var dash_auto_cone_deg: float = 0.0
 ## 저절로 나간 둘째 기술의 피해 배율 (내닫기만 마구 해도 연타보다 세지 않게, 메인 결정 2026-11-24 ②). 1이면 그대로.
 @export var dash_auto_damage_mult: float = 1.0
+## 끄면 적에 닿지 않아도 적 쪽(dash_auto_cone_deg 안, dash_auto_ahead_range px 안에 적이 있을 때)으로 내달으면 나간다
+## (사용자 2026-11-25: 세종만 — 멀리 서서 쓰는 영웅이라 몸으로 닿을 일이 드물다). 켜면(기본) 내닫기 길이 적에 닿아야.
+@export var dash_auto_needs_touch: bool = true
+@export var dash_auto_ahead_range: float = 420.0
 ## 이 시간 이상 누르면 충전으로 본다(초).
 @export var hold_threshold: float = 0.2
 ## 충전 시작 후 최대 충전까지(초).
