@@ -65,6 +65,10 @@ func _run() -> void:
 	if "radius" in grown and float(grown.get("radius")) > 0.0:
 		ov.circles.append([at, float(grown.get("radius")) + edge])
 		print("[reach] %s %s lv%d: radius %.0f reach %.0f" % [hero, slot_name, level, grown.get("radius"), float(grown.get("radius")) + edge])
+	if grown.has_method("radius_for"):  # 모은 만큼 반경 (사임당 화폭)
+		var rc: float = grown.call("radius_for", charge)
+		ov.circles.append([at, rc + edge])
+		print("[reach] %s %s lv%d c%.1f: radius %.0f reach %.0f" % [hero, slot_name, level, charge, rc, rc + edge])
 	if "length" in grown and "width" in grown:
 		var b := at + Vector2.RIGHT * float(grown.get("length"))
 		ov.capsules.append([at - Vector2.RIGHT * 30.0, b, float(grown.get("width")) * 0.5 + edge])
