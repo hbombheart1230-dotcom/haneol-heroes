@@ -8,6 +8,8 @@ extends SkillDef
 @export var damage: int = 40
 ## 벼락 하나의 피해 반경 (맞은 적 주변도 함께).
 @export var splash_radius: float = 60.0
+## 불똥 그림(vfx_impact) 끝 = 벼락이 닿는 끝: splash_radius + 적 몸 (예전엔 그림 크기 그대로라 판정의 1.4~1.6배).
+@export var splash_edge_px: float = 20.0
 @export_group("모으며 조준 (끌면)")
 ## 모으는 동안 끌면 그 방향 steer_reach px 자리를 가운데로 반경 steer_radius 안 적부터 벼락 (끌지 않으면 영웅 주변 자동).
 @export var steer_reach: float = 240.0
@@ -82,7 +84,7 @@ func _bolt(ctx: SkillContext, rake: WaveRake, at: Vector2, dmg: int, delay: floa
 	var draw := func() -> void:
 		if vfx_impact == null and ctx.fx:
 			ctx.fx.add_slash(at + Vector2(0, -420), at, 10.0, 0.22, fx_color)  # 하늘에서 내리꽂힘
-		ctx.impact(at)  # 번개 줄기 + 불똥 (vfx_impact)
+		ctx.impact(at, Vector2.ZERO, splash_radius, splash_radius + splash_edge_px)  # 번개 줄기 + 불똥 (판정 끝에 맞춤)
 		if ctx.fx:
 			ctx.fx.add_ring(at, splash_radius, 0.3, Color(1, 1, 1))
 	for en in ctx.enemies_in_radius(at, splash_radius):

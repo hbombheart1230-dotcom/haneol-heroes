@@ -87,6 +87,7 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_quake")
 impact_sfx = &"gugak_buk"
 cast_anim = &"cast_tap"
+hero_over_fx = true
 cast_lead = 0.1
 
 [sub_resource type="Resource" id="Skill_trail"]
@@ -107,6 +108,7 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_thunder_trail")
 impact_sfx = &"gugak_big"
 cast_anim = &"cast_dash"
+hero_over_fx = true
 cast_lead = 0.06
 
 [sub_resource type="Resource" id="Skill_bolt"]
@@ -127,6 +129,7 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_lightning")
 impact_sfx = &"gugak_big"
 cast_anim = &"cast_charge"
+hero_over_fx = true
 charge_scaling = ExtResource("charge_steps")
 charge_aim = true
 charge_aim_auto = true
@@ -152,6 +155,7 @@ cutin = true
 sfx_layers = Array[StringName]([&"gugak_jing"])
 impact_sfx = &"gugak_buk"
 cast_anim = &"cast_counter"
+hero_over_fx = true
 cast_lead = 0.2
 
 [sub_resource type="Resource" id="Kit_gw"]
