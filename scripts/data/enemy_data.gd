@@ -19,6 +19,8 @@ extends Resource
 @export var preferred_range: float = 0.0
 ## 넉백을 받는 정도 (중장병은 작게).
 @export var knockback_scale: float = 1.0
+## 맞는 쪽 반응 무게 등급 (HitWeightData: 가벼움·묵직함·정예). 비면 예전 반응 그대로.
+@export var hit_weight: HitWeightData
 ## 슈퍼아머 (던파식): 잡몹이어도 맞아서 예고가 끊기거나 넘어지지 않는다 (중장병).
 @export var super_armor: bool = false
 ## 보스 단계 (체력 비율 내림차순). 비면 단계 없음.

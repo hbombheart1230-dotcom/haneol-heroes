@@ -72,6 +72,8 @@ var phase_index: int = 0
 var phase_invuln: float = 0.0
 ## 지금 맞는 타격이 한 번에 맞힌 적 수 (AutoAttack이 피해 직전에 넣고 뒤에 1로, HitReaction 경직 배율).
 var hit_crowd: int = 1
+## 이번 피해의 타 세기 (HitReaction.Power): 때린 쪽이 피해 직전에 넣고 바로 되돌린다 (heavy_pending과 같은 방식).
+var hit_power: int = 0
 ## 넉백 감쇠율(초당). 클수록 빨리 멈춘다.
 @export var knockback_damping: float = 8.0
 
@@ -86,7 +88,8 @@ func _seed_id() -> int:
 
 
 func apply_knockback(impulse: Vector2) -> void:
-	knockback += impulse * (data.knockback_scale if data else 1.0) * (poise.knockback_mult() if poise else 1.0)
+	knockback += impulse * (data.knockback_scale if data else 1.0) * (poise.knockback_mult() if poise else 1.0) \
+		* (data.hit_weight.knockback_mult if data and data.hit_weight else 1.0)
 
 
 ## 밀쳐내기 (영웅 숨 돌릴 틈): 넉백 + 잡몹은 잠깐 경직 (쫓아오며 넉백을 지우지 않게).
@@ -169,6 +172,7 @@ func _ready() -> void:
 		if data.sprite_sheet:
 			sprite = EnemySprite.setup(self)
 	reaction = HitReaction.new(Feedback.feel_data().reaction_data(), HitReaction.tier_of(data, affix != null, hp_mult))
+	reaction.weight = data.hit_weight if data else null
 	reaction.stagger_override = data.stagger_time if data else -1.0
 	poise = EnemyPoise.new(reaction.tier, health.max, AI)
 	add_to_group(GROUP)
@@ -295,7 +299,7 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 		_last_hit_dir = d.normalized() if d.length_squared() > 0.01 else _last_hit_dir
 	if applied > 0 and not health.is_dead():
 		freeze(feel.freeze_for(applied))
-		if reaction and reaction.on_hit(applied, health.max, _last_hit_dir, hit_crowd) and sprite:
+		if reaction and reaction.on_hit(applied, health.max, _last_hit_dir, hit_crowd, hit_power) and sprite:
 			EnemySprite.start_hit(self)  # 멈춤 동안 첫 프레임, 멈춤 뒤 나머지 (R1)
 		if reaction and reaction.is_staggered():
 			_stop_charge()  # 잡몹 돌진은 맞으면 멈춘다 (정예·보스는 그대로 밀고 온다)

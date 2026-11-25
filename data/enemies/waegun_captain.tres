@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
 [ext_resource type="Resource" path="res://assets/sprites/waegun_elite/waegun_elite.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://data/enemies/weight/elite.tres" id="hit_weight"]
 
 [sub_resource type="Resource" id="Attack_elite_slam"]
 script = ExtResource("2_attack")
@@ -16,6 +17,7 @@ recovery = 0.6
 
 [resource]
 script = ExtResource("1_enemy")
+hit_weight = ExtResource("hit_weight")
 id = &"waegun_captain"
 max_hp = 400
 xp = 12
