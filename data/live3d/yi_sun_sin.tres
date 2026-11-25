@@ -18,12 +18,12 @@ clips = Array[Dictionary]([{
 "key": "dash",
 "loop": false
 }, {
-"end": 1.07,
-"file": "res://assets/live3d/yi_sun_sin/anims/web_weaponcombo1.res",
+"end": 1.02,
+"file": "res://assets/live3d/yi_sun_sin/anims/thrustslash.res",
 "key": "attack",
 "loop": false,
-"start": 0.33,
-"times": [0.33, 0.5, 0.66, 0.8, 0.93, 1.07]
+"start": 0.62,
+"times": [0.62, 0.7, 0.76, 0.82, 0.92, 1.02]
 }, {
 "file": "res://assets/live3d/yi_sun_sin/anims/hitreaction.res",
 "key": "hit",

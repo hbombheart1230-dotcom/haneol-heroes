@@ -40,9 +40,14 @@
 [ext_resource type="Resource" path="res://data/heroes/combo_lock/yi_sun_sin.tres" id="combo_lock"]
 [ext_resource type="Resource" path="res://data/campaigns/yi_sun_sin.tres" id="campaign"]
 [ext_resource type="Resource" path="res://data/heroes/dash_look/yi_sun_sin.tres" id="dash_look"]
+[ext_resource type="Texture2D" path="res://assets/vfx/brush_stroke.png" id="thrust_art"]
 
 [sub_resource type="Resource" id="Attack_yi"]
 script = ExtResource("2_attack")
+step_thrust = PackedFloat32Array(1, 0, 0)
+thrust_art = ExtResource("thrust_art")
+thrust_width = 62.0
+thrust_reach = 1.3
 step_in_against_input = -0.3
 step_in_no_target_mult = 0.35
 finisher_step_in_px = 50.0
