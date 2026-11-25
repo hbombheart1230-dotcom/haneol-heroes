@@ -116,6 +116,8 @@ static func pose(e: Enemy, shake_px: float) -> void:
 	var sq := r.squash_mult() if r else Vector2.ONE
 	e.sprite.scale = Vector2.ONE * e.data.sprite_scale * e.size_mult * sq
 	e.sprite.rotation = r.tilt() if r else 0.0
+	if r and e.launch and e.launch.active():  # 가벼운 적은 날아가며 돈다 (HitWeightData.launch_spin_deg)
+		e.sprite.rotation += r.launch_spin(e.launch.progress(), e.launch.dir().x)
 	if r and r.is_down() and not e.data.sprite_sheet.has_anim("down"):
 		e.sprite.rotation = r.down_tilt(Feedback.feel_data().impact_data().down_tilt_deg)
 	var off := e.data.sprite_offset * e.size_mult

@@ -64,7 +64,9 @@ func hit(en: Enemy, dmg: int, stop: bool = true) -> bool:
 	var h := en.get_node_or_null("Health") as Health
 	if h == null or not h.is_alive():
 		return false
+	en.hit_power = HitReaction.Power.BIG  # 4타·기술 = 가장 큰 반응 (HitWeightData.power_flinch)
 	h.damage(dmg)
+	en.hit_power = HitReaction.Power.LIGHT
 	if stop and not defer_stop and hit_stop_enabled and player and player.is_inside_tree():
 		SkillHitStop.request(player.get_tree(), dmg)
 	if stop and player:  # 한 번에 끊어 치는 명중: 닿는 자리 섬광·튐 줄기 + 퍽 소리 (평타와 같은 한 타 충격)

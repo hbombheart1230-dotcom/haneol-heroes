@@ -4,6 +4,8 @@ extends RefCounted
 ## 맞는 동작 시간·잡몹 경직·그림 움찔(눌림·젖힘·기울기)·흰 번쩍임 세기를 계산한다. 그리기는 EnemySprite가.
 
 enum Tier { TRASH, ELITE, BOSS }
+## 타 세기 (Enemy.hit_power, 때린 쪽이 넣는다): 1·2타 / 3타 강타 / 4타 마무리·기술.
+enum Power { LIGHT, HEAVY, BIG }
 
 var data: HitReactionData
 var tier: Tier = Tier.TRASH
@@ -17,6 +19,9 @@ var _age: float = INF
 ## 맞은 방향 (때린 쪽 → 적)과 움찔 크기 배율.
 var _dir: Vector2 = Vector2.ZERO
 var _k: float = 1.0
+## 무게 등급 (EnemyData.hit_weight, 없으면 예전 그대로)과 눌림 크기 배율.
+var weight: HitWeightData
+var _sq_k: float = 1.0
 ## 넘어짐 (B8): 남은 시간·전체 시간·떠오르는 높이·그 시간, 다시 넘어지지 않는 남은 시간.
 var down_left: float = 0.0
 var down_total: float = 0.0
@@ -43,17 +48,22 @@ static func tier_of(d: EnemyData, has_affix: bool, hp_mult: float = 1.0) -> Tier
 
 
 ## 피해를 받았을 때. 반환: 맞는 동작을 (다시) 시작하면 true.
-func on_hit(applied: int, max_hp: int, dir: Vector2, crowd: int = 1) -> bool:
+func on_hit(applied: int, max_hp: int, dir: Vector2, crowd: int = 1, power: int = Power.LIGHT) -> bool:
 	if applied <= 0:
 		return false
 	_age = 0.0
 	if dir.length_squared() > 0.0001:
 		_dir = dir.normalized()
 	_k = 1.0 if tier == Tier.TRASH else data.heavy_flinch_scale
+	_sq_k = _k
+	if weight:  # 무게 × 타 세기
+		_k *= weight.flinch_mult * weight.power_mult(power)
+		_sq_k = _k * weight.squash_mult
 	if tier == Tier.TRASH:
 		add_stagger(stagger_time() * crowd_mult(crowd))
 	var plays := tier == Tier.TRASH \
 		or (tier == Tier.ELITE and applied >= maxi(max_hp, 1) * data.elite_flinch_hp_frac) \
+		or (tier == Tier.ELITE and weight != null and weight.elite_anim_power >= 0 and power >= weight.elite_anim_power) \
 		or (tier == Tier.BOSS and data.boss_flinch)
 	if plays:
 		anim_left = data.hit_anim_time
@@ -110,7 +120,7 @@ func knock_down(d: ImpactFeelData) -> bool:
 		return false
 	down_left = d.down_time
 	down_total = d.down_time
-	_down_lift_px = d.down_lift_px
+	_down_lift_px = d.down_lift_px * (weight.down_lift_mult if weight else 1.0)
 	_down_lift_time = minf(d.down_lift_time, d.down_time)
 	_down_guard = d.down_rearm
 	return true
@@ -154,18 +164,30 @@ func shows_hit_anim() -> bool:
 ## 그림 배율 (발 기준 눌림). 맞은 순간 squash → 원래대로.
 func squash_mult() -> Vector2:
 	var w := _fade(data.squash_time)
-	return Vector2.ONE.lerp(data.squash, w * _k) if w > 0.0 else Vector2.ONE
+	return Vector2.ONE.lerp(data.squash, w * _sq_k) if w > 0.0 else Vector2.ONE
 
 
 ## 그림 오프셋 (맞은 방향으로 젖혀짐).
 func lean_offset() -> Vector2:
-	return _dir * data.lean_px * _k * _fade(data.lean_time)
+	return _dir * data.lean_px * _k * _fade(lean_time())
 
 
 ## 그림 기울기(라디안): 맞은 방향 쪽으로 넘어가듯.
 func tilt() -> float:
 	var side := 1.0 if _dir.x >= 0.0 else -1.0
-	return deg_to_rad(data.tilt_deg) * _k * side * _fade(data.lean_time)
+	return deg_to_rad(data.tilt_deg) * _k * side * _fade(lean_time())
+
+
+## 젖혔다 돌아오는 시간 (무게 등급 배율).
+func lean_time() -> float:
+	return data.lean_time * (weight.lean_time_mult if weight else 1.0)
+
+
+## 크게 날아가는 동안 그림이 도는 각도(라디안, progress 0~1): 가벼운 적만 (launch_spin_deg).
+func launch_spin(progress: float, dir_x: float) -> float:
+	if weight == null or weight.launch_spin_deg <= 0.0:
+		return 0.0
+	return deg_to_rad(weight.launch_spin_deg) * clampf(progress, 0.0, 1.0) * (1.0 if dir_x >= 0.0 else -1.0)
 
 
 ## 개별 멈춤 중 떨림 폭: 크게 시작해 멈춤이 끝날 때 0 (스매시식).

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="HitWeightData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/hit_weight_data.gd" id="1_w"]
+
+[resource]
+script = ExtResource("1_w")
+flinch_mult = 1.4
+squash_mult = 1.0
+lean_time_mult = 0.9
+knockback_mult = 1.25
+down_lift_mult = 1.5
+launch_spin_deg = 300.0
+power_flinch = PackedFloat32Array(0.7, 1.3, 1.8)

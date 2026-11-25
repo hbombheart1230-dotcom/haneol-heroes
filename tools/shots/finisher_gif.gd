@@ -4,7 +4,7 @@ extends SceneTree
 ## GIF는 tools/shots/frames_to_gif.py가 times.txt의 실제 간격으로 만든다.
 ## 표시: h = 몹이 피해를 입음, s = 타 시작, f = 마무리 시작.
 ## godot --path . --resolution 720x1280 -s res://tools/shots/finisher_gif.gd -- <영웅 id> <출력 폴더> [초=1.2] [시작 타=3]
-## 시작 타 1이면 1·2·3·4타 전체 (초 1.4 안팎). [적 거리 px]: 주면 적을 그 거리에 한 번만 두고 따라 붙이지 않는다 (연타 전진 보기).
+## 시작 타 1이면 1·2·3·4타 전체 (초 1.4 안팎). [적 거리 px]: 주면 적을 그 거리에 한 번만 두고 따라 붙이지 않는다 (연타 전진 보기). [적 id]: 기본 waegun_soldier.
 
 const CROP := Vector2i(300, 300)
 
@@ -23,6 +23,7 @@ func _run() -> void:
 	var seconds := float(args[2]) if args.size() > 2 else 1.2
 	var from_step := int(args[3]) if args.size() > 3 else 3
 	var fixed_px := float(args[4]) if args.size() > 4 else 0.0
+	var enemy_id := args[5] if args.size() > 5 else "waegun_soldier"
 	DirAccess.make_dir_recursive_absolute(args[1])
 	var main: Node = await ShotStage.open(self, &"hansan_1592", StringName(args[0]))
 	await _wait(6.0)  # 물결 알림 띠가 지나간 뒤
@@ -35,11 +36,14 @@ func _run() -> void:
 	var reach := atk.stats().melee_range * 0.6 if atk.stats().use_melee else 200.0
 	if fixed_px > 0.0:
 		reach = fixed_px
-	var e := spawner.spawn_at(load("res://data/enemies/waegun_soldier.tres"), spot + Vector2(reach, 0))
+	var e := spawner.spawn_at(load("res://data/enemies/%s.tres" % enemy_id), spot + Vector2(reach, 0))
 	e.health.max = 999999
 	e.health.current = 999999
 	e.attack = null
-	e.set_physics_process(false)
+	if fixed_px > 0.0:  # 반응(밀림·넘어짐·날아감)이 보이게 물리는 켜 두고, 쫓아오지 않게 대상만 비운다
+		e.target = null
+	else:
+		e.set_physics_process(false)
 	await _wait(0.5)
 	e.health.damaged.connect(func(_en: Node, _ty: int, _amount: int, _i: int, _m: float, _a: int) -> void: _hit = true)
 	atk.melee_windup.connect(func(_d: Vector2) -> void:
