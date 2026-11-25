@@ -21,6 +21,8 @@ extends Resource
 @export var power_flinch: PackedFloat32Array = PackedFloat32Array([1.0, 1.0, 1.0])
 ## 정예가 맞는 동작을 보이는 가장 약한 타 세기 (-1 = 예전 규칙: 한 번에 최대체력 1/16 이상일 때만).
 @export var elite_anim_power: int = -1
+## 슈퍼아머여도 이 타 세기부터는 넘어진다 (-1 = 안 넘어짐). 묵직한 무사: 4타·기술(2)에만, 일어난 뒤 down_rearm 동안은 다시 안 넘어짐.
+@export var down_power: int = -1
 
 
 func power_mult(power: int) -> float:

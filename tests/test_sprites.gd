@@ -132,6 +132,8 @@ func test_unfallable_enemies_ship_no_down_sheet() -> void:
 					shared_with_fallers[e.sprite_sheet] = true
 	for d: EnemyData in all:
 		var file := d.resource_path.get_file()
-		var falls := HitReaction.tier_of(d, false) == HitReaction.Tier.TRASH and not d.super_armor
+		# 넘어지는 적: 잡몹(슈퍼아머 아님) + 무게 등급이 큰 타에 넘어뜨리는 적 (HitWeightData.down_power, 한산 무사)
+		# + 갑옷 깨질 때 넘어졌다 일어나는 정예 (EnemyHits.on_poise, 무게 등급이 있는 한산 정예)
+		var falls := (HitReaction.tier_of(d, false) == HitReaction.Tier.TRASH and not d.super_armor) 			or (d.hit_weight != null and (d.hit_weight.down_power >= 0 or d.is_elite))
 		if not falls and not shared_with_fallers.has(d.sprite_sheet):
 			assert_bool(d.sprite_sheet.has_anim("down")).override_failure_message(file + " never falls but has a down sheet").is_false()

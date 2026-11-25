@@ -63,3 +63,35 @@ func test_hansan_enemies_have_weights() -> void:
 	for id: String in want:
 		var d: EnemyData = load("res://data/enemies/%s.tres" % id)
 		assert_object(d.hit_weight).override_failure_message(id).is_same(want[id])
+
+
+## 새 동작 (Meshy, 사용자 "받아" 2026-11-25): 가벼운 적 날아감·죽음, 무사 넘어짐·버팀·죽음, 정예 넘어짐 (갑옷 깨질 때).
+func test_new_reaction_anims_and_heavy_down() -> void:
+	for id in ["waegun_soldier", "waegun_gunner"]:
+		var sh := (load("res://data/enemies/%s.tres" % id) as EnemyData).sprite_sheet
+		for a in ["fly", "death", "down"]:
+			assert_bool(sh.has_anim(a)).override_failure_message("%s %s" % [id, a]).is_true()
+	var hv := (load("res://data/enemies/waegun_heavy.tres") as EnemyData).sprite_sheet
+	for a in ["down", "death", "hit"]:
+		assert_bool(hv.has_anim(a)).override_failure_message("heavy " + a).is_true()
+	assert_bool((load("res://data/enemies/waegun_elite.tres") as EnemyData).sprite_sheet.has_anim("down")).is_true()
+	assert_int(HEAVY.down_power).is_equal(HitReaction.Power.BIG)  # 4타·기술에만
+	assert_int(LIGHT.down_power).is_equal(-1)
+	assert_int(ELITE.down_power).is_equal(-1)  # 정예는 갑옷이 깨질 때만 (EnemyHits.on_poise)
+
+
+## 무사는 슈퍼아머라 3타에는 안 넘어지고, 4타·기술에는 넘어진다.
+func test_heavy_knocked_down_only_by_big_hits() -> void:
+	var e: Enemy = preload("res://scenes/enemy.tscn").instantiate()
+	e.data = preload("res://data/enemies/waegun_heavy.tres")
+	add_child(auto_free(e))
+	e.set_physics_process(false)
+	e.health.max = 9999
+	e.health.current = 9999
+	e.attack = null
+	e.hit_power = HitReaction.Power.HEAVY
+	EnemyHits.on_hit(e, true)
+	assert_bool(e.reaction.is_down()).is_false()
+	e.hit_power = HitReaction.Power.BIG
+	EnemyHits.on_hit(e, false)
+	assert_bool(e.reaction.is_down()).is_true()
