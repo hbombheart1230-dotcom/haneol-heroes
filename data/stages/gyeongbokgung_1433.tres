@@ -39,6 +39,7 @@ script = ExtResource("w_wave")
 enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier")])
 first_count = 8
 max_alive = 8
+swarm = false
 elite_last = false
 
 [sub_resource type="Resource" id="Wave_2"]
