@@ -184,10 +184,13 @@ func lean_time() -> float:
 
 
 ## 크게 날아가는 동안 그림이 도는 각도(라디안, progress 0~1): 가벼운 적만 (launch_spin_deg).
+## 온 바퀴(360°의 배수)로 맞추고 끝에서 천천히 멈춘다 — 날아감이 끝날 때 각도가 0으로 툭 튀지 않게.
 func launch_spin(progress: float, dir_x: float) -> float:
 	if weight == null or weight.launch_spin_deg <= 0.0:
 		return 0.0
-	return deg_to_rad(weight.launch_spin_deg) * clampf(progress, 0.0, 1.0) * (1.0 if dir_x >= 0.0 else -1.0)
+	var turns := maxf(roundf(weight.launch_spin_deg / 360.0), 1.0)
+	var k := 1.0 - pow(1.0 - clampf(progress, 0.0, 1.0), 2.0)
+	return TAU * turns * k * (1.0 if dir_x >= 0.0 else -1.0)
 
 
 ## 개별 멈춤 중 떨림 폭: 크게 시작해 멈춤이 끝날 때 0 (스매시식).
