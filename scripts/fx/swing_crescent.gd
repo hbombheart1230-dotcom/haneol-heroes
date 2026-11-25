@@ -11,10 +11,6 @@ static func draw(ci: CanvasItem, art: Texture2D, angle: float, r: float, half: f
 	var aa := ci as AutoAttack
 	if aa and SwingTrail.covers(aa.player):  # 궤적(SwingTrail)이 대신 그린다
 		return
-	var d := aa.stats() if aa else null
-	if d and d.thrust_art and ComboSteps.at(d.step_thrust, step, 0.0) > 0.5:
-		_thrust(ci, d, angle, r, col, alpha, feel)
-		return
 	var ks := ComboSteps.at(feel.crescent_step_scales, step, 1.0)
 	var k := feel.crescent_scale * ks
 	var h := r * maxf(sin(half), 0.35)
@@ -29,18 +25,4 @@ static func draw(ci: CanvasItem, art: Texture2D, angle: float, r: float, half: f
 		var core := Rect2(cr.position + Vector2(cr.size.x * 0.12, cr.size.y * 0.1), cr.size * Vector2(0.86, 0.8))
 		var c := col.lerp(Color.WHITE, feel.crescent_core_white)
 		ci.draw_texture_rect(art, core, false, Color(c, feel.crescent_core_alpha * alpha))
-	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
-
-## 찌르기 자국: 영웅 몸 앞에서 칼끝 쪽으로 곧게 뻗는 물결 획 (먹 외곽선 → 영웅색 → 밝은 심, 초승달과 같은 결).
-static func _thrust(ci: CanvasItem, d: BasicAttackData, angle: float, r: float, col: Color, alpha: float, feel: CombatFeelData) -> void:
-	var w := d.thrust_width
-	var rect := Rect2(r * 0.15, -w * 0.5, r * (d.thrust_reach - 0.15), w)
-	ci.draw_set_transform(Vector2.ZERO, angle, Vector2.ONE)
-	if feel.fx_ink_outline > 0.0:
-		ci.draw_texture_rect(d.thrust_art, rect.grow(w * 0.12), false, Color(Ink.INK, col.a * alpha * feel.fx_ink_outline))
-	ci.draw_texture_rect(d.thrust_art, rect, false, Color(col.lightened(feel.crescent_lighten), col.a * alpha))
-	if feel.crescent_core_alpha > 0.0:
-		var core := Rect2(rect.position + Vector2(rect.size.x * 0.1, rect.size.y * 0.3), rect.size * Vector2(0.85, 0.4))
-		ci.draw_texture_rect(d.thrust_art, core, false, Color(col.lerp(Color.WHITE, feel.crescent_core_white), feel.crescent_core_alpha * alpha))
 	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

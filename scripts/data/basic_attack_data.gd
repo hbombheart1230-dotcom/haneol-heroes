@@ -66,11 +66,6 @@ extends Resource
 @export var step_in_against_input: float = -2.0
 ## 타별 내딛는 그림 (px): 휘두를 때 영웅 그림이 치는 쪽으로 나갔다 돌아온다 (판정·위치는 그대로, 자동 평타에도).
 @export var lunge_px: PackedFloat32Array = PackedFloat32Array([14.0, 18.0, 30.0])
-## 타별 찌르기 자국 (1 = 초승달 대신 칼끝 쪽 곧은 획, 사용자 9e19cfb "순신 찌르기 잘 안 보여"): 그림·길이(사거리 배율)·폭(px).
-@export var step_thrust: PackedFloat32Array = PackedFloat32Array()
-@export var thrust_art: Texture2D
-@export var thrust_reach: float = 1.15
-@export var thrust_width: float = 46.0
 ## 나가는 시간·돌아오는 시간 (초).
 @export var lunge_out: float = 0.07
 @export var lunge_back: float = 0.2

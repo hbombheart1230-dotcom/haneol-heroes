@@ -185,8 +185,8 @@ func test_same_anim_restarts_from_first_frame() -> void:
 
 
 ## 1·2·3타는 한 연타 동작에서 이어 잘린다 (1타 끝 = 2타 시작, 순신·광개토·사임당).
-## 순신은 타마다 다른 원본이다: 1타 Thrust Slash 찌르기 (#215, Meshy #240), 2타 Double Combo Attack 내려베기 (#189),
-## 3타 예전 연타 동작 (뛰어 돌며 베기). 1→2·2→3은 동작 바꿈 섞기(anim_blend_time)가 잇는다.
+## 순신은 2타만 Double Combo Attack 내려베기 (#189). 1·3타는 예전 연타 동작 (1타 찌르기 시도 #189·#215는 사용자가 탈락시킴):
+## 1→2·2→3은 동작 바꿈 섞기(anim_blend_time)가 잇는다.
 func test_hits_are_contiguous_cuts_of_one_combo() -> void:
 	for h in ["yi_sun_sin", "gwanggaeto", "shin_saimdang"]:
 		var cfg: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/ai3d/heroes/%s.json" % h))
@@ -194,7 +194,7 @@ func test_hits_are_contiguous_cuts_of_one_combo() -> void:
 		for a in cfg["anims"]:
 			cut[a["key"]] = a
 		if h == "yi_sun_sin":
-			continue  # 순신: 1타 Thrust Slash, 2타 Double Combo, 3타 예전 연타 동작 (원본이 셋 다 다르다)
+			continue  # 순신: 1·3타 예전 연타 동작, 2타만 Double Combo 내려베기 (동작 바꿈 섞기가 잇는다)
 		assert_str(_source(cut["attack"])).override_failure_message(h).is_equal(_source(cut["attack2"]))
 		assert_str(_source(cut["attack2"])).override_failure_message(h).is_equal(_source(cut["attack3"]))
 		assert_float(absf(float(cut["attack"]["end"]) - float(cut["attack2"]["start"]))).override_failure_message(h).is_less(0.06)
