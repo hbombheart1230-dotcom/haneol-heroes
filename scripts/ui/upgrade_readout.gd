@@ -21,7 +21,8 @@ static func kind(u: UpgradeDef) -> StringName:
 	return data().kind_of(u.mods[0].property)
 
 
-## 값 줄들: [{label, from, to}] (화면 글). steps = 이번에 오르는 단계 수. 바뀌지 않는 값은 뺀다.
+## 값 줄들: [{label, from, to}] (화면 글). steps = 이번에 오르는 단계 수. 바뀌지 않는 값과
+## 앞 줄과 글이 똑같은 줄(근접·원거리 피해가 같이 오르는 "평타 피해")은 뺀다.
 static func lines(u: UpgradeDef, build: RunBuild, steps: int) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	if u == null or build == null or build.hero == null:
@@ -39,5 +40,7 @@ static func lines(u: UpgradeDef, build: RunBuild, steps: int) -> Array[Dictionar
 			next = m.apply_to(next)
 		if is_equal_approx(float(next), float(cur)):
 			continue
-		out.append({"label": d.label(m.property), "from": d.fmt(m.property, cur), "to": d.fmt(m.property, next)})
+		var line := {"label": d.label(m.property), "from": d.fmt(m.property, cur), "to": d.fmt(m.property, next)}
+		if not out.has(line):
+			out.append(line)
 	return out
