@@ -116,6 +116,9 @@ func test_melee_and_ranged_damage_lines() -> void:
 	var same := _lines_of("yi_sun_sin", &"blade")
 	assert_int(same.size()).is_equal(1)
 	assert_str(same[0]["label"]).is_equal("평타 피해")
+	var melee_only := _lines_of("shin_saimdang", &"brush")  # 원거리 평타가 없는 영웅: 쓰지 않는 날림 피해는 빼고 한 줄
+	assert_int(melee_only.size()).is_equal(1)
+	assert_str(melee_only[0]["label"]).is_equal("평타 피해")
 	var split := _lines_of("sejong", &"letters")
 	assert_int(split.size()).is_equal(2)
 	var names := split.map(func(l: Dictionary) -> String: return l["label"])
