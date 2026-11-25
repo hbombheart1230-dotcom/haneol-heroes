@@ -10,6 +10,10 @@ static func stage(m, st: StageTheme) -> void:
 		return
 	if m.run_config:
 		m.run_config.stage = st
+	if m.player:  # 걸을 수 있는 곳 (배 갑판 안·지붕 밖 등, WalkArea)
+		m.player.walk_area = st.walk_area
+	if m.spawner:
+		m.spawner.walk_area = st.walk_area
 	var arena := m.get_node_or_null("Arena") as Arena
 	if arena:
 		arena.apply_theme(st)

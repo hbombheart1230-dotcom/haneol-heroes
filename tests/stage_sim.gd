@@ -41,6 +41,8 @@ func setup_stage(st: StageTheme, s: int) -> void:
 	obstacles.build(st.map_blockers)
 	spawner.blocked_check = obstacles.blocks
 	spawner.arena_rect = Arena.new().rect if not st.background_rect.has_area() else st.background_rect.grow(-st.prop_inset)
+	spawner.walk_area = st.walk_area  # 게임과 같은 걸을 수 있는 곳 (StageApply)
+	player.walk_area = st.walk_area
 	spawner.elite_data = st.elite
 	spawner.boss_data = st.boss
 	spawner.max_alive = st.waves.max_alive

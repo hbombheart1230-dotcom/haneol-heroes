@@ -17,6 +17,8 @@ signal boss_spawned(boss: Enemy)
 @export var ring_max: float = 700.0
 ## 생성 가능 영역 (월드 좌표). 크기 0이면 제한 없음.
 @export var arena_rect: Rect2 = Rect2()
+## 걸을 수 있는 곳 (StageTheme.walk_area): 등장 자리와 적 이동을 이 안에 (WalkArea). 비면 arena_rect만.
+var walk_area: PackedVector2Array = PackedVector2Array()
 @export var active: bool = true
 ## 적 종류와 가중치, 등장 시작 시각(초). 비어 있으면 enemy_scene 기본 데이터만.
 @export var spawn_table: Array[EnemyData] = []
@@ -94,8 +96,7 @@ func pick_spawn_position(center: Vector2) -> Vector2:
 	var angle := rng.randf_range(0.0, TAU)
 	var dist := rng.randf_range(ring_min, ring_max)
 	var p := center + Vector2.from_angle(angle) * dist
-	if arena_rect.has_area():
-		p = p.clamp(arena_rect.position, arena_rect.end)
+	p = bounded(p)
 	return p
 
 
@@ -180,8 +181,7 @@ func spawn_at(d: EnemyData, at: Vector2, configure: Callable = Callable(), extra
 	e.data = d
 	e.target = target
 	var p := pick_spawn_position(target.global_position) if at == Vector2.INF else at
-	if arena_rect.has_area():
-		p = p.clamp(arena_rect.position, arena_rect.end)
+	p = bounded(p)
 	e.position = p - global_position
 	if configure.is_valid():
 		configure.call(e)
@@ -293,8 +293,7 @@ func near_point(center: Vector2, dmin: float, dmax: float) -> Vector2:
 	for i in tries * 3:  # 장애물 속이면 다시 뽑는다 (Codex e423e86 지적); 한 바퀴 다 막히면 둘레를 넓혀 두 바퀴 더 (벽 많은 경복궁)
 		var far := dmax * (1.0 + 0.5 * float(i / tries))
 		p = center + fit_view(Vector2.from_angle(rng.randf_range(0.0, TAU)) * rng.randf_range(dmin, far), far)
-		if arena_rect.has_area():
-			p = p.clamp(arena_rect.position, arena_rect.end)
+		p = bounded(p)
 		if not blocked_check.is_valid() or not bool(blocked_check.call(p, spawn_clearance)):
 			break
 		if i == tries - 1:
@@ -325,7 +324,7 @@ func view_half() -> Vector2:
 
 ## at이 장애물 속이거나 전장 밖이면 around 둘레에서 다시 뽑은 자리 (보스 부하 소환).
 func safe_point(at: Vector2, around: Vector2, dmin: float, dmax: float) -> Vector2:
-	var p := at.clamp(arena_rect.position, arena_rect.end) if arena_rect.has_area() else at
+	var p := bounded(at)
 	if blocked_check.is_valid() and bool(blocked_check.call(p, spawn_clearance)):
 		return near_point(around, dmin, dmax)
 	return p
@@ -379,3 +378,10 @@ func tick(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	tick(delta)
+
+
+## 걸을 수 있는 곳(walk_area, 있으면) 또는 전장 사각(arena_rect) 안으로 보정한 자리.
+func bounded(p: Vector2) -> Vector2:
+	if walk_area.size() >= 3:  # 무대의 걸을 수 있는 곳이 사각 경계를 대신한다
+		return WalkArea.clamp_point(walk_area, p)
+	return p.clamp(arena_rect.position, arena_rect.end) if arena_rect.has_area() else p

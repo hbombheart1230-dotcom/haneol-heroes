@@ -115,5 +115,6 @@ prop_scale_max = 1.2
 background_path = "res://assets/backgrounds/chochungdo.png"
 background_rect = Rect2(-933, -1400, 1867, 2800)
 prop_inset = 300.0
+walk_area = PackedVector2Array(-870, -1370, 870, -1370, 870, 1370, -870, 1370)
 map_blockers = PackedVector3Array(-732, -1035, 201, -386, -990, 100, 671, -1035, 201, 817, -762, 128, -769, -306, 164, -824, -51, 128, 708, -270, 201, 817, 86, 109, -742, 888, 191, -477, 1025, 128, 653, 970, 146, 836, 1153, 146, 635, 1298, 109, -824, 1153, 109)
 solid_props = PackedStringArray("screen_cockscomb", "screen_cucumber", "screen_eggplant", "screen_poppy", "screen_watermelon", "rock_a", "rock_b", "inkstone")
