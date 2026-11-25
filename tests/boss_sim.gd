@@ -233,12 +233,22 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 	return res
 
 
+## true면 내 편 소환물·장판도 굴린다 (HH_TICK_SUMMONS=1, 보고용): 예전엔 손으로 굴리는 동안 물리 틱이 돌지 않아
+## 사임당 풀벌레·세종 정음진 고리·먹 웅덩이가 시뮬에서 피해를 하나도 주지 않았다 (균형 표가 그것들 없이 맞춰짐).
+static var TICK_SUMMONS: bool = OS.get_environment("HH_TICK_SUMMONS") == "1"
+
+
 ## 기술 박자 타격 한 틱 (WaveRake): 손으로 굴리는 동안 물리 틱이 돌지 않아, 예전엔 첫 타 뒤 타들이 시뮬에서 빠졌다.
 func _tick_rakes() -> void:
 	for c in suite.get_children():
 		if c is WaveRake and not c.is_queued_for_deletion():
 			c.set_physics_process(false)
 			(c as WaveRake)._physics_process(DT)
+		elif TICK_SUMMONS and (c is SummonCritter or c is OrbitGlyphs or c is DamageZone) and not c.is_queued_for_deletion():
+			c.set_physics_process(false)  # 내 편 소환물·장판 (사임당 풀벌레, 세종 정음진 글자 고리, 먹 웅덩이)
+			c._physics_process(DT)
+			if c.is_queued_for_deletion():
+				c.free()
 
 
 ## 영웅 탄 한 틱: 움직이고, 적 피격 원(22px)에 닿으면 HitBox2D가 하듯 피해를 준다 (손으로 굴리면 영역 겹침이 갱신되지 않음).

@@ -52,6 +52,14 @@ func _run(boss: String, hero: String, s: int, miss: float, tier: int = 0) -> Dic
 	sim.use_hero(path, c[0], c[1])
 	sim.hero_override = grown[0]
 	var h: HeroData = grown[0]
+	if OS.get_environment("HH_PRINT_TAP") == "1":  # 보고용: 성장한 영웅의 1번 수치
+		var t := h.kit.tap
+		print("[tap-grown] %s seed %d: %s" % [hero, s, str({"damage": t.get("damage"), "count": t.get("count"),
+			"extra": t.get("extra_butterflies"), "lifetime": t.get("lifetime"), "cd": t.cooldown, "lv": t.vfx_level})])
+	if OS.get_environment("HH_ZERO_TAP") == "1" and "damage" in h.kit.tap:  # 보고용: 1번 피해 0 (몫 재기)
+		h = h.duplicate_deep(Resource.DEEP_DUPLICATE_INTERNAL) as HeroData
+		h.kit.tap.set("damage", 0)
+		sim.hero_override = h
 	await sim.setup(boss_for(BOSSES[boss], h, tier), s)
 	sim.miss_rate = miss
 	sim.use_charge = OS.get_environment("HH_USE_CHARGE") == "1"  # 보고용: 모으기도 쿨타임마다 쓴다
