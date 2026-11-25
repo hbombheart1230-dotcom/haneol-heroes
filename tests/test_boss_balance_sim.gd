@@ -116,8 +116,8 @@ func _check_rhythm(r: Dictionary, label: String) -> void:
 		var prev: EnemyAttackData = w[i - 1]
 		if prev.follow_up != w[i]:
 			assert_int(int((w[i] as EnemyAttackData).kind)).override_failure_message("%s same attack twice" % label).is_not_equal(int(prev.kind))
-	for g in r["gaps"]:
-		assert_float(g).override_failure_message("%s stalled %.2fs" % [label, g]).is_less(9.0)  # 성장한 영웅은 보스 휘청(경직 게이지)을 자주 깨서 전환 한 박자와 겹친다 (실측 8.0초, 막힘이 아님 — 패턴 보고서 참고)
+	for g in r["gaps_free"]:  # 막힘 = 휘청 시간을 뺀 간격 (소환물이 우두머리를 자주 휘청이게 해서 간격이 길어진다 — 막힘이 아님)
+		assert_float(g).override_failure_message("%s stalled %.2fs" % [label, g]).is_less(9.0)
 	assert_int(r["max_minions"]).is_less_equal(3)
 
 
@@ -128,5 +128,5 @@ func test_tier_scaling_keeps_the_fight_working() -> void:
 		print("[boss-balance] tier 3 %s yi_sun_sin: %s %.1fs, damage %d" % [boss, "WIN" if r["won"] else "LOSE", r["time"], r["damage"]])
 		assert_bool(r["won"]).is_true()
 		assert_int(r["phase"]).is_equal(2)
-		for g in r["gaps"]:  # 단계 3은 체력이 많아 전환 한 박자 + 휘청이 겹칠 수 있다 (7.15초 실측): 막힘은 8초부터
+		for g in r["gaps_free"]:  # 휘청 시간을 뺀 간격. 단계 3은 체력이 많아 전환 한 박자 + 휘청이 겹칠 수 있다 (7.15초 실측): 막힘은 8초부터
 			assert_float(g).is_less(8.0)

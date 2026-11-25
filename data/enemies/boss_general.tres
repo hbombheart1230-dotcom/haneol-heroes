@@ -205,10 +205,10 @@ patterns = Array[ExtResource("2_attack")]([SubResource("Gu_sweep"), SubResource(
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_2"), SubResource("Phase_3")])
 is_boss = true
 boss_hp_by_hero = {
-"gwanggaeto": 0.88,
-"sejong": 1.1,
-"shin_saimdang": 1.0,
-"yi_sun_sin": 1.2
+"gwanggaeto": 0.9,
+"sejong": 1.52,
+"shin_saimdang": 1.59,
+"yi_sun_sin": 1.63
 }
 boss_feel = SubResource("Boss_feel")
 sprite_sheet = ExtResource("3_sheet")
