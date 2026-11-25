@@ -35,12 +35,12 @@
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
-step_in_px = PackedFloat32Array(12, 16, 22)
-step_in_max = 26.0
-finisher_step_in_px = 16.0
+step_in_px = PackedFloat32Array(24, 30, 40)
+step_in_max = 48.0
+finisher_step_in_px = 36.0
 step_in_no_target_mult = 0.35
 step_in_against_input = -0.3
-lunge_px = PackedFloat32Array(16, 20, 30)
+lunge_px = PackedFloat32Array(20, 24, 30)
 melee_interval = 0.76
 melee_range = 175.0
 melee_arc_degrees = 100.0
