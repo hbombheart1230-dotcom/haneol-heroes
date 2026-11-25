@@ -75,3 +75,14 @@ func test_added_enemies_keep_their_hp() -> void:
 	var m := _d(MOUSE)
 	for d: EnemyData in WaveSwarm.expand([m, m, m, m], 1.5):
 		assert_int(d.max_hp).is_equal(m.max_hp)
+
+
+## 경복궁 첫 물결은 배율을 받지 않는다 (세종 첫 물결: D안 14.6초 → 13.7초, test_growth_sim 기준 안). 다른 물결은 받는다.
+func test_wave_with_swarm_off_keeps_its_count() -> void:
+	var st := ResourceLoader.load("res://data/stages/gyeongbokgung_1433.tres", "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as StageTheme
+	var ws := st.waves
+	assert_bool(ws.waves[0].swarm).is_false()
+	assert_bool(ws.waves[1].swarm).is_true()
+	var r := WaveRunner.new(ws, 0.0)
+	r.tick(0.01, 0, false)
+	assert_int(r._queue.size()).is_equal(ws.waves[0].enemies.size())

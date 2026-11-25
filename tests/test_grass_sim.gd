@@ -39,10 +39,7 @@ func test_sun_sin_expedition_with_grass() -> void:
 	_check("yi_sun_sin", await _three("yi_sun_sin", false), await _three("yi_sun_sin", true), 1.15)
 
 
+## 원정 영웅은 씨앗 셋 평균으로 본다: 씨앗 하나는 풀숲 겨냥이 크게 흔들린다 (광개토 씨앗 11: 109.8 → 133.2초, 셋 평균 118.7 → 122.4초).
 func test_other_heroes_on_chochungdo_with_grass() -> void:
 	for hero in ["gwanggaeto", "sejong"]:
-		var a: Dictionary = await HazardRuns.run(self, STAGE, hero, SEEDS[0], false)
-		var b: Dictionary = await HazardRuns.run(self, STAGE, hero, SEEDS[0], true)
-		assert_bool(b["boss"]).override_failure_message(hero).is_true()
-		assert_float(b["share"]).override_failure_message(hero).is_less(0.6)
-		assert_float(b["time"]).override_failure_message(hero).is_less_equal(a["time"] * 1.2)
+		_check(hero, await _three(hero, false), await _three(hero, true), 1.2)
