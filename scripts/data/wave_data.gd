@@ -15,3 +15,5 @@ extends Resource
 @export var elite_when_left: int = -1
 ## 비어 있지 않으면 정예 자리에 이 적들이 한꺼번에 나온다 (중간 우두머리 무리: 돌격·원거리·지원). 비면 무대의 정예 하나.
 @export var elite_group: Array[EnemyData] = []
+## 끄면 이 물결은 근접 잡몹 수 배율(WaveSetData.melee_count_mult)을 받지 않는다 (첫 물결을 가볍게 여는 무대).
+@export var swarm: bool = true
