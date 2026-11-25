@@ -26,6 +26,10 @@ var _cd: float = 0.0
 var _wobble: float = 0.0
 
 
+func age() -> float:
+	return _age
+
+
 func _ready() -> void:
 	_wobble = randf() * TAU
 
