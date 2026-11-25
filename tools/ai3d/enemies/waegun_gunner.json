@@ -97,6 +97,24 @@
       "frames": 6,
       "fps": 10.0,
       "loop": false
+    },
+    {
+      "key": "fly",
+      "match": "",
+      "action_id": 7,
+      "frames": 6,
+      "fps": 12.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "death",
+      "match": "",
+      "action_id": 189,
+      "frames": 6,
+      "fps": 12.0,
+      "loop": false,
+      "skip_bake": true
     }
   ]
 }

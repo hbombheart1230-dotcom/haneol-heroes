@@ -142,7 +142,8 @@ func test_strike_push_and_slow() -> void:
 
 
 ## 잡몹 떼 6/8/10 × 씨앗 셋, 네 영웅: 돌진만 쓰는 봇이 평타 봇보다 유리하지 않다.
-## 영웅마다 아홉 판 합은 돌진만 쓰는 쪽이 짧으면 안 되고 (진짜 유리함), 한 판은 25% 넘게 빨라야 "유리"로 본다 (판 하나의 흔들림).
+## 영웅마다 아홉 판 합과 무리 크기(6·8·10)별 씨앗 셋 합 모두 돌진만 쓰는 쪽이 짧으면 안 되고 (진짜 유리함),
+## 한 판은 25% 넘게 빨라야 "유리"로 본다 (판 하나의 흔들림).
 ## 25%인 까닭 (2026-11-25, int/next-k): 순신 n10 s1 돌진만 10.6초 < 평타 12.9초 (18%, 피해 둘 다 0)로 실패했다.
 ## n10을 씨앗 1~20으로 재면 돌진만이 빠른 판이 3/20 (18% / 7% / 9%)이고 합은 평타 205.4초 < 돌진만 248.5초라,
 ## 평타가 운 나쁘게 흩어진 무리를 만난 판이지 돌진만이 나은 전략이 된 것이 아니다.
@@ -154,6 +155,7 @@ func test_dash_only_bot_is_not_better_than_melee() -> void:
 	for id in ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]:
 		var sums := [0.0, 0.0]
 		for n in [6, 8, 10]:
+			var size_sums := [0.0, 0.0]  # 무리 크기별 씨앗 셋 합 (독립 검토 2026-11-25: 영웅 × 크기마다 평타가 빨라야)
 			for s in [1, 2, 3]:
 				var r: Array = []
 				for bot in [HordeSim.HordeBot.MELEE, HordeSim.HordeBot.DASH]:
@@ -167,8 +169,13 @@ func test_dash_only_bot_is_not_better_than_melee() -> void:
 					sim.free_all()
 				sums[0] += float(r[0]["time"])
 				sums[1] += float(r[1]["time"])
+				size_sums[0] += float(r[0]["time"])
+				size_sums[1] += float(r[1]["time"])
 				if r[1]["cleared"] and r[1]["time"] < r[0]["time"] * ONE_BOARD_MARGIN and r[1]["damage"] <= r[0]["damage"]:
 					better.append("%s n%d s%d" % [id, n, s])
+			print("[horde-sim] %s n%d sum: melee %.1fs, dash-only %.1fs" % [id, n, size_sums[0], size_sums[1]])
+			if size_sums[1] < size_sums[0]:
+				better.append("%s n%d sum (melee %.1f, dash %.1f)" % [id, n, size_sums[0], size_sums[1]])
 		print("[horde-sim] %s sum: melee %.1fs, dash-only %.1fs" % [id, sums[0], sums[1]])
 		if sums[1] < sums[0]:
 			better.append("%s sum" % id)

@@ -102,7 +102,7 @@ func test_elite_falls_then_dissolves_on_game_clock() -> void:
 
 
 func test_enemy_without_death_clip_vanishes_at_once() -> void:
-	var e := _spawn(_load(SOLDIER))
+	var e := _spawn(_load("res://data/enemies/chaser.tres"))  # 한산 졸병은 이제 쓰러지는 동작이 있다 (#219)
 	e.health.kill()
 	assert_object(EnemyDeathPose.of(e)).is_null()
 	assert_bool(e.is_queued_for_deletion()).is_true()
