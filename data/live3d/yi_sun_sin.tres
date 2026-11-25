@@ -18,12 +18,12 @@ clips = Array[Dictionary]([{
 "key": "dash",
 "loop": false
 }, {
-"end": 1.1,
+"end": 1.06,
 "file": "res://assets/live3d/yi_sun_sin/anims/doublecomboattack.res",
 "key": "attack",
 "loop": false,
 "start": 0.37,
-"times": [0.37, 0.55, 0.7, 0.9, 1.0, 1.1]
+"times": [0.37, 0.55, 0.72, 0.87, 0.96, 1.06]
 }, {
 "file": "res://assets/live3d/yi_sun_sin/anims/hitreaction.res",
 "key": "hit",
