@@ -5,6 +5,8 @@ extends SkillDef
 ## 한 바퀴 돌며 눈금마다 번쩍이고, 바늘이 지나는 적부터 차례로 피해 (SweepRun).
 
 @export var radius: float = 300.0
+## 그림(vfx_impact) 끝 = 닿는 끝: 반경 + 적 몸 (왜군 병사 몸 20px, SkillContext.edge_of) — 해룡참·반격과 같음.
+@export var ring_edge_px: float = 20.0
 @export var damage: int = 30
 @export var slow_factor: float = 0.3
 @export var slow_time: float = 2.0
@@ -23,7 +25,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		if freeze_time > 0.0:
 			en.stun(freeze_time)
 		targets.append(en)
-	ctx.impact(center, Vector2.ZERO, radius)
+	ctx.impact(center, Vector2.ZERO, radius, radius + ring_edge_px)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.6, fx_color)
 	# 명중 멈춤은 SkillHitStop 공통 규칙 (피해 비례, D3)
