@@ -5,6 +5,9 @@ extends Resource
 @export var steps: Array[TutorialStep] = []
 ## 다 끝나면 잠깐 띄우는 글.
 @export var finish_caption: String = "전장으로!"
+## 그 아래 한 줄 (비면 없음)과 둘을 띄우는 시간(초).
+@export var finish_hint: String = ""
+@export var finish_time: float = 1.6
 ## 연습 상대를 세우는 자리 (플레이어 위쪽으로 이만큼, px)와 쓰러진 뒤 다시 나오기까지(초).
 @export var practice_distance: float = 240.0
 @export var practice_respawn: float = 1.2
