@@ -15,9 +15,13 @@ var _spawn_t: Array = []
 var _added: Array = []  # 이번 프레임에 생성기 아래 새로 붙은 것
 var _off: PackedStringArray = PackedStringArray()  # 끌 main 자식 노드 (원인 나누기: --off=HUD,FxLayer)
 var _wave := 2  # 시작 물결 (0부터, --wave=0이면 판 처음부터)
+var _crit_args: Array = []  # 사임당 1번 풀벌레 덮어쓰기 (성장한 상태 흉내: --critters=7, 예전 수명: --lifetime=8)
 var _critters := 0
 var _crit_max := 0
 var _nodes := 0
+var _slow_ms := 0.0  # 게임 시간이 느려진 (time_scale < 0.5) 실제 시간 합 — 히트스톱이 잦으면 "끊김"으로 느껴진다
+var _stops := 0  # 느려짐이 새로 시작된 횟수
+var _was_slow := false
 
 
 func _initialize() -> void:
@@ -31,6 +35,8 @@ func _run() -> void:
 			ProjectSettings.set_setting("hh/art/live3d", String(f).ends_with("1"))
 		if String(f).begins_with("--wave="):
 			_wave = int(String(f).substr(7))
+		if String(f).begins_with("--critters=") or String(f).begins_with("--lifetime="):
+			_crit_args.append(String(f))
 		if String(f).begins_with("--off="):
 			_off = String(f).substr(6).split(",")
 	args = args.filter(func(a: String) -> bool: return not a.begins_with("--"))
@@ -56,6 +62,8 @@ func _run() -> void:
 	for i in 10:
 		await process_frame
 	spawner = main.get_node("EnemySpawner") as EnemySpawner
+	player = main.get_node("Player") as Player
+	caster = player.get_node_or_null("SkillCaster") as SkillCaster
 	for p in _off:
 		var n := main.get_node_or_null(p)
 		if n:
@@ -86,9 +94,17 @@ func _run() -> void:
 				if c is AudioStreamPlayer and (c as AudioStreamPlayer).playing and (c as AudioStreamPlayer).bus != &"SFX":
 					print("MUSIC player %s bus %s stream %s" % [c.name, (c as AudioStreamPlayer).bus, (c as AudioStreamPlayer).stream])
 			fbm.set("_music", null)
+	if not _crit_args.is_empty() and caster and caster.kit and caster.kit.tap is CritterSkill:
+		caster.kit = caster.kit.duplicate() as SkillKit
+		var ck := caster.kit.tap.duplicate() as CritterSkill
+		for a in _crit_args:
+			if String(a).begins_with("--critters="):
+				ck.count = int(String(a).substr(11))
+				ck.extra_butterflies = 0
+			else:
+				ck.lifetime = float(String(a).substr(11))
+		caster.kit.tap = ck
 	print("STAGE %s hero %s off %s" % [str(main.call("run_stage_id")), str((main.get_node("Player") as Player).hero.id), str(_off)])
-	player = main.get_node("Player") as Player
-	caster = player.get_node_or_null("SkillCaster") as SkillCaster
 	spawner.child_entered_tree.connect(func(n: Node) -> void: _added.append(n.get_class() + ":" + (String((n as Enemy).data.id) if n is Enemy and (n as Enemy).data else String(n.name))))
 	spawner.elite_spawned.connect(func(_e: Enemy) -> void: _spawn_t.append(_now()))
 	await _wait(3.2)  # 무대 제목 띠
@@ -109,6 +125,12 @@ func _run() -> void:
 		await process_frame
 		var t := (Time.get_ticks_usec() - t0) / 1e6
 		var frame_ms := (Time.get_ticks_usec() - before) / 1000.0
+		var slow := Engine.time_scale < 0.5
+		if slow:
+			_slow_ms += frame_ms
+			if not _was_slow:
+				_stops += 1
+		_was_slow = slow
 		if _rows.size() % 600 == 0:
 			print("STATE t %.1f paused %s time_scale %.3f phase %s idx %d alive %d" % [t, str(paused), Engine.time_scale, str(spawner.waves.phase) if spawner.waves else "-", spawner.waves.index if spawner.waves else -1, _enemies()])
 		if _rows.size() % 30 == 0:  # 풀벌레·노드 수 (30프레임마다)
@@ -126,6 +148,8 @@ func _run() -> void:
 		if done_t > 0.0 and t > done_t + 3.0:
 			break
 	print("COUNTS critters_max %d nodes_last %d" % [_crit_max, _nodes])
+	var total_ms: float = (_rows[-1][0] as float) * 1000.0
+	print("SLOWTIME share %.1f%% stops %d per_s %.2f" % [100.0 * _slow_ms / maxf(total_ms, 1.0), _stops, _stops / maxf(total_ms / 1000.0, 0.1)])
 	_report()
 	quit()
 
