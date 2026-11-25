@@ -113,6 +113,7 @@ patterns = Array[ExtResource("2_attack")]([SubResource("El_charge"), SubResource
 phases = Array[ExtResource("4_phase")]([SubResource("Phase_summon"), SubResource("Phase_rage")])
 boss_feel = SubResource("Mid_feel")
 boss_hp_by_hero = {
+"shin_saimdang": 1.15,
 "gwanggaeto": 0.7,
 "sejong": 0.95
 }

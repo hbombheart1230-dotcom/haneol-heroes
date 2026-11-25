@@ -165,10 +165,11 @@ func enemies() -> Array:
 func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 	var res := {"time": 0.0, "won": false, "lost": false, "damage": 0, "by": {}, "boss_hp": 0, "phase": 0,
 		"windups": [], "strikes": [], "struck": [], "hits": {}, "boss_stun": 0.0, "boss_windup": 0.0,
-		"boss_recover": 0.0, "boss_idle": 0.0, "dist": 0.0, "gaps": [], "max_minions": 0, "max_threats": 0}
+		"boss_recover": 0.0, "boss_idle": 0.0, "dist": 0.0, "gaps": [], "gaps_free": [], "max_minions": 0, "max_threats": 0}
 	var tap_t := 0.0
 	var boss_state := EnemyAttack.State.READY
 	var last_strike := -1.0
+	var stun_gap := 0.0  # 이번 간격 동안 보스가 휘청인 시간 (막힘에서 뺀다)
 	var t0 := _t
 	while _t - t0 < limit and not player.is_dead() and is_instance_valid(boss) and not boss.health.is_dead():
 		_t += DT
@@ -205,14 +206,17 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 			res["windups"].append([snappedf(t, 0.01), boss.attack.data.kind])
 			if last_strike >= 0.0:
 				res["gaps"].append(snappedf(t - last_strike, 0.01))
+				res["gaps_free"].append(snappedf(t - last_strike - stun_gap, 0.01))
 		if st == EnemyAttack.State.RECOVER and boss_state == EnemyAttack.State.WINDUP:
 			last_strike = t
+			stun_gap = 0.0
 			res["strikes"].append(boss.attack.data.kind)
 			res["struck"].append(boss.attack.data)
 		boss_state = st
 		# 패턴 보고 (tests/test_boss_pattern_report.gd): 보스가 휘청·멈춤/예고/회복/쉼에 쓴 시간, 영웅과 거리
 		if boss.is_stunned():
 			res["boss_stun"] += DT
+			stun_gap += DT
 		elif st == EnemyAttack.State.WINDUP:
 			res["boss_windup"] += DT
 		elif st == EnemyAttack.State.RECOVER:
@@ -233,9 +237,9 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 	return res
 
 
-## true면 내 편 소환물·장판도 굴린다 (HH_TICK_SUMMONS=1, 보고용): 예전엔 손으로 굴리는 동안 물리 틱이 돌지 않아
-## 사임당 풀벌레·세종 정음진 고리·먹 웅덩이가 시뮬에서 피해를 하나도 주지 않았다 (균형 표가 그것들 없이 맞춰짐).
-static var TICK_SUMMONS: bool = OS.get_environment("HH_TICK_SUMMONS") == "1"
+## 내 편 소환물·장판도 굴린다 (기본 켬, HH_TICK_SUMMONS=0이면 끔 — 보고용): 예전엔 손으로 굴리는 동안 물리 틱이 돌지 않아
+## 사임당 풀벌레·세종 정음진 고리·먹 웅덩이가 시뮬에서 피해를 하나도 주지 않았다. 사용자 결정 (가): 우두머리 시간 기준 = 연타 + 소환물.
+static var TICK_SUMMONS: bool = OS.get_environment("HH_TICK_SUMMONS") != "0"
 
 
 ## 기술 박자 타격 한 틱 (WaveRake): 손으로 굴리는 동안 물리 틱이 돌지 않아, 예전엔 첫 타 뒤 타들이 시뮬에서 빠졌다.

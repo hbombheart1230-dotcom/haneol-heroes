@@ -121,7 +121,7 @@ phases = Array[ExtResource("4_phase")]([SubResource("Phase_summon"), SubResource
 boss_feel = SubResource("Mid_feel")
 boss_hp_by_hero = {
 "gwanggaeto": 0.8,
-"shin_saimdang": 0.8,
+"shin_saimdang": 1.1,
 "yi_sun_sin": 0.9
 }
 preferred_range = 0.0

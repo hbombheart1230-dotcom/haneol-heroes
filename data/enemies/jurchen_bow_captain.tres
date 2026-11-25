@@ -74,7 +74,7 @@ is_elite = true
 boss_feel = ExtResource("feel")
 boss_hp_by_hero = {
 "gwanggaeto": 0.7,
-"shin_saimdang": 0.8
+"shin_saimdang": 0.9
 }
 sprite_sheet = ExtResource("3_sheet")
 sprite_scale = 1.6
