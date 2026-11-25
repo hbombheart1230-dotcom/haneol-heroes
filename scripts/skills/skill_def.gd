@@ -27,6 +27,9 @@ extends Resource
 ## 시전 동작 동안 영웅을 기술 그림(FxLayer) 위에 그린다 (CombatFeelData.cast_over_fx_z): 몸을 덮는 큰 고리·물보라 기술.
 ## 사용자 7ce32eb "4타 모션이 너무 약하다" — 해룡참 물결 고리·물보라가 0.35초 동안 순신을 가렸다.
 @export var hero_over_fx: bool = false
+## false면 기술 반경에 맞춰 긋던 단색 고리(FxLayer.add_ring: 범위를 재는 듯한 원·흰 테)를 그리지 않는다.
+## 사용자 9e19cfb "해룡참·사임당 고리 빼 줘, 범위 재는 그림 있나 봐 봐" → 네 영웅 기술 모두 false. 예고 고리(유성 떨어질 자리)는 따로 둔다.
+@export var range_rings: bool = true
 ## 충전 기술만: 모으는 동안 시전 동작 첫 칸(모으는 자세)을 붙잡는다 (서 있을 때).
 @export var charge_pose: bool = true
 @export_group("조준 보정")

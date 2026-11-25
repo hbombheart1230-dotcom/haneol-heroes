@@ -41,3 +41,4 @@ piece_mode = 1
 decal_time = 1.1
 decal_upright = true
 growth = true
+gold_ring = false

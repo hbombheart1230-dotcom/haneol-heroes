@@ -61,7 +61,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 
 ## 앞 쿵: 고리 하나 + 흔들림.
 func _quake(ctx: SkillContext, center: Vector2, scale: float, shake: float) -> void:
-	if ctx.fx:
+	if ctx.fx and range_rings:
 		ctx.fx.add_ring(center, radius * scale, 0.35, fx_color)
 	ctx.shake(shake)
 
@@ -70,8 +70,9 @@ func _quake(ctx: SkillContext, center: Vector2, scale: float, shake: float) -> v
 func _burst(ctx: SkillContext, center: Vector2) -> void:
 	if ctx.fx == null:
 		return
-	ctx.fx.add_ring(center, radius, 0.5, fx_color)
-	ctx.fx.add_ring(center, radius * 0.7, 0.35, Color(1, 1, 1))
+	if range_rings:
+		ctx.fx.add_ring(center, radius, 0.5, fx_color)
+		ctx.fx.add_ring(center, radius * 0.7, 0.35, Color(1, 1, 1))
 	for i in 6:
 		var d := Vector2.from_angle(TAU * i / 6.0) * (radius + ring_edge_px)  # 사방 획 끝 = 닿는 끝
 		ctx.fx.add_slash(center, center + d, 8.0, 0.3, fx_color)

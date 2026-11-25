@@ -48,3 +48,4 @@ art_fill = 0.92
 fit_exact = true
 tick_sfx = &"gugak_pyeon"
 growth = true
+gold_ring = false

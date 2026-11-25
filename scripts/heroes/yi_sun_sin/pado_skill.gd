@@ -64,7 +64,7 @@ class PadoRun extends SkillRun:
 				for en in ctx.enemies_in_radius(b, skill.end_burst_radius):
 					ctx.hit(en, skill.end_burst_damage)
 					hits += 1
-				if ctx.fx:
+				if ctx.fx and skill.range_rings:
 					ctx.fx.add_ring(b, skill.end_burst_radius, 0.4, skill.fx_color)
 
 	func tick(delta: float) -> bool:

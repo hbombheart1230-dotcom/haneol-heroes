@@ -69,6 +69,7 @@ func _run() -> void:
 	var edge := SkillContext.edge_of(foe)
 	var ov := Overlay.new()
 	ov.z_index = 100
+	ov.visible = not OS.has_environment("HH_NO_OVERLAY")  # 판정 선은 이 도구 전용 (게임 화면엔 없음)
 	main.add_child(ov)
 	var at := player.global_position
 	var actx := caster._context()

@@ -48,3 +48,4 @@ fit_exact = true
 ground_art = ExtResource("art_scorch_1")
 part_art = Array[Texture2D]([ExtResource("art_ember_1_2"), ExtResource("art_ember_2_3"), ExtResource("art_ember_3_4"), ExtResource("art_ember_4_5"), ExtResource("art_ember_5_6"), ExtResource("art_ember_6_7")])
 growth = true
+gold_ring = false

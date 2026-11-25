@@ -45,3 +45,4 @@ twist = 0.6
 art_fill = 0.87
 fit_exact = true
 growth = true
+gold_ring = false
