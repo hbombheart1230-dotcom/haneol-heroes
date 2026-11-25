@@ -28,6 +28,8 @@ static func update(e: Enemy, busy: bool) -> void:
 		busy = false
 	elif down:  # 넘어짐 (B8): 넘어짐 동작이 있으면 그것, 없으면 맞는 동작 마지막 칸을 눕힌다 (pose)
 		anim = "down" if sheet.has_anim("down") else ("hit" if sheet.has_anim("hit") else "idle")
+	elif e.launch and e.launch.active() and sheet.has_anim("fly"):  # 크게 날아가는 동안 (가벼운 적, HitWeightData)
+		anim = "fly"
 	elif e.reaction and e.reaction.shows_hit_anim() and sheet.has_anim("hit"):
 		anim = "hit"
 	elif busy and a and sheet.has_anim(String(a.data.anim)):
@@ -45,7 +47,11 @@ static func update(e: Enemy, busy: bool) -> void:
 	if e.sprite.animation != name_dir:
 		e.sprite.play(name_dir)
 	e.sprite.speed_scale = 1.0
-	if down:
+	if anim == "fly":  # 날아간 만큼 칸을 고른다
+		var nf := sheet.frame_count(anim)
+		e.sprite.speed_scale = 0.0
+		e.sprite.frame = mini(int(e.launch.progress() * nf), nf - 1)
+	elif down:
 		var n := sheet.frame_count(anim)
 		e.sprite.speed_scale = 0.0
 		e.sprite.frame = mini(int(e.reaction.down_progress() * n), n - 1) if anim == "down" else n - 1
@@ -116,7 +122,7 @@ static func pose(e: Enemy, shake_px: float) -> void:
 	var sq := r.squash_mult() if r else Vector2.ONE
 	e.sprite.scale = Vector2.ONE * e.data.sprite_scale * e.size_mult * sq
 	e.sprite.rotation = r.tilt() if r else 0.0
-	if r and e.launch and e.launch.active():  # 가벼운 적은 날아가며 돈다 (HitWeightData.launch_spin_deg)
+	if r and e.launch and e.launch.active() and not e.data.sprite_sheet.has_anim("fly"):  # 날아가는 동작이 없으면 그림을 돌린다 (launch_spin_deg)
 		e.sprite.rotation += r.launch_spin(e.launch.progress(), e.launch.dir().x)
 	if r and r.is_down() and not e.data.sprite_sheet.has_anim("down"):
 		e.sprite.rotation = r.down_tilt(Feedback.feel_data().impact_data().down_tilt_deg)
