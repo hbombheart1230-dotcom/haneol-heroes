@@ -23,7 +23,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 	var center := ctx.player.global_position
 	var targets := ctx.enemies_in_radius(center, radius)  # 대상은 누르는 순간 정해진다
 	ctx.impact(center, Vector2.ZERO, radius, radius + ring_edge_px)
-	if ctx.fx:
+	if ctx.fx and range_rings:
 		ctx.fx.add_ring(center, radius, 0.35, fx_color)
 	if whirl_time > 0.0:
 		var z := DamageZone.new()

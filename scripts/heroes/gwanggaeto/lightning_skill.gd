@@ -85,7 +85,7 @@ func _bolt(ctx: SkillContext, rake: WaveRake, at: Vector2, dmg: int, delay: floa
 		if vfx_impact == null and ctx.fx:
 			ctx.fx.add_slash(at + Vector2(0, -420), at, 10.0, 0.22, fx_color)  # 하늘에서 내리꽂힘
 		ctx.impact(at, Vector2.ZERO, splash_radius, splash_radius + splash_edge_px)  # 번개 줄기 + 불똥 (판정 끝에 맞춤)
-		if ctx.fx:
+		if ctx.fx and range_rings:
 			ctx.fx.add_ring(at, splash_radius, 0.3, Color(1, 1, 1))
 	for en in ctx.enemies_in_radius(at, splash_radius):
 		rake.schedule(en, delay, _crackle(dmg), _no_push(), Vector2.DOWN, draw if n == 0 else Callable())

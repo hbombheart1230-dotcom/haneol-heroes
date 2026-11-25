@@ -56,7 +56,7 @@ func strike(ctx: SkillContext, center: Vector2, dmg: int) -> int:
 
 ## 충격파 고리 + 흔들림 (박자마다, 마지막이 크다).
 func _ring(ctx: SkillContext, center: Vector2, scale: float, shake: float) -> void:
-	if ctx.fx:
+	if ctx.fx and range_rings:
 		ctx.fx.add_ring(center, radius * scale, 0.4, fx_color)
 		ctx.fx.add_ring(center, radius * 0.5 * scale, 0.25, Color(1, 1, 1))
 	ctx.shake(shake)

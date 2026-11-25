@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_vfx")
+gold_ring = false
 shape = 3
 count = 7
 aim = 1

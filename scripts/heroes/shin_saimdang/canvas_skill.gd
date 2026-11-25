@@ -49,7 +49,7 @@ func cast(ctx: SkillContext, charge: float) -> SkillRun:
 			en.stun(hold_for(c))
 			trapped.append(en)
 	ctx.impact(center, Vector2.ZERO, r)  # 두루마리가 가두는 동안 가운데부터 양옆으로 펼쳐진다 (판정 크기)
-	if ctx.fx:
+	if ctx.fx and range_rings:
 		ctx.fx.add_ring(center, r, delay + 0.3, fx_color)
 		ctx.fx.add_ring(center, r * 0.97, delay + 0.3, Color(Ink.INK, 0.6))
 	var squeezed := squeeze_hits > 1 and not trapped.is_empty()
@@ -105,7 +105,7 @@ class TrapRun extends SkillRun:
 				elif is_instance_valid(en) and ctx.hit(en, roundi(skill.damage * skill.damage_mult)):
 					hits += 1
 			Feedback.impact_haptic()  # 그림은 펼칠 때 이미 나왔다 (다시 펼치지 않음)
-			if ctx.fx:
+			if ctx.fx and skill.range_rings:
 				ctx.fx.add_ring(center, r, 0.3, Color(1, 1, 1))
 			ctx.shake(0.25)
 			finished = true

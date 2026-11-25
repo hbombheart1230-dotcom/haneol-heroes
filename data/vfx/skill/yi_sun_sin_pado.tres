@@ -24,3 +24,4 @@ strip_time = 0.55
 strip_reveal = 0.07
 flicker = 0.9
 growth = true
+gold_ring = false

@@ -47,7 +47,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		z.color = fx_color
 		ctx.add_to_world(z, center)
 	ctx.impact(center, Vector2.ZERO, radius, radius + ring_edge_px)
-	if ctx.fx:
+	if ctx.fx and range_rings:
 		ctx.fx.add_ring(center, radius, 0.5, fx_color)
 		for i in 10:
 			var d := Vector2.from_angle(TAU * i / 10.0)

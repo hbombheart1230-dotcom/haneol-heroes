@@ -99,6 +99,7 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_haeryong")
 sfx_layers = Array[StringName]([&"gugak_buk"])
 cast_anim = &"cast_tap"
+range_rings = false
 cast_speed = 1.0
 cast_lead = 0.04
 hero_over_fx = true
@@ -123,6 +124,7 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_pado")
 sfx_layers = Array[StringName]([&"gugak_buk"])
 cast_anim = &"cast_dash"
+range_rings = false
 hero_over_fx = true
 cast_lead = 0.06
 
@@ -159,6 +161,7 @@ charge_scaling = SubResource("Scaling_haeil")
 sfx_layers = Array[StringName]([&"gugak_buk"])
 wave_art = ExtResource("art_tidal_crest_1")
 cast_anim = &"cast_charge"
+range_rings = false
 hero_over_fx = true
 cast_lead = 0.12
 
@@ -181,6 +184,7 @@ vfx_impact = ExtResource("vs_counter")
 cutin = true
 sfx_layers = Array[StringName]([&"gugak_buk", &"gugak_big"])
 cast_anim = &"cast_counter"
+range_rings = false
 hero_over_fx = true
 cast_lead = 0.06
 
