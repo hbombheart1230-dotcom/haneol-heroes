@@ -71,7 +71,11 @@ const HIT_DIAMETER := 24.0
 
 
 func aim_length(c: float) -> float:
-	return speed * lifetime * (charge_scaling.at(charge_scaling.reach, c) if charge_scaling else 1.0)
+	var travel := speed * lifetime * (charge_scaling.at(charge_scaling.reach, c) if charge_scaling else 1.0)
+	if hit_body.has_area() and (wave_art or wave_sheet):  # 판정 캡슐 앞 끝까지 (물결 가운데보다 앞, 크기만큼)
+		var s := charge_scaling.between(min_scale, max_scale, c) if charge_scaling else lerpf(min_scale, max_scale, c)
+		travel += (-0.6 + hit_body.end.x) * wave_art_size.x * s
+	return travel
 
 
 func aim_width(c: float) -> float:

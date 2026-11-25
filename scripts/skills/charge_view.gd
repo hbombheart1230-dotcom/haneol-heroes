@@ -49,7 +49,7 @@ static func draw(c: SkillCaster) -> void:
 		if m.waiting():  # 쿨타임이면 조준 길도 흐리게 (마디 점·고리와 같은 배율)
 			md = _dimmed(md)
 		if not scaled(d).draw_aim(c, k, c.aim.dir, md):
-			c.aim.draw(c, d.aim_length(k), aim_width(c, k), k, md)
+			c.aim.draw(c, scaled(d).aim_length(k), aim_width(c, k), k, md)  # 길이도 성장 배율이 든 판정대로
 
 
 ## 조준 길 폭: 쏘는 물결과 같은 성장 단계 배율 (SkillCaster.cast가 SkillGrowthData.scaled_def로 키운 판정과 맞춘다).

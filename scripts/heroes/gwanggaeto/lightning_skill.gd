@@ -14,6 +14,8 @@ extends SkillDef
 ## 모으는 동안 끌면 그 방향 steer_reach px 자리를 가운데로 반경 steer_radius 안 적부터 벼락 (끌지 않으면 영웅 주변 자동).
 @export var steer_reach: float = 240.0
 @export var steer_radius: float = 220.0
+## 조준 원에 더하는 적 몸(px): 벼락은 원 + 적 몸 안의 적에게 떨어진다 (SkillContext.enemies_in_radius).
+@export var aim_edge_px: float = 20.0
 @export_group("큰 변형 · 연쇄")
 ## 벼락마다 가까운 적에게 이만큼 더 튄다 (피해 chain_ratio배).
 @export var chain_count: int = 0
@@ -120,5 +122,5 @@ func _nearest_unstruck(ctx: SkillContext, from: Vector2, struck: Dictionary) -> 
 
 ## 조준 표시: 끈 방향 steer_reach 자리에 반경 steer_radius 원 (벼락이 떨어질 곳).
 func draw_aim(canvas: CanvasItem, c: float, dir: Vector2, d: ChargeMarkerData) -> bool:
-	ChargeAim.draw_circle_aim(canvas, dir * steer_reach, steer_radius, c, d)
+	ChargeAim.draw_circle_aim(canvas, dir * steer_reach, steer_radius + aim_edge_px, c, d)
 	return true
