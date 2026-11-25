@@ -125,7 +125,6 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_canvas")
 sfx_layers = Array[StringName]([&"gugak_gaya"])
 cast_anim = &"cast_charge"
-range_rings = false
 charge_scaling = ExtResource("charge_steps")
 charge_aim = true
 charge_aim_auto = true
@@ -146,7 +145,6 @@ vfx_impact = ExtResource("vs_plum")
 cutin = true
 sfx_layers = Array[StringName]([&"gugak_gaya", &"gugak_kill"])
 cast_anim = &"cast_counter"
-range_rings = false
 hero_over_fx = true
 cast_lead = 0.15
 

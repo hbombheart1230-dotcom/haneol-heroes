@@ -159,7 +159,6 @@ cutin = true
 sfx_layers = Array[StringName]([&"gugak_jing"])
 impact_sfx = &"gugak_buk"
 cast_anim = &"cast_counter"
-range_rings = false
 hero_over_fx = true
 cast_lead = 0.2
 
