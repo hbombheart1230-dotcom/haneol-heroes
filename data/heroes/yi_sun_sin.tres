@@ -123,6 +123,7 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_pado")
 sfx_layers = Array[StringName]([&"gugak_buk"])
 cast_anim = &"cast_dash"
+hero_over_fx = true
 cast_lead = 0.06
 
 [sub_resource type="Resource" id="Scaling_haeil"]
@@ -158,6 +159,7 @@ charge_scaling = SubResource("Scaling_haeil")
 sfx_layers = Array[StringName]([&"gugak_buk"])
 wave_art = ExtResource("art_tidal_crest_1")
 cast_anim = &"cast_charge"
+hero_over_fx = true
 cast_lead = 0.12
 
 [sub_resource type="Resource" id="Skill_counter"]
@@ -179,6 +181,7 @@ vfx_impact = ExtResource("vs_counter")
 cutin = true
 sfx_layers = Array[StringName]([&"gugak_buk", &"gugak_big"])
 cast_anim = &"cast_counter"
+hero_over_fx = true
 cast_lead = 0.06
 
 [sub_resource type="Resource" id="Kit_yi"]
