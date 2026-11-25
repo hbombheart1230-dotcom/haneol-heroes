@@ -15,6 +15,9 @@ extends Resource
 @export var major_color: Color = Color(0.78, 0.6, 0.18)
 ## 속성 → 값 이름 ("범위 100 → 125"의 "범위").
 @export var labels: Dictionary = {}
+## 같이 오르는 속성들의 한 줄 이름: 이 속성들의 값 줄이 "지금 → 뒤"까지 똑같으면 이 이름으로 한 줄만
+## (근접·원거리 피해가 같으면 "평타 피해", 다르면 "베기 피해" / "날림 피해" 두 줄).
+@export var shared_labels: Dictionary = {}
 ## 초로 읽는 속성 (뒤에 "초").
 @export var seconds: Array[StringName] = []
 ## 비율(0~1)로 읽는 속성 (백분율로).
@@ -35,6 +38,10 @@ func color(kind: StringName) -> Color:
 
 func label(prop: StringName) -> String:
 	return labels.get(prop, "")
+
+
+func shared_label(prop: StringName) -> String:
+	return shared_labels.get(prop, "")
 
 
 ## 값 하나를 화면 글로 (정수는 그대로, 초·백분율은 붙여서, 소수는 뒤 0을 뗀다).

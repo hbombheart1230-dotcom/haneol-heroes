@@ -74,14 +74,18 @@ labels = {
 &"max_hp": "최대 체력",
 &"max_radius": "최대 범위",
 &"max_stars": "별 수",
-&"melee_damage": "평타 피해",
+&"melee_damage": "베기 피해",
 &"move_speed": "이동 속도",
 &"radius": "범위",
-&"ranged_damage": "평타 피해",
+&"ranged_damage": "날림 피해",
 &"slow_factor": "적 빠르기",
 &"slow_time": "느려짐",
 &"stun_time": "기절",
 &"width": "폭"
+}
+shared_labels = {
+&"melee_damage": "평타 피해",
+&"ranged_damage": "평타 피해"
 }
 seconds = Array[StringName]([&"cooldown", &"counter_window", &"dash_recharge_time", &"duration", &"full_charge_time", &"lifetime", &"max_hold", &"slow_time", &"stun_time"])
 percents = Array[StringName]([&"slow_factor"])

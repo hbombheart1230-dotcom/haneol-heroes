@@ -103,10 +103,20 @@ func test_three_values_and_wide_numbers_keep_font_size() -> void:
 		assert_float(c.card_rect(0).size.y).is_greater(c.card_size.y)  # 대신 패가 길어진다
 
 
-func test_same_line_twice_is_shown_once() -> void:
-	var b := _build("yi_sun_sin")
+func _lines_of(hero: String, id: StringName) -> Array[Dictionary]:
+	var b := _build(hero)
 	for u in b.hero.upgrade_pool.upgrades:
-		if u.id == &"blade":  # 근접·원거리 피해가 같이 오른다
-			assert_int(UpgradeReadout.lines(u, b, 1).size()).is_equal(1)
-			return
-	fail("blade 패가 없다")
+		if u.id == id:
+			return UpgradeReadout.lines(u, b, 1)
+	return []
+
+
+## 근접·원거리 피해가 같이 오르는 패: 값이 같으면 "평타 피해" 한 줄, 다르면 "베기 피해" / "날림 피해".
+func test_melee_and_ranged_damage_lines() -> void:
+	var same := _lines_of("yi_sun_sin", &"blade")
+	assert_int(same.size()).is_equal(1)
+	assert_str(same[0]["label"]).is_equal("평타 피해")
+	var split := _lines_of("sejong", &"letters")
+	assert_int(split.size()).is_equal(2)
+	var names := split.map(func(l: Dictionary) -> String: return l["label"])
+	assert_array(names).contains_exactly_in_any_order(["베기 피해", "날림 피해"])
