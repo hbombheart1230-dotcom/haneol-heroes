@@ -223,8 +223,8 @@ func _check_fight(r: Dictionary, label: String) -> void:
 	assert_bool(r["won"]).override_failure_message(label).is_true()
 	assert_int(r["phase"]).is_equal(2)
 	assert_float(r["time"]).override_failure_message("%s %.1fs" % [label, r["time"]]).is_between(10.0, 32.0)  # 고른 패마다 흔들림 (평균은 위에서 15~25)
-	for g in r["gaps"]:
-		assert_float(g).is_less(6.0)
+	print("[boss-sim] mid-boss rhythm %s: stun %.0f%%, lock %.1fs" % [label, FightRhythm.stun_ratio(r) * 100.0, FightRhythm.longest_gap(r)])
+	assert_array(FightRhythm.problems(r, label, 6.0)).is_empty()  # 막힘 6초 (휘청 뺀 간격) · 묶임 · 휘청 비율 (FightRhythm)
 	var w: Array = r["struck"]
 	for i in range(1, w.size()):
 		var prev: EnemyAttackData = w[i - 1]
@@ -286,11 +286,17 @@ func _stage_trio(id: String, group: Array) -> void:
 				assert_bool(r["won"]).override_failure_message("trio %s seed %d" % [hero, s]).is_true()
 				assert_float(r["time"]).override_failure_message("trio %s %.1fs" % [hero, r["time"]]).is_between(15.0, 120.0)
 				assert_int(r["max_threats"]).is_less_equal(EnemyAttack.max_concurrent)
+				print("[boss-sim] trio rhythm %s %s seed %d: stun %.0f%%, lock %.1fs, free %.1fs" % [id, hero, s, FightRhythm.stun_ratio(r) * 100.0, FightRhythm.longest_gap(r), 0.0 if r["gaps_free"].is_empty() else float(r["gaps_free"].max())])
+				assert_array(FightRhythm.problems(r, "trio %s %s seed %d" % [id, hero, s], TRIO_FREE_MAX)).is_empty()
 				total += r["time"]
 		var mean: float = total / seeds.size()
 		print("[boss-sim] trio %s %s mean %.1fs, sloppy damage %s" % [id, hero, mean, str(hurt)])
 		if slow and id == "hansan_1592":
 			assert_float(mean).override_failure_message("trio %s mean %.1fs" % [hero, mean]).is_between(50.0, 100.0)
+
+
+## 셋 싸움 막힘 상한 (휘청 뺀 간격, 이끄는 우두머리 기준): 셋이 번갈아 쳐서 한 명의 간격은 혼자일 때보다 길다.
+const TRIO_FREE_MAX := 9.0
 
 
 const HERO_REACH := {"yi_sun_sin": [90.0, 170.0], "gwanggaeto": [110.0, 200.0], "sejong": [280.0, 520.0],
