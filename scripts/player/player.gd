@@ -24,6 +24,8 @@ signal hurt(amount: int)
 @export var evade_invuln_time: float = 1.0
 ## 플레이어가 벗어날 수 없는 영역 (월드 좌표). 크기가 0이면 제한 없음.
 @export var arena_rect: Rect2 = Rect2()
+## 걸을 수 있는 곳 (StageTheme.walk_area, WalkArea). 비면 arena_rect만.
+var walk_area: PackedVector2Array = PackedVector2Array()
 @export var body_radius: float = 26.0
 ## 접촉 판정용 Area2D (적 몸체 레이어를 감지). 없으면 접촉 피해 없음.
 @export var contact_sensor: Area2D
@@ -333,7 +335,9 @@ func _physics_process(delta: float) -> void:
 		PlayerDash.frame(self, delta, struck_before)
 	apply_contact_damage(delta, 0 if dash_frame else _touching_damage())  # 대시 프레임은 끝 프레임까지 무적
 	move_and_slide()
-	if arena_rect.has_area():
+	if walk_area.size() >= 3:  # 무대의 걸을 수 있는 곳이 사각 경계를 대신한다 (배 밖·지붕 위로 나가지 않게, 경계를 따라 미끄러짐)
+		global_position = WalkArea.clamp_point(walk_area, global_position)
+	elif arena_rect.has_area():
 		global_position = global_position.clamp(arena_rect.position, arena_rect.end)
 	if _arrive_pending:
 		_dash_arrived()

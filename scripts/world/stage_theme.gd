@@ -28,6 +28,8 @@ extends Resource
 @export var prop_inset: float = 0.0
 ## 지도에 그려진 막히는 것들 (월드 x, y, 반지름). tools/art/make_backgrounds.py가 원본 픽셀에서 옮긴다.
 @export var map_blockers: PackedVector3Array = PackedVector3Array()
+## 걸을 수 있는 곳 (월드 좌표 다각형, 몸 중심 기준: 난간·물·지붕 안쪽). 영웅·적·등장 자리가 이 안에 머문다 (WalkArea). 비면 사각 경계만.
+@export var walk_area: PackedVector2Array = PackedVector2Array()
 ## 흩뿌린 소품 중 막히는 것 (그림 파일 이름, 확장자 없이). 발밑에 원 충돌.
 @export var solid_props: PackedStringArray = PackedStringArray()
 
