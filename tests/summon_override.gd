@@ -9,6 +9,7 @@ static func apply(d: EnemyData) -> EnemyData:
 	var c := d.duplicate() as EnemyData
 	c.boss_feel = d.boss_feel.duplicate() as BossFeelData
 	c.boss_feel.summon_every = float(OS.get_environment("HH_SUMMON_EVERY"))
+	c.boss_feel.cap_counts_group = false  # 셋 싸움: 부하만 센다 (주 세션 결정)
 	if OS.get_environment("HH_SUMMON_FIRST") != "":
 		c.boss_feel.summon_first = float(OS.get_environment("HH_SUMMON_FIRST"))
 	return c

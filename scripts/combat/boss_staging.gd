@@ -144,8 +144,10 @@ func summon(list: Array) -> void:
 
 ## 살아 있는 부하 + 나타나는 중인 자리.
 func minion_count() -> int:
-	return maxi(spawner.alive_count() - (1 if is_instance_valid(boss) and not boss.health.is_dead() else 0), 0) \
-		+ spawner._warnings
+	var n := maxi(spawner.alive_count() - (1 if is_instance_valid(boss) and not boss.health.is_dead() else 0), 0) + spawner._warnings
+	if not feel.cap_counts_group:  # 무리(다른 중간 우두머리)는 빼고 부른 부하만
+		n -= group().size()
+	return maxi(n, 0)
 
 
 func _physics_process(delta: float) -> void:

@@ -80,3 +80,14 @@ func test_first_summon_after_first_seconds_and_capped() -> void:
 	assert_int(_minions()).is_greater(0)
 	_step(30.0)
 	assert_int(_minions()).is_less_equal(d.boss_feel.max_minions)
+
+
+func test_group_members_count_toward_cap_unless_turned_off() -> void:
+	var d := ResourceLoader.load("res://data/enemies/waegun_elite.tres", "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as EnemyData
+	d.boss_feel = d.boss_feel.duplicate() as BossFeelData
+	var a := sp.spawn_elite(Vector2(0, -200), d)
+	sp.spawn_elite(Vector2(200, -200), d)
+	var stg := BossStaging.of(a)
+	assert_int(stg.minion_count()).is_equal(1)  # 지금: 무리 한 명도 부하로 센다
+	d.boss_feel.cap_counts_group = false
+	assert_int(stg.minion_count()).is_equal(0)  # 끄면 부른 부하만

@@ -44,6 +44,8 @@ extends Resource
 @export var summon_first: float = -1.0
 ## 주기 소환 외침 동작 길이(초). 그동안 우두머리는 새 공격을 시작하지 않는다.
 @export var summon_cue: float = 0.5
+## 부하 최대(max_minions)에 함께 나온 다른 중간 우두머리(무리)도 세는지. 끄면 부른 부하만 센다 (셋 싸움에서도 부하가 다 나온다).
+@export var cap_counts_group: bool = true
 
 @export_group("중간 보스")
 ## 단계가 바뀔 때 강화 고르기를 연다 (중간 보스는 끔: 강화는 물결 끝 숨 고르기에서).
