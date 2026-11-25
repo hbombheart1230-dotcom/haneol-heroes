@@ -20,6 +20,9 @@ func tick(c: SkillCaster, delta: float) -> bool:
 		_fired = false
 		_prev = p.global_position
 		return false
+	if p.dash_kind == DashDirection.Kind.BACK and p.hero and p.hero.dash_dir and p.hero.dash_dir.backstep_enabled:
+		_fired = true  # 백스텝에서는 내닫기 자동 기술이 나가지 않는다
+		return false
 	var prev := _prev if _prev.is_finite() else p.dash_start_position()  # 내닫기 첫 틱: 박차고 나간 자리부터
 	_prev = p.global_position
 	if _fired or not c.is_ready(SkillCaster.Slot.DASH):
