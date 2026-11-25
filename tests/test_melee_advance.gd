@@ -43,3 +43,24 @@ func test_step_guard_keeps_out_of_danger() -> void:
 	assert_float(StepGuard.safe_px(get_tree(), Vector2.ZERO, Vector2.RIGHT, 48.0, 20.0)).is_equal(0.0)
 	assert_float(StepGuard.safe_px(get_tree(), Vector2.ZERO, Vector2.UP, 48.0, 20.0)).is_equal(48.0)
 	z.remove_from_group(StepGuard.GROUP)
+
+
+## 마무리 전진(step 0)은 1타 모으기(step_windup_pause[0])를 읽지 않고 바로 내딛는다 (독립 검토 지적: ComboSteps.at가 0을 1타로 자른다).
+func test_finisher_step_ignores_first_hit_pause() -> void:
+	var p: Player = auto_free(Player.new())
+	var h := Health.new()
+	h.name = "Health"
+	p.add_child(h)
+	p.hero = YI
+	add_child(p)
+	p.set_physics_process(false)
+	var a := AutoAttack.new()
+	a.player = p
+	var d := YI.attack.duplicate() as BasicAttackData
+	d.step_windup_pause = PackedFloat32Array([0.2, 0.0, 0.0])
+	a.data = d
+	p.add_child(auto_free(a))
+	a.set_physics_process(false)
+	a.finisher_step(Vector2.RIGHT * 200.0, [], true)
+	assert_float(p._recoil_left).is_greater(0.0)  # 바로 내딛음
+	assert_float(a._stepin_left).is_less(0.0)  # 모으기 대기 없음

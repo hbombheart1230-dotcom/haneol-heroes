@@ -198,7 +198,7 @@ func _step_in(toward: Vector2, list: Array, step: int, has_target: bool = true) 
 	px = StepGuard.safe_px(get_tree() if is_inside_tree() else null, from, dir, px, player.body_radius)
 	if px <= 0.0:
 		return
-	var pause := ComboSteps.at(d.step_windup_pause, step, 0.0)
+	var pause := ComboSteps.at(d.step_windup_pause, step, 0.0) if step > 0 else 0.0  # 마무리(step 0)는 1타 모으기를 읽지 않는다
 	if pause > 0.0:  # 모은 뒤에 내딛는다 (Codex 22d062c 지적)
 		_stepin_left = pause
 		_stepin_vec = dir * px
