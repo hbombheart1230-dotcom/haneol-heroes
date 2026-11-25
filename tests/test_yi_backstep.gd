@@ -7,7 +7,9 @@ extends GdUnitTestSuite
 const ENEMY_SCENE := preload("res://scenes/enemy.tscn")
 const PROJECTILE_SCENE := preload("res://scenes/projectile.tscn")
 const SOLDIER := preload("res://data/enemies/waegun_soldier.tres")
-const YI := preload("res://data/heroes/yi_sun_sin.tres")
+const YI_DATA := preload("res://data/heroes/yi_sun_sin.tres")
+## 백스텝은 사용자 결정(2026-11-25)으로 데이터에서 꺼 두고 코드는 보관한다: 시험은 켠 사본으로 규칙을 지킨다.
+var YI: HeroData
 const DT := 1.0 / 60.0
 
 var player: Player
@@ -19,6 +21,9 @@ var casts: Array = []
 
 func before_test() -> void:
 	BossSim.reset_globals()
+	YI = YI_DATA.duplicate()
+	YI.dash_dir = YI_DATA.dash_dir.duplicate()
+	YI.dash_dir.backstep_enabled = true
 	DashStyleRunner.clock = func() -> float: return 100.0
 	enemies = []
 	casts = []
@@ -150,9 +155,8 @@ func test_backstep_cancels_finisher_recovery() -> void:
 	assert_float(atk.busy_left()).is_equal(0.0)
 
 
-## 데이터로 끄고 켠다: 다른 세 영웅은 꺼져 있다 (예전 뒤로 빠지기).
-func test_only_yi_has_backstep() -> void:
-	assert_bool(YI.dash_dir.backstep_enabled).is_true()
-	for id in ["gwanggaeto", "sejong", "shin_saimdang"]:
+## 데이터로 끄고 켠다: 지금은 네 영웅 모두 꺼져 있다 (사용자 결정 2026-11-25 "백스텝은 뺀다", 코드 보관 — 지인들이 해 본 뒤 재논의).
+func test_backstep_is_off_for_every_hero() -> void:
+	for id in ["yi_sun_sin", "gwanggaeto", "sejong", "shin_saimdang"]:
 		var d := (load("res://data/heroes/%s.tres" % id) as HeroData).dash_dir
 		assert_bool(d == null or not d.backstep_enabled).override_failure_message(id).is_true()
