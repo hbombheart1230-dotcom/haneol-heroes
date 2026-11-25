@@ -2,7 +2,7 @@ class_name RangedTelegraph
 extends RefCounted
 ## 원거리(사격) 예고 그리기 (EnemyArt가 부른다): 가늘고 날렵한 인주 획(양 끝이 가늘어지는 Ink.stroke)은 그대로 두고
 ## 바닥에서 뜨게만 한다 — 불투명하게, 아주 얇은 먹 그림자와 밝은 속심, 쏘기 직전 팽팽해졌다 번쩍.
-## 모양(RangedTelegraphData.style): 0 또렷한 획 / 1 쏘는 쪽에서 과녁으로 그어지는 획 / 2 또렷한 획 + 맞는 폭을 끝에만 + 쏘는 적 인주빛 테.
+## 모양(RangedTelegraphData.style): 0 또렷한 획 / 1 쏘는 쪽에서 과녁으로 그어지는 획 / 2 또렷한 획 + 맞는 폭을 끝에만.
 ## 수치는 RangedTelegraphData. c는 적과 같은 좌표계. 화면 밖 사수는 획이 화면 가장자리에서 들어오는 것으로 충분하다.
 
 
@@ -22,7 +22,6 @@ static func draw(e: Enemy, c: CanvasItem, k: float, flash: bool) -> void:
 	var main := Color(Ink.SEAL.lightened(0.45), 1.0) if flash else Color(Ink.SEAL, lerpf(d.alpha_from, d.alpha_to, k))
 	if d.style == 2:
 		_hit_width(c, dir, full, a.data.projectile_radius * 2.0, d, k)
-		_glow(e, c, k, d)
 	Ink.stroke(c, dir * 4.0, end + dir * 4.0, w + d.shadow_extra, shadow)
 	Ink.stroke(c, Vector2.ZERO, end, w, main)
 	Ink.stroke(c, Vector2.ZERO, end, d.core_width, Color(Ink.PAPER, d.core_alpha * (1.5 if flash else 1.0)))
@@ -33,7 +32,3 @@ static func _hit_width(c: CanvasItem, dir: Vector2, full: float, hit_w: float, d
 	var from := dir * full * (1.0 - d.hit_tail)
 	Ink.stroke(c, from, dir * full, hit_w, Color(Ink.SEAL, d.hit_alpha * k))
 
-
-## 쏘는 적 발밑 은은한 인주빛 번짐 (도형이 아니라 먹 번짐 질감), 예고가 차오를수록 진해진다.
-static func _glow(e: Enemy, c: CanvasItem, k: float, d: RangedTelegraphData) -> void:
-	InkPaint.wash(c, Vector2(0, e.body_radius * 0.5), e.body_radius * d.glow_radius, Color(Ink.SEAL, d.glow_alpha * k))
