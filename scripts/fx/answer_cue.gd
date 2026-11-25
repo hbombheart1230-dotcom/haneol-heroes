@@ -8,6 +8,7 @@ enum Kind { NONE, HIT, DEFLECT }
 const META := &"answer_cue_t"
 
 static var data: AnswerCueData = DEFAULT
+static var _layer: AnswerCueLayer
 
 
 ## kind 조작으로 en을 쳤을 때 보일 표시.
@@ -33,10 +34,19 @@ static func show(en: Enemy, kind: String) -> void:
 	en.set_meta(key, now)
 	var pos := en.global_position + Vector2(0, -26)
 	if k == Kind.HIT:
-		fb.fx.add_label(pos, data.hit_label, data.hit_color)
+		layer(fb).add(pos, data.hit_label, data.hit_color, data.hit_size_mult)
 		fb.fx.add_spark(pos + Vector2(0, -34), data.hit_color)
 		fb.play(data.hit_sfx, 0.08, data.hit_pitch)
 		fb.add_trauma(data.hit_trauma)
 	else:
-		fb.fx.add_label(pos, data.deflect_label, data.deflect_color)
+		layer(fb).add(pos, data.deflect_label, data.deflect_color, 1.0)
 		fb.play(data.deflect_sfx, 0.1, data.deflect_pitch)
+
+
+## 글자 층 (FxLayer 밑에 하나, 판이 바뀌면 새로).
+static func layer(fb: Feedback) -> AnswerCueLayer:
+	if _layer == null or not is_instance_valid(_layer) or _layer.get_parent() != fb.fx:
+		_layer = AnswerCueLayer.new(data)
+		_layer.name = "AnswerCueLayer"
+		fb.fx.add_child(_layer)
+	return _layer

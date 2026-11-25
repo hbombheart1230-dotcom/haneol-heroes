@@ -18,6 +18,16 @@ extends Resource
 @export var deflect_pitch: float = 1.7
 ## others_mult가 이보다 작을 때만 튕김을 보인다 (거의 1이면 표시 없음).
 @export var deflect_below: float = 0.95
+@export_group("글자")
+## 글자 크기(px), "통!"은 이만큼 더 크게, 떠오르는 높이(px)·보이는 시간(초), 먹 테두리.
+@export var label_size: int = 34
+@export var hit_size_mult: float = 1.3
+@export var label_rise: float = 60.0
+@export var label_time: float = 0.9
+@export var outline_px: int = 7
+@export var outline_color: Color = Color(0.1, 0.08, 0.07)
+## 그리는 층 z (절대): 큰 기술 그림·타격 섬광(20)·탄 층(21) 위.
+@export var layer_z: int = 22
 @export_group("자주 띄우지 않기")
 ## 한 적에게 같은 표시는 이 간격(초)보다 자주 띄우지 않는다 (연타가 갑옷을 칠 때 글자가 쌓이지 않게).
 @export var per_enemy_gap: float = 0.8
