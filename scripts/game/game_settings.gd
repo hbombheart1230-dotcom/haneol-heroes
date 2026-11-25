@@ -29,9 +29,10 @@ static var show_stats: bool = false
 static var enemy_hp_bars: bool = true
 ## 연타 글씨 ("1타"~"4타", ComboCounter).
 static var combo_text: bool = true
-## 조작 안내 (설정 "조작 안내", 저장, 처음엔 켬): 켜 두면 앱을 켤 때마다 첫 판에 한 번 나온다.
+## 조작 안내 (설정 "조작 안내", 저장, 처음엔 켬): 켜 두면 아직 안 본 사람에게만 저절로 한 번 나온다.
 static var tutorial_enabled: bool = true
-## 이번 실행에서 조작 안내를 마쳤는지 (저장 안 함).
+## 조작 안내를 이미 봤는지 (저장): 안내가 뜨는 순간 표시하고, 끝내거나 건너뛰면 다시 확인한다. 설정에서 다시 켜면 지운다.
+## 예전엔 저장하지 않아 앱을 켜거나 판을 나갈 때마다 처음부터 다시 나왔다.
 static var tutorial_done: bool = false
 ## 마지막으로 고른 영웅 id (재시작 때 그대로).
 static var hero_id: StringName = &""
@@ -134,6 +135,7 @@ static func load_settings(path: String = "") -> void:
 	enemy_hp_bars = bool(cfg.get_value("display", "enemy_hp_bars", enemy_hp_bars))
 	combo_text = bool(cfg.get_value("display", "combo_text", combo_text))
 	tutorial_enabled = bool(cfg.get_value("game", "tutorial_enabled", true))  # 값이 없으면 (처음·예전 저장) 켬
+	tutorial_done = bool(cfg.get_value("game", "tutorial_done", tutorial_done))  # 값이 없으면 (처음·예전 저장) 지금 값 그대로
 	apply_audio()
 	hero_id = StringName(cfg.get_value("game", "hero_id", String(hero_id)))
 	stage_id = StringName(cfg.get_value("game", "stage_id", String(stage_id)))
@@ -160,6 +162,7 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("display", "enemy_hp_bars", enemy_hp_bars)
 	cfg.set_value("display", "combo_text", combo_text)
 	cfg.set_value("game", "tutorial_enabled", tutorial_enabled)
+	cfg.set_value("game", "tutorial_done", tutorial_done)
 	cfg.set_value("game", "hero_id", String(hero_id))
 	cfg.set_value("game", "stage_id", String(stage_id))
 	cfg.set_value("game", "intro_seen", intro_seen)

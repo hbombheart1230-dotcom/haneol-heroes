@@ -87,6 +87,7 @@ func test_tutorial_setting_starts_on_and_turning_on_shows_it_again() -> void:
 	var fresh := ConfigFile.new()  # 저장 파일에 값이 없으면 (처음 설치) 켬
 	fresh.save(GameSettings.settings_path)
 	GameSettings.tutorial_enabled = false
+	GameSettings.tutorial_done = false
 	GameSettings.load_settings()
 	assert_bool(GameSettings.tutorial_enabled).is_true()
 	assert_bool(bool(screen.value_of(&"tutorial"))).is_true()

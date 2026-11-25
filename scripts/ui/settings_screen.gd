@@ -158,7 +158,7 @@ func value_of(row: StringName) -> Variant:
 		&"enemy_hp": return GameSettings.enemy_hp_bars
 		&"combo_text": return GameSettings.combo_text
 		&"stats": return GameSettings.show_stats
-		&"tutorial": return GameSettings.tutorial_enabled  # 켬(처음 값) = 앱을 켤 때마다 첫 판에 안내
+		&"tutorial": return GameSettings.tutorial_enabled and not GameSettings.tutorial_done  # 켬 = 다음 판에 안내가 뜬다 (이미 봤으면 꺼진 것으로 보임)
 	return null
 
 
