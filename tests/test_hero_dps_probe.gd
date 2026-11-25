@@ -132,7 +132,7 @@ func _loop(p: Player, atk: AutoAttack, caster: SkillCaster, list: Array, refill:
 					continue
 				for e in list:
 					if is_instance_valid(e) and not e.health.is_dead() and not pr.has_meta(&"hit_%d" % e.get_instance_id()) \
-							and pr.global_position.distance_to(e.global_position) <= BossSim.HURT_R + 12.0 * pr.size_scale:
+							and pr.hit_reach(e.global_position) <= BossSim.HURT_R:
 						pr.set_meta(&"hit_%d" % e.get_instance_id(), true)
 						pr._on_area_entered(e.get_node("HurtBox2D"))
 						if pr.ignore_collisions:

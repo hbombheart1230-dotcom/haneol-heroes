@@ -40,13 +40,23 @@ func test_big_skills_draw_the_hero_over_their_art() -> void:
 		assert_bool((d as SkillDef).hero_over_fx).override_failure_message(String(d.id)).is_true()
 
 
-## 해일검기 (사용자 결정 (b)): 앞 물마루의 앞 끝·옆 끝 = 판정 원(12px × 크기) + 적 몸 22px, 뒤 큰 물결은 흐리게.
-func test_haeil_crest_matches_the_hit_circle() -> void:
+## 해일검기 (사용자 9e19cfb "맞는 범위도 그림에 맞추긴 해야지"): 판정 = 물결 그림의 눈에 보이는 몸통 캡슐 (Projectile.hit_body).
+## 바로 놓음·다 모음 모두 캡슐 폭 = 그림 몸통 높이, 앞 끝 = 그림 앞 끝 근처. 뒤 날·잔상은 흐리게 (back_alpha).
+func test_haeil_hit_is_the_visible_wave_body() -> void:
 	var haeil := _kit().charge as HaeilSkill
-	assert_float(haeil.back_alpha).is_less(1.0)  # 뒤 물결은 흐리게 (사용자 결정 0.6)
+	assert_bool(haeil.hit_body.has_area()).is_true()
+	assert_float(haeil.crest_reach).is_equal(0.0)
+	assert_float(haeil.back_alpha).is_less(1.0)
 	for c in [0.0, 0.5, 1.0]:
 		var p := Projectile.new()
 		haeil._wave_configure(p, Vector2.RIGHT, c)
-		var hit := Projectile.HIT_R * p.size_scale + 22.0
-		assert_float(p.crest_half() * p.size_scale).override_failure_message("charge %.1f" % c).is_equal_approx(hit, 0.5)
+		p.rotation = 0.0
+		p.scale = Vector2.ONE * p.size_scale
+		var cap: Array = p.body_capsule()
+		var half := float(cap[2]) * p.size_scale
+		assert_float(half * 2.0).override_failure_message("charge %.1f" % c).is_equal_approx(haeil.aim_width(c), 0.5)
+		var front := (-0.6 + haeil.hit_body.end.x) * p.art_size.x * p.size_scale  # 몸통 앞 끝 (그림 rect x = -0.6w .. 0.4w)
+		assert_float(p.hit_reach(Vector2(front - 3.0 * p.size_scale, 0))).is_less(0.0)  # 몸통 앞 끝 바로 안은 맞음
+		assert_float(p.hit_reach(Vector2(0, half * 0.95))).is_less(0.0)  # 몸통 옆 끝 안
+		assert_float(p.hit_reach(Vector2(0, half * 1.3))).is_greater(0.0)  # 몸통 밖
 		p.free()
