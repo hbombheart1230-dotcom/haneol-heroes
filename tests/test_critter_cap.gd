@@ -1,16 +1,24 @@
 extends GdUnitTestSuite
-## 사임당 1번 풀벌레 (사용자 9e19cfb "나비 너무 세. 사기야"): 한꺼번에 max_alive마리까지만 남는다 — 새로 부르면 오래된 것부터 사라진다.
-## 예전엔 수명(8초)보다 자주(마무리 4.5초) 불러 겹겹이 쌓였고, 성장하면 한 번에 7마리(수 +2, 큰 변형 +3)라 우두머리전 피해의 약 44%였다
-## (HH_TICK_SUMMONS=1 test_boss_balance_sim, 다른 영웅 1번 8~20%).
+## 사임당 1번 풀벌레 (사용자 9e19cfb "나비 너무 세. 사기야" → 결정 (다) 수명을 줄임): 풀벌레 수명이 4타 마무리 쿨타임보다 짧아
+## 시전끼리 겹쳐 쌓이지 않는다. 예전 수명 8초 > 쿨타임 4.5초라 겹겹이 쌓여 우두머리전 피해의 약 44%였다
+## (HH_TICK_SUMMONS=1 test_boss_balance_sim, 다른 영웅 1번 8~20%). 마릿수 상한(max_alive)은 남겨 두되 끔.
 
 const HERO := preload("res://data/heroes/shin_saimdang.tres")
+
+
+func test_critters_die_before_the_next_finisher() -> void:
+	var d := HERO.kit.tap as CritterSkill
+	var finisher_cd := d.cooldown * HERO.kit.combo_finisher_cd_ratio
+	assert_float(d.lifetime).is_less(finisher_cd)
+	assert_int(d.max_alive).is_equal(0)
 
 
 func _alive() -> int:
 	return get_tree().get_nodes_in_group(CritterSkill.GROUP).filter(func(n: Node) -> bool: return not n.is_queued_for_deletion()).size()
 
 
-func test_casting_again_keeps_at_most_max_alive() -> void:
+## 상한 스위치는 그대로 쓸 수 있다 (켜면 오래된 것부터 사라짐).
+func test_max_alive_switch_still_works() -> void:
 	var p: Player = auto_free(Player.new())
 	var h := Health.new()
 	h.name = "Health"
@@ -19,15 +27,14 @@ func test_casting_again_keeps_at_most_max_alive() -> void:
 	add_child(p)
 	var caster: SkillCaster = auto_free(SkillCaster.new())
 	caster.player = p
-	caster.kit = HERO.kit
 	caster.world = self
 	caster.enemy_source = func() -> Array: return []
 	add_child(caster)
 	var d := (HERO.kit.tap as CritterSkill).duplicate() as CritterSkill
 	d.count = 4
 	d.extra_butterflies = 3
-	assert_int(d.max_alive).is_equal(2)
-	caster.kit = caster.kit.duplicate() as SkillKit
+	d.max_alive = 2
+	caster.kit = HERO.kit.duplicate() as SkillKit
 	caster.kit.tap = d
 	for i in 4:
 		caster.cast(SkillCaster.Slot.TAP)

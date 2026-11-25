@@ -88,7 +88,7 @@ cast_anim = &"cast_tap"
 butterfly_art = ExtResource("art_butterfly")
 grasshopper_art = ExtResource("art_grasshopper")
 critter_size = 84.0
-max_alive = 2
+lifetime = 3.0
 cast_lead = -1.0
 
 [sub_resource type="Resource" id="Skill_dash"]
