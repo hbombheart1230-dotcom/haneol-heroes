@@ -6,15 +6,17 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/waegun_gunner/attack.png" id="t2"]
 [ext_resource type="Texture2D" path="res://assets/sprites/waegun_gunner/hit.png" id="t3"]
 [ext_resource type="Texture2D" path="res://assets/sprites/waegun_gunner/down.png" id="t4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/waegun_gunner/fly.png" id="t5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/waegun_gunner/death.png" id="t6"]
 
 [resource]
 script = ExtResource("1_set")
 frame_size = 160
 directions = 8
-anim_names = PackedStringArray("idle", "run", "attack", "hit", "down")
-textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3"), ExtResource("t4")])
-frame_counts = PackedInt32Array(4, 8, 6, 3, 8)
-fps = PackedFloat32Array(6.0, 7.0, 10.0, 12.0, 10.0)
-loops = Array[bool]([true, true, false, false, false])
-strike_frames = PackedInt32Array(-1, -1, 4, -1, -1)
-tips = Array[PackedVector2Array]([PackedVector2Array(), PackedVector2Array(), PackedVector2Array(33.7, 26.7, 32.9, 28.1, 32.7, 30.5, 30.6, 32.2, 30.8, 32.0, 28.8, 35.0, 26.3, 46.8, 25.8, 48.9, 25.3, 50.7, 24.2, 51.6, 24.3, 51.4, 19.9, 51.8, -19.0, 15.7, -22.7, 36.4, -21.6, 38.9, -21.1, 35.7, -21.2, 35.5, -20.9, 39.9, -18.6, 10.7, -37.2, 17.8, -37.8, 22.0, -37.7, 24.4, -36.2, 23.1, -33.0, 24.8, -25.7, 4.4, -30.9, 1.4, -41.7, 5.0, -38.6, 7.4, -38.8, 7.0, -38.8, 10.4, -10.8, -6.6, -19.8, -15.8, -10.7, -6.5, -24.2, -12.0, -22.5, -11.5, -25.9, -9.9, 19.0, 9.4, 22.7, -8.8, 21.6, -16.4, 21.1, -15.1, 21.2, -14.5, 20.9, -13.5, 27.3, 15.3, 37.2, 11.8, 33.5, 16.0, 32.5, 18.2, 32.8, 17.9, 31.3, 21.7), PackedVector2Array(), PackedVector2Array()])
+anim_names = PackedStringArray("idle", "run", "attack", "hit", "down", "fly", "death")
+textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3"), ExtResource("t4"), ExtResource("t5"), ExtResource("t6")])
+frame_counts = PackedInt32Array(4, 8, 6, 3, 8, 6, 6)
+fps = PackedFloat32Array(6.0, 7.0, 10.0, 12.0, 8.0, 12.0, 10.0)
+loops = Array[bool]([true, true, false, false, false, false, false])
+strike_frames = PackedInt32Array(-1, -1, 4, -1, -1, -1, -1)
+tips = Array[PackedVector2Array]([PackedVector2Array(), PackedVector2Array(), PackedVector2Array(33.7, 26.7, 32.9, 28.1, 32.7, 30.5, 30.6, 32.2, 30.8, 32.0, 28.8, 35.0, 26.3, 46.8, 25.8, 48.9, 25.3, 50.7, 24.2, 51.6, 24.3, 51.4, 19.9, 51.8, -19.0, 15.7, -22.7, 36.4, -21.6, 38.9, -21.1, 35.7, -21.2, 35.5, -20.9, 39.9, -18.6, 10.7, -37.2, 17.8, -37.8, 22.0, -37.7, 24.4, -36.2, 23.1, -33.0, 24.8, -25.7, 4.4, -30.9, 1.4, -41.7, 5.0, -38.6, 7.4, -38.8, 7.0, -38.8, 10.4, -10.8, -6.6, -19.8, -15.8, -10.7, -6.5, -24.2, -12.0, -22.5, -11.5, -25.9, -9.9, 19.0, 9.4, 22.7, -8.8, 21.6, -16.4, 21.1, -15.1, 21.2, -14.5, 20.9, -13.5, 27.3, 15.3, 37.2, 11.8, 33.5, 16.0, 32.5, 18.2, 32.8, 17.9, 31.3, 21.7), PackedVector2Array(), PackedVector2Array(), PackedVector2Array(), PackedVector2Array()])

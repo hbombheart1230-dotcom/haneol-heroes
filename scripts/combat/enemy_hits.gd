@@ -40,11 +40,14 @@ static func on_hit(e: Enemy, heavy: bool) -> void:
 	if heavy:
 		e.freeze(d.heavy_freeze)
 		knock_down(e)
+	var w := e.data.hit_weight if e.data else null
+	if w and w.down_power >= 0 and e.hit_power >= w.down_power:  # 묵직한 적도 가장 큰 타에는 넘어진다 (HitWeightData.down_power)
+		knock_down(e, true)
 
 
 ## 넘어뜨리기 (잡몹, 슈퍼아머 아님): 예고를 버리고 돌진을 멈춘다. 넘어졌으면 true.
-static func knock_down(e: Enemy) -> bool:
-	if is_armored(e) or (e.attack and e.attack.state == EnemyAttack.State.WINDUP and not e.attack.can_interrupt()):
+static func knock_down(e: Enemy, through_armor: bool = false) -> bool:
+	if (is_armored(e) and not (through_armor and e.reaction and e.reaction.tier == HitReaction.Tier.TRASH)) or (e.attack and e.attack.state == EnemyAttack.State.WINDUP and not e.attack.can_interrupt()):
 		return false  # 지켜진 예고 (끊긴 다음 예고)는 넘어뜨려도 버리지 않는다
 	if not e.reaction.knock_down(impact()):
 		return false
@@ -71,6 +74,8 @@ static func on_poise(e: Enemy, ev: EnemyPoise.Event) -> void:
 	if e.reaction and e.sprite:
 		e.reaction.anim_left = e.reaction.data.hit_anim_time
 		EnemySprite.start_hit(e)
+	if broke:  # 갑옷이 깨지면 넘어졌다 일어나는 동작 (시트에 "down"이 있을 때, 기절 시간 동안)
+		EnemySprite.show_pose(e, &"down", Enemy.AI.armor_break_stun)
 	Feedback.poise_broken(e.global_position, broke)
 
 

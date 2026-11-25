@@ -72,6 +72,33 @@
         0.35,
         0.6
       ]
+    },
+    {
+      "key": "down",
+      "match": "",
+      "action_id": 100,
+      "frames": 6,
+      "fps": 12.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "brace",
+      "match": "",
+      "action_id": 171,
+      "frames": 6,
+      "fps": 12.0,
+      "loop": false,
+      "skip_bake": true
+    },
+    {
+      "key": "death",
+      "match": "",
+      "action_id": 183,
+      "frames": 6,
+      "fps": 12.0,
+      "loop": false,
+      "skip_bake": true
     }
   ]
 }

@@ -9,3 +9,4 @@ squash_mult = 1.8
 lean_time_mult = 1.6
 knockback_mult = 1.0
 power_flinch = PackedFloat32Array(0.6, 1.2, 1.6)
+down_power = 2
