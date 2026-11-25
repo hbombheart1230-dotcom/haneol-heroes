@@ -104,6 +104,7 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_haeryong")
 sfx_layers = Array[StringName]([&"gugak_buk"])
 cast_anim = &"cast_tap"
+range_rings = false
 cast_speed = 1.0
 cast_lead = 0.04
 hero_over_fx = true
