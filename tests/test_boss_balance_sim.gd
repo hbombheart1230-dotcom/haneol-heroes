@@ -82,6 +82,8 @@ func test_sixteen_matchups_last_about_the_same() -> void:
 			var wins := 0
 			var hurt: Array = []  # 서툰 사람이 받은 피해 (씨앗마다)
 			var mins := 0.0  # 우두머리 옆 평균 부하 수 (피하기 판 평균)
+			var stun_max := 0.0  # 씨앗 중 가장 높은 휘청 비율 (피하기 판)
+			var lock_max := 0.0  # 씨앗 중 가장 긴 맨 간격 (휘청 포함)
 			for s in SEEDS:
 				var r: Dictionary = await _run(boss, hero, s, 0.0)
 				assert_bool(r["won"]).override_failure_message("%s vs %s seed %d did not win" % [hero, boss, s]).is_true()
@@ -90,6 +92,8 @@ func test_sixteen_matchups_last_about_the_same() -> void:
 				_check_rhythm(r, "%s vs %s seed %d" % [hero, boss, s])
 				times.append(r["time"])
 				mins += float(r.get("minion_sum", 0.0)) / maxf(r["time"], 0.1) / SEEDS.size()
+				stun_max = maxf(stun_max, FightRhythm.stun_ratio(r))
+				lock_max = maxf(lock_max, FightRhythm.longest_gap(r))
 				if SLOPPY:
 					var sl: Dictionary = await _run(boss, hero, s, 0.3)
 					wins += 1 if sl["won"] else 0
@@ -102,7 +106,7 @@ func test_sixteen_matchups_last_about_the_same() -> void:
 				assert_float(mean).override_failure_message("%s vs %s mean %.1fs" % [hero, boss, mean]).is_between(WIN_MIN, WIN_MAX)
 			sloppy_wins += wins
 			sloppy_runs += SEEDS.size() if SLOPPY else 0
-			rows.append("[boss-balance] %-10s %-14s dodge %4.1f~%4.1fs (mean %4.1f)  sloppy %d/%d, damage %s, minions %.2f" % [boss, hero, times.min(), times.max(), mean, wins, SEEDS.size(), str(hurt), mins])
+			rows.append("[boss-balance] %-10s %-14s dodge %4.1f~%4.1fs (mean %4.1f)  sloppy %d/%d, damage %s, minions %.2f, stun %.0f%%, lock %.1fs" % [boss, hero, times.min(), times.max(), mean, wins, SEEDS.size(), str(hurt), mins, stun_max * 100.0, lock_max])
 	for line in rows:
 		print(line)
 	if SLOPPY:
@@ -116,8 +120,7 @@ func _check_rhythm(r: Dictionary, label: String) -> void:
 		var prev: EnemyAttackData = w[i - 1]
 		if prev.follow_up != w[i]:
 			assert_int(int((w[i] as EnemyAttackData).kind)).override_failure_message("%s same attack twice" % label).is_not_equal(int(prev.kind))
-	for g in r["gaps_free"]:  # 막힘 = 휘청 시간을 뺀 간격 (소환물이 우두머리를 자주 휘청이게 해서 간격이 길어진다 — 막힘이 아님)
-		assert_float(g).override_failure_message("%s stalled %.2fs" % [label, g]).is_less(9.0)
+	assert_array(FightRhythm.problems(r, label, 9.0)).is_empty()  # 막힘 (휘청 뺀 간격) · 묶임 (맨 간격) · 휘청 비율
 	assert_int(r["max_minions"]).is_less_equal(3)
 
 
@@ -125,8 +128,7 @@ func _check_rhythm(r: Dictionary, label: String) -> void:
 func test_tier_scaling_keeps_the_fight_working() -> void:
 	for boss in BOSSES:
 		var r: Dictionary = await _run(boss, "yi_sun_sin", 11, 0.0, 3)
-		print("[boss-balance] tier 3 %s yi_sun_sin: %s %.1fs, damage %d" % [boss, "WIN" if r["won"] else "LOSE", r["time"], r["damage"]])
+		print("[boss-balance] tier 3 %s yi_sun_sin: %s %.1fs, damage %d, stun %.0f%%, lock %.1fs" % [boss, "WIN" if r["won"] else "LOSE", r["time"], r["damage"], FightRhythm.stun_ratio(r) * 100.0, FightRhythm.longest_gap(r)])
 		assert_bool(r["won"]).is_true()
 		assert_int(r["phase"]).is_equal(2)
-		for g in r["gaps_free"]:  # 휘청 시간을 뺀 간격. 단계 3은 체력이 많아 전환 한 박자 + 휘청이 겹칠 수 있다 (7.15초 실측): 막힘은 8초부터
-			assert_float(g).is_less(8.0)
+		assert_array(FightRhythm.problems(r, "tier 3 %s" % boss, 8.0)).is_empty()  # 단계 3은 체력이 많아 전환 한 박자 + 휘청이 겹칠 수 있다 (7.15초 실측): 막힘은 8초부터
