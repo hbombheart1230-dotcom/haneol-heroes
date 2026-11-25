@@ -30,7 +30,20 @@ class Overlay extends Node2D:
 			draw_arc(a, c[2], 0.0, TAU, 48, col, 2.0)
 			draw_arc(b, c[2], 0.0, TAU, 48, col, 2.0)
 		for p in follow:
-			if is_instance_valid(p):
+			if not is_instance_valid(p):
+				continue
+			var pr := p as Projectile
+			if pr.hit_body.has_area():  # 판정 캡슐 + 적 몸
+				var cap: Array = pr.body_capsule()
+				var a: Vector2 = pr.global_transform * (cap[0] as Vector2)
+				var b: Vector2 = pr.global_transform * (cap[1] as Vector2)
+				var r: float = float(cap[2]) * pr.size_scale + HURT_R
+				var n: Vector2 = (b - a).orthogonal().normalized() * r
+				draw_line(a + n, b + n, col, 2.0)
+				draw_line(a - n, b - n, col, 2.0)
+				draw_arc(a, r, 0.0, TAU, 48, col, 2.0)
+				draw_arc(b, r, 0.0, TAU, 48, col, 2.0)
+			else:
 				draw_arc(p.global_position, 12.0 * p.size_scale + HURT_R, 0.0, TAU, 48, col, 2.0)
 
 
@@ -69,6 +82,7 @@ func _run() -> void:
 	var edge := SkillContext.edge_of(foe)
 	var ov := Overlay.new()
 	ov.z_index = 100
+	ov.visible = not OS.has_environment("HH_NO_OVERLAY")  # 판정 선은 이 도구 전용 (게임 화면엔 없음)
 	main.add_child(ov)
 	var at := player.global_position
 	var actx := caster._context()

@@ -42,6 +42,9 @@ extends HitBox2D
 ## 원래 큰 물결·뒤따르는 날·잔상은 back_alpha배로 흐리게 남겨 큰 느낌만 (사용자 7ce32eb 결정 (b), 해일검기).
 @export var crest_reach: float = 0.0
 @export var back_alpha: float = 0.4
+## 비어 있지 않으면 판정을 그림의 눈에 보이는 몸통에 맞춘다: 그림 안 비율 사각(x·y 0~1, 오른쪽 = 진행 방향)을
+## 감싸는 캡슐 (해일검기: 사용자 9e19cfb "맞는 범위도 그림에 맞추긴 해야지"). 비면 판정 원 HIT_R.
+@export var hit_body: Rect2 = Rect2()
 ## 겹 사이 간격 (그림 길이 대비).
 @export var blade_gap: float = 0.42
 ## 뒤따르는 날의 길이 배율 (짧아야 날 사이 틈이 보인다).
@@ -69,6 +72,8 @@ func _ready() -> void:
 	action_applied.connect(_on_action_applied)
 	rotation = direction.angle()
 	scale = Vector2.ONE * size_scale
+	if hit_body.has_area() and art_size.x > 0.0:
+		_apply_body_shape()
 	if art_sheet and art == null:
 		art = art_sheet  # 그림 있음 표시 (실제로는 장마다 바꿔 그림)
 	if flicker > 0.0 and art:
@@ -114,6 +119,38 @@ func _on_action_applied(hurt_box: HurtBox2D) -> void:
 	queue_free()
 
 
+## 판정 캡슐 (이 노드 좌표, size_scale 전): [앞뒤 선분 시작, 끝, 반지름].
+func body_capsule() -> Array:
+	var x0 := -art_size.x * 0.6 + hit_body.position.x * art_size.x
+	var x1 := x0 + hit_body.size.x * art_size.x
+	var r := hit_body.size.y * art_size.y * 0.5
+	var cy := -art_size.y * 0.5 + (hit_body.position.y + hit_body.size.y * 0.5) * art_size.y
+	return [Vector2(minf(x0 + r, (x0 + x1) * 0.5), cy), Vector2(maxf(x1 - r, (x0 + x1) * 0.5), cy), r]
+
+
+func _apply_body_shape() -> void:
+	var cs := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if cs == null:
+		return
+	var cap: Array = body_capsule()
+	var sh := CapsuleShape2D.new()
+	sh.radius = cap[2]
+	sh.height = (cap[1] as Vector2).distance_to(cap[0]) + 2.0 * float(cap[2])
+	cs.shape = sh
+	cs.rotation = PI * 0.5  # 캡슐은 세로가 기본 → 진행 방향으로 눕힌다
+	cs.position = ((cap[0] as Vector2) + (cap[1] as Vector2)) * 0.5
+
+
+## 점 p(월드)에서 판정 가장자리까지 거리 (px, 음수 = 안). 손으로 굴리는 시뮬이 영역 겹침 대신 쓴다.
+func hit_reach(p: Vector2) -> float:
+	var local := (global_transform if is_inside_tree() else transform).affine_inverse() * p
+	if hit_body.has_area() and art_size.x > 0.0:
+		var cap: Array = body_capsule()
+		var q := Geometry2D.get_closest_point_to_segment(local, cap[0], cap[1])
+		return (local.distance_to(q) - float(cap[2])) * size_scale
+	return (local.length() - HIT_R) * size_scale
+
+
 ## 앞 물마루 반 높이 = 앞 끝 거리 (이 노드 좌표, size_scale 전): 판정 원 + 적 몸을 크기로 나눈 것.
 func crest_half() -> float:
 	return HIT_R + crest_reach / maxf(size_scale, 0.01)
@@ -139,7 +176,8 @@ func _draw() -> void:
 			var f := VfxSheets.frame_at(art_sheet, art_sheet_grid.x, art_sheet_grid.y, art_sheet_count, art_sheet_fps, _age, true)
 			tex = f if f else tex
 		var rect := Rect2(-art_size.x * 0.6, -art_size.y * 0.5, art_size.x, art_size.y)
-		var back := back_alpha if crest_reach > 0.0 else 1.0  # 앞 물마루를 따로 그리면 큰 물결은 흐리게
+		var back := back_alpha if crest_reach > 0.0 or hit_body.has_area() else 1.0  # 뒤 날·잔상은 흐리게
+		var main_a := back_alpha if crest_reach > 0.0 else 1.0  # 판정 = 몸통이면 몸통은 또렷이
 		for g in range(ghosts, 0, -1):  # 잔상: 뒤로 갈수록 옅고 가늘게
 			var f := 1.0 - float(g) / float(ghosts + 1)
 			draw_set_transform(Vector2(-ghost_gap * g, 0.0), 0.0, Vector2(1.0, lerpf(0.6, 1.0, f)))
@@ -152,7 +190,7 @@ func _draw() -> void:
 			draw_texture_rect(tex, rect, false, Color(1.0, flicker, 0.0, lerpf(0.9, 0.55, float(b) / float(blades + 1)) * back)
 				if flicker > 0.0 else Color(1, 1, 1, 0.7 * back))
 		draw_set_transform(Vector2.ZERO, 0.0, _surge_scale())
-		draw_texture_rect(tex, rect, false, Color(1.0, flicker, 0.0, back) if flicker > 0.0 else Color(1, 1, 1, back))
+		draw_texture_rect(tex, rect, false, Color(1.0, flicker, 0.0, main_a) if flicker > 0.0 else Color(1, 1, 1, main_a))
 		if crest_reach > 0.0:  # 앞 물마루: 앞 끝·옆 끝 = 판정 원 + 적 몸 (그림 비율 그대로, 앞 끝에 맞춤)
 			var hh := crest_half()
 			var cw := hh * 2.0 * art_size.x / maxf(art_size.y, 1.0)

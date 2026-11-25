@@ -23,8 +23,11 @@ extends SkillDef
 @export var wave_flicker: float = 0.9
 ## 앞 물마루를 판정 크기로 (Projectile.crest_reach: 적 몸 px, 0이면 예전처럼 큰 물결이 곧 판정처럼 보임)과
 ## 뒤 큰 물결·날·잔상의 흐림 (사용자 7ce32eb 결정 (b): 판정은 그대로, 큰 느낌은 흐리게 남김).
-@export var crest_reach: float = 22.0
+@export var crest_reach: float = 0.0  # 판정이 몸통(hit_body)이 된 뒤로는 끔 (#190의 앞 물마루 따로 그리기)
 @export var back_alpha: float = 0.6
+## 판정 = 물결 그림의 눈에 보이는 몸통 (그림 안 비율 사각, Projectile.hit_body; tidal_crest.png 알파 측정: 물마루부터
+## 몸통까지 x 0.40~0.97, 높이 0.09~0.95 — 흐린 꼬리·물보라 제외). 비면 예전 판정 원 (12px × 크기).
+@export var hit_body: Rect2 = Rect2(0.40, 0.09, 0.57, 0.86)
 ## 움직이는 물결 시트 (있으면 wave_art 대신 되풀이 재생, docs/skill_vfx_sheets.md) 와 칸 수·초당 장 수.
 @export var wave_sheet: Texture2D
 @export var wave_sheet_grid: Vector2i = Vector2i(4, 2)
@@ -73,6 +76,8 @@ func aim_length(c: float) -> float:
 
 func aim_width(c: float) -> float:
 	var s := charge_scaling.between(min_scale, max_scale, c) if charge_scaling else lerpf(min_scale, max_scale, c)
+	if hit_body.has_area() and (wave_art or wave_sheet):
+		return wave_art_size.y * hit_body.size.y * s  # 판정 캡슐 폭
 	return HIT_DIAMETER * s
 
 
@@ -127,5 +132,6 @@ func _wave_configure(pr: Projectile, dir: Vector2, c: float) -> void:
 		pr.flicker = wave_flicker
 		pr.crest_reach = crest_reach
 		pr.back_alpha = back_alpha
+		pr.hit_body = hit_body
 		var k := charge_scaling.k(c) if charge_scaling else c
 		pr.blades = roundi(lerpf(rake_blades.x, rake_blades.y, k)) if rake_hits.y > 1 else 0

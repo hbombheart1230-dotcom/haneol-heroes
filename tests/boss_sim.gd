@@ -256,7 +256,7 @@ func _tick_shots(list: Array) -> void:
 		var seen: Dictionary = _proj_hits.get_or_add(pr.get_instance_id(), {})
 		for e in list:
 			if is_instance_valid(e) and not seen.has(e) and not e.health.is_dead() \
-					and pr.global_position.distance_to(e.global_position) <= HURT_R + 12.0 * pr.size_scale:
+					and pr.hit_reach(e.global_position) <= HURT_R:  # 판정 원·캡슐 (Projectile.hit_reach)
 				seen[e] = true
 				pr._on_area_entered(e.get_node("HurtBox2D"))
 				if pr.ignore_collisions:
