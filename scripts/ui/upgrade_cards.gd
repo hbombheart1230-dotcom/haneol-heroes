@@ -22,6 +22,16 @@ signal card_picked(index: int)
 @export var value_px: int = 32
 @export var desc_px: int = 24
 @export var level_px: int = 22
+## 줄 사이 (화면 px): 아이콘 아래, 같은 묶음 줄 사이, 값 하나 끝, 이름과 값 묶음 사이, 좌우 여백, 아래 여백, 단계 글 위.
+## 글씨는 줄이지 않는다 — 값 줄이 많으면 패가 길어진다 (모든 패가 같은 높이, max_height_ratio × 화면 높이까지).
+@export var icon_gap: float = 14.0
+@export var row_gap: float = 6.0
+@export var value_gap: float = 14.0
+@export var block_gap: float = 8.0
+@export var side_pad: float = 10.0
+@export var bottom_pad: float = 14.0
+@export var level_gap: float = 18.0
+@export var max_height_ratio: float = 0.8
 
 var choices: Array[UpgradeDef] = []
 var major: bool = false
@@ -31,6 +41,7 @@ var gain: int = 1
 ## 이번 판 수치 (값 "지금 → 뒤" 계산). 없으면 패 설명 글.
 var build: RunBuild
 var _age: float = 0.0
+var _height: float = 0.0
 var _press_index := -1
 var _press_card := -1
 
@@ -50,6 +61,7 @@ func open(p_choices: Array[UpgradeDef], p_major: bool, p_stacks: Dictionary, p_g
 	_age = 0.0
 	_press_index = -1
 	_press_card = -1
+	_height = 0.0
 	show()
 	queue_redraw()
 
@@ -69,7 +81,18 @@ func card_rect(i: int) -> Rect2:
 	var w := minf(card_size.x, (vp.x - 48.0 - gap * (n - 1)) / n)
 	var total := w * n + gap * (n - 1)
 	var x0 := (vp.x - total) * 0.5
-	return Rect2(x0 + i * (w + gap), vp.y * 0.5 - card_size.y * 0.5, w, card_size.y)
+	var h := card_height(w, vp)
+	return Rect2(x0 + i * (w + gap), vp.y * 0.5 - h * 0.5, w, h)
+
+
+## 패 높이: 기본 card_size.y, 글이 더 필요한 패가 있으면 셋 다 그만큼 (한 번 재고 기억).
+func card_height(w: float, vp: Vector2) -> float:
+	if _height <= 0.0:
+		_height = card_size.y
+		for u in choices:
+			_height = maxf(_height, ceilf(UpgradeCardLayout.needed_height(self, u, w)))
+		_height = minf(_height, vp.y * max_height_ratio)
+	return _height
 
 
 func card_at(pos: Vector2) -> int:
@@ -189,45 +212,35 @@ func _draw_card(i: int, k: float) -> void:
 	draw_rect(br, Color(band_col, 0.95 * k))
 	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(br.position.x, br.position.y + band_height * 0.5 + band_px * 0.36),
 		band[0], band_px, Color(1, 1, 1, k), br.size.x, Color(UiStyle.INK, 0.85 * k), 6)
-	var c := Vector2(r.get_center().x, r.position.y + band_height + 82.0)
-	var s := minf(r.size.x - 60.0, 140.0)
+	var ir := UpgradeCardLayout.icon_rect(self, r)
+	var c := ir.get_center()
+	var s := ir.size.x
 	if u.icon:
-		draw_texture_rect(u.icon, Rect2(c - Vector2(s, s) * 0.5, Vector2(s, s)), false, Color(1, 1, 1, k))
+		draw_texture_rect(u.icon, ir, false, Color(1, 1, 1, k))
 	else:  # 그림이 없는 강화: 먹 인장에 이름 첫 글자
 		var name_part := u.title.split(" · ")[-1]
 		draw_circle(c, s * 0.42, Color(Ink.PAPER, k))
 		draw_arc(c, s * 0.42, 0.0, TAU, 40, Color(u.color, k), 5.0)
 		UiStyle.text(self, UiStyle.TITLE_FONT, c + Vector2(-s * 0.5, s * 0.17), name_part.left(1), int(s * 0.45),
 			Color(u.color.darkened(0.3), k), s, Color(0, 0, 0, 0.0), 0)
-	var y := c.y + s * 0.5 + 34.0
-	var w := r.size.x
-	var parts := u.title.split(" · ")
-	if parts.size() > 1:  # "기술 · 강화 이름": 기술 이름은 본문 글꼴, 강화 이름만 붓글씨
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, y), parts[0], skill_px, Color(UiStyle.PAPER, k),
-			w, Color(0, 0, 0, 0.8 * k), 5)
-		y += skill_px + 14.0
-	for line in wrap_lines(UiStyle.TITLE_FONT, parts[-1], name_px, w - 20.0, 2):
-		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(r.position.x, y), line, name_px, Color(UiStyle.GOLD, k), w,
-			Color(0, 0, 0, 0.85 * k), 6)
-		y += name_px + 6.0
-	y += 10.0
-	var vals := UpgradeReadout.lines(u, build, steps_of(u)) if not major else ([] as Array[Dictionary])
-	if vals.is_empty():
-		for line in wrap_lines(UiStyle.BODY_FONT, u.description.replace("
-", " "), desc_px, w - 24.0, 3):
-			UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, y), line, desc_px, Color(UiStyle.PAPER, k), w,
-				Color(0, 0, 0, 0.8 * k), 5)
-			y += desc_px + 8.0
-	for v in vals.slice(0, 2):  # 값 이름은 작게, "지금 → 뒤"는 크게 금색
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, y), v["label"], value_label_px,
-			Color(UiStyle.PAPER, k), w, Color(0, 0, 0, 0.8 * k), 5)
-		y += value_px + 4.0
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, y), "%s → %s" % [v["from"], v["to"]], value_px,
-			Color(UiStyle.GOLD, k), w, Color(0, 0, 0, 0.9 * k), 6)
-		y += value_label_px + 16.0
+	for it in UpgradeCardLayout.rows(self, u, r):
+		var col: Color = it["color"]
+		var big: bool = it["role"] in [UpgradeCardLayout.Role.NAME, UpgradeCardLayout.Role.VALUE]
+		UiStyle.text(self, it["font"], it["pos"], it["text"], it["px"], Color(col, k), it["width"],
+			Color(0, 0, 0, (0.9 if big else 0.8) * k), 6 if big else 5)
+
+
+## 값 줄 "지금 → 뒤" (큰 변형·숫자로 못 읽는 패는 빈 목록 → 설명 글).
+func values_of(u: UpgradeDef) -> Array[Dictionary]:
+	if major:
+		return []
+	return UpgradeReadout.lines(u, build, steps_of(u))
+
+
+## 패 맨 아래 단계 글 (한 단계뿐인 패는 빈 글).
+func level_text(u: UpgradeDef) -> String:
+	if u.max_stacks <= 1:
+		return ""
 	var have := int(stacks.get(u.id, 0))
-	if u.max_stacks > 1:
-		var to := mini(have + gain, u.max_stacks)
-		var lv := "%d단계 → %d단계" % [have, to] if have > 0 else ("새 강화" if to <= 1 else "새 강화 → %d단계" % to)
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(r.position.x, r.end.y - 20), lv, level_px,
-			Color(UiStyle.PAPER if have > 0 else UiStyle.GOLD, k), w, Color(0, 0, 0, 0.8 * k), 5)
+	var to := mini(have + gain, u.max_stacks)
+	return "%d단계 → %d단계" % [have, to] if have > 0 else ("새 강화" if to <= 1 else "새 강화 → %d단계" % to)
