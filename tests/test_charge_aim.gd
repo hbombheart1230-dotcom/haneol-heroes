@@ -118,8 +118,9 @@ func test_full_charge_wave_and_path_length() -> void:
 	assert_float(hi.lifetime).is_greater(lo.lifetime)
 	assert_float(rhi.total_push()).is_greater(rlo.total_push())
 	assert_int(rhi.damages.size()).is_greater(rlo.damages.size())  # 모을수록 타수도
-	assert_float(h.aim_length(1.0)).is_equal_approx(hi.speed * hi.lifetime, 0.5)
-	assert_float(h.aim_length(0.0)).is_equal_approx(lo.speed * lo.lifetime, 0.5)
+	var front := (-0.6 + h.hit_body.end.x) * h.wave_art_size.x  # 판정 캡슐 앞 끝 (물결 가운데 앞, 크기배)
+	assert_float(ChargeView.scaled(h).aim_length(1.0)).is_equal_approx(hi.speed * hi.lifetime + front * hi.size_scale, 0.5)
+	assert_float(ChargeView.scaled(h).aim_length(0.0)).is_equal_approx(lo.speed * lo.lifetime + front * lo.size_scale, 0.5)
 	assert_float(h.aim_width(1.0)).is_greater(h.aim_width(0.0))
 
 
@@ -173,3 +174,19 @@ func test_other_heroes_unchanged() -> void:
 		assert_bool(h.kit.charge.charge_aim).is_true()
 		assert_bool(h.kit.charge.charge_aim_auto).is_true()
 		assert_bool(h.kit.charge.charge_scaling.stepped).is_true()
+
+
+## 조준 길 끝 = 물결 판정(캡슐) 앞 끝이 마지막으로 닿는 곳 (독립 검토: 조준 길이 #212 캡슐 판정보다 짧았다). 강화 단계도.
+func test_aim_path_ends_where_the_wave_hit_ends() -> void:
+	for lv in [0, 3, 6]:
+		caster.kit.charge.vfx_level = lv
+		for c in [0.0, 0.5, 1.0]:
+			var p := caster.cast(SkillCaster.Slot.CHARGE, c).get_meta(&"projectile") as Projectile
+			caster.reset_cooldown(SkillCaster.Slot.CHARGE)
+			var cap: Array = p.body_capsule()
+			var reach := p.speed * p.lifetime + ((cap[1] as Vector2).x + float(cap[2])) * p.size_scale
+			var drawn: float = ChargeView.scaled(caster.kit.charge).aim_length(c)
+			assert_float(drawn).override_failure_message("lv%d c%.1f drawn %.0f reach %.0f" % [lv, c, drawn, reach]) 				.is_equal_approx(reach, 2.0)
+			var w: float = ChargeView.aim_width(caster, c)
+			assert_float(w).is_equal_approx(float(cap[2]) * 2.0 * p.size_scale, 0.5)
+	caster.kit.charge.vfx_level = 0

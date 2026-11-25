@@ -17,6 +17,8 @@ extends SkillDef
 @export_group("모으며 조준 (끌면)")
 ## 모으는 동안 끌면 화폭 가운데를 그 방향으로 이만큼(px) 옮긴다 (끌지 않으면 영웅 자리).
 @export var steer_offset: float = 200.0
+## 조준 원에 더하는 적 몸(px): 화폭은 반경 + 적 몸 안의 적을 가둔다 (SkillContext.enemies_in_radius).
+@export var aim_edge_px: float = 20.0
 @export_group("큰 변형 · 병풍")
 ## 피해 배율 (큰 변형으로 커진다).
 @export var damage_mult: float = 1.0
@@ -114,5 +116,5 @@ class TrapRun extends SkillRun:
 
 ## 조준 표시: 끈 방향 steer_offset 자리에 지금 충전의 화폭 반경 원.
 func draw_aim(canvas: CanvasItem, c: float, dir: Vector2, d: ChargeMarkerData) -> bool:
-	ChargeAim.draw_circle_aim(canvas, dir * steer_offset, radius_for(c), c, d)
+	ChargeAim.draw_circle_aim(canvas, dir * steer_offset, radius_for(c) + aim_edge_px, c, d)
 	return true
