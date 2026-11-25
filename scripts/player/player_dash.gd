@@ -24,6 +24,8 @@ static func request(p: Player, direction: Vector2) -> bool:
 		return false
 	p._dash_dir = dir.normalized()
 	p._dash_time_left = p.dash_duration
+	p._dash_dk = 1.0
+	p._dash_tk = 1.0
 	p._swing_left = 0.0  # 대시가 휘두름을 끊으면 느려짐도 끝 (대시 뒤에 남지 않게)
 	p._glide_left = 0.0
 	p._since_dash_start = 0.0
@@ -41,12 +43,13 @@ static func request(p: Player, direction: Vector2) -> bool:
 static func step(p: Player, delta: float) -> Vector2:
 	var step_t := minf(delta, p._dash_time_left)
 	p._dash_time_left -= delta
-	var v := p._dash_dir * (p.dash_distance / p.dash_duration) * (step_t / delta if delta > 0.0 else 0.0)
+	var speed := p.dash_distance * p._dash_dk / (p.dash_duration * p._dash_tk)  # 백스텝은 짧고 빠르게
+	var v := p._dash_dir * speed * (step_t / delta if delta > 0.0 else 0.0)
 	if p._dash_time_left <= 0.0:
 		p._dash_time_left = 0.0
 		p._since_dash_end = 0.0
 		if p.dash_glide_time > 0.0:
-			p._glide_vel = p._dash_dir * (p.dash_distance / p.dash_duration) * p.dash_glide_ratio
+			p._glide_vel = p._dash_dir * speed * p.dash_glide_ratio
 			p._glide_left = p.dash_glide_time
 		# 대시 직후엔 가속을 다시 기다리지 않는다 (대시 → 걷기 끊김 없이).
 		p._walk_vel = p.move_input * p.move_speed

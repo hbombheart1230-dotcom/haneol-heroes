@@ -165,6 +165,9 @@ func manual_strike(step: int, ranged: bool, enemy_list: Array = []) -> void:
 	if not ranged and player.hero:  # 연타 중이면 처음 때린 몹 (ComboLock)
 		nearest = lock.pick(player.hero.combo_lock, player, step, stats().melee_range * ComboSteps.at(stats().step_range_mults, step, 1.0), nearest)
 	var to: Vector2 = nearest.global_position - from if nearest else player.facing
+	if nearest and not ranged:  # 지금 치고 있는 대상 (백스텝 기준)
+		player.strike_target = nearest
+		player.since_strike = 0.0
 	_since_manual = 0.0
 	_hold = 0.0
 	_auto_hold = 0.0

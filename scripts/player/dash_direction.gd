@@ -44,12 +44,35 @@ static func begin(p: Player, list: Array, chained: bool) -> void:
 		p.dash_kind = Kind.SIDE
 		p.dash_strikes = false
 		return
-	var to := to_nearest(p, list, d.enemy_range)
+	var to := reference_off(p, list, d)
 	p.dash_kind = classify(d, p.get_dash_direction(), to)
+	if p.dash_kind == Kind.BACK and d.backstep_enabled and chained:
+		p.dash_kind = Kind.SIDE  # 연달아 튕기면 둘째부터는 일반 내닫기 (멀리 빠지고 싶을 때)
 	# 예고 범위 안에서 시작한 대시는 회피 (빠져나오기): 돌진 타격·대가(충전·끝 경직)를 붙이지 않는다 (회피를 방해하지 않게)
 	p.dash_strikes = p.dash_kind == Kind.CHARGE and d.strike_enabled and not chained 		and not ComboSteps.in_windup(list, p.global_position)
 	if p.dash_kind == Kind.BACK:
 		p.facing = to.normalized()  # 적을 본 채로 뒤로
+		if d.backstep_enabled:  # 짧고 빠르게 (PlayerDash.step)
+			p._dash_dk = d.backstep_dist_mult
+			p._dash_tk = d.backstep_time_mult
+			p._dash_time_left = p.dash_duration * d.backstep_time_mult
+
+
+## 방향을 가르는 기준 적까지: 백스텝이면 지금 치고 있는 대상 (연타 대상, 없으면 backstep_target_memory초 안에 손으로 친 적),
+## 그것도 없으면 가장 가까운 적 (enemy_range 밖이면 ZERO).
+static func reference_off(p: Player, list: Array, d: DashDirData) -> Vector2:
+	if d.backstep_enabled:
+		var atk := p.get_node_or_null("AutoAttack") as AutoAttack
+		if atk and atk.lock.active() and is_instance_valid(atk.lock.target):
+			var off := atk.lock.target.global_position - p.global_position
+			if off.length() <= d.enemy_range:
+				return off
+		var t := p.strike_target
+		if t and is_instance_valid(t) and not t.health.is_dead() and p.since_strike <= d.backstep_target_memory:
+			var off2 := t.global_position - p.global_position
+			if off2.length() <= d.enemy_range:
+				return off2
+	return to_nearest(p, list, d.enemy_range)
 
 
 ## 대시 중 한 틱: 돌진 타격 (지나간 몹마다 한 번, 멈춤 없음: 처치 멈춤도 걸지 않는다).
