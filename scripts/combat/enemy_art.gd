@@ -92,8 +92,7 @@ static func telegraph_part(e: Enemy, c: CanvasItem, part: int) -> void:
 	match a.data.kind:
 		EnemyAttackData.Kind.SHOOT:  # 조준선 자체가 테두리
 			if do_rim:
-				var end := a.aim_dir * a.data.projectile_range
-				Ink.stroke(c, Vector2.ZERO, end, 3.0 + 7.0 * k + (4.0 if flash else 0.0), edge if flash else Color(Ink.SEAL, 0.2 + 0.4 * k))
+				RangedTelegraph.draw(e, c, k, flash)
 		EnemyAttackData.Kind.CONE:
 			var half := deg_to_rad(a.data.angle_degrees * 0.5)
 			var a0 := a.aim_dir.angle()
