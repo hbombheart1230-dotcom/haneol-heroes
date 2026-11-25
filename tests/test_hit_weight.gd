@@ -72,18 +72,21 @@ func test_new_reaction_anims_and_heavy_down() -> void:
 		for a in ["fly", "death", "down"]:
 			assert_bool(sh.has_anim(a)).override_failure_message("%s %s" % [id, a]).is_true()
 	var hv := (load("res://data/enemies/waegun_heavy.tres") as EnemyData).sprite_sheet
-	for a in ["down", "death", "hit"]:
+	for a in ["death", "hit"]:
 		assert_bool(hv.has_anim(a)).override_failure_message("heavy " + a).is_true()
 	assert_bool((load("res://data/enemies/waegun_elite.tres") as EnemyData).sprite_sheet.has_anim("down")).is_true()
-	assert_int(HEAVY.down_power).is_equal(HitReaction.Power.BIG)  # 4타·기술에만
+	assert_int(HEAVY.down_power).is_equal(-1)  # 무사 넘어짐은 껐다: 넘어진 동안 공격이 멈춰 반격 틈이 줄어 한산 물결이 +12초 (2026-11-25)
 	assert_int(LIGHT.down_power).is_equal(-1)
 	assert_int(ELITE.down_power).is_equal(-1)  # 정예는 갑옷이 깨질 때만 (EnemyHits.on_poise)
 
 
-## 무사는 슈퍼아머라 3타에는 안 넘어지고, 4타·기술에는 넘어진다.
-func test_heavy_knocked_down_only_by_big_hits() -> void:
+## down_power: 슈퍼아머 적도 그 타 세기부터 넘어진다 (지금 한산 무사는 끔, 장치는 남김 — 무게 등급 사본으로 지킨다).
+func test_down_power_knocks_armored_trash() -> void:
 	var e: Enemy = preload("res://scenes/enemy.tscn").instantiate()
-	e.data = preload("res://data/enemies/waegun_heavy.tres")
+	var d: EnemyData = preload("res://data/enemies/waegun_heavy.tres").duplicate()
+	d.hit_weight = HEAVY.duplicate()
+	d.hit_weight.down_power = HitReaction.Power.BIG
+	e.data = d
 	add_child(auto_free(e))
 	e.set_physics_process(false)
 	e.health.max = 9999
@@ -95,3 +98,18 @@ func test_heavy_knocked_down_only_by_big_hits() -> void:
 	e.hit_power = HitReaction.Power.BIG
 	EnemyHits.on_hit(e, false)
 	assert_bool(e.reaction.is_down()).is_true()
+
+
+## 졸병·철포병·무사는 처치되면 쓰러지는 동작 (death_hold > 0, 예전엔 0이라 구운 death를 안 썼다).
+func test_trash_death_pose_on() -> void:
+	for id in ["waegun_soldier", "waegun_gunner", "waegun_heavy"]:
+		var d := load("res://data/enemies/%s.tres" % id) as EnemyData
+		assert_float(EnemyDeathPose.hold_time(d)).override_failure_message(id).is_greater(0.0)
+
+
+## 날아감 돌림은 온 바퀴에서 천천히 멈춘다 (끝 각도 = 0과 같음, 끝 빠르기 0).
+func test_launch_spin_ends_smoothly() -> void:
+	var r := _hit(LIGHT, P.BIG)
+	var end := r.launch_spin(1.0, 1.0)
+	assert_float(fposmod(end, TAU)).is_equal_approx(0.0, 0.001)
+	assert_float(absf(r.launch_spin(1.0, 1.0) - r.launch_spin(0.98, 1.0))).is_less(0.02)

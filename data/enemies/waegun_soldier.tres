@@ -19,6 +19,7 @@ width = 50.0
 
 [resource]
 script = ExtResource("1_enemy")
+death_hold = 0.6
 hit_weight = ExtResource("hit_weight")
 id = &"waegun_soldier"
 display_name = "왜군 망령 졸병"

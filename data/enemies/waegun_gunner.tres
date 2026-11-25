@@ -23,6 +23,7 @@ fire_vfx = ExtResource("muzzle")
 
 [resource]
 script = ExtResource("1_enemy")
+death_hold = 0.6
 hit_weight = ExtResource("hit_weight")
 id = &"waegun_gunner"
 display_name = "왜군 망령 철포병"

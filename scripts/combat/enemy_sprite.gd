@@ -30,7 +30,7 @@ static func update(e: Enemy, busy: bool) -> void:
 		anim = "down" if sheet.has_anim("down") else ("hit" if sheet.has_anim("hit") else "idle")
 	elif e.launch and e.launch.active() and sheet.has_anim("fly"):  # 크게 날아가는 동안 (가벼운 적, HitWeightData)
 		anim = "fly"
-	elif e.reaction and e.reaction.shows_hit_anim() and sheet.has_anim("hit"):
+	elif e.reaction and e.reaction.shows_hit_anim() and sheet.has_anim("hit") 			and not (busy and e.reaction.tier != HitReaction.Tier.TRASH):  # 정예·우두머리는 공격 중이면 공격 자세 (맞음은 번쩍임·흔들림만)
 		anim = "hit"
 	elif busy and a and sheet.has_anim(String(a.data.anim)):
 		anim = String(a.data.anim)
