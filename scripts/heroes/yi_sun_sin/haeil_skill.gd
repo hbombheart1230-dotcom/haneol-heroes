@@ -8,6 +8,12 @@ extends SkillDef
 @export var max_scale: float = 3.2
 @export var speed: float = 650.0
 @export var lifetime: float = 1.1
+## 0보다 크면 물결이 쏜 자리에서 이만큼(px) 넘게 가고, 꼬리(뒤 날·잔상)까지 그 너머로 빠져나간 뒤 사라진다
+## (사용자 53582c6 "끝까지 용꼬리가 빠져나가게, 지금은 중간에 뚝 사라져 버려": 예전엔 수명 1.1초 × 모은 만큼으로
+## 화면 가운데 540~820px에서 끊겼다). 판정도 몸통 그대로 끝까지 (피해 같음). 0이면 예전 수명.
+@export var exit_px: float = 1400.0
+## 꼬리 길이 = 그림 길이 × 이 값 × 크기 (그림 뒤 0.6 + 잔상·뒤 날이 끌리는 길이, Projectile 물결 연출).
+@export var tail_lengths: float = 2.6
 ## charge_scaling(SkillDef)이 있으면 min/max_damage·min/max_scale을 그 곡선으로 잇고, 사거리·넉백·연출도 키운다.
 ## 놓는 순간 화면 흔들림 (charge_scaling.fx배), 다 모았을 때 vfx_cast를 이만큼 높은 단계로 한 번 더.
 @export var release_shake: float = 0.12
@@ -70,8 +76,22 @@ func cast(ctx: SkillContext, charge: float) -> SkillRun:
 const HIT_DIAMETER := 24.0
 
 
+## 충전 c에서 물결 크기 (투사체 size_scale).
+func size_at(c: float) -> float:
+	return charge_scaling.between(min_scale, max_scale, c) if charge_scaling else lerpf(min_scale, max_scale, c)
+
+
+## 충전 c에서 물결이 사는 시간(초): 예전 수명(모은 만큼 사거리)과, exit_px 너머로 꼬리까지 빠져나가는 시간 중 긴 것.
+func wave_lifetime(c: float) -> float:
+	var t := lifetime * (charge_scaling.at(charge_scaling.reach, c) if charge_scaling else 1.0)
+	if exit_px > 0.0 and speed > 0.0:
+		var tail := wave_art_size.x * tail_lengths * size_at(c) if (wave_art or wave_sheet) else 0.0
+		t = maxf(t, (exit_px + tail) / speed)
+	return t
+
+
 func aim_length(c: float) -> float:
-	var travel := speed * lifetime * (charge_scaling.at(charge_scaling.reach, c) if charge_scaling else 1.0)
+	var travel := speed * wave_lifetime(c)
 	if hit_body.has_area() and (wave_art or wave_sheet):  # 판정 캡슐 앞 끝까지 (물결 가운데보다 앞, 크기만큼)
 		var s := charge_scaling.between(min_scale, max_scale, c) if charge_scaling else lerpf(min_scale, max_scale, c)
 		travel += (-0.6 + hit_body.end.x) * wave_art_size.x * s
@@ -110,13 +130,13 @@ func _wave(ctx: SkillContext, dir: Vector2, c: float) -> Projectile:
 func _wave_configure(pr: Projectile, dir: Vector2, c: float) -> void:
 	pr.direction = dir
 	pr.speed = speed
-	pr.lifetime = lifetime
+	pr.lifetime = wave_lifetime(c)  # 꼬리까지 exit_px 너머로 빠져나갈 때까지
 	pr.pierce = true
 	pr.wave_style = true
 	if charge_scaling:
 		pr.damage = charge_scaling.damage_at(min_damage, max_damage, c)
 		pr.size_scale = charge_scaling.between(min_scale, max_scale, c)
-		pr.lifetime = lifetime * charge_scaling.at(charge_scaling.reach, c)
+		pr.lifetime = wave_lifetime(c)
 		pr.knockback = charge_scaling.at(charge_scaling.knockback, c)
 	else:
 		pr.damage = roundi(lerpf(min_damage, max_damage, c))

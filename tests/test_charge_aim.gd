@@ -190,3 +190,16 @@ func test_aim_path_ends_where_the_wave_hit_ends() -> void:
 			var w: float = ChargeView.aim_width(caster, c)
 			assert_float(w).is_equal_approx(float(cap[2]) * 2.0 * p.size_scale, 0.5)
 	caster.kit.charge.vfx_level = 0
+
+
+## 물결은 꼬리(뒤 날·잔상)까지 exit_px 너머로 빠져나간 뒤 사라진다 (사용자 53582c6 "중간에 뚝 사라져 버려"). 강화 단계도.
+func test_wave_flies_until_its_tail_leaves_the_screen() -> void:
+	var h: HaeilSkill = caster.kit.charge
+	for lv in [0, 6]:
+		h.vfx_level = lv
+		for c in [0.0, 1.0]:
+			var p := caster.cast(SkillCaster.Slot.CHARGE, c).get_meta(&"projectile") as Projectile
+			caster.reset_cooldown(SkillCaster.Slot.CHARGE)
+			var tail_end := p.speed * p.lifetime - p.art_size.x * h.tail_lengths * p.size_scale  # 꼬리 끝이 간 거리
+			assert_float(tail_end).override_failure_message("lv%d c%.1f tail %.0f" % [lv, c, tail_end]).is_greater_equal(h.exit_px - 1.0)
+	h.vfx_level = 0
