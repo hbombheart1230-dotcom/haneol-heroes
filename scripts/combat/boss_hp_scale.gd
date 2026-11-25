@@ -9,6 +9,7 @@ static func for_hero(boss: EnemyData, hero: HeroData) -> EnemyData:
 	if is_equal_approx(k, 1.0):
 		return boss
 	var c := boss.duplicate() as EnemyData
+	c.set_meta(&"hp_base", boss.get_meta(&"hp_base", boss.max_hp))  # 배율 전 체력 (부르기 피해 배율, HomeSummonRules.hp_factor)
 	c.max_hp = maxi(1, roundi(boss.max_hp * k))
 	return c
 

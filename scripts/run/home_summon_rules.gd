@@ -75,6 +75,18 @@ func damage_scale(scaled_boss: EnemyData, base_boss: EnemyData, growth_mult: flo
 	return (entry.damage_scale if entry else 1.0) * boss_factor(scaled_boss, base_boss) / maxf(growth_mult, 0.01)
 
 
+## 겨눈 적의 체력 배율로 (독립 검토: 중간 우두머리·졸병에도 최종 우두머리 배율을 썼다): 그 적 데이터의 체력 /
+## 배율을 입히기 전 체력 (BossHpScale·DifficultyCurve가 사본에 hp_base로 남긴다, 없으면 1).
+func damage_scale_for(target: EnemyData, growth_mult: float = HeroGrowth.run_damage_mult) -> float:
+	return (entry.damage_scale if entry else 1.0) * hp_factor(target) / maxf(growth_mult, 0.01)
+
+
+static func hp_factor(d: EnemyData) -> float:
+	if d == null or d.max_hp <= 0:
+		return 1.0
+	return float(d.max_hp) / maxf(float(d.get_meta(&"hp_base", d.max_hp)), 1.0)
+
+
 ## 이 판 우두머리(영웅 배율·난이도가 곱해진 사본) 체력 / 무대 원래 우두머리 체력. 없으면 1.
 static func boss_factor(scaled_boss: EnemyData, base_boss: EnemyData) -> float:
 	if scaled_boss == null or base_boss == null or base_boss.max_hp <= 0:

@@ -22,6 +22,11 @@ const PATH := "res://data/summon/home_summon.tres"
 @export var button_x: float = 72.0
 @export var button_y: float = 0.42
 @export var button_radius: float = 42.0
+## 잘못 눌림 막기 (독립 검토: 왼쪽 가장자리에서 움직이려던 손가락이 단추에 먹혀 떼면 부르기가 나갔다):
+## 누른 손가락이 tap_slop(px) 넘게 움직이면 그 손가락은 영웅 움직이기로 넘긴다 (TouchController, 부르기 없음),
+## 짧게 톡 누른 것(tap_max_time초 안에 뗌)만 부른다.
+@export var tap_slop: float = 18.0
+@export var tap_max_time: float = 0.45
 ## 단추 옆 한 줄 안내가 떠 있는 시간(초). 판 시작 뒤 단추가 처음 보일 때와 우두머리 때 한 번 더.
 @export var hint_time: float = 5.0
 @export var hint_text: String = "%s 부르기 · 누르면 한 번 돕는다"

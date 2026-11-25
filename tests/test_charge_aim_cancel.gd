@@ -170,3 +170,29 @@ func test_hard_outward_flick_still_cancels_into_a_dash() -> void:
 		for i in 5:
 			_frame(AT + Vector2(0, -80 - 45.0 * (i + 1)))
 		assert_bool(player.is_dashing()).override_failure_message("%s: after aiming" % id).is_true()
+
+
+## 기술 단추로 모으는 중 이동 손가락으로 조준 (독립 검토 ③): 같은 엄한 기준 — 조준 휙은 모으기 유지, 세게 바깥으로 튕기면 취소 + 내닫기.
+func test_button_charge_uses_the_same_aim_rule() -> void:
+	for id in HEROES:
+		_setup(id)
+		ctrl.skill_button_enabled = true
+		var bc := ctrl.skill_button_center()
+		var e := InputEventScreenTouch.new()
+		e.index = 1
+		e.position = bc
+		e.pressed = true
+		ctrl.handle_event(e, t)
+		_touch(AT, true)
+		for i in 30:
+			t += DT
+			_tick()
+		assert_bool(caster.is_charging()).override_failure_message(id + " button charge").is_true()
+		for i in 6:
+			_frame(AT + Vector2(100.0 * (i + 1) / 6.0, 0))
+		assert_bool(caster.is_charging()).override_failure_message(id + ": aim swipe dropped the button charge").is_true()
+		assert_bool(player.is_dashing()).is_false()
+		for i in 5:
+			_frame(AT + Vector2(100.0 + 45.0 * (i + 1), 0))
+		assert_bool(player.is_dashing()).override_failure_message(id + ": hard flick").is_true()
+		assert_bool(caster.is_charging()).is_false()
