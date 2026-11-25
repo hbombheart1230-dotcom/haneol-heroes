@@ -8,6 +8,10 @@ extends SkillDef
 @export var spread_degrees: float = 70.0
 @export var line_width: float = 50.0
 @export var damage: int = 30
+## 별 사이 맞는 띠 그림: 선 판정 폭 그대로 (line_width + 적 몸 둘) 옅게 깔고, 그 위에 가는 별빛 선.
+## 예전엔 가는 선(약 14px)만 그려 맞는 폭(약 78px)이 안 보였다. band_alpha 0이면 띠 없음.
+@export var line_edge_px: float = 20.0
+@export var band_alpha: float = 0.35
 ## 별 하나가 박히는 간격(초, 연출: 별이 차례로 이어진다).
 @export var star_step: float = 0.06
 @export_group("박자 (BeatHits, 별빛)")
@@ -78,6 +82,8 @@ func link(ctx: SkillContext, prev: Vector2, p: Vector2, struck: Dictionary, rake
 				hits += 1
 	ctx.impact(p, p - prev)
 	if ctx.fx:
+		if band_alpha > 0.0:  # FxLayer 붓 획은 넣은 폭의 2.4배로 그려진다 (fx_layer.gd "slash")
+			ctx.fx.add_slash(prev, p, (line_width + line_edge_px * 2.0) / 2.4, 0.5, Color(fx_color, band_alpha))
 		ctx.fx.add_slash(prev, p, 6.0, 0.5, fx_color)
 		ctx.fx.add_ring(p, 18.0, 0.5, Color(1, 1, 1))
 	return hits
