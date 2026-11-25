@@ -44,15 +44,44 @@
     },
     {
       "key": "hit",
-      "src": "Hit Reaction",
+      "src": "Hit_Reaction_to_Waist",
       "frames": 3,
       "fps": 12.0,
       "loop": false,
+      "from": "res://assets/models/meshy/waegun_heavy/animated_extra1.glb",
+      "start": 0.1,
+      "end": 0.6
+    },
+    {
+      "key": "down",
+      "src": "Rightward_Spin",
+      "frames": 8,
+      "fps": 8.0,
+      "loop": false,
+      "from": "res://assets/models/meshy/waegun_heavy/animated_extra1.glb",
+      "start": 0.5,
+      "end": 7.1,
       "times": [
-        0.15,
-        0.35,
-        0.6
+        0.5,
+        0.9,
+        1.4,
+        1.9,
+        5.3,
+        5.9,
+        6.5,
+        7.1
       ]
+    },
+    {
+      "key": "death",
+      "src": "Shot_and_Fall_Backward",
+      "frames": 6,
+      "fps": 10.0,
+      "loop": false,
+      "yaw": 180,
+      "from": "res://assets/models/meshy/waegun_heavy/animated_extra1.glb",
+      "start": 1.3,
+      "end": 2.6
     }
   ]
 }
