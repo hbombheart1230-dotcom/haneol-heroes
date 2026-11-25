@@ -41,7 +41,7 @@ func after_test() -> void:
 static func boss_for(boss_path: String, hero: HeroData, tier: int = 0) -> EnemyData:
 	var d := ResourceLoader.load(boss_path, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as EnemyData
 	var curve := ResourceLoader.load("res://data/difficulty/curve.tres", "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as DifficultyCurve
-	return curve.scaled(BossHpScale.for_hero(d, hero), tier)
+	return curve.scaled(BossHpScale.for_hero(SummonOverride.apply(d), hero), tier)
 
 
 func _run(boss: String, hero: String, s: int, miss: float, tier: int = 0) -> Dictionary:
@@ -72,6 +72,7 @@ func test_sixteen_matchups_last_about_the_same() -> void:
 			var times: Array[float] = []
 			var wins := 0
 			var hurt: Array = []  # 서툰 사람이 받은 피해 (씨앗마다)
+			var mins := 0.0  # 우두머리 옆 평균 부하 수 (피하기 판 평균)
 			for s in SEEDS:
 				var r: Dictionary = await _run(boss, hero, s, 0.0)
 				assert_bool(r["won"]).override_failure_message("%s vs %s seed %d did not win" % [hero, boss, s]).is_true()
@@ -79,6 +80,7 @@ func test_sixteen_matchups_last_about_the_same() -> void:
 				assert_float(r["time"]).override_failure_message("%s vs %s seed %d: %.1fs" % [hero, boss, s, r["time"]]).is_between(SEED_MIN, SEED_MAX)
 				_check_rhythm(r, "%s vs %s seed %d" % [hero, boss, s])
 				times.append(r["time"])
+				mins += float(r.get("minion_sum", 0.0)) / maxf(r["time"], 0.1) / SEEDS.size()
 				if SLOPPY:
 					var sl: Dictionary = await _run(boss, hero, s, 0.3)
 					wins += 1 if sl["won"] else 0
@@ -91,7 +93,7 @@ func test_sixteen_matchups_last_about_the_same() -> void:
 				assert_float(mean).override_failure_message("%s vs %s mean %.1fs" % [hero, boss, mean]).is_between(WIN_MIN, WIN_MAX)
 			sloppy_wins += wins
 			sloppy_runs += SEEDS.size() if SLOPPY else 0
-			rows.append("[boss-balance] %-10s %-14s dodge %4.1f~%4.1fs (mean %4.1f)  sloppy %d/%d, damage %s" % [boss, hero, times.min(), times.max(), mean, wins, SEEDS.size(), str(hurt)])
+			rows.append("[boss-balance] %-10s %-14s dodge %4.1f~%4.1fs (mean %4.1f)  sloppy %d/%d, damage %s, minions %.2f" % [boss, hero, times.min(), times.max(), mean, wins, SEEDS.size(), str(hurt), mins])
 	for line in rows:
 		print(line)
 	if SLOPPY:

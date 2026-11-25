@@ -37,6 +37,13 @@ extends Resource
 ## 부하는 영웅 반대편, 보스 뒤 이 거리(px)·부채꼴 폭(도)에 나온다 (지휘관 뒤 진형, 영웅 바로 옆이 아니라).
 @export var summon_distance: float = 190.0
 @export var summon_spread_deg: float = 100.0
+## 단계 전환 말고도 이 간격(초)마다 부하를 다시 부른다 (지금 단계의 부하, 1단계면 2단계 부하). 0 = 꺼짐.
+## 부르기 전 짧은 외침 동작(phase_anim, summon_cue초)을 보이고 먹 번짐 예고 뒤 나온다. max_minions는 그대로.
+@export var summon_every: float = 0.0
+## 싸움 시작부터 첫 주기 소환까지(초). 음수면 summon_every.
+@export var summon_first: float = -1.0
+## 주기 소환 외침 동작 길이(초). 그동안 우두머리는 새 공격을 시작하지 않는다.
+@export var summon_cue: float = 0.5
 
 @export_group("중간 보스")
 ## 단계가 바뀔 때 강화 고르기를 연다 (중간 보스는 끔: 강화는 물결 끝 숨 고르기에서).

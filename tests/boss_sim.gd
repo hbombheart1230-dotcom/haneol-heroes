@@ -217,6 +217,7 @@ func run(bot: Bot, limit: float = 150.0) -> Dictionary:
 		res["dist"] += player.global_position.distance_to(boss.global_position) * DT
 		var minions := list.filter(func(e: Enemy) -> bool: return not (e.data.aura and e.data.move_speed <= 0.0)).size() - 1  # 깃발은 부하가 아니다
 		res["max_minions"] = maxi(res["max_minions"], minions)
+		res["minion_sum"] = float(res.get("minion_sum", 0.0)) + maxi(minions, 0) * DT  # 평균 부하 수 (주기 소환 비교)
 		res["max_threats"] = maxi(res["max_threats"], EnemyAttack.active_windups)
 	res["time"] = snappedf(_t - t0, 0.1)
 	res["lost"] = player.is_dead()
