@@ -110,6 +110,6 @@ picture_props_per_mpx = 1.5
 background_path = "res://assets/backgrounds/gyeongbokgung_1433.png"
 background_rect = Rect2(-1310, -2248, 2630, 3946)
 prop_inset = 260.0
-walk_area = PackedVector2Array(-870, -1370, 870, -1370, 870, 820, 780, 900, 780, 1370, -870, 1370)
+walk_area = PackedVector2Array(-1000, -1450, 850, -1450, 1000, -1300, 1000, 650, 870, 820, 780, 900, 780, 1370, -870, 1370, -870, 780, -1100, 600, -1100, -1250)
 map_blockers = PackedVector3Array(-732, -1138, 57, -827, -918, 57, -925, -676, 57, -1022, -419, 57, -1125, -147, 57, -1225, 120, 57, 1058, -1113, 57, 1058, -900, 57, 1058, -650, 57, 1058, -378, 57, 1058, -111, 57, 1053, 179, 57, -655, -1477, 77, -1027, 988, 205, 1079, 1091, 257, 745, 1348, 141)
 solid_props = PackedStringArray("drum", "haetae", "palace_gate", "pillar", "pillar_broken", "pine_stone_bed", "stone_lantern")
