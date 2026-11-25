@@ -6,6 +6,8 @@ extends SkillDef
 @export var radius: float = 260.0
 @export var damage: int = 45
 @export var heal: int = 10
+## 매화 고리 그림(vfx_impact) 끝 = 닿는 끝: 반경 + 적 몸 (왜군 병사 몸 20px, SkillContext.edge_of) — 해룡참·반격과 같음.
+@export var ring_edge_px: float = 20.0
 @export_group("박자 (BeatHits, 꽃잎)")
 ## 적마다 타수 (1이면 예전처럼 한 번에), 타 사이(초), 마지막 타 비중, 가장자리 적까지 꽃잎이 닿는 시간(초).
 @export var beats: int = 5
@@ -44,7 +46,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		z.damage = 6
 		z.color = fx_color
 		ctx.add_to_world(z, center)
-	ctx.impact(center, Vector2.ZERO, radius)
+	ctx.impact(center, Vector2.ZERO, radius, radius + ring_edge_px)
 	if ctx.fx:
 		ctx.fx.add_ring(center, radius, 0.5, fx_color)
 		for i in 10:

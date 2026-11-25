@@ -142,6 +142,7 @@ vfx_impact = ExtResource("vs_plum")
 cutin = true
 sfx_layers = Array[StringName]([&"gugak_gaya", &"gugak_kill"])
 cast_anim = &"cast_counter"
+hero_over_fx = true
 cast_lead = 0.15
 
 [sub_resource type="Resource" id="Kit"]
