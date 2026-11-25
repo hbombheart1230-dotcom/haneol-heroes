@@ -207,7 +207,7 @@ func current_anim() -> String:
 		return "death"
 	if player.is_dashing():
 		return DashDirection.anim(player, _sheet)  # 돌진 베기·뒤로 뛰기 (시트에 없으면 dash)
-	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time 			and not (_oneshot_left > 0.0 and _over_hurt):  # 맞는 중에 친 타는 보인다
+	if player.hurt_time_left() > 0.0 and player.hurt_elapsed() < Feedback.feel_data().reaction_data().hero_hit_anim_time 			and not (_oneshot_left > 0.0 and (_over_hurt or _guard_pose())):  # 맞는 중에 친 타·버티며 휘두르는 타는 보인다
 		return "hit"
 	if _oneshot_left > 0.0:
 		return _oneshot
@@ -381,3 +381,9 @@ func _draw() -> void:
 	var tip := hand + player.facing * r * 1.4
 	Ink.stroke(self, hand, tip, 7.0, Ink.INK)
 	draw_line(hand + player.facing * 4.0, tip, Color(0.75, 0.9, 1.0), 2.0)
+
+
+## 휘두르는 동안 버팀이면 맞아도 휘두르는 그림 그대로 (SwingGuardData.keep_pose).
+func _guard_pose() -> bool:
+	var g := player.hero.swing_guard if player and player.hero else null
+	return g != null and g.keep_pose and player.swing_guarded()

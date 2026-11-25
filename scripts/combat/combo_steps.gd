@@ -62,6 +62,11 @@ static func finisher_ready(atk: AutoAttack, after: float) -> bool:
 	return atk == null or (atk._melee_left < 0.0 and atk._since_strike >= after)
 
 
+## 휘두르는 중인지 (SwingGuardData): 칼이 닿기 전 · 4타 동작(busy) · 닿은 뒤 tail초.
+static func swinging(atk: AutoAttack, tail: float) -> bool:
+	return atk != null and (atk._melee_left >= 0.0 or atk.busy_left() > 0.0 or atk._since_strike < tail)
+
+
 ## 대시가 휘두름을 끊는다: 닿기 전 칼·전진을 버린다 (하데스 RushWeapon CanCancelDisables).
 static func cancel_swing(atk: AutoAttack) -> void:
 	if atk:

@@ -30,6 +30,8 @@ extends Resource
 
 @export_group("능력치")
 @export var max_hp: int = 100
+## 휘두르는 동안 버팀 (SwingGuardData: 받는 피해 줄임·맞아도 안 끊김). 비면 없음.
+@export var swing_guard: SwingGuardData
 @export var move_speed: float = 340.0
 ## 멈춤 → 최고 속도까지 걸리는 시간(초)과 최고 속도 → 멈춤 시간. 0이면 즉시 (가벼움 ↔ 무게감).
 @export var move_accel_time: float = 0.0

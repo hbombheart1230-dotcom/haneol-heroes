@@ -32,6 +32,7 @@
 [ext_resource type="Resource" path="res://data/campaigns/gwanggaeto.tres" id="campaign"]
 [ext_resource type="Resource" path="res://data/heroes/dash_look/gwanggaeto.tres" id="dash_look"]
 [ext_resource type="Resource" path="res://data/heroes/dash_dir/gwanggaeto.tres" id="dash_dir"]
+[ext_resource type="Resource" path="res://data/heroes/guard/gwanggaeto.tres" id="swing_guard"]
 
 [sub_resource type="Resource" id="Attack_gw"]
 script = ExtResource("2_attack")
@@ -193,7 +194,8 @@ body_color = Color(0.55, 0.25, 0.15, 1)
 sprite_sheet = ExtResource("8_sheet")
 sprite_scale = 1.06
 sprite_offset = Vector2(0, -67)
-max_hp = 140
+max_hp = 161
+swing_guard = ExtResource("swing_guard")
 move_speed = 265.0
 move_accel_time = 0.12
 move_decel_time = 0.13
