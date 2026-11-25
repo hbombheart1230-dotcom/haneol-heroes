@@ -38,6 +38,10 @@ extends HitBox2D
 @export var flicker: float = 0.0
 ## 물결 몸통의 물마루 겹 수 (해일검기 긁기): 앞선 날 뒤로 날이 줄지어 출렁이며 밀려온다. 0이면 한 장.
 @export var blades: int = 0
+## 0보다 크면 앞 물마루를 판정 크기로 또렷하게 (판정 원 반지름 HIT_R × 크기 + 이 값 = 적 몸, px): 앞 끝·옆 끝이 판정 끝.
+## 원래 큰 물결·뒤따르는 날·잔상은 back_alpha배로 흐리게 남겨 큰 느낌만 (사용자 7ce32eb 결정 (b), 해일검기).
+@export var crest_reach: float = 0.0
+@export var back_alpha: float = 0.4
 ## 겹 사이 간격 (그림 길이 대비).
 @export var blade_gap: float = 0.42
 ## 뒤따르는 날의 길이 배율 (짧아야 날 사이 틈이 보인다).
@@ -49,6 +53,8 @@ extends HitBox2D
 @export var art_sheet_count: int = 0
 
 static var _flow_mat: ShaderMaterial
+## 판정 원 반지름 (scenes/projectile.tscn CircleShape2D, size_scale배).
+const HIT_R := 12.0
 
 var direction: Vector2 = Vector2.RIGHT
 var hits: int = 0
@@ -108,6 +114,11 @@ func _on_action_applied(hurt_box: HurtBox2D) -> void:
 	queue_free()
 
 
+## 앞 물마루 반 높이 = 앞 끝 거리 (이 노드 좌표, size_scale 전): 판정 원 + 적 몸을 크기로 나눈 것.
+func crest_half() -> float:
+	return HIT_R + crest_reach / maxf(size_scale, 0.01)
+
+
 ## 나갈 때 앞으로 쭉 늘었다 자리 잡고, 날아가며 물마루가 출렁인다 (그림 한 장이 그대로 밀려 나가지 않게).
 func _surge_scale() -> Vector2:
 	var sx := 1.0
@@ -128,19 +139,25 @@ func _draw() -> void:
 			var f := VfxSheets.frame_at(art_sheet, art_sheet_grid.x, art_sheet_grid.y, art_sheet_count, art_sheet_fps, _age, true)
 			tex = f if f else tex
 		var rect := Rect2(-art_size.x * 0.6, -art_size.y * 0.5, art_size.x, art_size.y)
+		var back := back_alpha if crest_reach > 0.0 else 1.0  # 앞 물마루를 따로 그리면 큰 물결은 흐리게
 		for g in range(ghosts, 0, -1):  # 잔상: 뒤로 갈수록 옅고 가늘게
 			var f := 1.0 - float(g) / float(ghosts + 1)
 			draw_set_transform(Vector2(-ghost_gap * g, 0.0), 0.0, Vector2(1.0, lerpf(0.6, 1.0, f)))
-			var gc := Color(0.85, flicker, 0.0, lerpf(0.2, 0.75, f)) if flicker > 0.0 else Color(0.75, 0.9, 1.0, 0.45 * f * f)
+			var gc := Color(0.85, flicker, 0.0, lerpf(0.2, 0.75, f) * back) if flicker > 0.0 else Color(0.75, 0.9, 1.0, 0.45 * f * f * back)
 			draw_texture_rect(tex, rect, false, gc)
 		for b in range(blades, 0, -1):  # 뒤따르는 날: 저마다 다른 박자로 출렁이며 위아래로 엇갈린다
 			var ph := sin(_age * 19.0 + b * 1.9)
 			draw_set_transform(Vector2(-art_size.x * blade_gap * b, art_size.y * 0.14 * (1.0 if b % 2 else -1.0) * ph),
 				0.0, Vector2(blade_len * (1.0 + 0.1 * ph), lerpf(0.95, 0.7, float(b) / float(blades + 1))))
-			draw_texture_rect(tex, rect, false, Color(1.0, flicker, 0.0, lerpf(0.9, 0.55, float(b) / float(blades + 1)))
-				if flicker > 0.0 else Color(1, 1, 1, 0.7))
+			draw_texture_rect(tex, rect, false, Color(1.0, flicker, 0.0, lerpf(0.9, 0.55, float(b) / float(blades + 1)) * back)
+				if flicker > 0.0 else Color(1, 1, 1, 0.7 * back))
 		draw_set_transform(Vector2.ZERO, 0.0, _surge_scale())
-		draw_texture_rect(tex, rect, false, Color(1.0, flicker, 0.0, 1.0) if flicker > 0.0 else Color.WHITE)
+		draw_texture_rect(tex, rect, false, Color(1.0, flicker, 0.0, back) if flicker > 0.0 else Color(1, 1, 1, back))
+		if crest_reach > 0.0:  # 앞 물마루: 앞 끝·옆 끝 = 판정 원 + 적 몸 (그림 비율 그대로, 앞 끝에 맞춤)
+			var hh := crest_half()
+			var cw := hh * 2.0 * art_size.x / maxf(art_size.y, 1.0)
+			draw_texture_rect(tex, Rect2(hh - cw, -hh, cw, hh * 2.0), false,
+				Color(1.0, flicker, 0.0, 1.0) if flicker > 0.0 else Color.WHITE)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		return
 	if glyph != "":
