@@ -4,6 +4,8 @@ extends SkillDef
 
 @export var delay: float = 0.25
 @export var radius: float = 130.0
+## 그림(vfx_impact) 끝 = 닿는 끝: 반경 + 적 몸 (왜군 병사 몸 20px, SkillContext.edge_of) — 해룡참·반격과 같음.
+@export var ring_edge_px: float = 20.0
 @export var damage: int = 40
 @export var stun_time: float = 0.3
 ## 떨어지는 유성 그림, 크기(px), 떨어지기 시작하는 자리(목표 기준), 그림이 원래 날아가는 방향(도).
@@ -48,7 +50,7 @@ func strike(ctx: SkillContext, at: Vector2, dmg: int, r: float) -> int:
 			if ctx.hit(en, dmg):
 				en.stun(stun_time)
 				n += 1
-	ctx.impact(at, Vector2.ZERO, r)
+	ctx.impact(at, Vector2.ZERO, r, r + ring_edge_px)
 	if ctx.fx:
 		if fall_art == null:
 			ctx.fx.add_slash(at + Vector2(-120, -420), at, 12.0, 0.25, fx_color)
