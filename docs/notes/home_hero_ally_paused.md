@@ -19,3 +19,27 @@
   - D: 기술 한 번, 4초
   - C: 기술 두 번 × 0.3
 - 조용한 기계에서 #224 도구로 끊김 전/후를 재고, 전/후 GIF를 찍고, PR을 올린다 (draft 아님).
+
+## 2026-11-26 재개분 → 다시 보관 (사용자 "나머진 다 홀딩", 베타 0.4.1 전체 시험 끝까지)
+
+브랜치 feat/ally-fight (base int/next-l 611a0f97 + feat/home-hero-ally 합침, 단추 자리는 #239 오른쪽 아래).
+
+한 것:
+- 느낌 선택지를 데이터로: `ally_focus` (boss | guard: 고른 영웅 곁 `ally_guard_radius` 안 적, `ally_leash` 넘으면 곁으로),
+  `ally_exit` (ink | dash: `ally_exit_time`·`ally_exit_px`로 미끄러지며 흐려짐), `ally_hit_scale` (평타·기술 묶음 피해 배율, `AllyHero.scaled_hero`).
+- 시안 묶음 `tests/ally_presets.gd` (A 7초·우두머리·먹 / B 10초·곁 지키기·내달려 / C 4초·우두머리·먹), 환경 변수로 배율 덮어쓰기.
+  시뮬(`tests/test_ally_summon_sim.gd`, HH_ALLY_PRESET·HH_SKIP_BASE)·GIF(`tools/shots/home_summon_gif.gd`)가 같은 시안을 쓴다.
+- 시험: test_ally_hero 2/2, test_home_summon 12/12.
+
+균형 측정 (HH_SLOW 3시드 + 서툰 봇, 소환물 켬, 안 부름 기준 40.2~48.1초):
+- A 평타 1.0·기술 0.5: 36.2~41.3초 (너무 셈).
+- A 평타 0.35·기술 0.2: 39.7~45.0초, 서툰 봇 3/3 전부 → 합격 후보.
+- B 평타 0.3·기술 0.2: 37.9~47.4초 (평균 약 43.5), 서툰 봇 3/3 전부 → 합격 후보.
+- C 평타 0.5·기술 0.3: 36.7~41.7초 (6조합, 셈). 평타 0.4·기술 0.25 재측정은 홀딩으로 못 돌림.
+
+남은 것 (풀리면):
+1. C 재측정 → 시안별 배율 확정, 기본값(home_summon.tres) 적기 (지금 코드 기본값은 ally_hit_scale 1.0, 시안 배율은 tests/ally_presets.gd에만).
+2. A/B/C 매끄러운 GIF 다시 찍기 (build/ally2/f_* 는 기계가 바쁠 때라 ~3fps) → 사용자에게 보여 고르게.
+3. 그리기 호출: `tools/perf/mid_boss_perf.gd -- <stage> <hero> <secs> --ally` 와 없이 비교 (예전 +16~32%), 늘면 InkBatch로 줄이기. 조용한 기계에서.
+4. 영웅 대사 SUMMON 뜨는지 확인 (거친 프레임에선 보였음).
+5. 베타에 넣지 않는다. 통합에 넘기지 말고 메인 세션에 보고.

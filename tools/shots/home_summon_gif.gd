@@ -58,6 +58,8 @@ func _run() -> void:
 		push_error("no summon on %s for %s" % [args[1], args[0]])
 		quit(1)
 		return
+	AllyPresets.apply(button.data, OS.get_environment("HH_ALLY_PRESET"))
+	print("[summon-gif] ally %s" % AllyPresets.describe(button.data))
 	player.global_position = Vector2(0, 200)
 	player.facing = Vector2.UP
 	var boss := spawner.spawn_boss()

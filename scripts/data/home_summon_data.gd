@@ -27,6 +27,8 @@ const PATH := "res://data/summon/home_summon.tres"
 @export var ally_skill_times: PackedFloat32Array = PackedFloat32Array([0.0, 3.5])
 ## 부르기 기술 한 번의 피해 배율 (entries.damage_scale × 이 값: 두 번 쓰므로 예전 한 방보다 작게).
 @export var ally_skill_scale: float = 0.5
+## 불려 온 영웅 자신의 평타·탭 연타 피해 배율 (그 영웅 기본 수치 × 이 값, 강화 없음). 균형은 이 값과 ally_time으로 맞춘다.
+@export var ally_hit_scale: float = 1.0
 ## 적에게 이 거리(평타 사거리 × 배율) 안이면 서서 탭, 밖이면 걸어간다. 탭 간격(초).
 @export var ally_reach_mult: float = 0.8
 @export var ally_tap_gap: float = 0.12
@@ -34,6 +36,15 @@ const PATH := "res://data/summon/home_summon.tres"
 @export var ally_name_lift: float = 150.0
 @export var ally_name_px: int = 22
 @export var ally_ink_style: StringName = &"smoke"
+## 붙는 대상: &"boss" = 우두머리 > 중간 우두머리 > 가장 가까운 적 (HomeSummonCast.target),
+## &"guard" = 고른 영웅 둘레 ally_guard_radius 안의 가장 가까운 적 먼저 (없으면 &"boss"처럼), 고른 영웅에서 ally_leash px 넘게 떨어지면 돌아온다.
+@export var ally_focus: StringName = &"boss"
+@export var ally_guard_radius: float = 260.0
+@export var ally_leash: float = 360.0
+## 물러감: &"ink" = 그 자리에서 먹 번짐, &"dash" = ally_exit_time초 동안 고른 영웅 반대쪽으로 ally_exit_px 내달리며 흐려진 뒤 먹 번짐.
+@export var ally_exit: StringName = &"ink"
+@export var ally_exit_time: float = 0.35
+@export var ally_exit_px: float = 260.0
 @export_group("단추")
 ## 단추 자리 (사용자 2026-11-26 정정 "오른쪽 아래, 기술 단추 아래에 맞춰서"): 가운데 = 화면 오른쪽 아래 끝 - button_from_corner.
 ## 기술 표시 줄 (SkillButtonDrawer._draw_status: 가운데 y = 아래 끝 - 74, 반지름 32, 오른쪽 끝에서 60·144·228, 간격 84)에 맞춤:

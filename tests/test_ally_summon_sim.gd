@@ -58,6 +58,9 @@ func _run(boss: String, hero: String, s: int, miss: float, summon: bool) -> Dict
 
 func test_ally_summon_effect() -> void:
 	var rows: Array[String] = []
+	AllyPresets.apply(HomeSummonData.get_default(), OS.get_environment("HH_ALLY_PRESET"))  # 느낌 안·배율 바꿔 재기
+	print("[ally-sim] ally %s" % AllyPresets.describe(HomeSummonData.get_default()))
+	var skip_base := OS.get_environment("HH_SKIP_BASE") == "1"  # 안 부름 쪽은 이미 쟀으면 건너뜀 (시간 절반)
 	for hero: String in HEROES:
 		if ONLY != "" and hero != ONLY:
 			continue
@@ -70,6 +73,8 @@ func test_ally_summon_effect() -> void:
 			var calls := 0
 			for s in SEEDS:
 				for k in 2:
+					if skip_base and k == 0:
+						continue
 					var r: Dictionary = await _run(boss, hero, s, 0.0, k == 1)
 					t[k] += float(r["time"]) if r["won"] else 200.0
 					if k == 1:

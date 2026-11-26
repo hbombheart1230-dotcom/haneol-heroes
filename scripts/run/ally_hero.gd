@@ -22,6 +22,9 @@ var _tap_t: float = 0.0
 var _skills_done: int = 0
 var _runs: Array[SkillRun] = []
 var _leaving := false
+var _me: Player
+var _exit_t := -1.0
+var _exit_dir := Vector2.ZERO
 ## 시뮬레이션(tests/ally_boss_sim.gd): 부품의 물리 틱을 끄고 step()으로 손으로 굴린다 (BossSim과 같은 판 시각).
 var manual := false
 
@@ -52,6 +55,7 @@ static func spawn_into(world: Node, me: Player, p_rules: HomeSummonRules, p_manu
 
 
 func _build(main: Node, me: Player) -> void:
+	_me = me
 	var my_atk := me.get_node_or_null("AutoAttack") as AutoAttack
 	var my_caster := me.get_node_or_null("SkillCaster") as SkillCaster
 	body = BODY_SCRIPT.new()
@@ -87,11 +91,42 @@ func _build(main: Node, me: Player) -> void:
 	if my_caster:
 		caster.enemy_source = my_caster.enemy_source
 	body.add_child(caster)
-	body.hero = hero  # 능력치·기술 묶음·그림 (Player가 AutoAttack·SkillCaster에 나눠 준다)
+	body.hero = scaled_hero(hero, data.ally_hit_scale)  # 능력치·기술 묶음·그림 (Player가 AutoAttack·SkillCaster에 나눠 준다)
 	body.global_position = me.global_position + data.ally_offset
 	main.add_child(body)
 	body.grant_invulnerability(data.ally_time + 1.0)
 	_ink(body.global_position)
+
+
+## 평타·기술 묶음의 피해만 mult배 한 사본 (그림·움직임·이름은 그대로). 1이면 원본.
+static func scaled_hero(h: HeroData, mult: float) -> HeroData:
+	if h == null or is_equal_approx(mult, 1.0):
+		return h
+	var c := h.duplicate() as HeroData
+	if h.attack:
+		c.attack = _scaled(h.attack, mult)
+	if h.kit:
+		c.kit = h.kit.duplicate() as SkillKit
+		for slot: StringName in [&"tap", &"dash", &"charge", &"counter"]:
+			var d := c.kit.get(slot) as SkillDef
+			if d:
+				c.kit.set(slot, TapCombo.scaled_def(d, mult))
+	return c
+
+
+## 이름에 damage가 든 수치(배율·비율 제외)만 mult배 (TapCombo.scaled_def와 같은 규칙).
+static func _scaled(r: Resource, mult: float) -> Resource:
+	var c := r.duplicate()
+	for p in c.get_property_list():
+		var n := String(p["name"])
+		if not n.contains("damage") or n.contains("mult") or n.contains("ratio"):
+			continue
+		var v: Variant = c.get(n)
+		if typeof(v) == TYPE_INT:
+			c.set(n, maxi(roundi(v * mult), 1))
+		elif typeof(v) == TYPE_FLOAT:
+			c.set(n, v * mult)
+	return c
 
 
 ## 머리 위 이름 띠 위치 (월드).
@@ -124,6 +159,9 @@ func _brain(delta: float) -> void:
 	for r in _runs.duplicate():
 		if r.tick(delta):
 			_runs.erase(r)
+	if _exit_t >= 0.0:
+		_exiting(delta)
+		return
 	_age += delta
 	_left -= delta
 	if _left <= 0.0:
@@ -136,7 +174,10 @@ func _brain(delta: float) -> void:
 
 ## 가장 가까운 적에 붙어 연타. 사거리 안이면 서서 탭, 밖이면 걸어간다.
 func _fight(delta: float) -> void:
-	var foe := HomeSummonCast.target(caster._context())
+	var foe := _foe()
+	if data.ally_focus == &"guard" and is_instance_valid(_me) 			and body.global_position.distance_to(_me.global_position) > data.ally_leash:
+		body.set_move_input((_me.global_position - body.global_position).normalized())  # 너무 멀다: 곁으로
+		return
 	if foe == null:
 		body.set_move_input(Vector2.ZERO)
 		return
@@ -154,6 +195,24 @@ func _fight(delta: float) -> void:
 		caster.combo_tap()
 
 
+## 붙을 적 (data.ally_focus).
+func _foe() -> Enemy:
+	if data.ally_focus == &"guard" and is_instance_valid(_me):
+		var best: Enemy = null
+		var best_d := data.ally_guard_radius
+		for e in caster._context().enemies():
+			var en := e as Enemy
+			if en == null or not is_instance_valid(en) or en.health == null or en.health.is_dead():
+				continue
+			var d := _me.global_position.distance_to(en.global_position)
+			if d < best_d:
+				best = en
+				best_d = d
+		if best:
+			return best
+	return HomeSummonCast.target(caster._context())
+
+
 ## 부르기 기술: ally_skill_times초마다 한 번씩 (등장 때 0초 = 지금까지의 한 방).
 func _skills(_delta: float) -> void:
 	if _skills_done >= data.ally_skill_times.size() or _age < data.ally_skill_times[_skills_done]:
@@ -167,8 +226,35 @@ func _skills(_delta: float) -> void:
 
 
 func _leave() -> void:
-	if _leaving:
+	if _leaving or _exit_t >= 0.0:
 		return
+	if data.ally_exit == &"dash" and not manual and is_instance_valid(body) and is_instance_valid(_me):
+		_exit_t = 0.0  # 내달려 물러감 (시뮬레이션은 바로 사라짐: 피해 없음)
+		var away := body.global_position - _me.global_position
+		_exit_dir = away.normalized() if away.length() > 1.0 else Vector2.LEFT
+		body.set_move_input(Vector2.ZERO)
+		return
+	_leaving = true
+	if is_instance_valid(body):
+		_ink(body.global_position)
+		body.queue_free()
+	queue_free()
+
+
+## 내달려 물러가는 중: 공격 없이 미끄러지며 흐려진다.
+func _exiting(delta: float) -> void:
+	_exit_t += delta
+	var k := clampf(_exit_t / maxf(data.ally_exit_time, 0.01), 0.0, 1.0)
+	body.global_position += _exit_dir * data.ally_exit_px * delta / maxf(data.ally_exit_time, 0.01)
+	body.modulate.a = 1.0 - k
+	if k >= 1.0:
+		_exit_t = -1.0
+		_leaving = false
+		_left = 0.0
+		_ink_then_free()
+
+
+func _ink_then_free() -> void:
 	_leaving = true
 	if is_instance_valid(body):
 		_ink(body.global_position)
