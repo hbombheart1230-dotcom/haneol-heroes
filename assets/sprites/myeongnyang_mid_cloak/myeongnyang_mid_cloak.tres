@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SpriteSheetSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/art/sprite_sheet_set.gd" id="1_set"]
+[ext_resource type="Texture2D" path="res://assets/sprites/myeongnyang_mid_cloak/idle.png" id="t0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/myeongnyang_mid_cloak/run.png" id="t1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/myeongnyang_mid_cloak/attack.png" id="t2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/myeongnyang_mid_cloak/hit.png" id="t3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/myeongnyang_mid_cloak/down.png" id="t4"]
+
+[resource]
+script = ExtResource("1_set")
+frame_size = 160
+directions = 8
+anim_names = PackedStringArray("idle", "run", "attack", "hit", "down")
+textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3"), ExtResource("t4")])
+frame_counts = PackedInt32Array(4, 8, 6, 3, 8)
+fps = PackedFloat32Array(6.0, 12.7, 10.0, 12.0, 10.0)
+loops = Array[bool]([true, true, false, false, false])
+strike_frames = PackedInt32Array(-1, -1, 3, -1, -1)
+tips = Array[PackedVector2Array]([PackedVector2Array(), PackedVector2Array(), PackedVector2Array(32.0, 22.7, 37.9, -22.9, 36.6, -17.9, 28.8, 15.4, 28.9, 1.8, 36.5, 17.6, -7.1, 28.1, 48.2, -4.1, 26.4, -11.3, -7.7, 20.5, 17.7, 12.8, 26.8, 37.8, -39.4, 36.4, 39.0, 26.9, 36.5, 6.9, -39.5, 0.2, -2.7, 38.2, -18.4, 17.1, -46.9, -5.7, -15.5, 41.6, -15.2, 43.0, -35.3, -20.0, -26.7, 13.6, -16.7, 1.2, -31.0, -23.7, -29.9, 23.0, -37.6, 25.1, -27.8, -31.2, -37.9, -1.4, 14.5, -4.1, -13.6, -41.3, -47.3, 4.6, -42.8, 8.8, 24.0, -26.7, -33.2, -21.6, -19.0, -19.8, 39.4, -12.5, -39.0, -20.9, -36.5, 1.3, 39.5, -6.0, 2.7, -38.8, 18.4, -3.7, 39.2, 9.2, 10.3, -38.5, 11.8, -33.8, 23.3, 11.3, 31.9, -16.3, 35.6, 1.1), PackedVector2Array(), PackedVector2Array()])
