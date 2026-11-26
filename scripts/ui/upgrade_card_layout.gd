@@ -44,9 +44,9 @@ static func rows(c: UpgradeCards, u: UpgradeDef, r: Rect2) -> Array[Dictionary]:
 			add.call(Role.DESC, line, UiStyle.BODY_FONT, c.desc_px, UiStyle.PAPER, c.row_gap)
 	for v in vals:  # 값 이름은 작게, "지금 → 뒤"는 크게 금색
 		add.call(Role.LABEL, v["label"], UiStyle.BODY_FONT, c.value_label_px, UiStyle.PAPER, c.row_gap)
-		var both := "%s → %s" % [v["from"], v["to"]]
+		var both: String = v["text"] if v.has("text") else "%s → %s" % [v["from"], v["to"]]  # 판정 크기는 비율 한 줄
 		var room := w - c.side_pad * 2.0
-		if UiStyle.BODY_FONT.get_string_size(both, HORIZONTAL_ALIGNMENT_LEFT, -1, c.value_px).x <= room:
+		if v.has("text") or UiStyle.BODY_FONT.get_string_size(both, HORIZONTAL_ALIGNMENT_LEFT, -1, c.value_px).x <= room:
 			add.call(Role.VALUE, both, UiStyle.BODY_FONT, c.value_px, UiStyle.GOLD, c.value_gap)
 		else:  # 넓은 숫자: 글씨를 줄이지 않고 두 줄로
 			add.call(Role.VALUE, String(v["from"]), UiStyle.BODY_FONT, c.value_px, UiStyle.GOLD, c.row_gap)

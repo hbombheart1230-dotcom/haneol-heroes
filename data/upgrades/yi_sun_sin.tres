@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/run/stat_mod.gd" id="3_mod"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/haeryong_wide.png" id="icon_haeryong_wide"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/haeryong_deep.png" id="icon_haeryong_deep"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/haeryong_quick.png" id="icon_haeryong_quick"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/haeryong_finish.png" id="icon_haeryong_finish"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/pado_more.png" id="icon_pado_more"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/pado_long.png" id="icon_pado_long"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/yi_sun_sin/haeil_big.png" id="icon_haeil_big"]
@@ -53,23 +53,23 @@ max_stacks = 3
 weight = 1.0
 mods = Array[ExtResource("3_mod")]([SubResource("Mod_haeryong_deep_0")])
 
-[sub_resource type="Resource" id="Mod_haeryong_quick_0"]
+[sub_resource type="Resource" id="Mod_haeryong_finish_0"]
 script = ExtResource("3_mod")
-target = &"tap"
-property = &"cooldown"
+target = &"kit"
+property = &"combo_finisher_mult"
 op = 1
-value = 0.8
+value = 1.1
 
-[sub_resource type="Resource" id="Up_haeryong_quick"]
+[sub_resource type="Resource" id="Up_haeryong_finish"]
 script = ExtResource("2_up")
-id = &"haeryong_quick"
-title = "해룡참 · 빠른 손"
-description = "재사용 대기 -20% (연타 마무리 포함)"
-icon = ExtResource("icon_haeryong_quick")
+id = &"haeryong_finish"
+title = "해룡참 · 마무리 베기"
+description = "4타 마무리 피해 +10%"
+icon = ExtResource("icon_haeryong_finish")
 color = Color(0.2, 0.5, 0.9, 1)
 max_stacks = 3
 weight = 1.0
-mods = Array[ExtResource("3_mod")]([SubResource("Mod_haeryong_quick_0")])
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_haeryong_finish_0")])
 
 [sub_resource type="Resource" id="Mod_pado_more_0"]
 script = ExtResource("3_mod")
@@ -283,4 +283,4 @@ mods = Array[ExtResource("3_mod")]([SubResource("Mod_swift_0")])
 
 [resource]
 script = ExtResource("1_pool")
-upgrades = Array[ExtResource("2_up")]([SubResource("Up_haeryong_wide"), SubResource("Up_haeryong_deep"), SubResource("Up_haeryong_quick"), SubResource("Up_pado_more"), SubResource("Up_pado_long"), SubResource("Up_haeil_big"), SubResource("Up_haeil_fast"), SubResource("Up_counter_power"), SubResource("Up_counter_window"), SubResource("Up_dash_breath"), SubResource("Up_vitality"), SubResource("Up_blade"), SubResource("Up_swift")])
+upgrades = Array[ExtResource("2_up")]([SubResource("Up_haeryong_wide"), SubResource("Up_haeryong_deep"), SubResource("Up_haeryong_finish"), SubResource("Up_pado_more"), SubResource("Up_pado_long"), SubResource("Up_haeil_big"), SubResource("Up_haeil_fast"), SubResource("Up_counter_power"), SubResource("Up_counter_window"), SubResource("Up_dash_breath"), SubResource("Up_vitality"), SubResource("Up_blade"), SubResource("Up_swift")])

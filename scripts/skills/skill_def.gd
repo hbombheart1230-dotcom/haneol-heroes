@@ -70,6 +70,17 @@ extends Resource
 ## 발동. charge는 0~1 (충전 기술에만 의미).
 ## 반환: 진행 상태. 즉시 끝나는 기술은 SkillRun.instant(hits).
 ## 조준 보정된 방향 (aim_assist_deg 0이면 바라보는 방향).
+## 강화로 바뀐 값이 실제로 쓰일 때의 값 (기술마다 상한이 있으면 덮어쓴다, 예: 풀벌레 수명 ≤ 마무리 간격).
+## 패 글과 헛된 패 거르기(UpgradeEffect)가 읽는다. 기본은 그대로.
+func effective(_prop: StringName, v: Variant, _kit: SkillKit) -> Variant:
+	return v
+
+
+## effective가 상한을 거는 속성들 (다른 값이 바뀌어 이 값이 줄거나 늘면 패 글에 따로 보인다).
+func capped_props() -> Array[StringName]:
+	return []
+
+
 func aim(ctx: SkillContext) -> Vector2:
 	if charge_aim and (ctx.aim_steered or not charge_aim_auto):  # 잡은 방향 그대로 (보정 없음)
 		return ctx.aim_dir.normalized() if ctx.aim_dir.length_squared() > 0.0001 else ctx.player.facing

@@ -73,7 +73,7 @@ func _on_breather(_slow: bool) -> void:
 		picks.append("*" + String(m.id))
 	for g in gains:
 		var pool := build.hero.upgrade_pool
-		var choices: Array[UpgradeDef] = pool.roll(rng, progress.stacks, count) if pool else []
+		var choices: Array[UpgradeDef] = pool.roll(rng, progress.stacks, count, func(x: UpgradeDef) -> bool: return UpgradeEffect.useful(build, x)) if pool else []  # main과 같게
 		if choices.is_empty():
 			break
 		var u: UpgradeDef = choices[0]

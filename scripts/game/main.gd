@@ -342,7 +342,7 @@ func _offer_next() -> void:
 		var pool := build.hero.upgrade_pool
 		var choices: Array[UpgradeDef] = []  # 빈 배열 리터럴은 타입이 없어 삼항식에 쓰면 오류
 		if pool:
-			choices = pool.roll(rng, progress.stacks, count)
+			choices = pool.roll(rng, progress.stacks, count, func(u: UpgradeDef) -> bool: return UpgradeEffect.useful(build, u))  # 상한에 닿은 헛된 패는 빼고
 		if not choices.is_empty():
 			seal_choice.open(choices, player.global_position, false, progress.stacks, pick_gain(false))
 			return

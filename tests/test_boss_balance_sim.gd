@@ -56,6 +56,9 @@ func _run(boss: String, hero: String, s: int, miss: float, tier: int = 0) -> Dic
 		var t := h.kit.tap
 		print("[tap-grown] %s seed %d: %s" % [hero, s, str({"damage": t.get("damage"), "count": t.get("count"),
 			"extra": t.get("extra_butterflies"), "lifetime": t.get("lifetime"), "cd": t.cooldown, "lv": t.vfx_level})])
+	if OS.get_environment("HH_FORCE_UP") != "":  # 보고용: 성장한 영웅에 패 하나를 n장 더 (예: haeryong_finish:3)
+		h = _force_up(h, OS.get_environment("HH_FORCE_UP"))
+		sim.hero_override = h
 	if OS.get_environment("HH_ZERO_TAP") == "1" and "damage" in h.kit.tap:  # 보고용: 1번 피해 0 (몫 재기)
 		h = h.duplicate_deep(Resource.DEEP_DUPLICATE_INTERNAL) as HeroData
 		h.kit.tap.set("damage", 0)
@@ -66,6 +69,19 @@ func _run(boss: String, hero: String, s: int, miss: float, tier: int = 0) -> Dic
 	var r := sim.run(BossSim.Bot.DODGE, 200.0)
 	sim.free_all()
 	return r
+
+
+## HH_FORCE_UP="<패 id>:<장 수>": 성장한 영웅 사본에 그 패를 더 적용한 사본 (패 하나의 몫 재기).
+static func _force_up(h: HeroData, spec: String) -> HeroData:
+	var parts := spec.split(":")
+	var c := h.duplicate_deep(Resource.DEEP_DUPLICATE_INTERNAL) as HeroData
+	var b := RunBuild.new()
+	b.hero = c
+	for u in c.upgrade_pool.upgrades:
+		if u.id == StringName(parts[0]):
+			for i in int(parts[1]) if parts.size() > 1 else 1:
+				b.apply(u)
+	return c
 
 
 func test_sixteen_matchups_last_about_the_same() -> void:

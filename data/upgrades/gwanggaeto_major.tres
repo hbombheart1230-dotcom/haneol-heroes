@@ -21,7 +21,7 @@ vfx_level_gain = 3
 id = &"major_aftershock"
 title = "뇌진격 · 여진"
 description = "0.5초 뒤 같은 자리에
-두 번째 충격파"
+두 번째 충격파 (피해 70%)"
 icon = ExtResource("icon_major_aftershock")
 color = Color(0.85, 0.7, 0.2, 1)
 max_stacks = 1
@@ -40,7 +40,7 @@ script = ExtResource("2_up")
 vfx_level_gain = 3
 id = &"major_field"
 title = "벽력돌파 · 감전 지대"
-description = "내리친 길에 2.5초
+description = "내리친 길 가운데에 2.5초
 감전 지대"
 icon = ExtResource("icon_major_field")
 color = Color(0.55, 0.45, 0.9, 1)

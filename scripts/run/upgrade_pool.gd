@@ -6,10 +6,11 @@ extends Resource
 
 
 ## 아직 최대로 고르지 않은 것 중 가중치로 count개를 겹치지 않게 뽑는다.
-func roll(rng: RandomNumberGenerator, stacks: Dictionary, count: int) -> Array[UpgradeDef]:
+## useful(u) -> bool을 주면 false인 패(상한에 닿아 헛된 패, UpgradeEffect.useful)는 뺀다.
+func roll(rng: RandomNumberGenerator, stacks: Dictionary, count: int, useful: Callable = Callable()) -> Array[UpgradeDef]:
 	var pool: Array[UpgradeDef] = []
 	for u in upgrades:
-		if u and u.weight > 0.0 and int(stacks.get(u.id, 0)) < u.max_stacks:
+		if u and u.weight > 0.0 and int(stacks.get(u.id, 0)) < u.max_stacks 				and (not useful.is_valid() or useful.call(u)):
 			pool.append(u)
 	var picked: Array[UpgradeDef] = []
 	while picked.size() < count and not pool.is_empty():

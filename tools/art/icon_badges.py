@@ -23,6 +23,7 @@ COLORS = {
     "speed": ((20, 100, 110), (210, 255, 250)),
     "charge": ((120, 90, 10), (255, 244, 160)),
     "major": ((120, 80, 0), (255, 232, 120)),
+    "finisher": ((150, 30, 24), (255, 226, 190)),
 }
 GOLD = (232, 190, 96)
 
@@ -137,6 +138,15 @@ def _sym_charge(d, c, s, ox, oy):  # 번개
 
 def _sym_major(d, c, s, ox, oy):  # 큰 별
     _star(d, c, s, ox, oy + 0.04 * s, 0.68)
+
+
+def _sym_finisher(d, c, s, ox, oy):  # 4타 마무리: 엇갈린 두 칼 (피해 표지와 같은 붉은 바탕, 다른 기호)
+    for ang in (-0.62, 0.62):
+        ca, sa = math.cos(ang), math.sin(ang)
+        rot = lambda x, y: (x * ca - y * sa, x * sa + y * ca)
+        _poly(d, [rot(0, -0.8), rot(0.11, -0.6), rot(0.11, 0.3), rot(-0.11, 0.3), rot(-0.11, -0.6)], c, s, ox, oy)
+        _poly(d, [rot(-0.3, 0.3), rot(0.3, 0.3), rot(0.3, 0.42), rot(-0.3, 0.42)], c, s, ox, oy)
+        _poly(d, [rot(-0.07, 0.42), rot(0.07, 0.42), rot(0.07, 0.72), rot(-0.07, 0.72)], c, s, ox, oy)
 
 
 SYMBOLS = {name[5:]: fn for name, fn in list(globals().items()) if name.startswith("_sym_")}
