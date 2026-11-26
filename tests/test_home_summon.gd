@@ -184,15 +184,30 @@ func test_button_hidden_on_own_stage_and_during_tutorial_or_pick() -> void:
 	assert_bool(b.shown()).is_false()
 
 
-## 영웅 묶음 아래, 물결 점(x 200~)보다 왼쪽, 연타 글씨(ComboTextData.anchor, 글 높이 약 70px)보다 아래. 긴 화면에서도.
-func test_button_sits_below_the_badge_and_the_combo_text() -> void:
+## 오른쪽 아래 기술 표시 줄에 맞춤 (사용자 2026-11-26 정정): 기술 원(SkillButtonDrawer._draw_status, 가운데 아래 끝 - 74, 반지름 32,
+## 오른쪽 끝에서 60 + 84k)과 이름·안내 글에 겹치지 않고, 테 아래 끝이 기술 원 아래 끝과 같은 줄, 화면 아래 가장자리에서 40px 넘게 떨어짐,
+## 켜는 큰 기술 단추(TouchController, 누름 반지름 × 1.3)와도 안 겹침. 세로 9:16·S20 9:20·폴드 7 펼침 화면 모두.
+func test_button_sits_in_line_with_the_skill_row() -> void:
 	var d := HomeSummonData.get_default()
-	var combo := load("res://data/ui/combo_text.tres") as ComboTextData
-	for vp in [Vector2(720, 1280), Vector2(720, 1600), Vector2(720, 1440)]:
+	var tc := TouchController.new()
+	for vp in [Vector2(720, 1280), Vector2(720, 1600), Vector2(1151, 1280)]:
 		var c := d.button_center(vp)
-		assert_float(c.y - d.button_radius - 7.0).is_greater(HeroBadge.BOTTOM)
-		assert_float(c.y - d.button_radius - 7.0).is_greater(vp.y * combo.anchor.y + 10.0)
-		assert_float(c.x + d.button_radius + 7.0).is_less(150.0)
+		var outer := d.button_radius + HomeSummonData.RIM
+		assert_float(c.y + outer).is_equal_approx(vp.y - 74.0 + 32.0, 1.0)  # 테 아래 끝 = 기술 원 아래 끝
+		assert_float(vp.y - (c.y + d.button_radius + 12.0)).is_greater(18.0)  # 누름 영역도 가장자리에서 떨어짐
+		assert_float(vp.y - (c.y + outer)).is_greater(40.0)
+		var leftmost := Vector2(vp.x - 60.0 - 2 * 84.0, vp.y - 74.0)
+		assert_float(leftmost.x - 40.0 - (c.x + outer)).is_greater_equal(0.0)  # 기술 원·이름 글(폭 80)보다 왼쪽
+		assert_float(c.x).is_greater(vp.x * 0.5)  # 가운데가 오른쪽 반
+		var big: Vector2 = vp - tc.skill_button_offset
+		assert_float(c.distance_to(big)).is_greater(tc.skill_button_radius * tc.skill_button_hit_scale + d.button_radius + 12.0)
+		var under := d.button_center(vp, true)  # 큰 기술 단추를 켰을 때: 그 바로 아래, 같은 아래 끝 줄
+		assert_float(under.x).is_equal_approx(big.x, 1.0)
+		assert_float(under.y).is_equal_approx(c.y, 0.1)
+		assert_float(under.y - outer).is_greater(big.y + tc.skill_button_radius)  # 큰 단추 그림과 안 겹침
+		assert_float(under.distance_to(big)).is_greater(tc.skill_button_radius * tc.skill_button_hit_scale + d.button_radius + 12.0)
+		assert_float(under.x + outer).is_less(vp.x - 8.0)
+	tc.free()
 
 
 ## 잘못 눌림 (독립 검토 ①): 단추에서 시작해 움직이면 영웅 움직이기로 넘기고 부르지 않는다. 꾹 눌렀다 떼도 부르지 않는다.
