@@ -31,3 +31,20 @@ func test_zero_length_stroke_is_skipped_like_ink_stroke() -> void:
 	var b := InkBatch.new()
 	b.stroke(Vector2(3, 3), Vector2(3, 3), 5.0, Color.WHITE)
 	assert_int(b.points.size()).is_equal(0)
+
+
+func test_quad_line_and_circle_match_the_draw_calls_they_replace() -> void:
+	var b := InkBatch.new()
+	var q := PackedVector2Array([Vector2(0, 0), Vector2(10, 0), Vector2(10, 5), Vector2(0, 5)])
+	b.quad(q, Color.RED)
+	assert_array(Array(b.points)).is_equal(Array(q))  # draw_colored_polygon(네 점)과 같은 점
+	b.clear()
+	b.line(Vector2(0, 0), Vector2(10, 0), 2.0, Color.WHITE)  # draw_line(굵기 2): 위아래 1px
+	assert_array(Array(b.points)).is_equal([Vector2(0, -1), Vector2(10, -1), Vector2(10, 1), Vector2(0, 1)])
+	b.clear()
+	b.circle(Vector2(5, 5), 3.0, Color.BLUE)
+	assert_int(b.points.size()).is_equal(InkBatch.SEGMENTS + 1)
+	for k in range(1, b.points.size()):
+		assert_float(b.points[k].distance_to(Vector2(5, 5))).is_equal_approx(3.0, 0.001)
+	b.circle(Vector2.ZERO, 0.0, Color.BLUE)  # 반지름 0은 건너뜀
+	assert_int(b.points.size()).is_equal(InkBatch.SEGMENTS + 1)
