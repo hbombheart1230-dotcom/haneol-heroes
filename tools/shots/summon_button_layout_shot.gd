@@ -30,6 +30,7 @@ func _run() -> void:
 	GameSettings.tutorial_enabled = false
 	GameSettings.story_enabled = true
 	GameSettings.want_stage_list = false
+	GameSettings.skill_button_enabled = OS.get_environment("HH_BIG_BUTTON") == "1"  # 설정의 큰 기술 단추 켬
 	GameSettings.save_settings()
 	main = load("res://scenes/main.tscn").instantiate()
 	sv = SubViewport.new()
