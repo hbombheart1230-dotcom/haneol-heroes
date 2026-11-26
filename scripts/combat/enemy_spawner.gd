@@ -19,6 +19,9 @@ signal boss_spawned(boss: Enemy)
 @export var arena_rect: Rect2 = Rect2()
 ## 걸을 수 있는 곳 (StageTheme.walk_area): 등장 자리와 적 이동을 이 안에 (WalkArea). 비면 arena_rect만.
 var walk_area: PackedVector2Array = PackedVector2Array()
+## 한꺼번에 부르는 무리(중간 우두머리 셋)·우두머리 부하를 하나씩 이만큼(초) 늦춰 만든다: 큰 적 여럿을 한 프레임에 만들면 폰에서 멈칫한다
+## (2026-11-26 사용자 폴드 7 "몹이 갑자기 많이 확 뜰 때" 끊김, PC 측정: 셋 등장 프레임 3마리). 나오는 수·때는 그대로 (0.1초 안).
+@export var group_spread: float = 0.05
 @export var active: bool = true
 ## 적 종류와 가중치, 등장 시작 시각(초). 비어 있으면 enemy_scene 기본 데이터만.
 @export var spawn_table: Array[EnemyData] = []
@@ -279,8 +282,8 @@ func _tick_waves(delta: float) -> void:
 			break
 		var d: EnemyData = r[0]
 		var group := waves.elite_group() if d == null else []
-		for g: EnemyData in group:  # 중간 우두머리 무리: 한꺼번에 (각자 다른 자리)
-			warn_spawn(g, near_point(target.global_position, waves.data.spawn_min, waves.data.spawn_max), true)
+		for gi in group.size():  # 중간 우두머리 무리: 한꺼번에 (각자 다른 자리), 만드는 순간은 group_spread씩 나눠 한 프레임에 몰리지 않게
+			warn_spawn(group[gi], near_point(target.global_position, waves.data.spawn_min, waves.data.spawn_max), true, gi * group_spread)
 		if group.is_empty():
 			warn_spawn(d if d else elite_data, near_point(target.global_position, waves.data.spawn_min, waves.data.spawn_max),
 				d == null)
@@ -335,11 +338,12 @@ func safe_point(at: Vector2, around: Vector2, dmin: float, dmax: float) -> Vecto
 var elite_scaler: Callable
 
 
-func warn_spawn(d: EnemyData, at: Vector2, elite: bool = false) -> void:
+## extra: 예고를 이만큼(초) 더 길게 (한꺼번에 부르는 무리·부하를 프레임 몇 개에 나눠 만들려고, group_spread).
+func warn_spawn(d: EnemyData, at: Vector2, elite: bool = false, extra: float = 0.0) -> void:
 	if d == null:
 		return
 	var w := SpawnWarning.new()
-	w.time = waves.data.warn_time if waves else 0.6
+	w.time = (waves.data.warn_time if waves else 0.6) + maxf(extra, 0.0)
 	w.position = at - global_position
 	_warnings += 1
 	w.done = func() -> void:

@@ -139,7 +139,7 @@ func summon(list: Array) -> void:
 		var a := 0.0 if n == 1 else lerpf(-spread * 0.5, spread * 0.5, float(i) / (n - 1))
 		var at := boss.global_position + back.rotated(a) * feel.summon_distance
 		var r := feel.summon_distance
-		spawner.warn_spawn(list[i], spawner.safe_point(at, boss.global_position, r * 0.7, r + 80.0))
+		spawner.warn_spawn(list[i], spawner.safe_point(at, boss.global_position, r * 0.7, r + 80.0), false, i * spawner.group_spread)  # 한 프레임에 몰리지 않게
 
 
 ## 살아 있는 부하 + 나타나는 중인 자리.
