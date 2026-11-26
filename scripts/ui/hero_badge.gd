@@ -125,12 +125,10 @@ func _draw_portrait(c: CanvasItem, ctr: Vector2) -> void:
 func _draw_health(c: CanvasItem, r: Rect2) -> void:
 	if player == null or player.health == null:
 		return
-	c.draw_rect(r.grow(3.0), UiStyle.LACQUER)
-	var pct := player.health.percent()
-	var fill := Rect2(r.position, Vector2(r.size.x * pct, r.size.y))
-	c.draw_rect(fill, Color(0.72, 0.13, 0.12) if hurt_t <= 0.0 else Color(1.0, 0.45, 0.3))
-	c.draw_rect(Rect2(fill.position, Vector2(fill.size.x, 5)), Color(1, 0.55, 0.45, 0.45))
-	c.draw_rect(r.grow(3.0), UiStyle.GOLD, false, 2.0)
+	# 적 체력 띠와 같은 먹 붓 획 (InkPaint.bar): 한지색 밑칠 + 먹 획 바탕 + 붓끝으로 맺히는 붉은 획. 평평한 사각·금 테두리 없음.
+	var st := InkUiStyle.default()
+	InkPaint.bar(c, r, player.health.percent(), Color(0.72, 0.13, 0.12) if hurt_t <= 0.0 else Color(1.0, 0.45, 0.3),
+		st.bar_back, 4.0, st.bar_under)
 	UiStyle.text(c, UiStyle.BODY_FONT, Vector2(r.position.x + 6, r.end.y - 2), "%d" % player.health.current, 16,
 		Ink.PAPER, -1, Color(0, 0, 0, 0.8), 3)
 
