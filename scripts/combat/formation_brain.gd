@@ -54,8 +54,16 @@ func join(e: Enemy, slot: int) -> void:
 	e.formation = self
 	e.formation_slot = slot
 	if e.attack:
-		e.attack.start_check = func(_p: Vector2) -> bool: return false  # 혼자 겨누지 않는다 (대형이 같은 순간 시작)
+		_hold(e)
+	else:  # 생성기 configure는 add_child 전 (_ready 전)이라 attack이 아직 없다: _ready 뒤에 건다
+		e.ready.connect(func() -> void: _hold(e), CONNECT_ONE_SHOT)
 	_joined += 1
+
+
+## 혼자 겨누지 않는다 (대형이 같은 순간 시작).
+func _hold(e: Enemy) -> void:
+	if e.attack:
+		e.attack.start_check = func(_p: Vector2) -> bool: return false
 
 
 ## 자리의 전장 좌표 (걸을 수 있는 곳 안).
