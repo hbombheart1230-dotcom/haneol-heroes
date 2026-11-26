@@ -46,7 +46,8 @@ func award(kind: StringName) -> int:
 func kill(e: Enemy, stage_mult: float) -> int:
 	if e == null or e.data == null:
 		return 0
-	var v := roundi(e.data.xp * stage_mult * (table.kill_mult if table else 1.0))
+	var form := e.formation.data.xp_mult if e.formation and e.formation.data else 1.0  # 대형 구성원 몫 (FormationData.xp_mult)
+	var v := roundi(e.data.xp * stage_mult * form * (table.kill_mult if table else 1.0))
 	if v > 0:
 		progress.add_xp(v, &"elite" if e.data.is_elite else &"kill")
 	return v
