@@ -132,7 +132,10 @@ def main():
         s = stack(stage, lay)
         s.thumbnail((2400, 2400), Image.LANCZOS)
         s.save(os.path.join(OUT, f"{stage}_stack.jpg"), quality=86)
-        if stage in L.HORIZONTAL:
+        if stage in L.HORIZONTAL:  # 종이 색 비교용: 표시 없이
+            plain = stack(stage, [load(sid) for sid in sids])
+            plain.thumbnail((2400, 2400), Image.LANCZOS)
+            plain.save(os.path.join(OUT, f"{stage}_plain.jpg"), quality=86)
             for sid in sids:
                 img = load(sid)
                 print(sid, "열림 L", open_runs(img, "L"), "R", open_runs(img, "R"))

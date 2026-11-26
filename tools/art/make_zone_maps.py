@@ -31,8 +31,16 @@ CLEAN = {
         ("soften", 895, 417, 24, 13, 0, 0),   # 오른쪽 향로 둥근 무늬
     ],
     "chochungdo_melon": [],
+    "chochungdo_poppy": [],
     "chochungdo_pond": [],
 }
+
+## 종이 색 맞춤: 초충도 새 폭은 지금 chochungdo.png 종이(가운데 빈 곳 중앙값)에 맞춘다.
+## 종이에 가까운 색일수록 많이, 식물·먹선처럼 먼 색은 거의 안 옮긴다 (가중치 exp(-(거리/PAPER_SIGMA)²)).
+PAPER_REF = "chochungdo"
+PAPER_MATCH = {"chochungdo_melon", "chochungdo_poppy", "chochungdo_pond"}
+PAPER_BOX = (350, 600, 700, 1000)
+PAPER_SIGMA = 60.0
 STAGE = {"manchuria": "manchuria_orig", "gyeongbokgung": "gyeongbokgung_orig", "chochungdo": "chochungdo_orig"}
 
 
@@ -52,14 +60,30 @@ def clean(img: Image.Image, spots, feather: float = 2.5) -> Image.Image:
     return out
 
 
+def paper_color(img: Image.Image):
+    import numpy as np
+    return np.median(np.asarray(img.convert("RGB").crop(PAPER_BOX)).reshape(-1, 3).astype(float), axis=0)
+
+
+def match_paper(img: Image.Image, target) -> Image.Image:
+    import numpy as np
+    a = np.asarray(img.convert("RGB")).astype(float)
+    src = paper_color(img)
+    w = np.exp(-((np.linalg.norm(a - src, axis=2) / PAPER_SIGMA) ** 2))[..., None]
+    return Image.fromarray(np.clip(a + w * (np.asarray(target) - src), 0, 255).astype("uint8"))
+
+
 def raw_of(sid: str) -> str:
     return raw_path(f"build/stage_src/{STAGE[sid.split('_')[0]]}/{sid}_raw.png")
 
 
 def main() -> None:
     os.makedirs(os.path.join(ROOT, "assets/backgrounds"), exist_ok=True)
+    target = paper_color(Image.open(os.path.join(ROOT, MAPS, f"{PAPER_REF}.png")))
     for sid, spots in CLEAN.items():
         src = clean(Image.open(raw_of(sid)).convert("RGB"), spots)
+        if sid in PAPER_MATCH:
+            src = match_paper(src, target)
         src.save(os.path.join(ROOT, MAPS, f"{sid}.png"), optimize=True)
         upscale(src).save(os.path.join(ROOT, "assets/backgrounds", f"{sid}.png"), optimize=True)
         print(sid, f"{len(spots)} spots", src.size, "->", (src.width * 2, src.height * 2))
