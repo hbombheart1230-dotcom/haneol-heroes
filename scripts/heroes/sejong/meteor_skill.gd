@@ -23,6 +23,9 @@ extends SkillDef
 @export_group("큰 변형 · 유성우")
 ## 첫 별 뒤에 주변으로 더 떨어지는 작은 별 수.
 @export var extra_stars: int = 0
+## 작은 별끼리 떨어지는 시차(초)와 떨어지는 그림 크기 배율 (강화 패 점검 #229 "유성우: 떨어지는 그림 없음").
+@export var extra_stagger: float = 0.07
+@export var extra_fall_scale: float = 0.55
 
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
@@ -74,20 +77,33 @@ class StarRun extends SkillRun:
 	var left: float
 	var extra: int
 
+	var _main_done := false
+	var _next_extra := 0
+
 	func _init(p_skill: MeteorSkill, p_ctx: SkillContext, p_at: Vector2) -> void:
 		skill = p_skill
 		ctx = p_ctx
 		at = p_at
 		left = p_skill.delay
 		extra = p_skill.extra_stars
+		if ctx.fx and skill.fall_art:  # 작은 별도 하늘에서 떨어진다 (본 별 뒤로 시차를 두고)
+			for i in extra:
+				var d := skill.delay + skill.extra_stagger * (i + 1)
+				ctx.fx.add_fall(skill.fall_art, _extra_at(i) + skill.fall_from * skill.extra_fall_scale, _extra_at(i), d,
+					skill.fall_size * skill.extra_fall_scale, skill.fall_angle_deg)
+
+	func _extra_at(i: int) -> Vector2:
+		return at + Vector2.from_angle(TAU * i / maxf(extra, 1)) * skill.radius * 1.3
 
 	func tick(delta: float) -> bool:
 		left -= delta
 		if left > 0.0 or finished:
 			return finished
-		hits += skill.strike(ctx, at, skill.damage, skill.radius)
-		for i in extra:
-			var off := Vector2.from_angle(TAU * i / maxf(extra, 1)) * skill.radius * 1.3
-			hits += skill.strike(ctx, at + off, roundi(skill.damage * 0.5), skill.radius * 0.6)
-		finished = true
+		if not _main_done:
+			_main_done = true
+			hits += skill.strike(ctx, at, skill.damage, skill.radius)
+		while _next_extra < extra and left <= -skill.extra_stagger * (_next_extra + 1) + 0.0001:
+			hits += skill.strike(ctx, _extra_at(_next_extra), roundi(skill.damage * 0.5), skill.radius * 0.6)
+			_next_extra += 1
+		finished = _next_extra >= extra
 		return finished

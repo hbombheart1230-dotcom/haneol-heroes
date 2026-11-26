@@ -74,7 +74,7 @@ func _run() -> void:
 	if OS.has_environment("HH_SET"):  # 비교용 값 바꾸기: HH_SET="back_alpha=0.45,crest_reach=22"
 		for kv in OS.get_environment("HH_SET").split(","):
 			var pair := kv.split("=")
-			def.set(pair[0], float(pair[1]))
+			def.set(pair[0], int(pair[1]) if typeof(def.get(pair[0])) == TYPE_INT else float(pair[1]))
 	var grown := SkillGrowthData.get_default().scaled_def(def)
 	var spawner := main.get_node("EnemySpawner") as EnemySpawner
 	var foe := spawner.spawn_at(load("res://data/enemies/waegun_soldier.tres"), player.global_position + Vector2(float(OS.get_environment("HH_FOE_X")) if OS.has_environment("HH_FOE_X") else 900.0, 0))

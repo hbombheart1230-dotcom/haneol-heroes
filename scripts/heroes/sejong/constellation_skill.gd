@@ -23,6 +23,9 @@ extends SkillDef
 @export_group("큰 변형 · 북두칠성")
 ## 0보다 크면 별마다 이 반경으로 터진다.
 @export var star_burst_radius: float = 0.0
+## 별 터짐 그림 (별마다 star_burst_radius + 적 몸에 맞춤; 비면 그림 없음). 강화 패 점검 #229 "북두칠성 터짐 그림 없음".
+@export var star_burst_vfx: SkillVfxData
+@export var star_burst_edge_px: float = 20.0
 
 
 ## 모은 만큼 별 수 (charge_scaling이 있으면 그 마디대로 계단, 다 모으면 max_stars).
@@ -80,6 +83,8 @@ func link(ctx: SkillContext, prev: Vector2, p: Vector2, struck: Dictionary, rake
 		for en in ctx.enemies_in_radius(p, star_burst_radius):
 			if ctx.hit(en, roundi(damage * 0.5)):
 				hits += 1
+		if star_burst_vfx:  # 별마다 터짐 (반경 + 몸에 맞춤)
+			Feedback.vfx_burst(star_burst_vfx, p, p - prev, vfx_level, star_burst_radius + star_burst_edge_px, star_burst_radius)
 	ctx.impact(p, p - prev)
 	if ctx.fx:
 		if band_alpha > 0.0:  # FxLayer 붓 획은 넣은 폭의 2.4배로 그려진다 (fx_layer.gd "slash")

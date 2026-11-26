@@ -40,6 +40,7 @@ var _detour_side: float = 1.0
 ## 느려짐: 이동 속도 배율과 남은 시간 (해시계 멈춤·발묵).
 var _slow_factor: float = 1.0
 var _slow_left: float = 0.0
+var _slow_total: float = 0.0
 var _boost: float = 1.0
 var _boost_left: float = 0.0
 ## 개별 멈춤(맞은 적만 잠깐 멈춤) 남은 시간과 떨림 기준 위치.
@@ -125,6 +126,8 @@ func slow(factor: float, seconds: float) -> void:
 		return
 	if factor < _slow_factor or _slow_left <= 0.0:
 		_slow_factor = clampf(factor, 0.05, 1.0)
+	if t >= _slow_left:
+		_slow_total = t  # 느려짐 표시의 남은 시간 비율
 	_slow_left = maxf(_slow_left, t)
 
 
@@ -376,7 +379,7 @@ func _draw() -> void:
 		return  # 쓰러진 몸: 이름표·막대·예고 없이 그림만
 	EnemyArt.draw(self)
 	EnemyNameTag.draw(self)  # 네임드 이름·변종 이름
-	EnemyStatusArt.draw(self, _slow_left > 0.0, _stun_left > 0.0)  # 느려짐·기절 고리, 갑옷·경직 막대
+	EnemyStatusArt.draw(self, _slow_left > 0.0, _stun_left > 0.0, 1.0 - _slow_factor, _slow_left / maxf(_slow_total, 0.01))  # 느려짐·기절 고리, 갑옷·경직 막대
 
 
 func flash_left() -> float:

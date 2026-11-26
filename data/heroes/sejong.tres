@@ -117,6 +117,7 @@ fx_color = Color(1, 0.92, 0.6, 1)
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_constellation")
+star_burst_vfx = ExtResource("vs_meteor")
 aim_assist_deg = 80.0
 aim_assist_range = 600.0
 aim_fallback_nearest = true
