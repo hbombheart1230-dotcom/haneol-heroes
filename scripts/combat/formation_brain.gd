@@ -15,6 +15,8 @@ signal broken
 
 ## 처음 모이기를 이만큼(초) 넘게 기다리면 모인 사람으로 시작한다 (예고 중 막힌 자리 등).
 const FORM_TIMEOUT := 2.5
+## 겨눔 차례에 겨눌 수 있는 사람이 없으면 (모두 경직·기절 — 영웅이 갑자기 붙었을 때) 이만큼(초) 다시 시도하다 장전으로.
+const AIM_RETRY := 1.2
 
 var data: FormationData
 var spawner: EnemySpawner
@@ -27,6 +29,7 @@ var members: Array = []
 var _joined := 0
 var _waited := 0.0
 var _aiming: Array = []
+var _aim_wait := -1.0
 var _offsets := PackedVector2Array()
 var _done := false
 
@@ -83,6 +86,10 @@ func tick(delta: float) -> void:
 	if cycle.entered == FormationCycle.Phase.MOVE and player:
 		_face(player.global_position)
 	if cycle.entered == FormationCycle.Phase.AIM:
+		_aim_wait = 0.0
+		_aim_all(player as Player)
+	elif cycle.phase == FormationCycle.Phase.AIM and _aiming.is_empty():
+		_aim_wait += delta
 		_aim_all(player as Player)
 	elif cycle.phase == FormationCycle.Phase.AIM and _aiming.all(func(e: Variant) -> bool:
 			return not is_instance_valid(e) or (e as Enemy).attack.state != EnemyAttack.State.WINDUP):
@@ -150,18 +157,20 @@ func _face(target: Vector2) -> void:
 
 
 ## 같은 순간 모두 겨눔 시작 (경직·기절·넘어짐 중인 사람은 이번엔 빠진다).
+## 아무도 못 겨누면 AIM에 남아 다음 틱에 다시 (AIM_RETRY까지) — 겨눔 없이 장전으로 넘어가지 않게.
 func _aim_all(player: Player) -> void:
 	_aiming = []
 	if player == null or player.is_dead():
 		cycle.aim_done()
 		return
 	for e: Enemy in alive():
-		if e.attack == null or e.is_stunned() or (e.reaction and (e.reaction.is_staggered() or e.reaction.is_down())):
+		if e.attack == null or e.attack.state != EnemyAttack.State.READY or e.is_stunned() or (e.reaction and (e.reaction.is_staggered() or e.reaction.is_down())):
 			continue
 		if e.attack.begin_windup(e.global_position, player):
 			_aiming.append(e)
 	if _aiming.is_empty():
-		cycle.aim_done()
+		if _aim_wait >= AIM_RETRY:  # 끝내 아무도 못 겨눴다: 이번 주기는 넘긴다
+			cycle.aim_done()
 		return
 	EnemyActions.play_sfx((_aiming[0] as Enemy).attack.data, true)  # 예고 소리는 한 번 (여럿이 겹치지 않게)
 	aimed.emit(_aiming)
