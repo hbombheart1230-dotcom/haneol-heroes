@@ -61,21 +61,25 @@ func test_each_home_hero_uses_its_full_charge_skill() -> void:
 	assert_float(HomeSummonData.get_default().charge).is_equal(1.0)
 
 
-func test_charges_one_then_one_more_at_the_boss_capped() -> void:
+## 충전은 시간으로 (사용자 2026-11-26 "시간에 따라 충전되는 형태로"): 판 시작 때 한 번 차 있고, 쓰면 recharge_time초에 다시 한 번,
+## 최대 한 번 보관. 우두머리 덤은 없다 (charges_boss 0).
+func test_charges_refill_by_time() -> void:
 	var r := HomeSummonRules.new()
 	var hs := _heroes()
+	var t := r.data.recharge_time
+	assert_float(t).is_equal(60.0)
 	assert_bool(r.begin(hs, _by_id(hs, "sejong"), &"hansan_1592")).is_true()
 	assert_int(r.charges).is_equal(1)
+	assert_float(r.fill()).is_equal(1.0)
+	assert_bool(r.tick(t)).is_false()  # 이미 다 참 (최대 한 번)
 	assert_bool(r.use()).is_true()
 	assert_bool(r.use()).is_false()
-	assert_bool(r.on_boss()).is_true()
+	assert_bool(r.on_boss()).is_false()  # 우두머리 덤 없음
+	assert_bool(r.tick(t * 0.5)).is_false()
+	assert_float(r.fill()).is_equal_approx(0.5, 0.001)
+	assert_bool(r.tick(t * 0.5 + 0.01)).is_true()
 	assert_int(r.charges).is_equal(1)
-	assert_bool(r.on_boss()).is_false()  # 우두머리 몫은 한 판에 한 번
-	var r2 := HomeSummonRules.new()
-	r2.begin(hs, _by_id(hs, "sejong"), &"hansan_1592")
-	r2.on_boss()  # 안 쓰고 우두머리까지: 둘 (최대)
-	assert_int(r2.charges).is_equal(r2.data.charges_max)
-	assert_int(r2.charges).is_equal(2)
+	assert_int(r.data.charges_max).is_equal(1)
 
 
 func test_own_stage_has_no_summon() -> void:
@@ -167,7 +171,8 @@ func test_button_press_summons_once_and_is_consumed() -> void:
 	assert_bool(b.handle_touch(0, c, true)).is_true()  # 다 써도 단추 위 누름은 먹는다 (영웅이 엉뚱하게 움직이지 않게)
 	b.handle_touch(0, c, false)
 	assert_int(got[0]).is_equal(1)
-	b.on_boss()
+	assert_object(b.ally).is_not_null()  # 같이 싸우는 주인 영웅 (AllyHero)
+	b.rules.tick(b.data.recharge_time + 0.1)  # 시간이 지나면 다시 찬다
 	assert_int(b.rules.charges).is_equal(1)
 
 

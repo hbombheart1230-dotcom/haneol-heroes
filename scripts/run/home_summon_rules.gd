@@ -8,6 +8,8 @@ var home: HeroData
 var entry: HomeSummonEntry
 var charges: int = 0
 var used: int = 0
+## 다음 한 번까지 찬 비율 (0~1, 다 차 있으면 0).
+var progress: float = 0.0
 var _boss_given := false
 
 
@@ -23,6 +25,7 @@ func begin(heroes: Array, player_hero: HeroData, stage_id: StringName) -> bool:
 		home = null
 		entry = null
 	charges = mini(data.charges_start, data.charges_max) if home else 0
+	progress = 0.0
 	used = 0
 	_boss_given = false
 	return home != null
@@ -40,6 +43,24 @@ func on_boss() -> bool:
 	var before := charges
 	charges = mini(charges + data.charges_boss, data.charges_max)
 	return charges > before
+
+
+## 시간으로 채운다 (판이 흐르는 동안만 부른다). 이번에 한 번이 다 찼으면 true.
+func tick(delta: float) -> bool:
+	if home == null or data.recharge_time <= 0.0 or charges >= data.charges_max:
+		progress = 0.0
+		return false
+	progress += delta / data.recharge_time
+	if progress < 1.0:
+		return false
+	progress = 0.0
+	charges += 1
+	return true
+
+
+## 단추 고리: 쓸 수 있으면 1, 아니면 찬 비율.
+func fill() -> float:
+	return 1.0 if charges > 0 else progress
 
 
 func can_use() -> bool:

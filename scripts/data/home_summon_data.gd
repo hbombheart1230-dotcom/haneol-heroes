@@ -1,7 +1,8 @@
 class_name HomeSummonData
 extends Resource
-## 주인 영웅 부르기 (원정 전장에서만): 그 전장의 주인 영웅을 불러 큰 기술 한 번을 다 모은 세기로 쓴다.
-## 횟수: 판마다 charges_start번, 우두머리가 나오면 charges_boss번 더 (최대 charges_max). 단추는 왼쪽 위 영웅 묶음 아래.
+## 주인 영웅 부르기 (원정 전장에서만): 그 전장의 주인 영웅이 나타나 ally_time초 동안 같이 싸운다 (AllyHero).
+## 충전: 시간으로 찬다 (recharge_time초에 한 번, 최대 charges_max번 보관, 판 시작 때 charges_start번 차 있음,
+## 우두머리가 나오면 charges_boss번 더 — 지금 0). 단추는 왼쪽 위 영웅 묶음 아래.
 ## 누가 주인인지는 영웅 전장 목록(HeroData.campaign)이 정한다. 어떤 기술인지와 세기는 entries.
 
 const PATH := "res://data/summon/home_summon.tres"
@@ -10,12 +11,29 @@ const PATH := "res://data/summon/home_summon.tres"
 @export var charges_start: int = 1
 @export var charges_boss: int = 1
 @export var charges_max: int = 2
+## 다음 한 번이 차는 시간(초). 0이면 시간으로 차지 않는다.
+@export var recharge_time: float = 60.0
 ## 기술을 모은 정도 (1 = 다 모음).
 @export_range(0.0, 1.0) var charge: float = 1.0
 ## 한 번에 우두머리 체력의 이 비율 근처를 노린다 (시험 기준: boss_share_min~boss_share_max).
 @export var boss_share_min: float = 0.08
 @export var boss_share_max: float = 0.12
 @export var entries: Array[HomeSummonEntry] = []
+@export_group("같이 싸우기")
+## 불려 온 주인 영웅이 머무는 시간(초)과 나타나는 자리 (고른 영웅 기준 px).
+@export var ally_time: float = 7.0
+@export var ally_offset: Vector2 = Vector2(-90, 50)
+## 부르기 기술을 쓰는 때(나타난 뒤 초): 0초 = 나타나며 한 방, 그 뒤 한 번 더.
+@export var ally_skill_times: PackedFloat32Array = PackedFloat32Array([0.0, 3.5])
+## 부르기 기술 한 번의 피해 배율 (entries.damage_scale × 이 값: 두 번 쓰므로 예전 한 방보다 작게).
+@export var ally_skill_scale: float = 0.5
+## 적에게 이 거리(평타 사거리 × 배율) 안이면 서서 탭, 밖이면 걸어간다. 탭 간격(초).
+@export var ally_reach_mult: float = 0.8
+@export var ally_tap_gap: float = 0.12
+## 이름 띠: 머리 위 높이(px)·글자 크기, 나타남·물러감 먹 번짐 모양 (DeathStyle).
+@export var ally_name_lift: float = 150.0
+@export var ally_name_px: int = 22
+@export var ally_ink_style: StringName = &"smoke"
 @export_group("단추")
 ## 단추 가운데: 왼쪽에서 button_x px, 위에서 화면 높이 × button_y (연타 글씨 ComboTextData.anchor 0.36보다 아래:
 ## 영웅 묶음 아래 행동 점수·경지 오름 글씨와 연타 글씨를 피한다). 반지름 px.
