@@ -73,6 +73,7 @@ func test_crowd_look_thins_lines() -> void:
 	var keep := [v.crowd_width_mult, v.crowd_from]
 	var e := _enemy(load(GUNNER) as EnemyData)
 	e.attack.state = EnemyAttack.State.WINDUP
+	e.attack.aim_dir = Vector2.RIGHT
 	v.crowd_from = 6
 	v.crowd_width_mult = 0.5
 	var thin := InkBatch.new()
@@ -103,11 +104,12 @@ func _enemy(d: EnemyData) -> Enemy:
 	return e
 
 
-## 모은 점들의 옆 폭 (x 범위): 가는 획일수록 작다.
-func _span(b: InkBatch) -> float:
+## 모은 점들의 옆 폭: 겨눈 쪽에 수직인 범위 (가는 획일수록 작다). 길이(겨눈 쪽)는 붐빔과 상관없다.
+func _span(b: InkBatch, aim: Vector2 = Vector2.RIGHT) -> float:
+	var side := aim.orthogonal().normalized()
 	var lo := INF
 	var hi := -INF
 	for p in b.points:
-		lo = minf(lo, p.x)
-		hi = maxf(hi, p.x)
+		lo = minf(lo, p.dot(side))
+		hi = maxf(hi, p.dot(side))
 	return hi - lo
