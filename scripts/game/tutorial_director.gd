@@ -13,6 +13,8 @@ var run: TutorialProgress
 var _last_pos: Vector2
 ## 회피·반격 단계의 연습 상대.
 var sparring: TutorialSparring
+## 연습 강화 패를 열기까지 남은 초 (0이면 기다리는 중 아님).
+var _offer_left := 0.0
 
 
 func _init(m: Node) -> void:
@@ -32,7 +34,7 @@ func start(data: TutorialData) -> void:
 	run.finished.connect(_on_finished, CONNECT_ONE_SHOT)
 	sparring = TutorialSparring.new(main, data)
 	run.advanced.connect(func(_i: int) -> void: _on_step_changed())
-	run.advanced.connect(func(_i: int) -> void: _maybe_offer_practice())
+	run.advanced.connect(func(_i: int) -> void: _arm_practice_offer())
 	if main.seal_choice:
 		main.seal_choice.chosen.connect(_on_seal_chosen)
 	if main.spawner:
@@ -85,6 +87,12 @@ func tick(delta: float) -> void:
 		run.notify(&"move", player.global_position.distance_to(_last_pos))
 		_last_pos = player.global_position
 	run.notify(&"wait", delta)
+	if not main.get_tree().paused:  # 설정 화면 등으로 멈춘 동안은 읽힐 시간·패 기다림을 세지 않는다 (패가 설정 뒤에서 열리지 않게)
+		if _offer_left > 0.0:  # 먼저 센다: 이번 틱에 막 정해진 기다림이 같은 틱에 끝나 버리지 않게
+			_offer_left -= delta
+			if _offer_left <= 0.0:
+				_maybe_offer_practice()
+		run.elapse(delta)
 	var sc := _caster()
 	if sc and sc.kit and sc.combo.streak >= sc.kit.combo_hits:  # 손으로 연계를 끝까지 이었다
 		run.notify(&"combo")
@@ -95,7 +103,7 @@ func tick(delta: float) -> void:
 func _on_step_changed() -> void:
 	var s := run.current() if run else null
 	if s and not can_do(s.event):
-		run.notify(s.event, s.amount)  # 다음 단계의 advanced가 상대를 맞춘다
+		run.pass_step()  # 다음 단계의 advanced가 상대를 맞춘다 (읽힐 시간도 기다리지 않는다: 이 영웅은 이 단계가 없다)
 		return
 	sparring.sync(s)
 	var sc := _caster()
@@ -121,6 +129,17 @@ func _caster() -> SkillCaster:
 ## 물결 모드 무대인지 (적립한 카드를 숨 고르기에서 고른다, 설명도 다르다).
 func _waves() -> bool:
 	return main.spawner != null and main.spawner.waves != null
+
+
+## 강화 고르기 단계가 되면 (enter_delay 뒤에) 연습 강화 카드를 띄운다: 앞 단계(반격)가 끝나자마자 패가 덮지 않게.
+func _arm_practice_offer() -> void:
+	var s := run.current() if run else null
+	if s == null or s.event != &"upgrade":
+		return
+	if s.enter_delay > 0.0:
+		_offer_left = s.enter_delay
+	else:
+		_maybe_offer_practice()
 
 
 ## 강화 고르기 단계가 되면 연습 강화 카드 셋을 띄운다 (실제 강화를 얻는다).

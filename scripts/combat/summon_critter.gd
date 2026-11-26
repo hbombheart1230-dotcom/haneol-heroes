@@ -1,6 +1,7 @@
 class_name SummonCritter
 extends Node2D
-## 내 편 소환물 (사임당 풀벌레): 가까운 적에게 날아가 닿으면 hit_interval초마다 피해. lifetime 뒤 사라진다.
+## 내 편 소환물 (사임당 풀벌레): 가까운 적에게 날아가 닿으면 hit_interval초마다 피해. bites번 물면 사라진다
+## (lifetime은 물 적이 없을 때의 안전 상한).
 ## 그림 속 생물처럼 먹선으로 그린다 (나비·방아깨비).
 
 enum Kind { BUTTERFLY, GRASSHOPPER }
@@ -12,6 +13,8 @@ var lifetime: float = 8.0
 var speed: float = 380.0
 var damage: int = 8
 var hit_interval: float = 0.5
+## 무는 횟수 상한 (0 = 없음, 시간으로만).
+var bites: int = 0
 var seek_radius: float = 520.0
 var touch_radius: float = 34.0
 var color: Color = Color(0.85, 0.4, 0.55)
@@ -28,6 +31,11 @@ var _wobble: float = 0.0
 
 func age() -> float:
 	return _age
+
+
+## 이번 물기가 마지막인지 (횟수를 다 쓰거나, 안전 상한 전 마지막 간격).
+func is_last_bite() -> bool:
+	return (bites > 0 and hits + 1 >= bites) or _age + hit_interval > lifetime
 
 
 func _ready() -> void:
@@ -58,11 +66,11 @@ func _physics_process(delta: float) -> void:
 	var wob := Vector2.from_angle(_age * 9.0 + _wobble) * 40.0
 	global_position += ((to.normalized() * speed) + wob) * delta if to.length() > 6.0 else wob * delta
 	if t and _cd <= 0.0 and t.global_position.distance_to(global_position) <= touch_radius + t.body_radius:
-		if ctx.tick_hit(t, damage, _age + hit_interval > lifetime):  # 사라지기 전 마지막 물기는 크게
+		if ctx.tick_hit(t, damage, is_last_bite()):  # 사라지기 전 마지막 물기는 크게
 			hits += 1
 			ctx.impact(t.global_position)  # 문 자리에 매화 꽃잎
 		_cd = hit_interval
-	if _age >= lifetime:
+	if _age >= lifetime or (bites > 0 and hits >= bites):
 		queue_free()
 	queue_redraw()
 

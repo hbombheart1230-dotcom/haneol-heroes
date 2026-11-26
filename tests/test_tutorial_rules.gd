@@ -120,6 +120,7 @@ func test_wave_stage_still_offers_practice_cards() -> void:
 	assert_bool(main.tutorial_overlay.waves).is_true()
 	main.break_picks = 0  # 숨 고르기 몫이 없어도
 	TutorialDriver.skip_to(main.tutorial_director.run, &"upgrade")
+	main.tutorial_director.tick(2.0)  # 패는 반격이 끝난 뒤 1.5초 뒤에
 	assert_bool(main.seal_choice.is_open()).is_true()
 	main.seal_choice.pick(0)
 	assert_bool(main.tutorial_director.run.is_done()).is_true()
@@ -156,6 +157,7 @@ func test_finished_is_sent_once_when_the_last_step_is_skipped_inside_advanced() 
 		if not p.is_done() and p.current().event == &"upgrade":
 			p.notify(&"upgrade"))  # 고를 강화가 없는 영웅처럼 마지막 단계를 안에서 넘긴다
 	TutorialDriver.skip_to(p, &"skill_counter")
+	p.elapse(5.0)
 	p.notify(&"skill_counter")
 	assert_bool(p.is_done()).is_true()
 	assert_int(n[0]).is_equal(1)

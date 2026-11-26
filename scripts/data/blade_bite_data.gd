@@ -7,8 +7,20 @@ extends Resource
 @export var enabled: bool = true
 ## 1·2·3타 멈춤(초, 실제 시간 아닌 게임 시간). 휘두름 한 번에 한 번, 맞은 수와 상관없이.
 @export var stop_times: PackedFloat32Array = PackedFloat32Array([0.05, 0.05, 0.1])
-## 넷째 탭 마무리 (기술 명중 멈춤을 이 길이로 고정, SkillHitStop).
+## 넷째 탭 마무리: 기술이 처음 닿는 순간 칼 박힘 멈춤 길이(실제 초)·게임 속도 (FinisherBite; 1<2<3<4 → 3타 멈춤보다 길게).
 @export var finisher_stop: float = 0.1
+@export var finisher_stop_scale: float = 0.05
+## 마무리 멈춤 사이 최소 간격(실제 초): 정신없는 판에서 연속 4타가 멈춤을 겹쳐 답답하지 않게.
+@export var finisher_min_gap: float = 0.2
+## 흔들림: 누르는 순간(시전)은 작게, 닿을 때 크게 (3타 0.30보다 크게).
+@export var finisher_cast_trauma: float = 0.12
+@export var finisher_contact_trauma: float = 0.4
+## 닿을 때 무거운 소리 (SoundBank 종류, 비우면 없음)와 진동(ms·세기; 3타 30ms·0.7보다 세게).
+@export var finisher_contact_sfx: StringName = &"w_heavy"
+@export var finisher_haptic_ms: int = 40
+@export var finisher_haptic_amp: float = 0.8
+## 휘감는 마무리(해룡참)의 끝 느려짐(CombatFeelData.sweep_final_*)을 뺀다 (닿을 때 멈춤으로 바꿈).
+@export var finisher_skip_sweep_slow: bool = true
 ## 멈춘 동안 떨림 (px, 영웅 그림·맞은 몹 그림 좌우, 물리 프레임마다 번갈아).
 @export var jitter_px: float = 2.5
 ## 풀리면서 빨라짐: 재생 배율. 빨라지는 시간은 멈춘 만큼을 되찾을 때까지 (멈춤 ÷ (배율 − 1)) → 한 번 휘두르는 전체 길이는 그대로.

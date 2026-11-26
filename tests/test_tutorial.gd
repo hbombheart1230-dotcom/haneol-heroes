@@ -21,6 +21,7 @@ func test_progress_advances_only_on_matching_event() -> void:
 	assert_int(p.index).is_equal(1)
 	assert_bool(p.notify(&"skill_tap")).is_false()  # 연타 단계에선 마무리를 세지 않는다
 	for ev in [&"combo", &"skill_tap", &"skill_dash", &"skill_charge", &"evade", &"skill_counter"]:
+		p.elapse(5.0)  # 반격 단계는 안내 글이 읽힐 시간(min_show)이 차야 넘어간다
 		assert_bool(p.notify(ev)).is_true()
 	var done := [false]
 	p.finished.connect(func() -> void: done[0] = true)
@@ -115,6 +116,7 @@ func test_upgrade_step_drops_practice_seals_and_picking_one_advances() -> void:
 	var run: TutorialProgress = main.tutorial_director.run
 	TutorialDriver.skip_to(run, &"upgrade")
 	assert_str(String(run.current().event)).is_equal("upgrade")
+	main.tutorial_director.tick(2.0)  # 반격이 끝난 뒤 패는 enter_delay(1.5초) 뒤에
 	assert_bool(main.seal_choice.is_open()).is_true()  # 연습 카드가 나왔다
 	main.seal_choice.pick(0)
 	assert_bool(run.is_done()).is_true()  # 하나 고르면 끝 (마지막 단계)
@@ -156,6 +158,7 @@ func test_skipping_with_practice_cards_open_keeps_cards_until_picked() -> void:
 	var main := _main_at_upgrade_step()
 	await get_tree().process_frame
 	_advance_to_upgrade(main.tutorial_director.run)
+	main.tutorial_director.tick(2.0)
 	assert_bool(main.seal_choice.is_open()).is_true()
 	main.tutorial_director.run.skip()
 	assert_bool(main.seal_choice.is_open()).is_true()  # 건너뛰어도 카드는 고를 때까지 남는다
@@ -170,6 +173,7 @@ func test_hero_without_upgrades_does_not_get_stuck_on_upgrade_step() -> void:
 	main.build.hero = main.build.hero.duplicate()
 	main.build.hero.upgrade_pool = null
 	_advance_to_upgrade(main.tutorial_director.run)
+	main.tutorial_director.tick(2.0)
 	assert_bool(main.seal_choice.is_open()).is_false()
 	assert_bool(main.tutorial_director.run.is_done()).is_true()  # 넘어감 (마지막 단계)
 	_cleanup(main)

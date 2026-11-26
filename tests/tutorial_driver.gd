@@ -153,7 +153,9 @@ func act(ev: StringName) -> void:
 				await tap()
 			await seconds(0.5)
 		&"upgrade":
-			await frames(2)
+			var end := _now() + 3.0  # 연습 패는 단계가 시작되고 enter_delay(1.5초) 뒤에 열린다
+			while not main.seal_choice.is_open() and _now() < end:
+				await frames(2)
 			if main.seal_choice.is_open():
 				main.seal_choice.pick(0)
 			await frames(2)
@@ -181,4 +183,5 @@ func play_all(max_tries: int = 6) -> StringName:
 ## 단계를 차례로 알려 ev 단계까지 건너간다 (판정 없이, 단위 테스트용).
 static func skip_to(run: TutorialProgress, ev: StringName) -> void:
 	while not run.is_done() and run.current().event != ev:
+		run.elapse(60.0)  # 읽힐 시간(min_show)을 기다리는 단계도 건너간다
 		run.notify(run.current().event, run.current().amount)

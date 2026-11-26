@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="FormationData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/formation_data.gd" id="1_form"]
+[ext_resource type="Resource" path="res://data/enemies/jurchen_archer.tres" id="2_member"]
+
+[resource]
+script = ExtResource("1_form")
+member = ExtResource("2_member")
+count = 6
+shape = 1
+radius = 62.0
+arc_deg = 300.0
+move = 2
+spawn_dist = 420.0
+move_time = 0.6
+halt_time = 0.35
+reload_time = 2.4
+form_time = 0.6

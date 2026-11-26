@@ -3,6 +3,8 @@ extends GdUnitTestSuite
 ## 물결: 6 · 3+정예 · 9, 상한 3·4·5, 한 마리씩 보충, xp ×3.5. 적은 역할(근접·원거리·중갑·정예)별로 한산 왜군과 같은 값,
 ## 군대마다의 버릇(돌진·숨기·거리, 공격 종류·사거리, 테두리 색)은 그대로.
 
+## 물결마다 흩어져 나오는 원거리 졸 상한 (대형 구성원은 따로).
+const RANGED_SCATTER_MAX: Array[int] = [0, 3, 0, 4]
 const STAGES := ["hansan_1592", "manchuria_395", "gyeongbokgung_1433", "chochungdo"]
 ## 무대마다 역할 → 적 (한산이 기준). elite = 3물결 중간 보스 (StageTheme.elite), captain = 4물결에 섞이는 일반 정예.
 const ROLES := {
@@ -51,11 +53,15 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 			for role in ["ranged", "heavy", "captain", "melee"]:
 				var n_mine := mine.count(role)
 				var n_base := theirs.count(role)
-				if role == "melee":
+				if role == "ranged":  # 흩어진 원거리는 한산 이하, 원거리 대형은 영웅마다 모양·수가 다르다 (아래 대형 시험)
+					assert_int(n_mine).override_failure_message("%s wave %d ranged %d" % [id, i, n_mine]).is_less_equal(maxi(n_base, RANGED_SCATTER_MAX[i]))
+				elif role == "melee":
 					assert_int(n_mine).override_failure_message("%s wave %d melee %d" % [id, i, n_mine]).is_greater_equal(n_base)
 				else:
 					assert_int(n_mine).override_failure_message("%s wave %d %s" % [id, i, role]).is_equal(n_base)
 			assert_bool(mine.all(func(r: String) -> bool: return not r.begins_with("?"))).override_failure_message("%s wave %d: %s" % [id, i, mine]).is_true()
+			for f: FormationData in a.formations:  # 대형은 그 무대 군대의 원거리 졸 (사용자: 원거리 대형으로 확 쓸어버리게)
+				assert_str(_role(roles, f.member.id)).override_failure_message("%s wave %d formation" % [id, i]).is_equal("ranged")
 		assert_str(String(_st(id).elite.id)).is_equal(roles["elite"])
 		assert_object(_st(id).elite.boss_feel).override_failure_message("%s mid-boss" % id).is_not_null()  # 3물결 중간 보스
 
@@ -68,6 +74,9 @@ func _stage_score(id: String) -> int:
 		var list: Array = wave.enemies.duplicate()
 		if wave.elite_last:
 			list.append_array(wave.elite_group if not wave.elite_group.is_empty() else [_enemy(ROLES[id]["elite"])])
+		for f: FormationData in wave.formations:  # 대형 구성원도 처치 점수를 준다
+			for k in f.count:
+				list.append(f.member)
 		for e: EnemyData in list:
 			n += roundi(e.xp * w.xp_mult)
 	return n
@@ -141,7 +150,8 @@ func test_trash_dies_fast_but_not_in_one_hit() -> void:
 		assert_float(r[1]).override_failure_message(msg).is_less_equal(TRASH_KILL_TIME + 0.001)
 
 
-## 떼는 근접 위주: 원거리는 물결마다 적게 (0 · 3 · 0 · 4), 물결 상한 8 · 10 · 8 · 14 (사용자: 5웨이브, 약 4분).
+## 떼는 근접 위주: 흩어진 원거리는 물결마다 적게 (0 · 3 · 0 · 4 이하), 물결 상한 8 · 10 · 8 · 14 (사용자: 5웨이브, 약 4분).
+## 원거리를 늘리는 것은 흩어 내지 않고 대형 한 묶음으로 (FormationData, 같은 순간 겨눔·일제 사격).
 func test_swarm_is_melee_heavy_and_ranged_stays_few() -> void:
 	for id in STAGES:
 		var w := _st(id).waves
@@ -150,7 +160,8 @@ func test_swarm_is_melee_heavy_and_ranged_stays_few() -> void:
 		for wave: WaveData in w.waves:
 			ranged.append(wave.enemies.filter(func(e: EnemyData) -> bool: return String(e.id) == ROLES[id]["ranged"]).size())
 			caps.append(wave.max_alive)
-		assert_array(ranged).override_failure_message(id).is_equal([0, 3, 0, 4])
+		for i in ranged.size():
+			assert_int(ranged[i]).override_failure_message("%s wave %d scattered ranged %s" % [id, i, ranged]).is_less_equal(RANGED_SCATTER_MAX[i])
 		assert_array(caps).override_failure_message(id).is_equal([8, 10, 8, 14])  # 3물결은 중간 보스 물결 (잡몹 여섯 → 중간 보스)
 
 

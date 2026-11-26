@@ -1,10 +1,14 @@
 class_name CritterSkill
 extends SkillDef
-## 사임당 · 풀벌레 부르기(가칭): 초충도 속 나비·방아깨비를 불러 lifetime초 동안 알아서 적을 공격.
+## 사임당 · 풀벌레 부르기(가칭): 초충도 속 나비·방아깨비를 불러 알아서 적을 공격. 한 마리가 bites번 물면 사라진다.
+## 사용자 2026-11-26 "사임당 풀벌레 너프해야되는데 초가 아니라 타격 횟수로": 끝을 시간이 아니라 무는 횟수로.
 
 const GROUP := &"hero_critters"
 
 @export var count: int = 2
+## 한 마리가 무는 횟수 (다 물면 사라진다, 마지막 물기는 크게). 0이면 횟수 상한 없음 (시간으로만).
+@export var bites: int = 6
+## 안전용 긴 상한(초): 물 적이 없어 떠도는 풀벌레가 영원히 남지 않게. 끝은 보통 bites가 정한다.
 @export var lifetime: float = 8.0
 @export var damage: int = 8
 @export var hit_interval: float = 0.5
@@ -23,7 +27,8 @@ const GROUP := &"hero_critters"
 ## 수명 상한: 다음 부르기(4타 마무리 간격 = cooldown × combo_finisher_cd_ratio)보다 이만큼(초) 먼저 사라진다.
 ## 사용자 결정 2026-11-26 (패 점검 #229): 긴 숨·빠른 붓 패로 수명이 간격을 넘어 다시 겹겹이 쌓이던 것을 막는다.
 ## 빠른 붓으로 간격이 줄면 상한도 같이 준다. 상한에 닿아 헛된 패는 후보에서 빠진다 (UpgradeEffect.useful).
-@export var cap_lifetime: bool = true
+## 무는 횟수로 끝나게 바꾸며 (2026-11-26) 기본은 끔: 켜면 안전 상한도 다음 마무리 간격 − lifetime_margin까지.
+@export var cap_lifetime: bool = false
 @export var lifetime_margin: float = 0.3
 @export var lifetime_floor: float = 1.0
 
@@ -59,6 +64,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		c.owner_node = ctx.player
 		c.kind = SummonCritter.Kind.GRASSHOPPER if i % 2 == 1 and i < count else SummonCritter.Kind.BUTTERFLY
 		c.lifetime = life
+		c.bites = bites
 		c.damage = damage
 		c.hit_interval = hit_interval
 		c.speed = speed

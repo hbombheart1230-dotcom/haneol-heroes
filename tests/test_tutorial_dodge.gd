@@ -79,6 +79,8 @@ func test_evade_then_counter_advances_and_practice_enemy_comes_and_goes() -> voi
 	sc.skill_cast.emit(SkillCaster.Slot.TAP, 0)
 	assert_str(String(run.current().event)).is_equal("skill_counter")  # 그냥 톡은 반격이 아니다
 	sc.skill_cast.emit(SkillCaster.Slot.COUNTER, 1)
+	assert_str(String(run.current().event)).is_equal("skill_counter")  # 안내 글이 읽힐 때까지 붙든다
+	run.elapse(3.0)
 	assert_str(String(run.current().event)).is_equal("upgrade")
 	assert_object(dir.sparring.enemy).is_null()
 	assert_bool(e.is_queued_for_deletion() or e.health.is_dead()).is_true()  # 단계를 마치면 쓰러진다

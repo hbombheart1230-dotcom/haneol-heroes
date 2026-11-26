@@ -55,6 +55,8 @@ var _announced: int = -1
 var waves: WaveRunner
 ## 예고 중인 등장 자리 수 (화면 최대에 센다).
 var _warnings: int = 0
+## 살아 있는 대형 머리들 (FormationSpawn).
+var formations: Array[FormationBrain] = []
 ## 중간 우두머리 처치 연출이 끝나는 시각 (GameTime.now_ms, BossStaging.play_finale). 그때까지 물결이 끝나지 않아
 ## 숨 고르기·패 고르기가 연출 뒤에 뜬다. 판 시각이라 시뮬레이션(GameTime.clock)에서도 풀린다.
 var finale_until_ms: int = 0
@@ -80,6 +82,7 @@ var _horde_default: bool = true
 func _ready() -> void:
 	_horde_default = horde_enabled
 	AttackTokens.clear()  # 새 판: 지난 판의 공격권이 남지 않게
+	VolleyBeat.reset()  # 지난 판 일제 사격의 명중 수도
 
 
 func alive_count() -> int:
@@ -280,6 +283,9 @@ func _tick_waves(delta: float) -> void:
 		var r := waves.next_spawn(alive_count() + _warnings, max_alive)
 		if r.is_empty():
 			break
+		if r[0] is FormationData:  # 대형 한 묶음 (WaveData.formations)
+			FormationSpawn.spawn(self, r[0])
+			continue
 		var d: EnemyData = r[0]
 		var group := waves.elite_group() if d == null else []
 		for gi in group.size():  # 중간 우두머리 무리: 한꺼번에 (각자 다른 자리), 만드는 순간은 group_spread씩 나눠 한 프레임에 몰리지 않게
@@ -339,7 +345,7 @@ var elite_scaler: Callable
 
 
 ## extra: 예고를 이만큼(초) 더 길게 (한꺼번에 부르는 무리·부하를 프레임 몇 개에 나눠 만들려고, group_spread).
-func warn_spawn(d: EnemyData, at: Vector2, elite: bool = false, extra: float = 0.0) -> void:
+func warn_spawn(d: EnemyData, at: Vector2, elite: bool = false, extra: float = 0.0, configure: Callable = Callable()) -> void:
 	if d == null:
 		return
 	var w := SpawnWarning.new()
@@ -354,7 +360,7 @@ func warn_spawn(d: EnemyData, at: Vector2, elite: bool = false, extra: float = 0
 		if elite:
 			spawn_elite(at, null if d == elite_data else (elite_scaler.call(d) if elite_scaler.is_valid() else dd))
 		else:
-			spawn_at(dd, at)
+			spawn_at(dd, at, configure)
 	add_child(w)
 
 
@@ -362,6 +368,7 @@ func tick(delta: float) -> void:
 	if not active:
 		return
 	elapsed += delta
+	FormationSpawn.tick_all(self, delta)
 	if waves:
 		_tick_waves(delta)
 		return

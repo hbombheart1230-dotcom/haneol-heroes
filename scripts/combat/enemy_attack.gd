@@ -104,6 +104,26 @@ func windup_ratio() -> float:
 	return clampf(1.0 - _timer / maxf(data.windup, 0.001), 0.0, 1.0) if state == State.WINDUP else 0.0
 
 
+## 겨눔(예고) 시작. 준비(READY)일 때만 (대형 FormationBrain은 거리·쿨다운·동시 상한을 보지 않고 모두 같은 순간 부른다).
+func begin_windup(self_pos: Vector2, player: Player) -> bool:
+	if state != State.READY or player == null:
+		return false
+	state = State.WINDUP
+	_chained = false
+	if guard_next:
+		_armor_left = maxf(_armor_left, data.windup + 0.05)
+		guard_next = false
+	active_windups += 1
+	_timer = data.windup
+	target_point = player.global_position
+	aim_origin = self_pos
+	var to_p := player.global_position - self_pos
+	aim_dir = to_p.normalized() if to_p.length_squared() > 0.01 else Vector2.DOWN
+	_evaded = false
+	_was_inside = contains(player.global_position)
+	return true
+
+
 ## 반환: 이번 틱의 결과 (타격이 일어난 틱에만 NONE 이외).
 func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 	_cooldown = maxf(_cooldown - delta, 0.0)
@@ -118,19 +138,7 @@ func tick(delta: float, self_pos: Vector2, player: Player) -> Result:
 					and (_chained or self_pos.distance_to(player.global_position) <= data.trigger_range) \
 					and (not start_check.is_valid() or bool(start_check.call(self_pos))) \
 					and (data.bypass_cap or data.volley or active_windups < max_concurrent) 					and (not data.volley or EnemyBrain.volley_open(ai, now_sec())):
-				state = State.WINDUP
-				_chained = false
-				if guard_next:
-					_armor_left = maxf(_armor_left, data.windup + 0.05)
-					guard_next = false
-				active_windups += 1
-				_timer = data.windup
-				target_point = player.global_position
-				aim_origin = self_pos
-				var to_p := player.global_position - self_pos
-				aim_dir = to_p.normalized() if to_p.length_squared() > 0.01 else Vector2.DOWN
-				_evaded = false
-				_was_inside = contains(player.global_position)
+				begin_windup(self_pos, player)
 		State.WINDUP:
 			# 사격·충격파는 예고 중에도 자기 위치를 따라간다 (밀려나도 원이 몸을 따라감, Codex c1b3e34 지적).
 			if is_shoot() or data.kind == EnemyAttackData.Kind.SHOCKWAVE:
