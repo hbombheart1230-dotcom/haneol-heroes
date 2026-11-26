@@ -239,3 +239,18 @@ func test_summon_scale_follows_the_targeted_enemy() -> void:
 	var r := HomeSummonRules.new()
 	r.begin(_heroes(), _by_id(_heroes(), "sejong"), &"hansan_1592")
 	assert_float(r.damage_scale_for(scaled, 1.0)).is_equal_approx(r.entry.damage_scale * 1.5, 0.001)
+
+
+## 부르기 기술은 늘 최종 강화 모습 (사용자 "기술 최종 단계만 붙여서"): 모습 단계 6 + 대표 큰 변형, 판정도 성장 배율만큼 크다.
+func test_summon_skill_is_the_final_stage() -> void:
+	var hs := _heroes()
+	for owner: String in STAGES:
+		var me := "sejong" if owner != "sejong" else "yi_sun_sin"
+		var r := HomeSummonRules.new()
+		r.begin(hs, _by_id(hs, me), StringName(STAGES[owner]))
+		var d := r.skill()
+		assert_int(d.vfx_level).is_equal(r.entry.final_level)
+		if r.entry.major_property != &"":
+			assert_float(float(d.get(r.entry.major_property))).is_greater(float(r.base_skill().get(r.entry.major_property)))
+		assert_object(r.base_skill()).is_not_same(d)  # 주인 영웅 원본 데이터는 그대로
+		assert_int(r.base_skill().vfx_level).is_equal(0)

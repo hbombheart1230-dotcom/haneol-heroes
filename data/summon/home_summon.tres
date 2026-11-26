@@ -6,17 +6,23 @@
 [sub_resource type="Resource" id="e_yi"]
 script = ExtResource("2_entry")
 hero_id = &"yi_sun_sin"
-damage_scale = 4.3
+major_property = &"extra_waves"
+major_value = 2.0
+damage_scale = 1.45
 
 [sub_resource type="Resource" id="e_gw"]
 script = ExtResource("2_entry")
 hero_id = &"gwanggaeto"
+major_property = &"chain_count"
+major_value = 2.0
 damage_scale = 5.9
 
 [sub_resource type="Resource" id="e_sj"]
 script = ExtResource("2_entry")
 hero_id = &"sejong"
-damage_scale = 11.0
+major_property = &"star_burst_radius"
+major_value = 70.0
+damage_scale = 5.4
 
 [sub_resource type="Resource" id="e_ss"]
 script = ExtResource("2_entry")
