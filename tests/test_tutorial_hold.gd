@@ -113,11 +113,15 @@ func test_tap_spam_after_the_dodge_does_not_rush_past_the_counter_step() -> void
 		await d.act(&"evade")
 		tries += 1
 	assert_str(String(run.current().event)).is_equal("skill_counter")
+	var ci := run.index
+	var t0 := Time.get_ticks_usec() / 1e6
 	for k in 8:  # 1초 남짓 톡톡톡
 		await d.tap()
 		await d.seconds(0.1)
-	if run.step_time < 2.0:  # 바쁜 기계에서 톡톡톡이 2초를 넘겼으면 단계가 넘어가는 게 맞다 (흔들리지 않게)
-		assert_str(String(run.current().event)).is_equal("skill_counter")
+	var total := Time.get_ticks_usec() / 1e6 - t0
+	# 단계가 넘어가면 step_time이 0으로 돌아가므로 걸린 시간을 따로 잰다: 2초가 차기 전엔 반격 단계에 머물고, 패는 3.5초(2+1.5) 전엔 안 열린다
+	assert_bool(run.index == ci or total >= 2.0).override_failure_message("%.2fs 만에 반격 단계가 지나갔다" % total).is_true()
+	if total < 3.5:
 		assert_bool(main.seal_choice.is_open()).is_false()
 	_cleanup(main)
 
