@@ -21,6 +21,9 @@ enum Move { ADVANCE, KITE, HOLD, HOP }
 @export var move: Move = Move.ADVANCE
 
 @export_group("나오기")
+## 물결에 살아 있는 적이 이 수 이하로 줄었을 때만 나온다 (-1이면 차례대로). 1물결 첫 대형: 근접을 거의 다 잡은 뒤 대형만 상대하게
+## (사용자: "원거리 1라운드는 맨 마지막에 잡기 쉽게 나오게 해 근거리 다 죽거나 한마리 남았을때").
+@export var when_left: int = -1
 ## 대형 가운데가 영웅에게서 이 거리(px)에 선다 (RING은 영웅 둘레 radius). 걸을 수 있는 곳 밖 자리는 안으로 당긴다.
 @export var spawn_dist: float = 520.0
 ## 대형 방향을 정할 때 화면 안쪽을 고를지 (false면 아무 방향).
@@ -53,6 +56,8 @@ enum Move { ADVANCE, KITE, HOLD, HOP }
 @export var aim_gather: float = 0.6
 ## 겨눔 차례에 아무도 못 겨누면 (모두 경직·기절) 이만큼(초) 다시 시도하다 장전으로.
 @export var aim_retry: float = 1.2
+## 다른 대형이 같이 있으면 그 대형의 겨눔 시작에서 이만큼(초) 지나야 겨눈다 (두 묶음 박자 엇갈림, 같은 순간 겹친 일제 사격 없게).
+@export var volley_gap: float = 1.0
 
 @export_group("자리 찾기")
 ## 구성원이 자기 자리에서 이 거리(px) 안이면 줄여 걷는다 (자리를 지나치지 않게).

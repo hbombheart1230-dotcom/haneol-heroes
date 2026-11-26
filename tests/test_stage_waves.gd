@@ -34,8 +34,10 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 		assert_int(w.waves.size()).is_equal(base.waves.size())
 		# 판 전체 처치 점수 (실제로 주는 값 = 적마다 반올림(xp × xp_mult), ScoreFeed.kill): 한산(282)의 95~120%.
 		# 근접을 더해 물결 길이를 맞춘 무대(경복궁 +17%, 초충도 +6%)는 그만큼 더 준다 (잡몹 xp는 정수 1이라 깎을 수 없음).
+		# 대형 구성원은 무대마다 수가 다르다 (한산 8 · 만주 5 · 경복궁 6 · 초충도 6): 무대 사이 비교는 흩어진 적·정예로, 대형 몫은 따로 찍는다.
 		var score := _stage_score(id)
 		var base_score := _stage_score("hansan_1592")
+		print("[stage-score] %s %d + 대형 %d (한산 %d + %d)" % [id, score, _stage_score(id, true) - score, base_score, _stage_score("hansan_1592", true) - base_score])
 		assert_int(score).override_failure_message("%s score %d (한산 %d)" % [id, score, base_score]).is_between(roundi(base_score * 0.95), roundi(base_score * 1.2))
 		var roles: Dictionary = ROLES[id]
 		var base_roles: Dictionary = ROLES["hansan_1592"]
@@ -67,14 +69,14 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 
 
 ## 판 전체 처치 점수: 적마다 반올림(xp × xp_mult) (정예 자리는 무리 전부 또는 무대 정예 하나).
-func _stage_score(id: String) -> int:
+func _stage_score(id: String, with_formations: bool = false) -> int:
 	var w := _st(id).waves
 	var n := 0
 	for wave: WaveData in w.waves:
 		var list: Array = wave.enemies.duplicate()
 		if wave.elite_last:
 			list.append_array(wave.elite_group if not wave.elite_group.is_empty() else [_enemy(ROLES[id]["elite"])])
-		for f: FormationData in wave.formations:  # 대형 구성원도 처치 점수를 준다
+		for f: FormationData in (wave.formations if with_formations else []):  # 대형 구성원도 처치 점수를 준다
 			for k in f.count:
 				list.append(f.member)
 		for e: EnemyData in list:

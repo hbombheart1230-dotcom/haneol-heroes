@@ -58,13 +58,37 @@ func test_cycle_form_move_halt_aim_reload() -> void:
 	assert_int(c.phase).is_equal(FormationCycle.Phase.MOVE)
 
 
-func test_hansan_wave2_queues_one_gunner_line() -> void:
+## 네 무대 모두 원거리 대형이 1물결 1번 · 2물결 2번 · 4물결 3번 (3물결 중간 우두머리는 없음), 차례 자리는 물결 데이터대로.
+func test_every_stage_queues_formations_1_2_0_3() -> void:
+	for id in ["hansan_1592", "manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
+		var st := load("res://data/stages/%s.tres" % id) as StageTheme
+		var per := []
+		for i in st.waves.waves.size():
+			var r := WaveRunner.new(st.waves, 0.0)
+			r._start(i)
+			var at := []
+			for k in r._queue.size():
+				if r._queue[k] is FormationData:
+					at.append(k)
+			per.append(at.size())
+			var after: PackedInt32Array = st.waves.waves[i].formation_after
+			for k in at.size():  # 앞 대형만큼 밀린다, 차례 끝을 넘는 자리는 맨 끝
+				assert_int(at[k]).override_failure_message("%s w%d" % [id, i + 1]).is_equal(mini(after[k], r._queue.size() - at.size()) + k)
+		# 1물결 대형은 근접을 다 잡았거나 하나 남았을 때 (차례 맨 끝, when_left 1): 처음 보는 사람이 대형만 상대한다
+		var w1 := st.waves.waves[0].formations[0]
+		assert_int(w1.when_left).override_failure_message(id).is_equal(1)
+		var r1 := WaveRunner.new(st.waves, 0.0)
+		r1._start(0)
+		assert_bool(r1._queue[-1] is FormationData).override_failure_message(id).is_true()
+		assert_array(per).override_failure_message(id).is_equal([1, 2, 0, 3])
+
+
+func test_hansan_wave2_queues_gunner_lines() -> void:
 	var st := load("res://data/stages/hansan_1592.tres") as StageTheme
 	var r := WaveRunner.new(st.waves, 0.0)
 	r._start(1)
 	var marks := r._queue.filter(func(x: Variant) -> bool: return x is FormationData)
-	assert_int(marks.size()).is_equal(1)
-	assert_int(r._queue.find(marks[0])).is_equal(st.waves.waves[1].formation_after[0])
+	assert_int(marks.size()).is_equal(2)
 	var f := marks[0] as FormationData
 	assert_int(f.count).is_equal(8)
 	assert_int(f.shape).is_equal(FormationData.Shape.LINE)
@@ -117,3 +141,33 @@ func test_late_member_after_broken_fights_alone() -> void:
 	e.set_physics_process(false)
 	assert_object(e.formation).is_null()
 	assert_bool(e.attack.start_check.is_valid()).is_false()
+
+
+func test_two_formations_do_not_volley_together() -> void:
+	# 같은 물결에 대형 둘이 같이 있으면 겨눔 시작이 volley_gap초 이상 엇갈린다 (같은 순간 16발 없게).
+	var sp: EnemySpawner = auto_free(EnemySpawner.new())
+	var d := _data(FormationData.Shape.LINE, 2)
+	var a := FormationBrain.new(d, sp, Vector2.ZERO, Vector2.DOWN)
+	var b := FormationBrain.new(d, sp, Vector2(0, 600), Vector2.UP)
+	sp.formations.append(a)
+	sp.formations.append(b)
+	assert_bool(b.volley_blocked()).is_false()
+	a.aimed_at = EnemyAttack.now_sec()
+	assert_bool(b.volley_blocked()).is_true()
+	assert_bool(a.volley_blocked()).is_false()  # 자기 자신은 막지 않는다
+	a.aimed_at = EnemyAttack.now_sec() - d.volley_gap - 0.01
+	assert_bool(b.volley_blocked()).is_false()
+
+
+func test_wave1_formation_waits_until_melee_nearly_gone() -> void:
+	# when_left: 물결에 살아 있는 적이 그 수 이하일 때만 나온다. 대형이 차례에 남아 있는 동안 물결은 끝나지 않는다.
+	var st := load("res://data/stages/hansan_1592.tres") as StageTheme
+	var r := WaveRunner.new(st.waves, 0.0)
+	r._start(0)
+	var f := r._queue[-1] as FormationData
+	r._queue = [f]
+	r._stagger = 0.0
+	assert_array(r.next_spawn(2, st.waves.max_alive)).is_empty()
+	assert_int(r.tick(0.1, 0, false)).is_not_equal(WaveRunner.Event.CLEARED)  # 근접을 다 잡아도 대형이 나오기 전엔 안 끝남
+	r._stagger = 0.0
+	assert_array(r.next_spawn(1, st.waves.max_alive)).contains_exactly([f])

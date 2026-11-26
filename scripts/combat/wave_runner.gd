@@ -66,6 +66,8 @@ func next_spawn(alive: int, cap: int) -> Array:
 	var w: WaveData = data.waves[index]
 	if _queue[0] == null and w.elite_when_left >= 0 and alive > w.elite_when_left:
 		return []  # 중간 보스는 잡몹이 줄어든 뒤
+	if _queue[0] is FormationData and (_queue[0] as FormationData).when_left >= 0 and alive > (_queue[0] as FormationData).when_left:
+		return []  # 이 대형은 물결 잡몹이 줄어든 뒤 (1물결 첫 대형)
 	if _queue[0] is FormationData and alive + mini((_queue[0] as FormationData).count, wave_cap(cap)) > wave_cap(cap):
 		return []  # 대형은 한꺼번에 count명: 동시 상한 안에 다 들어갈 자리가 날 때까지 기다린다
 	if not data.refill_each:
@@ -108,7 +110,8 @@ func _start(i: int) -> void:
 	index = i
 	phase = Phase.RUN
 	var w: WaveData = data.waves[i]
-	_queue = WaveSwarm.expand(w.enemies, data.melee_count_mult if w.swarm else 1.0)
+	_queue = []  # 타입 없는 배열에 옮긴다 (떼가 아닌 물결은 Array[EnemyData] 복사본이라 대형을 끼울 수 없다)
+	_queue.append_array(WaveSwarm.expand(w.enemies, data.melee_count_mult if w.swarm else 1.0))
 	for k in range(w.formations.size() - 1, -1, -1):  # 대형 묶음을 차례 자리에 (뒤에서부터 넣어 앞 자리가 밀리지 않게)
 		var at := w.formation_after[k] if k < w.formation_after.size() else 0
 		_queue.insert(clampi(at, 0, _queue.size()), w.formations[k])

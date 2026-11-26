@@ -13,6 +13,9 @@ static func spawn(sp: EnemySpawner, d: FormationData) -> FormationBrain:
 	var facing := Vector2.DOWN
 	if d.shape != FormationData.Shape.RING:
 		var up := -1.0 if sp.rng.randf() < 0.5 else 1.0
+		var other := _live_anchor(sp)
+		if other != Vector2.INF:  # 이미 대형이 있으면 영웅 반대쪽에 (두 묶음이 겹쳐 서지 않게)
+			up = -1.0 if other.y > t.y else 1.0
 		var dir := Vector2(0.0, up).rotated(sp.rng.randf_range(-0.35, 0.35))
 		anchor = sp.bounded(t + dir * d.spawn_dist)
 		if anchor.distance_to(t) < d.spawn_dist * 0.6:  # 벽에 막혀 너무 가까우면 반대쪽
@@ -24,6 +27,14 @@ static func spawn(sp: EnemySpawner, d: FormationData) -> FormationBrain:
 		var slot := i
 		sp.warn_spawn(d.member, b.slot_point(i), false, i * sp.group_spread, func(e: Enemy) -> void: b.join(e, slot))
 	return b
+
+
+## 살아 있는 마지막 대형의 가운데 (없으면 INF).
+static func _live_anchor(sp: EnemySpawner) -> Vector2:
+	for i in range(sp.formations.size() - 1, -1, -1):
+		if not sp.formations[i].is_over():
+			return sp.formations[i].anchor
+	return Vector2.INF
 
 
 static func tick_all(sp: EnemySpawner, delta: float) -> void:
