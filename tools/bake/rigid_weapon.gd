@@ -76,7 +76,7 @@ static func apply(model: Node, cfg: Dictionary) -> int:
 		if src == null or mi.skin == null:
 			continue
 		var skel := mi.get_node_or_null(mi.skeleton) as Skeleton3D
-		var bind := bind_index(mi.skin, skel, bone)
+		var bind := bind_index(mi.skin, skel, String(cfg.get("hide_bone", bone)) if cfg.get("hide", false) else bone)
 		if bind < 0:
 			continue
 		var out := ArrayMesh.new()
@@ -87,6 +87,7 @@ static func apply(model: Node, cfg: Dictionary) -> int:
 			if cfg.get("hide", false):  # 무기를 묶는 대신 지운다
 				var hp: Array = cfg.get("hide_point", [0, 1.0, 0])
 				var hv: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+				rebind(hv, bones, weights, boxes, bind)  # 지운 부분이 손에 끌려 늘어나지 않게 다른 뼈(몸통)에 묶는다
 				total += hide_verts(hv, boxes, Vector3(hp[0], hp[1], hp[2]))
 				arr[Mesh.ARRAY_VERTEX] = hv
 			else:

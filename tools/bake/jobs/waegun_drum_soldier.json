@@ -1,6 +1,6 @@
 {
   "name": "waegun_drum_soldier",
-  "model": "res://assets/models/meshy/waegun_soldier/animated.glb",
+  "model": "res://assets/models/meshy/waegun_drum_soldier/soldier_web_meshyrig.glb",
   "ortho_size": 2.2,
   "frame": 160,
   "style": "ink",
@@ -14,62 +14,54 @@
   "anims": [
     {
       "key": "idle",
-      "src": "Idle",
+      "src": "Idle_14",
       "frames": 4,
       "fps": 6.0,
-      "loop": true
+      "loop": true,
+      "start": 0.0,
+      "end": 1.6
     },
     {
       "key": "run",
-      "src": "Walk_Fight_Forward",
+      "src": "Running",
       "frames": 8,
-      "fps": 8.0,
-      "loop": true,
-      "from": "res://assets/models/meshy/waegun_heavy/animated.glb"
+      "fps": 12.7,
+      "loop": true
     },
     {
       "key": "attack",
-      "src": "Left_Slash",
+      "src": "Heavy_Hammer_Swing",
       "frames": 6,
       "fps": 10.0,
-      "loop": false,
-      "strike": 0.6,
-      "times": [
-        0.0,
-        0.2,
-        0.4,
-        0.6,
-        0.8,
-        1.0
-      ]
+      "loop": false
     },
     {
       "key": "hit",
-      "src": "Hit Reaction",
+      "src": "Face_Punch_Reaction",
       "frames": 3,
       "fps": 12.0,
       "loop": false,
       "times": [
-        0.15,
-        0.35,
-        0.6
+        0.2,
+        0.5,
+        0.9
       ]
     },
     {
       "key": "down",
-      "src": "Hit_Reaction",
+      "src": "Dead",
       "frames": 8,
       "fps": 10.0,
       "loop": false,
       "times": [
-        0.0,
-        0.2,
-        0.4,
-        0.6,
-        0.8,
-        1.0,
-        1.2,
-        1.4
+        0.31,
+        1.56,
+        1.72,
+        1.87,
+        1.95,
+        2.03,
+        2.34,
+        2.97
       ]
     }
   ],
@@ -80,47 +72,27 @@
       "pos": [
         0,
         0,
-        30
+        0.3
       ],
       "rot": [
         90,
         0,
         0
       ],
-      "radius": 24,
-      "depth": 30
+      "radius": 0.24,
+      "depth": 0.3
     },
     {
       "shape": "stick",
       "bone": "RightHand",
-      "pos": [
-        0,
-        0,
-        0
-      ],
-      "rot": [
-        0,
-        0,
-        0
-      ],
-      "radius": 1.4,
-      "length": 28
+      "radius": 0.022,
+      "length": 0.32
     },
     {
       "shape": "stick",
       "bone": "LeftHand",
-      "pos": [
-        0,
-        0,
-        0
-      ],
-      "rot": [
-        0,
-        0,
-        0
-      ],
-      "radius": 1.4,
-      "length": 28
+      "radius": 0.022,
+      "length": 0.32
     }
   ],
   "rigid": {
@@ -128,8 +100,8 @@
     "hide": true,
     "hide_point": [
       0,
-      1.0,
-      0
+      0.95,
+      0.15
     ],
     "boxes": [
       [
@@ -149,6 +121,7 @@
         1.95,
         0.4
       ]
-    ]
+    ],
+    "hide_bone": "Hips"
   }
 }
