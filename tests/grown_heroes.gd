@@ -22,6 +22,8 @@ static func take(suite: Node, hero_id: String, s: int, at: At) -> Array:
 	if at == At.MID:
 		sim.spawner.elite_spawned.connect(func(_e: Enemy) -> void: sim.stop_now = true)
 	sim.run_waves()
+	if OS.get_environment("HH_PRINT_PICKS") == "1":  # 보고용: 성장하며 고른 패
+		print("[grown-picks] %s seed %d: %s" % [hero_id, s, str(sim.growth.picks)])
 	var h := sim.growth.build.hero.duplicate_deep(Resource.DEEP_DUPLICATE_INTERNAL) as HeroData
 	var out := [h, sim.growth.progress.level]
 	sim.free_all()

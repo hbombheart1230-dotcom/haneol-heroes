@@ -64,7 +64,8 @@ func test_finisher_cards_raise_the_fourth_hit() -> void:
 		assert_str(l[0]["label"]).is_equal("마무리 피해")
 		assert_str(l[0]["from"]).is_equal(str(roundi(kit.tap.damage * before)))
 		b.apply(u)
-		assert_float(kit.combo_finisher_mult).is_equal_approx(before * 1.15, 0.0001)
+		assert_float(kit.combo_finisher_mult).is_equal_approx(before * u.mods[0].value, 0.0001)
+		assert_float(u.mods[0].value).is_greater(1.0)
 		assert_int(kit.tap.vfx_level).is_equal(0)  # 판정·그림 크기는 건드리지 않는다
 		assert_bool(UpgradeEffect.useful(b, u)).is_true()
 

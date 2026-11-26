@@ -58,13 +58,13 @@ script = ExtResource("3_mod")
 target = &"kit"
 property = &"combo_finisher_mult"
 op = 1
-value = 1.15
+value = 1.1
 
 [sub_resource type="Resource" id="Up_haeryong_finish"]
 script = ExtResource("2_up")
 id = &"haeryong_finish"
 title = "해룡참 · 마무리 베기"
-description = "4타 마무리 피해 +15%"
+description = "4타 마무리 피해 +10%"
 icon = ExtResource("icon_haeryong_finish")
 color = Color(0.2, 0.5, 0.9, 1)
 max_stacks = 3
