@@ -171,3 +171,32 @@ func test_wave1_formation_waits_until_melee_nearly_gone() -> void:
 	assert_int(r.tick(0.1, 0, false)).is_not_equal(WaveRunner.Event.CLEARED)  # 근접을 다 잡아도 대형이 나오기 전엔 안 끝남
 	r._stagger = 0.0
 	assert_array(r.next_spawn(1, st.waves.max_alive)).contains_exactly([f])
+
+
+func test_formation_member_kill_xp_uses_formation_mult() -> void:
+	# 대형 구성원 처치 점수 = 반올림(xp × 무대 배율 × FormationData.xp_mult) (대형이 여럿이라 경지가 너무 빨라지지 않게).
+	var d := load("res://data/formations/hansan_gunner_line.tres") as FormationData
+	var b := FormationBrain.new(d, null, Vector2.ZERO, Vector2.DOWN)
+	var e: Enemy = (load("res://scenes/enemy.tscn") as PackedScene).instantiate()
+	e.data = d.member
+	add_child(auto_free(e))
+	e.set_physics_process(false)
+	var cfg := RunConfig.new()
+	cfg.levels = load("res://data/runs/level_rules.tres")
+	cfg.score = load("res://data/runs/score_table.tres")
+	var p := RunProgress.new(cfg)
+	var feed := ScoreFeed.new(p, load("res://data/runs/score_table.tres"))
+	var alone := feed.kill(e, 1.53)
+	b.join(e, 0)
+	assert_int(feed.kill(e, 1.53)).is_equal(roundi(d.member.xp * 1.53 * d.xp_mult))
+	assert_int(alone).is_equal(roundi(d.member.xp * 1.53))
+
+
+## 네 무대 대형 모두 경험치 배율이 1보다 작되, 구성원 하나가 적어도 1점은 준다 (반올림으로 0이 되지 않게).
+func test_every_formation_gives_some_but_less_xp() -> void:
+	for id in ["hansan_1592", "manchuria_395", "gyeongbokgung_1433", "chochungdo"]:
+		var st := load("res://data/stages/%s.tres" % id) as StageTheme
+		for w: WaveData in st.waves.waves:
+			for f: FormationData in w.formations:
+				assert_float(f.xp_mult).override_failure_message(id).is_less(1.0)
+				assert_int(roundi(f.member.xp * st.waves.xp_mult * f.xp_mult)).override_failure_message(id).is_greater_equal(1)

@@ -19,6 +19,8 @@ enum Move { ADVANCE, KITE, HOLD, HOP }
 ## ARC 호의 크기(도). 0이면 spacing과 radius로 정한다.
 @export var arc_deg: float = 0.0
 @export var move: Move = Move.ADVANCE
+## 구성원 하나를 잡을 때 처치 점수 배율 (ScoreFeed.kill): 대형이 물결마다 여럿 나와 경지가 너무 빨라지지 않게.
+@export var xp_mult: float = 1.0
 
 @export_group("나오기")
 ## 물결에 살아 있는 적이 이 수 이하로 줄었을 때만 나온다 (-1이면 차례대로). 1물결 첫 대형: 근접을 거의 다 잡은 뒤 대형만 상대하게
