@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="StageTheme" format=3]
 
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
+[ext_resource type="Resource" path="res://data/formations/hansan_gunner_line.tres" id="f_gunner_line"]
+[ext_resource type="Script" path="res://scripts/data/formation_data.gd" id="f_script"]
 [ext_resource type="Resource" path="res://data/stages/hazards/hansan_cannon.tres" id="h_cannon"]
 [ext_resource type="Script" path="res://scripts/data/stage_hazard_data.gd" id="h_script"]
 [ext_resource type="AudioStream" path="res://assets/audio/music/hansan_1592/verse.ogg" id="2_music"]
@@ -45,10 +47,12 @@ elite_last = false
 
 [sub_resource type="Resource" id="Wave_2"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier")])
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_gunner"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier")])
 first_count = 10
 max_alive = 10
 elite_last = false
+formations = Array[ExtResource("f_script")]([ExtResource("f_gunner_line")])
+formation_after = PackedInt32Array(10)
 
 [sub_resource type="Resource" id="Wave_3"]
 script = ExtResource("w_wave")

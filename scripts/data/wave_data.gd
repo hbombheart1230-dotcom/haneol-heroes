@@ -17,3 +17,6 @@ extends Resource
 @export var elite_group: Array[EnemyData] = []
 ## 끄면 이 물결은 근접 잡몹 수 배율(WaveSetData.melee_count_mult)을 받지 않는다 (첫 물결을 가볍게 여는 무대).
 @export var swarm: bool = true
+## 대형 묶음 (FormationData): formation_after[i]마리가 나온 뒤 formations[i]가 한꺼번에 선다 (없으면 0, 물결 처음).
+@export var formations: Array[FormationData] = []
+@export var formation_after: PackedInt32Array = PackedInt32Array()
