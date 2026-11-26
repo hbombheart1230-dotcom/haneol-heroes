@@ -65,3 +65,27 @@ func test_finisher_contact_buzz_survives_the_cast_buzz() -> void:
 	Haptics.last = []
 	f.haptic(12, 0.35)  # 그 뒤 약한 1타 진동은 여전히 간격에 막힌다
 	assert_array(Haptics.last).is_empty()
+
+
+func test_first_tick_of_a_cast_buzzes_like_a_single_hit() -> void:
+	# 세종 정음진(4타)은 도는 글자가 0.5초마다 tick_hit만 → 예전엔 닿아도 진동 없음 (마지막 타만 진동).
+	var f := _feedback()
+	var p: Player = auto_free(Player.new())
+	add_child(p)
+	p.hero = preload("res://data/heroes/sejong.tres")
+	var e: Enemy = ENEMY_SCENE.instantiate()
+	e.data = SOLDIER
+	add_child(auto_free(e))
+	e.set_physics_process(false)
+	e.global_position = Vector2(80, 0)
+	var ctx := SkillContext.new()
+	ctx.player = p
+	ctx.skill = p.hero.kit.tap
+	assert_bool(ctx.tick_hit(e, 6)).is_true()
+	var d := HitImpact.data()
+	assert_array(Haptics.last).is_equal(
+		[HitImpactData.at_i(d.haptic_ms, d.skill_step, 0), HitImpactData.at_f(d.haptic_amp, d.skill_step, 0.0)])
+	Haptics.last = []
+	f._last_haptic = -INF
+	assert_bool(ctx.tick_hit(e, 6)).is_true()  # 같은 발동의 다음 틱은 예전처럼 진동 없음
+	assert_array(Haptics.last).is_empty()

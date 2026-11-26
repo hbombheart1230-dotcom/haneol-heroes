@@ -95,6 +95,9 @@ func tick_hit(en: Enemy, dmg: int, last: bool = false) -> bool:
 	var ok2 := hit(en, dmg, false)
 	if ok2:
 		SkillMultiHit.tick(self, en)
+		if not _thud_done:  # 발동의 첫 닿음은 한 번에 끊어 치는 명중만큼 진동 (세종 정음진 4타: 틱엔 진동이 없어 4초 뒤 마지막 타까지 조용했다)
+			_thud_done = true
+			HitImpact.on_swing(HitImpact.data().skill_step)
 	return ok2
 
 
