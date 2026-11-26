@@ -31,9 +31,11 @@ static var enemy_hp_bars: bool = true
 static var combo_text: bool = true
 ## 조작 안내 (설정 "조작 안내", 저장, 처음엔 켬): 켜 두면 아직 안 본 사람에게만 저절로 한 번 나온다.
 static var tutorial_enabled: bool = true
-## 조작 안내를 이미 봤는지 (저장): 안내가 뜨는 순간 표시하고, 끝내거나 건너뛰면 다시 확인한다. 설정에서 다시 켜면 지운다.
-## 예전엔 저장하지 않아 앱을 켜거나 판을 나갈 때마다 처음부터 다시 나왔다.
+## 이번 실행에서 조작 안내를 건너뛴다 (저장 안 함; 시험·개발용).
 static var tutorial_done: bool = false
+## 조작 안내를 이미 본 영웅 id들 (저장): 영웅마다 처음 출전할 때 한 번 저절로 나오고, 끝내든 건너뛰든 도중에 나가든 그 영웅은 다시 안 나온다.
+## 예전엔 이 표시가 없어 앱을 켜거나 판을 나갈 때마다 처음부터 다시 나왔다.
+static var tutorial_seen_heroes: PackedStringArray = PackedStringArray()
 ## 마지막으로 고른 영웅 id (재시작 때 그대로).
 static var hero_id: StringName = &""
 ## 이번 실행에서 영웅을 이미 골랐는지 (앱을 새로 켜면 고르기 화면부터).
@@ -135,7 +137,7 @@ static func load_settings(path: String = "") -> void:
 	enemy_hp_bars = bool(cfg.get_value("display", "enemy_hp_bars", enemy_hp_bars))
 	combo_text = bool(cfg.get_value("display", "combo_text", combo_text))
 	tutorial_enabled = bool(cfg.get_value("game", "tutorial_enabled", true))  # 값이 없으면 (처음·예전 저장) 켬
-	tutorial_done = bool(cfg.get_value("game", "tutorial_done", tutorial_done))  # 값이 없으면 (처음·예전 저장) 지금 값 그대로
+	tutorial_seen_heroes = PackedStringArray(cfg.get_value("game", "tutorial_seen_heroes", tutorial_seen_heroes))
 	apply_audio()
 	hero_id = StringName(cfg.get_value("game", "hero_id", String(hero_id)))
 	stage_id = StringName(cfg.get_value("game", "stage_id", String(stage_id)))
@@ -145,6 +147,23 @@ static func load_settings(path: String = "") -> void:
 	hero_clears = cfg.get_value("game", "hero_clears", hero_clears)
 	hero_cleared = cfg.get_value("game", "hero_cleared", hero_cleared)
 	stage_records = cfg.get_value("game", "stage_records", stage_records)
+
+
+static func tutorial_seen(hero: StringName) -> bool:
+	return tutorial_seen_heroes.has(String(hero))
+
+
+static func mark_tutorial_seen(hero: StringName) -> void:
+	if hero != &"" and not tutorial_seen(hero):
+		tutorial_seen_heroes.append(String(hero))
+
+
+## 설정 "조작 안내 다시 보기": 지금 고른 영웅 안내를 다음 판에 한 번 더.
+static func replay_tutorial(hero: StringName) -> void:
+	var i := tutorial_seen_heroes.find(String(hero))
+	if i >= 0:
+		tutorial_seen_heroes.remove_at(i)
+	tutorial_done = false
 
 
 static func save_settings(path: String = "") -> Error:
@@ -162,7 +181,7 @@ static func save_settings(path: String = "") -> Error:
 	cfg.set_value("display", "enemy_hp_bars", enemy_hp_bars)
 	cfg.set_value("display", "combo_text", combo_text)
 	cfg.set_value("game", "tutorial_enabled", tutorial_enabled)
-	cfg.set_value("game", "tutorial_done", tutorial_done)
+	cfg.set_value("game", "tutorial_seen_heroes", tutorial_seen_heroes)
 	cfg.set_value("game", "hero_id", String(hero_id))
 	cfg.set_value("game", "stage_id", String(stage_id))
 	cfg.set_value("game", "intro_seen", intro_seen)

@@ -47,6 +47,7 @@ func _main() -> Node:
 func _start_run(tutorial: bool) -> Node:
 	GameSettings.tutorial_enabled = tutorial
 	GameSettings.tutorial_done = not tutorial
+	GameSettings.tutorial_seen_heroes = PackedStringArray()
 	var m := _main()
 	await _tap(m.stage_select.card_rect(0).get_center())
 	await _wait(30)

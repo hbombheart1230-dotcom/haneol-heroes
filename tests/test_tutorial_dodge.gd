@@ -13,6 +13,7 @@ func _main() -> Node:
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.tutorial_enabled = true
 	GameSettings.tutorial_done = false
+	GameSettings.tutorial_seen_heroes = PackedStringArray()
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)

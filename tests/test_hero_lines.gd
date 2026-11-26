@@ -120,6 +120,7 @@ func test_no_lines_when_story_off() -> void:
 func test_no_lines_during_tutorial() -> void:
 	GameSettings.tutorial_enabled = true
 	GameSettings.tutorial_done = false
+	GameSettings.tutorial_seen_heroes = PackedStringArray()
 	var v := await _run(&"yi_sun_sin")
 	assert_bool(main.tutorial_director != null and main.tutorial_director.running()).is_true()
 	_after_title(v)

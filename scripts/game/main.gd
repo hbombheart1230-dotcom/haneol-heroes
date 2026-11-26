@@ -136,8 +136,9 @@ func begin_run() -> void:
 	waiting_pick = false
 	get_tree().paused = false
 	music_cue(&"stage")  # 다시 시작하면 무대 곡으로 (같으면 이어서)
-	if tutorial and GameSettings.tutorial_enabled and not GameSettings.tutorial_done:
-		GameSettings.tutorial_done = true  # 한 번 뜬 것으로 친다 (도중에 나가도 다음 판에 처음부터 되풀이하지 않는다)
+	var hero_id: StringName = player.hero.id if player and player.hero else &""
+	if tutorial and GameSettings.tutorial_enabled and not GameSettings.tutorial_done and not GameSettings.tutorial_seen(hero_id):
+		GameSettings.mark_tutorial_seen(hero_id)  # 이 영웅 안내는 뜬 것으로 친다 (도중에 나가도 다음 판에 처음부터 되풀이하지 않는다)
 		GameSettings.save_settings()
 		tutorial_director = TutorialDirector.new(self)
 		tutorial_director.start(tutorial)

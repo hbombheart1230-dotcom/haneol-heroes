@@ -56,6 +56,7 @@ func test_first_run_holds_enemies_and_time_until_done() -> void:
 	GameSettings.hero_picked = true
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.tutorial_done = false
+	GameSettings.tutorial_seen_heroes = PackedStringArray()
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
@@ -72,7 +73,7 @@ func test_first_run_holds_enemies_and_time_until_done() -> void:
 	main.player.dash_started.emit(Vector2.RIGHT)
 	assert_int(main.tutorial_director.run.index).is_equal(0)  # 아직 걷기 단계라 대시는 세지 않음
 	main.tutorial_director.run.skip()
-	assert_bool(GameSettings.tutorial_done).is_true()
+	assert_bool(GameSettings.tutorial_seen(main.player.hero.id)).is_true()
 	assert_bool(main.spawner.active).is_true()
 	await get_tree().physics_frame
 	assert_float(main.state.elapsed).is_greater(t)
@@ -106,6 +107,7 @@ func test_upgrade_step_drops_practice_seals_and_picking_one_advances() -> void:
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.tutorial_enabled = true
 	GameSettings.tutorial_done = false
+	GameSettings.tutorial_seen_heroes = PackedStringArray()
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)
@@ -131,6 +133,7 @@ func _main_at_upgrade_step() -> Node:
 	GameSettings.hero_id = &"yi_sun_sin"
 	GameSettings.tutorial_enabled = true
 	GameSettings.tutorial_done = false
+	GameSettings.tutorial_seen_heroes = PackedStringArray()
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
 	add_child(main)

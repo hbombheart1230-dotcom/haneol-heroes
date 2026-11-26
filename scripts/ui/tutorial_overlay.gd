@@ -8,6 +8,10 @@ signal skipped
 var run: TutorialProgress
 ## 설명을 고르는 데 쓰는 영웅 id와 물결 모드 여부 (TutorialDirector가 연다).
 var hero_id: StringName = &""
+## 단계 이벤트 → 그 영웅의 기술 이름 (TutorialDirector가 기술 데이터에서 채운다).
+var skill_names: Dictionary = {}
+const SKILL_NAME_PX := 36
+const SKILL_NAME_GAP := 36.0
 var waves: bool = false
 var _t: float = 0.0
 var _finish_left: float = 0.0
@@ -102,7 +106,7 @@ func _draw() -> void:
 	UiStyle.panel(self, b, Color(UiStyle.LACQUER, 0.82), UiStyle.GOLD)
 	var text_x := b.position.x + 150.0
 	var text_w := b.size.x - 170.0
-	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(text_x, b.position.y + 70), s.caption, 52, UiStyle.GOLD, text_w)
+	_draw_title(s, text_x, b.position.y + 70, text_w)
 	var hint := s.text_for(hero_id, GameSettings.skill_button_enabled, waves)
 	var lines := hint.split("\n")
 	for i in lines.size():
@@ -111,6 +115,21 @@ func _draw() -> void:
 	_draw_gesture(s.event, Vector2(b.position.x + 78.0, b.get_center().y))
 	_draw_dots(b)
 	UiStyle.button(self, skip_rect(), "건너뛰기", 30, _press_index != -1)
+
+
+## 제목(금빛) 오른쪽에 이 단계 기술의 이름 (한지빛, 그 영웅의 기술 데이터에서; 강화 패에 나오는 이름과 같다).
+## 둘을 한 묶음으로 가운데에 놓고, 이름은 남은 폭에 맞게 줄인다. 기술 이름이 없는 단계는 제목만 가운데.
+func _draw_title(s: TutorialStep, x: float, y: float, text_w: float) -> void:
+	var skill := String(skill_names.get(s.event, ""))
+	if skill == "":
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(x, y), s.caption, 52, UiStyle.GOLD, text_w)
+		return
+	var cap_w := UiStyle.TITLE_FONT.get_string_size(s.caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 52).x
+	var px := BossBanner.fit_px(skill, SKILL_NAME_PX, text_w - cap_w - SKILL_NAME_GAP)
+	var name_w := UiStyle.TITLE_FONT.get_string_size(skill, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
+	var left := x + (text_w - (cap_w + SKILL_NAME_GAP + name_w)) * 0.5
+	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(left, y), s.caption, 52, UiStyle.GOLD)
+	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(left + cap_w + SKILL_NAME_GAP, y), skill, px, UiStyle.PAPER)
 
 
 ## 단계 점 (지난 단계 금색, 지금 단계는 진행률만큼 차오름).
