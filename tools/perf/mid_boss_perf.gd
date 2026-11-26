@@ -4,6 +4,7 @@ extends SceneTree
 ## 셋이 나오는 순간 앞뒤 1초의 가장 큰 프레임(첫 불러오기 멈칫)과, 구간별(셋 전 잡몹 / 셋 싸움) 평균·99%·최대를 낸다.
 ## godot --path . --resolution 720x1280 -s res://tools/perf/mid_boss_perf.gd -- [무대 id] [영웅 id] [초]
 ## 결과 줄: MIDPERF <구간> frames <n> avg_ms <ms> p99_ms <ms> max_ms <ms> process_ms <ms> physics_ms <ms> draws <n> enemies <n>
+##          --ally: 원정 전장에서 주인 영웅을 늘 같이 세운다 (물러가면 바로 다시 부름 — 3D 영웅 둘 그리기 비용 재기)
 ##          MIDSPIKE t <초> frame_ms <ms> (셋 등장 ±1초 최대)  /  HITCH t <초> ms <ms> enemies <n> (33ms 넘는 프레임)
 ## 주의: 설정은 실행마다 따로 (probe_settings_<pid>.cfg) — 다른 도구처럼 probe_settings.cfg 하나를 같이 쓰면 동시에 돌린 측정끼리
 ## main이 저장본을 다시 읽을 때 영웅·무대가 섞인다 (2026-11-25 사임당 끊김 조사에서 실제로 섞여 결론을 두 번 뒤집음).
@@ -138,6 +139,8 @@ func _run() -> void:
 			var ct_ms := (Time.get_ticks_usec() - ct) / 1000.0
 			if ct_ms > 4.0:
 				print("TAPCALL ms %.1f at frame %d" % [ct_ms, _rows.size()])
+		if OS.get_cmdline_user_args().has("--ally"):
+			_keep_ally()
 		await process_frame
 		var t := (Time.get_ticks_usec() - t0) / 1e6
 		var frame_ms := (Time.get_ticks_usec() - before) / 1000.0
@@ -173,6 +176,16 @@ func _run() -> void:
 	_report_events()
 	_report()
 	quit()
+
+
+## --ally: 부르기 단추를 찾아 같이 싸우는 주인 영웅이 없으면 충전을 채워 다시 부른다.
+func _keep_ally() -> void:
+	for c in main.hud.get_children():
+		if c is HomeSummonButton:
+			var b := c as HomeSummonButton
+			if b.rules.home and (b.ally == null or not is_instance_valid(b.ally) or not b.ally.active()):
+				b.rules.charges = maxi(b.rules.charges, 1)
+				b.summon()
 
 
 func _now() -> float:

@@ -31,5 +31,11 @@ damage_scale = 8.3
 
 [resource]
 script = ExtResource("1_data")
+charges_start = 1
+charges_boss = 0
+charges_max = 1
+recharge_time = 60.0
+hint_text = "%s 부르기 · 누르면 같이 싸운다"
+hint_more_text = "%s 부르기 다시 찼다"
 ; 순신 해일검기 · 광개토 낙뢰 · 세종 성좌진 · 사임당 화폭 펼치기 (모두 모으기 칸, 다 모은 세기)
 entries = Array[ExtResource("2_entry")]([SubResource("e_yi"), SubResource("e_gw"), SubResource("e_sj"), SubResource("e_ss")])
