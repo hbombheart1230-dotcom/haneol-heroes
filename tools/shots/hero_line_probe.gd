@@ -1,7 +1,8 @@
 extends SceneTree
 ## 영웅 머리 위 대사(HeroLineView) 점검: 실제 main 장면을 실시간으로 돌리며 0.25초마다 대사 상태와
 ## 막는 까닭(blocked/allowed 쪼개서)을 찍고, 대사가 처음 그려지는 순간 화면을 찍는다.
--> <seconds> <out_dir> [tutorial]|-> <seconds> <out_dir> [tutorial]
+## godot --path . --resolution 900x810 -s res://tools/shots/hero_line_probe.gd -- <hero> <stage|-> <seconds> <out_dir> [tutorial|boss|die|flow]
+## 내보낸 판 점검: tools/는 pck에서 빠지므로 이 파일을 밖에 복사해 godot --main-pack <내보낸.pck> -s <복사본> -- ... 로 돌린다.
 
 var main: Node
 var out_dir := ""
