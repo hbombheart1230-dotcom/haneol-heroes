@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/enemy_aura_data.gd" id="2_aura"]
-[ext_resource type="Resource" path="res://assets/sprites/waegun_soldier/waegun_soldier.tres" id="3_sheet"]
+[ext_resource type="Resource" path="res://assets/sprites/waegun_drummer/waegun_drummer.tres" id="3_sheet"]
 [ext_resource type="Script" path="res://scripts/data/boss_phase_data.gd" id="4_phase"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_soldier.tres" id="5_soldier"]
 [ext_resource type="Resource" path="res://data/enemies/waegun_gunner.tres" id="6_gunner"]
