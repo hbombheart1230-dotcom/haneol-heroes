@@ -1,0 +1,84 @@
+{
+  "name": "waegun_drummer",
+  "height_meters": 1.9,
+  "hero_data": "data/enemies/waegun_drummer.tres",
+  "bake": {
+    "ortho_size": 2.2,
+    "frame": 160,
+    "style": "ink",
+    "ink": {
+      "inner_line": 0.1,
+      "line_px": 1.6,
+      "wash_amount": 0.5,
+      "grain": 0.05
+    },
+    "lossy_quality": 0.5
+  },
+  "anims": [
+    {
+      "key": "idle",
+      "match": "idle",
+      "frames": 4,
+      "fps": 6.0,
+      "loop": true,
+      "web": "Idle"
+    },
+    {
+      "key": "run",
+      "match": "run|walk",
+      "frames": 8,
+      "fps": 9.8,
+      "loop": true,
+      "web": "Walking"
+    },
+    {
+      "key": "attack",
+      "match": "shout|attack|slam",
+      "frames": 6,
+      "fps": 10.0,
+      "loop": false,
+      "web": "Sword_Shout",
+      "times": [
+        0.0,
+        0.27,
+        0.45,
+        0.64,
+        0.82,
+        1.0
+      ],
+      "strike": 1.0
+    },
+    {
+      "key": "hit",
+      "match": "hit",
+      "frames": 3,
+      "fps": 12.0,
+      "loop": false,
+      "web": "Hit_Reaction_to_Waist",
+      "times": [
+        0.15,
+        0.35,
+        0.6
+      ]
+    },
+    {
+      "key": "down",
+      "match": "dead|down",
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "web": "Dead",
+      "times": [
+        0.31,
+        1.56,
+        1.72,
+        1.87,
+        1.95,
+        2.03,
+        2.34,
+        2.97
+      ]
+    }
+  ],
+  "source": "Meshy community 019a26ea-98dc-7762-b673-72019bf52334 (CC0), remeshed+web rig"
+}
