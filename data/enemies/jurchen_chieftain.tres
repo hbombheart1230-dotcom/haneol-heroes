@@ -204,7 +204,7 @@ is_boss = true
 boss_hp_by_hero = {
 "gwanggaeto": 0.81,
 "sejong": 1.19,
-"shin_saimdang": 1.57,
+"shin_saimdang": 1.32,
 "yi_sun_sin": 1.3
 }
 boss_feel = SubResource("Boss_feel")

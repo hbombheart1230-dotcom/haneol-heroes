@@ -7,6 +7,7 @@ script = ExtResource("1")
 kinds = {
 &"combo_finisher_mult": &"strong",
 &"cooldown": &"fast",
+&"bites": &"more",
 &"count": &"more",
 &"counter_window": &"long",
 &"damage": &"strong",
@@ -60,6 +61,7 @@ major_color = Color(0.78, 0.6, 0.18, 1)
 labels = {
 &"combo_finisher_mult": "마무리 피해",
 &"cooldown": "재사용 대기",
+&"bites": "무는 횟수",
 &"count": "소환 수",
 &"counter_window": "반격 시간",
 &"damage": "피해",
