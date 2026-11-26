@@ -140,23 +140,24 @@ func test_trash_stagger_lets_knockback_show() -> void:
 	assert_float(e.velocity.x).is_less(0.0)  # 다시 쫓아옴
 
 
-## R2: 흰 번쩍임은 셰이더(instance uniform)로 섞는다. 곱하기 밝기(2.6배)는 쓰지 않는다.
+## R2: 흰 번쩍임은 셰이더(적마다 재질 복제의 uniform)로 섞는다. 곱하기 밝기(2.6배)는 쓰지 않는다.
 func test_white_flash_goes_through_shader() -> void:
 	var e := _enemy()
 	e.target = _target()
 	e.health.damage(3)
 	e._physics_process(DT)
 	assert_object(e.sprite.material).is_not_null()
-	assert_float(float(e.sprite.get_instance_shader_parameter(&"flash"))).is_greater(0.5)
+	assert_float(float(_param(e, &"flash"))).is_greater(0.5)
 	assert_float(e.sprite.modulate.r).is_less_equal(1.0)
 	for i in 12:
 		e._physics_process(DT)
-	assert_float(float(e.sprite.get_instance_shader_parameter(&"flash"))).is_equal(0.0)
+	assert_float(float(_param(e, &"flash"))).is_equal(0.0)
 
 
 func test_shader_declares_flash_uniform() -> void:
 	var code: String = load("res://shaders/enemy_rim.gdshader").code
-	assert_str(code).contains("instance uniform float flash")
+	assert_str(code).contains("varying float flash_v")
+	assert_str(code).not_contains("instance uniform")  # 폰(Adreno 650)이 instance uniform vec4를 엉뚱하게 읽었다
 
 
 ## A1: 기술 판정에 적 몸 반경을 더한다 (그림 가장자리에 걸친 적도 맞음).
@@ -235,9 +236,33 @@ func test_default_hanji_silhouette_on_enemy() -> void:
 	e._physics_process(DT)
 	var rd := Feedback.feel_data().reaction_data()
 	assert_int(rd.hit_flash_style).is_equal(4)
-	assert_float(float(e.sprite.get_instance_shader_parameter(&"flash"))).is_equal(1.0)
-	assert_bool(Color(e.sprite.get_instance_shader_parameter(&"flash_color")).is_equal_approx(rd.hanji_silhouette)).is_true()
-	assert_bool(Color(e.sprite.get_instance_shader_parameter(&"flash_rim")).is_equal_approx(rd.ink_rim)).is_true()
+	assert_float(float(_param(e, &"flash"))).is_equal(1.0)
+	assert_bool(Color(_param(e, &"flash_color")).is_equal_approx(rd.hanji_silhouette)).is_true()
+	assert_bool(Color(_param(e, &"flash_rim")).is_equal_approx(rd.ink_rim)).is_true()
 	for i in 12:
 		e._physics_process(DT)
-	assert_float(float(e.sprite.get_instance_shader_parameter(&"flash"))).is_equal(0.0)
+	assert_float(float(_param(e, &"flash"))).is_equal(0.0)
+
+
+## 번쩍임 양은 modulate 알파에 (EnemySprite.FLASH_BASE + 양), 색은 재질에 고정값으로. 셰이더가 푼다.
+func _param(e: Enemy, key: StringName) -> Variant:
+	if key == &"flash":
+		var a := e.sprite.modulate.a
+		return clampf(a - EnemySprite.FLASH_BASE, 0.0, 1.0) if a >= 1.5 else 0.0
+	return (e.sprite.material as ShaderMaterial).get_shader_parameter(key)
+
+
+## 번쩍임은 적마다 modulate에 실려 한 적이 번쩍여도 다른 적은 그대로, 재질은 같은 종류끼리 하나 (그리기 묶음 유지).
+func test_flash_rides_on_modulate_and_material_stays_shared() -> void:
+	var a := _enemy()
+	var b := _enemy()
+	a.target = _target()
+	a.health.damage(3)
+	a._physics_process(DT)
+	b._physics_process(DT)
+	assert_object(a.sprite.material).is_same(b.sprite.material)
+	assert_float(float(_param(a, &"flash"))).is_equal(1.0)
+	assert_float(float(_param(b, &"flash"))).is_equal(0.0)
+	assert_float(b.sprite.modulate.a).is_less_equal(1.0)
+	for sh in ["res://shaders/enemy_rim.gdshader", "res://shaders/enemy_live.gdshader"]:
+		assert_str((load(sh) as Shader).code).not_contains("instance uniform")

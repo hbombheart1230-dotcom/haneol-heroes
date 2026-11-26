@@ -58,7 +58,7 @@ func _with_ring(hero: String, label: String, plain: Array, home: bool = false) -
 	var reached := rs.filter(func(r: Dictionary) -> bool: return r["boss"]).size()
 	assert_int(reached).override_failure_message("%s 둥근 진 우두머리 %d/3" % [label, reached]).is_greater_equal(3 if home else 2)
 	assert_float(HazardRuns.mean(rs, "share")).override_failure_message("%s 둥근 진 피해 몫" % label).is_less_equal(RING_SHARE_MAX)
-	assert_float(HazardRuns.mean(rs, "time")).override_failure_message("%s 둥근 진 판 시간" % label) 		.is_less_equal(HazardRuns.mean(plain, "time") * RING_TIME_MULT)
+	assert_float(HazardRuns.mean(rs, "time")).override_failure_message("%s 둥근 진 판 시간" % label).is_less_equal(HazardRuns.mean(plain, "time") * RING_TIME_MULT)
 
 
 func test_sejong_home_with_cover() -> void:
