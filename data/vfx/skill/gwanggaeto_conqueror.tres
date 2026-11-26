@@ -1,6 +1,7 @@
 [gd_resource type="Resource" script_class="SkillVfxData" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/skill_vfx_data.gd" id="1_vfx"]
+[ext_resource type="Resource" path="res://data/vfx/gwanggaeto_hit.tres" id="edge_hit"]
 [ext_resource type="Texture2D" path="res://assets/vfx/royal_shock.png" id="2_tex"]
 
 [resource]
@@ -44,5 +45,6 @@ flicker = 0.6
 twist = 0.6
 art_fill = 0.87
 fit_exact = true
+edge_mark_vfx = ExtResource("edge_hit")
 growth = true
 gold_ring = false

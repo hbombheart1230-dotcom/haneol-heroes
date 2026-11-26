@@ -181,6 +181,7 @@ knockback = 520.0
 vfx_cast = ExtResource("vfx_cast")
 vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vs_counter")
+blade_art = ExtResource("art_tidal_crest_1")
 cutin = true
 sfx_layers = Array[StringName]([&"gugak_buk", &"gugak_big"])
 cast_anim = &"cast_counter"

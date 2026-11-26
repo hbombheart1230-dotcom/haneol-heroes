@@ -129,8 +129,23 @@ func impact(pos: Vector2, dir: Vector2 = Vector2.ZERO, radius: float = 0.0, fit_
 		dir = player.facing  # 조각은 바라보는 방향부터 휘감는다 (SweepRun과 같은 시작)
 	Feedback.vfx_burst(v, pos, dir, skill.vfx_level, fit_radius if fit_radius >= 0.0 else radius,
 		radius if fit_radius >= 0.0 else 0.0)
+	_edge_marks(v, pos, fit_radius if fit_radius >= 0.0 else radius)
 	Feedback.impact_haptic()
 	SkillStageFx.play(skill.impact_sfx, 0.06)
+
+
+## 판정 끝 그림이 화면 상한에 막혀 작으면 판정 둘레에 작은 그림을 찍는다 (SkillVfxData.edge_mark_vfx).
+func _edge_marks(v: SkillVfxData, pos: Vector2, reach: float) -> void:
+	if v.edge_mark_vfx == null or reach <= 0.0 or Feedback.instance == null or Feedback.instance.decals == null:
+		return
+	var dec := Feedback.instance.decals
+	var pl := FxCoverage.plan(v, skill.vfx_level, reach, dec.pieces.stage, FxCoverage.view_width(dec))
+	if float(pl["size"]) * v.art_fill * 0.5 >= reach * 0.97:
+		return  # 그림이 판정 끝까지 닿는다
+	var n := maxi(ceili(TAU * reach / maxf(v.edge_mark_spacing, 10.0)), 6)
+	for i in n:
+		var d := Vector2.from_angle(TAU * i / n)
+		Feedback.vfx_burst(v.edge_mark_vfx, pos + d * reach, d, skill.vfx_level)
 
 
 ## 지연 기술의 예고 (vfx_impact.gather_*): 떨어질·펼쳐질 자리로 기운이 모인다.
@@ -163,9 +178,10 @@ func _sweep_done(hits: int) -> void:
 
 
 ## 직선 기술 경로 a→b에 그림 띠 (vfx_impact.strip). 띠가 없으면 아무것도 안 한다.
-func strip(a: Vector2, b: Vector2) -> void:
+## hit_width > 0이면 띠 폭 = 그 값 (판정 폭 + 적 몸; 강화 패로 폭이 커지면 그림도 — #229 "긴 물길·넓은 벼락 폭 안 보임").
+func strip(a: Vector2, b: Vector2, hit_width: float = -1.0) -> void:
 	if skill and skill.vfx_impact:
-		Feedback.vfx_strip_for(skill.vfx_impact, a, b, skill.vfx_level)
+		Feedback.vfx_strip_for(skill.vfx_impact, a, b, skill.vfx_level, hit_width)
 
 
 ## a→b 번개 줄기 (vfx_impact에 번개 설정이 있으면 꺾인 번개, 없으면 붓 획). 연쇄·벼락길에 쓴다.

@@ -220,6 +220,10 @@ enum PieceMode { RADIAL, SCROLL }
 ## true면 판정에 맞춘 그림이 처음부터 끝까지 판정 끝에 머문다: 화면 상한·커지기 없이, 금빛 고리도 같은 둘레
 ## (해룡참: 사용자 7ce32eb "원이 초기에 칼날 길이랑 안 맞는다" — 기본 단계에선 상한에 깎여 판정의 0.86배였다).
 @export var fit_exact: bool = false
+## 판정 끝 그림이 화면 상한에 막혀 판정보다 작게 그려질 때: 판정 둘레에 이 작은 그림을 edge_mark_spacing(px)마다 찍어
+## 끝을 보인다 (크기 대신 겹; 강화 패 "넓은 진동·위엄" #229 — 금빛 단순 고리는 쓰지 않음). 비면 없음.
+@export var edge_mark_vfx: SkillVfxData
+@export var edge_mark_spacing: float = 80.0
 
 @export_group("연출 · 움직이는 그림 (프레임 시트)")
 ## 비어 있지 않으면 decal 대신 이 시트를 프레임으로 재생한다 (docs/skill_vfx_sheets.md 규격). strip_sheet는 띠용.

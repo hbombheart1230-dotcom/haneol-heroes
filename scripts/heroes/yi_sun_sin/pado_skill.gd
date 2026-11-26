@@ -7,6 +7,8 @@ extends SkillDef
 @export var hit_count: int = 3
 @export var damage_per_hit: int = 10
 @export var hit_interval: float = 0.07
+## 띠 그림 폭에 더하는 적 몸(px, 양쪽 각각): 띠 폭 = 판정 폭 + 몸 둘 (강화 패 "긴 물길" 폭이 보이게).
+@export var strip_edge_px: float = 20.0
 @export_group("큰 변형 · 물보라")
 ## 0보다 크면 마지막 타격 때 물길 끝에서 이 반경으로 터진다.
 @export var end_burst_radius: float = 0.0
@@ -19,7 +21,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		dir = ctx.player.facing
 	var a := ctx.player.global_position - dir * 30.0
 	var b := ctx.player.global_position + dir * length
-	ctx.strip(a, b)  # 앞으로 밀려가는 물결 띠
+	ctx.strip(a, b, width + 2.0 * strip_edge_px)  # 앞으로 밀려가는 물결 띠 (폭 = 판정 폭 + 적 몸 둘)
 	if ctx.fx and (vfx_impact == null or vfx_impact.strip == null):
 		ctx.fx.add_slash(a, b, width * 0.5, 0.3, fx_color)
 	var run := PadoRun.new(self, ctx, a, b)

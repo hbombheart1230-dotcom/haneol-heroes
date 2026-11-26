@@ -74,10 +74,10 @@ func strip(tex: Texture2D, a: Vector2, b: Vector2, width: float, time: float, re
 
 
 ## 기술 데이터의 띠 설정으로 펼친다.
-func strip_for(d: SkillVfxData, a: Vector2, b: Vector2, level: int = 0) -> void:
+func strip_for(d: SkillVfxData, a: Vector2, b: Vector2, level: int = 0, width: float = -1.0) -> void:
 	if d and (d.strip or d.strip_sheet):
-		strip(d.strip_at(0.0), a, b, d.strip_width, d.strip_time, d.strip_reveal, d.size_mult(level),
-			d.bright_for(level), d)
+		strip(d.strip_at(0.0), a, b, width if width > 0.0 else d.strip_width, d.strip_time, d.strip_reveal,
+			1.0 if width > 0.0 else d.size_mult(level), d.bright_for(level), d)
 
 
 ## 그림 터뜨리기. level = 기술 강화 단계 (클수록 크고 밝고 겹이 많다).
