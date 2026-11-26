@@ -44,6 +44,7 @@ func _run() -> void:
 		if caster and tap <= 0.0:
 			tap = 0.2
 			caster.combo_tap()
+		_hop_if_waiting()
 		_walk()
 		if w.phase == WaveRunner.Phase.RUN:
 			_add("w%d" % (w.index + 1), (Time.get_ticks_msec() - t0) / 1000.0)
@@ -82,3 +83,22 @@ func _walk() -> void:
 				best = c
 	if best and bd > 140.0:
 		player.global_position += (best.global_position - player.global_position).normalized() * 4.0
+
+
+## 구역 건너뛰기 (ZoneHop): 화살을 기다리면 가까운 난간 자리 아래로 옮겨 그쪽으로 내닫는다.
+var _hop_wait := 0.0
+func _hop_if_waiting() -> void:
+	var zh := main.find_children("*", "ZoneHop", true, false)
+	if zh.is_empty() or (zh[0] as ZoneHop).state != ZoneHop.State.AWAIT:
+		_hop_wait = 0.0
+		return
+	_hop_wait += 1.0 / 60.0
+	if _hop_wait < 1.0 or player.is_dashing():
+		return
+	var z := zh[0] as ZoneHop
+	var rail := z.plan.nearest_exit(player.global_position)
+	if rail != Vector2.INF:
+		ShotStage.move_hero(main, rail + Vector2(0, 240))
+	player.request_dash((rail - player.global_position).normalized() if rail != Vector2.INF else z.plan.zone().exit_dir)
+	_hop_wait = 0.0
+

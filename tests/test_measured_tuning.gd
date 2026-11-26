@@ -110,10 +110,11 @@ func test_hansan_waves_follow_hades_split() -> void:
 		counts.append(wave.enemies.size())
 		caps.append(wave.max_alive)
 		formed.append(wave.formations.reduce(func(n: int, f: FormationData) -> int: return n + f.count, 0))
-	assert_array(counts).is_equal([24, 29, 6, 38])  # 흩어진 철포병은 없다 (2물결 3 → 0, 4물결 4 → 0): 원거리는 대형으로
+	assert_array(counts).is_equal([24, 29, 6, 38, 34, 33])  # 흩어진 철포병은 없다 (2물결 3 → 0, 4물결 4 → 0): 원거리는 대형으로
 	# 철포병 8명 일자 횡대가 1물결 1번 · 2물결 2번 · 4물결 3번 (사용자: "1물결에 1번 2물결 2번 4물결 3번")
-	assert_array(formed).is_equal([8, 16, 0, 24])
-	assert_array(caps).is_equal([8, 10, 8, 14])
+	assert_array(formed).is_equal([8, 16, 0, 24, 0, 0])
+	# 배 세 척 (판옥선 1·2 · 중형선 3·4 · 대장선 5 호위대 떼 · 6 떼+정예 → 우두머리)
+	assert_array(caps).is_equal([8, 10, 8, 14, 14, 14])
 	assert_bool(w.waves[2].elite_last).is_true()  # 3물결 = 중간 보스 (잡몹 여섯 → 둘 이하일 때)
 	assert_int(w.waves[2].elite_when_left).is_equal(2)
 

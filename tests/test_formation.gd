@@ -80,7 +80,9 @@ func test_every_stage_queues_formations_1_2_0_3() -> void:
 		var r1 := WaveRunner.new(st.waves, 0.0)
 		r1._start(0)
 		assert_bool(r1._queue[-1] is FormationData).override_failure_message(id).is_true()
-		assert_array(per).override_failure_message(id).is_equal([1, 2, 0, 3])
+		assert_array(per.slice(0, 4)).override_failure_message(id).is_equal([1, 2, 0, 3])
+		for n in per.slice(4):  # 한산 배 건너뛰기 5·6물결 (대장선 호위대 떼 · 떼+정예)에는 대형 없음
+			assert_int(n).override_failure_message(id).is_equal(0)
 
 
 func test_hansan_wave2_queues_gunner_lines() -> void:

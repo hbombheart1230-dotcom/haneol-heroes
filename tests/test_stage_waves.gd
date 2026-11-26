@@ -31,7 +31,8 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 		assert_object(w).override_failure_message(id).is_not_null()
 		for k in ["max_alive", "next_when_left", "refill_each", "warn_time", "one_pick_per_break", "pick_stacks"]:
 			assert_that(w.get(k)).override_failure_message("%s.%s" % [id, k]).is_equal(base.get(k))
-		assert_int(w.waves.size()).is_equal(base.waves.size())
+		# 한산은 배 세 척 (구역 건너뛰기, 물결 6): 다른 무대는 아직 물결 4 (0.4.3에서 구역을 들일 때 같은 틀로). 앞 넷은 같은 틀.
+		assert_int(w.waves.size()).is_equal(base.waves.size() if not _st(id).zones.is_empty() else 4)
 		# 판 전체 처치 점수 (실제로 주는 값 = 적마다 반올림(xp × xp_mult), ScoreFeed.kill): 한산(282)의 95~120%.
 		# 근접을 더해 물결 길이를 맞춘 무대(경복궁 +17%, 초충도 +6%)는 그만큼 더 준다 (잡몹 xp는 정수 1이라 깎을 수 없음).
 		# 임시 조정, 0.4.3에서 재정비: 경복궁 4물결 근접 36→34로 흩어진 점수를 띠 안에 맞춤 (#258로 한산 흩어진 점수가 261로 내려감).
@@ -43,7 +44,7 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 		assert_int(score).override_failure_message("%s score %d (한산 %d)" % [id, score, base_score]).is_between(roundi(base_score * 0.95), roundi(base_score * 1.2))
 		var roles: Dictionary = ROLES[id]
 		var base_roles: Dictionary = ROLES["hansan_1592"]
-		for i in w.waves.size():
+		for i in mini(w.waves.size(), base.waves.size()):
 			var a: WaveData = w.waves[i]
 			var b: WaveData = base.waves[i]
 			assert_int(a.max_alive).override_failure_message("%s wave %d cap" % [id, i]).is_equal(b.max_alive)
@@ -71,10 +72,11 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 
 
 ## 판 전체 처치 점수: 적마다 반올림(xp × xp_mult) (정예 자리는 무리 전부 또는 무대 정예 하나).
+## 앞 네 물결만 센다 (모든 무대가 같은 틀인 부분; 한산 배 건너뛰기 5·6물결은 따로).
 func _stage_score(id: String, with_formations: bool = false) -> int:
 	var w := _st(id).waves
 	var n := 0
-	for wave: WaveData in w.waves:
+	for wave: WaveData in w.waves.slice(0, 4):
 		var list: Array = wave.enemies.duplicate()
 		if wave.elite_last:
 			list.append_array(wave.elite_group if not wave.elite_group.is_empty() else [_enemy(ROLES[id]["elite"])])
@@ -164,8 +166,10 @@ func test_swarm_is_melee_heavy_and_ranged_stays_few() -> void:
 			ranged.append(wave.enemies.filter(func(e: EnemyData) -> bool: return String(e.id) == ROLES[id]["ranged"]).size())
 			caps.append(wave.max_alive)
 		for i in ranged.size():
-			assert_int(ranged[i]).override_failure_message("%s wave %d scattered ranged %s" % [id, i, ranged]).is_less_equal(RANGED_SCATTER_MAX[i])
-		assert_array(caps).override_failure_message(id).is_equal([8, 10, 8, 14])  # 3물결은 중간 보스 물결 (잡몹 여섯 → 중간 보스)
+			assert_int(ranged[i]).override_failure_message("%s wave %d scattered ranged %s" % [id, i, ranged]).is_less_equal(RANGED_SCATTER_MAX[i] if i < RANGED_SCATTER_MAX.size() else 0)
+		assert_array(caps.slice(0, 4)).override_failure_message(id).is_equal([8, 10, 8, 14])  # 3물결은 중간 보스 물결 (잡몹 여섯 → 중간 보스)
+		for c in caps.slice(4):  # 배 건너뛰기 무대의 5·6물결 (호위대 떼 · 떼+정예)
+			assert_int(c).override_failure_message(id).is_equal(14)
 
 
 ## 잡몹은 닿기만 해서는 피해가 없다: 모든 피해는 붉은 먹 예고를 거친 공격으로만 (정예·보스 접촉은 따로).
