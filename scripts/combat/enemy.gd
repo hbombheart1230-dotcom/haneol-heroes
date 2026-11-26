@@ -58,6 +58,9 @@ var _last_hit_dir: Vector2 = Vector2.ZERO
 var _last_damage: int = 0
 ## 움직임 판단 (공격권·둘레 돌기·뛰기·매복·휩쓸기·정면 막기).
 var brain: EnemyBrain
+## 대형 구성원이면 그 머리와 자리 번호 (FormationBrain: 자리로 걷고, 겨눔은 대형이 같은 순간 시작).
+var formation: FormationBrain
+var formation_slot: int = -1
 ## 정예 변종 (없으면 null)과 무리 이벤트 배율 (떼: 작고 빠르고 약하게).
 var affix: EliteAffixData
 var size_mult: float = 1.0
