@@ -181,4 +181,5 @@ func play_all(max_tries: int = 6) -> StringName:
 ## 단계를 차례로 알려 ev 단계까지 건너간다 (판정 없이, 단위 테스트용).
 static func skip_to(run: TutorialProgress, ev: StringName) -> void:
 	while not run.is_done() and run.current().event != ev:
+		run.elapse(60.0)  # 읽힐 시간(min_show)을 기다리는 단계도 건너간다
 		run.notify(run.current().event, run.current().amount)
