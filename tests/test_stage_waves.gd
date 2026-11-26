@@ -59,7 +59,7 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 				var n_mine := mine.count(role)
 				var n_base := theirs.count(role)
 				if role == "ranged":  # 흩어진 원거리는 한산 이하, 원거리 대형은 영웅마다 모양·수가 다르다 (아래 대형 시험)
-					assert_int(n_mine).override_failure_message("%s wave %d ranged %d" % [id, i, n_mine]).is_less_equal(maxi(n_base, RANGED_SCATTER_MAX[i]))
+					assert_int(n_mine).override_failure_message("%s wave %d ranged %d" % [id, i, n_mine]).is_less_equal(maxi(n_base, RANGED_SCATTER_MAX[i] if i < RANGED_SCATTER_MAX.size() else 0))
 				elif role == "melee":
 					assert_int(n_mine).override_failure_message("%s wave %d melee %d" % [id, i, n_mine]).is_greater_equal(n_base)
 				else:
@@ -72,11 +72,11 @@ func test_every_stage_has_hansan_wave_shape() -> void:
 
 
 ## 판 전체 처치 점수: 적마다 반올림(xp × xp_mult) (정예 자리는 무리 전부 또는 무대 정예 하나).
-## 앞 네 물결만 센다 (모든 무대가 같은 틀인 부분; 한산 배 건너뛰기 5·6물결은 따로).
+## 판 전체 물결을 센다 (한산 배 건너뛰기는 물결 6 · xp_mult 1.3, 다른 무대는 물결 4 · 1.53: 경지 빠르기를 판 전체로 맞춘다).
 func _stage_score(id: String, with_formations: bool = false) -> int:
 	var w := _st(id).waves
 	var n := 0
-	for wave: WaveData in w.waves.slice(0, 4):
+	for wave: WaveData in w.waves:
 		var list: Array = wave.enemies.duplicate()
 		if wave.elite_last:
 			list.append_array(wave.elite_group if not wave.elite_group.is_empty() else [_enemy(ROLES[id]["elite"])])

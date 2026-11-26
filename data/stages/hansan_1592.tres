@@ -99,7 +99,7 @@ refill_each = true
 melee_count_mult = 1.5
 alive_cap_add = 8
 spawn_stagger = 0.06
-xp_mult = 1.53
+xp_mult = 1.3
 
 [sub_resource type="Resource" id="Zone_own"]
 script = ExtResource("z_script")
