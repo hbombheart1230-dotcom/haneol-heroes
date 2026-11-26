@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/quake_wide.png" id="icon_quake_wide"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/quake_heavy.png" id="icon_quake_heavy"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/quake_daze.png" id="icon_quake_daze"]
-[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/quake_quick.png" id="icon_quake_quick"]
+[ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/quake_finish.png" id="icon_quake_finish"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/trail_power.png" id="icon_trail_power"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/trail_wide.png" id="icon_trail_wide"]
 [ext_resource type="Texture2D" path="res://assets/ui/icons/upgrades/gwanggaeto/bolt_more.png" id="icon_bolt_more"]
@@ -72,23 +72,23 @@ max_stacks = 2
 weight = 0.9
 mods = Array[ExtResource("3_mod")]([SubResource("Mod_quake_daze_0")])
 
-[sub_resource type="Resource" id="Mod_quake_quick_0"]
+[sub_resource type="Resource" id="Mod_quake_finish_0"]
 script = ExtResource("3_mod")
-target = &"tap"
-property = &"cooldown"
+target = &"kit"
+property = &"combo_finisher_mult"
 op = 1
-value = 0.8
+value = 1.15
 
-[sub_resource type="Resource" id="Up_quake_quick"]
+[sub_resource type="Resource" id="Up_quake_finish"]
 script = ExtResource("2_up")
-id = &"quake_quick"
-title = "뇌진격 · 연타"
-description = "기술 단추로 쓸 때 재사용 대기 -20% (4타 마무리는 원래 기다림 없음)"
-icon = ExtResource("icon_quake_quick")
+id = &"quake_finish"
+title = "뇌진격 · 마무리 일격"
+description = "4타 마무리 피해 +15%"
+icon = ExtResource("icon_quake_finish")
 color = Color(0.85, 0.7, 0.2, 1)
 max_stacks = 3
 weight = 1.0
-mods = Array[ExtResource("3_mod")]([SubResource("Mod_quake_quick_0")])
+mods = Array[ExtResource("3_mod")]([SubResource("Mod_quake_finish_0")])
 
 [sub_resource type="Resource" id="Mod_trail_power_0"]
 script = ExtResource("3_mod")
@@ -287,4 +287,4 @@ mods = Array[ExtResource("3_mod")]([SubResource("Mod_blade_0"), SubResource("Mod
 
 [resource]
 script = ExtResource("1_pool")
-upgrades = Array[ExtResource("2_up")]([SubResource("Up_quake_wide"), SubResource("Up_quake_heavy"), SubResource("Up_quake_daze"), SubResource("Up_quake_quick"), SubResource("Up_trail_power"), SubResource("Up_trail_wide"), SubResource("Up_bolt_more"), SubResource("Up_bolt_power"), SubResource("Up_bolt_fast"), SubResource("Up_conq_power"), SubResource("Up_conq_window"), SubResource("Up_dash_breath"), SubResource("Up_vitality"), SubResource("Up_blade")])
+upgrades = Array[ExtResource("2_up")]([SubResource("Up_quake_wide"), SubResource("Up_quake_heavy"), SubResource("Up_quake_daze"), SubResource("Up_quake_finish"), SubResource("Up_trail_power"), SubResource("Up_trail_wide"), SubResource("Up_bolt_more"), SubResource("Up_bolt_power"), SubResource("Up_bolt_fast"), SubResource("Up_conq_power"), SubResource("Up_conq_window"), SubResource("Up_dash_breath"), SubResource("Up_vitality"), SubResource("Up_blade")])

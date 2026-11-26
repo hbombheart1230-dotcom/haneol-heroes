@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://btqe03obir0pp"
-path="res://.godot/imported/quake_quick.png-35fde6d0a4e63f8cc9207e39e6a8e0e9.ctex"
+uid="uid://ylkxxyyf8ia6"
+path="res://.godot/imported/haeryong_finish.png-6f7bc194cb1948d17501b2b434244f0a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/icons/upgrades/gwanggaeto/quake_quick.png"
-dest_files=["res://.godot/imported/quake_quick.png-35fde6d0a4e63f8cc9207e39e6a8e0e9.ctex"]
+source_file="res://assets/ui/icons/upgrades/yi_sun_sin/haeryong_finish.png"
+dest_files=["res://.godot/imported/haeryong_finish.png-6f7bc194cb1948d17501b2b434244f0a.ctex"]
 
 [params]
 

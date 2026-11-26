@@ -30,20 +30,43 @@ func _up(b: RunBuild, id: StringName) -> UpgradeDef:
 
 func test_values_follow_data_and_current_build() -> void:
 	var b := _build("yi_sun_sin")
+	var g := SkillGrowthData.get_default()
 	var u := _up(b, &"haeryong_wide")
 	var r0: float = b.hero.kit.tap.radius
-	var l := UpgradeReadout.lines(u, b, 1)
+	var lv: int = b.hero.kit.tap.vfx_level
+	var l := UpgradeReadout.lines(u, b, 1)  # 범위는 실제로 커지는 비율 (모습 단계 배율 포함)
 	assert_int(l.size()).is_equal(1)
 	assert_str(l[0]["label"]).is_equal("범위")
-	assert_str(l[0]["to"]).is_equal(UpgradeReadout.data().fmt(&"radius", r0 * 1.25))
+	assert_str(l[0]["text"]).is_equal(UpgradeReadout.pct(r0 * g.size_at(lv), r0 * 1.25 * g.size_at(lv + 1)))
 	b.apply(u)  # 한 번 고른 뒤에는 지금 값이 오른다
 	var l2 := UpgradeReadout.lines(u, b, 2)  # 두 단계 한 번에
-	assert_str(l2[0]["from"]).is_equal(l[0]["to"])
-	assert_str(l2[0]["to"]).is_equal(UpgradeReadout.data().fmt(&"radius", r0 * 1.25 * 1.25 * 1.25))
+	assert_str(l2[0]["text"]).is_equal(UpgradeReadout.pct(r0 * 1.25 * g.size_at(lv + 1), r0 * pow(1.25, 3) * g.size_at(lv + 3)))
 	var more := UpgradeReadout.lines(_up(b, &"pado_more"), b, 1)  # 정수 더하기
 	assert_str("%s → %s" % [more[0]["from"], more[0]["to"]]).is_equal("%d → %d" % [b.hero.kit.dash.hit_count, b.hero.kit.dash.hit_count + 1])
-	var cd := UpgradeReadout.lines(_up(b, &"haeryong_quick"), b, 1)
-	assert_str(cd[0]["to"]).ends_with("초")
+	assert_str(more[1]["label"]).is_equal("폭")  # 연타 패도 기술 모습 단계를 올려 폭이 같이 커진다
+	var deep := UpgradeReadout.lines(_up(b, &"haeryong_deep"), b, 1)  # 1번 피해는 4타 마무리 실제 값
+	var dmg: int = b.hero.kit.tap.damage
+	var m: float = b.hero.kit.combo_finisher_mult
+	assert_str(deep[0]["from"]).is_equal(str(roundi(dmg * m)))
+	assert_str(deep[0]["to"]).is_equal(str(roundi(roundi(dmg * 1.4) * m)))
+
+
+## 죽은 쿨타임 패를 바꾼 4타 마무리 피해 패 (순신·광개토): 마무리 배율을 올리고 패에는 마무리 한 번 피해.
+func test_finisher_cards_raise_the_fourth_hit() -> void:
+	for pair in [["yi_sun_sin", &"haeryong_finish"], ["gwanggaeto", &"quake_finish"]]:
+		var b := _build(pair[0])
+		var u := _up(b, pair[1])
+		assert_object(u).is_not_null()
+		var kit := b.hero.kit
+		var before := kit.combo_finisher_mult
+		var l := UpgradeReadout.lines(u, b, 1)
+		assert_int(l.size()).is_equal(1)
+		assert_str(l[0]["label"]).is_equal("마무리 피해")
+		assert_str(l[0]["from"]).is_equal(str(roundi(kit.tap.damage * before)))
+		b.apply(u)
+		assert_float(kit.combo_finisher_mult).is_equal_approx(before * 1.15, 0.0001)
+		assert_int(kit.tap.vfx_level).is_equal(0)  # 판정·그림 크기는 건드리지 않는다
+		assert_bool(UpgradeEffect.useful(b, u)).is_true()
 
 
 func test_major_cards_fall_back_to_description() -> void:

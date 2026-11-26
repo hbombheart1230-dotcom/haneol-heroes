@@ -29,7 +29,7 @@ SPEC = {
     # ── 이순신: 바다·칼날, 푸른색 ──
     ("yi_sun_sin", "haeryong_wide"): _s("icon:haeryong", "range", 1.0),
     ("yi_sun_sin", "haeryong_deep"): _s("icon:haeryong", "damage", 1.7, (0.32, 0.6), "warm"),
-    ("yi_sun_sin", "haeryong_quick"): _s("icon:haeryong", "cooldown", 1.6, (0.75, 0.3), "cool"),
+    ("yi_sun_sin", "haeryong_finish"): _s("icon:haeryong", "finisher", 1.6, (0.75, 0.3), "warm"),
     ("yi_sun_sin", "pado_more"): _s("icon:pado", "count", 1.0),
     ("yi_sun_sin", "pado_long"): _s("icon:pado", "width", 1.5, (0.4, 0.55), "bright"),
     ("yi_sun_sin", "haeil_big"): _s("icon:haeil", "damage", 1.0),
@@ -57,7 +57,7 @@ SPEC = {
     ("gwanggaeto", "quake_wide"): _s("icon:quake", "range", 1.0),
     ("gwanggaeto", "quake_heavy"): _s("icon:quake", "damage", 1.8, (0.5, 0.35), "warm"),
     ("gwanggaeto", "quake_daze"): _s("icon:quake", "stun", 1.6, (0.5, 0.75), "bright"),
-    ("gwanggaeto", "quake_quick"): _s("icon:quake", "cooldown", 1.5, (0.3, 0.6), "cool"),
+    ("gwanggaeto", "quake_finish"): _s("icon:quake", "finisher", 1.5, (0.3, 0.6), "warm"),
     ("gwanggaeto", "trail_power"): _s("icon:thunder_trail", "damage", 1.0),
     ("gwanggaeto", "trail_wide"): _s("icon:thunder_trail", "width", 1.6, (0.4, 0.5), "bright"),
     ("gwanggaeto", "bolt_more"): _s("icon:lightning", "count", 1.0),

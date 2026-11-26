@@ -20,9 +20,35 @@ const GROUP := &"hero_critters"
 ## 0보다 크면 이 영웅의 풀벌레가 한꺼번에 이만큼까지만 남는다 (새로 부르면 가장 오래된 것부터 사라진다).
 ## 사용자 9e19cfb "사임당 나비 너무 세. 사기야": 수명(8초)보다 자주 불러 겹겹이 쌓였다 (성장하면 한 번에 7마리 × 쌓임).
 @export var max_alive: int = 0
+## 수명 상한: 다음 부르기(4타 마무리 간격 = cooldown × combo_finisher_cd_ratio)보다 이만큼(초) 먼저 사라진다.
+## 사용자 결정 2026-11-26 (패 점검 #229): 긴 숨·빠른 붓 패로 수명이 간격을 넘어 다시 겹겹이 쌓이던 것을 막는다.
+## 빠른 붓으로 간격이 줄면 상한도 같이 준다. 상한에 닿아 헛된 패는 후보에서 빠진다 (UpgradeEffect.useful).
+@export var cap_lifetime: bool = true
+@export var lifetime_margin: float = 0.3
+@export var lifetime_floor: float = 1.0
+
+
+## 다음 부르기까지 (4타 마무리 간격, 단추로만 쓰면 쿨타임) 빼기 여유.
+func lifetime_cap(kit: SkillKit) -> float:
+	var gap := cooldown
+	if kit and kit.tap_combo and not kit.combo_finisher_free:
+		gap *= kit.combo_finisher_cd_ratio
+	return maxf(gap - lifetime_margin, lifetime_floor)
+
+
+func effective(prop: StringName, v: Variant, kit: SkillKit) -> Variant:
+	if prop == &"lifetime" and cap_lifetime:
+		return minf(float(v), lifetime_cap(kit))
+	return v
+
+
+func capped_props() -> Array[StringName]:
+	return [&"lifetime"] if cap_lifetime else []
 
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
+	var kit: SkillKit = ctx.player.hero.kit if ctx.player and ctx.player.hero else null
+	var life := float(effective(&"lifetime", lifetime, kit))
 	var n := count + extra_butterflies
 	if max_alive > 0:
 		n = mini(n, max_alive)
@@ -32,7 +58,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		c.ctx = ctx
 		c.owner_node = ctx.player
 		c.kind = SummonCritter.Kind.GRASSHOPPER if i % 2 == 1 and i < count else SummonCritter.Kind.BUTTERFLY
-		c.lifetime = lifetime
+		c.lifetime = life
 		c.damage = damage
 		c.hit_interval = hit_interval
 		c.speed = speed
