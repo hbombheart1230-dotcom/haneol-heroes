@@ -94,6 +94,11 @@ func _process(delta: float) -> void:
 	_glow.queue_redraw()
 
 
+## 단색 도형(번개 줄기·방울·별·심·튐)을 모아 한 번에 그린다 (InkBatch, 모양·색 그대로). 그림을 쓰는 획·고리·번짐 앞에서
+## 비워 그리는 차례(겹침)도 그대로. 맞은 자리마다 수십 번이던 그리기 호출 (2026-11-26 광개토 1번 벼락 끊김).
+var _b := InkBatch.new()
+
+
 func _draw() -> void:
 	for i in _t.size():
 		if _t[i] >= 0.0:
@@ -101,6 +106,7 @@ func _draw() -> void:
 				_draw_spark(i)
 			else:
 				_draw_one(i)
+	_b.flush(self)
 
 
 ## 빛 번짐 (더하기): 심 둘레 옅은 빛, 앞 core_share 동안만.
@@ -118,9 +124,9 @@ func _draw_spark(i: int) -> void:
 	var k := clampf(_t[i] / maxf(data.spark_time, 0.001), 0.0, 1.0)
 	var r := data.spark_size * (1.0 - 0.5 * k)
 	var c := Color(1, 1, 1, 1.0 - k)
-	draw_line(_pos[i] + Vector2(-r, 0), _pos[i] + Vector2(r, 0), c, 2.0)
-	draw_line(_pos[i] + Vector2(0, -r), _pos[i] + Vector2(0, r), c, 2.0)
-	draw_circle(_pos[i], r * 0.3, c)
+	_b.line(_pos[i] + Vector2(-r, 0), _pos[i] + Vector2(r, 0), 2.0, c)
+	_b.line(_pos[i] + Vector2(0, -r), _pos[i] + Vector2(0, r), 2.0, c)
+	_b.circle(_pos[i], r * 0.3, c)
 
 
 func _draw_one(i: int) -> void:
@@ -152,6 +158,7 @@ func _draw_one(i: int) -> void:
 				_brush(from, to, thick * 2.6, col, ink, fade, InkPaint.WAVE, j % 2 == 1)
 				_draw_drop_at(to + v * w * 1.5, w * 0.5, fade, data.water_drop_color)
 			Style.PETAL:  # 붓: 뿌리에 먹 번짐 + 획 + 삐침
+				_b.flush(self)  # 그림 쓰는 번짐 앞: 차례 그대로
 				InkPaint.wash(self, from, thick * 0.9, Color(data.ink_color, 0.35 * fade))
 				_brush(from, to, thick, col, ink, fade)
 				var fp := from.lerp(to, 0.8)
@@ -166,11 +173,12 @@ func _draw_one(i: int) -> void:
 	_draw_drops(i, p, d, w, fade, col)
 	# 고리 (먹 + 영웅색)와 밝은 심
 	var ring_r := core * (1.0 + (data.ring_mult - 1.0) * k)
+	_b.flush(self)  # 그림 쓰는 고리 앞: 차례 그대로
 	InkPaint.ring(self, p, ring_r + 1.0, Color(data.ink_color, 0.5 * fade))  # 붓 고리: 먹 테 위에 영웅색
 	InkPaint.ring(self, p, ring_r, Color(col, 0.75 * fade))
 	var ck := clampf(k / maxf(data.core_share, 0.001), 0.0, 1.0)
 	if ck < 1.0:
-		draw_circle(p, core * (1.0 - 0.6 * ck), Color(data.core_color.lerp(_color[i], data.core_tint), 1.0 - ck))
+		_b.circle(p, core * (1.0 - 0.6 * ck), Color(data.core_color.lerp(_color[i], data.core_tint), 1.0 - ck))
 
 
 ## 붓 획 하나: 먹 테(조금 더 굵게) 위에 영웅색 획. 시작(맞은 자리 쪽)이 굵고 끝이 갈필로 가늘게 빠진다.
@@ -179,6 +187,7 @@ func _brush(from: Vector2, to: Vector2, thick: float, col: Color, ink: Color, fa
 	var len := from.distance_to(to)
 	if len < 1.0 or thick < 0.5:
 		return
+	_b.flush(self)  # 그림 쓰는 획 앞: 차례 그대로
 	var ob := data.outline * 2.0
 	draw_set_transform(from, (to - from).angle(), Vector2.ONE)
 	var sg := -1.0 if flip else 1.0
@@ -219,22 +228,22 @@ func _ribbon(half: float, color: Color, count: int = BOLT_PTS) -> void:
 		_quad[1] = _bp[q + 1] + nrm * h1
 		_quad[2] = _bp[q + 1] - nrm * h1
 		_quad[3] = _bp[q] - nrm * h0
-		draw_colored_polygon(_quad, color)
-		draw_circle(_bp[q + 1], h1, color)
+		_b.quad(_quad, color)
+		_b.circle(_bp[q + 1], h1, color)
 
 
 func _draw_drop_at(at: Vector2, r: float, fade: float, c: Color) -> void:
 	if r < 0.4:
 		return
-	draw_circle(at, r + data.outline * 0.5, Color(data.ink_color, data.ink_color.a * fade))
-	draw_circle(at, r, Color(c, fade))
+	_b.circle(at, r + data.outline * 0.5, Color(data.ink_color, data.ink_color.a * fade))
+	_b.circle(at, r, Color(c, fade))
 
 
 ## 네 갈래 별 (세종 견본).
 func _draw_star(at: Vector2, r: float, c: Color) -> void:
-	draw_line(at + Vector2(-r, 0), at + Vector2(r, 0), c, 1.5)
-	draw_line(at + Vector2(0, -r), at + Vector2(0, r), c, 1.5)
-	draw_circle(at, r * 0.25, c)
+	_b.line(at + Vector2(-r, 0), at + Vector2(r, 0), 1.5, c)
+	_b.line(at + Vector2(0, -r), at + Vector2(0, r), 1.5, c)
+	_b.circle(at, r * 0.25, c)
 
 
 ## 맞은 방향으로 튀는 같은 색 작은 방울 (타마다 drop_count개, 씨앗으로 흩는다).
@@ -247,8 +256,8 @@ func _draw_drops(i: int, p: Vector2, d: Vector2, w: float, fade: float, col: Col
 		var r := maxf(w * data.drop_size * (0.6 + 0.4 * absf(cos(_seed[i] + j))), 0.0)
 		if r < 0.4:
 			continue
-		draw_circle(at, r + data.outline * 0.5, Color(data.ink_color, data.ink_color.a * fade))
-		draw_circle(at, r, Color(col, fade))
+		_b.circle(at, r + data.outline * 0.5, Color(data.ink_color, data.ink_color.a * fade))
+		_b.circle(at, r, Color(col, fade))
 
 
 ## 줄기 색: 물결·물보라는 밝은 물빛, 금빛 획은 금색, 먹·꽃잎은 먹, 번개는 흰노랑, 그 밖은 영웅색을 밝게.
@@ -269,9 +278,9 @@ func _stroke_color(style: int, hero: Color) -> Color:
 func _draw_bits(style: int, at: Vector2, v: Vector2, w: float, fade: float, j: int) -> void:
 	match style:
 		Style.WATER:
-			draw_circle(at + v * w * 1.2, w * 0.55, Color(data.water_drop_color, fade))
+			_b.circle(at + v * w * 1.2, w * 0.55, Color(data.water_drop_color, fade))
 		Style.THUNDER:
 			if j % 2 == 0:
-				draw_circle(at + v * w, w * 0.6, Color(data.earth_color, fade))  # 흙덩이
+				_b.circle(at + v * w, w * 0.6, Color(data.earth_color, fade))  # 흙덩이
 		Style.PETAL:
-			draw_circle(at + v * w * 1.4, w * 0.6, Color(data.petal_color, fade))  # 매화 꽃잎
+			_b.circle(at + v * w * 1.4, w * 0.6, Color(data.petal_color, fade))  # 매화 꽃잎
