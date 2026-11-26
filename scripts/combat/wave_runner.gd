@@ -66,6 +66,8 @@ func next_spawn(alive: int, cap: int) -> Array:
 	var w: WaveData = data.waves[index]
 	if _queue[0] == null and w.elite_when_left >= 0 and alive > w.elite_when_left:
 		return []  # 중간 보스는 잡몹이 줄어든 뒤
+	if _queue[0] is FormationData and alive + mini((_queue[0] as FormationData).count, wave_cap(cap)) > wave_cap(cap):
+		return []  # 대형은 한꺼번에 count명: 동시 상한 안에 다 들어갈 자리가 날 때까지 기다린다
 	if not data.refill_each:
 		if _budget <= 0:
 			return []

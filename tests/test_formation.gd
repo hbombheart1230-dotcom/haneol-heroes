@@ -86,3 +86,34 @@ func test_join_before_ready_still_holds_solo_aim() -> void:
 	assert_bool(e.attack.start_check.is_valid()).is_true()
 	assert_bool(bool(e.attack.start_check.call(Vector2.ZERO))).is_false()
 	assert_str(b.why_not(e)).is_equal("")
+
+
+func test_formation_waits_for_room_under_wave_cap() -> void:
+	# 대형은 한꺼번에 count명이 나온다: 살아 있는 수 + count가 물결 동시 상한을 넘으면 꺼내지 않는다 (폰 끊김).
+	var st := load("res://data/stages/hansan_1592.tres") as StageTheme
+	var r := WaveRunner.new(st.waves, 0.0)
+	r._start(1)
+	var f := r._queue.filter(func(x: Variant) -> bool: return x is FormationData)[0] as FormationData
+	r._queue = [f]
+	var cap := r.wave_cap(st.waves.max_alive)
+	r._stagger = 0.0
+	assert_array(r.next_spawn(cap - f.count + 1, st.waves.max_alive)).is_empty()
+	r._stagger = 0.0
+	assert_array(r.next_spawn(cap - f.count, st.waves.max_alive)).contains_exactly([f])
+
+
+func test_late_member_after_broken_fights_alone() -> void:
+	# 대형이 깨진 뒤 늦게 나온 구성원은 대형에 묶이지 않는다 (혼자 겨누기를 막지 않음: 서서 공격 안 하던 것).
+	var d := _data(FormationData.Shape.LINE, 2)
+	d.member = load("res://data/enemies/waegun_gunner.tres")
+	d.form_timeout = 0.0
+	var b := FormationBrain.new(d, null, Vector2.ZERO, Vector2.DOWN)
+	b.tick(0.1)  # 아무도 안 왔고 기다림이 지났다 → 깨짐
+	assert_bool(b.is_over()).is_true()
+	var e: Enemy = (load("res://scenes/enemy.tscn") as PackedScene).instantiate()
+	e.data = d.member
+	b.join(e, 1)
+	add_child(auto_free(e))
+	e.set_physics_process(false)
+	assert_object(e.formation).is_null()
+	assert_bool(e.attack.start_check.is_valid()).is_false()

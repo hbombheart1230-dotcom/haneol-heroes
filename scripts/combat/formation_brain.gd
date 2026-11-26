@@ -13,12 +13,6 @@ signal member_lost(slot: int)
 ## 구성원이 모두 쓰러졌다.
 signal broken
 
-## 처음 모이기를 이만큼(초) 넘게 기다리면 모인 사람으로 시작한다 (예고 중 막힌 자리 등).
-const FORM_TIMEOUT := 2.5
-## 겨눔 차례에 겨눌 수 있는 사람이 없으면 (모두 경직·기절 — 영웅이 갑자기 붙었을 때) 이만큼(초) 다시 시도하다 장전으로.
-const AIM_RETRY := 1.2
-## 겨눔 차례에 일부가 아직 못 겨누면 (회복·경직 중) 이만큼(초)까지 모두 준비되기를 기다렸다가 같이 시작한다 (일제 사격).
-const AIM_GATHER := 0.6
 
 var data: FormationData
 var spawner: EnemySpawner
@@ -48,8 +42,8 @@ func _init(d: FormationData, sp: EnemySpawner, p_anchor: Vector2, p_facing: Vect
 
 ## 구성원 하나가 나왔다 (생성기 warn_spawn의 configure).
 func join(e: Enemy, slot: int) -> void:
-	if slot < 0 or slot >= members.size():
-		return
+	if _done or slot < 0 or slot >= members.size():
+		return  # 대형이 이미 깨졌다 (먼저 온 사람이 다 쓰러짐): 늦게 온 사람은 보통 적처럼 혼자 싸운다
 	members[slot] = e
 	e.formation = self
 	e.formation_slot = slot
@@ -85,7 +79,7 @@ func tick(delta: float) -> void:
 		return
 	_prune()
 	_waited += delta
-	var ready := _joined >= data.count or _waited >= FORM_TIMEOUT
+	var ready := _joined >= data.count or _waited >= data.form_timeout
 	if ready and alive().is_empty():
 		_done = true
 		broken.emit()
@@ -116,14 +110,14 @@ func steer(e: Enemy) -> Vector2:
 	var d := to.length()
 	if d <= data.slot_tolerance:
 		return Vector2.ZERO
-	return to / d * e.move_speed * e.speed_scale() * clampf(d / 80.0, 0.35, 1.0)
+	return to / d * e.move_speed * e.speed_scale() * clampf(d / maxf(data.steer_slow_dist, 1.0), data.steer_min_mult, 1.0)
 
 
 ## HOP 구성원이 뛸 방향 (Enemy → EnemyBrain.tick_hop): 자기 자리 쪽, 길이 = 남은 거리 ÷ 한 번 뛰는 거리 (넘어 뛰지 않게).
 func hop_dir(e: Enemy) -> Vector2:
 	var to := slot_point(e.formation_slot) - e.global_position
 	var beh := e.data.behaviour if e.data else null
-	var reach := beh.hop_distance if beh else 220.0
+	var reach := beh.hop_distance if beh else data.hop_reach
 	return to / maxf(reach, 1.0) if to.length() < reach else to.normalized()
 
 
@@ -150,7 +144,7 @@ func _move_anchor(delta: float, player: Node2D) -> bool:
 		return false
 	var to := player.global_position - anchor
 	var dist := to.length()
-	var speed := (data.member.move_speed if data.member else 100.0) * data.speed_mult
+	var speed := (data.member.move_speed if data.member else 0.0) * data.speed_mult
 	match data.move:
 		FormationData.Move.ADVANCE, FormationData.Move.HOP:
 			if dist <= data.stop_range:
@@ -175,8 +169,8 @@ func _face(target: Vector2) -> void:
 		_offsets = FormationLayout.offsets(data, members.size() if not data.close_ranks else alive().size(), facing)
 
 
-## 같은 순간 모두 겨눔 시작. 못 겨누는 사람(회복·기절·경직·넘어짐)이 있으면 AIM_GATHER까지 기다려 다 같이,
-## 그 뒤엔 준비된 사람만. 아무도 못 겨누면 AIM에 남아 다시 (AIM_RETRY까지) — 겨눔 없이 장전으로 넘어가지 않게.
+## 같은 순간 모두 겨눔 시작. 못 겨누는 사람(회복·기절·경직·넘어짐)이 있으면 data.aim_gather까지 기다려 다 같이,
+## 그 뒤엔 준비된 사람만. 아무도 못 겨누면 AIM에 남아 다시 (data.aim_retry까지) — 겨눔 없이 장전으로 넘어가지 않게.
 func _aim_all(player: Player) -> void:
 	_aiming = []
 	if player == null or player.is_dead():
@@ -185,10 +179,10 @@ func _aim_all(player: Player) -> void:
 	var al := alive()
 	var able := al.filter(func(e: Enemy) -> bool: return why_not(e) == "")
 	if able.is_empty():
-		if _aim_wait >= AIM_RETRY:  # 끝내 아무도 못 겨눴다: 이번 주기는 넘긴다
+		if _aim_wait >= data.aim_retry:  # 끝내 아무도 못 겨눴다: 이번 주기는 넘긴다
 			cycle.aim_done()
 		return
-	if able.size() < al.size() and _aim_wait < AIM_GATHER:
+	if able.size() < al.size() and _aim_wait < data.aim_gather:
 		return  # 남은 사람이 준비되기를 조금 기다린다
 	for e: Enemy in able:
 		if e.attack.begin_windup(e.global_position, player):
