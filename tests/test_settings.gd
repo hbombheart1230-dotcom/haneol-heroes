@@ -6,6 +6,7 @@ var screen: SettingsScreen
 
 func before_test() -> void:
 	GameSettings.settings_path = GameSettings.test_path()
+	GameSettings.tutorial_seen_heroes = PackedStringArray()  # 앞 시험이 남긴 '조작 안내 봤음'(#227)이 있으면 안내 줄이 꺼진 것으로 보여 뒤집기 기대가 어긋난다
 	screen = auto_free(SettingsScreen.new())
 	screen.size = Vector2(720, 1280)
 	add_child(screen)
