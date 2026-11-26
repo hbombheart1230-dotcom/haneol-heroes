@@ -14,10 +14,12 @@
   "anims": [
     {
       "key": "idle",
-      "src": "Combat_Stance",
+      "src": "Idle_14",
       "frames": 4,
       "fps": 6.0,
-      "loop": true
+      "loop": true,
+      "start": 0.0,
+      "end": 1.6
     },
     {
       "key": "run",
@@ -71,5 +73,21 @@
         2.97
       ]
     }
-  ]
+  ],
+  "recolor": {
+    "stops": [
+      "#1b1722",
+      "#5e2220",
+      "#b08a4a",
+      "#ece0c4"
+    ],
+    "mix": 0.7,
+    "contrast": 1.0
+  },
+  "light": {
+    "key": 1.7,
+    "ambient": 0.95,
+    "rim": 0.8,
+    "rim_color": "#ffd9b0"
+  }
 }

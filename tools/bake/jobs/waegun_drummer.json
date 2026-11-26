@@ -14,10 +14,12 @@
   "anims": [
     {
       "key": "idle",
-      "src": "Combat_Stance",
+      "src": "Idle_14",
       "frames": 4,
       "fps": 6.0,
-      "loop": true
+      "loop": true,
+      "start": 0.0,
+      "end": 1.6
     },
     {
       "key": "run",
@@ -28,13 +30,11 @@
     },
     {
       "key": "attack",
-      "src": "Charged_Ground_Slam",
+      "src": "Cheer_with_Both_Hands",
       "frames": 6,
       "fps": 10.0,
       "loop": false,
-      "strike": 1.7,
-      "start": 1.0,
-      "end": 2.3
+      "strike": 1.0
     },
     {
       "key": "hit",
