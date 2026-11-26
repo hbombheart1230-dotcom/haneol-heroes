@@ -48,3 +48,20 @@ func test_quad_line_and_circle_match_the_draw_calls_they_replace() -> void:
 		assert_float(b.points[k].distance_to(Vector2(5, 5))).is_equal_approx(3.0, 0.001)
 	b.circle(Vector2.ZERO, 0.0, Color.BLUE)  # 반지름 0은 건너뜀
 	assert_int(b.points.size()).is_equal(InkBatch.SEGMENTS + 1)
+
+
+func test_splash_is_blob_plus_six_drops_and_tex_quad_keeps_uvs() -> void:
+	var b := InkBatch.new()
+	b.splash(Vector2(10, 10), 20.0, Color.BLACK, 2.0)
+	assert_int(b.points.size()).is_equal(19 + 6 * (InkBatch.SEGMENTS + 1))  # 덩어리 18점 + 가운데, 방울 여섯
+	b.clear()
+	var pts := PackedVector2Array([Vector2(0, 0), Vector2(4, 0), Vector2(4, 4), Vector2(0, 4)])
+	var uv := PackedVector2Array([Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)])
+	var cols := PackedColorArray([Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE])
+	b.tex_quad(pts, cols, uv)
+	assert_array(Array(b.uvs)).is_equal(Array(uv))
+	assert_int(b.indices.size()).is_equal(6)
+	var host: Node2D = auto_free(Node2D.new())
+	add_child(host)
+	b.flush(host, PlaceholderTexture2D.new())
+	assert_int(b.uvs.size()).is_equal(0)

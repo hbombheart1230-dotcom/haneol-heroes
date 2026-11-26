@@ -132,17 +132,22 @@ func step(delta: float) -> void:
 		i -= 1
 
 
+## 단색 도형(먹 자국·그림자·방울·연기·종이)을 모아 한 번에 (InkBatch). 그림(시체)·선(종이 테·고리) 앞에서 비워 차례 그대로.
+var _ib := InkBatch.new()
+
+
 func _draw() -> void:
 	for b in _bits:
 		if b["kind"] == "mark":
 			var k := float(b["t"]) / float(b["life"])
-			Ink.splash(self, b["pos"], float(b["r"]), Color(Ink.INK, _b.mark_alpha * (1.0 - k)), float(b["seed"]))
+			_ib.splash(b["pos"], float(b["r"]), Color(Ink.INK, _b.mark_alpha * (1.0 - k)), float(b["seed"]))
 	for c in _corpses:
 		var f: CorpseFlight = c["flight"]
 		var t := float(c["t"])
 		var tex: Texture2D = c["tex"]
 		var g := f.ground(t)
-		Ink.shadow(self, g, _b.corpse_shadow * (1.0 - f.lift(t) / maxf(f.height * 2.0, 1.0)))
+		_ib.blob(g, _b.corpse_shadow * (1.0 - f.lift(t) / maxf(f.height * 2.0, 1.0)), Color(Ink.INK, 0.18), 1.3, 0.08, 0.4)  # Ink.shadow와 같다
+		_ib.flush(self)  # 그림 (시체) 앞
 		var center := g + (c["offset"] as Vector2) * float(c["scale"]) + Vector2(0, -f.lift(t))
 		var col: Color = c["tint"]
 		col.a = 1.0 - _b.corpse_fade * f.progress(t)
@@ -152,12 +157,12 @@ func _draw() -> void:
 	for d in _drops:
 		var k := float(d["t"]) / float(d["life"])
 		var col: Color = d["color"]
-		draw_circle(d["pos"], float(d["r"]) * (1.0 - _b.drop_shrink * k), Color(col, _b.drop_alpha * (1.0 - k)))
+		_ib.circle(d["pos"], float(d["r"]) * (1.0 - _b.drop_shrink * k), Color(col, _b.drop_alpha * (1.0 - k)))
 	for b in _bits:
 		var k := float(b["t"]) / float(b["life"])
 		match b["kind"]:
 			"smoke":
-				Ink.blob(self, b["pos"], float(b["r"]) * (1.0 + _b.smoke_grow * k), Color(_b.smoke_color, _b.smoke_alpha * (1.0 - k)),
+				_ib.blob(b["pos"], float(b["r"]) * (1.0 + _b.smoke_grow * k), Color(_b.smoke_color, _b.smoke_alpha * (1.0 - k)),
 					float(b["seed"]))
 			"paper":
 				var r := float(b["r"])
@@ -166,8 +171,11 @@ func _draw() -> void:
 					_quad[i] = (b["pos"] as Vector2) + (PAPER_SHAPE[i] as Vector2).rotated(rot) * r
 					_outline[i] = _quad[i]
 				_outline[4] = _quad[0]
-				draw_colored_polygon(_quad, Color(Ink.PAPER, 1.0 - k))
+				_ib.quad(_quad, Color(Ink.PAPER, 1.0 - k))
+				_ib.flush(self)  # 선 앞
 				draw_polyline(_outline, Color(Ink.INK, _b.paper_edge_alpha * (1.0 - k)), _b.paper_edge_width)
 			"ring":
+				_ib.flush(self)  # 선 앞
 				Ink.ring(self, b["pos"], float(b["r"]) * lerpf(_b.ring_start_scale, 1.0, k),
 					lerpf(_b.ring_width, _b.ring_width_min, k), Color(Ink.GOLD, 1.0 - k))
+	_ib.flush(self)
