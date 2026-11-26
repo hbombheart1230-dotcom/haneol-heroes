@@ -39,6 +39,14 @@ extends Resource
 @export var poise_bar_height: float = 4.0
 @export var armor_bar_color: Color = Color(0.82, 0.88, 0.95, 0.95)
 @export var stagger_bar_color: Color = Color(1.0, 0.78, 0.3, 0.95)
+## 느려짐 표시 (강화 패 "진한 먹·긴 그림자"가 보이게): 발밑 먹 번짐 짙기 = 느려진 정도 × slow_wash_alpha,
+## 먹 고리는 남은 시간만큼 몸 둘레에서 안쪽으로 오므라든다 (다 되면 사라짐). 색은 먹 (붉은 인주색은 적 위험 전용).
+## 어두운 바닥·어두운 적 위에서도 보이게 한지색 (먹색은 바닥에 묻혔다), 크기 = 몸 반지름 × slow_mark_scale.
+@export var slow_color: Color = Color(0.95, 0.91, 0.82)
+@export var slow_mark_scale: float = 1.6
+@export var slow_wash_alpha: float = 0.5
+@export var slow_ring_alpha: float = 0.9
+@export var slow_ring_width: float = 3.0
 
 @export_group("예고·처벌")
 ## 공격 직후 경직 중 받는 피해 배율 (빈틈을 찌르면 더 아프다).
