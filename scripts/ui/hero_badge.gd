@@ -63,6 +63,8 @@ const ORIGIN := Vector2(20 + 50.0, 22 + 50.0)  # 초상 중심 (R = 50)
 const BOTTOM := ORIGIN.y + R + 18.0 + HP_H + 42.0
 ## 묶음의 오른쪽 끝 x (체력 띠 끝).
 const RIGHT := 20.0 + R * 2 + 30.0
+## 묶음 아래 글(행동 점수·경지 오름)을 옮기는 양 (부르기 단추가 그 자리에 있을 때 HomeSummonButton이 정한다).
+var text_shift := Vector2.ZERO
 
 
 func draw(c: CanvasItem, kills: int) -> void:
@@ -78,14 +80,15 @@ func draw(c: CanvasItem, kills: int) -> void:
 	_draw_cards(c, Vector2(x, hp_r.end.y + 8))
 	UiStyle.text(c, UiStyle.BODY_FONT, Vector2(x + 86, hp_r.end.y + 30), "처치 %d" % kills, 20, UiStyle.PAPER, -1,
 		Color(0, 0, 0, 0.7), 4)
-	var y := hp_r.end.y + 62.0
+	x += text_shift.x
+	var y := hp_r.end.y + 62.0 + text_shift.y
 	for p in pops:  # 행동 점수: 묶음 아래에서 떠오르며 흐려진다
 		var k: float = p[1] / POP_TIME
 		UiStyle.text(c, UiStyle.BODY_FONT, Vector2(x, y - (1.0 - k) * 14.0), p[0], 22,
 			Color(UiStyle.GOLD, minf(k * 2.0, 1.0)), -1, Color(0, 0, 0, 0.7 * k), 4)
 		y += 24.0
 	if level_t > 0.0:
-		_draw_level_up(c, Vector2(x, hp_r.end.y + 130.0))
+		_draw_level_up(c, Vector2(x, hp_r.end.y + 130.0 + text_shift.y))
 
 
 func _draw_portrait(c: CanvasItem, ctr: Vector2) -> void:

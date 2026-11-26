@@ -184,15 +184,22 @@ func test_button_hidden_on_own_stage_and_during_tutorial_or_pick() -> void:
 	assert_bool(b.shown()).is_false()
 
 
-## 영웅 묶음 아래, 물결 점(x 200~)보다 왼쪽, 연타 글씨(ComboTextData.anchor, 글 높이 약 70px)보다 아래. 긴 화면에서도.
-func test_button_sits_below_the_badge_and_the_combo_text() -> void:
+## 왼쪽 위 영웅 묶음 바로 아래 (사용자 2026-11-26), 물결 점(x 200~)보다 왼쪽, 우두머리 이름 띠(BossBanner, 화면 높이 0.34 - 100)와
+## 연타 글씨(ComboTextData.anchor, 글 높이 약 70px)보다 위. 세로 9:16·S20 9:20·폴드 7 펼침 화면 모두.
+func test_button_sits_right_below_the_badge() -> void:
 	var d := HomeSummonData.get_default()
 	var combo := load("res://data/ui/combo_text.tres") as ComboTextData
-	for vp in [Vector2(720, 1280), Vector2(720, 1600), Vector2(720, 1440)]:
+	for vp in [Vector2(720, 1280), Vector2(720, 1600), Vector2(1151, 1280)]:
 		var c := d.button_center(vp)
-		assert_float(c.y - d.button_radius - 7.0).is_greater(HeroBadge.BOTTOM)
-		assert_float(c.y - d.button_radius - 7.0).is_greater(vp.y * combo.anchor.y + 10.0)
-		assert_float(c.x + d.button_radius + 7.0).is_less(150.0)
+		var top := c.y - d.button_radius - HomeSummonData.RIM
+		var bottom := c.y + d.button_radius + HomeSummonData.RIM
+		assert_float(top).is_greater(HeroBadge.BOTTOM)
+		assert_float(top).is_less(HeroBadge.BOTTOM + 20.0)  # 바로 아래
+		assert_float(bottom).is_less(vp.y * 0.34 - 100.0)
+		assert_float(bottom + 12.0).is_less(vp.y * combo.anchor.y - 40.0)
+		assert_float(c.x + d.button_radius + HomeSummonData.RIM).is_less(150.0)
+		assert_float(c.x - d.button_radius - HomeSummonData.RIM).is_greater(8.0)
+	assert_float(d.badge_text_shift.x).is_greater(d.button_x + d.button_radius + HomeSummonData.RIM - 20.0)  # 묶음 아래 글은 단추 오른쪽으로
 
 
 ## 잘못 눌림 (독립 검토 ①): 단추에서 시작해 움직이면 영웅 움직이기로 넘기고 부르지 않는다. 꾹 눌렀다 떼도 부르지 않는다.

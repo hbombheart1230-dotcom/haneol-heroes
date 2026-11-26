@@ -1,6 +1,6 @@
 class_name HomeSummonButton
 extends Control
-## 주인 영웅 부르기 단추 (원정 전장에서만, HomeSummonData): 왼쪽 위 영웅 묶음 아래 둥근 초상 단추 (그 전장 주인 영웅 얼굴).
+## 주인 영웅 부르기 단추 (원정 전장에서만, HomeSummonData): 왼쪽 위 영웅 묶음 바로 아래 둥근 초상 단추 (그 전장 주인 영웅 얼굴).
 ## 누르면 주인 영웅 컷인 + 대사(HeroLines.Case.SUMMON, 이야기 켬일 때) + 그 영웅의 큰 기술 한 번 (HomeSummonCast).
 ## 남은 횟수는 초상 오른쪽 아래 도장. 다 쓰면 어둡게. 처음 보일 때와 우두머리 때 단추 옆 한 줄 안내.
 ## 숨김: 판 중이 아님, 영웅 고르기, 패 고르기(BATTLE_TEXT), 조작 안내 중.
@@ -175,6 +175,9 @@ func _process(delta: float) -> void:
 	_hint_left = maxf(_hint_left - delta, 0.0)
 	_line_left = maxf(_line_left - delta, 0.0)
 	_flash = maxf(_flash - delta, 0.0)
+	var hud := main.get(&"hud") as Hud
+	if hud:  # 단추가 묶음 아래 글 자리에 있다: 그 글을 단추 옆으로
+		hud.badge.text_shift = data.badge_text_shift if shown() else Vector2.ZERO
 	queue_redraw()
 
 
@@ -186,9 +189,9 @@ func _draw() -> void:
 	var ok := rules.can_use()
 	var pressed := _press_index != -1
 	var s := 0.92 if pressed else 1.0 + 0.15 * _flash / 0.35
-	draw_circle(c, (r + 7.0) * s, UiStyle.LACQUER)
+	draw_circle(c, (r + HomeSummonData.RIM) * s, UiStyle.LACQUER)
 	_draw_face(c, r * s, ok)
-	draw_arc(c, (r + 7.0) * s, 0.0, TAU, 48, UiStyle.GOLD if ok else UiStyle.GOLD_DIM, 3.0 if ok else 2.0)
+	draw_arc(c, (r + HomeSummonData.RIM) * s, 0.0, TAU, 48, UiStyle.GOLD if ok else UiStyle.GOLD_DIM, 3.0 if ok else 2.0)
 	var st := c + Vector2(r * 0.72, r * 0.72) * s  # 남은 횟수 도장
 	draw_circle(st, 17.0, UiStyle.GOLD if ok else UiStyle.GOLD_DIM)
 	draw_circle(st, 14.5, Color(0.66, 0.12, 0.1) if ok else Color(0.3, 0.25, 0.22))
@@ -197,11 +200,11 @@ func _draw() -> void:
 	var tx := c.x + r + 18.0
 	if _line_left > 0.0:
 		var a := clampf(_line_left / 0.4, 0.0, 1.0)
-		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(tx, c.y + 10.0), line, data.font_px + 6, Color(UiStyle.PAPER, a), -1,
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(tx, c.y + data.text_dy + 2.0), line, data.font_px + 6, Color(UiStyle.PAPER, a), -1,
 			Color(UiStyle.INK, 0.9 * a), 7)
 	elif _hint_left > 0.0 and ok:
 		var a := clampf(_hint_left / 0.4, 0.0, 1.0)
-		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(tx, c.y + 9.0), hint, data.font_px, Color(UiStyle.GOLD, a), -1,
+		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(tx, c.y + data.text_dy), hint, data.font_px, Color(UiStyle.GOLD, a), -1,
 			Color(0, 0, 0, 0.8 * a), 5)
 
 
