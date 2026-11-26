@@ -102,6 +102,14 @@ func steer(e: Enemy) -> Vector2:
 	return to / d * e.move_speed * e.speed_scale() * clampf(d / 80.0, 0.35, 1.0)
 
 
+## HOP 구성원이 뛸 방향 (Enemy → EnemyBrain.tick_hop): 자기 자리 쪽, 길이 = 남은 거리 ÷ 한 번 뛰는 거리 (넘어 뛰지 않게).
+func hop_dir(e: Enemy) -> Vector2:
+	var to := slot_point(e.formation_slot) - e.global_position
+	var beh := e.data.behaviour if e.data else null
+	var reach := beh.hop_distance if beh else 220.0
+	return to / maxf(reach, 1.0) if to.length() < reach else to.normalized()
+
+
 func _prune() -> void:
 	var lost := false
 	for i in members.size():
@@ -131,10 +139,11 @@ func _move_anchor(delta: float, player: Node2D) -> bool:
 			if dist <= data.stop_range:
 				return true
 			anchor = spawner.bounded(anchor + to / dist * minf(speed * delta, dist - data.stop_range))
-		FormationData.Move.KITE:
-			if dist >= data.stop_range:
+		FormationData.Move.KITE:  # 거리 띠를 지킨다: 멀면 다가오고 (쏴도 닿게), 가까우면 물러난다
+			var gap := dist - data.stop_range
+			if absf(gap) <= data.kite_band:
 				return true
-			anchor = spawner.bounded(anchor - to / maxf(dist, 1.0) * speed * delta)
+			anchor = spawner.bounded(anchor + to / maxf(dist, 1.0) * signf(gap) * minf(speed * delta, absf(gap)))
 		FormationData.Move.HOLD:
 			return true
 	return false

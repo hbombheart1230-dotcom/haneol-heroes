@@ -33,6 +33,8 @@ enum Move { ADVANCE, KITE, HOLD, HOP }
 @export var move_time: float = 2.4
 ## ADVANCE: 대형 가운데가 영웅에게서 이 거리까지 오면 멈춘다. KITE: 이 거리를 지키려 물러난다.
 @export var stop_range: float = 380.0
+## KITE: 영웅과의 거리가 stop_range ± 이 폭 안이면 서고, 더 멀면 다가오고 더 가까우면 물러난다.
+@export var kite_band: float = 70.0
 ## 구성원이 자기 자리에서 이만큼(px) 안이면 자리에 선 것으로 본다.
 @export var slot_tolerance: float = 24.0
 ## 누가 쓰러지면 빈자리를 두는지(false) 좁히는지(true).
