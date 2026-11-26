@@ -117,6 +117,10 @@ func _play(kind: StringName) -> void:
 		Feedback.instance.play(kind, 0.1)
 
 
+## 풀숲 덩어리·풀잎을 모아 한 번에 그린다 (모양·색은 Ink.blob·Ink.stroke 그대로).
+var _batch := InkBatch.new()
+
+
 func _draw() -> void:
 	var view := host.view_rect().grow(200.0) if host else Rect2(-1e6, -1e6, 2e6, 2e6)
 	var hero := host.player.global_position if host and host.player else Vector2.INF
@@ -125,7 +129,7 @@ func _draw() -> void:
 		var r := data.patches[i].z
 		if not view.intersects(Rect2(c - Vector2(r, r), Vector2(r, r) * 2.0)):
 			continue
-		Ink.blob(self, c, r, Color(data.grass_color, 0.22), i, 0.18, 0.62)
+		_batch.blob(c, r, Color(data.grass_color, 0.22), i, 0.18, 0.62)
 		var n := int(data.blades_per_100 * r / 100.0 * r / 100.0 * 3.0)
 		var stir := 1.0 if hero.distance_to(c) <= r + 30.0 else 0.25
 		for k in n:
@@ -135,4 +139,5 @@ func _draw() -> void:
 			var sway := sin(_t * (3.0 + stir * 4.0) + k) * (3.0 + 7.0 * stir)
 			var h := 38.0 + 22.0 * absf(sin(k * 1.7 + i))
 			var col := data.grass_light if k % 3 == 0 else data.grass_color
-			Ink.stroke(self, base, base + Vector2(sway + sin(k * 3.1) * 8.0, -h), 7.0, col)
+			_batch.stroke(base, base + Vector2(sway + sin(k * 3.1) * 8.0, -h), 7.0, col)
+	_batch.flush(self)  # 한 번에 (InkBatch: 풀잎마다 그리기 호출이던 것)

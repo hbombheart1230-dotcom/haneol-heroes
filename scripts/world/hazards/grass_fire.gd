@@ -143,6 +143,10 @@ func _play(kind: StringName) -> void:
 		Feedback.instance.play(kind, 0.08)
 
 
+## 칸 덩어리·풀잎·불꽃을 모아 한 번에 그린다 (모양·색은 Ink.blob·Ink.stroke 그대로).
+var _batch := InkBatch.new()
+
+
 func _draw() -> void:
 	var view := host.view_rect().grow(data.cell) if host else Rect2(-1e6, -1e6, 2e6, 2e6)
 	var c := data.cell
@@ -152,15 +156,16 @@ func _draw() -> void:
 			continue
 		match grid.state[i]:
 			FireGrid.State.DRY:
-				Ink.blob(self, p, c * 0.62, Color(data.dry_color, 0.16), i, 0.3, 0.6)
+				_batch.blob(p, c * 0.62, Color(data.dry_color, 0.16), i, 0.3, 0.6)
 				_draw_dry(p, c, i)
 				if grid.smoking(i):
-					Ink.blob(self, p + Vector2(0, -c * 0.25 - fmod(_t * 30.0 + i * 7.0, 20.0)), c * 0.3, data.smoke_color, i)
+					_batch.blob(p + Vector2(0, -c * 0.25 - fmod(_t * 30.0 + i * 7.0, 20.0)), c * 0.3, data.smoke_color, i)
 			FireGrid.State.BURNING:
-				Ink.blob(self, p, c * 0.75, Color(data.flame_color, 0.2), i, 0.3, 0.55)
+				_batch.blob(p, c * 0.75, Color(data.flame_color, 0.2), i, 0.3, 0.55)
 				_draw_flames(p, c, i)
 			FireGrid.State.ASH:
-				Ink.blob(self, p, c * 0.58, data.ash_color, i, 0.3, 0.55)
+				_batch.blob(p, c * 0.58, data.ash_color, i, 0.3, 0.55)
+	_batch.flush(self)  # 칸마다 그리기 호출이던 것을 한 번에 (InkBatch, 모양·색 그대로)
 	if ember >= 0:
 		_draw_ember(grid.at[ember])
 
@@ -173,7 +178,7 @@ static func _jitter(i: int, amount: float) -> Vector2:
 func _draw_dry(p: Vector2, c: float, i: int) -> void:
 	for k in 4:
 		var base := p + Vector2((k - 1.5) * c * 0.24 + sin(i * 2.1 + k) * 8.0, cos(i * 1.3 + k) * c * 0.22)
-		Ink.stroke(self, base, base + Vector2(-8.0 + k * 5.0, -c * (0.34 + 0.08 * sin(i + k))), 6.0, data.dry_color)
+		_batch.stroke(base, base + Vector2(-8.0 + k * 5.0, -c * (0.34 + 0.08 * sin(i + k))), 6.0, data.dry_color)
 
 
 func _draw_flames(p: Vector2, c: float, i: int) -> void:
@@ -182,8 +187,8 @@ func _draw_flames(p: Vector2, c: float, i: int) -> void:
 		var f := 0.7 + 0.3 * sin(_t * 9.0 + i * 1.7 + k * 2.1)
 		var base := p + Vector2((k - (n - 1) * 0.5) * c * 0.3, c * (0.08 + 0.06 * sin(i + k)))
 		var tip := base + Vector2(sin(_t * 6.0 + k + i) * 7.0, -c * (0.5 + 0.25 * ((i + k) % 3) * 0.5) * f)
-		Ink.stroke(self, base, tip, c * 0.24, data.flame_color)
-		Ink.stroke(self, base, base.lerp(tip, 0.55), c * 0.11, data.flame_core)
+		_batch.stroke(base, tip, c * 0.24, data.flame_color)
+		_batch.stroke(base, base.lerp(tip, 0.55), c * 0.11, data.flame_core)
 
 
 ## 불씨 예고: 떨어질 자리에 줄어드는 고리 + 하늘에서 내려오는 불똥.
