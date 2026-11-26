@@ -38,9 +38,19 @@ func test_formation_members_share_key_in_one_frame() -> void:
 	b.formation = f
 	assert_str(VolleyBeat.key_for(a)).is_equal(VolleyBeat.key_for(b))
 	assert_str(VolleyBeat.key_for(a)).is_not_empty()
-	var lone := _enemy(d)  # 대형 밖 철포병 (volley 꺼짐): 열쇠 없음
-	if not lone.attack.data.volley:
-		assert_str(VolleyBeat.key_for(lone)).is_empty()
+	var first := VolleyBeat.key_for(a)
+	f.fired.emit([a, b])  # 일제 사격이 끝나면 다음 번호 (틱이 몇 번 돌든 일제 사격마다 따로)
+	assert_str(VolleyBeat.key_for(a)).is_not_equal(first)
+	assert_str(VolleyBeat.key_for(a)).is_equal(VolleyBeat.key_for(b))
+	var lone := _enemy(d)  # 대형 밖 철포병 (우두머리가 부른 것 포함): 상한 없음
+	assert_str(VolleyBeat.key_for(lone)).is_empty()
+
+
+## 판·시뮬마다 비운다 (같은 프로세스의 앞 싸움 명중 수가 넘어오지 않게, boss_sim 결정성).
+func test_reset_between_fights() -> void:
+	VolleyBeat.note_hit("f9:0")
+	BossSim.reset_globals()
+	assert_int(VolleyBeat.hits("f9:0")).is_equal(0)
 
 
 func test_paint_batches_every_style_without_drawing_calls() -> void:
@@ -63,6 +73,7 @@ func test_crowd_look_thins_lines() -> void:
 	var keep := [v.crowd_width_mult, v.crowd_from]
 	var e := _enemy(load(GUNNER) as EnemyData)
 	e.attack.state = EnemyAttack.State.WINDUP
+	e.attack.aim_dir = Vector2.RIGHT
 	v.crowd_from = 6
 	v.crowd_width_mult = 0.5
 	var thin := InkBatch.new()
@@ -93,11 +104,12 @@ func _enemy(d: EnemyData) -> Enemy:
 	return e
 
 
-## 모은 점들의 옆 폭 (x 범위): 가는 획일수록 작다.
-func _span(b: InkBatch) -> float:
+## 모은 점들의 옆 폭: 겨눈 쪽에 수직인 범위 (가는 획일수록 작다). 길이(겨눈 쪽)는 붐빔과 상관없다.
+func _span(b: InkBatch, aim: Vector2 = Vector2.RIGHT) -> float:
+	var side := aim.orthogonal().normalized()
 	var lo := INF
 	var hi := -INF
 	for p in b.points:
-		lo = minf(lo, p.x)
-		hi = maxf(hi, p.x)
+		lo = minf(lo, p.dot(side))
+		hi = maxf(hi, p.dot(side))
 	return hi - lo
