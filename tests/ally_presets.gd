@@ -1,7 +1,8 @@
 class_name AllyPresets
 extends RefCounted
 ## 같이 싸우기 느낌 안 (사용자에게 보여 고르기, tools/shots/home_summon_gif.gd·tests/test_ally_summon_sim.gd가 HH_ALLY_PRESET으로 쓴다).
-## A 우두머리 집중 7초·먹 번짐 (보관분 그대로), B 곁 지키기 10초·내달려 물러감, C 짧고 굵게 4초 (올 때·갈 때 기술).
+## A 우두머리 집중 7초·먹 번짐 (보관분 그대로), B 곁 지키기 10초·내달려 물러감, C 짧고 굵게 4초 (올 때·갈 때 기술),
+## D = B + 우두머리가 있으면 우두머리 먼저.
 ## 고르면 그 값을 data/summon/home_summon.tres에 옮긴다. 피해 배율(skill_scale)은 균형 측정으로 맞춘다.
 
 
@@ -15,6 +16,11 @@ static func apply(d: HomeSummonData, id: String) -> void:
 		"B":
 			d.ally_time = 10.0
 			d.ally_focus = &"guard"
+			d.ally_exit = &"dash"
+			d.ally_skill_times = PackedFloat32Array([0.0])
+		"D":  # B + 우두머리가 있으면 우두머리 먼저 (메인 세션 제안 2026-11-27)
+			d.ally_time = 10.0
+			d.ally_focus = &"guard_boss"
 			d.ally_exit = &"dash"
 			d.ally_skill_times = PackedFloat32Array([0.0])
 		"C":

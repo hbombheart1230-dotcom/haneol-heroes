@@ -175,7 +175,7 @@ func _brain(delta: float) -> void:
 ## 가장 가까운 적에 붙어 연타. 사거리 안이면 서서 탭, 밖이면 걸어간다.
 func _fight(delta: float) -> void:
 	var foe := _foe()
-	if data.ally_focus == &"guard" and is_instance_valid(_me) 			and body.global_position.distance_to(_me.global_position) > data.ally_leash:
+	if _guarding() and is_instance_valid(_me) and body.global_position.distance_to(_me.global_position) > data.ally_leash:
 		body.set_move_input((_me.global_position - body.global_position).normalized())  # 너무 멀다: 곁으로
 		return
 	if foe == null:
@@ -195,9 +195,19 @@ func _fight(delta: float) -> void:
 		caster.combo_tap()
 
 
+## 곁을 지키는 중인지: guard, 또는 guard_boss인데 우두머리·중간 우두머리가 없을 때.
+func _guarding() -> bool:
+	if data.ally_focus == &"guard":
+		return true
+	if data.ally_focus != &"guard_boss":
+		return false
+	var t := HomeSummonCast.target(caster._context())
+	return t == null or t.data == null or not (t.data.is_boss or t.data.boss_feel)
+
+
 ## 붙을 적 (data.ally_focus).
 func _foe() -> Enemy:
-	if data.ally_focus == &"guard" and is_instance_valid(_me):
+	if _guarding() and is_instance_valid(_me):
 		var best: Enemy = null
 		var best_d := data.ally_guard_radius
 		for e in caster._context().enemies():

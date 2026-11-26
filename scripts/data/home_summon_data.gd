@@ -38,6 +38,7 @@ const PATH := "res://data/summon/home_summon.tres"
 @export var ally_ink_style: StringName = &"smoke"
 ## 붙는 대상: &"boss" = 우두머리 > 중간 우두머리 > 가장 가까운 적 (HomeSummonCast.target),
 ## &"guard" = 고른 영웅 둘레 ally_guard_radius 안의 가장 가까운 적 먼저 (없으면 &"boss"처럼), 고른 영웅에서 ally_leash px 넘게 떨어지면 돌아온다.
+## &"guard_boss" = 우두머리·중간 우두머리가 있으면 그쪽 (곁 묶임 없음), 없으면 &"guard" (메인 세션 제안 2026-11-27).
 @export var ally_focus: StringName = &"boss"
 @export var ally_guard_radius: float = 260.0
 @export var ally_leash: float = 360.0
