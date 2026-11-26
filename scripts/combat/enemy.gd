@@ -264,7 +264,7 @@ func _physics_process(delta: float) -> void:
 	var chase := EnemySteer.busy(self) if busy else compute_velocity(get_tree().get_nodes_in_group(GROUP))
 	if brain:
 		brain.tick_sweep(delta)
-		var hop := brain.tick_hop(delta, EnemySteer.dir_to_target(self), busy)
+		var hop := brain.tick_hop(delta, formation.hop_dir(self) if formation else EnemySteer.dir_to_target(self), busy)
 		if hop != Vector2.ZERO:
 			chase = hop
 		_update_damage_mult()
