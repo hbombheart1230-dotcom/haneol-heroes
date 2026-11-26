@@ -180,6 +180,13 @@ func _draw() -> void:
 	var top := card_rect(0).position.y
 	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(0, top - 40), head, 46, Color(UiStyle.GOLD, k), vp.x,
 		Color(0, 0, 0, 0.9 * k), 8)
+	var frames := InkBatch.new()  # 패 셋의 바탕·테두리는 한 번에
+	for i in choices.size():
+		var fr := _card_box(i, k)
+		var col: Color = band_of(choices[i])[1]
+		UpgradeCardFrame.add(frames, fr, Color(UiStyle.LACQUER, 0.97 * k),
+			Color(UiStyle.GOLD_DIM if major else UpgradeCardFrame.muted(col), k))
+	frames.flush(self)
 	for i in choices.size():
 		_draw_card(i, k)
 
@@ -198,20 +205,23 @@ func band_of(u: UpgradeDef) -> Array:
 	return [d.word(kd), d.color(kd)]
 
 
+## 패 i장이 지금 그려지는 자리 (열리는 중 떠오름, 누르면 커짐).
+func _card_box(i: int, k: float) -> Rect2:
+	var r := card_rect(i)
+	r.position.y += (1.0 - k) * 60.0 * (1.0 + i * 0.3)
+	return r.grow(4.0 if _press_card == i else 0.0)
+
+
 func _draw_card(i: int, k: float) -> void:
 	var u := choices[i]
-	var rise := (1.0 - k) * 60.0 * (1.0 + i * 0.3)
 	var r := card_rect(i)
-	r.position.y += rise
-	var pressed := _press_card == i
+	r.position.y += (1.0 - k) * 60.0 * (1.0 + i * 0.3)
 	var band := band_of(u)
-	var band_col: Color = band[1]
-	var edge := UiStyle.GOLD if major else band_col.lightened(0.25)
-	UiStyle.panel(self, r.grow(4.0 if pressed else 0.0), Color(UiStyle.LACQUER, 0.97 * k), Color(edge, k))
+	var band_col: Color = UiStyle.GOLD_DIM if major else UpgradeCardFrame.muted(band[1])
 	var br := Rect2(r.position + Vector2(6, 6), Vector2(r.size.x - 12, band_height))
-	draw_rect(br, Color(band_col, 0.95 * k))
+	UpgradeCardFrame.draw_band(self, br, band_col, 0.95 * k)
 	UiStyle.text(self, UiStyle.BODY_FONT, Vector2(br.position.x, br.position.y + band_height * 0.5 + band_px * 0.36),
-		band[0], band_px, Color(1, 1, 1, k), br.size.x, Color(UiStyle.INK, 0.85 * k), 6)
+		band[0], band_px, Color(UiStyle.PAPER, k), br.size.x, Color(UiStyle.INK, 0.85 * k), 6)
 	var ir := UpgradeCardLayout.icon_rect(self, r)
 	var c := ir.get_center()
 	var s := ir.size.x
