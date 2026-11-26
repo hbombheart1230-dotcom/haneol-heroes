@@ -46,6 +46,7 @@ var _shake_dir: Vector2 = Vector2.ZERO
 var _kick: Vector2 = Vector2.ZERO
 var _last_kill_freeze: float = -INF
 var _last_haptic: float = -INF
+var _last_haptic_power: float = 0.0  # 마지막 진동 세기 (ms × 세기, Haptics.passes_gap)
 ## 음악 재생기는 장면 밖(트리 루트)에 하나만 두어, 다시 시작(장면 다시 불러오기)해도 곡이 이어진다.
 static var _music: AudioStreamPlayer
 static var _music_tween: Tween
@@ -212,7 +213,8 @@ func _on_skill_cast(slot: SkillCaster.Slot, hits: int) -> void:
 		play(def.sfx, 0.0)
 		add_trauma(skill_trauma_for(slot, hits))
 		return
-	add_trauma(skill_trauma_for(slot, hits))
+	var bite := skill_caster.finisher_bite if skill_caster and slot == SkillCaster.Slot.TAP else null
+	add_trauma(bite.finisher_cast_trauma if bite else skill_trauma_for(slot, hits))  # 칼 박힘 마무리는 닿을 때 크게
 	play(&"counter" if slot == SkillCaster.Slot.COUNTER else &"slash", 0.0)
 
 
@@ -266,14 +268,15 @@ static func poise_broken(_pos: Vector2, armor: bool) -> void:
 	instance.haptic(instance.feel.haptic_impact_ms, instance.feel.haptic_impact_amp)
 
 
-## 타격 진동 (Haptics → 설정 "타격 진동"을 따름). haptic_min_gap 안에 다시 오면 무시. 진동했으면 true.
+## 타격 진동 (Haptics → 설정 "타격 진동"을 따름). haptic_min_gap 안에 다시 오면 무시 (더 센 진동만 덮어씀). 진동했으면 true.
 func haptic(ms: int, amplitude: float) -> bool:
 	var now := Time.get_ticks_msec() / 1000.0
-	if now - _last_haptic < feel.haptic_min_gap:
+	if not Haptics.passes_gap(now - _last_haptic, feel.haptic_min_gap, ms * amplitude, _last_haptic_power):
 		return false
 	if not Haptics.pulse(ms, amplitude):
 		return false
 	_last_haptic = now
+	_last_haptic_power = ms * amplitude
 	return true
 
 

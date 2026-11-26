@@ -23,10 +23,10 @@ static func tap(c: SkillCaster) -> SkillCaster.Slot:
 			if atk:  # 마무리 전진 (finisher_step_in_px, 없으면 0)
 				atk.finisher_step(c.player.facing, c.enemy_source.call() if c.enemy_source.is_valid() else [], locked)
 			var bite := c.player.hero.blade_bite if c.player and c.player.hero else null
-			if bite and bite.enabled:  # 마무리 명중 멈춤 = 칼이 박히는 멈춤 길이 하나로 (풀릴 때 쉭)
-				SkillHitStop.force_next(bite.finisher_stop, bite.release_sfx, bite.release_pitch)
+			c.finisher_bite = bite if bite and bite.enabled else null  # 첫 닿음에 칼 박힘 (FinisherBite, 풀릴 때 쉭)
 			var cd := c.cooldown_left(SkillCaster.Slot.TAP) if c.kit.combo_finisher_free 				else c.kit.tap.cooldown * c.kit.combo_finisher_cd_ratio  # 따로 도는 마무리는 단추 쿨타임을 그대로 둔다
 			c.cast(SkillCaster.Slot.TAP, 0.0, c.kit.combo_finisher_mult, cd)
+			c.finisher_bite = null
 			if atk:  # 마무리 동작이 끝날 때까지 다음 1타(손·자동)가 끼어들지 않게
 				atk.busy_for(recover(c))
 			c.combo_count.emit(c.kit.combo_hits + 1)  # 마무리 = 4타

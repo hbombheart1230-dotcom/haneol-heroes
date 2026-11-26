@@ -18,6 +18,9 @@ var aim_dir: Vector2 = Vector2.ZERO
 ## 모으는 동안 끌어서 잡았는지 (끌지 않았으면 자동인 기술은 예전처럼, SkillDef.charge_aim_auto).
 var aim_steered: bool = false
 var _thud_done: bool = false
+## 넷째 탭 마무리의 칼 박힘 (BladeBiteData 마무리 칸, TapChain → SkillCaster.finisher_bite). 없으면 예전대로.
+var finisher_bite: BladeBiteData
+var bite_done: bool = false
 
 
 ## 히트스톱: 아주 짧게 게임 시간을 거의 멈춘다 (엔진 기본 time_scale + 실시간 타이머, GameTime 공용).
@@ -67,7 +70,9 @@ func hit(en: Enemy, dmg: int, stop: bool = true) -> bool:
 	en.hit_power = HitReaction.Power.BIG  # 4타·기술 = 가장 큰 반응 (HitWeightData.power_flinch)
 	h.damage(dmg)
 	en.hit_power = HitReaction.Power.LIGHT
-	if stop and not defer_stop and hit_stop_enabled and player and player.is_inside_tree():
+	if stop and finisher_bite and player:  # 마무리: 첫 닿음에 칼 박힘 멈춤·흔들림·소리·진동 한 번 (기술 멈춤 규칙 대신)
+		FinisherBite.on_contact(self, en)
+	elif stop and not defer_stop and hit_stop_enabled and player and player.is_inside_tree():
 		SkillHitStop.request(player.get_tree(), dmg)
 	if stop and player:  # 한 번에 끊어 치는 명중: 닿는 자리 섬광·튐 줄기 + 퍽 소리 (평타와 같은 한 타 충격)
 		HitImpact.on_enemy(en, player.global_position, HitImpact.data().skill_step, spark_color())
@@ -95,6 +100,9 @@ func tick_hit(en: Enemy, dmg: int, last: bool = false) -> bool:
 	var ok2 := hit(en, dmg, false)
 	if ok2:
 		SkillMultiHit.tick(self, en)
+		if not _thud_done and skill and skill.first_tick_buzz:  # 발동의 첫 닿음은 한 번에 끊어 치는 명중만큼 진동 (세종 정음진 4타: 틱엔 진동이 없어 4초 뒤 마지막 타까지 조용했다)
+			_thud_done = true
+			HitImpact.on_swing(HitImpact.data().skill_step)
 	return ok2
 
 
@@ -173,7 +181,7 @@ func _sweep_done(hits: int) -> void:
 	var was := defer_stop
 	defer_stop = false
 	var f := Feedback.feel_data()
-	if was and hits > 0 and hit_stop_enabled and player and player.is_inside_tree():
+	if was and hits > 0 and hit_stop_enabled and player and player.is_inside_tree() and not FinisherBite.skips_sweep_slow(self):
 		GameTime.stop(player.get_tree(), f.skill_stop_cap * clampf(f.sweep_final_stop, 0.0, 1.0), f.sweep_final_scale)
 
 

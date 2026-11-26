@@ -46,6 +46,8 @@ var dash_auto := DashAutoSkill.new()
 var _attack: AutoAttack
 ## 마지막으로 낸 충전 기술의 모은 정도 (0~1): 다 모아 맞히면 점수 (ScoreFeed).
 var last_charge: float = 0.0
+## 이번 cast가 칼 박힘 마무리면 그 데이터 (TapChain이 cast 동안만 넣는다 → SkillContext·시전 흔들림).
+var finisher_bite: BladeBiteData
 
 
 func _ready() -> void:
@@ -301,6 +303,7 @@ func cast(slot: Slot, charge: float = 0.0, damage_scale: float = 1.0, cd: float 
 	skill_started.emit(slot, d)
 	var ctx := _context()
 	ctx.skill = d
+	ctx.finisher_bite = finisher_bite if slot == Slot.TAP else null
 	if slot == Slot.CHARGE:
 		ctx.aim_dir = aim.aim_dir()
 		ctx.aim_steered = aim.active and aim.steered
