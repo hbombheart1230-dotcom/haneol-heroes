@@ -14,6 +14,8 @@ var player_radius: float = 22.0
 
 var traveled: float = 0.0
 var evaded: bool = false
+## 일제 사격 열쇠 (VolleyBeat.key_for, "" = 아님): 같은 열쇠 탄이 상한만큼 맞혔으면 이 탄은 지나간다.
+var volley_key: String = ""
 
 
 func setup(p_target: Player, origin: Vector2, data: EnemyAttackData) -> void:
@@ -40,7 +42,8 @@ func step(delta: float) -> bool:
 			if not evaded:
 				evaded = true
 				target.register_evade()
-		elif target.apply_hit(damage):
+		elif VolleyBeat.can_hit(volley_key) and target.apply_hit(damage):
+			VolleyBeat.note_hit(volley_key)
 			return true
 	return traveled >= max_range
 

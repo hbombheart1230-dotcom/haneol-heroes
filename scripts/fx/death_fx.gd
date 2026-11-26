@@ -102,11 +102,15 @@ func burst(pos: Vector2, element: StringName, big: bool) -> void:
 				_bit(Bit.TEX, pos + Vector2(randf_range(-18.0, 18.0), randf_range(-50.0, -10.0)), v,
 					randf_range(0.55, 0.85) * tk, randf_range(16.0, 28.0) * k, 90.0, d.ash_color, _pick(d.ash_parts), "")
 		&"glyph":
+			var room := maxi(d.max_glyph_bits - _count_kind(Bit.GLYPH), 0)  # 글자 조각은 글꼴이라 묶이지 않는다: 상한
 			for i in d.count(d.glyph_bits, big):
 				var v := Vector2(randf_range(-60.0, 60.0), randf_range(-150.0, -70.0)) * k
+				var at := pos + Vector2(randf_range(-20.0, 20.0), randf_range(-60.0, -20.0))
+				if i >= room:  # 넘치면 금빛 별 (그림이라 한 번에 그린다)
+					_bit(Bit.TEX, at, v, randf_range(0.4, 0.6) * tk, randf_range(22.0, 32.0) * k, 0.0, Color.WHITE, d.star_art, "")
+					continue
 				var g := d.glyphs[randi() % maxi(d.glyphs.length(), 1)] if d.glyphs != "" else "ㅇ"
-				_bit(Bit.GLYPH, pos + Vector2(randf_range(-20.0, 20.0), randf_range(-60.0, -20.0)), v,
-					randf_range(0.6, 0.9) * tk, randf_range(30.0, 44.0) * k, -40.0, d.glyph_color, null, g)
+				_bit(Bit.GLYPH, at, v, randf_range(0.6, 0.9) * tk, randf_range(30.0, 44.0) * k, -40.0, d.glyph_color, null, g)
 			for i in d.count(d.star_bits, big):
 				var v := Vector2.from_angle(randf() * TAU) * randf_range(40.0, 120.0) * k + Vector2(0, -60.0)
 				_bit(Bit.TEX, pos + Vector2(0, -36), v, randf_range(0.4, 0.6) * tk, randf_range(28.0, 42.0) * k,
@@ -120,6 +124,14 @@ func burst(pos: Vector2, element: StringName, big: bool) -> void:
 			var fb := Feedback.instance
 			if fb and fb.kill_fx:
 				fb.kill_fx.drops(pos, Vector2.UP, d.count(d.ink_drops, big))
+
+
+func _count_kind(kind: Bit) -> int:
+	var n := 0
+	for i in _b_t.size():
+		if _b_t[i] >= 0.0 and _b_kind[i] == kind:
+			n += 1
+	return n
 
 
 static func _pick(list: Array[Texture2D]) -> Texture2D:
@@ -186,6 +198,34 @@ func step(delta: float) -> void:
 			_m_tex[i] = null
 
 
+## 그리기 호출 묶기 (2026-11-26 대형 16명을 한꺼번에 쓰러뜨리면 조각·자국마다 하나씩 144개): 그림 한 장마다 InkBatch 하나,
+## 그림 없는 덩어리·먹 튐은 하나. 글자 조각(글꼴)만 따로. 모양·움직임은 그대로, 같은 층 안의 겹침 차례만 그림별로 모인다.
+var _plain := InkBatch.new()
+var _tex_batches: Dictionary = {}  # Texture2D → InkBatch
+const _UV := [Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)]
+
+
+## draw_set_transform(at, rot, scale) + draw_texture_rect(가운데 half 크기)와 같은 네 점을 그림별 묶음에.
+func _quad(tex: Texture2D, at: Vector2, half: Vector2, rot: float, scale: Vector2, c: Color) -> void:
+	if tex == null:
+		return
+	var b: InkBatch = _tex_batches.get(tex)
+	if b == null:
+		b = InkBatch.new()
+		_tex_batches[tex] = b
+	var pts := PackedVector2Array()
+	for k in 4:
+		var uv: Vector2 = _UV[k]
+		var lp := Vector2((uv.x * 2.0 - 1.0) * half.x * scale.x, (uv.y * 2.0 - 1.0) * half.y * scale.y)
+		pts.append(at + lp.rotated(rot))
+	b.tex_quad(pts, PackedColorArray([c, c, c, c]), PackedVector2Array(_UV))
+
+
+func _flush_textures() -> void:
+	for tex: Texture2D in _tex_batches.keys():
+		(_tex_batches[tex] as InkBatch).flush(self, tex)
+
+
 func _draw() -> void:
 	for i in _m_t.size():  # 바닥 자국 먼저 (세로로 눌러 바닥에 깐다)
 		if _m_t[i] < 0.0:
@@ -196,11 +236,12 @@ func _draw() -> void:
 		c.a *= 1.0 - k * k
 		var at := _m_pos[i] + Vector2(0, _m_slide[i] * k)
 		if _m_tex[i]:
-			draw_set_transform(at, 0.0, Vector2(1.0, 0.5))
-			draw_texture_rect(_m_tex[i], Rect2(-s * 0.5, -s * 0.5, s, s), false, c)
+			_quad(_m_tex[i], at, Vector2(s, s) * 0.5, 0.0, Vector2(1.0, 0.5), c)
 		else:
-			draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-			Ink.splash(self, at, s * 0.4, c, _m_rot[i])
+			_plain.splash(at, s * 0.4, c, _m_rot[i])
+	_plain.flush(self)
+	_flush_textures()  # 자국이 조각 밑에
+	var glyphs: Array[int] = []
 	for i in _b_t.size():
 		if _b_t[i] < 0.0:
 			continue
@@ -211,23 +252,27 @@ func _draw() -> void:
 		match _b_kind[i]:
 			Bit.TEX:
 				var tex := _b_tex[i]
-				draw_set_transform(_b_pos[i], _b_rot[i], Vector2.ONE * (1.0 - 0.3 * k))
 				var h := s * tex.get_height() / maxf(tex.get_width(), 1.0)
-				draw_texture_rect(tex, Rect2(-s * 0.5, -h * 0.5, s, h), false, c)
+				_quad(tex, _b_pos[i], Vector2(s, h) * 0.5, _b_rot[i], Vector2.ONE * (1.0 - 0.3 * k), c)
 			Bit.GLYPH:
-				draw_set_transform(_b_pos[i], 0.0, Vector2.ONE)
-				UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-s * 0.5, s * 0.35), _b_glyph[i], int(s), c, s,
-					Color(0, 0, 0, 0.6 * c.a), maxi(roundi(s / 9.0), 2))
+				glyphs.append(i)
 			Bit.BLOB:
-				draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-				draw_circle(_b_pos[i], s * 0.35 * (1.0 - 0.4 * k), c)
+				_plain.circle(_b_pos[i], s * 0.35 * (1.0 - 0.4 * k), c)
 			Bit.FLASH:  # 부드러운 빛 덩이 (평평한 원판이 아니게) + 가는 흰 심
-				var dot := VfxTextures.get_texture(SkillVfxData.Shape.DOT)
 				var r := s * (0.8 + 0.7 * k)
-				draw_set_transform(_b_pos[i], 0.0, Vector2(1.0, 1.25))
-				draw_texture_rect(dot, Rect2(-r, -r, r * 2.0, r * 2.0), false, Color(c, 0.85 * c.a))
-				var star := VfxTextures.get_texture(SkillVfxData.Shape.STAR)
+				_quad(VfxTextures.get_texture(SkillVfxData.Shape.DOT), _b_pos[i], Vector2(r, r), 0.0, Vector2(1.0, 1.25),
+					Color(c, 0.85 * c.a))
 				var rs := s * 0.9 * (1.0 - 0.5 * k)
-				draw_set_transform(_b_pos[i], _b_rot[i], Vector2.ONE)
-				draw_texture_rect(star, Rect2(-rs, -rs, rs * 2.0, rs * 2.0), false, Color(1, 1, 1, c.a))
+				_quad(VfxTextures.get_texture(SkillVfxData.Shape.STAR), _b_pos[i], Vector2(rs, rs), _b_rot[i], Vector2.ONE,
+					Color(1, 1, 1, c.a))
+	_plain.flush(self)
+	_flush_textures()
+	for i in glyphs:  # 글자 조각 (글꼴)
+		var k := _b_t[i] / _b_life[i]
+		var c := _b_color[i]
+		c.a *= 1.0 - k * k
+		var s := _b_size[i]
+		draw_set_transform(_b_pos[i], 0.0, Vector2.ONE)
+		UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(-s * 0.5, s * 0.35), _b_glyph[i], int(s), c, s,
+			Color(0, 0, 0, 0.6 * c.a), maxi(roundi(s / 9.0), 2))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

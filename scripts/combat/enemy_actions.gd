@@ -5,7 +5,7 @@ extends RefCounted
 
 static func on_attack_result(e: Enemy, r: EnemyAttack.Result) -> void:
 	var d := e.attack.data
-	play_sfx(d, false)  # 휘두름·내려침·발사 소리 (E1)
+	play_sfx(d, false, e.formation != null)  # 휘두름·내려침·발사 소리 (E1)
 	if r == EnemyAttack.Result.FIRED:
 		fire_arrow(e)
 	elif d.kind == EnemyAttackData.Kind.CHARGE:
@@ -66,6 +66,7 @@ static func fire_arrow(e: Enemy) -> void:
 	var a := EnemyArrow.new()
 	a.direction = e.attack.aim_dir
 	a.setup(e.target as Player, tip, d)
+	a.volley_key = VolleyBeat.key_for(e)
 	e.get_parent().add_child(a)
 	if d.fire_vfx:
 		Feedback.vfx_burst(d.fire_vfx, tip, e.attack.aim_dir)
@@ -80,7 +81,8 @@ static func sfx_for(d: EnemyAttackData, windup: bool) -> StringName:
 	return pair[0 if windup else 1] if pair.size() == 2 else &""
 
 
-static func play_sfx(d: EnemyAttackData, windup: bool) -> void:
+## volley = 일제 사격 (대형·EnemyAttackData.volley): 같은 소리를 VolleyFeelData.sfx_gap 안에 한 번만 (8발이 한 묶음).
+static func play_sfx(d: EnemyAttackData, windup: bool, volley: bool = false) -> void:
 	var k := sfx_for(d, windup)
 	if k != &"" and Feedback.instance:
-		Feedback.instance.play(k, 0.06)
+		Feedback.instance.play(k, VolleyFeelData.default().sfx_gap if volley or d.volley else 0.06)  # 일제 사격은 한 묶음 소리
