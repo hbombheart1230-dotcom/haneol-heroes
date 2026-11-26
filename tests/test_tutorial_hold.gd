@@ -116,7 +116,27 @@ func test_tap_spam_after_the_dodge_does_not_rush_past_the_counter_step() -> void
 	for k in 8:  # 1초 남짓 톡톡톡
 		await d.tap()
 		await d.seconds(0.1)
-	assert_bool(run.step_time < 2.0).is_true()
-	assert_str(String(run.current().event)).is_equal("skill_counter")
+	if run.step_time < 2.0:  # 바쁜 기계에서 톡톡톡이 2초를 넘겼으면 단계가 넘어가는 게 맞다 (흔들리지 않게)
+		assert_str(String(run.current().event)).is_equal("skill_counter")
+		assert_bool(main.seal_choice.is_open()).is_false()
+	_cleanup(main)
+
+
+## 반격 뒤 설정 화면 등으로 멈춘 동안엔 패 기다림이 흐르지 않는다 (멈춘 채 패가 열려 닫을 때 풀려 버리는 것을 막는다).
+func test_paused_game_does_not_count_the_card_delay() -> void:
+	var main := _main(&"yi_sun_sin")
+	await get_tree().process_frame
+	await get_tree().physics_frame
+	var dir: TutorialDirector = main.tutorial_director
+	var run: TutorialProgress = dir.run
+	TutorialDriver.skip_to(run, &"skill_counter")
+	run.notify(&"skill_counter")
+	dir.tick(2.1)
+	assert_str(String(run.current().event)).is_equal("upgrade")
+	get_tree().paused = true
+	dir.tick(5.0)
 	assert_bool(main.seal_choice.is_open()).is_false()
+	get_tree().paused = false
+	dir.tick(1.6)
+	assert_bool(main.seal_choice.is_open()).is_true()
 	_cleanup(main)

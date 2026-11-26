@@ -87,11 +87,12 @@ func tick(delta: float) -> void:
 		run.notify(&"move", player.global_position.distance_to(_last_pos))
 		_last_pos = player.global_position
 	run.notify(&"wait", delta)
-	if _offer_left > 0.0:  # 먼저 센다: 이번 틱에 막 정해진 기다림이 같은 틱에 끝나 버리지 않게
-		_offer_left -= delta
-		if _offer_left <= 0.0:
-			_maybe_offer_practice()
-	run.elapse(delta)
+	if not main.get_tree().paused:  # 설정 화면 등으로 멈춘 동안은 읽힐 시간·패 기다림을 세지 않는다 (패가 설정 뒤에서 열리지 않게)
+		if _offer_left > 0.0:  # 먼저 센다: 이번 틱에 막 정해진 기다림이 같은 틱에 끝나 버리지 않게
+			_offer_left -= delta
+			if _offer_left <= 0.0:
+				_maybe_offer_practice()
+		run.elapse(delta)
 	var sc := _caster()
 	if sc and sc.kit and sc.combo.streak >= sc.kit.combo_hits:  # 손으로 연계를 끝까지 이었다
 		run.notify(&"combo")

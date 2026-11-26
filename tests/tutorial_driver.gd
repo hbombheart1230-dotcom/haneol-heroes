@@ -153,7 +153,9 @@ func act(ev: StringName) -> void:
 				await tap()
 			await seconds(0.5)
 		&"upgrade":
-			await frames(2)
+			var end := _now() + 3.0  # 연습 패는 단계가 시작되고 enter_delay(1.5초) 뒤에 열린다
+			while not main.seal_choice.is_open() and _now() < end:
+				await frames(2)
 			if main.seal_choice.is_open():
 				main.seal_choice.pick(0)
 			await frames(2)
