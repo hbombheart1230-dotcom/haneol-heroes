@@ -5,6 +5,7 @@ extends SceneTree
 ## 위 줄: 진행 progress (기본 0.6), 아래 줄: 치기 직전 번쩍 (남은 0.05초). 칸: (가)(나)(다).
 ## frames > 0이면 out_dir에 진행 0→끝 칸들을 따로 남긴다 (GIF용, 칸마다 세 그림새 나란히).
 ## 환경 변수 HH_CROWD=1: 붐비는 판 (몹 수 D안처럼 잡몹 스물넷 + 작은 예고 여럿을 더 세운다).
+## 환경 변수 HH_PERF=1: 찍지 않고 그리기 비용을 잰다 (TelegraphPerf, 결과 줄 TLPERF).
 ## godot --path . --resolution 720x1280 -s res://tools/shots/telegraph_looks.gd -- <무대 id> <출력 png> [frames=0] [out_dir]
 
 ## 칸: [그림새, 테 인주, 채움 인주] — (1) 테 8%·채움 0%, (2) 테 8%·채움 70% (기본), (3) 테 30%·채움 70%.
@@ -82,6 +83,11 @@ func _run() -> void:
 	for i in 420:  # 우두머리 등장 띠가 지나가게
 		await process_frame
 	Engine.time_scale = 0.0
+	if OS.get_environment("HH_PERF") == "1":  # 그리기 비용 재기 (tools/perf/telegraph_perf.gd)
+		await TelegraphPerf.run(self)
+		Engine.time_scale = 1.0
+		quit()
+		return
 	var prog := 0.6
 	var frames := int(args[2]) if args.size() > 2 else 0
 	if frames > 0:
@@ -164,10 +170,30 @@ func _center() -> Vector2:
 
 ## 모든 예고를 진행 k로 세우고 그림새 look으로 한 장.
 func _shot(look: Array, k: float) -> Image:
+	arm(look, k)
+	await process_frame
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var img := root.get_texture().get_image()
+	var vk := img.get_width() / 720.0
+	img = img.get_region(Rect2i(Vector2i(Vector2(CROP.position) * vk), Vector2i(Vector2(CROP.size) * vk)))
+	img.resize(CROP.size.x / 2, CROP.size.y / 2)
+	return img
+
+
+## 그림새 look([그림새, 테 인주, 채움 인주], 빈 배열이면 예고 끔)으로, 모든 예고를 진행 k로 세운다 (다음 그리기에 반영).
+func arm(look: Array, k: float) -> void:
 	var st := TelegraphStyleData.default()
+	if look.is_empty():
+		for f in foes:
+			if is_instance_valid(f[0]) and (f[0] as Enemy).attack:
+				(f[0] as Enemy).attack.state = EnemyAttack.State.READY
+				(f[0] as Enemy).queue_redraw()
+		return
 	st.look = look[0]
 	st.rim_tint = look[1]
 	st.fill_tint = look[2]
+	TelegraphPaint.clear_cache()
 	var c0 := _center()
 	for f in foes:
 		var e: Enemy = f[0]
@@ -189,14 +215,6 @@ func _shot(look: Array, k: float) -> Image:
 			rim.queue_redraw()
 	for lane in root.find_children("*", "LaneStrike", true, false):
 		(lane as CanvasItem).queue_redraw()
-	await process_frame
-	await process_frame
-	await RenderingServer.frame_post_draw
-	var img := root.get_texture().get_image()
-	var vk := img.get_width() / 720.0
-	img = img.get_region(Rect2i(Vector2i(Vector2(CROP.position) * vk), Vector2i(Vector2(CROP.size) * vk)))
-	img.resize(CROP.size.x / 2, CROP.size.y / 2)
-	return img
 
 
 func _row(imgs: Array[Image]) -> Image:

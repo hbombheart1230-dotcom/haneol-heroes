@@ -49,7 +49,7 @@ static var floor_luma: float = 1.0
 @export_group("인주 배어남")
 ## 먹에서 탁한 인주(seal_dull) 쪽으로 섞는 비율. 테: 0.08 거의 먹 / 0.3 붉은 갈색. 채움: 0 먹 번짐 / 0.7 붉은 번짐
 ## (불투명도는 ink_alpha 그대로라 화면을 덮지 않는다).
-@export_range(0.0, 1.0) var rim_tint: float = 0.08
+@export_range(0.0, 1.0) var rim_tint: float = 0.3
 @export_range(0.0, 1.0) var fill_tint: float = 0.7
 
 @export_group("먹 번짐 채움")

@@ -18,7 +18,7 @@ func test_default_is_ink_bleed_and_seal_stays_enemy_red() -> void:
 	s.look = TelegraphStyleData.NOW
 	assert_that(s.seal()).is_equal(s.seal_bright)
 	s.look = TelegraphStyleData.BRUSH_WASH
-	assert_float(s.rim_tint).is_less(0.2)  # 테는 거의 먹
+	assert_float(s.rim_tint).is_less(s.fill_tint)  # 테는 채움보다 덜 붉다 (사용자: 테 30%·채움 70%)
 	var plain := s.fill_tint
 	s.fill_tint = 0.0
 	assert_that(s.fill_color()).is_equal(s.ink_color)
