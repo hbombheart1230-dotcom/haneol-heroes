@@ -1,58 +1,63 @@
 class_name TelegraphStyleData
 extends Resource
-## 적 공격 예고(바닥 원·부채·띠·돌진 길·포격선·사격 조준선)의 그림새 (data/ui/telegraph_style.tres, 사용자 2026-11-26
-## "너무 빨갛게 뜬다. 게임 분위기에 안 맞고 튄다 — 수묵 처리를 하든지"). 빨강은 없애지 않고 양만 줄인다.
-## 예고 시간·판정은 건드리지 않는다 (보이는 것만). 붉은 인주색은 적 위험 전용 (색 규칙) — 여기 seal도 그 계열.
+## 적 공격 예고(바닥 원·부채·띠·돌진 길·포격선·사격 조준선)의 그림새 (data/ui/telegraph_style.tres, 사용자 2026-11-26:
+## "안의 색이 문제가 아니라 테두리가 쨍한 게 더 문제 — 그냥 직설적인 도형에 색도 진해서").
+## 테두리를 붓으로 그은 먹 선으로 (굵기 들쭉날쭉·군데군데 끊기는 마른 붓 획, InkPaint 붓 획 그림), 채움 가장자리도 번짐 결로.
+## 공정함: 가장 또렷한 선(가는 속심)은 정확히 판정 경계 위에 — 보이는 가장자리 = 맞는 가장자리. 예고 시간·판정은 안 건드린다.
+## 치기 직전 신호: 영역 전체가 번쩍이지 않고, 가장자리 먹 선이 한 번 짙어지고 낙관(도장)이 찍힌다.
 ## 그림새(look): 0 = (가) 지금 (쨍한 인주 채움 + 인주 테),
-## 1 = (나) 먹 번짐 + 붉은 테: 채움은 먹이 번져 차오르고 (한지 결 있는 먹 번짐 그림), 인주색은 가는 테에만.
-##     테는 먹 그림자 + 인주 획 + 밝은 속심 (원거리 예고 #192와 같은 짜임) — 어두운 바닥에서도 읽힌다.
-##     치기 직전(EnemyAIData.strike_flash_time)엔 낙관을 찍듯 영역 전체가 인주로 한 번 번쩍.
-## 2 = (다) 모양·채움 방식은 지금 그대로, 색만 탁한 인주(seal_dull)로 낮추고 한지 결 채움 + 먹 테를 입힌다 (가장 작은 변경).
+## 1 = (라) 먹 붓 테 + 옅은 인주 배어남 (붓 획에 인주가 조금 섞이고, 채움은 탁한 인주 결),
+## 2 = (마) 먹 붓 테 + 낙관 점만 (인주 최소: 채움은 옅은 먹, 인주는 가장자리 낙관 점 한두 개).
+## 붉은 인주색은 적 위험 전용 (색 규칙) — seal_*도 그 계열.
 
 const PATH := "res://data/ui/telegraph_style.tres"
 const NOW := 0
-const INK_BLEED := 1
-const DULL_SEAL := 2
+const BRUSH_TINT := 1
+const BRUSH_STAMP := 2
 static var _cached: TelegraphStyleData
 
-@export_range(0, 2) var look: int = INK_BLEED
-## (가)의 쨍한 인주 (Ink.SEAL과 같게).
+@export_range(0, 2) var look: int = BRUSH_TINT
+## (가)의 쨍한 인주 (Ink.SEAL과 같게). (라)·(마)의 탁한 인주 (배어남·채움·낙관·사격 조준선·포격 줄).
 @export var seal_bright: Color = Color(0.72, 0.13, 0.1)
-## (나)·(다)의 탁한 인주 (테·번쩍임·(다) 채움).
-@export var seal_dull: Color = Color(0.6, 0.17, 0.12)
+@export var seal_dull: Color = Color(0.6, 0.2, 0.15)
 
-@export_group("(나) 먹 번짐 채움")
-## 먹 채움 색, 진하기 (예고 처음 → 마지막). 번짐은 원은 가운데서, 부채는 적 쪽에서, 띠는 뒤에서 앞으로 차오른다.
+@export_group("붓 테 (라·마)")
+## 먹 색, 붓 획 굵기(px)·진하기, 굵기 흔들림(0~1), 끊김 비율(0~1, 마른 붓), 한 획 길이(px).
 @export var ink_color: Color = Color(0.09, 0.09, 0.11)
-@export var ink_alpha: Vector2 = Vector2(0.22, 0.5)
-## 어두운 바닥용 한지색 밑칠 (영역 전체, 처음부터). 0이면 없음.
-@export var paper_under_alpha: float = 0.15
-## 번짐이 처음부터 이만큼(0~1) 차 있다 (너무 작게 시작하면 자리가 안 읽힌다).
-@export_range(0.0, 1.0) var bleed_start: float = 0.25
+@export var brush_width: float = 13.0
+@export var brush_alpha: float = 0.9
+@export_range(0.0, 1.0) var brush_jitter: float = 0.7
+@export_range(0.0, 0.6) var gap_rate: float = 0.22
+@export var seg_px: float = 18.0
+## 어두운 바닥용 한지색 밑획 (붓 획보다 이만큼 굵게, 진하기). 판정선 위 또렷한 속심 (굵기, 진하기).
+@export var under_extra: float = 4.0
+@export var under_alpha: float = 0.3
+@export var core_width: float = 1.2
+@export var core_alpha: float = 0.5
 
-@export_group("(나) 붉은 테")
-## 인주 테 굵기(px)·진하기, 먹 그림자 (테보다 이만큼 굵게, 진하기), 밝은 속심 (굵기, 진하기).
-@export var rim_width: float = 3.0
-@export var rim_alpha: float = 0.95
-@export var shadow_extra: float = 3.5
-@export var shadow_alpha: float = 0.55
-@export var core_width: float = 1.0
-@export var core_alpha: float = 0.7
+@export_group("(라) 옅은 인주 배어남")
+## 붓 획에 섞는 인주 비율 (0 = 먹만). 채움 = 탁한 인주, 진하기 fill_base + fill_gain × 진행.
+@export_range(0.0, 1.0) var tint_amount: float = 0.3
+@export var fill_base: float = 0.1
+@export var fill_gain: float = 0.24
 
-@export_group("(나) 낙관 번쩍 (치기 직전)")
-## 영역 전체 인주 진하기, 테 굵기 배율, 밝기 (테 색을 이만큼 밝게).
-@export var stamp_alpha: float = 0.42
-@export var stamp_rim_mult: float = 1.8
-@export var stamp_lighten: float = 0.35
+@export_group("(마) 먹 채움")
+## 채움 = 옅은 먹 (예고 처음 → 마지막), 한지색 밑칠.
+@export var ink_fill_alpha: Vector2 = Vector2(0.12, 0.3)
+@export var paper_under_alpha: float = 0.1
 
-@export_group("(다) 탁한 인주")
-## 채움 진하기 = fill_base + fill_gain × 진행 (+ 번쩍일 때 fill_flash). 먹 테: 인주 테 아래 이만큼 굵게, 진하기.
-@export var fill_base: float = 0.12
-@export var fill_gain: float = 0.26
-@export var fill_flash: float = 0.18
-@export var dull_rim_width: float = 3.5
-@export var dull_ink_extra: float = 3.0
-@export var dull_ink_alpha: float = 0.45
+@export_group("낙관 (도장)")
+## 한 변(px), 평소 진하기 ((라)는 0 — 치기 직전에만, (마)는 처음부터 옅게), 찍힐 때 진하기·크기 배율.
+@export var stamp_px: float = 15.0
+@export var tint_stamp_idle: float = 0.0
+@export var stamp_idle: float = 0.45
+@export var stamp_flash_alpha: float = 0.95
+@export var stamp_flash_scale: float = 1.3
+
+@export_group("치기 직전 (먹 선 짙어짐)")
+## 붓 획 굵기 배율, 진하기.
+@export var flash_width_mult: float = 1.5
+@export var flash_alpha: float = 1.0
 
 
 static func default() -> TelegraphStyleData:

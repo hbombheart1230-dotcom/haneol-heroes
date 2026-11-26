@@ -1,24 +1,31 @@
 extends GdUnitTestSuite
-## 적 예고 그림새 (TelegraphStyleData·TelegraphPaint, 사용자 2026-11-26 "너무 빨갛게 뜬다"): 기본은 (나) 먹 번짐 + 붉은 테,
+## 적 예고 그림새 (TelegraphStyleData·TelegraphPaint, 사용자 2026-11-26 "테두리가 쨍한 게 문제"): 기본은 (라) 먹 붓 테 + 옅은 인주,
 ## 인주색은 적 위험 계열 그대로 (색 규칙), 세 그림새 모두 원·부채·띠를 오류 없이 그린다.
 
 var _drawn := 0
 
 
 func after_test() -> void:
-	TelegraphStyleData.default().look = TelegraphStyleData.INK_BLEED
+	TelegraphStyleData.default().look = TelegraphStyleData.BRUSH_TINT
 
 
 func test_default_is_ink_bleed_and_seal_stays_enemy_red() -> void:
 	var s := TelegraphStyleData.default()
-	assert_int(s.look).is_equal(TelegraphStyleData.INK_BLEED)
+	assert_int(s.look).is_equal(TelegraphStyleData.BRUSH_TINT)
 	for c: Color in [s.seal_bright, s.seal_dull]:  # 인주 계열 (test_color_rules와 같은 범위): 적 위험 전용 색
 		assert_bool(c.r >= 0.6 and c.g <= 0.35 and c.b <= 0.3).is_true()
-	assert_float(s.seal_dull.s).is_less(s.seal_bright.s)  # (나)·(다)는 덜 쨍하다
+	assert_float(s.seal_dull.s).is_less(s.seal_bright.s)  # (라)·(마)는 덜 쨍하다
 	s.look = TelegraphStyleData.NOW
 	assert_that(s.seal()).is_equal(s.seal_bright)
-	s.look = TelegraphStyleData.DULL_SEAL
+	s.look = TelegraphStyleData.BRUSH_STAMP
 	assert_that(s.seal()).is_equal(s.seal_dull)
+
+
+## 붓 테의 끊김·굵기는 자리마다 고정 (프레임마다 같은 모양 — 깜빡이지 않게).
+func test_brush_pattern_is_stable() -> void:
+	for i in 20:
+		assert_float(TelegraphPaint._hash(i, 3.0)).is_equal(TelegraphPaint._hash(i, 3.0))
+		assert_float(TelegraphPaint._hash(i, 3.0)).is_between(0.0, 1.0)
 
 
 func test_every_look_draws_all_shapes() -> void:
@@ -31,7 +38,7 @@ func test_every_look_draws_all_shapes() -> void:
 			TelegraphPaint.band(node, Vector2.ZERO, Vector2(300, 0), Vector2(0, 40), 0.5, flash, true, true)
 			TelegraphPaint.circle(node, Vector2.ZERO, 120.0, 0.0, flash, true, false, 4.0)  # 차오름 0 (번짐 시작 크기)
 		_drawn += 1)
-	for look in [TelegraphStyleData.NOW, TelegraphStyleData.INK_BLEED, TelegraphStyleData.DULL_SEAL]:
+	for look in [TelegraphStyleData.NOW, TelegraphStyleData.BRUSH_TINT, TelegraphStyleData.BRUSH_STAMP]:
 		TelegraphStyleData.default().look = look
 		var before := _drawn
 		node.queue_redraw()

@@ -4,6 +4,7 @@ extends SceneTree
 ## 예고 중으로 멈춰 세우고 (Engine.time_scale 0 — 예고 시간·판정은 안 건드림) 그림새마다 찍는다.
 ## 위 줄: 진행 progress (기본 0.6), 아래 줄: 치기 직전 번쩍 (남은 0.05초). 칸: (가)(나)(다).
 ## frames > 0이면 out_dir에 진행 0→끝 칸들을 따로 남긴다 (GIF용, 칸마다 세 그림새 나란히).
+## 환경 변수 HH_CROWD=1: 붐비는 판 (몹 수 D안처럼 잡몹 스물넷 + 작은 예고 여럿을 더 세운다).
 ## godot --path . --resolution 720x1280 -s res://tools/shots/telegraph_looks.gd -- <무대 id> <출력 png> [frames=0] [out_dir]
 
 const LOOKS := [0, 1, 2]
@@ -71,6 +72,8 @@ func _run() -> void:
 	var sh := _atk(EnemyAttackData.Kind.SHOOT, 0.0)
 	sh.projectile_range = 480.0
 	_foe(mook, c0 + Vector2(320, -20), sh, Vector2(-1, 0.55).normalized(), Vector2.ZERO)
+	if OS.get_environment("HH_CROWD") == "1":
+		_crowd(mook)
 	var boss := spawner.spawn_boss()
 	if boss:
 		var bw := _atk(EnemyAttackData.Kind.SHOCKWAVE, 240.0)
@@ -108,6 +111,23 @@ func _run() -> void:
 	quit()
 
 
+## 붐비는 판: 잡몹 스물넷 (가만히) + 그중 여덟은 작은 원·부채 예고 중.
+func _crowd(mook: EnemyData) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 7
+	for i in 24:
+		var at := Vector2(rng.randf_range(-320, 320), rng.randf_range(-480, 380))
+		var e := spawner.spawn_at(mook, at)
+		if e == null:
+			continue
+		if i % 3 == 0:
+			var kind := EnemyAttackData.Kind.SLAM if i % 2 == 0 else EnemyAttackData.Kind.CONE
+			var d := _atk(kind, 80.0 if kind == EnemyAttackData.Kind.SLAM else 130.0)
+			_setup(e, at, d, Vector2.from_angle(rng.randf() * TAU), at + Vector2(0, 60))
+		else:
+			_setup(e, at, null, Vector2.ZERO, Vector2.ZERO)
+
+
 func _atk(kind: EnemyAttackData.Kind, radius: float) -> EnemyAttackData:
 	var d := EnemyAttackData.new()
 	d.kind = kind
@@ -127,7 +147,7 @@ func _setup(e: Enemy, at: Vector2, atk: EnemyAttackData, aim: Vector2, target: V
 	e.speed_mult = 0.0
 	e.health.max = 1000000
 	e.health.current = 1000000
-	if e.attack == null:
+	if e.attack == null and atk:
 		e.attack = EnemyAttack.new(atk)
 	foes.append([e, atk, aim, target, at])
 
@@ -150,6 +170,8 @@ func _shot(look: int, k: float) -> Image:
 		if not is_instance_valid(e):
 			continue
 		e.global_position = c0 + (f[4] as Vector2)
+		if f[1] == null:
+			continue  # 붐비는 판의 가만히 있는 몹
 		var a := e.attack
 		a.data = f[1]
 		a.state = EnemyAttack.State.WINDUP

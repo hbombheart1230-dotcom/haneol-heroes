@@ -132,8 +132,8 @@ func _draw() -> void:
 		var wm := InkUiStyle.default().wash_alpha_mult  # 범위(rect)는 그대로, 안쪽만 먹 번짐
 		InkPaint.wash_rect(self, rect, Color(c, lerpf(data.fill_alpha.x, data.fill_alpha.y, t) * wm * (1.0 + 0.5 * _beat_flash)))  # 박자마다 번짐이 짙어진다
 		var half := rect.size.x * 0.5 * t  # 양 끝 대포에서 가운데로 차오른다
-		var st := TelegraphStyleData.default()  # (나) 먹 번짐: 차오르는 채움은 먹, 인주는 테에만
-		var fill := Color(st.ink_color, st.ink_alpha.y) if st.look == TelegraphStyleData.INK_BLEED else Color(c, (data.fill_alpha.y + 0.1) * wm)
+		var st := TelegraphStyleData.default()  # (마) 인주 최소: 차오르는 채움은 먹
+		var fill := Color(st.ink_color, st.ink_fill_alpha.y) if st.look == TelegraphStyleData.BRUSH_STAMP else Color(c, (data.fill_alpha.y + 0.1) * wm)
 		InkPaint.wash_rect(self, Rect2(rect.position, Vector2(half, rect.size.y)), fill)
 		InkPaint.wash_rect(self, Rect2(Vector2(rect.end.x - half, rect.position.y), Vector2(half, rect.size.y)), fill)
 	if _flash > 0.0:
@@ -155,7 +155,7 @@ func _draw_rim() -> void:
 	_draw_offscreen(r.x, c)
 
 
-## 예고 인주색: (가)는 이 장치 색 그대로, (나)·(다)는 탁한 인주 (TelegraphStyleData, 근접 예고와 한 식구).
+## 예고 인주색: (가)는 이 장치 색 그대로, (라)·(마)는 탁한 인주 (TelegraphStyleData, 근접 예고와 한 식구).
 func _warn_color() -> Color:
 	var st := TelegraphStyleData.default()
 	return data.warn_color if st.look == TelegraphStyleData.NOW else st.seal_dull
