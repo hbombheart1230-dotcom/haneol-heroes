@@ -89,3 +89,22 @@ func test_first_tick_of_a_cast_buzzes_like_a_single_hit() -> void:
 	f._last_haptic = -INF
 	assert_bool(ctx.tick_hit(e, 6)).is_true()  # 같은 발동의 다음 틱은 예전처럼 진동 없음
 	assert_array(Haptics.last).is_empty()
+
+
+func test_only_sejong_glyphs_buzz_on_first_tick() -> void:
+	# 사용자: 사임당 4타는 지금이 좋다 → 물 때마다 impact 15ms 그대로, 첫 틱 30ms는 세종 정음진만.
+	assert_bool(preload("res://data/heroes/sejong.tres").kit.tap.first_tick_buzz).is_true()
+	assert_bool(preload("res://data/heroes/shin_saimdang.tres").kit.tap.first_tick_buzz).is_false()
+	_feedback()
+	var p: Player = auto_free(Player.new())
+	add_child(p)
+	p.hero = preload("res://data/heroes/shin_saimdang.tres")
+	var e: Enemy = ENEMY_SCENE.instantiate()
+	e.data = SOLDIER
+	add_child(auto_free(e))
+	e.set_physics_process(false)
+	var ctx := SkillContext.new()
+	ctx.player = p
+	ctx.skill = p.hero.kit.tap
+	assert_bool(ctx.tick_hit(e, 6)).is_true()
+	assert_array(Haptics.last).is_empty()

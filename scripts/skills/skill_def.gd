@@ -65,6 +65,8 @@ extends Resource
 @export var impact_sfx: StringName = &""
 ## 이 기술이 적을 맞힐 때마다 더 겹치는 소리 (영웅 공통 재질음 위에).
 @export var hit_layer_sfx: StringName = &""
+## 계속 치는 기술(도는 글자·장판)의 발동 첫 닿음에 한 번 끊어 치는 명중 진동 (세종 정음진 4타; 사임당은 물 때마다 impact 진동이 따로 있어 끔).
+@export var first_tick_buzz: bool = false
 
 
 ## 발동. charge는 0~1 (충전 기술에만 의미).

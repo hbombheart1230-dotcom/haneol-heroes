@@ -213,7 +213,8 @@ func _on_skill_cast(slot: SkillCaster.Slot, hits: int) -> void:
 		play(def.sfx, 0.0)
 		add_trauma(skill_trauma_for(slot, hits))
 		return
-	add_trauma(skill_trauma_for(slot, hits))
+	var bite := skill_caster.finisher_bite if skill_caster and slot == SkillCaster.Slot.TAP else null
+	add_trauma(bite.finisher_cast_trauma if bite else skill_trauma_for(slot, hits))  # 칼 박힘 마무리는 닿을 때 크게
 	play(&"counter" if slot == SkillCaster.Slot.COUNTER else &"slash", 0.0)
 
 

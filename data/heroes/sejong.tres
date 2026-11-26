@@ -79,6 +79,7 @@ vfx_hit = ExtResource("vfx_hit")
 vfx_impact = ExtResource("vfx_impact")
 ring_art = ExtResource("ring_art")
 sfx_layers = Array[StringName]([&"gugak_pyeon"])
+first_tick_buzz = true
 cast_anim = &"cast_tap"
 range_rings = false
 cast_lead = -1.0

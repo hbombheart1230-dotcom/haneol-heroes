@@ -98,7 +98,7 @@ func test_heavy_third_hit_stops_longer() -> void:
 	assert_float(YI.blade_bite.stop_for(3)).is_equal_approx(0.02, 0.001)  # 쾌검 (사용자 2026-11-24): 1·2타 멈춤 없음, 3타 아주 살짝 (2→3 멈칫 없게), 무게는 4타 마무리(finisher_stop)
 	assert_float(YI.blade_bite.stop_for(1)).is_equal(0.0)
 	assert_float(YI.blade_bite.stop_for(2)).is_equal(0.0)
-	assert_float(YI.blade_bite.finisher_stop).is_equal_approx(0.06, 0.001)
+	assert_float(YI.blade_bite.finisher_stop).is_equal_approx(0.12, 0.001)  # 4타 (가) 2026-11-26: 닿는 순간 0.12초·0.05배 (FinisherBite)
 
 
 ## 쾌검: 1·2타는 칼이 박히지 않고 지나간다 (멈춤 없이 다음 타로). 그림도 일반 역경직으로 돌아가 멈추지 않는다.
