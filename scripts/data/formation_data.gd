@@ -47,3 +47,17 @@ enum Move { ADVANCE, KITE, HOLD, HOP }
 @export var reload_time: float = 2.2
 ## 처음 다 나온 뒤 첫 움직임까지(초).
 @export var form_time: float = 0.5
+## 처음 모이기를 이만큼(초) 넘게 기다리면 모인 사람으로 시작한다 (예고 중 막힌 자리 등).
+@export var form_timeout: float = 2.5
+## 겨눔 차례에 일부가 아직 못 겨누면 (회복·경직 중) 이만큼(초)까지 모두를 기다렸다 같이 시작한다 (일제 사격).
+@export var aim_gather: float = 0.6
+## 겨눔 차례에 아무도 못 겨누면 (모두 경직·기절) 이만큼(초) 다시 시도하다 장전으로.
+@export var aim_retry: float = 1.2
+
+@export_group("자리 찾기")
+## 구성원이 자기 자리에서 이 거리(px) 안이면 줄여 걷는다 (자리를 지나치지 않게).
+@export var steer_slow_dist: float = 80.0
+## 줄여 걸을 때 가장 느린 배율 (move_speed ×).
+@export var steer_min_mult: float = 0.35
+## HOP 구성원의 한 번 뛰는 거리(px): 구성원 behaviour에 hop_distance가 없을 때.
+@export var hop_reach: float = 220.0
