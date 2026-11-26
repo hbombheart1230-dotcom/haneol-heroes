@@ -9,12 +9,15 @@ extends RefCounted
 var points := PackedVector2Array()
 var colors := PackedColorArray()
 var indices := PackedInt32Array()
+## 그림을 입힐 때만 (tex_quad): 꼭짓점마다 그림 좌표. 한 묶음은 그림 한 장 (flush의 tex).
+var uvs := PackedVector2Array()
 
 
 func clear() -> void:
 	points.clear()
 	colors.clear()
 	indices.clear()
+	uvs.clear()
 
 
 ## Ink.stroke와 같은 네 점 (a, 35% 지점 ± 굵기) 붓 획.
@@ -81,8 +84,31 @@ func line(a: Vector2, b: Vector2, width: float, color: Color) -> void:
 	quad(PackedVector2Array([a + n, b + n, b - n, a - n]), color)
 
 
+## Ink.splash와 같은 먹물 튀김: 가운데 덩어리 + 둘레 방울 여섯.
+func splash(center: Vector2, radius: float, color: Color, seed: float = 0.0) -> void:
+	blob(center, radius * 0.55, color, seed, 0.3)
+	for i in 6:
+		var a := seed * 1.7 + TAU * i / 6.0
+		var d := radius * (0.8 + 0.3 * sin(seed + i))
+		circle(center + Vector2.from_angle(a) * d, radius * (0.12 + 0.06 * cos(i + seed)), color)
+
+
+## 그림 입힌 네 점 조각 (draw_polygon(네 점, 색, uv, 그림)과 같다). 그림은 flush(canvas, tex)에서 한 장.
+func tex_quad(pts: PackedVector2Array, cols: PackedColorArray, quad_uvs: PackedVector2Array) -> void:
+	var i := points.size()
+	points.append_array(pts)
+	colors.append_array(cols)
+	uvs.append_array(quad_uvs)
+	indices.append_array(PackedInt32Array([i, i + 1, i + 2, i, i + 2, i + 3]))
+
+
 ## 모은 것을 canvas에 한 번에 그리고 비운다 (_draw 안에서 부른다).
-func flush(canvas: CanvasItem) -> void:
+## tex가 있으면 tex_quad로 모은 것을 그 그림으로.
+func flush(canvas: CanvasItem, tex: Texture2D = null) -> void:
 	if not indices.is_empty():
-		RenderingServer.canvas_item_add_triangle_array(canvas.get_canvas_item(), indices, points, colors)
+		if tex:
+			RenderingServer.canvas_item_add_triangle_array(canvas.get_canvas_item(), indices, points, colors, uvs,
+				PackedInt32Array(), PackedFloat32Array(), tex.get_rid())
+		else:
+			RenderingServer.canvas_item_add_triangle_array(canvas.get_canvas_item(), indices, points, colors)
 	clear()

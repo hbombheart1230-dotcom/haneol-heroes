@@ -111,17 +111,24 @@ func step(delta: float) -> void:
 				_s_t[i] = -1.0
 
 
+## 먹 자국(단색)과 붓 조각(획 그림 한 장)을 각각 모아 한 번에 (InkBatch, 모양·색·차례 그대로).
+var _b := InkBatch.new()
+var _bt := InkBatch.new()
+
+
 func _draw() -> void:
 	for i in _s_t.size():
 		if _s_t[i] < 0.0:
 			continue
 		var k := _s_t[i] / data.splat_time
-		Ink.splash(self, _s_pos[i], _s_r[i] * (0.8 + 0.4 * minf(k * 4.0, 1.0)), Color(data.ink_color, data.splat_alpha * (1.0 - k)), _s_seed[i])
+		_b.splash(_s_pos[i], _s_r[i] * (0.8 + 0.4 * minf(k * 4.0, 1.0)), Color(data.ink_color, data.splat_alpha * (1.0 - k)), _s_seed[i])
+	_b.flush(self)
 	if stroke == null:
 		return
 	for i in _t.size():
 		if _t[i] >= 0.0:
 			_draw_stroke(i)
+	_bt.flush(self, stroke)
 
 
 func _draw_stroke(i: int) -> void:
@@ -145,7 +152,7 @@ func _draw_stroke(i: int) -> void:
 				break
 			u1 = minf(u1, shown)
 			_quad(i, u0, u1, wk, col)
-			draw_polygon(_pts, _cols, _uvs, stroke)
+			_bt.tex_quad(_pts, _cols, _uvs)
 
 
 ## u0~u1 구간의 획 조각 꼭짓점 (붓 끝은 가늘게: 양 끝으로 갈수록 폭이 줄어든다).
