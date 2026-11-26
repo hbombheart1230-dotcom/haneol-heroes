@@ -108,6 +108,8 @@ func _draw() -> void:
 	var text_w := b.size.x - 170.0
 	_draw_title(s, text_x, b.position.y + 70, text_w)
 	var hint := s.text_for(hero_id, GameSettings.skill_button_enabled, waves)
+	if run.held() and s.done_hint != "":  # 해냈지만 아직 넘기지 않는 동안: 방금 한 것이 무엇인지
+		hint = s.done_hint
 	var lines := hint.split("\n")
 	for i in lines.size():
 		UiStyle.text(self, UiStyle.BODY_FONT, Vector2(text_x, b.position.y + 116 + i * 34), lines[i], 24,

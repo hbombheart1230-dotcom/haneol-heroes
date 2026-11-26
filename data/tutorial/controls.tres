@@ -87,6 +87,9 @@ button_hint = "피한 뒤 1초 동안은 맞지 않습니다 (금빛 테두리)
 event = &"skill_counter"
 practice_enemy = ExtResource("3_practice")
 banner_top = true
+min_show = 2.0
+done_hint = "이것이 반격입니다
+피한 뒤 바로 톡 치면 나갑니다"
 
 [sub_resource type="Resource" id="upgrade"]
 script = ExtResource("2_step")
@@ -96,6 +99,7 @@ hint = "적을 쓰러뜨려 기운이 차면 강화 패가 나옵니다
 wave_hint = "공력이 차면 경지가 오르고 패 한 장
 패는 물결 사이 숨 고르기에서 고른다"
 event = &"upgrade"
+enter_delay = 1.5
 
 [resource]
 script = ExtResource("1_data")

@@ -19,6 +19,13 @@ extends Resource
 @export var practice_enemy: EnemyData
 ## 안내 띠를 화면 위쪽에 (아래쪽 게임 안내, 예: 반격 신호 "강화 반격!"을 가리지 않게).
 @export var banner_top: bool = false
+## 이 단계가 시작된 뒤 이 시간(초)이 차기 전에는 해냈어도 넘기지 않는다 (피한 직후 우연한 톡으로 안내 글을 읽기도 전에
+## 지나가지 않게). 해낸 것으로는 쳐서, 시간이 차면 바로 넘어간다. 0이면 바로.
+@export var min_show: float = 0.0
+## 해냈지만 아직 넘기지 않는 동안(min_show) 설명 대신 보여 줄 글 (비우면 설명 그대로).
+@export_multiline var done_hint: String = ""
+## 이 단계로 넘어온 뒤 이 시간(초)이 지나서야 단계의 일(연습 강화 패 열기 등)을 한다 (앞 단계의 마무리가 눈에 보이게).
+@export var enter_delay: float = 0.0
 ## 연습 상대를 세울 거리 (플레이어 위쪽, px). 0이면 TutorialData.practice_distance.
 @export var practice_distance: float = 0.0
 
