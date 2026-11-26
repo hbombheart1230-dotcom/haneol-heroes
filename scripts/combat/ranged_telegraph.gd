@@ -6,9 +6,24 @@ extends RefCounted
 ## 수치는 RangedTelegraphData. c는 적과 같은 좌표계. 화면 밖 사수는 획이 화면 가장자리에서 들어오는 것으로 충분하다.
 
 
+static var _one := InkBatch.new()
+
+
+## 적 하나의 예고를 c에 (InkBatch 하나 = 그리기 호출 하나). 전장 층(RangedTelegraphLayer)이 맡으면 그쪽이 모아 그린다.
 static func draw(e: Enemy, c: CanvasItem, k: float, flash: bool) -> void:
+	paint(e, _one, Vector2.ZERO, k, flash, 1)
+	_one.flush(c)
+
+
+## 예고 획을 b에 모은다. at = 그릴 층에서 사수 자리, crowd = 지금 한꺼번에 예고 중인 사수 수 (VolleyFeelData 붐빔 모양).
+static func paint(e: Enemy, b: InkBatch, at: Vector2, k: float, flash: bool, crowd: int) -> void:
 	var a := e.attack
 	var d := RangedTelegraphData.default()
+	var v := VolleyFeelData.default()
+	var busy := crowd >= v.crowd_from
+	var wm := v.crowd_width_mult if busy else 1.0
+	var am := v.crowd_alpha_mult if busy else 1.0
+	var sm := v.crowd_shadow_mult if busy else 1.0
 	var dir := a.aim_dir
 	var full := a.data.projectile_range
 	var len := full
@@ -17,19 +32,14 @@ static func draw(e: Enemy, c: CanvasItem, k: float, flash: bool) -> void:
 	var w := lerpf(d.width_from, d.width_to, k)
 	if d.style == 1 and k >= d.tense_from:  # 팽팽: 더 가늘고 곧게
 		w = d.tense_width
+	w *= wm
 	var end := dir * len
-	var shadow := Color(Ink.INK, d.shadow_alpha)
+	var shadow := Color(Ink.INK, d.shadow_alpha * sm)
 	var seal := TelegraphStyleData.default().seal()  # 그림새에 따라 쨍한/탁한 인주 (근접 예고와 한 식구)
-	var main := Color(seal.lightened(0.45), 1.0) if flash else Color(seal, lerpf(d.alpha_from, d.alpha_to, k))
-	if d.style == 2:
-		_hit_width(c, dir, full, a.data.projectile_radius * 2.0, d, k)
-	Ink.stroke(c, dir * 4.0, end + dir * 4.0, w + d.shadow_extra, shadow)
-	Ink.stroke(c, Vector2.ZERO, end, w, main)
-	Ink.stroke(c, Vector2.ZERO, end, d.core_width, Color(Ink.PAPER, d.core_alpha * (1.5 if flash else 1.0)))
-
-
-## 실제 맞는 폭: 과녁 쪽 끝 가까이에만 옅게 (끝이 가늘어지는 획 모양 그대로).
-static func _hit_width(c: CanvasItem, dir: Vector2, full: float, hit_w: float, d: RangedTelegraphData, k: float) -> void:
-	var from := dir * full * (1.0 - d.hit_tail)
-	Ink.stroke(c, from, dir * full, hit_w, Color(TelegraphStyleData.default().seal(), d.hit_alpha * k))
-
+	var main := Color(seal.lightened(0.45), 1.0) if flash else Color(seal, lerpf(d.alpha_from, d.alpha_to, k) * am)
+	if d.style == 2:  # 실제 맞는 폭: 과녁 쪽 끝 가까이에만 옅게 (끝이 가늘어지는 획 모양 그대로)
+		b.stroke(at + dir * full * (1.0 - d.hit_tail), at + dir * full, a.data.projectile_radius * 2.0,
+			Color(seal, d.hit_alpha * k * am))
+	b.stroke(at + dir * 4.0, at + end + dir * 4.0, w + d.shadow_extra * sm, shadow)
+	b.stroke(at, at + end, w, main)
+	b.stroke(at, at + end, d.core_width * wm, Color(Ink.PAPER, d.core_alpha * am * (1.5 if flash else 1.0)))

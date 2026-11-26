@@ -89,7 +89,7 @@ static func telegraph_part(e: Enemy, c: CanvasItem, part: int) -> void:
 	var origin := e.to_local(a.aim_origin)
 	match a.data.kind:
 		EnemyAttackData.Kind.SHOOT:  # 조준선 자체가 테두리
-			if do_rim:
+			if do_rim and not RangedTelegraphLayer.claim(e):  # 전장 한 층이 모아 그린다 (InkBatch)
 				RangedTelegraph.draw(e, c, k, flash)
 		EnemyAttackData.Kind.CONE:
 			TelegraphPaint.cone(c, origin, a.aim_dir.angle(), deg_to_rad(a.data.angle_degrees * 0.5), a.data.radius, k, flash, do_fill, do_rim)

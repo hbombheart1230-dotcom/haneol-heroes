@@ -53,6 +53,9 @@ const PATH := "res://data/feel/death_styles.tres"
 @export var glyphs: String = "ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ"
 @export var glyph_bits: int = 6
 @export var star_bits: int = 3
+## 화면에 한꺼번에 떠 있는 글자 조각 상한 (글꼴은 묶어 그릴 수 없어 하나마다 그리기 호출 둘): 넘치는 몫은 금빛 별로.
+## 대형 16명을 한꺼번에 쓰러뜨리면 글자 64개 = 그리기 호출 약 125 (2026-11-26 tools/shots/volley_shot.gd HH_KILL=1).
+@export var max_glyph_bits: int = 12
 
 @export_group("먹·꽃 (사임당)")
 @export var petal_color: Color = Color(0.95, 0.62, 0.75, 1.0)
