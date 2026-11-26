@@ -7,6 +7,8 @@ extends RefCounted
 static func chase(e: Enemy, neighbors: Array) -> Vector2:
 	if e.target == null or not is_instance_valid(e.target) or e.health.is_dead():
 		return Vector2.ZERO
+	if e.formation:  # 대형 구성원: 자기 자리로 (줄 유지는 FormationBrain)
+		return e.formation.steer(e)
 	var to_target := e.target.global_position - e.global_position
 	var dir := to_target.normalized() if to_target.length_squared() > 1.0 else Vector2.ZERO
 	var speed_k := 1.0

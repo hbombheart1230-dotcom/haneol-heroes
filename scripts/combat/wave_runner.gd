@@ -107,6 +107,9 @@ func _start(i: int) -> void:
 	phase = Phase.RUN
 	var w: WaveData = data.waves[i]
 	_queue = WaveSwarm.expand(w.enemies, data.melee_count_mult if w.swarm else 1.0)
+	for k in range(w.formations.size() - 1, -1, -1):  # 대형 묶음을 차례 자리에 (뒤에서부터 넣어 앞 자리가 밀리지 않게)
+		var at := w.formation_after[k] if k < w.formation_after.size() else 0
+		_queue.insert(clampi(at, 0, _queue.size()), w.formations[k])
 	if w.elite_last:
 		_queue.append(null)
 	_budget = mini(maxi(w.first_count, 1), _queue.size())
