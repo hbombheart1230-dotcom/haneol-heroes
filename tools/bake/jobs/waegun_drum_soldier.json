@@ -1,0 +1,91 @@
+{
+  "name": "waegun_drum_soldier",
+  "model": "res://assets/models/meshy/waegun_soldier/animated.glb",
+  "ortho_size": 2.2,
+  "frame": 160,
+  "style": "ink",
+  "ink": {
+    "inner_line": 0.1,
+    "line_px": 1.6,
+    "wash_amount": 0.5,
+    "grain": 0.05
+  },
+  "lossy_quality": 0.5,
+  "anims": [
+    {
+      "key": "idle",
+      "src": "Idle",
+      "frames": 4,
+      "fps": 6.0,
+      "loop": true
+    },
+    {
+      "key": "run",
+      "src": "Walk_Fight_Forward",
+      "frames": 8,
+      "fps": 8.0,
+      "loop": true,
+      "from": "res://assets/models/meshy/waegun_heavy/animated.glb"
+    },
+    {
+      "key": "attack",
+      "src": "Left_Slash",
+      "frames": 6,
+      "fps": 10.0,
+      "loop": false,
+      "strike": 0.6,
+      "times": [
+        0.0,
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        1.0
+      ]
+    },
+    {
+      "key": "hit",
+      "src": "Hit Reaction",
+      "frames": 3,
+      "fps": 12.0,
+      "loop": false,
+      "times": [
+        0.15,
+        0.35,
+        0.6
+      ]
+    },
+    {
+      "key": "down",
+      "src": "Hit_Reaction",
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "times": [
+        0.0,
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        1.0,
+        1.2,
+        1.4
+      ]
+    }
+  ],
+  "prop": {
+    "bone": "Hips",
+    "pos": [
+      0,
+      0,
+      30
+    ],
+    "rot": [
+      90,
+      0,
+      0
+    ],
+    "radius": 24,
+    "depth": 30
+  }
+}

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SpriteSheetSet" format=3]
+
+[ext_resource type="Script" path="res://scripts/art/sprite_sheet_set.gd" id="1_set"]
+[ext_resource type="Texture2D" path="res://assets/sprites/waegun_drummer_big/idle.png" id="t0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/waegun_drummer_big/run.png" id="t1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/waegun_drummer_big/attack.png" id="t2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/waegun_drummer_big/hit.png" id="t3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/waegun_drummer_big/down.png" id="t4"]
+
+[resource]
+script = ExtResource("1_set")
+frame_size = 256
+directions = 8
+anim_names = PackedStringArray("idle", "run", "attack", "hit", "down")
+textures = Array[Texture2D]([ExtResource("t0"), ExtResource("t1"), ExtResource("t2"), ExtResource("t3"), ExtResource("t4")])
+frame_counts = PackedInt32Array(4, 8, 6, 3, 8)
+fps = PackedFloat32Array(6.0, 9.8, 10.0, 12.0, 10.0)
+loops = Array[bool]([true, true, false, false, false])
+strike_frames = PackedInt32Array(-1, -1, 2, -1, -1)
+tips = Array[PackedVector2Array]([PackedVector2Array(), PackedVector2Array(), PackedVector2Array(18.9, -59.3, -0.0, -49.1, 1.4, -49.8, 1.5, -56.9, 3.5, -58.0, 13.6, -58.9, 24.3, -40.1, 14.1, -35.0, 9.1, -37.4, 15.8, -42.6, 17.0, -43.9, 22.3, -40.8, -19.9, -49.9, -23.7, -43.0, -28.7, -53.9, -20.5, -58.1, -17.1, -55.5, -20.1, -50.8, -12.0, -80.5, -23.5, -68.9, -14.4, -82.1, -20.6, -73.9, -12.8, -74.9, -14.5, -78.9, 3.1, -82.7, 2.0, -77.0, 10.6, -83.6, 8.5, -81.0, 5.5, -78.2, 4.4, -82.5, 11.9, -80.6, 26.4, -67.2, 18.4, -79.8, 14.4, -77.6, -6.6, -86.3, -21.4, -100.1, 19.9, -109.1, 23.7, -70.1, 28.7, -78.5, 20.5, -109.9, 17.1, -60.8, 20.1, -113.6, 53.3, -85.9, 6.2, -47.0, 28.2, -59.4, 15.5, -61.0, 14.5, -62.4, 46.4, -81.3), PackedVector2Array(), PackedVector2Array()])
