@@ -20,6 +20,10 @@ extends SkillDef
 @export var blade_rake_hits: int = 3
 @export var blade_rake_interval: float = 0.05
 @export var blade_push: float = 90.0
+## 사방 검기 그림 (오른쪽 = 진행 방향; 비면 먹 획). 판정 원(12px × 1.3 + 적 몸) 안에 들게 작은 물결 날 (#229 "기본 획").
+@export var blade_art: Texture2D
+@export var blade_art_size: Vector2 = Vector2(72, 40)
+@export var blade_flicker: float = 0.9
 
 
 func cast(ctx: SkillContext, _charge: float) -> SkillRun:
@@ -46,7 +50,12 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 			pr.pierce = true
 			pr.damage = blade_damage
 			pr.knockback = blade_push
-			pr.size_scale = 1.3)
+			pr.size_scale = 1.3
+			if blade_art:  # 작은 물결 날 (해일검기 물결 그림)
+				pr.art = blade_art
+				pr.art_size = blade_art_size
+				pr.wave_style = true
+				pr.flicker = blade_flicker)
 		if p and blade_rake_hits > 1:  # 사방 검기도 지나가며 잘게 긁는다 (다다닥)
 			var rake := WaveRake.attach(ctx, p, WaveRake.plan(blade_damage, blade_rake_hits, 2.0, blade_push, 0.35),
 				blade_rake_interval, 24)

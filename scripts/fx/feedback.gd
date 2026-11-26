@@ -297,9 +297,10 @@ static func vfx_burst(data: SkillVfxData, pos: Vector2, dir: Vector2 = Vector2.Z
 
 
 ## 경로를 따라 펼쳐지는 그림 띠 (직선 기술은 SkillVfxData, 회피 자취는 직접).
-static func vfx_strip_for(data: SkillVfxData, a: Vector2, b: Vector2, level: int = 0) -> void:
+## width > 0이면 띠 폭을 그 값으로 (판정 폭에 맞춤, 강화 단계 크기 배율 대신).
+static func vfx_strip_for(data: SkillVfxData, a: Vector2, b: Vector2, level: int = 0, width: float = -1.0) -> void:
 	if instance and instance.decals:
-		instance.decals.strip_for(data, a, b, level)
+		instance.decals.strip_for(data, a, b, level, width)
 
 
 ## 붓 획 하나 (세종 금빛 회피 자취 등).

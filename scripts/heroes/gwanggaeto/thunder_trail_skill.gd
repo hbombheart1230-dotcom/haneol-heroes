@@ -5,6 +5,8 @@ extends SkillDef
 
 @export var delay: float = 0.3
 @export var width: float = 110.0
+## 띠 그림 폭에 더하는 적 몸(px, 양쪽 각각): 띠 폭 = 판정 폭 + 몸 둘 (강화 패 "넓은 벼락"이 보이게).
+@export var strip_edge_px: float = 20.0
 @export var damage: int = 35
 ## 대시 경로가 이보다 짧으면 바라보는 방향으로 이 길이를 쓴다.
 @export var min_length: float = 200.0
@@ -33,7 +35,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 
 ## 굵은 벼락 (마지막 쾅, 또는 한 번에 칠 때).
 func thunder(ctx: SkillContext, a: Vector2, b: Vector2) -> void:
-	ctx.strip(a, b)  # 길을 따라 번개 줄기
+	ctx.strip(a, b, width + 2.0 * strip_edge_px)  # 길을 따라 번개 줄기 (폭 = 판정 폭 + 적 몸 둘)
 	ctx.bolt(a, b, width * 0.5, 0.3, fx_color)
 	ctx.impact(b, b - a)
 	ctx.shake(0.25)
