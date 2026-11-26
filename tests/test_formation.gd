@@ -188,7 +188,11 @@ func test_formation_member_kill_xp_uses_formation_mult() -> void:
 	var feed := ScoreFeed.new(p, load("res://data/runs/score_table.tres"))
 	var alone := feed.kill(e, 1.53)
 	b.join(e, 0)
-	assert_int(feed.kill(e, 1.53)).is_equal(roundi(d.member.xp * 1.53 * d.xp_mult))
+	var each := d.member.xp * 1.53 * d.xp_mult  # 구성원 하나 몫 (소수, 반올림 계단 없음)
+	var got := 0
+	for k in 10:
+		got += feed.kill(e, 1.53)
+	assert_int(got).is_equal(floori(each * 10.0 + 0.0001))  # 열 명 = 몫 × 10 (소수가 쌓여 정수로)
 	assert_int(alone).is_equal(roundi(d.member.xp * 1.53))
 
 
@@ -199,4 +203,4 @@ func test_every_formation_gives_some_but_less_xp() -> void:
 		for w: WaveData in st.waves.waves:
 			for f: FormationData in w.formations:
 				assert_float(f.xp_mult).override_failure_message(id).is_less(1.0)
-				assert_int(roundi(f.member.xp * st.waves.xp_mult * f.xp_mult)).override_failure_message(id).is_greater_equal(1)
+				assert_float(f.member.xp * st.waves.xp_mult * f.xp_mult).override_failure_message(id).is_greater(0.0)

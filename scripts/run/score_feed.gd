@@ -13,6 +13,8 @@ var active: Callable
 var _last := {}
 var _count := {}
 var _caster: SkillCaster
+## 대형 구성원 처치 점수의 소수 나머지 (반올림 3·2·1점 계단 없이 배율대로 쌓이게; 표시·레벨은 정수 그대로).
+var _form_frac := 0.0
 
 
 func _init(p_progress: RunProgress, p_table: ScoreTable) -> void:
@@ -47,7 +49,12 @@ func kill(e: Enemy, stage_mult: float) -> int:
 	if e == null or e.data == null:
 		return 0
 	var form := e.formation.data.xp_mult if e.formation and e.formation.data else 1.0  # 대형 구성원 몫 (FormationData.xp_mult)
-	var v := roundi(e.data.xp * stage_mult * form * (table.kill_mult if table else 1.0))
+	var raw := e.data.xp * stage_mult * form * (table.kill_mult if table else 1.0)
+	var v := roundi(raw)
+	if form < 1.0:  # 대형 구성원: 소수를 쌓아 정수만큼 준다 (나머지는 다음 구성원으로)
+		raw += _form_frac
+		v = floori(raw)
+		_form_frac = raw - v
 	if v > 0:
 		progress.add_xp(v, &"elite" if e.data.is_elite else &"kill")
 	return v
