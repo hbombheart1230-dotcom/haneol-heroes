@@ -197,12 +197,18 @@ func _fight(delta: float) -> void:
 
 ## 곁을 지키는 중인지: guard, 또는 guard_boss인데 우두머리·중간 우두머리가 없을 때.
 func _guarding() -> bool:
-	if data.ally_focus == &"guard":
-		return true
 	if data.ally_focus != &"guard_boss":
+		return guards(data.ally_focus, null)
+	return guards(data.ally_focus, HomeSummonCast.target(caster._context()))
+
+
+## 순수 규칙: focus와 지금 가장 높은 대상(HomeSummonCast.target)으로 곁을 지키는지.
+static func guards(focus: StringName, top: Enemy) -> bool:
+	if focus == &"guard":
+		return true
+	if focus != &"guard_boss":
 		return false
-	var t := HomeSummonCast.target(caster._context())
-	return t == null or t.data == null or not (t.data.is_boss or t.data.boss_feel)
+	return top == null or top.data == null or not (top.data.is_boss or top.data.boss_feel)
 
 
 ## 붙을 적 (data.ally_focus).

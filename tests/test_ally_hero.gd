@@ -16,9 +16,24 @@ func test_scaled_hero_scales_only_damage_and_leaves_the_original() -> void:
 	assert_object(AllyHero.scaled_hero(YI, 1.0)).is_same(YI)
 
 
-func test_feel_data_is_known() -> void:
+## 기본은 시안 D (사용자 2026-11-27 "같이싸우기 d"): 10초, 우두머리 있으면 그쪽·없으면 곁, 나올 때 기술 한 번, 내달려 물러감.
+func test_default_is_preset_d() -> void:
 	var d := HomeSummonData.get_default()
-	assert_array([&"boss", &"guard"]).contains([d.ally_focus])
-	assert_array([&"ink", &"dash"]).contains([d.ally_exit])
-	assert_float(d.ally_time).is_greater(0.0)
+	assert_str(String(d.ally_focus)).is_equal("guard_boss")
+	assert_str(String(d.ally_exit)).is_equal("dash")
+	assert_float(d.ally_time).is_equal(10.0)
+	assert_int(d.ally_skill_times.size()).is_equal(1)
 	assert_float(d.ally_hit_scale).is_greater(0.0)
+	assert_float(d.ally_skill_scale).is_greater(0.0)
+
+
+func test_guard_boss_goes_to_the_boss_only_when_there_is_one() -> void:
+	var boss: Enemy = auto_free(preload("res://scenes/enemy.tscn").instantiate())
+	boss.data = load("res://data/enemies/waegun_commander.tres")
+	var grunt: Enemy = auto_free(preload("res://scenes/enemy.tscn").instantiate())
+	grunt.data = load("res://data/enemies/waegun_gunner.tres")
+	assert_bool(AllyHero.guards(&"guard_boss", boss)).is_false()  # 우두머리: 그쪽으로
+	assert_bool(AllyHero.guards(&"guard_boss", grunt)).is_true()  # 잡몹뿐: 곁 지키기
+	assert_bool(AllyHero.guards(&"guard_boss", null)).is_true()
+	assert_bool(AllyHero.guards(&"guard", boss)).is_true()
+	assert_bool(AllyHero.guards(&"boss", grunt)).is_false()
