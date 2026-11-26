@@ -7,9 +7,11 @@
 script = ExtResource("1_form")
 member = ExtResource("2_member")
 count = 6
-shape = 2
-radius = 290.0
+shape = 1
+radius = 62.0
+arc_deg = 300.0
 move = 2
+spawn_dist = 420.0
 move_time = 0.6
 halt_time = 0.35
 reload_time = 2.4
