@@ -78,6 +78,8 @@ var phase_invuln: float = 0.0
 var hit_crowd: int = 1
 ## 이번 피해의 타 세기 (HitReaction.Power): 때린 쪽이 피해 직전에 넣고 바로 되돌린다 (heavy_pending과 같은 방식).
 var hit_power: int = 0
+## 다음 피해 하나는 피해·게이지만 (멈춤·움찔·예고 끊김 없음): 풀벌레 사이 물기 (CritterSkill.flinch).
+var soft_hit: bool = false
 ## 넉백 감쇠율(초당). 클수록 빨리 멈춘다.
 @export var knockback_damping: float = 8.0
 
@@ -306,12 +308,13 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 		var d := global_position - target.global_position
 		_last_hit_dir = d.normalized() if d.length_squared() > 0.01 else _last_hit_dir
 	if applied > 0 and not health.is_dead():
-		freeze(feel.freeze_for(applied))
-		if reaction and reaction.on_hit(applied, health.max, _last_hit_dir, hit_crowd, hit_power) and sprite:
-			EnemySprite.start_hit(self)  # 멈춤 동안 첫 프레임, 멈춤 뒤 나머지 (R1)
-		if reaction and reaction.is_staggered():
-			_stop_charge()  # 잡몹 돌진은 맞으면 멈춘다 (정예·보스는 그대로 밀고 온다)
-		EnemyHits.on_hit(self, heavy_pending)  # 잡몹 예고 끊김 · 강타 멈춤·넘어짐
+		if not soft_hit:
+			freeze(feel.freeze_for(applied))
+			if reaction and reaction.on_hit(applied, health.max, _last_hit_dir, hit_crowd, hit_power) and sprite:
+				EnemySprite.start_hit(self)  # 멈춤 동안 첫 프레임, 멈춤 뒤 나머지 (R1)
+			if reaction and reaction.is_staggered():
+				_stop_charge()  # 잡몹 돌진은 맞으면 멈춘다 (정예·보스는 그대로 밀고 온다)
+			EnemyHits.on_hit(self, heavy_pending)  # 잡몹 예고 끊김 · 강타 멈춤·넘어짐
 		BossPhases.on_damaged(self)  # 보스 단계 (66%·33%)
 		if poise:
 			EnemyHits.on_poise(self, poise.on_damage(applied))

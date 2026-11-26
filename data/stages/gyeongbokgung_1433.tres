@@ -2,6 +2,7 @@
 
 [ext_resource type="Resource" path="res://data/formations/gyeongbok_jurchen_ring.tres" id="f_form"]
 [ext_resource type="Script" path="res://scripts/data/formation_data.gd" id="f_script"]
+[ext_resource type="Resource" path="res://data/formations/gyeongbok_jurchen_ring_w1.tres" id="f_w1"]
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
 [ext_resource type="Resource" path="res://data/stages/hazards/gyeongbok_cover.tres" id="h_cover"]
 [ext_resource type="Script" path="res://scripts/data/stage_hazard_data.gd" id="h_script"]
@@ -43,16 +44,18 @@ first_count = 8
 max_alive = 8
 swarm = false
 elite_last = false
+formations = Array[ExtResource("f_script")]([ExtResource("f_w1")])
+formation_after = PackedInt32Array(999)
 
 [sub_resource type="Resource" id="Wave_2"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier")])
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier")])
 first_count = 10
 max_alive = 10
 elite_last = false
+formations = Array[ExtResource("f_script")]([ExtResource("f_form"), ExtResource("f_form")])
+formation_after = PackedInt32Array(8, 26)
 
-formations = Array[ExtResource("f_script")]([ExtResource("f_form")])
-formation_after = PackedInt32Array(10)
 [sub_resource type="Resource" id="Wave_3"]
 script = ExtResource("w_wave")
 enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier")])
@@ -64,10 +67,12 @@ elite_group = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_elite"), Ext
 
 [sub_resource type="Resource" id="Wave_4"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_archer"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_elite_captain"), ExtResource("e_jurchen_soldier")])
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_heavy"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_soldier"), ExtResource("e_jurchen_elite_captain")])
 first_count = 14
 max_alive = 14
 elite_last = false
+formations = Array[ExtResource("f_script")]([ExtResource("f_form"), ExtResource("f_form"), ExtResource("f_form")])
+formation_after = PackedInt32Array(8, 26, 44)
 
 [sub_resource type="Resource" id="Waves"]
 script = ExtResource("w_set")

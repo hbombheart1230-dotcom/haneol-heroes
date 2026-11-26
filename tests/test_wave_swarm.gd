@@ -85,4 +85,5 @@ func test_wave_with_swarm_off_keeps_its_count() -> void:
 	assert_bool(ws.waves[1].swarm).is_true()
 	var r := WaveRunner.new(ws, 0.0)
 	r.tick(0.01, 0, false)
-	assert_int(r._queue.size()).is_equal(ws.waves[0].enemies.size())
+	var enemies := r._queue.filter(func(x: Variant) -> bool: return x is EnemyData)  # 대형 묶음(FormationData)은 따로
+	assert_int(enemies.size()).is_equal(ws.waves[0].enemies.size())

@@ -90,6 +90,7 @@ butterfly_art = ExtResource("art_butterfly")
 grasshopper_art = ExtResource("art_grasshopper")
 critter_size = 84.0
 bites = 4
+flinch = 2
 lifetime = 6.0
 cast_lead = -1.0
 

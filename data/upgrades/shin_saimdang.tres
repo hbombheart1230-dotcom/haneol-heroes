@@ -64,7 +64,7 @@ value = 1.0
 [sub_resource type="Resource" id="Up_critter_long"]
 script = ExtResource("2_up")
 id = &"critter_long"
-title = "풀벌레 · 긴 숨"
+title = "풀벌레 · 한 입 더"
 description = "무는 횟수 +1"
 icon = ExtResource("icon_critter_long")
 color = Color(0.85, 0.4, 0.55, 1)
