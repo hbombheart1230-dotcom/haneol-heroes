@@ -17,3 +17,4 @@ stop_range = 360.0
 halt_time = 0.35
 reload_time = 2.4
 form_time = 0.5
+xp_mult = 0.75

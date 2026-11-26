@@ -15,3 +15,4 @@ halt_time = 0.6
 reload_time = 3.4
 form_time = 1.4
 when_left = 1
+xp_mult = 0.45

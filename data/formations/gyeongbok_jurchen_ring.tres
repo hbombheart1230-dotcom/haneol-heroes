@@ -14,3 +14,4 @@ move_time = 0.6
 halt_time = 0.35
 reload_time = 3.4
 form_time = 0.6
+xp_mult = 0.45
