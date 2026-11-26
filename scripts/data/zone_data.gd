@@ -17,3 +17,18 @@ extends Resource
 @export var entry: Vector2 = Vector2(0, 900)
 ## 화살 옆 안내 (비면 "<다음 구역 이름> 쪽으로 내닫기").
 @export var prompt: String = ""
+
+@export_group("배 그림")
+## 이 구역 바닥 그림 (res:// 경로, 비면 무대 그림 그대로). 같은 전장 영역에 놓는다 (StageTheme.background_rect).
+@export var background_path: String = ""
+## 무대 소품(대포·통 등)을 이 구역에도 두는지. 다른 배 그림 위에는 끈다 (그림에 갑판 물건이 그려져 있다).
+@export var props: bool = true
+## 그림에 그려진 막는 것 (x, y, 반지름) — 소품을 끄면 이것만 막는다.
+@export var blockers: PackedVector3Array = PackedVector3Array()
+
+@export_group("뛰어넘기")
+## 뛰어넘는 난간 자리 (전장 좌표, 여럿이면 가까운 곳). 비면 exit_dir 쪽 아무 데서나.
+## 한산 중형선 → 대장선: 안 B(계단 밟고 선실 지붕 넘기) 한 점이 기본, 안 A는 지붕 옆 모서리 둘 — 데이터만 바꿔 고른다.
+@export var exits: PackedVector2Array = PackedVector2Array()
+## 난간 자리에서 이 거리(px) 안에서 그쪽으로 내닫아야 넘어간다.
+@export var exit_reach: float = 480.0

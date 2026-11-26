@@ -76,9 +76,23 @@ elite_last = false
 formations = Array[ExtResource("f_script")]([ExtResource("f_gunner_line"), ExtResource("f_gunner_line"), ExtResource("f_gunner_line")])
 formation_after = PackedInt32Array(8, 26, 44)
 
+[sub_resource type="Resource" id="Wave_5"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_heavy")])
+first_count = 14
+max_alive = 14
+elite_last = false
+
+[sub_resource type="Resource" id="Wave_6"]
+script = ExtResource("w_wave")
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_soldier"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_heavy"), ExtResource("e_waegun_captain")])
+first_count = 14
+max_alive = 14
+elite_last = false
+
 [sub_resource type="Resource" id="Waves"]
 script = ExtResource("w_set")
-waves = Array[ExtResource("w_wave")]([SubResource("Wave_1"), SubResource("Wave_2"), SubResource("Wave_3"), SubResource("Wave_4")])
+waves = Array[ExtResource("w_wave")]([SubResource("Wave_1"), SubResource("Wave_2"), SubResource("Wave_3"), SubResource("Wave_4"), SubResource("Wave_5"), SubResource("Wave_6")])
 max_alive = 14
 next_when_left = 2
 refill_each = true
@@ -92,22 +106,28 @@ script = ExtResource("z_script")
 title = "판옥선"
 waves = 2
 entry = Vector2(0, 900)
-prompt = "적선으로 내닫기"
+prompt = "왜 중형선으로 내닫기"
+exits = PackedVector2Array(0, -1213, -325, -1246, 325, -1246)
 
 [sub_resource type="Resource" id="Zone_enemy"]
 script = ExtResource("z_script")
-title = "왜 적선"
+title = "왜 중형선"
 waves = 2
-wash = Color(0.62, 0.16, 0.1, 0.32)
-entry = Vector2(0, 1000)
+walk_area = PackedVector2Array(-325, -1114, 325, -1114, 491, -1003, 546, -827, 601, -518, 634, -166, 667, 275, 711, 540, 733, 804, 634, 1003, 502, 1179, 392, 1311, -402, 1311, -502, 1179, -634, 1003, -733, 804, -711, 540, -678, 275, -645, -166, -601, -518, -546, -827, -491, -1003)
+entry = Vector2(0, 1025)
 prompt = "대장선으로 내닫기"
+background_path = "res://assets/backgrounds/hansan_sekibune.png"
+props = false
+exits = PackedVector2Array(0, -1125)
 
 [sub_resource type="Resource" id="Zone_flag"]
 script = ExtResource("z_script")
 title = "왜 대장선"
-waves = 0
-wash = Color(0.42, 0.2, 0.55, 0.34)
-entry = Vector2(0, 1000)
+waves = 2
+walk_area = PackedVector2Array(-369, -959, 369, -959, 458, -871, 766, -695, 844, -430, 888, -100, 910, 231, 910, 540, 866, 694, 700, 837, 546, 1036, 425, 1080, 392, 1201, -391, 1201, -435, 1080, -557, 1025, -700, 837, -876, 694, -921, 540, -921, 231, -898, -100, -854, -430, -777, -695, -524, -849)
+entry = Vector2(0, 892)
+background_path = "res://assets/backgrounds/hansan_atakebune.png"
+props = false
 
 [resource]
 script = ExtResource("1_theme")

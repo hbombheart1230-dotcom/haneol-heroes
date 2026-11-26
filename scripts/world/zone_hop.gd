@@ -69,8 +69,16 @@ func _physics_process(_delta: float) -> void:
 		state = State.AWAIT
 	var p := _player()
 	var show: bool = state == State.AWAIT and p != null and not main.is_choosing() and main.state.is_playing()
-	view.show_arrow(show, p.global_position if p else Vector2.ZERO, plan.zone().exit_dir if plan.zone() else Vector2.UP,
+	view.show_arrow(show, p.global_position if p else Vector2.ZERO, _exit_dir(p.global_position) if p else Vector2.UP,
 		plan.prompt(), feel)
+
+
+## 영웅에서 넘어갈 쪽 (가까운 난간 자리, 없으면 구역 exit_dir).
+func _exit_dir(from: Vector2) -> Vector2:
+	var e := plan.nearest_exit(from)
+	if e == Vector2.INF or from.distance_squared_to(e) < 1.0:
+		return plan.zone().exit_dir.normalized() if plan.zone() else Vector2.UP
+	return (e - from).normalized()
 
 
 func _reset(st: StageTheme) -> void:
@@ -86,8 +94,8 @@ func _reset(st: StageTheme) -> void:
 func _on_dash_started(dir: Vector2) -> void:
 	if state != State.AWAIT or main.is_choosing() or plan.zone() == null:
 		return
-	var exit := plan.zone().exit_dir.normalized()
-	if dir.normalized().dot(exit) >= cos(deg_to_rad(feel.dash_angle)):
+	var p := _player()
+	if p and plan.is_hop_dash(p.global_position, dir, feel.dash_angle):  # 난간 자리 가까이서 그쪽으로 (ZonePlan)
 		_wants_hop = true  # 내닫기가 끝나면 뛰어오른다 (내닫기 자세·거리는 그대로)
 
 
@@ -104,18 +112,20 @@ func _hop() -> void:
 		return
 	state = State.HOP
 	view.show_arrow(false, Vector2.ZERO, Vector2.UP, "", feel)
-	var exit := plan.zone().exit_dir.normalized()
+	var exit := _exit_dir(p.global_position)
+	var rail := plan.nearest_exit(p.global_position)  # 난간을 넘어 바다 위로: 난간 자리를 지나 exit 쪽으로
 	p.grant_invulnerability(feel.rise_time + feel.cover_time + feel.land_time + 0.6)
 	p.set_physics_process(false)
 	p.velocity = Vector2.ZERO
 	_freeze_input(true)
 	var art := p.get_node_or_null("PlayerView") as Node2D
 	var from := p.global_position
+	var to := (rail if rail != Vector2.INF else from) + exit * feel.rise_dist
 	if _tween:
 		_tween.kill()
 	_tween = create_tween()
 	_tween.tween_method(func(t: float) -> void:
-		p.global_position = from + exit * feel.rise_dist * t
+		p.global_position = from.lerp(to, t)
 		if art:
 			art.position.y = -sin(t * PI * 0.5) * feel.rise_height
 		view.cover = clampf((t - 0.45) / 0.55, 0.0, 1.0), 0.0, 1.0, feel.rise_time)
@@ -162,6 +172,7 @@ func _landed(p: Player, art: Node2D) -> void:
 ## 구역 입히기: 배경 색, 걸을 수 있는 곳, (넘어올 때) 남은 탄 지우기.
 func _apply(z: ZoneData, clear_shots: bool) -> void:
 	var arena := main.get_node_or_null("Arena") as Arena
+	ZoneLook.apply(arena, z, _stage)  # 구역 배 그림·소품·막는 것·빛
 	if arena and arena.map:
 		_wash_layer(arena).show_wash(z.wash, arena.map.rect)
 	var area: PackedVector2Array = z.walk_area if z.walk_area.size() >= 3 else (_stage.walk_area if _stage else PackedVector2Array())

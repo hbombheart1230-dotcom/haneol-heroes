@@ -97,8 +97,12 @@ func _run() -> void:
 					print("SUMMON pressed %s t %.2f" % [str((hb.front() as HomeSummonButton).summon()), _now()])
 			root.get_texture().get_image().save_png(_out + "/await_full_%d.png" % zh.plan.current)
 			print("VIEW on %s inside %s vis %s z %d path %s playing %s" % [zh.view._on, zh.view.is_inside_tree(), zh.view.is_visible_in_tree(), zh.view.z_index, zh.view.get_path(), main.state.is_playing()])
-			dashed = player.request_dash(zh.plan.zone().exit_dir)
-			print("DASH toward %s ok %s t %.2f" % [str(zh.plan.zone().exit_dir), dashed, _now()])
+			var rail := zh.plan.nearest_exit(player.global_position)  # 난간 자리가 있으면 그 아래로 옮겨 그쪽으로 내닫는다
+			if rail != Vector2.INF:
+				ShotStage.move_hero(main, rail + Vector2(0, 240))
+			var ddir: Vector2 = (rail - player.global_position).normalized() if rail != Vector2.INF else zh.plan.zone().exit_dir
+			dashed = player.request_dash(ddir)
+			print("DASH toward %s rail %s ok %s t %.2f" % [str(ddir), str(rail), dashed, _now()])
 		if zh.state == ZoneHop.State.HOP and _frame % 6 == 0:
 			print("COVER %.2f screen %s size %s" % [zh.view.cover, zh.view._screen.is_visible_in_tree(), str(zh.view._screen.size)])
 			var lines = main.get("hero_lines")

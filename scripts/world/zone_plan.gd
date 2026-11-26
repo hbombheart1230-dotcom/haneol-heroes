@@ -44,6 +44,31 @@ func advance() -> ZoneData:
 	return zones[current]
 
 
+## 지금 구역의 가장 가까운 난간 자리 (없으면 INF: exit_dir 쪽 아무 데서나).
+func nearest_exit(from: Vector2) -> Vector2:
+	var z := zone()
+	if z == null or z.exits.is_empty():
+		return Vector2.INF
+	var best := z.exits[0]
+	for e in z.exits:
+		if from.distance_squared_to(e) < from.distance_squared_to(best):
+			best = e
+	return best
+
+
+## from에서 내닫는 방향 dir이 넘어가기인지: 난간 자리가 있으면 그 자리에서 exit_reach 안 + 그쪽으로 angle(도) 안,
+## 없으면 exit_dir 쪽으로 angle 안.
+func is_hop_dash(from: Vector2, dir: Vector2, angle_deg: float) -> bool:
+	var z := zone()
+	if z == null or dir.length_squared() < 0.0001:
+		return false
+	var e := nearest_exit(from)
+	var want := z.exit_dir.normalized() if e == Vector2.INF else (e - from).normalized()
+	if e != Vector2.INF and from.distance_to(e) > z.exit_reach:
+		return false
+	return want == Vector2.ZERO or dir.normalized().dot(want) >= cos(deg_to_rad(angle_deg))
+
+
 ## 다음 구역 쪽 안내 글.
 func prompt() -> String:
 	var z := zone()
