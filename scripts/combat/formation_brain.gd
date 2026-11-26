@@ -17,6 +17,8 @@ signal broken
 const FORM_TIMEOUT := 2.5
 ## 겨눔 차례에 겨눌 수 있는 사람이 없으면 (모두 경직·기절 — 영웅이 갑자기 붙었을 때) 이만큼(초) 다시 시도하다 장전으로.
 const AIM_RETRY := 1.2
+## 겨눔 차례에 일부가 아직 못 겨누면 (회복·경직 중) 이만큼(초)까지 모두 준비되기를 기다렸다가 같이 시작한다 (일제 사격).
+const AIM_GATHER := 0.6
 
 var data: FormationData
 var spawner: EnemySpawner
@@ -165,21 +167,40 @@ func _face(target: Vector2) -> void:
 		_offsets = FormationLayout.offsets(data, members.size() if not data.close_ranks else alive().size(), facing)
 
 
-## 같은 순간 모두 겨눔 시작 (경직·기절·넘어짐 중인 사람은 이번엔 빠진다).
-## 아무도 못 겨누면 AIM에 남아 다음 틱에 다시 (AIM_RETRY까지) — 겨눔 없이 장전으로 넘어가지 않게.
+## 같은 순간 모두 겨눔 시작. 못 겨누는 사람(회복·기절·경직·넘어짐)이 있으면 AIM_GATHER까지 기다려 다 같이,
+## 그 뒤엔 준비된 사람만. 아무도 못 겨누면 AIM에 남아 다시 (AIM_RETRY까지) — 겨눔 없이 장전으로 넘어가지 않게.
 func _aim_all(player: Player) -> void:
 	_aiming = []
 	if player == null or player.is_dead():
 		cycle.aim_done()
 		return
-	for e: Enemy in alive():
-		if e.attack == null or e.attack.state != EnemyAttack.State.READY or e.is_stunned() or (e.reaction and (e.reaction.is_staggered() or e.reaction.is_down())):
-			continue
-		if e.attack.begin_windup(e.global_position, player):
-			_aiming.append(e)
-	if _aiming.is_empty():
+	var al := alive()
+	var able := al.filter(func(e: Enemy) -> bool: return why_not(e) == "")
+	if able.is_empty():
 		if _aim_wait >= AIM_RETRY:  # 끝내 아무도 못 겨눴다: 이번 주기는 넘긴다
 			cycle.aim_done()
 		return
+	if able.size() < al.size() and _aim_wait < AIM_GATHER:
+		return  # 남은 사람이 준비되기를 조금 기다린다
+	for e: Enemy in able:
+		if e.attack.begin_windup(e.global_position, player):
+			_aiming.append(e)
+	if _aiming.is_empty():
+		return
 	EnemyActions.play_sfx((_aiming[0] as Enemy).attack.data, true)  # 예고 소리는 한 번 (여럿이 겹치지 않게)
 	aimed.emit(_aiming)
+
+
+## 이 구성원이 지금 겨눌 수 없는 까닭 (겨눌 수 있으면 ""). 탐침·시험이 빠진 사람을 볼 때도 쓴다.
+func why_not(e: Enemy) -> String:
+	if e.attack == null:
+		return "no_attack"
+	if e.attack.state != EnemyAttack.State.READY:
+		return EnemyAttack.State.keys()[e.attack.state].to_lower()
+	if e.is_stunned():
+		return "stunned"
+	if e.reaction and e.reaction.is_down():
+		return "down"
+	if e.reaction and e.reaction.is_staggered():
+		return "staggered"
+	return ""
