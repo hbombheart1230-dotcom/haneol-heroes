@@ -82,6 +82,7 @@ var _horde_default: bool = true
 func _ready() -> void:
 	_horde_default = horde_enabled
 	AttackTokens.clear()  # 새 판: 지난 판의 공격권이 남지 않게
+	VolleyBeat.reset()  # 지난 판 일제 사격의 명중 수도
 
 
 func alive_count() -> int:

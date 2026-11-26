@@ -22,6 +22,13 @@ func _initialize() -> void:
 	a.formation = f
 	b.formation = f
 	_ok(VolleyBeat.key_for(a) == VolleyBeat.key_for(b) and VolleyBeat.key_for(a) != "", "formation shares key")
+	var k0 := VolleyBeat.key_for(a)
+	f.fired.emit([a, b])
+	_ok(VolleyBeat.key_for(a) != k0 and VolleyBeat.key_for(a) == VolleyBeat.key_for(b), "next volley new key")
+	_ok(VolleyBeat.key_for(_enemy(gunner)) == "", "no formation no key")
+	VolleyBeat.note_hit("f9:0")
+	VolleyBeat.reset()
+	_ok(VolleyBeat.hits("f9:0") == 0, "reset")
 	a.attack.state = EnemyAttack.State.WINDUP
 	var d := RangedTelegraphData.default()
 	for st in 3:

@@ -67,6 +67,7 @@ static func reset_globals() -> void:
 	GameTime.clock = Callable()
 	DashStyleRunner.clock = Callable()
 	AttackTokens.clear()
+	VolleyBeat.reset()  # 일제 사격 명중 수 (같은 프로세스의 앞 싸움이 넘어오지 않게)
 	SkillHitStop.reset()
 	GameTime.reset()
 	Engine.time_scale = 1.0

@@ -81,8 +81,8 @@ static func sfx_for(d: EnemyAttackData, windup: bool) -> StringName:
 	return pair[0 if windup else 1] if pair.size() == 2 else &""
 
 
-## volley = 일제 사격 (대형·EnemyAttackData.volley): 같은 소리를 VolleyFeelData.sfx_gap 안에 한 번만 (8발이 한 묶음).
+## volley = 대형의 일제 사격 (대형 밖 철포병은 예전 그대로): 같은 소리를 VolleyFeelData.sfx_gap 안에 한 번만 (8발이 한 묶음).
 static func play_sfx(d: EnemyAttackData, windup: bool, volley: bool = false) -> void:
 	var k := sfx_for(d, windup)
 	if k != &"" and Feedback.instance:
-		Feedback.instance.play(k, VolleyFeelData.default().sfx_gap if volley or d.volley else 0.06)  # 일제 사격은 한 묶음 소리
+		Feedback.instance.play(k, VolleyFeelData.default().sfx_gap if volley else 0.06)  # 일제 사격은 한 묶음 소리
