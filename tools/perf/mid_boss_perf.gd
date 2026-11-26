@@ -24,6 +24,9 @@ var _nodes := 0
 var _slow_ms := 0.0  # 게임 시간이 느려진 (time_scale < 0.5) 실제 시간 합 — 히트스톱이 잦으면 "끊김"으로 느껴진다
 var _stops := 0  # 느려짐이 새로 시작된 횟수
 var _was_slow := false
+var _fin_frames: Array = []  # 4타 마무리(1번 기술)가 나간 프레임 번호
+var _spawned := 0  # 이번 프레임에 새로 나온 적 수
+var _spawn_rows: Array = []  # [프레임 번호, 나온 수]
 
 
 func _initialize() -> void:
@@ -108,6 +111,13 @@ func _run() -> void:
 		caster.kit.tap = ck
 	print("STAGE %s hero %s off %s" % [str(main.call("run_stage_id")), str((main.get_node("Player") as Player).hero.id), str(_off)])
 	spawner.child_entered_tree.connect(func(n: Node) -> void: _added.append(n.get_class() + ":" + (String((n as Enemy).data.id) if n is Enemy and (n as Enemy).data else String(n.name))))
+	spawner.child_entered_tree.connect(func(n: Node) -> void:
+		if n is Enemy:
+			_spawned += 1)
+	if caster:
+		caster.combo_count.connect(func(n: int) -> void:
+			if caster.kit and n == caster.kit.combo_hits + 1:
+				_fin_frames.append(_rows.size()))
 	spawner.elite_spawned.connect(func(_e: Enemy) -> void: _spawn_t.append(_now()))
 	await _wait(3.2)  # 무대 제목 띠
 	player.grant_invulnerability(9999.0)
@@ -123,7 +133,11 @@ func _run() -> void:
 		tap -= 1.0 / 60.0
 		if caster and tap <= 0.0:
 			tap = 0.2
+			var ct := Time.get_ticks_usec()
 			caster.combo_tap()
+			var ct_ms := (Time.get_ticks_usec() - ct) / 1000.0
+			if ct_ms > 4.0:
+				print("TAPCALL ms %.1f at frame %d" % [ct_ms, _rows.size()])
 		await process_frame
 		var t := (Time.get_ticks_usec() - t0) / 1e6
 		var frame_ms := (Time.get_ticks_usec() - before) / 1000.0
@@ -142,9 +156,13 @@ func _run() -> void:
 		if frame_ms > 100.0:
 			print("BIGFRAME t %.2f ms %.1f added %s" % [t, frame_ms, str(_added)])
 		_added.clear()
+		if _spawned > 0:
+			_spawn_rows.append([_rows.size() - 1, _spawned])
+		_spawned = 0
 		_rows.append([t, (Time.get_ticks_usec() - before) / 1000.0, Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0,
 			Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0,
-			Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), _enemies()])
+			Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME), _enemies(),
+			Performance.get_monitor(Performance.OBJECT_NODE_COUNT), Performance.get_monitor(Performance.RENDER_TOTAL_OBJECTS_IN_FRAME)])
 		if not _spawn_t.is_empty() and done_t < 0.0 and spawner.waves and spawner.waves.phase != WaveRunner.Phase.RUN:
 			done_t = t
 		if done_t > 0.0 and t > done_t + 3.0:
@@ -152,6 +170,7 @@ func _run() -> void:
 	print("COUNTS critters_max %d nodes_last %d" % [_crit_max, _nodes])
 	var total_ms: float = (_rows[-1][0] as float) * 1000.0
 	print("SLOWTIME share %.1f%% stops %d per_s %.2f" % [100.0 * _slow_ms / maxf(total_ms, 1.0), _stops, _stops / maxf(total_ms / 1000.0, 0.1)])
+	_report_events()
 	_report()
 	quit()
 
@@ -216,3 +235,29 @@ func _wait(sec: float) -> void:
 	while t < sec:
 		await process_frame
 		t += 1.0 / 60.0
+
+
+## 4타 마무리마다 뒤 15프레임의 가장 큰 프레임, 한 프레임에 적이 3마리 넘게 나온 프레임의 시간.
+func _report_events() -> void:
+	var k := 0
+	for f in _fin_frames:
+		var worst := 0.0
+		var draws := 0.0
+		var nodes := 0.0
+		var objs := 0.0
+		var base: Array = _rows[maxi(f - 1, 0)]
+		for i in range(f, mini(f + 15, _rows.size())):
+			worst = maxf(worst, _rows[i][1])
+			draws = maxf(draws, _rows[i][4])
+			nodes = maxf(nodes, _rows[i][6])
+			objs = maxf(objs, _rows[i][7])
+		k += 1
+		print("FINISH #%d t %.2f worst_ms %.1f draws %d (before %d) nodes %d (before %d) objects %d (before %d)" % [k, _rows[mini(f, _rows.size() - 1)][0], worst, draws, base[4], nodes, base[6], objs, base[7]])
+	for r in _spawn_rows:
+		if r[1] >= 2 and r[0] < _rows.size() - 5:  # 끝 정리 프레임은 빼고
+			var a: Array = _rows[r[0]]
+			var b: Array = _rows[maxi(r[0] - 1, 0)]
+			var worst := 0.0
+			for i in range(r[0], mini(r[0] + 10, _rows.size())):
+				worst = maxf(worst, _rows[i][1])
+			print("SPAWNBURST t %.2f n %d frame_ms %.1f worst10 %.1f draws %d (before %d) nodes %d (before %d)" % [a[0], r[1], a[1], worst, a[4], b[4], a[6], b[6]])
