@@ -8,7 +8,7 @@ enum Case { ENTER_OWN, ENTER_AWAY, BOSS, VICTORY, DEFEAT, SUMMON }
 const DIR := "res://data/heroes/lines/"
 
 ## Case 순서대로 한 줄씩 (자기 전장 · 원정 · 우두머리 앞 · 이김 · 쓰러짐 · 소환되어 도울 때).
-@export var lines: PackedStringArray = []
+@export var lines: PackedStringArray = PackedStringArray()
 
 
 func line(c: Case) -> String:
