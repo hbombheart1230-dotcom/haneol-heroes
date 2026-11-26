@@ -2,6 +2,7 @@
 
 [ext_resource type="Resource" path="res://data/formations/chochungdo_hopper_swarm.tres" id="f_form"]
 [ext_resource type="Script" path="res://scripts/data/formation_data.gd" id="f_script"]
+[ext_resource type="Resource" path="res://data/formations/chochungdo_hopper_swarm_w1.tres" id="f_w1"]
 [ext_resource type="Script" path="res://scripts/world/stage_theme.gd" id="1_theme"]
 [ext_resource type="Resource" path="res://data/stages/hazards/chochungdo_grass.tres" id="h_grass"]
 [ext_resource type="Script" path="res://scripts/data/stage_hazard_data.gd" id="h_script"]
@@ -45,8 +46,8 @@ enemies = Array[ExtResource("3_enemy")]([ExtResource("e_cc_mouse"), ExtResource(
 first_count = 8
 max_alive = 8
 elite_last = false
-formations = Array[ExtResource("f_script")]([ExtResource("f_form")])
-formation_after = PackedInt32Array(12)
+formations = Array[ExtResource("f_script")]([ExtResource("f_w1")])
+formation_after = PackedInt32Array(999)
 
 [sub_resource type="Resource" id="Wave_2"]
 script = ExtResource("w_wave")

@@ -72,8 +72,14 @@ func test_every_stage_queues_formations_1_2_0_3() -> void:
 					at.append(k)
 			per.append(at.size())
 			var after: PackedInt32Array = st.waves.waves[i].formation_after
-			for k in at.size():
-				assert_int(at[k]).override_failure_message("%s w%d" % [id, i + 1]).is_equal(after[k] + k)  # 앞 대형만큼 밀린다
+			for k in at.size():  # 앞 대형만큼 밀린다, 차례 끝을 넘는 자리는 맨 끝
+				assert_int(at[k]).override_failure_message("%s w%d" % [id, i + 1]).is_equal(mini(after[k], r._queue.size() - at.size()) + k)
+		# 1물결 대형은 근접을 다 잡았거나 하나 남았을 때 (차례 맨 끝, when_left 1): 처음 보는 사람이 대형만 상대한다
+		var w1 := st.waves.waves[0].formations[0]
+		assert_int(w1.when_left).override_failure_message(id).is_equal(1)
+		var r1 := WaveRunner.new(st.waves, 0.0)
+		r1._start(0)
+		assert_bool(r1._queue[-1] is FormationData).override_failure_message(id).is_true()
 		assert_array(per).override_failure_message(id).is_equal([1, 2, 0, 3])
 
 
@@ -151,3 +157,17 @@ func test_two_formations_do_not_volley_together() -> void:
 	assert_bool(a.volley_blocked()).is_false()  # 자기 자신은 막지 않는다
 	a.aimed_at = EnemyAttack.now_sec() - d.volley_gap - 0.01
 	assert_bool(b.volley_blocked()).is_false()
+
+
+func test_wave1_formation_waits_until_melee_nearly_gone() -> void:
+	# when_left: 물결에 살아 있는 적이 그 수 이하일 때만 나온다. 대형이 차례에 남아 있는 동안 물결은 끝나지 않는다.
+	var st := load("res://data/stages/hansan_1592.tres") as StageTheme
+	var r := WaveRunner.new(st.waves, 0.0)
+	r._start(0)
+	var f := r._queue[-1] as FormationData
+	r._queue = [f]
+	r._stagger = 0.0
+	assert_array(r.next_spawn(2, st.waves.max_alive)).is_empty()
+	assert_int(r.tick(0.1, 0, false)).is_not_equal(WaveRunner.Event.CLEARED)  # 근접을 다 잡아도 대형이 나오기 전엔 안 끝남
+	r._stagger = 0.0
+	assert_array(r.next_spawn(1, st.waves.max_alive)).contains_exactly([f])
