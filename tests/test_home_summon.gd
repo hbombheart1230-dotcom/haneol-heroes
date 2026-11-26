@@ -172,6 +172,8 @@ func test_button_press_summons_once_and_is_consumed() -> void:
 	b.handle_touch(0, c, false)
 	assert_int(got[0]).is_equal(1)
 	assert_object(b.ally).is_not_null()  # 같이 싸우는 주인 영웅 (AllyHero)
+	assert_bool(b.ally.body.is_invulnerable()).is_true()  # 불려 온 영웅은 맞지 않는다
+	assert_object(b.ally.body.walk_area).is_equal(b.main.player.walk_area)  # 걸을 수 있는 곳 (#216) 그대로
 	b.rules.tick(b.data.recharge_time + 0.1)  # 시간이 지나면 다시 찬다
 	assert_int(b.rules.charges).is_equal(1)
 

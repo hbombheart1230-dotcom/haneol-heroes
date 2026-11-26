@@ -59,6 +59,7 @@ func _build(main: Node, me: Player) -> void:
 	body.collision_mask = me.collision_mask
 	body.motion_mode = me.motion_mode
 	body.arena_rect = me.arena_rect
+	body.walk_area = me.walk_area  # 걸을 수 있는 곳 (#216)
 	var shape := me.get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if shape:
 		body.add_child(shape.duplicate())
