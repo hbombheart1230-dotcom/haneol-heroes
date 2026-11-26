@@ -1,0 +1,80 @@
+{
+  "name": "myeongnyang_mid_crouch",
+  "height_meters": 1.75,
+  "hero_data": "",
+  "bake": {
+    "ortho_size": 2.6,
+    "frame": 160,
+    "style": "ink",
+    "ink": {
+      "inner_line": 0.1,
+      "line_px": 1.6,
+      "wash_amount": 0.5,
+      "grain": 0.05
+    },
+    "lossy_quality": 0.5,
+    "light": {
+      "key": 1.5,
+      "ambient": 0.9,
+      "rim": 0.6
+    }
+  },
+  "anims": [
+    {
+      "key": "idle",
+      "match": "idle",
+      "frames": 4,
+      "fps": 6.0,
+      "loop": true,
+      "web": "Idle_14",
+      "start": 0.0,
+      "end": 1.6
+    },
+    {
+      "key": "run",
+      "match": "run",
+      "frames": 8,
+      "fps": 12.7,
+      "loop": true,
+      "web": "Running"
+    },
+    {
+      "key": "attack",
+      "match": "slash",
+      "frames": 6,
+      "fps": 10.0,
+      "loop": false,
+      "web": "Charged_Slash",
+      "times": [
+        0.3,
+        0.7,
+        1.0,
+        1.3,
+        1.6,
+        2.0
+      ],
+      "strike": 1.3
+    },
+    {
+      "key": "hit",
+      "match": "hit",
+      "frames": 3,
+      "fps": 12.0,
+      "loop": false,
+      "web": "Face_Punch_Reaction",
+      "times": [
+        0.2,
+        0.5,
+        0.9
+      ]
+    },
+    {
+      "key": "down",
+      "match": "dead",
+      "frames": 8,
+      "fps": 10.0,
+      "loop": false,
+      "web": "Dead"
+    }
+  ]
+}
