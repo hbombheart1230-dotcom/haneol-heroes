@@ -73,6 +73,10 @@ extends Resource
 @export_group("물결·보스 (하데스 슬라이스)")
 ## 있으면 시간 따라 계속 나오는 대신 물결 모드 (WaveSetData). 없으면 지금 방식 그대로.
 @export var waves: WaveSetData
+## 구역 건너뛰기 (ZoneHop, 하데스의 섬 건너뛰기): 둘 이상이면 구역마다 물결을 나눠 치르고 내닫아 다음 구역으로. 비면 한 곳에서.
+@export var zones: Array[ZoneData] = []
+## 건너뛰기 연출 값 (비면 data/stages/zones/zone_hop_feel.tres).
+@export var zone_hop: ZoneHopFeel
 
 @export_group("소품 (코드로 그리는 수묵)")
 ## 바닥 1000×1000px당 풀포기·바위 수.

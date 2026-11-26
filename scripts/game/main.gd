@@ -103,6 +103,7 @@ func _ready() -> void:
 		spawner.boss_spawned.connect(func(_b: Enemy) -> void: music_cue(&"boss"))
 		spawner.hold_check = is_choosing  # 물결 모드: 강화 고르는 동안 다음 물결을 기다린다
 		spawner.breather.connect(_on_breather)
+		ZoneHop.attach(self)  # 구역 건너뛰기 (무대 zones가 둘 이상일 때만, hold_check를 이어 받는다)
 	if hud:
 		hud.state = state
 		hud.perf = perf
