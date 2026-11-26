@@ -8,19 +8,18 @@ extends Resource
 ## 채움은 먹 번짐 (사용자: "안의 내용물은 먹 번짐 — 먹 붓 테랑 먹 번짐이 좋을 것 같은데"): 원은 가운데서, 부채는 적 쪽에서,
 ## 띠는 뒤에서 차오르고 영역 전체에 한지색 밑칠. 인주는 치기 직전 낙관 정도로만.
 ## 그림새(look): 0 = (가) 지금 (쨍한 인주 채움 + 인주 테),
-## 1 = (바) 먹 붓 테 + 먹 번짐, 붓 획에 인주 tint_main (사용자 "인주를 더 높여 줘, 70%"), 2 = 같은 것에 tint_alt — 견주기용.
+## 1 = (바) 먹 붓 테 + 먹 번짐. 인주는 테(rim_tint)와 채움(fill_tint)에 따로 섞는다 (사용자: "안쪽 채움 인주 70%").
 ## 어두운 바닥(무대 floor_base 밝기 < dark_below, Arena가 floor_luma를 알려 준다)에선 한지색 밑획·속심을 키워 붓 테를 띄운다.
 ## 붉은 인주색은 적 위험 전용 (색 규칙) — seal_*도 그 계열.
 
 const PATH := "res://data/ui/telegraph_style.tres"
 const NOW := 0
 const BRUSH_WASH := 1
-const BRUSH_WASH_TINT := 2
 static var _cached: TelegraphStyleData
 ## 지금 무대 바닥 밝기 (0~1, Arena.apply_theme이 StageTheme.floor_base로 정한다).
 static var floor_luma: float = 1.0
 
-@export_range(0, 2) var look: int = BRUSH_WASH
+@export_range(0, 1) var look: int = BRUSH_WASH
 ## (가)의 쨍한 인주 (Ink.SEAL과 같게). (바)의 탁한 인주 (배어남·채움·낙관·사격 조준선·포격 줄).
 @export var seal_bright: Color = Color(0.72, 0.13, 0.1)
 @export var seal_dull: Color = Color(0.6, 0.2, 0.15)
@@ -48,9 +47,10 @@ static var floor_luma: float = 1.0
 @export var dark_core_width: float = 1.4
 
 @export_group("인주 배어남")
-## 붓 획에 섞는 인주 비율 (탁한 인주 seal_dull 쪽으로): 기본 그림새(1) / 견주기 그림새(2). 견줘 본 값: 0.08 거의 먹, 0.3 붉은 갈색.
-@export_range(0.0, 1.0) var tint_main: float = 0.7
-@export_range(0.0, 1.0) var tint_alt: float = 0.3
+## 먹에서 탁한 인주(seal_dull) 쪽으로 섞는 비율. 테: 0.08 거의 먹 / 0.3 붉은 갈색. 채움: 0 먹 번짐 / 0.7 붉은 번짐
+## (불투명도는 ink_alpha 그대로라 화면을 덮지 않는다).
+@export_range(0.0, 1.0) var rim_tint: float = 0.08
+@export_range(0.0, 1.0) var fill_tint: float = 0.7
 
 @export_group("먹 번짐 채움")
 ## 먹 채움 색은 ink_color, 진하기 (예고 처음 → 마지막), 영역 전체 한지색 밑칠, 번짐이 처음부터 차 있는 비율.
@@ -83,8 +83,9 @@ func dark_floor() -> bool:
 	return floor_luma < dark_below
 
 
-func tint() -> float:
-	return tint_alt if look == BRUSH_WASH_TINT else tint_main
+## 채움 번짐 색 (먹 → 탁한 인주 fill_tint).
+func fill_color() -> Color:
+	return ink_color.lerp(seal_dull, fill_tint)
 
 
 ## 예고 테·조준선의 인주색 (그림새에 따라).

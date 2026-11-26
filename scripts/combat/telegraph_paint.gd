@@ -21,7 +21,7 @@ static func circle(c: CanvasItem, center: Vector2, radius: float, k: float, flas
 		return
 	if fill:
 		_ellipse_wash(c, center, radius, Color(Ink.PAPER, s.paper_under_alpha))
-		_ellipse_wash(c, center, radius * _bleed(s, k), Color(s.ink_color, _ink_alpha(s, k)))  # 가운데서 번진다
+		_ellipse_wash(c, center, radius * _bleed(s, k), Color(s.fill_color(), _ink_alpha(s, k)))  # 가운데서 번진다
 	if rim:
 		var n := maxi(24, int(TAU * radius * 0.8 / s.seg_px))
 		var pts := PackedVector2Array()
@@ -45,7 +45,7 @@ static func cone(c: CanvasItem, origin: Vector2, a0: float, half: float, radius:
 		return
 	if fill:
 		_tex_poly(c, full, Color(Ink.PAPER, s.paper_under_alpha))
-		_tex_poly(c, _sector(origin, a0, half, radius * _bleed(s, k)), Color(s.ink_color, _ink_alpha(s, k)))  # 적 쪽에서 번진다
+		_tex_poly(c, _sector(origin, a0, half, radius * _bleed(s, k)), Color(s.fill_color(), _ink_alpha(s, k)))  # 적 쪽에서 번진다
 	if rim:
 		full.append(origin)
 		_brush(c, _dense(full, s.seg_px), s, flash, 5.0)
@@ -66,7 +66,7 @@ static func band(c: CanvasItem, back: Vector2, front: Vector2, n: Vector2, k: fl
 	if fill:
 		_tex_poly(c, full, Color(Ink.PAPER, s.paper_under_alpha))
 		var f := back.lerp(front, _bleed(s, k))  # 뒤(적 쪽)에서 앞으로 번진다
-		_tex_poly(c, PackedVector2Array([back + n, f + n, f - n, back - n]), Color(s.ink_color, _ink_alpha(s, k)))
+		_tex_poly(c, PackedVector2Array([back + n, f + n, f - n, back - n]), Color(s.fill_color(), _ink_alpha(s, k)))
 	if rim:
 		full.append(back + n)
 		_brush(c, _dense(full, s.seg_px), s, flash, 7.0)
@@ -91,7 +91,7 @@ static func _ellipse_wash(c: CanvasItem, center: Vector2, radius: float, col: Co
 ## 마른 붓 테: pts(판정 경계를 따라 촘촘한 점)를 짧은 붓 획으로. 끊김·굵기는 자리마다 고정 (프레임마다 같은 모양).
 static func _brush(c: CanvasItem, pts: PackedVector2Array, s: TelegraphStyleData, flash: bool, seed: float) -> void:
 	var w := s.brush_width * (s.flash_width_mult if flash else 1.0)
-	var col := Color(s.ink_color.lerp(s.seal_dull, s.tint()), s.flash_alpha if flash else s.brush_alpha)
+	var col := Color(s.ink_color.lerp(s.seal_dull, s.rim_tint), s.flash_alpha if flash else s.brush_alpha)
 	var dark := s.dark_floor()  # 어두운 바닥: 한지색 밑획·속심을 키워 먹 선을 띄운다
 	var under := Color(Ink.PAPER, s.dark_under_alpha if dark else s.under_alpha)
 	var extra := s.dark_under_extra if dark else s.under_extra

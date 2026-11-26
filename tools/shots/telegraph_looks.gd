@@ -7,7 +7,8 @@ extends SceneTree
 ## 환경 변수 HH_CROWD=1: 붐비는 판 (몹 수 D안처럼 잡몹 스물넷 + 작은 예고 여럿을 더 세운다).
 ## godot --path . --resolution 720x1280 -s res://tools/shots/telegraph_looks.gd -- <무대 id> <출력 png> [frames=0] [out_dir]
 
-const LOOKS := [0, 1, 2]
+## 칸: [그림새, 테 인주, 채움 인주] — (1) 테 8%·채움 0%, (2) 테 8%·채움 70% (기본), (3) 테 30%·채움 70%.
+const LOOKS := [[1, 0.08, 0.0], [1, 0.08, 0.7], [1, 0.3, 0.7]]
 const CROP := Rect2i(0, 100, 720, 980)
 
 var main: Node
@@ -162,8 +163,11 @@ func _center() -> Vector2:
 
 
 ## 모든 예고를 진행 k로 세우고 그림새 look으로 한 장.
-func _shot(look: int, k: float) -> Image:
-	TelegraphStyleData.default().look = look
+func _shot(look: Array, k: float) -> Image:
+	var st := TelegraphStyleData.default()
+	st.look = look[0]
+	st.rim_tint = look[1]
+	st.fill_tint = look[2]
 	var c0 := _center()
 	for f in foes:
 		var e: Enemy = f[0]

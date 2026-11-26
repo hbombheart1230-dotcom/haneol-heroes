@@ -17,11 +17,14 @@ func test_default_is_ink_bleed_and_seal_stays_enemy_red() -> void:
 	assert_float(s.seal_dull.s).is_less(s.seal_bright.s)  # (바)는 덜 쨍하다
 	s.look = TelegraphStyleData.NOW
 	assert_that(s.seal()).is_equal(s.seal_bright)
-	s.look = TelegraphStyleData.BRUSH_WASH_TINT
-	assert_that(s.seal()).is_equal(s.seal_dull)
-	assert_float(s.tint()).is_equal(s.tint_alt)
 	s.look = TelegraphStyleData.BRUSH_WASH
-	assert_float(s.tint()).is_equal(s.tint_main)  # 기본 70% (사용자 결정)
+	assert_float(s.rim_tint).is_less(0.2)  # 테는 거의 먹
+	var plain := s.fill_tint
+	s.fill_tint = 0.0
+	assert_that(s.fill_color()).is_equal(s.ink_color)
+	s.fill_tint = 1.0
+	assert_that(s.fill_color()).is_equal(s.seal_dull)
+	s.fill_tint = plain
 
 
 ## 어두운 바닥 (한산 갑판)에선 붓 테 밑획을 키운다: 바닥 밝기는 무대 floor_base로.
@@ -53,7 +56,7 @@ func test_every_look_draws_all_shapes() -> void:
 			TelegraphPaint.band(node, Vector2.ZERO, Vector2(300, 0), Vector2(0, 40), 0.5, flash, true, true)
 			TelegraphPaint.circle(node, Vector2.ZERO, 120.0, 0.0, flash, true, false, 4.0)  # 차오름 0 (번짐 시작 크기)
 		_drawn += 1)
-	for look in [TelegraphStyleData.NOW, TelegraphStyleData.BRUSH_WASH, TelegraphStyleData.BRUSH_WASH_TINT]:
+	for look in [TelegraphStyleData.NOW, TelegraphStyleData.BRUSH_WASH]:
 		TelegraphStyleData.default().look = look
 		var before := _drawn
 		node.queue_redraw()
