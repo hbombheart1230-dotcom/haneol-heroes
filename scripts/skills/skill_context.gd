@@ -18,6 +18,8 @@ var aim_dir: Vector2 = Vector2.ZERO
 ## 모으는 동안 끌어서 잡았는지 (끌지 않았으면 자동인 기술은 예전처럼, SkillDef.charge_aim_auto).
 var aim_steered: bool = false
 var _thud_done: bool = false
+## 계속 치는 기술의 첫 닿음 진동을 냈는지 (first_tick_buzz; _thud_done과 따로 → 마지막 닿음 hit()의 퍽·진동이 남는다).
+var _tick_buzz_done: bool = false
 ## 넷째 탭 마무리의 칼 박힘 (BladeBiteData 마무리 칸, TapChain → SkillCaster.finisher_bite). 없으면 예전대로.
 var finisher_bite: BladeBiteData
 var bite_done: bool = false
@@ -100,8 +102,8 @@ func tick_hit(en: Enemy, dmg: int, last: bool = false) -> bool:
 	var ok2 := hit(en, dmg, false)
 	if ok2:
 		SkillMultiHit.tick(self, en)
-		if not _thud_done and skill and skill.first_tick_buzz:  # 발동의 첫 닿음은 한 번에 끊어 치는 명중만큼 진동 (세종 정음진 4타: 틱엔 진동이 없어 4초 뒤 마지막 타까지 조용했다)
-			_thud_done = true
+		if not _tick_buzz_done and skill and skill.first_tick_buzz:  # 발동의 첫 닿음은 한 번에 끊어 치는 명중만큼 진동 (세종 정음진 4타: 틱엔 진동이 없어 4초 뒤 마지막 타까지 조용했다)
+			_tick_buzz_done = true
 			HitImpact.on_swing(HitImpact.data().skill_step)
 	return ok2
 

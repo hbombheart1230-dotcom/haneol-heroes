@@ -5,7 +5,7 @@ extends RefCounted
 ## 휘감기 기술은 적마다 멈추지 않으므로(defer_stop) 예전엔 마무리 멈춤이 끝 0.3배 느려짐뿐이었다
 ## (폴드 7 0570b0b "4타가 진동이랑 타격감이 없다", 사용자 (가) 1<2<3<4).
 
-static var _last_ms: int = -1000000
+static var _last_ms: int = -1000000  # 판 시작에 비움 (Main → reset)
 
 
 ## 이 발동에서 처음 닿았을 때만 (SkillContext._thud_done 앞에서 부른다). 반환: 멈췄으면 true.
@@ -20,7 +20,7 @@ static func on_contact(ctx: SkillContext, en: Enemy) -> bool:
 		if b.finisher_contact_sfx != &"":
 			fb.play(b.finisher_contact_sfx, 0.0)
 		fb.haptic(b.finisher_haptic_ms, b.finisher_haptic_amp)
-	var now := Time.get_ticks_msec()
+	var now := GameTime.now_ms()  # 멈춤 간격은 GameTime 시각 (시뮬레이션 판 시각과 같게)
 	if not ctx.hit_stop_enabled or not ctx.player.is_inside_tree() or not gap_ok(now, _last_ms, b.finisher_min_gap):
 		return false
 	_last_ms = now

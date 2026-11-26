@@ -89,6 +89,10 @@ func test_first_tick_of_a_cast_buzzes_like_a_single_hit() -> void:
 	f._last_haptic = -INF
 	assert_bool(ctx.tick_hit(e, 6)).is_true()  # 같은 발동의 다음 틱은 예전처럼 진동 없음
 	assert_array(Haptics.last).is_empty()
+	# 첫 틱 진동은 따로 깃발: 마지막 닿음 hit()의 퍽·진동(_thud_done)을 먹지 않는다 (통합 검토 4589ae0f ①)
+	assert_bool(ctx._thud_done).is_false()
+	assert_bool(ctx.tick_hit(e, 6, true)).is_true()
+	assert_bool(ctx._thud_done).is_true()
 
 
 func test_only_sejong_glyphs_buzz_on_first_tick() -> void:

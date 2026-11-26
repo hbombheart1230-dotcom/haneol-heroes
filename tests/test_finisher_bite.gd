@@ -21,6 +21,7 @@ func after_test() -> void:
 	GameSettings.haptics_enabled = _was
 	Feedback.instance = null
 	GameTime.reset()
+	GameTime.clock = Callable()
 	SkillHitStop.reset()
 	FinisherBite.reset()
 
@@ -105,3 +106,24 @@ func test_plain_skill_cast_keeps_old_rules() -> void:
 	assert_bool(ctx.hit(r[2], 10)).is_true()
 	assert_bool(FinisherBite.skips_sweep_slow(ctx)).is_false()
 	assert_array(Haptics.last).is_equal([30, HitImpactData.at_f(HitImpact.data().haptic_amp, 3, 0.0)])
+
+
+func test_min_gap_uses_game_clock() -> void:
+	# 간격은 GameTime.now_ms() (시뮬레이션 판 시각과 같게, 통합 검토 4589ae0f ②)
+	var now := [5000]
+	GameTime.clock = func() -> int: return now[0]
+	var r := _rig()
+	var e: Enemy = r[2]
+	assert_bool(FinisherBite.on_contact(r[3], e)).is_true()
+	GameTime.reset()
+	var mk := func() -> SkillContext:
+		var c := SkillContext.new()
+		c.player = r[1]
+		c.skill = YI.kit.tap
+		c.finisher_bite = YI.blade_bite
+		return c
+	now[0] = 5100
+	assert_bool(FinisherBite.on_contact(mk.call(), e)).is_false()
+	GameTime.reset()
+	now[0] = 5250
+	assert_bool(FinisherBite.on_contact(mk.call(), e)).is_true()
