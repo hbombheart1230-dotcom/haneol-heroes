@@ -61,7 +61,7 @@ func test_enemy_sprite_uses_look_material() -> void:
 	add_child(auto_free(e))
 	e.set_physics_process(false)
 	assert_object(e.sprite).is_not_null()
-	assert_object(e.sprite.material).is_same(EnemyLook.material_for(e.data))
+	assert_object(e.sprite.material).is_same(EnemyLook.material_for(e.data))  # 같은 종류는 한 재질 (그리기 묶음)
 
 
 func test_rim_stays_inside_its_sheet_cell() -> void:

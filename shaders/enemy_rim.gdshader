@@ -23,17 +23,22 @@ uniform float ghost_fade = 0.1;
 uniform float ghost_rim_mix = 1.0;
 // 테두리 바깥 옅은 번짐 진하기 (0이면 없음).
 uniform float halo_alpha = 0.0;
-// 피격 흰 번쩍임 (적마다 다름 → instance uniform, EnemySprite가 매 프레임 넣는다). 0이면 원래 색, 1이면 흰색.
-instance uniform float flash = 0.0;
+// 피격 번쩍임 (적마다 다름 → 적마다 재질 복제에 EnemySprite가 매 프레임 넣는다). 0이면 원래 색, 1이면 번쩍임 색.
+// 적마다 다른 값은 인스턴스별 shader 변수로 넘기지 않는다: S20(Adreno 650, GLES 3.2)에서 일부 적이 flash_color를
+// 엉뚱하게(순파랑) 읽었다. 재질을 적마다 복제하면 그리기 묶음이 깨진다 (22명에서 호출 +30). 그래서 modulate 알파에 실어 vertex가 푼다.
+varying float flash_v;
 // 맞은 순간 몸을 덮는 색 (기본 흰색)과 테두리 색 (알파 0이면 테두리는 그대로). HitReactionData.hit_flash_style.
-instance uniform vec4 flash_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
-instance uniform vec4 flash_rim : source_color = vec4(0.0, 0.0, 0.0, 0.0);
+uniform vec4 flash_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform vec4 flash_rim : source_color = vec4(0.0, 0.0, 0.0, 0.0);
 
 // 노드 modulate (피격 번쩍임 등). fragment의 COLOR는 텍스처가 이미 곱해져 있을 수 있어 vertex에서 따로 받는다.
 varying vec4 node_color;
 
 void vertex() {
 	node_color = COLOR;
+	float fl = step(1.5, COLOR.a);  // 번쩍임은 modulate 알파에 실어 온다 (2 + 양, EnemySprite.FLASH_BASE). 그 동안 알파는 1.
+	flash_v = fl * clamp(COLOR.a - 2.0, 0.0, 1.0);
+	node_color = vec4(COLOR.rgb, mix(COLOR.a, 1.0, fl));
 }
 
 // lo~hi 칸 안이면 1, 밖이면 0 (이웃 프레임을 읽지 않음). TEXTURE는 함수에 넘기지 않는다 (gl_compatibility).
@@ -74,7 +79,7 @@ void fragment() {
 	float halo = clamp(far * 0.5, 0.0, 1.0) * (1.0 - tex.a) * (1.0 - outside) * halo_alpha;
 	vec3 body = (tex.rgb - 0.5) * body_contrast + 0.5 + body_lift;
 	body = mix(body, body * army_tint.rgb * 1.25, tint_mix);
-	body = mix(body, flash_color.rgb, clamp(flash, 0.0, 1.0));
+	body = mix(body, flash_color.rgb, clamp(flash_v, 0.0, 1.0));
 	float g = ghost_color.a;
 	float y = (UV.y - lo.y) / max(hi.y - lo.y, 1e-5);  // 칸 안 세로 위치 (0 위, 1 아래)
 	float foot = smoothstep(1.0 - ghost_fade - 0.12, 1.0, y) * g;  // 발쪽일수록 1
@@ -85,7 +90,7 @@ void fragment() {
 	// 망령이면 테두리 색을 망령 색 쪽으로 반쯤 섞고 일렁이게 (진하기는 rim_color 그대로 → 어두운 바닥에서도 보인다)
 	vec3 rim_rgb = mix(rim_color.rgb, ghost_color.rgb, g * ghost_rim_mix);
 	float rim_a = rim_color.a * mix(1.0, wave, g);
-	float fr = clamp(flash, 0.0, 1.0) * flash_rim.a;  // 맞은 순간 테두리 (먹 실루엣 + 인주색 테두리 안)
+	float fr = clamp(flash_v, 0.0, 1.0) * flash_rim.a;  // 맞은 순간 테두리 (먹 실루엣 + 인주색 테두리 안)
 	rim_rgb = mix(rim_rgb, flash_rim.rgb, fr);
 	rim_a = max(rim_a, fr);
 	vec4 rim = vec4(rim_rgb, max(rim_a * outside, rim_color.a * halo) * node_color.a);
