@@ -15,6 +15,8 @@ var damage: int = 8
 var hit_interval: float = 0.5
 ## 무는 횟수 상한 (0 = 없음, 시간으로만).
 var bites: int = 0
+## 멈칫하게 하는 물기 (CritterSkill.flinch): 0 = 모두, 1 = 첫·마지막만, 2 = 잡몹 모두·정예 이상 마지막만.
+var flinch: int = 0
 var seek_radius: float = 520.0
 var touch_radius: float = 34.0
 var color: Color = Color(0.85, 0.4, 0.55)
@@ -31,6 +33,15 @@ var _wobble: float = 0.0
 
 func age() -> float:
 	return _age
+
+
+## 이번 물기가 피해만 주는지 (적이 멈칫하지 않음, flinch).
+func soft_bite(t: Enemy) -> bool:
+	if flinch == 0 or is_last_bite():
+		return false
+	if flinch == 1:
+		return hits > 0
+	return t.reaction != null and t.reaction.tier != HitReaction.Tier.TRASH
 
 
 ## 이번 물기가 마지막인지 (횟수를 다 쓰거나, 안전 상한 전 마지막 간격).
@@ -66,7 +77,10 @@ func _physics_process(delta: float) -> void:
 	var wob := Vector2.from_angle(_age * 9.0 + _wobble) * 40.0
 	global_position += ((to.normalized() * speed) + wob) * delta if to.length() > 6.0 else wob * delta
 	if t and _cd <= 0.0 and t.global_position.distance_to(global_position) <= touch_radius + t.body_radius:
-		if ctx.tick_hit(t, damage, is_last_bite()):  # 사라지기 전 마지막 물기는 크게
+		t.soft_hit = soft_bite(t)
+		var bit := ctx.tick_hit(t, damage, is_last_bite())
+		t.soft_hit = false
+		if bit:  # 사라지기 전 마지막 물기는 크게
 			hits += 1
 			ctx.impact(t.global_position)  # 문 자리에 매화 꽃잎
 		_cd = hit_interval
