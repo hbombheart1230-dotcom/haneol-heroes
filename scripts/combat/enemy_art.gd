@@ -82,10 +82,8 @@ static func telegraph_part(e: Enemy, c: CanvasItem, part: int) -> void:
 	if a == null or a.state != EnemyAttack.State.WINDUP:
 		return
 	var k := a.windup_ratio()
-	# 공통 예고 규칙: 붉은 먹 채움이 진해지고 (fill), 테두리는 처음부터 (edge), 맞기 직전엔 번쩍 (밝고 두껍게).
+	# 공통 예고 규칙: 채움이 진해지고 (fill), 테두리는 처음부터 (edge), 맞기 직전엔 번쩍. 그림새는 TelegraphStyleData (TelegraphPaint).
 	var flash := a.is_flashing(Enemy.ai_data().strike_flash_time)
-	var fill := Color(Ink.SEAL, (0.12 + 0.3 * k) + (0.2 if flash else 0.0))
-	var edge := Color(Ink.SEAL.lightened(0.45), 1.0) if flash else Color(Ink.SEAL, 0.85)
 	var do_fill := part & FILL != 0
 	var do_rim := part & RIM != 0
 	var origin := e.to_local(a.aim_origin)
@@ -94,35 +92,12 @@ static func telegraph_part(e: Enemy, c: CanvasItem, part: int) -> void:
 			if do_rim:
 				RangedTelegraph.draw(e, c, k, flash)
 		EnemyAttackData.Kind.CONE:
-			var half := deg_to_rad(a.data.angle_degrees * 0.5)
-			var a0 := a.aim_dir.angle()
-			var pts := PackedVector2Array([origin])
-			for i in 17:
-				pts.append(origin + Vector2.from_angle(a0 - half + 2.0 * half * i / 16.0) * a.data.radius)
-			if do_fill:
-				c.draw_colored_polygon(pts, fill)
-			if do_rim:
-				pts.append(origin)
-				c.draw_polyline(pts, edge, 4.0)
+			TelegraphPaint.cone(c, origin, a.aim_dir.angle(), deg_to_rad(a.data.angle_degrees * 0.5), a.data.radius, k, flash, do_fill, do_rim)
 		EnemyAttackData.Kind.CHARGE, EnemyAttackData.Kind.PULL, EnemyAttackData.Kind.THRUST:
 			var d := a.aim_dir
-			var n := d.orthogonal() * a.data.width * 0.5
-			var back := origin - d * a.data.width * 0.5
-			var front := origin + d * a.data.length
-			var rect := PackedVector2Array([back + n, front + n, front - n, back - n])
-			if do_fill:
-				c.draw_colored_polygon(rect, fill)
-			if do_rim:
-				rect.append(back + n)
-				c.draw_polyline(rect, edge, 4.0)
+			TelegraphPaint.band(c, origin - d * a.data.width * 0.5, origin + d * a.data.length, d.orthogonal() * a.data.width * 0.5,
+				k, flash, do_fill, do_rim)
 		EnemyAttackData.Kind.SHOCKWAVE:
-			if do_fill:
-				Ink.blob(c, origin, a.data.radius * k, fill, 3.0, 0.06, 0.6)
-			if do_rim:
-				Ink.ring(c, origin, a.data.radius, 4.0, edge)
+			TelegraphPaint.circle(c, origin, a.data.radius, k, flash, do_fill, do_rim, 3.0)
 		_:  # SLAM: 플레이어 자리
-			var p := e.to_local(a.target_point)
-			if do_fill:
-				Ink.blob(c, p, a.data.radius * k, fill, 4.0, 0.06, 0.6)
-			if do_rim:
-				Ink.ring(c, p, a.data.radius, 4.0, edge)
+			TelegraphPaint.circle(c, e.to_local(a.target_point), a.data.radius, k, flash, do_fill, do_rim, 4.0)

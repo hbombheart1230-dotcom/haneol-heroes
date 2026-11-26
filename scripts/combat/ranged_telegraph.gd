@@ -19,7 +19,8 @@ static func draw(e: Enemy, c: CanvasItem, k: float, flash: bool) -> void:
 		w = d.tense_width
 	var end := dir * len
 	var shadow := Color(Ink.INK, d.shadow_alpha)
-	var main := Color(Ink.SEAL.lightened(0.45), 1.0) if flash else Color(Ink.SEAL, lerpf(d.alpha_from, d.alpha_to, k))
+	var seal := TelegraphStyleData.default().seal()  # 그림새에 따라 쨍한/탁한 인주 (근접 예고와 한 식구)
+	var main := Color(seal.lightened(0.45), 1.0) if flash else Color(seal, lerpf(d.alpha_from, d.alpha_to, k))
 	if d.style == 2:
 		_hit_width(c, dir, full, a.data.projectile_radius * 2.0, d, k)
 	Ink.stroke(c, dir * 4.0, end + dir * 4.0, w + d.shadow_extra, shadow)
@@ -30,5 +31,5 @@ static func draw(e: Enemy, c: CanvasItem, k: float, flash: bool) -> void:
 ## 실제 맞는 폭: 과녁 쪽 끝 가까이에만 옅게 (끝이 가늘어지는 획 모양 그대로).
 static func _hit_width(c: CanvasItem, dir: Vector2, full: float, hit_w: float, d: RangedTelegraphData, k: float) -> void:
 	var from := dir * full * (1.0 - d.hit_tail)
-	Ink.stroke(c, from, dir * full, hit_w, Color(Ink.SEAL, d.hit_alpha * k))
+	Ink.stroke(c, from, dir * full, hit_w, Color(TelegraphStyleData.default().seal(), d.hit_alpha * k))
 

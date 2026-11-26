@@ -128,11 +128,12 @@ func _draw() -> void:
 	var rect := Rect2(r.y, r.x - hw, r.z - r.y, hw * 2.0)
 	if clock.warning():
 		var t := clock.warn_ratio()
-		var c := data.warn_color
+		var c := _warn_color()
 		var wm := InkUiStyle.default().wash_alpha_mult  # 범위(rect)는 그대로, 안쪽만 먹 번짐
 		InkPaint.wash_rect(self, rect, Color(c, lerpf(data.fill_alpha.x, data.fill_alpha.y, t) * wm * (1.0 + 0.5 * _beat_flash)))  # 박자마다 번짐이 짙어진다
 		var half := rect.size.x * 0.5 * t  # 양 끝 대포에서 가운데로 차오른다
-		var fill := Color(c, (data.fill_alpha.y + 0.1) * wm)
+		var st := TelegraphStyleData.default()  # (바) 차오르는 채움은 먹 번짐
+		var fill := Color(st.fill_color(), st.ink_alpha.y) if st.look != TelegraphStyleData.NOW else Color(c, (data.fill_alpha.y + 0.1) * wm)
 		InkPaint.wash_rect(self, Rect2(rect.position, Vector2(half, rect.size.y)), fill)
 		InkPaint.wash_rect(self, Rect2(Vector2(rect.end.x - half, rect.position.y), Vector2(half, rect.size.y)), fill)
 	if _flash > 0.0:
@@ -146,12 +147,18 @@ func _draw_rim() -> void:
 		return
 	var r := data.rows[row]
 	var hw := data.half_width
-	var c := data.warn_color
+	var c := _warn_color()
 	var w := data.edge_width * (1.0 + 0.8 * _beat_flash)
 	var edge := Color(c, 0.75 + 0.25 * _beat_flash)
 	InkPaint.edge(rim, r.y, r.z, r.x - hw, w * 2.4, edge)  # 위아래 경계: 거친 붓 획
 	InkPaint.edge(rim, r.y, r.z, r.x + hw, w * 2.4, edge)
 	_draw_offscreen(r.x, c)
+
+
+## 예고 인주색: (가)는 이 장치 색 그대로, (바)는 탁한 인주 (TelegraphStyleData, 근접 예고와 한 식구).
+func _warn_color() -> Color:
+	var st := TelegraphStyleData.default()
+	return data.warn_color if st.look == TelegraphStyleData.NOW else st.seal_dull
 
 
 ## 줄이 화면 위·아래 밖이면 그쪽 화면 끝에 화살표 (영웅 x에).
