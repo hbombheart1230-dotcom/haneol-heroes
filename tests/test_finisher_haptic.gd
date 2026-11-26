@@ -114,7 +114,7 @@ func test_jeongeum_announces_enemies_in_the_ring() -> void:
 	# 예전 SkillRun.instant(0) → 4타가 헛친 것으로: 흔들림 0.12(맞히면 0.35)·국악 강조음 없음.
 	var hero: HeroData = preload("res://data/heroes/sejong.tres")
 	var skill := hero.kit.tap as JeongeumSkill
-	assert_float(skill.open_stop).is_equal(0.0)  # 펼칠 때 멈춤은 사용자 답 뒤 (데이터만)
+	assert_float(skill.open_stop).is_equal_approx(0.04, 0.001)  # 펼칠 때 한 방 (사용자 1번 안)
 	var p: Player = auto_free(Player.new())
 	add_child(p)
 	p.hero = hero
@@ -126,6 +126,7 @@ func test_jeongeum_announces_enemies_in_the_ring() -> void:
 	ctx.skill = skill
 	ctx.enemy_source = func() -> Array: return foes
 	assert_int(skill.cast(ctx, 0.0).hits).is_equal(0)  # 고리 안에 아무도 없으면 그대로 헛침
+	assert_bool(GameTime.is_stopped()).is_false()  # 헛치면 멈춤도 없다
 	var e: Enemy = ENEMY_SCENE.instantiate()
 	e.data = SOLDIER
 	add_child(auto_free(e))
@@ -133,6 +134,7 @@ func test_jeongeum_announces_enemies_in_the_ring() -> void:
 	e.global_position = Vector2(200, 0)
 	foes.append(e)
 	assert_int(skill.cast(ctx, 0.0).hits).is_equal(1)
+	assert_bool(GameTime.is_stopped()).is_true()  # 펼칠 때 짧은 멈춤 한 번
 	for c in get_children():
 		if c is OrbitGlyphs:
 			c.queue_free()

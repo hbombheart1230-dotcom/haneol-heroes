@@ -11,7 +11,7 @@ extends SkillDef
 @export var launch_px: float = 0.0
 ## 고리 밑에 깔리는 정음 자모 그림 (함께 돈다).
 @export var ring_art: Texture2D
-## 펼치는 순간 고리 안에 적이 있으면 짧은 멈춤(초, 0이면 없음; 사용자 답 기다림 — 후보 약 0.04).
+## 펼치는 순간 고리 안에 적이 있으면 짧은 멈춤(초, 0이면 없음; 세종 0.04 — 사용자 "펼칠 때 한 방" 2026-11-26).
 @export var open_stop: float = 0.0
 @export_group("큰 변형 · 두 겹 고리")
 ## 0보다 크면 이 반경으로 바깥 고리가 하나 더 (반대로 돈다).
