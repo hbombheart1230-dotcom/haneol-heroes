@@ -50,7 +50,7 @@ func test_last_bite_is_the_big_one() -> void:
 	assert_bool(c.is_last_bite()).is_true()
 
 
-## 긴 숨 패 = 무는 횟수 +1: 늘 실제로 늘어 헛된 패가 아니고, 패 글은 "무는 횟수 지금 → 뒤".
+## 한 입 더 패 (옛 긴 숨) = 무는 횟수 +1: 늘 실제로 늘어 헛된 패가 아니고, 패 글은 "무는 횟수 지금 → 뒤".
 func test_long_breath_adds_a_bite() -> void:
 	var b := RunBuild.new()
 	b.hero = HERO.duplicate_deep(Resource.DEEP_DUPLICATE_INTERNAL)
@@ -60,6 +60,7 @@ func test_long_breath_adds_a_bite() -> void:
 		if u.id == &"critter_long":
 			long_up = u
 	var n := d.bites
+	assert_str(long_up.title).is_equal("풀벌레 · 한 입 더")
 	assert_bool(UpgradeEffect.useful(b, long_up)).is_true()
 	var l := UpgradeReadout.lines(long_up, b, 1)
 	assert_str(String(l[0]["label"])).is_equal("무는 횟수")
@@ -120,3 +121,44 @@ func test_max_alive_switch_still_works() -> void:
 		assert_int(_alive()).is_less_equal(2)
 	for n in get_tree().get_nodes_in_group(CritterSkill.GROUP):
 		n.queue_free()
+
+
+## 물 때 멈칫 (사용자 결정 2026-11-26 "나로하자" = flinch 2): 잡몹은 모든 물기에 멈칫, 정예 이상은 마리마다 마지막 큰 물기에만.
+func test_flinch_elite_only_on_the_last_bite() -> void:
+	var d := HERO.kit.tap as CritterSkill
+	assert_int(d.flinch).is_equal(2)
+	var elite := _foe("res://data/enemies/jurchen_elite.tres")
+	var trash := _foe("res://data/enemies/waegun_gunner.tres")
+	var boss := _foe("res://data/enemies/cc_frog.tres")
+	var c := _critter(4, 99.0, [])
+	c.flinch = 2
+	assert_bool(c.soft_bite(elite)).is_true()
+	assert_bool(c.soft_bite(boss)).is_true()
+	assert_bool(c.soft_bite(trash)).is_false()
+	c.hits = 3  # 마지막 큰 물기
+	assert_bool(c.soft_bite(elite)).is_false()
+	assert_bool(c.soft_bite(boss)).is_false()
+	c.flinch = 0
+	c.hits = 1
+	assert_bool(c.soft_bite(boss)).is_false()
+
+
+## 피해만 주는 물기: 피해·게이지는 그대로, 멈춤(freeze)은 없다.
+func test_soft_hit_damages_without_freezing() -> void:
+	var e := _foe("res://data/enemies/cc_frog.tres")
+	var hp := e.health.current
+	e.soft_hit = true
+	e.health.damage(10)
+	e.soft_hit = false
+	assert_int(e.health.current).is_less(hp)
+	assert_bool(e._freeze_left > 0.0).is_false()
+	e.health.damage(10)
+	assert_bool(e._freeze_left > 0.0).is_true()
+
+
+func _foe(path: String) -> Enemy:
+	var e: Enemy = auto_free(ENEMY_SCENE.instantiate())
+	e.data = load(path)
+	add_child(e)
+	e.set_physics_process(false)
+	return e

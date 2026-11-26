@@ -10,6 +10,10 @@ const GROUP := &"hero_critters"
 @export var bites: int = 6
 ## 안전용 긴 상한(초): 물 적이 없어 떠도는 풀벌레가 영원히 남지 않게. 끝은 보통 bites가 정한다.
 @export var lifetime: float = 8.0
+## 물 때 적이 멈칫하는 물기 (멈춤·움찔·예고 끊김). 사용자 2026-11-26 "짧게 멈추는거도 걸리고".
+## 0 = 모든 물기, 1 = 마리마다 첫 물기와 마지막 큰 물기만 (사이는 피해만), 2 = 잡몹은 모든 물기·정예 이상은 마지막 큰 물기만.
+## 사용자 결정 2026-11-26 "나로하자" → 2 (다 갖춘 판에서 우두머리가 풀벌레 때문에 서 있던 37% → 5%, 잡몹을 무는 맛은 그대로).
+@export_range(0, 2) var flinch: int = 0
 @export var damage: int = 8
 @export var hit_interval: float = 0.5
 @export var speed: float = 380.0
@@ -65,6 +69,7 @@ func cast(ctx: SkillContext, _charge: float) -> SkillRun:
 		c.kind = SummonCritter.Kind.GRASSHOPPER if i % 2 == 1 and i < count else SummonCritter.Kind.BUTTERFLY
 		c.lifetime = life
 		c.bites = bites
+		c.flinch = flinch
 		c.damage = damage
 		c.hit_interval = hit_interval
 		c.speed = speed
