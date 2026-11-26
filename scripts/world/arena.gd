@@ -65,6 +65,7 @@ func _ready() -> void:
 ## 무대 바꾸기: 바닥 셰이더 색과 소품을 다시 정한다.
 func apply_theme(t: StageTheme) -> void:
 	theme = t
+	TelegraphStyleData.floor_luma = t.floor_base.get_luminance()  # 적 예고 붓 테: 어두운 바닥이면 밑획을 키운다
 	var mat := material as ShaderMaterial
 	if mat:
 		mat.set_shader_parameter("paper", t.floor_base)

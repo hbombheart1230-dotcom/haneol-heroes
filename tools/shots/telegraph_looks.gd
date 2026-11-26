@@ -1,5 +1,5 @@
 extends SceneTree
-## 적 공격 예고 그림새 나란히 보기 (TelegraphStyleData.look 0 (가) 지금 / 1 (나) 먹 번짐 + 붉은 테 / 2 (다) 탁한 인주):
+## 적 공격 예고 그림새 나란히 보기 (TelegraphStyleData.look 0 (가) 지금 / 1 (바) 먹 붓 테 + 먹 번짐, 인주 조금 / 2 같은 것에 인주 더 (견주기)):
 ## 실제 main 장면 한 무대에서 같은 자리에 근접 원(SLAM)·부채(CONE)·돌진 띠(CHARGE)·사격 선(SHOOT)·우두머리 큰 원(SHOCKWAVE)을
 ## 예고 중으로 멈춰 세우고 (Engine.time_scale 0 — 예고 시간·판정은 안 건드림) 그림새마다 찍는다.
 ## 위 줄: 진행 progress (기본 0.6), 아래 줄: 치기 직전 번쩍 (남은 0.05초). 칸: (가)(나)(다).
