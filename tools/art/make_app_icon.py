@@ -157,9 +157,10 @@ def candidates() -> None:
 def apply(name: str, store: str = "") -> None:
     cut = cutout(_load(HERO))
     icon_dir = os.path.join(ROOT, "assets/ui/icon")
-    # 적응형: 앞 층은 얼굴만 (투명 바탕), 보이는 288칸 안에 그림 전체가 들어가게 가운데 288에 둔다.
-    fg = Image.new("RGBA", (432, 432), (0, 0, 0, 0))
-    fg.alpha_composite(hero_layer(name, 288, cut), (72, 72))
+    # 적응형: 앞 층은 영웅만 (투명 바탕). 보이는 가운데 288칸이 다른 아이콘과 같은 자리·크기가 되게.
+    # 같은 비율로 432 전체를 채운다 (런처 가림·흔들림 효과로 288칸 밖이 조금 보여도 몸이 끊기지 않게).
+    cx, cy, side = CANDIDATES[name]["crop"]
+    fg = _square(cut, cx, cy, int(side * 432 / 288)).resize((432, 432), Image.LANCZOS)
     fg.save(os.path.join(icon_dir, "adaptive_foreground_432.png"))
     c = CANDIDATES[name]
     bg = background(c["bg"], 432, c["dim"])
