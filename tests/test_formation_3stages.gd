@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
 ## 만주·경복궁·초충도 원거리 졸 대형 (사용자 "영웅에 맞게 맞추고 확 쓸어버릴 수 있게", 2026-11-26).
-## 만주 거란 궁수 5 반달(거리 유지하며 물러나 쏘기) · 경복궁 여진 궁수 6 작은 둥근 진(한쪽에 고정) · 초충도 방아깨비 6 흩어진 무리(뛰어서 자리로).
+## 만주 거란 궁수 5 반달(거리 유지하며 물러나 쏘기) · 경복궁 여진 궁수 6 둥근 진(영웅 둘레 고정) · 초충도 방아깨비 6 흩어진 무리(뛰어서 자리로).
 
 const ARC := preload("res://data/formations/manchuria_khitan_arc.tres")
 const RING := preload("res://data/formations/gyeongbok_jurchen_ring.tres")
@@ -31,26 +31,15 @@ func test_manchuria_arc_fits_gwanggaeto_chain() -> void:
 	assert_float(ARC.stop_range).is_less(ARC.member.behaviour.attack.trigger_range)
 
 
-## 둥근 진은 영웅을 둘러싸지 않고 한쪽에 작게 선다: 일제 사격이 한 방향에서 와서 경복궁 가림막이 막을 수 있고
-## (둘러싸면 어디에 숨어도 맞는다 — 엄폐 시뮬 광개토 피해 몫 0.85), 정음진 하나가 여섯을 다 덮는다.
-## 모양: ARC 300°에 6명 = 원 위에 60° 간격 (FormationLayout ARC, 마지막 간격도 60°).
-func test_gyeongbok_circle_fits_one_jeongeum_and_faces_one_side() -> void:
+## 둥근 진은 영웅을 가운데 두고 둘러싼다 (사용자 2026-11-26 "영웅을 두고 동그랗게 서는게 간진데").
+## 숨을 데가 없는 대신 세종 해시계 멈춤(반경 300) 한 바퀴에 여섯이 다 들고, 원정 영웅은 내닫기로 구성원 사이를 뚫고 나간다.
+func test_gyeongbok_ring_surrounds_hero_inside_sundial() -> void:
 	assert_int(RING.count).is_equal(6)
-	assert_int(RING.shape).is_equal(FormationData.Shape.ARC)
-	assert_float(RING.arc_deg).is_equal_approx(300.0, 0.01)
+	assert_int(RING.shape).is_equal(FormationData.Shape.RING)
 	assert_int(RING.move).is_equal(FormationData.Move.HOLD)
-	var offs := FormationLayout.offsets(RING, RING.count, Vector2.DOWN)
-	var far := 0.0
-	var near := INF
-	for i in offs.size():
-		for j in range(i + 1, offs.size()):
-			far = maxf(far, offs[i].distance_to(offs[j]))
-			near = minf(near, offs[i].distance_to(offs[j]))
-	var jeongeum := SJ.kit.tap as JeongeumSkill
-	var reach := jeongeum.radius + RING.member.body_radius * Feedback.feel_data().skill_edge_scale
-	assert_float(far).is_less_equal(reach)  # 누구에게 씌워도 여섯 모두
-	assert_float(near).is_greater(RING.member.body_radius * 2.0)  # 몸이 겹치지 않게
-	assert_float(RING.spawn_dist - RING.radius * 2.0).is_greater(200.0)  # 영웅에게서 떨어져 한쪽에
+	var sundial: float = SJ.kit.counter.radius  # 해시계 멈춤 = 세종 둘레 원 한 바퀴
+	assert_float(RING.radius).is_less_equal(sundial)
+	assert_float(RING.radius).is_greater(200.0)  # 영웅 바로 옆에 붙지 않는다
 
 
 func test_chochungdo_swarm_hops() -> void:
