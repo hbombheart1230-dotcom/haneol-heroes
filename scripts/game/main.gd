@@ -68,6 +68,7 @@ func _ready() -> void:
 		settings.exit_confirmed.connect(func(mode: StringName) -> void: flow.exit(mode))
 	# 이전 판의 히트스톱·예고 공격 슬롯이 남지 않게 초기화.
 	GameTime.reset()
+	FinisherBite.reset()
 	EnemyAttack.active_windups = 0
 	for c in get_children():
 		if not (c is CanvasLayer):
