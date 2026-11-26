@@ -16,8 +16,9 @@ func test_hansan_full_run_report() -> void:
 	var stage := OS.get_environment("HH_STAGE") if OS.get_environment("HH_STAGE") != "" else "hansan_1592"
 	var heroes: Array = HINTS.keys() if OS.get_environment("HH_HEROES") == "" else OS.get_environment("HH_HEROES").split(",")
 	for hero in heroes:
-		for s in [11, 23, 37]:
-			for miss in [0.0, 0.3]:
+		var seeds: Array = [11, 23, 37] if OS.get_environment("HH_SEEDS") == "" else Array(OS.get_environment("HH_SEEDS").split(",")).map(func(x: String) -> int: return int(x))
+		for s in seeds:  # HH_SEEDS: 씨앗 목록 (경계 판단은 씨앗 여섯)
+			for miss in ([0.3] if OS.get_environment("HH_SLOPPY_ONLY") == "1" else [0.0, 0.3]):  # HH_SLOPPY_ONLY: 서툰 봇만
 				var st := ResourceLoader.load("res://data/stages/%s.tres" % stage, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as StageTheme
 				st.hero_hint = HINTS[hero]
 				if OS.get_environment("HH_SWARM") != "":  # 근접 잡몹 수 배율 비교 (WaveSwarm)
