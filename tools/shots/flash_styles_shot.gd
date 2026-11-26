@@ -59,8 +59,10 @@ func _place(main: Node, spot: Vector2) -> Array:
 		e.global_position = at
 		if i > 0:
 			rd.hit_flash_style = i - 1
-			var m := e.sprite.material as ShaderMaterial
-			m.set_shader_parameter(&"flash", rd.flash_white if rd.blinks() else 1.0)
+			var m := (e.sprite.material as ShaderMaterial).duplicate() as ShaderMaterial  # 칸마다 다른 색 → 이 장면만 복제
+			e.sprite.material = m
+			e.set_process(false)
+			e.sprite.modulate = Color(1, 1, 1, EnemySprite.FLASH_BASE + (rd.flash_white if rd.blinks() else 1.0))
 			m.set_shader_parameter(&"flash_color", rd.flash_body())
 			m.set_shader_parameter(&"flash_rim", rd.flash_rim())
 		var l := Label.new()

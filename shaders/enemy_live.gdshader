@@ -29,6 +29,9 @@ varying vec4 v_mod;
 
 void vertex() {
 	v_mod = COLOR;
+	float fl = step(1.5, COLOR.a);  // 번쩍임은 modulate 알파에 실어 온다 (2 + 양, EnemySprite.FLASH_BASE). 그 동안 알파는 1.
+	flash_v = fl * clamp(COLOR.a - 2.0, 0.0, 1.0);
+	v_mod = vec4(COLOR.rgb, mix(COLOR.a, 1.0, fl));
 }
 
 float lum(vec3 c) {
@@ -46,7 +49,7 @@ uniform float ghost_body_alpha = 1.0;
 uniform float ghost_fade = 0.1;
 uniform float ghost_rim_mix = 1.0;
 uniform float halo_alpha = 0.0;
-uniform float flash = 0.0;
+varying float flash_v;
 uniform vec4 flash_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform vec4 flash_rim : source_color = vec4(0.0, 0.0, 0.0, 0.0);
 
@@ -104,7 +107,7 @@ void fragment() {
 	float halo = clamp(far * 0.5, 0.0, 1.0) * (1.0 - inked.a) * (1.0 - outside) * halo_alpha;
 	vec3 rbody = (inked.rgb - 0.5) * body_contrast + 0.5 + body_lift;
 	rbody = mix(rbody, rbody * army_tint.rgb * 1.25, tint_mix);
-	rbody = mix(rbody, flash_color.rgb, clamp(flash, 0.0, 1.0));
+	rbody = mix(rbody, flash_color.rgb, clamp(flash_v, 0.0, 1.0));
 	float g = ghost_color.a;
 	float foot = smoothstep(1.0 - ghost_fade - 0.12, 1.0, UV.y) * g;
 	rbody = mix(rbody, ghost_color.rgb * 1.2, foot * 0.6);
@@ -113,7 +116,7 @@ void fragment() {
 	float wave = 0.7 + 0.3 * sin(TIME * 5.0 + UV.y * 60.0 + UV.x * 25.0);
 	vec3 rim_rgb = mix(rim_color.rgb, ghost_color.rgb, g * ghost_rim_mix);
 	float rim_a = rim_color.a * mix(1.0, wave, g);
-	float fr = clamp(flash, 0.0, 1.0) * flash_rim.a;
+	float fr = clamp(flash_v, 0.0, 1.0) * flash_rim.a;
 	rim_rgb = mix(rim_rgb, flash_rim.rgb, fr);
 	rim_a = max(rim_a, fr);
 	vec4 rim = vec4(rim_rgb, max(rim_a * outside, rim_color.a * halo) * v_mod.a);
