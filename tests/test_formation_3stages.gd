@@ -63,12 +63,12 @@ func test_chochungdo_swarm_hops() -> void:
 func test_waves_swap_scattered_ranged_for_the_formation() -> void:
 	for row in [["manchuria_395", ARC], ["gyeongbokgung_1433", RING], ["chochungdo", SWARM]]:
 		var st := load("res://data/stages/%s.tres" % row[0]) as StageTheme
-		var w: WaveData = st.waves.waves[1]
 		var f: FormationData = row[1]
-		assert_array(w.formations).contains([f])
-		assert_int(w.formation_after[0]).is_equal(10)
-		var scattered := w.enemies.filter(func(e: EnemyData) -> bool: return e.id == f.member.id).size()
-		assert_int(scattered).is_equal(1)  # 흩어진 원거리 3 → 1
+		for i in [1, 3]:  # 2·4물결: 흩어진 원거리는 없고 대형으로만 (1물결은 원래 원거리 없음)
+			var w: WaveData = st.waves.waves[i]
+			assert_array(w.formations).contains([f])
+			var scattered := w.enemies.filter(func(e: EnemyData) -> bool: return e.id == f.member.id).size()
+			assert_int(scattered).override_failure_message("%s w%d" % [row[0], i + 1]).is_equal(0)
 
 
 func test_hop_aims_at_own_slot_without_overshooting() -> void:

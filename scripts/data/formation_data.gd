@@ -53,6 +53,8 @@ enum Move { ADVANCE, KITE, HOLD, HOP }
 @export var aim_gather: float = 0.6
 ## 겨눔 차례에 아무도 못 겨누면 (모두 경직·기절) 이만큼(초) 다시 시도하다 장전으로.
 @export var aim_retry: float = 1.2
+## 다른 대형이 같이 있으면 그 대형의 겨눔 시작에서 이만큼(초) 지나야 겨눈다 (두 묶음 박자 엇갈림, 같은 순간 겹친 일제 사격 없게).
+@export var volley_gap: float = 1.0
 
 @export_group("자리 찾기")
 ## 구성원이 자기 자리에서 이 거리(px) 안이면 줄여 걷는다 (자리를 지나치지 않게).

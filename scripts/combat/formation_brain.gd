@@ -26,6 +26,8 @@ var _joined := 0
 var _waited := 0.0
 var _aiming: Array = []
 var _aim_wait := -1.0
+## 마지막 겨눔 시작 시각 (EnemyAttack.now_sec, 다른 대형이 박자를 엇갈리게 본다).
+var aimed_at := -INF
 var _offsets := PackedVector2Array()
 var _done := false
 
@@ -91,10 +93,12 @@ func tick(delta: float) -> void:
 		_face(player.global_position)
 	if cycle.entered == FormationCycle.Phase.AIM:
 		_aim_wait = 0.0
-		_aim_all(player as Player)
+		if not volley_blocked():
+			_aim_all(player as Player)
 	elif cycle.phase == FormationCycle.Phase.AIM and _aiming.is_empty():
-		_aim_wait += delta
-		_aim_all(player as Player)
+		if not volley_blocked():  # 다른 대형 일제 사격과 엇갈릴 때까지는 기다림도 세지 않는다
+			_aim_wait += delta
+			_aim_all(player as Player)
 	elif cycle.phase == FormationCycle.Phase.AIM and _aiming.all(func(e: Variant) -> bool:
 			return not is_instance_valid(e) or (e as Enemy).attack.state != EnemyAttack.State.WINDUP):
 		fired.emit(_aiming)
@@ -189,8 +193,20 @@ func _aim_all(player: Player) -> void:
 			_aiming.append(e)
 	if _aiming.is_empty():
 		return
+	aimed_at = EnemyAttack.now_sec()
 	EnemyActions.play_sfx((_aiming[0] as Enemy).attack.data, true)  # 예고 소리는 한 번 (여럿이 겹치지 않게)
 	aimed.emit(_aiming)
+
+
+## 같이 있는 다른 대형이 겨눈 지 volley_gap초가 안 됐다 (박자 엇갈림).
+func volley_blocked() -> bool:
+	if spawner == null:
+		return false
+	var now := EnemyAttack.now_sec()
+	for o: FormationBrain in spawner.formations:
+		if o != self and not o.is_over() and now - o.aimed_at < data.volley_gap:
+			return true
+	return false
 
 
 ## 이 구성원이 지금 겨눌 수 없는 까닭 (겨눌 수 있으면 ""). 탐침·시험이 빠진 사람을 볼 때도 쓴다.

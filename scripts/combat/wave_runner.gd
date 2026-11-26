@@ -108,7 +108,8 @@ func _start(i: int) -> void:
 	index = i
 	phase = Phase.RUN
 	var w: WaveData = data.waves[i]
-	_queue = WaveSwarm.expand(w.enemies, data.melee_count_mult if w.swarm else 1.0)
+	_queue = []  # 타입 없는 배열에 옮긴다 (떼가 아닌 물결은 Array[EnemyData] 복사본이라 대형을 끼울 수 없다)
+	_queue.append_array(WaveSwarm.expand(w.enemies, data.melee_count_mult if w.swarm else 1.0))
 	for k in range(w.formations.size() - 1, -1, -1):  # 대형 묶음을 차례 자리에 (뒤에서부터 넣어 앞 자리가 밀리지 않게)
 		var at := w.formation_after[k] if k < w.formation_after.size() else 0
 		_queue.insert(clampi(at, 0, _queue.size()), w.formations[k])

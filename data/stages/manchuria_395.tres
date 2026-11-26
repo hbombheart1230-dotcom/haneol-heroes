@@ -40,16 +40,18 @@ enemies = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResource("e
 first_count = 8
 max_alive = 8
 elite_last = false
+formations = Array[ExtResource("f_script")]([ExtResource("f_form")])
+formation_after = PackedInt32Array(12)
 
 [sub_resource type="Resource" id="Wave_2"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser")])
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser")])
 first_count = 10
 max_alive = 10
 elite_last = false
+formations = Array[ExtResource("f_script")]([ExtResource("f_form"), ExtResource("f_form")])
+formation_after = PackedInt32Array(8, 26)
 
-formations = Array[ExtResource("f_script")]([ExtResource("f_form")])
-formation_after = PackedInt32Array(10)
 [sub_resource type="Resource" id="Wave_3"]
 script = ExtResource("w_wave")
 enemies = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser")])
@@ -61,10 +63,12 @@ elite_group = Array[ExtResource("3_enemy")]([ExtResource("e_elite"), ExtResource
 
 [sub_resource type="Resource" id="Wave_4"]
 script = ExtResource("w_wave")
-enemies = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_archer"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_elite_warrior_captain")])
+enemies = Array[ExtResource("3_enemy")]([ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_heavy"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_chaser"), ExtResource("e_elite_warrior_captain")])
 first_count = 14
 max_alive = 14
 elite_last = false
+formations = Array[ExtResource("f_script")]([ExtResource("f_form"), ExtResource("f_form"), ExtResource("f_form")])
+formation_after = PackedInt32Array(8, 26, 44)
 
 [sub_resource type="Resource" id="Waves"]
 script = ExtResource("w_set")

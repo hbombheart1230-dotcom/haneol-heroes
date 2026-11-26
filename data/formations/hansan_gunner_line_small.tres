@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="FormationData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/formation_data.gd" id="1_form"]
+[ext_resource type="Resource" path="res://data/enemies/waegun_gunner.tres" id="2_gunner"]
+
+[resource]
+script = ExtResource("1_form")
+member = ExtResource("2_gunner")
+count = 5
+shape = 0
+spacing = 72.0
+move = 0
+spawn_dist = 540.0
+speed_mult = 0.55
+move_time = 2.6
+stop_range = 360.0
+halt_time = 0.35
+reload_time = 2.4
+form_time = 0.5
