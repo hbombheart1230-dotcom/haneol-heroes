@@ -295,48 +295,24 @@ func _tick_waves(delta: float) -> void:
 				d == null)
 
 
-## 화면 안 등장 자리: center에서 min~max px (전장 안).
+## 화면 안 등장 자리: center에서 min~max px (전장 안). 자리 계산은 SpawnPlace (줄 수 나눔).
 func near_point(center: Vector2, dmin: float, dmax: float) -> Vector2:
-	var p := center
-	var tries := maxi(spawn_point_tries, 1)
-	for i in tries * 3:  # 장애물 속이면 다시 뽑는다 (Codex e423e86 지적); 한 바퀴 다 막히면 둘레를 넓혀 두 바퀴 더 (벽 많은 경복궁)
-		var far := dmax * (1.0 + 0.5 * float(i / tries))
-		p = center + fit_view(Vector2.from_angle(rng.randf_range(0.0, TAU)) * rng.randf_range(dmin, far), far)
-		p = bounded(p)
-		if not blocked_check.is_valid() or not bool(blocked_check.call(p, spawn_clearance)):
-			break
-		if i == tries - 1:
-			spawn_widened += 1
-		if i == tries * 3 - 1:
-			spawn_stuck += 1
-	return p
+	return SpawnPlace.near_point(self, center, dmin, dmax)
 
 
-## 화면 안에 들게 줄인 등장 오프셋: 가로·세로를 각각 (보이는 반폭·반높이 − 여유) ÷ dmax 배까지 (줄일 때만).
+## 화면 안에 들게 줄인 등장 오프셋 (SpawnPlace.fit_view).
 func fit_view(off: Vector2, dmax: float) -> Vector2:
-	if view_margin < 0.0 or not is_inside_tree():
-		return off
-	var half := view_half()
-	if half == Vector2.INF:
-		return off
-	return Vector2(off.x * clampf((half.x - view_margin) / maxf(dmax, 1.0), 0.2, 1.0),
-		off.y * clampf((half.y - view_margin) / maxf(dmax, 1.0), 0.2, 1.0))
+	return SpawnPlace.fit_view(self, off, dmax)
 
 
 ## 보이는 화면의 반폭·반높이 (월드 px, 카메라 줌 반영). 카메라가 없으면 INF.
 func view_half() -> Vector2:
-	var cam := get_viewport().get_camera_2d()
-	if cam == null:
-		return Vector2.INF
-	return get_viewport().get_visible_rect().size / cam.zoom * 0.5
+	return SpawnPlace.view_half(self)
 
 
 ## at이 장애물 속이거나 전장 밖이면 around 둘레에서 다시 뽑은 자리 (보스 부하 소환).
 func safe_point(at: Vector2, around: Vector2, dmin: float, dmax: float) -> Vector2:
-	var p := bounded(at)
-	if blocked_check.is_valid() and bool(blocked_check.call(p, spawn_clearance)):
-		return near_point(around, dmin, dmax)
-	return p
+	return SpawnPlace.safe_point(self, at, around, dmin, dmax)
 
 
 ## 먹 번짐 예고 뒤 등장 (물결·보스 부하). 예고 중에도 화면 최대에 센다.
