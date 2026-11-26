@@ -59,9 +59,10 @@ func _place(main: Node, spot: Vector2) -> Array:
 		e.global_position = at
 		if i > 0:
 			rd.hit_flash_style = i - 1
-			e.sprite.set_instance_shader_parameter(&"flash", rd.flash_white if rd.blinks() else 1.0)
-			e.sprite.set_instance_shader_parameter(&"flash_color", rd.flash_body())
-			e.sprite.set_instance_shader_parameter(&"flash_rim", rd.flash_rim())
+			var m := e.sprite.material as ShaderMaterial
+			m.set_shader_parameter(&"flash", rd.flash_white if rd.blinks() else 1.0)
+			m.set_shader_parameter(&"flash_color", rd.flash_body())
+			m.set_shader_parameter(&"flash_rim", rd.flash_rim())
 		var l := Label.new()
 		l.text = NAMES[i]
 		l.position = Vector2(-60, 24)

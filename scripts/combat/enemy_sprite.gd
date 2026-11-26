@@ -9,7 +9,8 @@ static func setup(e: Enemy) -> AnimatedSprite2D:
 	s.scale = Vector2.ONE * e.data.sprite_scale * e.size_mult
 	s.position = e.data.sprite_offset
 	s.modulate = e.data.sprite_tint
-	s.material = EnemyLook.material_for(e.data, e.affix)  # 군대별 테두리·밝기 (잘 보이게)
+	var shared := EnemyLook.material_for(e.data, e.affix)  # 군대별 테두리·밝기 (잘 보이게)
+	s.material = shared.duplicate() if shared else null  # 적마다 하나 (번쩍임 값이 적마다 다르다)
 	e.add_child(s)
 	e.sprite = s
 	EnemySprite3D.attach(e)  # 3D가 준비된 적(보스부터)은 3D 화면 한 칸으로 (끄면·없으면 구운 그림 그대로)
@@ -133,10 +134,11 @@ static func pose(e: Enemy, shake_px: float) -> void:
 	e.sprite.modulate = flash_color(e)
 	if e.sprite.material:
 		var feel := Feedback.feel_data()
-		e.sprite.set_instance_shader_parameter(&"flash", r.flash_amount(e.flash_left(), feel.flash_time, feel.flash_peak_time) if r else 0.0)
+		var m := e.sprite.material as ShaderMaterial
+		m.set_shader_parameter(&"flash", r.flash_amount(e.flash_left(), feel.flash_time, feel.flash_peak_time) if r else 0.0)
 		if r:
-			e.sprite.set_instance_shader_parameter(&"flash_color", r.data.flash_body())
-			e.sprite.set_instance_shader_parameter(&"flash_rim", r.data.flash_rim())
+			m.set_shader_parameter(&"flash_color", r.data.flash_body())
+			m.set_shader_parameter(&"flash_rim", r.data.flash_rim())
 
 
 ## 피격 번쩍임 > 곧 친다는 번쩍임 > 원래 색. 매복 중이면 흐릿하게.

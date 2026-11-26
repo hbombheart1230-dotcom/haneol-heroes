@@ -46,9 +46,9 @@ uniform float ghost_body_alpha = 1.0;
 uniform float ghost_fade = 0.1;
 uniform float ghost_rim_mix = 1.0;
 uniform float halo_alpha = 0.0;
-instance uniform float flash = 0.0;
-instance uniform vec4 flash_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
-instance uniform vec4 flash_rim : source_color = vec4(0.0, 0.0, 0.0, 0.0);
+uniform float flash = 0.0;
+uniform vec4 flash_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform vec4 flash_rim : source_color = vec4(0.0, 0.0, 0.0, 0.0);
 
 void fragment() {
 	vec2 px = TEXTURE_PIXEL_SIZE;

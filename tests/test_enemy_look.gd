@@ -61,7 +61,11 @@ func test_enemy_sprite_uses_look_material() -> void:
 	add_child(auto_free(e))
 	e.set_physics_process(false)
 	assert_object(e.sprite).is_not_null()
-	assert_object(e.sprite.material).is_same(EnemyLook.material_for(e.data))
+	var m := e.sprite.material as ShaderMaterial  # 번쩍임 값이 적마다 달라 적마다 복제 (같은 셰이더·같은 테두리)
+	var shared := EnemyLook.material_for(e.data)
+	assert_object(m.shader).is_same(shared.shader)
+	assert_bool(m != shared).is_true()
+	assert_bool(m.get_shader_parameter("rim_color") == shared.get_shader_parameter("rim_color")).is_true()
 
 
 func test_rim_stays_inside_its_sheet_cell() -> void:

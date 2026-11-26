@@ -23,11 +23,12 @@ uniform float ghost_fade = 0.1;
 uniform float ghost_rim_mix = 1.0;
 // 테두리 바깥 옅은 번짐 진하기 (0이면 없음).
 uniform float halo_alpha = 0.0;
-// 피격 흰 번쩍임 (적마다 다름 → instance uniform, EnemySprite가 매 프레임 넣는다). 0이면 원래 색, 1이면 흰색.
-instance uniform float flash = 0.0;
+// 피격 번쩍임 (적마다 다름 → 적마다 재질 복제에 EnemySprite가 매 프레임 넣는다). 0이면 원래 색, 1이면 번쩍임 색.
+// 인스턴스별 값(instance 변수)은 쓰지 않는다: S20(Adreno 650, GLES 3.2)에서 일부 적이 flash_color를 엉뚱하게(순파랑) 읽었다.
+uniform float flash = 0.0;
 // 맞은 순간 몸을 덮는 색 (기본 흰색)과 테두리 색 (알파 0이면 테두리는 그대로). HitReactionData.hit_flash_style.
-instance uniform vec4 flash_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
-instance uniform vec4 flash_rim : source_color = vec4(0.0, 0.0, 0.0, 0.0);
+uniform vec4 flash_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform vec4 flash_rim : source_color = vec4(0.0, 0.0, 0.0, 0.0);
 
 // 노드 modulate (피격 번쩍임 등). fragment의 COLOR는 텍스처가 이미 곱해져 있을 수 있어 vertex에서 따로 받는다.
 varying vec4 node_color;
