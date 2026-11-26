@@ -19,9 +19,9 @@ func test_default_is_ink_bleed_and_seal_stays_enemy_red() -> void:
 	assert_that(s.seal()).is_equal(s.seal_bright)
 	s.look = TelegraphStyleData.BRUSH_WASH_TINT
 	assert_that(s.seal()).is_equal(s.seal_dull)
-	assert_float(s.tint()).is_equal(s.tint_high)
+	assert_float(s.tint()).is_equal(s.tint_alt)
 	s.look = TelegraphStyleData.BRUSH_WASH
-	assert_float(s.tint()).is_less(s.tint_high)  # 기본은 인주를 조금만
+	assert_float(s.tint()).is_equal(s.tint_main)  # 기본 70% (사용자 결정)
 
 
 ## 어두운 바닥 (한산 갑판)에선 붓 테 밑획을 키운다: 바닥 밝기는 무대 floor_base로.
