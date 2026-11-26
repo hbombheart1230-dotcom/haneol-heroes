@@ -9,6 +9,7 @@ var entry: HomeSummonEntry
 var charges: int = 0
 var used: int = 0
 var _boss_given := false
+var _final: SkillDef
 
 
 func _init(p_data: HomeSummonData = null) -> void:
@@ -24,6 +25,7 @@ func begin(heroes: Array, player_hero: HeroData, stage_id: StringName) -> bool:
 		entry = null
 	charges = mini(data.charges_start, data.charges_max) if home else 0
 	used = 0
+	_final = null
 	_boss_given = false
 	return home != null
 
@@ -56,7 +58,17 @@ func use() -> bool:
 
 
 ## 주인 영웅이 쓸 기술 (entry.slot 칸).
+## 부를 때 쓰는 기술: 그 기술의 최종 강화 모습 (HomeSummonEntry.final_def — 고른 영웅의 강화와 상관없이 늘 같음). 판마다 한 번 만든다.
 func skill() -> SkillDef:
+	if home == null or home.kit == null or entry == null:
+		return null
+	if _final == null:
+		_final = entry.final_def(base_skill())
+	return _final
+
+
+## 최종 단계를 입히기 전 원래 기술 (주인 영웅 기술 묶음의 entry.slot 칸).
+func base_skill() -> SkillDef:
 	if home == null or home.kit == null or entry == null:
 		return null
 	match entry.slot:
