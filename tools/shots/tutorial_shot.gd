@@ -32,6 +32,7 @@ func _open(hero: StringName) -> Node:
 	GameSettings.hero_stages = {}
 	GameSettings.tutorial_enabled = true
 	GameSettings.tutorial_done = false
+	GameSettings.tutorial_seen_heroes = PackedStringArray()
 	GameSettings.skill_button_enabled = false
 	GameSettings.save_settings()  # TouchController가 판을 열 때 설정 파일을 다시 읽는다
 	var main: Node = load("res://scenes/main.tscn").instantiate()
@@ -90,4 +91,10 @@ func _run() -> void:
 		await _stage(main, &"combo")
 		await _shot(dir.path_join("tutorial_combo_%s.png" % h))
 		await _close(main)
+		for ev: StringName in [&"skill_tap", &"skill_dash", &"skill_charge", &"skill_counter"]:  # 기술 이름이 제목 옆에 (영웅 넷)
+			main = await _open(h)
+			TutorialDriver.skip_to(main.tutorial_director.run, &"evade" if ev == &"skill_counter" else ev)
+			await _stage(main, ev)
+			await _shot(dir.path_join("tutorial_%s_%s.png" % [h, ev]))
+			await _close(main)
 	quit()

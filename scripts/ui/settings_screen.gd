@@ -158,7 +158,7 @@ func value_of(row: StringName) -> Variant:
 		&"enemy_hp": return GameSettings.enemy_hp_bars
 		&"combo_text": return GameSettings.combo_text
 		&"stats": return GameSettings.show_stats
-		&"tutorial": return GameSettings.tutorial_enabled  # 켬(처음 값) = 앱을 켤 때마다 첫 판에 안내
+		&"tutorial": return GameSettings.tutorial_enabled and not GameSettings.tutorial_seen(GameSettings.hero_id)  # 켬 = 지금 고른 영웅의 안내가 다음 판에 뜬다 (이미 봤으면 꺼진 것으로 보임)
 	return null
 
 
@@ -178,7 +178,7 @@ func set_value(row: StringName, v: Variant) -> void:
 		&"tutorial":
 			GameSettings.tutorial_enabled = bool(v)
 			if bool(v):
-				GameSettings.tutorial_done = false  # 다시 켜면 다음 판에 바로
+				GameSettings.replay_tutorial(GameSettings.hero_id)  # 다시 켜면 지금 영웅 안내를 다음 판에 한 번 더
 	GameSettings.apply_audio()
 	GameSettings.save_settings()
 	changed.emit()

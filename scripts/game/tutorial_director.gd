@@ -19,6 +19,10 @@ func _init(m: Node) -> void:
 	main = m
 
 
+func _hero_id() -> StringName:
+	return main.player.hero.id if main.player and main.player.hero else &""
+
+
 func running() -> bool:
 	return run != null and not run.is_done()
 
@@ -46,8 +50,20 @@ func start(data: TutorialData) -> void:
 	if main.tutorial_overlay:
 		main.tutorial_overlay.hero_id = player.hero.id if player and player.hero else &""
 		main.tutorial_overlay.waves = _waves()
+		main.tutorial_overlay.skill_names = _skill_names()
 		main.tutorial_overlay.open(run)
 	_on_step_changed()
+
+
+## 안내 단계 이름 → 그 영웅의 기술 이름 (기술 데이터에서 읽는다).
+func _skill_names() -> Dictionary:
+	var out := {}
+	var sc := _caster()
+	if sc == null:
+		return out
+	for ev in SKILL_SLOTS:
+		out[ev] = sc.display_name(SKILL_SLOTS[ev])
+	return out
 
 
 ## 기술 칸 → 안내 단계 이름.
@@ -128,7 +144,7 @@ func _on_finished() -> void:
 	sparring.clear()  # 연습 상대가 선 채로 건너뛰어도 치운다
 	if main.hud:
 		main.hud.hold_stage_title = false
-	GameSettings.tutorial_done = true
+	GameSettings.mark_tutorial_seen(_hero_id())
 	GameSettings.save_settings()
 	if main.spawner and main.state.is_playing():
 		main.spawner.active = true

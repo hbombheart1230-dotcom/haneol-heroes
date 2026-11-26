@@ -15,6 +15,7 @@ func _main(hero: StringName, button: bool = false) -> Node:
 	GameSettings.tutorial_enabled = true
 	GameSettings.want_stage_list = false
 	GameSettings.tutorial_done = false
+	GameSettings.tutorial_seen_heroes = PackedStringArray()
 	GameSettings.skill_button_enabled = button
 	GameSettings.save_settings()
 	var main: Node = load("res://scenes/main.tscn").instantiate()
