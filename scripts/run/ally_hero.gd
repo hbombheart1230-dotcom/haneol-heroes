@@ -48,6 +48,8 @@ static func spawn_into(world: Node, me: Player, p_rules: HomeSummonRules, p_manu
 	a.z_index = 30  # 이름 띠: 기술 그림 위
 	world.add_child(a)
 	a._build(world, me)
+	if not p_manual:
+		a._follow_zones(world)
 	if p_manual:
 		for n: Node in [a, a.body, a.attack, a.caster]:
 			n.set_physics_process(false)
@@ -96,6 +98,25 @@ func _build(main: Node, me: Player) -> void:
 	main.add_child(body)
 	body.grant_invulnerability(data.ally_time + 1.0)
 	_ink(body.global_position)
+
+
+## 배 건너뛰기 (한산 ZoneHop.entered, 우두머리 세션 feat/hansan-ships): 화면이 먹으로 가려진 사이 영웅은 새 배로 옮겨진다.
+## 같이 싸우는 영웅도 그 배 입구 옆으로 옮기고 걸을 곳을 다시 빌린다 (옛 배에 남지 않게). 구역이 없는 무대는 신호가 없다.
+func _follow_zones(main: Node) -> void:
+	for n in main.get_children():
+		var sc: Script = n.get_script()
+		if sc and sc.get_global_name() == &"ZoneHop" and n.has_signal(&"entered"):
+			n.connect(&"entered", _on_zone_entered)
+
+
+func _on_zone_entered(z: Resource) -> void:
+	if not is_instance_valid(body) or not is_instance_valid(_me):
+		return
+	body.walk_area = _me.walk_area
+	body.arena_rect = _me.arena_rect
+	var entry: Variant = z.get("entry") if z else null
+	body.global_position = (entry as Vector2 if entry is Vector2 else _me.global_position) + data.ally_offset
+	body.velocity = Vector2.ZERO
 
 
 ## 평타·기술 묶음의 피해만 mult배 한 사본 (그림·움직임·이름은 그대로). 1이면 원본.
