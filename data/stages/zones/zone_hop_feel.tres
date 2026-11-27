@@ -4,3 +4,7 @@
 
 [resource]
 script = ExtResource("1")
+rise_time = 0.5
+land_time = 0.45
+cover_time = 0.12
+cover_color = Color(0.05, 0.13, 0.2, 1)

@@ -60,7 +60,9 @@ func _run() -> void:
 				if en and en.health and not en.health.is_dead() and not (en.data and en.data.is_boss):
 					en.health.kill()))
 	sp.wave_announce.connect(func(i: int, elite: bool) -> void: print("WAVE %d elite %s t %.2f zone %d" % [i + 1, elite, _now(), zh.plan.current]))
-	sp.boss_spawned.connect(func(b: Enemy) -> void: print("BOSS t %.2f zone %d at %s" % [_now(), zh.plan.current, str(b.global_position.round())]))
+	sp.boss_spawned.connect(func(b: Enemy) -> void:
+		print("BOSS t %.2f zone %d at %s" % [_now(), zh.plan.current, str(b.global_position.round())])
+		_rec_left = 240)  # 우두머리 등장 (누각 계단에서 내려옴) 4초
 	zh.hopped.connect(func(z: int) -> void:
 		var arena := main.get_node("Arena") as Arena
 		print("HOPDONE zone %d (%s) took %.2f s, projectiles %d, critters %d, hazards %d, player %s, wash %s" % [z, zh.plan.zone().title, _now() - _hop_t0, _count_shots(),
@@ -104,7 +106,9 @@ func _run() -> void:
 			dashed = player.request_dash(ddir)
 			print("DASH toward %s rail %s ok %s t %.2f" % [str(ddir), str(rail), dashed, _now()])
 		if zh.state == ZoneHop.State.HOP and _frame % 6 == 0:
-			print("COVER %.2f screen %s size %s" % [zh.view.cover, zh.view._screen.is_visible_in_tree(), str(zh.view._screen.size)])
+			var pvw := player.get_node_or_null("PlayerView") as PlayerView
+			var spr: AnimatedSprite2D = pvw._sprite if pvw else null
+			print("COVER %.2f anim %s sprite %s frame %s lift %.0f" % [zh.view.cover, pvw.current_anim() if pvw else "-", str(spr.get("animation")) if spr else "-", str(spr.get("frame")) if spr else "-", pvw.position.y if pvw else 0.0])
 			var lines = main.get("hero_lines")
 			if lines and lines.get("line") != null and String(lines.get("line")) != "":
 				print("DURINGHOP line '%s' t %.2f" % [lines.get("line"), _now()])

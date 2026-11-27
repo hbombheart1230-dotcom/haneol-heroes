@@ -133,7 +133,7 @@ func _hop() -> void:
 		p.global_position = from.lerp(to, t)
 		if art:
 			art.position.y = -sin(t * PI * 0.5) * feel.rise_height
-		view.cover = clampf((t - 0.45) / 0.55, 0.0, 1.0), 0.0, 1.0, feel.rise_time)
+		view.cover = clampf((t - feel.cover_from) / maxf(1.0 - feel.cover_from, 0.01), 0.0, 1.0), 0.0, 1.0, feel.rise_time)
 	_tween.tween_callback(func() -> void: _enter(p, exit))
 	_tween.tween_interval(feel.cover_time)
 	_tween.tween_method(func(t: float) -> void:
@@ -141,7 +141,7 @@ func _hop() -> void:
 		p.global_position = land - exit * feel.land_dist * (1.0 - t)
 		if art:
 			art.position.y = -cos(t * PI * 0.5) * feel.land_height
-		view.cover = clampf(1.0 - t / 0.6, 0.0, 1.0), 0.0, 1.0, feel.land_time)
+		view.cover = clampf(1.0 - t / maxf(feel.uncover_by, 0.01), 0.0, 1.0), 0.0, 1.0, feel.land_time)
 	_tween.tween_callback(func() -> void: _landed(p, art))
 
 

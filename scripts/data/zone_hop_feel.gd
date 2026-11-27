@@ -26,5 +26,8 @@ extends Resource
 @export var leap_anim: StringName = &"jump_leap"
 ## 이 칸부터 (도움닫기 끝, 사용자 고른 동작 권장 2~10).
 @export var leap_from: int = 2
+## 뛰어오름의 이 몫(0~1)부터 가림이 차오른다 (그 전엔 동작이 보인다). 내려앉기는 이 몫 안에 다 걷힌다.
+@export var cover_from: float = 0.7
+@export var uncover_by: float = 0.35
 ## 먹 덮기 색.
 @export var cover_color: Color = Color(0.06, 0.05, 0.05, 1.0)

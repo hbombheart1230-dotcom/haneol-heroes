@@ -359,7 +359,8 @@ func _draw() -> void:
 	var hd := player.hero
 	if hd:  # 무게감 먹 그림자 (착지 순간 살짝 넓게)
 		var spread := 1.0 + 0.25 * (_land_left / maxf(hd.land_time, 0.001))
-		Ink.weight_shadow(self, Vector2(0, r * 0.8), r * hd.shadow_scale * spread, hd.shadow_alpha)
+		var lift := maxf(-position.y, 0.0)  # 구역 건너뛰기로 떠 있으면 그림자는 갑판에 남고 작아진다 (ZoneHop)
+		Ink.weight_shadow(self, Vector2(0, r * 0.8 + lift), r * hd.shadow_scale * spread * clampf(1.0 - lift / 400.0, 0.4, 1.0), hd.shadow_alpha)
 	else:
 		Ink.shadow(self, Vector2(0, r * 0.8), r * 1.1)
 	if _sprite:
