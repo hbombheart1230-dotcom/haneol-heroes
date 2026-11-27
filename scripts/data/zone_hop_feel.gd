@@ -31,5 +31,7 @@ extends Resource
 ## 뛰어오름의 이 몫(0~1)부터 가림이 차오른다 (그 전엔 동작이 보인다). 내려앉기는 이 몫 안에 다 걷힌다.
 @export var cover_from: float = 0.7
 @export var uncover_by: float = 0.35
+## 뜀·공중·착지 연출 (먹 튐·물보라·흔들림·진동·소리). 비면 없음.
+@export var fx: ZoneHopFxData
 ## 먹 덮기 색.
 @export var cover_color: Color = Color(0.06, 0.05, 0.05, 1.0)
