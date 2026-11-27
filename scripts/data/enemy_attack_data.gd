@@ -55,6 +55,10 @@ enum Kind { SLAM, SHOOT, SHOCKWAVE, CONE, CHARGE, PULL, THRUST }
 @export var strike_sfx: StringName = &""
 ## 발사 순간 무기 끝에서 터지는 이펙트 (조총 불꽃·연기). 비우면 없음.
 @export var fire_vfx: SkillVfxData
+## 쏜 자리에 남는 흰 화약 연기 (조총, 비우면 없음). 일제 사격이면 횡대 앞에 연기 줄이 핀다.
+@export var smoke_vfx: SkillVfxData
+## 탄 겉모습 (비우면 화살 그림). 조총 = data/enemies/look/musket_ball.tres.
+@export var shot_look: ShotLookData
 
 @export_group("사격 (SHOOT)")
 @export var projectile_speed: float = 520.0

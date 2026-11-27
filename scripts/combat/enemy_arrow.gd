@@ -16,6 +16,8 @@ var traveled: float = 0.0
 var evaded: bool = false
 ## 일제 사격 열쇠 (VolleyBeat.key_for, "" = 아님): 같은 열쇠 탄이 상한만큼 맞혔으면 이 탄은 지나간다.
 var volley_key: String = ""
+## 겉모습 (null = 화살, 조총은 납탄 + 불빛 꼬리).
+var look: ShotLookData
 
 
 func setup(p_target: Player, origin: Vector2, data: EnemyAttackData) -> void:
@@ -25,6 +27,7 @@ func setup(p_target: Player, origin: Vector2, data: EnemyAttackData) -> void:
 	max_range = data.projectile_range
 	damage = data.damage
 	radius = data.projectile_radius
+	look = data.shot_look
 
 
 func _ready() -> void:
@@ -55,4 +58,7 @@ func _physics_process(delta: float) -> void:
 
 ## 그림 한 장 (쇠 화살촉·나무 대·양쪽 깃털·먹 꼬리, InkPaint.ARROW). 촉 끝이 옛 그림 끝(+20)과 비슷하게 오고 몸통은 뒤로 길다. 판정(radius)과는 별개로 겉모습만.
 func _draw() -> void:
+	if look:  # 조총 탄: 불빛 꼬리 + 납탄 한 장 (ShotLookData.texture, 화살처럼 그림 한 장)
+		draw_texture_rect(look.texture(), look.texture_rect(), false)
+		return
 	draw_texture_rect(InkPaint.ARROW, Rect2(-96.0, -15.0, 120.0, 30.0), false)
