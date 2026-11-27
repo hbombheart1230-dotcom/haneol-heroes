@@ -55,6 +55,16 @@ static func rebind(verts: PackedVector3Array, bones: PackedInt32Array, weights: 
 	return n
 
 
+## 상자 안 꼭짓점을 한 점으로 모아 그 부분을 안 보이게 한다 (손에 든 창 지우기). 모은 꼭짓점 수.
+static func hide_verts(verts: PackedVector3Array, boxes: Array, point: Vector3) -> int:
+	var n := 0
+	for i in verts.size():
+		if inside(verts[i], boxes):
+			verts[i] = point
+			n += 1
+	return n
+
+
 ## 모델의 모든 스킨 메시에 적용. 고친 꼭짓점 수.
 static func apply(model: Node, cfg: Dictionary) -> int:
 	var boxes: Array = cfg.get("boxes", [])
@@ -66,7 +76,7 @@ static func apply(model: Node, cfg: Dictionary) -> int:
 		if src == null or mi.skin == null:
 			continue
 		var skel := mi.get_node_or_null(mi.skeleton) as Skeleton3D
-		var bind := bind_index(mi.skin, skel, bone)
+		var bind := bind_index(mi.skin, skel, String(cfg.get("hide_bone", bone)) if cfg.get("hide", false) else bone)
 		if bind < 0:
 			continue
 		var out := ArrayMesh.new()
@@ -74,7 +84,14 @@ static func apply(model: Node, cfg: Dictionary) -> int:
 			var arr := src.surface_get_arrays(s)
 			var bones: PackedInt32Array = arr[Mesh.ARRAY_BONES]
 			var weights: PackedFloat32Array = arr[Mesh.ARRAY_WEIGHTS]
-			total += rebind(arr[Mesh.ARRAY_VERTEX], bones, weights, boxes, bind)
+			if cfg.get("hide", false):  # 무기를 묶는 대신 지운다
+				var hp: Array = cfg.get("hide_point", [0, 1.0, 0])
+				var hv: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+				rebind(hv, bones, weights, boxes, bind)  # 지운 부분이 손에 끌려 늘어나지 않게 다른 뼈(몸통)에 묶는다
+				total += hide_verts(hv, boxes, Vector3(hp[0], hp[1], hp[2]))
+				arr[Mesh.ARRAY_VERTEX] = hv
+			else:
+				total += rebind(arr[Mesh.ARRAY_VERTEX], bones, weights, boxes, bind)
 			arr[Mesh.ARRAY_BONES] = bones
 			arr[Mesh.ARRAY_WEIGHTS] = weights
 			var eight := bones.size() == (arr[Mesh.ARRAY_VERTEX] as PackedVector3Array).size() * 8
