@@ -3,7 +3,7 @@
 잠금 파일 한 줄: `<주인> <내용> <시각> pid=<pid> until=<epoch> ...`
  - 한 번에 하나만 만든다 (O_EXCL). 동시에 둘이 잡을 수 없다.
  - 자기 pid가 적힌 잠금만 지운다 (멈춘 남의 프로세스가 나중에 남의 잠금을 지우거나 덮어쓰지 않게).
- - 남의 잠금은 until이 30분 넘게 지났고 gdUnit 프로세스가 하나도 없을 때만 치운다.
+ - 남의 잠금은 until(유닉스초·HH:MM)을 읽을 수 있고 30분 넘게 지났고 잠금에 적힌 pid가 죽었고 gdUnit 프로세스가 하나도 없을 때만 치운다. 못 읽으면 살아 있다고 본다.
  - 부모 셸이 죽으면(고아) 스스로 끝낸다. 끝날 때 Godot 자식 나무를 taskkill /T로 다 끝낸다.
  - STOP 파일이 생기면 몇 초 안에 멈춘다.
 """
@@ -17,6 +17,20 @@ BEAT_SECS = 600
 def _read(path):
     with open(path, encoding="utf-8", errors="replace") as f:
         return f.read()
+
+
+def parse_until(txt, now=None):
+    """잠금 글의 until을 유닉스초로. 유닉스초(9자리 이상)와 HH:MM(오늘 그 시각, 12시간 넘게 앞이면 어제) 둘 다 읽는다. 못 읽으면 None."""
+    now = time.time() if now is None else now
+    m = re.search(r"until=(\d{9,})", txt)
+    if m:
+        return int(m.group(1))
+    m = re.search(r"until=(\d{1,2}):(\d{2})", txt)
+    if m:
+        lt = time.localtime(now)
+        t = time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday, int(m.group(1)), int(m.group(2)), 0, 0, 0, -1))
+        return t - 86400 if t - now > 43200 else t
+    return None
 
 
 def default_lock():
@@ -105,12 +119,18 @@ class Lock:
         return True
 
     def _stale(self):
+        """남의 잠금이 정말 죽은 것인지. 읽을 수 없거나 조금이라도 의심스러우면 '살아 있음'이다."""
         try:
             txt = _read(self.path)
         except OSError:
             return False
-        m = re.search(r"until=(\d+)", txt)
-        return bool(m) and time.time() - int(m.group(1)) > STALE_SECS and gdunit_running() == 0
+        until = parse_until(txt)
+        if until is None or time.time() - until <= STALE_SECS:
+            return False  # 기한을 못 읽거나 아직 기한 안 (30분 여유 포함)
+        m = re.search(r"(?<![\w])pid=(\d+)", txt)
+        if m and pid_alive(int(m.group(1))):
+            return False  # 잠금을 쥔 프로세스가 살아 있다
+        return gdunit_running() == 0
 
     def acquire(self):
         os.makedirs(os.path.dirname(self.path), exist_ok=True)

@@ -64,6 +64,28 @@ class LockTest(unittest.TestCase):
         b = gdunit_lock.Lock("t", "x", path=self.path, stop_file=self.stop, parent_pid=p.pid)
         self.assertTrue(b.orphaned())  # 부모(이미 끝난 프로세스)가 없다
 
+    def test_hhmm_until_is_not_mistaken_for_a_unix_time(self):
+        """통합 보고: until=11:04 (시:분)을 유닉스초 11로 읽어 살아 있는 남의 잠금을 지웠다."""
+        now = time.mktime((2026, 11, 27, 10, 45, 0, 0, 0, -1))
+        self.assertAlmostEqual(gdunit_lock.parse_until("x until=11:04 started=10:44", now), now + 19 * 60, delta=1)
+        self.assertAlmostEqual(gdunit_lock.parse_until("x until=00:10", now), now - (10 * 3600 + 35 * 60), delta=1)  # 오늘 00:10
+        self.assertIsNone(gdunit_lock.parse_until("until=soon", now))
+        self.assertEqual(gdunit_lock.parse_until("pid=5 until=1795744035", now), 1795744035)
+        with open(self.path, "w") as f:
+            f.write("formation session until=%s started=x\n" % time.strftime("%H:%M", time.localtime(time.time() + 600)))
+        gdunit_lock.gdunit_running, orig = (lambda: 0), gdunit_lock.gdunit_running
+        try:
+            a = self.mk()
+            self.assertFalse(a._stale())  # 기한 안 (HH:MM)
+            with open(self.path, "w") as f:
+                f.write("formation session until=garbage\n")
+            self.assertFalse(a._stale())  # 못 읽으면 살아 있음
+            with open(self.path, "w") as f:
+                f.write("x pid=%d until=%d\n" % (os.getpid(), time.time() - 99999))
+            self.assertFalse(a._stale())  # 기한은 지났어도 적힌 pid가 살아 있다
+        finally:
+            gdunit_lock.gdunit_running = orig
+
     def test_kill_tree_ends_the_child(self):
         p = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
         gdunit_lock.kill_tree(p.pid)
