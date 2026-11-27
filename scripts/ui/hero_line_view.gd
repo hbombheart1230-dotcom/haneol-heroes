@@ -6,18 +6,16 @@ extends Control
 ## 띄우지 않을 때: 설정 "이야기" 끔, 조작 안내 중. 결과 화면이 떠 있으면 머리 대신 결과 판 바로 위에 띄운다.
 ## 소환 대사(SUMMON)는 주인 영웅 부르기 단추(HomeSummonButton)가 단추 옆에 띄운다.
 
-@export var show_time := 2.0
-@export var fade_time := 0.6
-## 영웅 발밑(위치)에서 글 줄까지 높이 (화면 px).
-@export var head_offset := 190.0
-## 연타 글씨와 띄울 위아래 간격, 옆으로 이만큼 안이면 "가깝다" (화면 px). 가까우면 대사를 연타 글씨 위로 올린다.
-@export var combo_gap := 24.0
-@export var combo_reach := 140.0
-## 다른 문구(무대 시작 문구·물결 알림·우두머리 띠)가 사라지고 이만큼 더 기다린다 (흐려지는 끝자락과 겹치지 않게, 초).
-@export var settle_time := 0.6
-## 화면 위쪽 (우두머리 체력 띠) 아래로만.
-@export var top_margin := 150.0
-@export var font_px := 34
+## 값은 데이터 (HeroLineLook, data/ui/hero_line.tres): 글자 44px·먹 바탕 띠·3초.
+var look := HeroLineLook.default()
+var show_time := look.show_time
+var fade_time := look.fade_time
+var head_offset := look.head_offset
+var combo_gap := look.combo_gap
+var combo_reach := look.combo_reach
+var settle_time := look.settle_time
+var top_margin := look.top_margin
+var font_px := look.font_px
 
 var main: Node
 var text := ""
@@ -86,6 +84,7 @@ func say(c: HeroLines.Case) -> void:
 	_pending = -1
 	text = lines().line(c) if lines() else ""
 	_left = show_time if text != "" else 0.0
+	_clear = 0.0  # 다음 대사는 이 줄이 끝나고 다시 settle_time을 기다린다 (예전엔 바로 덮었다)
 
 
 func alpha() -> float:
@@ -100,8 +99,8 @@ func step(delta: float) -> void:
 	if main.state.is_playing() and not _said.has(enter) and _pending == -1 \
 			and main.state.elapsed >= Hud.STAGE_TITLE_TIME:
 		queue(enter)
-	_clear = 0.0 if blocked() else _clear + delta
-	if _pending != -1 and _clear >= settle_time and allowed():
+	_clear = 0.0 if blocked() or _left > 0.0 else _clear + delta
+	if _pending != -1 and _clear >= settle_time and _left <= 0.0 and allowed():  # 떠 있는 줄은 덮지 않는다
 		say(_pending)
 	queue_redraw()
 
@@ -137,5 +136,11 @@ func _draw() -> void:
 		return
 	var a := alpha()
 	var at := line_pos()
-	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(at.x - 320.0, at.y), text, font_px, Color(UiStyle.PAPER, a), 640.0,
-		Color(UiStyle.INK, 0.9 * a), 8)
+	var w := UiStyle.TITLE_FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_px).x + look.band_pad_x
+	var mid := at - Vector2(0, font_px * 0.35)
+	var h := font_px * look.band_height
+	Ink.stroke(self, mid - Vector2(w * 0.62, 0), mid + Vector2(w * 0.62, 0), h * 1.35,
+		Color(look.band_color, look.band_soft_alpha * a))  # 옅은 번짐
+	Ink.stroke(self, mid - Vector2(w * 0.5, 0), mid + Vector2(w * 0.5, 0), h, Color(look.band_color, look.band_color.a * a))
+	UiStyle.text(self, UiStyle.TITLE_FONT, Vector2(at.x - 360.0, at.y), text, font_px, Color(UiStyle.PAPER, a), 720.0,
+		Color(UiStyle.INK, 0.9 * a), look.outline_px)
