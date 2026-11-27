@@ -1,0 +1,39 @@
+{
+  "name": "yi_sun_sin_jump",
+  "model": "res://assets/models/meshy/yi_sun_sin_jump/jump_web_meshyrig.glb",
+  "ortho_size": 2.0,
+  "frame": 256,
+  "style": "ink",
+  "ink": {
+    "inner_line": 0.0,
+    "line_px": 1.6,
+    "wash_amount": 0.25,
+    "grain": 0.0
+  },
+  "lossy_quality": 0.58,
+  "rigid": {
+    "bone": "RightHand",
+    "boxes": [
+      [
+        -0.58,
+        -0.02,
+        0.62,
+        -0.45,
+        0.95,
+        -0.27,
+        0.045
+      ]
+    ]
+  },
+  "anims": [
+    {
+      "key": "jump_leap",
+      "src": "Run_and_Leap",
+      "frames": 12,
+      "fps": 12.0,
+      "loop": false,
+      "start": 0.0,
+      "end": 2.67
+    }
+  ]
+}

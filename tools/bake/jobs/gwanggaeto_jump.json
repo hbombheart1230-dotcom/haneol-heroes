@@ -1,0 +1,25 @@
+{
+  "name": "gwanggaeto_jump",
+  "model": "res://assets/models/meshy/gwanggaeto_jump/jump_web_meshyrig.glb",
+  "ortho_size": 2.6,
+  "frame": 256,
+  "style": "ink",
+  "ink": {
+    "inner_line": 0.0,
+    "line_px": 1.6,
+    "wash_amount": 0.25,
+    "grain": 0.0
+  },
+  "lossy_quality": 0.58,
+  "anims": [
+    {
+      "key": "jump_leap",
+      "src": "Run_and_Leap",
+      "frames": 12,
+      "fps": 12.0,
+      "loop": false,
+      "start": 0.0,
+      "end": 2.67
+    }
+  ]
+}
