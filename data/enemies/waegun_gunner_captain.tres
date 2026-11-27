@@ -7,6 +7,8 @@
 [ext_resource type="Resource" path="res://data/enemies/feel/hansan_mid_group_feel.tres" id="feel"]
 [ext_resource type="Resource" path="res://data/enemies/weight/elite.tres" id="hit_weight"]
 
+[ext_resource type="Resource" path="res://data/vfx/musket_smoke.tres" id="smoke"]
+[ext_resource type="Resource" path="res://data/enemies/look/musket_ball.tres" id="ball"]
 [sub_resource type="Resource" id="Shot_3"]
 script = ExtResource("2_attack")
 kind = 1
@@ -23,6 +25,8 @@ projectile_range = 650.0
 projectile_radius = 14.0
 strike_sfx = &"e_gun"
 fire_vfx = ExtResource("muzzle")
+smoke_vfx = ExtResource("smoke")
+shot_look = ExtResource("ball")
 
 [sub_resource type="Resource" id="Shot_2"]
 script = ExtResource("2_attack")
@@ -42,6 +46,8 @@ projectile_range = 650.0
 projectile_radius = 14.0
 strike_sfx = &"e_gun"
 fire_vfx = ExtResource("muzzle")
+smoke_vfx = ExtResource("smoke")
+shot_look = ExtResource("ball")
 
 [sub_resource type="Resource" id="Shot_1"]
 script = ExtResource("2_attack")
@@ -62,6 +68,8 @@ projectile_radius = 14.0
 kite_while_aiming = 0.5
 strike_sfx = &"e_gun"
 fire_vfx = ExtResource("muzzle")
+smoke_vfx = ExtResource("smoke")
+shot_look = ExtResource("ball")
 
 [resource]
 script = ExtResource("1_enemy")

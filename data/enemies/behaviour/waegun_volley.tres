@@ -2,6 +2,9 @@
 
 [ext_resource type="Script" path="res://scripts/data/enemy_behaviour_data.gd" id="1_beh"]
 [ext_resource type="Script" path="res://scripts/data/enemy_attack_data.gd" id="2_attack"]
+[ext_resource type="Resource" path="res://data/vfx/enemy_muzzle.tres" id="3_muzzle"]
+[ext_resource type="Resource" path="res://data/vfx/musket_smoke.tres" id="4_smoke"]
+[ext_resource type="Resource" path="res://data/enemies/look/musket_ball.tres" id="5_ball"]
 
 [sub_resource type="Resource" id="Volley"]
 script = ExtResource("2_attack")
@@ -15,6 +18,11 @@ projectile_speed = 520.0
 projectile_range = 650.0
 projectile_radius = 14.0
 volley = true
+windup_sfx = &"e_gun_windup"
+strike_sfx = &"e_gun"
+fire_vfx = ExtResource("3_muzzle")
+smoke_vfx = ExtResource("4_smoke")
+shot_look = ExtResource("5_ball")
 
 [resource]
 script = ExtResource("1_beh")

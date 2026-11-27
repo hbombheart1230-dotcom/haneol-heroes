@@ -70,6 +70,8 @@ static func fire_arrow(e: Enemy) -> void:
 	e.get_parent().add_child(a)
 	if d.fire_vfx:
 		Feedback.vfx_burst(d.fire_vfx, tip, e.attack.aim_dir)
+	if d.smoke_vfx:  # 흰 화약 연기 (일제 사격이면 횡대 앞 연기 줄)
+		Feedback.vfx_burst(d.smoke_vfx, tip, e.attack.aim_dir)
 
 
 ## 공격 소리: 데이터에 적힌 것, 없으면 종류별 기본값 (EnemyAIData.attack_sfx).
