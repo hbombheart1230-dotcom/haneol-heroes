@@ -105,7 +105,8 @@ func test_every_floor_is_contrasty_coloured_and_distinct() -> void:
 		if BRIGHT_STAGES.has(id):
 			assert_float(s[0]).override_failure_message("%s mean (bright)" % id).is_between(0.45, 0.95)
 		else:
-			assert_float(s[0]).override_failure_message("%s mean" % id).is_less_equal(0.45)
+			# 한산은 사용자 0.4.3 "다 칙칙하네" → 배 밝게 (안 B), 0.47
+			assert_float(s[0]).override_failure_message("%s mean" % id).is_less_equal(0.5 if id == "hansan_1592" else 0.45)
 		assert_float(s[1]).override_failure_message("%s std" % id).is_greater_equal(0.06)
 		assert_float(s[2]).override_failure_message("%s sat" % id).is_greater_equal(0.25)
 		hues.append((s[3] as Color).h)

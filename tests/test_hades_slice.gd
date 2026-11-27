@@ -93,7 +93,7 @@ func test_spawner_warns_then_spawns_on_screen() -> void:
 
 func test_slice_look_is_hansan_only_and_waves_everywhere() -> void:
 	assert_object(HANSAN.waves).is_not_null()
-	assert_int(HANSAN.waves.waves.size()).is_equal(4)  # 물결 넷 + 보스 = 5웨이브
+	assert_int(HANSAN.waves.waves.size()).is_equal(6)  # 물결 여섯 (배 세 척에 둘씩, 0.4.3) + 보스
 	assert_int(HANSAN.waves.max_alive).is_equal(14)
 	assert_object(HANSAN.look).is_not_null()
 	assert_float(HANSAN.camera_zoom).is_greater(1.0)
@@ -123,7 +123,7 @@ func test_hansan_floor_is_dark_but_contrasty_and_coloured() -> void:
 	var var_sum := 0.0
 	for v in ys:
 		var_sum += (v - mean) * (v - mean)
-	assert_float(mean).is_less_equal(0.3)
+	assert_float(mean).is_less_equal(0.5)  # 사용자 0.4.3 "다 칙칙하네" → 배 밝게 (안 B, 0.3 → 0.47)
 	assert_float(sqrt(var_sum / ys.size())).is_greater_equal(0.1)
 	assert_float(sat / 4096.0).is_greater_equal(0.4)
 

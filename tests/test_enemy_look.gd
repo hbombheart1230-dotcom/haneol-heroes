@@ -50,7 +50,7 @@ func test_armies_get_distinct_rims() -> void:
 	# 사람 군대는 굽기에서 군대 색으로 다시 칠했다 → 덧칠·밝힘은 끄고 테두리만 (tools/bake/recolor.gdshader)
 	for e in [w, j, b]:
 		assert_float(e.tint_mix).is_equal(0.0)
-		assert_float(e.body_lift).is_equal(0.0)
+		assert_float(e.body_lift).is_equal(0.1 if e == w else 0.0)  # 왜군은 사용자 0.4.3 "칙칙하다" → 몸 조금 밝게 (안 B)
 		assert_float(e.rim_width).is_greater(0.0)
 	assert_str(String(c.death_style)).is_equal("paper")  # 다시 만들어도 초충도 죽는 모양 유지
 
