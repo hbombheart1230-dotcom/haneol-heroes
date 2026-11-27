@@ -110,6 +110,8 @@ func test_new_line_waits_for_the_shown_one() -> void:
 	assert_str(first).is_not_empty()
 	assert_float(v.show_time).is_equal_approx(3.0, 0.01)
 	assert_int(v.font_px).is_equal(44)
+	var raw := FileAccess.get_file_as_string(HeroLineLook.PATH)  # 값은 데이터 파일에 (스크립트 기본값이 아니라)
+	assert_str(raw).contains("show_time = 3.0").contains("font_px = 44")
 	v.queue(HeroLines.Case.BOSS)
 	v.step(v.settle_time + 0.05)
 	assert_str(v.text).is_equal(first)  # 아직 떠 있음 → 기다림

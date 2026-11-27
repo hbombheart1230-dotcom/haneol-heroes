@@ -4,3 +4,16 @@
 
 [resource]
 script = ExtResource("1")
+show_time = 3.0
+fade_time = 0.6
+font_px = 44
+outline_px = 9
+head_offset = 200.0
+top_margin = 150.0
+combo_gap = 24.0
+combo_reach = 140.0
+settle_time = 0.6
+band_color = Color(0.06, 0.05, 0.05, 0.55)
+band_soft_alpha = 0.28
+band_pad_x = 70.0
+band_height = 1.55
