@@ -30,6 +30,8 @@ var _name: String = "적장"
 var _names: PackedStringArray = PackedStringArray()
 var _collect: float = 0.0
 var _tint: CanvasModulate
+## 마지막으로 그린 그림에 띠·붉음이 있었는지: 다 빠진 뒤 한 번 더 지워 그리려고 (안 그러면 마지막 흐린 띠가 남는다).
+var _drawn_any: bool = false
 
 
 func _ready() -> void:
@@ -102,7 +104,7 @@ func step(delta: float) -> void:
 
 func _process(delta: float) -> void:
 	step(delta / maxf(Engine.time_scale, 0.001))  # 실제 초: 고르기 슬로·타격 멈춤에 늘어지지 않게
-	if mood > 0.0 or banner_visible():
+	if mood > 0.0 or banner_visible() or _drawn_any:
 		queue_redraw()
 
 
@@ -123,6 +125,7 @@ func _exit_tree() -> void:
 
 func _draw() -> void:
 	var vp := size if size.x > 0.0 else get_viewport_rect().size
+	_drawn_any = mood > 0.0 or banner_visible()
 	if mood > 0.0:
 		_draw_vignette(vp, vignette_alpha * mood)
 	if banner_visible():

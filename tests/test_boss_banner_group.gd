@@ -88,3 +88,27 @@ func test_combo_text_hides_under_wave_banner() -> void:
 	assert_bool(combo.text_rect().has_area()).is_false()
 	hud._wave_banner.tick(10.0, false)
 	assert_bool(combo.text_rect().has_area()).is_true()
+
+
+## 띠가 빠지는 마지막 장 뒤에 한 번 더 지워 그린다 (전에는 끝 무렵 흐린 띠가 그대로 남았다: 폰 끊김 120ms에서 투명도 0.2).
+func test_banner_is_redrawn_empty_after_it_ends() -> void:
+	var banner: BossBanner = auto_free(BossBanner.new())
+	banner.size = Vector2(720, 1280)
+	add_child(banner)
+	var e := Enemy.new()
+	e.data = _group("hansan_1592")[0]
+	auto_free(e)
+	banner.show_boss(e)
+	banner.mood = 0.0
+	banner._t = banner._len - 0.2  # 빠지는 끝 무렵 (투명도 0.4)
+	var last := [-1.0, 0]
+	banner.draw.connect(func() -> void:
+		last[1] += 1
+		last[0] = clampf((banner._len - banner._t) / 0.5, 0.0, 1.0) if banner.banner_visible() else 0.0)
+	await get_tree().process_frame
+	banner.step(0.19)  # 큰 끊김 한 장
+	for i in 20:
+		await get_tree().process_frame
+	assert_bool(banner.banner_visible()).is_false()
+	assert_int(last[1]).is_greater(1)
+	assert_float(last[0]).is_equal(0.0)
