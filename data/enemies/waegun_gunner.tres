@@ -7,6 +7,8 @@
 [ext_resource type="Resource" path="res://data/vfx/enemy_muzzle.tres" id="muzzle"]
 [ext_resource type="Resource" path="res://data/enemies/weight/light.tres" id="hit_weight"]
 
+[ext_resource type="Resource" path="res://data/vfx/musket_smoke.tres" id="smoke"]
+[ext_resource type="Resource" path="res://data/enemies/look/musket_ball.tres" id="ball"]
 [sub_resource type="Resource" id="Attack_shoot"]
 script = ExtResource("2_attack")
 kind = 1
@@ -20,6 +22,8 @@ projectile_range = 650.0
 projectile_radius = 14.0
 strike_sfx = &"e_gun"
 fire_vfx = ExtResource("muzzle")
+smoke_vfx = ExtResource("smoke")
+shot_look = ExtResource("ball")
 
 [resource]
 script = ExtResource("1_enemy")
