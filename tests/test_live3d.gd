@@ -82,7 +82,7 @@ func test_from_job_copies_clips_and_ink() -> void:
 func test_saved_data_matches_bake_job() -> void:
 	var d: Live3DHeroData = load(View3D.data_path(&"yi_sun_sin"))
 	var job: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/bake/jobs/yi_sun_sin.json"))
-	assert_int(d.clips.size()).is_equal((job["anims"] as Array).size())
+	assert_int(d.clips.size()).is_equal((job["anims"] as Array).size() + _extra_keys("yi_sun_sin").size())
 	assert_bool(d.upper_bones.has("RightArm")).is_true()
 	assert_bool(d.upper_bones.has("Hips")).is_false()  # 다리·뿌리는 달리기 그대로
 	assert_bool(d.clips.all(func(c: Dictionary) -> bool: return not c.has("src"))).is_true()
@@ -122,7 +122,10 @@ func test_clip_windows_match_bake_jobs() -> void:
 		var d: Live3DHeroData = load(View3D.data_path(StringName(id)))
 		var job: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/bake/jobs/%s.json" % id))
 		var want := Live3DHeroData.from_job(job)
-		assert_int(d.clips.size()).is_equal(want.clips.size())
+		var extra := _extra_keys(id)  # 따로 구운 동작 (뛰어넘기): 3D 구간은 판 중 쓰는 몫만 (굽기보다 좁다)
+		assert_int(d.clips.size()).is_equal(want.clips.size() + extra.size())
+		for k in extra:
+			assert_bool(d.clip(k).is_empty()).override_failure_message("%s %s missing" % [id, k]).is_false()
 		for c in want.clips:
 			var got := d.clip(String(c["key"]))
 			assert_bool(got.is_empty()).override_failure_message("%s %s missing" % [id, c["key"]]).is_false()
@@ -173,3 +176,14 @@ func _view(id: StringName, live: bool, as_id: StringName = &"") -> PlayerView:
 	p.add_child(v)
 	ProjectSettings.set_setting(Switch.SETTING, was)
 	return v
+
+
+## 영웅의 따로 구운 동작 이름 (tools/bake/jobs/<영웅>_*.json, 예: <영웅>_jump.json의 jump_leap).
+func _extra_keys(id: String) -> Array[String]:
+	var out: Array[String] = []
+	for f in DirAccess.get_files_at("res://tools/bake/jobs"):
+		if f.begins_with(id + "_") and f.ends_with(".json"):
+			var job: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tools/bake/jobs/" + f))
+			for a in job.get("anims", []):
+				out.append(String(a["key"]))
+	return out
