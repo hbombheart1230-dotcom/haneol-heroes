@@ -79,6 +79,12 @@ clips = Array[Dictionary]([{
 "key": "victory",
 "loop": false,
 "start": 1.0
+}, {
+"end": 2.43,
+"file": "res://assets/live3d/gwanggaeto/anims/web_runandleap.res",
+"key": "jump_leap",
+"loop": false,
+"start": 0.49
 }])
 ortho_size = 2.6
 ink = {

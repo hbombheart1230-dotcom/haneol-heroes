@@ -89,6 +89,12 @@ clips = Array[Dictionary]([{
 "key": "victory",
 "loop": false,
 "start": 1.0
+}, {
+"end": 2.43,
+"file": "res://assets/live3d/yi_sun_sin/anims/web_runandleap.res",
+"key": "jump_leap",
+"loop": false,
+"start": 0.49
 }])
 ink = {
 "grain": 0.0,
