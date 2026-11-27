@@ -183,3 +183,14 @@ func test_combo_number_cleared_when_run_ends() -> void:
 		main = null
 		get_tree().paused = false
 		await get_tree().process_frame
+
+
+## 판 끝 줄(짐·이김)은 떠 있는 줄을 기다리지 않는다: 들어설 때 줄이 막 뜬 직후 쓰러져도 바로 지는 줄 (Codex 0cda3a84 지적).
+func test_defeat_line_replaces_a_fresh_line_at_once() -> void:
+	var v := await _run(&"sejong")
+	_after_title(v)
+	var first := v.text  # 들어설 때 줄이 막 떴다 (거의 3초 남음)
+	assert_str(first).is_not_empty()
+	main.state.player_died()
+	v.step(0.016)
+	assert_str(v.text).is_equal("아직 쓸 글이 남았다…")

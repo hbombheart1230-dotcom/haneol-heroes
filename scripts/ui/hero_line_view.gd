@@ -24,6 +24,8 @@ var _pending := -1
 var _said := {}
 var _lines: HeroLines
 var _clear := 0.0
+## 다른 문구(띠)가 마지막으로 떠 있던 뒤 지난 시간 (떠 있는 대사와 상관없이): 판 끝 줄은 이것만 본다.
+var _unblocked := 0.0
 
 
 ## Main에 붙인다 (HUD 위, 판 상태가 만들어진 뒤).
@@ -102,8 +104,12 @@ func step(delta: float) -> void:
 	if main.state.is_playing() and not _said.has(enter) and _pending == -1 \
 			and main.state.elapsed >= Hud.STAGE_TITLE_TIME:
 		queue(enter)
-	_clear = 0.0 if blocked() or showing else _clear + delta
-	if _pending != -1 and _clear >= settle_time and (_left <= 0.0 or ending) and allowed():  # 떠 있는 줄은 덮지 않는다 (판 끝 줄 빼고)
+	var b := blocked()
+	_unblocked = 0.0 if b else _unblocked + delta
+	_clear = 0.0 if b or showing else _clear + delta
+	# 보통 줄: 떠 있는 줄이 끝나고 settle_time 뒤 (덮지 않음). 판 끝 줄: 띠만 settle_time 기다리고 떠 있는 줄을 바로 바꾼다.
+	var ready := _unblocked >= settle_time if ending else (_clear >= settle_time and _left <= 0.0)
+	if _pending != -1 and ready and allowed():
 		say(_pending)
 	queue_redraw()
 
