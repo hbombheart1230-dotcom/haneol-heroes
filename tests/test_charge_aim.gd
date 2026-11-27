@@ -115,7 +115,8 @@ func test_full_charge_wave_and_path_length() -> void:
 	var rhi := WaveRake.of(hi)
 	assert_int(rhi.total_damage()).is_greater(rlo.total_damage())
 	assert_float(hi.size_scale).is_greater(lo.size_scale)
-	assert_float(hi.lifetime).is_greater(lo.lifetime)
+	assert_float(hi.speed * hi.lifetime).is_greater(lo.speed * lo.lifetime)  # 가는 거리 (다 모으면 빨라 수명은 짧다, speed_size_power)
+	assert_float(hi.speed).is_greater(lo.speed)
 	assert_float(rhi.total_push()).is_greater(rlo.total_push())
 	assert_int(rhi.damages.size()).is_greater(rlo.damages.size())  # 모을수록 타수도
 	var front := (-0.6 + h.hit_body.end.x) * h.wave_art_size.x  # 판정 캡슐 앞 끝 (물결 가운데 앞, 크기배)

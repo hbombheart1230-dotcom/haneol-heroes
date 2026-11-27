@@ -7,6 +7,9 @@ extends SkillDef
 @export var min_scale: float = 1.6
 @export var max_scale: float = 3.2
 @export var speed: float = 650.0
+## 많이 모을수록 빠르게 (사용자 2026-11-27 "커진 만큼 빨리 지나가게"): 빠르기 = speed × (크기 / 바로 놓은 크기)^이 값.
+## 0이면 예전처럼 늘 speed. 가는 거리·판정·피해는 그대로 (수명이 같은 비율로 준다) — 지나가는 시간만 짧아진다.
+@export var speed_size_power: float = 0.0
 @export var lifetime: float = 1.1
 ## 0보다 크면 물결이 쏜 자리에서 이만큼(px) 넘게 가고, 꼬리(뒤 날·잔상)까지 그 너머로 빠져나간 뒤 사라진다
 ## (사용자 53582c6 "끝까지 용꼬리가 빠져나가게, 지금은 중간에 뚝 사라져 버려": 예전엔 수명 1.1초 × 모은 만큼으로
@@ -83,15 +86,24 @@ func size_at(c: float) -> float:
 
 ## 충전 c에서 물결이 사는 시간(초): 예전 수명(모은 만큼 사거리)과, exit_px 너머로 꼬리까지 빠져나가는 시간 중 긴 것.
 func wave_lifetime(c: float) -> float:
-	var t := lifetime * (charge_scaling.at(charge_scaling.reach, c) if charge_scaling else 1.0)
-	if exit_px > 0.0 and speed > 0.0:
+	var v := speed_at(c)
+	var t := lifetime * (charge_scaling.at(charge_scaling.reach, c) if charge_scaling else 1.0) * speed / maxf(v, 0.01)
+	if exit_px > 0.0 and v > 0.0:
 		var tail := wave_art_size.x * tail_lengths * size_at(c) if (wave_art or wave_sheet) else 0.0
-		t = maxf(t, (exit_px + tail) / speed)
+		t = maxf(t, (exit_px + tail) / v)
 	return t
 
 
+## 충전 c에서 물결 빠르기(px/초): 커진 만큼 빠르게 (speed_size_power).
+func speed_at(c: float) -> float:
+	if speed_size_power == 0.0:
+		return speed
+	var s0 := size_at(0.0)
+	return speed * pow(size_at(c) / maxf(s0, 0.01), speed_size_power)
+
+
 func aim_length(c: float) -> float:
-	var travel := speed * wave_lifetime(c)
+	var travel := speed_at(c) * wave_lifetime(c)
 	if hit_body.has_area() and (wave_art or wave_sheet):  # 판정 캡슐 앞 끝까지 (물결 가운데보다 앞, 크기만큼)
 		var s := charge_scaling.between(min_scale, max_scale, c) if charge_scaling else lerpf(min_scale, max_scale, c)
 		travel += (-0.6 + hit_body.end.x) * wave_art_size.x * s
@@ -129,7 +141,7 @@ func _wave(ctx: SkillContext, dir: Vector2, c: float) -> Projectile:
 ## 물결 하나 꾸미기 (트리에 들어가기 전). c = 충전 0~1.
 func _wave_configure(pr: Projectile, dir: Vector2, c: float) -> void:
 	pr.direction = dir
-	pr.speed = speed
+	pr.speed = speed_at(c)  # 많이 모을수록 빠르게 (거리는 그대로)
 	pr.lifetime = wave_lifetime(c)  # 꼬리까지 exit_px 너머로 빠져나갈 때까지
 	pr.pierce = true
 	pr.wave_style = true
