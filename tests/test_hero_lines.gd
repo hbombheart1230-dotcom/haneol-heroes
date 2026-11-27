@@ -96,8 +96,30 @@ func test_boss_line_waits_for_banner() -> void:
 	banner._t = 5.0
 	v.step(0.016)
 	assert_str(v.text).is_not_equal("네 깃발을 꺾으러 왔다")  # 띠가 흐려지는 끝자락은 더 기다림
+	v.step(v._left + 0.01)  # 떠 있던 들어설 때 줄은 끝까지 보인다 (0.4.3: 새 줄이 덮지 않음)
+	assert_str(v.text).is_not_equal("네 깃발을 꺾으러 왔다")
 	v.step(v.settle_time)
 	assert_str(v.text).is_equal("네 깃발을 꺾으러 왔다")
+
+
+## 0.4.3 (사용자 "대사는 아직 잘 안 보이네"): 떠 있는 줄은 새 줄이 덮지 않고, 다 보인 뒤 settle_time을 다시 기다린다. 3초·44px.
+func test_new_line_waits_for_the_shown_one() -> void:
+	var v := await _run(&"gwanggaeto")
+	_after_title(v)
+	var first := v.text
+	assert_str(first).is_not_empty()
+	assert_float(v.show_time).is_equal_approx(3.0, 0.01)
+	assert_int(v.font_px).is_equal(44)
+	var raw := FileAccess.get_file_as_string(HeroLineLook.PATH)  # 값은 데이터 파일에 (스크립트 기본값이 아니라)
+	assert_str(raw).contains("show_time = 3.0").contains("font_px = 44")
+	v.queue(HeroLines.Case.BOSS)
+	v.step(v.settle_time + 0.05)
+	assert_str(v.text).is_equal(first)  # 아직 떠 있음 → 기다림
+	v.step(v._left + 0.01)
+	v.step(v.settle_time * 0.5)
+	assert_str(v.text).is_equal(first)  # 끝난 뒤에도 settle_time은 다시 기다림
+	v.step(v.settle_time)
+	assert_str(v.text).is_not_equal(first)
 
 
 func test_defeat_line_sits_above_result_panel() -> void:
@@ -163,3 +185,14 @@ func test_combo_number_cleared_when_run_ends() -> void:
 		main = null
 		get_tree().paused = false
 		await get_tree().process_frame
+
+
+## 판 끝 줄(짐·이김)은 떠 있는 줄을 기다리지 않는다: 들어설 때 줄이 막 뜬 직후 쓰러져도 바로 지는 줄 (Codex 0cda3a84 지적).
+func test_defeat_line_replaces_a_fresh_line_at_once() -> void:
+	var v := await _run(&"sejong")
+	_after_title(v)
+	var first := v.text  # 들어설 때 줄이 막 떴다 (거의 3초 남음)
+	assert_str(first).is_not_empty()
+	main.state.player_died()
+	v.step(0.016)
+	assert_str(v.text).is_equal("아직 쓸 글이 남았다…")
