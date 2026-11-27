@@ -87,7 +87,8 @@ func size_at(c: float) -> float:
 ## 충전 c에서 물결이 사는 시간(초): 예전 수명(모은 만큼 사거리)과, exit_px 너머로 꼬리까지 빠져나가는 시간 중 긴 것.
 func wave_lifetime(c: float) -> float:
 	var v := speed_at(c)
-	var t := lifetime * (charge_scaling.at(charge_scaling.reach, c) if charge_scaling else 1.0) * speed / maxf(v, 0.01)
+	var faster := speed / v if speed > 0.0 and v > 0.0 else 1.0  # 빨라진 만큼 수명을 줄여 거리는 그대로 (0이면 예전 그대로)
+	var t := lifetime * (charge_scaling.at(charge_scaling.reach, c) if charge_scaling else 1.0) * faster
 	if exit_px > 0.0 and v > 0.0:
 		var tail := wave_art_size.x * tail_lengths * size_at(c) if (wave_art or wave_sheet) else 0.0
 		t = maxf(t, (exit_px + tail) / v)
