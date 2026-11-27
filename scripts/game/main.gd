@@ -75,6 +75,7 @@ func _ready() -> void:
 			c.process_mode = Node.PROCESS_MODE_PAUSABLE
 	get_tree().paused = false
 	if run_config:
+		run_config = run_config.duplicate()  # 씬이 물려 준 자원은 캐시에서 모두 같다: StageApply가 쓰는 stage가 다음 판·다음 시험으로 새지 않게 이 판 몫으로
 		survive_time = run_config.survive_time
 		if spawner:
 			spawner.boss_time = run_config.boss_time
