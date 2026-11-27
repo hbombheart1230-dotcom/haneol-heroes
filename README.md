@@ -201,5 +201,6 @@ Claude 개발 스킬: 프로젝트 범위 플러그인 `godot@awesome-gamedev-ag
 
 HH 패치: `health/health.gd`의 피격 로그를 `verbose_debug`(기본 꺼짐)일 때만 출력하도록 변경. 원본은 매 피격마다 출력해 적 30마리 전투에서 성능 부담이 있다.
 | awesome-gamedev-agent-skills (`godot` 플러그인, 개발용) | — | Apache-2.0 | https://github.com/gamedev-skills/awesome-gamedev-agent-skills |
+| 한산 북잡이 "북 든 졸병" (기존 왜군 졸병 3D를 Meshy 웹에 올려 새 뼈대·동작 Heavy_Hammer_Swing 0크레딧, 북·북채는 뼈 소품 `tools/bake/bone_prop.gd`로 직접 만든 3D, 창은 `rigid hide`로 지움) | 2026-11-27 | 원본은 이 프로젝트 졸병 모델(자체 산출). 웹 업로드 때 라이선스 "비공식적인" 선택, 웹 동작 라이브러리는 무료 사용 | `assets/sprites/waegun_drum_soldier/` ← `tools/bake/jobs/waegun_drum_soldier.json`로 `bake_sprites.gd --only=waegun_drum_soldier` (원본 .glb는 저장소에 없음). 패치: 공격은 내려치기, 대기·달리기 졸병과 같은 칸·스케일. 초충도 쇠똥벌레 북잡이는 그대로 |
 
 게임 코드에 외부 코드를 가져올 때는 이 표에 출처와 라이선스를 기록한다.
