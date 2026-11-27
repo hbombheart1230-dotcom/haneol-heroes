@@ -18,7 +18,8 @@ const BOSSES := {
 	"gyeongbok": "res://data/enemies/jurchen_chieftain.tres",
 	"chochung": "res://data/enemies/cc_frog.tres",
 }
-static var SEEDS: Array = [11, 23, 37] if OS.get_environment("HH_SLOW") == "1" else [11]
+## HH_SEEDS=6이면 씨앗 여섯 (11·23·37·41·53·67, 균형 확정용).
+static var SEEDS: Array = ([11, 23, 37, 41, 53, 67] if OS.get_environment("HH_SEEDS") == "6" else [11, 23, 37]) if OS.get_environment("HH_SLOW") == "1" else [11]
 static var SLOPPY: bool = OS.get_environment("HH_SLOW") == "1"
 static var ONLY: String = OS.get_environment("HH_ONLY_HERO")
 
