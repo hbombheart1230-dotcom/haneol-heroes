@@ -6,6 +6,8 @@ extends Node
 ## 붙이기: ZoneHop.attach(main) (main이 hold_check를 정한 뒤). 구역이 둘 미만인 무대에서는 아무것도 하지 않는다.
 
 signal hopped(zone_index: int)
+## 먹이 다 덮인 사이 새 구역으로 바뀐 순간 (영웅 걸을 곳·자리가 바뀐 뒤, 화면은 가려짐): 같이 싸우는 영웅 등이 따라 옮긴다.
+signal entered(zone: ZoneData)
 
 enum State { FIGHT, AWAIT, HOP }
 
@@ -154,6 +156,7 @@ func _enter(p: Player, exit: Vector2) -> void:
 	if cam:
 		cam.reset_smoothing()
 	view.title(z.title, feel.title_time)
+	entered.emit(z)
 
 
 func _landed(p: Player, art: Node2D) -> void:
