@@ -26,6 +26,8 @@ extends Resource
 @export var leap_anim: StringName = &"jump_leap"
 ## 이 칸부터 (도움닫기 끝, 사용자 고른 동작 권장 2~10).
 @export var leap_from: int = 2
+## 뛰어넘는 동작 빠르기 (실시간 3D 구간 0.49~2.43초 ≈ 1.94초를 넘어가는 시간 약 1.05초에 맞춤).
+@export var leap_speed: float = 1.85
 ## 뛰어오름의 이 몫(0~1)부터 가림이 차오른다 (그 전엔 동작이 보인다). 내려앉기는 이 몫 안에 다 걷힌다.
 @export var cover_from: float = 0.7
 @export var uncover_by: float = 0.35

@@ -189,12 +189,12 @@ func is_moving() -> bool:
 	return _running
 
 
-func play_oneshot(anim: String, seconds: float, from_frame: int = 0) -> void:
+func play_oneshot(anim: String, seconds: float, from_frame: int = 0, speed: float = 1.0) -> void:
 	_oneshot = anim
 	_oneshot_left = seconds
 	_hold_left = 0.0
 	_oneshot_from = from_frame
-	_oneshot_speed = 1.0
+	_oneshot_speed = speed
 	_over_hurt = player != null and player.hurt_time_left() > 0.0
 	_over_fx = false
 	_restart = true  # 같은 이름 동작이 연달아 와도 처음부터
