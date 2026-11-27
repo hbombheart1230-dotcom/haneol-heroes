@@ -61,6 +61,14 @@ func tip(anim: String, dir: int, frame: int) -> Vector2:
 	return tips[i][k] if k >= 0 and k < tips[i].size() else Vector2.INF
 
 
+## 동작 i의 칸 크기(px). 보통 frame_size, 칼끝이 잘리는 큰 동작(뛰어넘기)만 더 큰 칸으로 구워 시트 높이로 읽는다
+## (그림 밀도는 같게 굽는다: 칸만 크고 캐릭터 크기는 그대로).
+func cell_size(i: int) -> int:
+	if i < 0 or i >= textures.size() or textures[i] == null or directions <= 0:
+		return frame_size
+	return maxi(frame_size, textures[i].get_height() / directions)
+
+
 ## "<anim>_<dir>" 이름의 애니메이션들을 가진 SpriteFrames를 만든다.
 func build_sprite_frames() -> SpriteFrames:
 	var sf := SpriteFrames.new()
@@ -71,10 +79,11 @@ func build_sprite_frames() -> SpriteFrames:
 			sf.add_animation(name)
 			sf.set_animation_speed(name, fps[i])
 			sf.set_animation_loop(name, loops[i])
+			var cell := cell_size(i)
 			for f in frame_counts[i]:
 				var at := AtlasTexture.new()
 				at.atlas = textures[i]
-				at.region = Rect2(f * frame_size, d * frame_size, frame_size, frame_size)
+				at.region = Rect2(f * cell, d * cell, cell, cell)
 				sf.add_frame(name, at)
 	return sf
 

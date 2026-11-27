@@ -1,8 +1,8 @@
 {
   "name": "gwanggaeto_jump",
   "model": "res://assets/models/meshy/gwanggaeto_jump/jump_web_meshyrig.glb",
-  "ortho_size": 2.6,
-  "frame": 256,
+  "ortho_size": 3.25,
+  "frame": 320,
   "style": "ink",
   "ink": {
     "inner_line": 0.0,

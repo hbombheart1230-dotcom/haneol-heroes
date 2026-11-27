@@ -1,8 +1,8 @@
 {
   "name": "yi_sun_sin_jump",
   "model": "res://assets/models/meshy/yi_sun_sin_jump/jump_web_meshyrig.glb",
-  "ortho_size": 2.0,
-  "frame": 256,
+  "ortho_size": 3.5,
+  "frame": 448,
   "style": "ink",
   "ink": {
     "inner_line": 0.0,
