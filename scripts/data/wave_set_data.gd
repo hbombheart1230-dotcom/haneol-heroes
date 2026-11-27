@@ -31,3 +31,15 @@ extends Resource
 @export var alive_cap_add: int = 0
 ## 중간 우두머리 물결(정예·무리)을 깬 뒤 최대 체력의 이 비율만큼 회복 (우두머리 앞 숨 고르기): 0 = 꺼짐.
 @export var elite_clear_heal: float = 0.0
+
+@export_group("우두머리 부르기")
+## 우두머리·중간 우두머리가 부르는 그 전장의 원거리 대형 (비면 부르지 않음). 사용자 0.4.3 "보스전에서 왕창 부르는 거, 중간 보스도 몇 번".
+@export var call_formation: FormationData
+## 우두머리 체력이 이 몫 아래로 내려갈 때마다 부른다 (차례대로), 몇 묶음씩 (모자라면 1).
+@export var boss_call_hp: PackedFloat32Array = PackedFloat32Array([0.4, 0.25, 0.1])
+@export var boss_call_count: PackedInt32Array = PackedInt32Array([1, 1, 2])
+## 중간 우두머리 셋 가운데 쓰러질 때마다 (남은 셋이 있을 때) 한 번씩, 이만큼까지.
+@export var mid_calls: int = 2
+## 부를 때 우두머리 머리 위 외침 (비면 없음).
+@export var call_label: String = ""
+
