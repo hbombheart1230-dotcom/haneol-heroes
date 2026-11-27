@@ -184,6 +184,7 @@ func _apply(z: ZoneData, clear_shots: bool) -> void:
 		p.walk_area = area
 	if main.spawner:
 		main.spawner.walk_area = area
+		main.spawner.boss_point = z.boss_at if z.has_boss_at else Vector2.INF  # 우두머리 자리 (한산 대장선 누각 계단 위)
 	if clear_shots:
 		for n in main.find_children("*", "Area2D", true, false):  # 날아가던 탄 (영웅·적 모두)
 			if n is Projectile:

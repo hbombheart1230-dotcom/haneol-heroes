@@ -32,6 +32,8 @@ var walk_area: PackedVector2Array = PackedVector2Array()
 @export var boss_time: float = 40.0
 
 var boss_spawned_once: bool = false
+## 우두머리가 나올 자리 (INF면 영웅 둘레 아무 데나). 구역 건너뛰기(ZoneHop)가 마지막 배에서 정한다.
+var boss_point: Vector2 = Vector2.INF
 ## 정예와 등장 시각(초, 오름차순). 시각마다 한 마리.
 @export var elite_data: EnemyData
 @export var elite_times: PackedFloat32Array = PackedFloat32Array()
@@ -147,7 +149,7 @@ func spawn_one() -> Enemy:
 func spawn_boss() -> Enemy:
 	if boss_data == null or boss_spawned_once:
 		return null
-	var e := _spawn_special(boss_data)
+	var e := spawn_at(boss_data, boss_point)
 	if e:
 		boss_spawned_once = true
 		BossStaging.attach(self, e)  # 박자·연출 (boss_feel이 있는 보스만)
@@ -170,10 +172,6 @@ func spawn_elite(at: Vector2 = Vector2.INF, d: EnemyData = null) -> Enemy:
 	if e:
 		elite_spawned.emit(e)
 	return e
-
-
-func _spawn_special(d: EnemyData) -> Enemy:
-	return spawn_at(d, Vector2.INF)
 
 
 ## at(월드 좌표)에 생성 (INF면 고리 영역 무작위). configure는 add_child 전에 적을 꾸민다 (변종·떼 배율).

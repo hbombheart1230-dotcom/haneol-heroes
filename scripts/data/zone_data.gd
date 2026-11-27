@@ -26,6 +26,12 @@ extends Resource
 ## 그림에 그려진 막는 것 (x, y, 반지름) — 소품을 끄면 이것만 막는다.
 @export var blockers: PackedVector3Array = PackedVector3Array()
 
+@export_group("우두머리")
+## 이 구역에서 우두머리가 나오는 자리를 정하는지 (끄면 영웅 둘레 아무 데나). 한산 대장선은 누각 계단 위.
+@export var has_boss_at: bool = false
+## 우두머리가 나오는 자리 (전장 좌표, 걸을 수 있는 곳 안).
+@export var boss_at: Vector2 = Vector2.ZERO
+
 @export_group("뛰어넘기")
 ## 뛰어넘는 난간 자리 (전장 좌표, 여럿이면 가까운 곳). 비면 exit_dir 쪽 아무 데서나.
 ## 한산 중형선 → 대장선: 안 B(계단 밟고 선실 지붕 넘기) 한 점이 기본, 안 A는 지붕 옆 모서리 둘 — 데이터만 바꿔 고른다.
