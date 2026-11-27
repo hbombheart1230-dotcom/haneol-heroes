@@ -54,7 +54,7 @@ static func _try(sp: EnemySpawner, ws: WaveSetData, caller: Callable, state: Dic
 	if who == null or not sp.active or _player_down(sp):  # 부른 이가 없거나 판이 끝났으면 대기 부르기도 버린다
 		return
 	var cap := sp.max_alive + (sp.waves.data.alive_cap_add if sp.waves else 0)
-	if who.phase_invuln <= 0.0 and not sp.finale_playing() and not _choosing(sp) and sp.alive_count() + ws.call_formation.count <= cap:
+	if who.phase_invuln <= 0.0 and not sp.finale_playing() and not _choosing(sp) and sp.alive_count() + sp._warnings + ws.call_formation.count <= cap:  # 아직 예고 중인 자리도 센다
 		if not state.shouted:
 			state.shouted = true
 			_shout(ws, who)

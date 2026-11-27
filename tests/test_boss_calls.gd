@@ -108,3 +108,18 @@ func test_mid_call_dropped_when_trio_is_gone() -> void:
 	sp.max_alive = 40  # 자리가 나도
 	await _wait_ms(400)
 	assert_int(sp.formations.size()).is_equal(0)
+
+
+## Codex: 10%의 두 묶음은 아직 예고 중인 첫 묶음 자리까지 세어, 상한에 둘째 자리가 없으면 기다린다 (상한을 넘지 않게).
+func test_second_group_waits_for_room_counting_warnings() -> void:
+	var st := load("res://data/stages/hansan_1592.tres") as StageTheme
+	var sp := _spawner("hansan_1592")
+	sp.waves.data.call_tries = 1
+	var boss := _enemy(sp, st.boss)
+	var n := sp.waves.data.call_formation.count
+	sp.max_alive = 1 + n * 2 - 1 - sp.waves.data.alive_cap_add  # 우두머리 + 한 묶음만 들어가는 상한
+	boss.health.current = roundi(boss.health.max * 0.09)
+	boss.set_meta(&"boss_calls", 2)  # 40·25%는 지났고 10%(두 묶음)만
+	BossCalls.on_damaged(boss)
+	assert_int(sp.formations.size()).is_equal(1)
+	assert_int(sp.alive_count() + sp._warnings).is_less_equal(sp.max_alive + sp.waves.data.alive_cap_add)
