@@ -118,5 +118,22 @@ class TierTest(unittest.TestCase):
         self.assertEqual(suites, suites)
 
 
+class SplitTest(unittest.TestCase):
+    def test_separate_pairs_never_share_a_shard(self):
+        import parallel_gdunit as pg
+        suites = ["a", "b", "c", "d", "e"]
+        times = {"a": 50, "b": 40, "c": 30, "d": 20, "e": 10}
+        for n in (2, 3, 4):
+            bins = pg.split(suites, times, n, [["a", "b"]])
+            for b in bins:
+                self.assertFalse("a" in b[1] and "b" in b[1], "n=%d: %s" % (n, bins))
+            self.assertEqual(sorted(x for b in bins for x in b[1]), suites)
+        one = pg.split(suites, times, 1, [["a", "b"]])  # 조각이 하나면 어쩔 수 없다
+        self.assertEqual(len(one[0][1]), 5)
+
+    def test_known_order_dependence_pair_is_listed(self):
+        self.assertIn(["test_difficulty", "test_upgrade_readout"], tiers.load()["separate"])
+
+
 if __name__ == "__main__":
     unittest.main()

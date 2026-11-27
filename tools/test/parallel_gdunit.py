@@ -39,12 +39,18 @@ def secs(s):
     return t
 
 
-def split(suites, times, n):
+def split(suites, times, n, separate=()):
+    """무거운 것부터 가장 한가한 조각에. separate의 쌍은 같은 조각에 두지 않는다 (알려진 순서 의존)."""
     known = sorted(times.values())
     mid = known[len(known) // 2] if known else 1.0
+    partners = collections.defaultdict(set)
+    for group in separate:
+        for g in group:
+            partners[g].update(x for x in group if x != g)
     bins = [[0.0, []] for _ in range(n)]
     for s in sorted(suites, key=lambda s: -times.get(s, mid)):
-        b = min(bins, key=lambda b: b[0])
+        ok = [b for b in bins if not (partners[s] & set(b[1]))] or bins  # 조각이 하나뿐이면 어쩔 수 없다
+        b = min(ok, key=lambda b: b[0])
         b[0] += times.get(s, mid)
         b[1].append(s)
     return bins
@@ -124,7 +130,7 @@ def main():
         suites = [s for s in suites if any(o in s for o in a.only)]
     tpath = os.path.join(HERE, "suite_times.json")
     times = json.load(open(tpath, encoding="utf-8")) if os.path.exists(tpath) else {}
-    bins = split(suites, times, a.shards)
+    bins = split(suites, times, a.shards, tiers.load().get("separate", []))
     print("층 %s: 스위트 %d개, 예상 %.0fs (한 줄로 돌리면)" % (a.tier, len(suites), sum(times.get(s, 1.0) for s in suites)))
     if a.dry_run:
         for i, b in enumerate(bins):

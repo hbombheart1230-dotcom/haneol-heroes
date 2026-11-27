@@ -45,5 +45,12 @@
   "test_mid_boss",
   "test_stage_boss_sim",
   "test_stage_sim"
- ]
+ ],
+ "separate": [
+  [
+   "test_difficulty",
+   "test_upgrade_readout"
+  ]
+ ],
+ "_separate": "같은 조각에 두지 않는 스위트 쌍 (알려진 순서 의존: 둘이 test_sejong_saimdang 앞에 함께 돌면 meteor·canvas가 1 HP 어긋남, 혼자 돌리면 통과. 원인 미상 — 0.4.3에서 찾는다)"
 }

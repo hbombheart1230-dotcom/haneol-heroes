@@ -113,6 +113,7 @@ python tools/test/parallel_gdunit.py --tier <fast|related|sim|full> --shards 4 -
 - 새 스위트를 더하면 `tools/test/tiers.json`의 알맞은 층에 이름을 적는다 (없는 이름은 `tools/test/test_gdunit_lock.py`가 잡는다). 시간표 `tools/test/suite_times.json`은 `--update-times`로 갱신 (full, 실패 없을 때).
 - 규칙: `build/gdunit.lock` 하나를 전체가 쥔다 — 잠겨 있으면 멈춘다 (`--wait-minutes N`이면 기다림). 한 번에 하나만 만들고 자기 pid 잠금만 지우며, 부모 셸이 죽거나 `build/gdunit.stop` 파일이 생기면 모든 조각의 Godot를 나무째 끝낸다.
 - 조각마다 `APPDATA`를 따로 써 `user://` 파일이 겹치지 않는다. 결과는 `--out`(기본 `build/parallel_gdunit`)의 `shard_N/log.txt`, 합친 요약은 화면, 결정적 시뮬 줄은 `sim_lines.txt`.
+- 알려진 순서 의존: `test_difficulty`와 `test_upgrade_readout`가 한 프로세스에서 `test_sejong_saimdang`보다 앞에 함께 돌면 meteor·canvas 시험이 1 HP 어긋난다(혼자 돌리면 통과, 원인 미상 — 0.4.3). `tiers.json`의 `separate`가 둘을 다른 조각에 둔다. 시험끼리 새는 전역 상태는 조각 실행에서 먼저 드러난다.
 - `--dry-run`: 고른 스위트와 나누기만 본다. 도구 시험: `python -m unittest tools/test/test_gdunit_lock.py`.
 
 
