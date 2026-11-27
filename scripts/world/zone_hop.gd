@@ -25,6 +25,7 @@ var _tween: Tween
 var _cam_smooth := true
 ## 넘어가는 동안 멈춰 둔 조작 노드와 원래 process_mode (터치·기술·부르기 단추: 공중에서 치거나 부르지 않게).
 var _frozen := {}
+var _fx: ZoneHopFx
 
 
 static func attach(m: Node) -> ZoneHop:
@@ -132,15 +133,20 @@ func _hop() -> void:
 	var from := rail if rail != Vector2.INF else start  # 표시된 난간 자리에서 뛴다
 	var to := from + exit * feel.rise_dist
 	var run := minf(start.distance_to(from) / maxf(feel.approach_speed, 1.0), feel.approach_max)
+	_fx = ZoneHopFx.new(feel.fx)
+	var last := [0.0]
 	if _tween:
 		_tween.kill()
 	_tween = create_tween()
 	if run > 0.01:  # 난간 자리로 달려간다 (도움닫기)
 		_tween.tween_method(func(t: float) -> void: p.global_position = start.lerp(from, t), 0.0, 1.0, run)
+	_tween.tween_callback(func() -> void: _fx.takeoff(from, exit))  # 난간에서 발 구를 때: 갑판 먼지·먹 튐·발 구름·바람 소리 (ZoneHopFxData)
 	_tween.tween_method(func(t: float) -> void:
 		p.global_position = from.lerp(to, t)
 		if art:
 			art.position.y = -sin(t * PI * 0.5) * feel.rise_height
+		_fx.air(t, (t - last[0]) * feel.rise_time, p.global_position, p.global_position + (art.position if art else Vector2.ZERO), exit)
+		last[0] = t
 		view.cover = clampf((t - feel.cover_from) / maxf(1.0 - feel.cover_from, 0.01), 0.0, 1.0), 0.0, 1.0, feel.rise_time)
 	_tween.tween_callback(func() -> void: _enter(p, exit))
 	_tween.tween_interval(feel.cover_time)
@@ -150,7 +156,9 @@ func _hop() -> void:
 		if art:
 			art.position.y = -cos(t * PI * 0.5) * feel.land_height
 		view.cover = clampf(1.0 - t / maxf(feel.uncover_by, 0.01), 0.0, 1.0), 0.0, 1.0, feel.land_time)
-	_tween.tween_callback(func() -> void: _landed(p, art))
+	_tween.tween_callback(func() -> void:
+		_fx.land(p.global_position, exit, get_tree())  # 큰 먹 번짐·나무 조각·흔들림·멈춤·진동·착지음과 북
+		_landed(p, art))
 
 
 ## 먹이 다 덮인 사이: 구역을 바꾸고 영웅을 내려앉을 자리 뒤 하늘로.

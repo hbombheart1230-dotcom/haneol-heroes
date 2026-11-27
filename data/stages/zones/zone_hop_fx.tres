@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ZoneHopFxData" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/zone_hop_fx_data.gd" id="1"]
+[ext_resource type="Resource" path="res://data/vfx/stage/cannon_splinter.tres" id="2_wood"]
+[ext_resource type="Resource" path="res://data/vfx/stage/sea_splash.tres" id="3_sea"]
+[ext_resource type="Resource" path="res://data/vfx/stage/hop_land_bloom.tres" id="4_bloom"]
+[ext_resource type="Resource" path="res://data/vfx/stage/steam_puff.tres" id="5_puff"]
+
+[resource]
+script = ExtResource("1")
+takeoff_vfx = ExtResource("2_wood")
+takeoff_puff_vfx = ExtResource("4_bloom")
+trail_puff_vfx = ExtResource("5_puff")
+splash_vfx = ExtResource("3_sea")
+land_bloom_vfx = ExtResource("4_bloom")
+land_vfx = ExtResource("2_wood")
