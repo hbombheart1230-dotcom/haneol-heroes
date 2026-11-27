@@ -1,6 +1,6 @@
 extends SceneTree
 ## 우두머리·중간 우두머리 크기 비교 (EnemyAIData.boss_size_mult·mid_boss_size_mult): 무대마다 우두머리·중간 우두머리 하나·졸 셋을
-## 영웅 옆에 세우고 배율마다 한 장씩 찍는다 (폰 비율).
+## 영웅 옆에 세우고 우두머리 배율마다 한 장씩 찍는다 (폰 비율, 중간 우두머리는 데이터 값 그대로).
 ## godot --path . --resolution 720x1280 -s res://tools/shots/boss_size_shot.gd -- <out 폴더> <무대 id> [배율...]
 
 var main: Node
@@ -32,7 +32,6 @@ func _run() -> void:
 			if e is Enemy:
 				e.free()
 		Enemy.ai_data().boss_size_mult = m
-		Enemy.ai_data().mid_boss_size_mult = m
 		var list: Array = [sp.spawn_at(st.boss, at + Vector2(60, -250)), sp.spawn_at(mid, at + Vector2(-200, -90))]
 		for k in 3:
 			list.append(sp.spawn_at(trash, at + Vector2(150 + k * 70, -60 + k * 30)))

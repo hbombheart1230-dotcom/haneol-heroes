@@ -86,7 +86,7 @@ extends Resource
 @export var swarm_speed_mult: float = 1.6
 @export var swarm_scale: float = 0.8
 ## 우두머리·중간 우두머리(boss_feel 있는 적) 크기 배율 (그림·몸 판정, 공격 범위는 그대로). 사용자 0.4.3 "너무 작아 보인다 키우자".
-@export var boss_size_mult: float = 1.3
+@export var boss_size_mult: float = 2.0
 @export var mid_boss_size_mult: float = 1.3
 @export var swarm_spread: float = 140.0
 
