@@ -205,6 +205,8 @@ func _setup(job: Dictionary) -> AnimationPlayer:
 	_pivot.add_child(model)
 	if job.has("rigid"):  # 무기를 손뼈에만 묶어 구겨지지 않게
 		print("rigid weapon verts: ", RigidWeapon.apply(model, job["rigid"]))
+	if job.has("prop"):  # 뼈에 붙이는 소품 (북)
+		BoneProp.apply(model, job["prop"])
 	if job.has("recolor"):
 		_recolor(model, job["recolor"])
 	_post = _make_post(job) if job.get("style", "") == "ink" else null
