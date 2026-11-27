@@ -234,3 +234,21 @@ func test_member_with_every_spot_blocked_is_not_spawned_and_wave_can_end() -> vo
 	assert_int(sp.alive_count()).is_equal(0)
 	b.tick(0.016)
 	assert_bool(b.is_over()).is_true()
+
+
+func test_refill_leaves_room_for_the_next_formation() -> void:
+	# 곧 나올 대형(차례 앞 셋 안) 몫을 상한에 남겨 둔다: 대형 차례가 오면 기다림 없이 바로 선다.
+	var st := load("res://data/stages/hansan_1592.tres") as StageTheme
+	var r := WaveRunner.new(st.waves, 0.0)
+	r._start(1)
+	var f: FormationData = r._queue.filter(func(x: Variant) -> bool: return x is FormationData and (x as FormationData).when_left < 0)[0]
+	var soldier: EnemyData = load("res://data/enemies/waegun_soldier.tres")
+	r._queue = [soldier, soldier, f]
+	var cap := r.wave_cap(st.waves.max_alive)
+	r._stagger = 0.0
+	assert_array(r.next_spawn(cap - f.count, st.waves.max_alive)).is_empty()  # 대형 몫을 남김
+	r._stagger = 0.0
+	assert_array(r.next_spawn(cap - f.count - 1, st.waves.max_alive)).contains_exactly([soldier])
+	r._queue = [f]
+	r._stagger = 0.0
+	assert_array(r.next_spawn(cap - f.count, st.waves.max_alive)).contains_exactly([f])  # 자리가 남아 있어 바로

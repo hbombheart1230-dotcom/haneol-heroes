@@ -66,10 +66,14 @@ func next_spawn(alive: int, cap: int) -> Array:
 	var w: WaveData = data.waves[index]
 	if _queue[0] == null and w.elite_when_left >= 0 and alive > w.elite_when_left:
 		return []  # 중간 보스는 잡몹이 줄어든 뒤
-	if _queue[0] is FormationData and (_queue[0] as FormationData).when_left >= 0 and alive > (_queue[0] as FormationData).when_left:
-		return []  # 이 대형은 물결 잡몹이 줄어든 뒤 (1물결 첫 대형)
-	if _queue[0] is FormationData and alive + mini((_queue[0] as FormationData).count, wave_cap(cap)) > wave_cap(cap):
-		return []  # 대형은 한꺼번에 count명: 동시 상한 안에 다 들어갈 자리가 날 때까지 기다린다
+	if _queue[0] is FormationData:
+		var f := _queue[0] as FormationData
+		if f.when_left >= 0 and alive > f.when_left:
+			return []  # 이 대형은 물결 잡몹이 줄어든 뒤 (1물결 첫 대형)
+		if alive + mini(f.count, wave_cap(cap)) > wave_cap(cap):
+			return []  # 대형은 한꺼번에 count명: 동시 상한 안에 다 들어갈 자리가 날 때까지 기다린다
+	elif alive + 1 + _reserve_ahead(wave_cap(cap)) > wave_cap(cap):
+		return []  # 곧 나올 대형 몫을 남겨 둔다 (차례가 오면 기다림 없이 바로 서게)
 	if not data.refill_each:
 		if _budget <= 0:
 			return []
@@ -118,3 +122,13 @@ func _start(i: int) -> void:
 	if w.elite_last:
 		_queue.append(null)
 	_budget = mini(maxi(w.first_count, 1), _queue.size())
+
+
+## 차례 앞쪽 RESERVE_LOOKAHEAD칸 안에 (근접을 다 잡은 뒤 나오는 대형 말고) 대형이 있으면 그 몫 (없으면 0).
+const RESERVE_LOOKAHEAD := 3
+func _reserve_ahead(cap: int) -> int:
+	for k in mini(RESERVE_LOOKAHEAD, _queue.size()):
+		var f := _queue[k] as FormationData if _queue[k] is FormationData else null
+		if f and f.when_left < 0:
+			return mini(f.count, cap)
+	return 0
