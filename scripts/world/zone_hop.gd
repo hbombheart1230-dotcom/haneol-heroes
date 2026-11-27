@@ -21,6 +21,8 @@ var view: ZoneHopView
 var _stage: StageTheme
 var _wants_hop := false
 var _tween: Tween
+## 건너뛰기 전 카메라 부드러움 (내려오는 동안 끄고 착지 뒤 되돌림).
+var _cam_smooth := true
 ## 넘어가는 동안 멈춰 둔 조작 노드와 원래 process_mode (터치·기술·부르기 단추: 공중에서 치거나 부르지 않게).
 var _frozen := {}
 
@@ -72,7 +74,7 @@ func _physics_process(_delta: float) -> void:
 	var p := _player()
 	var show: bool = state == State.AWAIT and p != null and not main.is_choosing() and main.state.is_playing()
 	view.show_arrow(show, p.global_position if p else Vector2.ZERO, _exit_dir(p.global_position) if p else Vector2.UP,
-		plan.prompt(), feel)
+		plan.prompt(), feel, plan.nearest_exit(p.global_position) if p else Vector2.INF)
 
 
 ## 영웅에서 넘어갈 쪽 (가까운 난간 자리, 없으면 구역 exit_dir).
@@ -116,19 +118,25 @@ func _hop() -> void:
 	view.show_arrow(false, Vector2.ZERO, Vector2.UP, "", feel)
 	var exit := _exit_dir(p.global_position)
 	var rail := plan.nearest_exit(p.global_position)  # 난간을 넘어 바다 위로: 난간 자리를 지나 exit 쪽으로
-	p.grant_invulnerability(feel.rise_time + feel.cover_time + feel.land_time + 0.6)
+	p.grant_invulnerability(feel.approach_max + feel.rise_time + feel.cover_time + feel.land_time + 0.6)
+	var cam0 := p.get_node_or_null("Camera2D") as Camera2D
+	_cam_smooth = cam0.position_smoothing_enabled if cam0 else true
 	p.set_physics_process(false)
-	p.velocity = Vector2.ZERO
+	p.halt()
 	_freeze_input(true)
 	var art := p.get_node_or_null("PlayerView") as Node2D
 	var pv := art as PlayerView
 	if pv and pv.has_anim(String(feel.leap_anim)):  # 달려 멀리뛰기 (넘어가는 내내, 내려앉으면 on_land)
-		pv.play_oneshot(String(feel.leap_anim), feel.rise_time + feel.cover_time + feel.land_time, feel.leap_from, feel.leap_speed)
-	var from := p.global_position
-	var to := (rail if rail != Vector2.INF else from) + exit * feel.rise_dist
+		pv.play_oneshot(String(feel.leap_anim), feel.approach_max + feel.rise_time + feel.cover_time + feel.land_time, feel.leap_from, feel.leap_speed)
+	var start := p.global_position
+	var from := rail if rail != Vector2.INF else start  # 표시된 난간 자리에서 뛴다
+	var to := from + exit * feel.rise_dist
+	var run := minf(start.distance_to(from) / maxf(feel.approach_speed, 1.0), feel.approach_max)
 	if _tween:
 		_tween.kill()
 	_tween = create_tween()
+	if run > 0.01:  # 난간 자리로 달려간다 (도움닫기)
+		_tween.tween_method(func(t: float) -> void: p.global_position = start.lerp(from, t), 0.0, 1.0, run)
 	_tween.tween_method(func(t: float) -> void:
 		p.global_position = from.lerp(to, t)
 		if art:
@@ -157,6 +165,7 @@ func _enter(p: Player, exit: Vector2) -> void:
 			(c as Node2D).global_position = z.entry + Vector2(randf_range(-60, 60), randf_range(-40, 40))
 	var cam := p.get_node_or_null("Camera2D") as Camera2D
 	if cam:
+		cam.position_smoothing_enabled = false  # 내려오는 동안 화면이 영웅에 붙어 있게 (착지 뒤 따라잡느라 미끄러져 보이지 않게)
 		cam.reset_smoothing()
 	view.title(z.title, feel.title_time)
 	entered.emit(z)
@@ -165,6 +174,11 @@ func _enter(p: Player, exit: Vector2) -> void:
 func _landed(p: Player, art: Node2D) -> void:
 	if art:
 		art.position.y = 0.0
+	p.halt()  # 내닫기 끝 미끄러짐이 건너뛰는 동안 남아 착지 뒤 끌고 가던 것
+	var cam := p.get_node_or_null("Camera2D") as Camera2D
+	if cam:
+		cam.reset_smoothing()
+		cam.position_smoothing_enabled = _cam_smooth
 	p.set_physics_process(true)
 	_freeze_input(false)
 	var pv := art as PlayerView

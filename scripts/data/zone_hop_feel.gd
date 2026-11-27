@@ -10,6 +10,9 @@ extends Resource
 ## 꺾쇠 한 겹 크기(px)와 안내 글 크기(px).
 @export var arrow_size: float = 58.0
 @export var text_px: int = 44
+## 난간 자리로 달려가는 빠르기(px/초)·가장 긴 시간(초): 표시된 난간에서 뛰어오른다.
+@export var approach_speed: float = 1200.0
+@export var approach_max: float = 0.45
 ## 뛰어오름: 내닫기가 끝난 뒤 하늘로 오르는 시간(초)·앞으로 가는 거리(px)·높이(px).
 @export var rise_time: float = 0.42
 @export var rise_dist: float = 260.0

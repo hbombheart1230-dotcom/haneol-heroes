@@ -14,6 +14,7 @@ var _shot_i := 0
 var _last_state := -1
 var _await_t := 0.0
 var _hop_t0 := 0.0
+var _land_t := -99.0
 
 
 func _initialize() -> void:
@@ -67,6 +68,7 @@ func _run() -> void:
 		var arena := main.get_node("Arena") as Arena
 		print("HOPDONE zone %d (%s) took %.2f s, projectiles %d, critters %d, hazards %d, player %s, wash %s" % [z, zh.plan.zone().title, _now() - _hop_t0, _count_shots(),
 			root.find_children("*", "SummonCritter", true, false).size(), arena.hazards.hazard_count(), str(player.global_position.round()), str((arena.get_node("ZoneWash") as ZoneWash).color)])
+		_land_t = _now()
 		_rec_left = 150)
 	await _wait(3.2)
 	player.grant_invulnerability(9999.0)
@@ -105,6 +107,11 @@ func _run() -> void:
 			var ddir: Vector2 = (rail - player.global_position).normalized() if rail != Vector2.INF else zh.plan.zone().exit_dir
 			dashed = player.request_dash(ddir)
 			print("DASH toward %s rail %s ok %s t %.2f" % [str(ddir), str(rail), dashed, _now()])
+		if zh.state == ZoneHop.State.HOP or _now() - _land_t < 1.5:  # 착지 미끄러짐 원인 찾기: 몸·그림자·속도
+			var pv2 := player.get_node_or_null("PlayerView") as Node2D
+			var spr2: Node2D = (pv2 as PlayerView)._sprite if pv2 else null
+			print("TRACE t %.3f state %d pos %s vel %s view %s sprite %s dash %s" % [_now(), zh.state, str(player.global_position.round()), str(player.velocity.round()),
+				str(pv2.position.round()) if pv2 else "-", str(spr2.position.round()) if spr2 else "-", player.is_dashing()])
 		if zh.state == ZoneHop.State.HOP and _frame % 6 == 0:
 			var pvw := player.get_node_or_null("PlayerView") as PlayerView
 			var spr: AnimatedSprite2D = pvw._sprite if pvw else null

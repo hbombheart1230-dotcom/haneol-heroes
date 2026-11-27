@@ -316,6 +316,13 @@ func compute_velocity(delta: float) -> Vector2:
 	return PlayerDash.step(self, delta)
 
 
+## 움직임을 멈춘다: 속도·내닫기 끝 미끄러짐·되튐을 지운다 (구역 건너뛰기 착지 뒤 남은 미끄러짐이 끌고 가지 않게).
+func halt() -> void:
+	velocity = Vector2.ZERO
+	_glide_left = 0.0
+	_recoil_left = 0.0
+
+
 ## 대시 도착: 영웅별 도착 이펙트·효과 (트리 밖 테스트에서는 이펙트만).
 ## 레벨업 인장을 고르는 느린 시간(GameTime.base < 1)에는 걸지 않는다.
 func _dash_arrived() -> void:
