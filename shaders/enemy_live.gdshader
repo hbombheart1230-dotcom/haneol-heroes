@@ -26,6 +26,7 @@ float vnoise(vec2 p) {
 }
 
 varying vec4 v_mod;
+varying float flash_v;  // vertex()에서 쓰므로 그 앞에 (뒤에 두면 SHADER ERROR: Unknown identifier)
 
 void vertex() {
 	v_mod = COLOR;
@@ -49,7 +50,6 @@ uniform float ghost_body_alpha = 1.0;
 uniform float ghost_fade = 0.1;
 uniform float ghost_rim_mix = 1.0;
 uniform float halo_alpha = 0.0;
-varying float flash_v;
 uniform vec4 flash_color : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform vec4 flash_rim : source_color = vec4(0.0, 0.0, 0.0, 0.0);
 
