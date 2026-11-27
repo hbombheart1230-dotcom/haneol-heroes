@@ -16,8 +16,8 @@ func test_sheets_are_assigned_and_complete() -> void:
 		assert_bool(s.has_anim("idle") and s.has_anim("run") and s.has_anim("attack")).is_true()
 		for i in s.textures.size():
 			var tex := s.textures[i]
-			assert_int(tex.get_width()).is_equal(s.frame_size * s.frame_counts[i])
-			assert_int(tex.get_height()).is_equal(s.frame_size * s.directions)
+			assert_int(tex.get_width()).is_equal(s.cell_size(i) * s.frame_counts[i])
+			assert_int(tex.get_height()).is_equal(s.cell_size(i) * s.directions)
 
 
 func test_direction_index_mapping() -> void:

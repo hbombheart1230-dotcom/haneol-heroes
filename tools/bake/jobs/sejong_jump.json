@@ -1,8 +1,8 @@
 {
   "name": "sejong_jump",
   "model": "res://assets/models/meshy/sejong_jump/jump_web_meshyrig.glb",
-  "ortho_size": 2.3,
-  "frame": 256,
+  "ortho_size": 2.875,
+  "frame": 320,
   "style": "ink",
   "ink": {
     "inner_line": 0.0,
