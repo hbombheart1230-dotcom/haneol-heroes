@@ -21,6 +21,8 @@ func test_hansan_full_run_report() -> void:
 			for miss in ([0.3] if OS.get_environment("HH_SLOPPY_ONLY") == "1" else [0.0, 0.3]):  # HH_SLOPPY_ONLY: 서툰 봇만
 				var st := ResourceLoader.load("res://data/stages/%s.tres" % stage, "", ResourceLoader.CACHE_MODE_IGNORE_DEEP) as StageTheme
 				st.hero_hint = HINTS[hero]
+				if OS.get_environment("HH_NO_CALLS") == "1":  # 우두머리 대형 부르기 끄고 비교 (BossCalls)
+					st.waves.call_formation = null
 				if OS.get_environment("HH_SWARM") != "":  # 근접 잡몹 수 배율 비교 (WaveSwarm)
 					st.waves.melee_count_mult = float(OS.get_environment("HH_SWARM"))
 				if OS.get_environment("HH_SUMMON_EVERY") != "":  # 우두머리·중간 우두머리 주기 소환 비교 (SummonOverride)
