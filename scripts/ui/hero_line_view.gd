@@ -94,13 +94,16 @@ func alpha() -> float:
 func step(delta: float) -> void:
 	if main == null or main.waiting_pick:
 		return
+	# 이 틀 시작에 떠 있었으면 기다림은 다음 틀부터 센다. 판 끝 줄(이김·짐)은 떠 있는 줄을 바로 바꾼다.
+	var ending := _pending == HeroLines.Case.VICTORY or _pending == HeroLines.Case.DEFEAT
+	var showing := _left > 0.0 and not ending
 	_left = maxf(_left - delta, 0.0)
 	var enter := HeroLines.enter_case(main.player.hero, main.run_stage_id())
 	if main.state.is_playing() and not _said.has(enter) and _pending == -1 \
 			and main.state.elapsed >= Hud.STAGE_TITLE_TIME:
 		queue(enter)
-	_clear = 0.0 if blocked() or _left > 0.0 else _clear + delta
-	if _pending != -1 and _clear >= settle_time and _left <= 0.0 and allowed():  # 떠 있는 줄은 덮지 않는다
+	_clear = 0.0 if blocked() or showing else _clear + delta
+	if _pending != -1 and _clear >= settle_time and (_left <= 0.0 or ending) and allowed():  # 떠 있는 줄은 덮지 않는다 (판 끝 줄 빼고)
 		say(_pending)
 	queue_redraw()
 

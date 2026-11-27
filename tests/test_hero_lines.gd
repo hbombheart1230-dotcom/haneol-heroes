@@ -96,8 +96,28 @@ func test_boss_line_waits_for_banner() -> void:
 	banner._t = 5.0
 	v.step(0.016)
 	assert_str(v.text).is_not_equal("네 깃발을 꺾으러 왔다")  # 띠가 흐려지는 끝자락은 더 기다림
+	v.step(v._left + 0.01)  # 떠 있던 들어설 때 줄은 끝까지 보인다 (0.4.3: 새 줄이 덮지 않음)
+	assert_str(v.text).is_not_equal("네 깃발을 꺾으러 왔다")
 	v.step(v.settle_time)
 	assert_str(v.text).is_equal("네 깃발을 꺾으러 왔다")
+
+
+## 0.4.3 (사용자 "대사는 아직 잘 안 보이네"): 떠 있는 줄은 새 줄이 덮지 않고, 다 보인 뒤 settle_time을 다시 기다린다. 3초·44px.
+func test_new_line_waits_for_the_shown_one() -> void:
+	var v := await _run(&"gwanggaeto")
+	_after_title(v)
+	var first := v.text
+	assert_str(first).is_not_empty()
+	assert_float(v.show_time).is_equal_approx(3.0, 0.01)
+	assert_int(v.font_px).is_equal(44)
+	v.queue(HeroLines.Case.BOSS)
+	v.step(v.settle_time + 0.05)
+	assert_str(v.text).is_equal(first)  # 아직 떠 있음 → 기다림
+	v.step(v._left + 0.01)
+	v.step(v.settle_time * 0.5)
+	assert_str(v.text).is_equal(first)  # 끝난 뒤에도 settle_time은 다시 기다림
+	v.step(v.settle_time)
+	assert_str(v.text).is_not_equal(first)
 
 
 func test_defeat_line_sits_above_result_panel() -> void:
