@@ -189,11 +189,11 @@ func is_moving() -> bool:
 	return _running
 
 
-func play_oneshot(anim: String, seconds: float) -> void:
+func play_oneshot(anim: String, seconds: float, from_frame: int = 0) -> void:
 	_oneshot = anim
 	_oneshot_left = seconds
 	_hold_left = 0.0
-	_oneshot_from = 0
+	_oneshot_from = from_frame
 	_oneshot_speed = 1.0
 	_over_hurt = player != null and player.hurt_time_left() > 0.0
 	_over_fx = false
@@ -221,6 +221,10 @@ func current_anim() -> String:
 	if is_moving():
 		return "run"
 	return "idle"
+
+
+func has_anim(anim: String) -> bool:
+	return _sheet != null and _sheet.has_anim(anim)
 
 
 ## 시트에 없는 동작은 비슷한 것으로 대신한다 (AI 3D 모델은 동작이 일부 빠질 수 있다).

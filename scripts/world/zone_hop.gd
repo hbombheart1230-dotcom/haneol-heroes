@@ -121,6 +121,9 @@ func _hop() -> void:
 	p.velocity = Vector2.ZERO
 	_freeze_input(true)
 	var art := p.get_node_or_null("PlayerView") as Node2D
+	var pv := art as PlayerView
+	if pv and pv.has_anim(String(feel.leap_anim)):  # 달려 멀리뛰기 (넘어가는 내내, 내려앉으면 on_land)
+		pv.play_oneshot(String(feel.leap_anim), feel.rise_time + feel.cover_time + feel.land_time, feel.leap_from)
 	var from := p.global_position
 	var to := (rail if rail != Vector2.INF else from) + exit * feel.rise_dist
 	if _tween:

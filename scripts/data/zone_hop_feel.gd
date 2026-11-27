@@ -22,5 +22,9 @@ extends Resource
 @export var land_height: float = 200.0
 ## 구역 이름을 띄우는 시간(초).
 @export var title_time: float = 1.6
+## 뛰어넘는 동작 (영웅 시트에 있으면, Meshy Run_and_Leap: 0~2 도움닫기 · 3~5 뜸 · 6~9 공중 · 10~11 착지). 없으면 지금 자세 그대로.
+@export var leap_anim: StringName = &"jump_leap"
+## 이 칸부터 (도움닫기 끝, 사용자 고른 동작 권장 2~10).
+@export var leap_from: int = 2
 ## 먹 덮기 색.
 @export var cover_color: Color = Color(0.06, 0.05, 0.05, 1.0)
