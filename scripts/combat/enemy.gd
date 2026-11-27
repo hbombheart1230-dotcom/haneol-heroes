@@ -317,6 +317,7 @@ func _on_damaged(_entity: Node, _type: HealthActionType.Enum, _amount: int, _inc
 				_stop_charge()  # 잡몹 돌진은 맞으면 멈춘다 (정예·보스는 그대로 밀고 온다)
 			EnemyHits.on_hit(self, heavy_pending)  # 잡몹 예고 끊김 · 강타 멈춤·넘어짐
 		BossPhases.on_damaged(self)  # 보스 단계 (66%·33%)
+		BossCalls.on_damaged(self)  # 체력 40·25·10%에서 그 전장 대형을 부른다
 		if poise:
 			EnemyHits.on_poise(self, poise.on_damage(applied))
 	Feedback.enemy_hit(global_position, applied, _last_hit_dir, EnemyHits.number_style(applied, heavy_pending),

@@ -86,6 +86,8 @@ melee_count_mult = 1.5
 alive_cap_add = 8
 spawn_stagger = 0.06
 xp_mult = 1.53
+call_formation = ExtResource("f_form")
+call_label = "방아깨비 떼!"
 
 [resource]
 script = ExtResource("1_theme")

@@ -196,6 +196,7 @@ func spawn_at(d: EnemyData, at: Vector2, configure: Callable = Callable(), extra
 
 func _on_killed(en: Enemy) -> void:
 	enemy_killed.emit(en)
+	BossCalls.on_killed(en, self)  # 중간 우두머리 셋 가운데 쓰러지면 대형을 부른다
 	# 분열 변종: 작은 적으로 갈라진다 (변종은 물려받지 않음). 판이 끝났으면(플레이어 사망) 갈라지지 않는다.
 	var over := not active or (target is Player and (target as Player).is_dead())
 	if en.affix and en.affix.split_count > 0 and not over:
