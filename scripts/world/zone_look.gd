@@ -8,8 +8,12 @@ static func apply(arena: Arena, z: ZoneData, st: StageTheme) -> void:
 	if arena == null or z == null or st == null:
 		return
 	var path := z.background_path if z.background_path != "" else st.background_path
+	var look := z.look if z.look else st.look
 	if arena.map and path != "" and ResourceLoader.exists(path):
 		arena.map.texture = load(path) as Texture2D
+		arena.map.grade(st.floor_value, st.floor_saturation, look)  # 배마다 색 입힘 (무대 하나로 입히면 세 배가 같은 빛이 된다)
+		if arena.map.material:
+			(arena.map.material as ShaderMaterial).set_shader_parameter("map_px", arena.map.rect.size)
 		arena.map.queue_redraw()
 	if arena.props:
 		arena.props.visible = z.props
@@ -20,4 +24,4 @@ static func apply(arena: Arena, z: ZoneData, st: StageTheme) -> void:
 			list.append_array(Obstacles.from_props(arena.props.items, st))
 		arena.obstacles.build(list)
 	if arena.lights and arena.map:
-		arena.lights.setup(st.look, arena.map.rect, items, st.prop_textures, st.seed)
+		arena.lights.setup(look, arena.map.rect, items, st.prop_textures, st.seed)

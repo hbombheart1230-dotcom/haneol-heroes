@@ -21,6 +21,8 @@ extends Resource
 @export_group("배 그림")
 ## 이 구역 바닥 그림 (res:// 경로, 비면 무대 그림 그대로). 같은 전장 영역에 놓는다 (StageTheme.background_rect).
 @export var background_path: String = ""
+## 이 배의 바닥 색 입힘·빛 웅덩이 (비면 무대 look 그대로). 배마다 달라 보이게: 한산 중형선 검은 옻칠·연기, 대장선 노을.
+@export var look: StageLook
 ## 무대 소품(대포·통 등)을 이 구역에도 두는지. 다른 배 그림 위에는 끈다 (그림에 갑판 물건이 그려져 있다).
 @export var props: bool = true
 ## 그림에 그려진 막는 것 (x, y, 반지름) — 소품을 끄면 이것만 막는다.

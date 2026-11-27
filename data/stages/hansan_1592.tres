@@ -37,6 +37,8 @@
 [ext_resource type="Texture2D" path="res://assets/props/hansan/geobukseon.png" id="p_geobukseon"]
 
 [ext_resource type="Resource" path="res://data/stages/looks/hansan_1592.tres" id="look"]
+[ext_resource type="Resource" path="res://data/stages/looks/hansan_sekibune.tres" id="look_seki"]
+[ext_resource type="Resource" path="res://data/stages/looks/hansan_atakebune.tres" id="look_atak"]
 [ext_resource type="Script" path="res://scripts/data/wave_data.gd" id="w_wave"]
 [ext_resource type="Script" path="res://scripts/data/wave_set_data.gd" id="w_set"]
 
@@ -119,6 +121,7 @@ prompt = "대장선으로 내닫기"
 background_path = "res://assets/backgrounds/hansan_sekibune.png"
 props = false
 exits = PackedVector2Array(0, -1125)
+look = ExtResource("look_seki")
 
 [sub_resource type="Resource" id="Zone_flag"]
 script = ExtResource("z_script")
@@ -130,6 +133,7 @@ background_path = "res://assets/backgrounds/hansan_atakebune.png"
 props = false
 has_boss_at = true
 boss_at = Vector2(0, -1103)
+look = ExtResource("look_atak")
 
 [resource]
 script = ExtResource("1_theme")
