@@ -202,3 +202,35 @@ func test_every_formation_gives_some_but_less_xp() -> void:
 			for f: FormationData in w.formations:
 				assert_float(f.xp_mult).override_failure_message(id).is_less(1.0)
 				assert_int(roundi(f.member.xp * st.waves.xp_mult * f.xp_mult)).override_failure_message(id).is_greater_equal(1)
+
+
+func test_formation_member_moves_out_of_a_rock_without_rng() -> void:
+	# 대형 구성원 자리가 바위 속이면 그 자리 가까이 빈 곳으로 (생성기 난수를 쓰지 않아 다른 적 등장 자리는 그대로).
+	var sp: EnemySpawner = auto_free(EnemySpawner.new())
+	var rock := Vector3(500, 0, 80)  # x, y, 반지름
+	sp.blocked_check = func(p: Vector2, m: float) -> bool: return p.distance_to(Vector2(rock.x, rock.y)) < rock.z + m
+	var before := sp.rng.state
+	var q: Vector2 = FormationSpawn.free_point(sp, Vector2(500, 0))
+	assert_bool(bool(sp.blocked_check.call(q, sp.spawn_clearance))).is_false()
+	assert_float(q.distance_to(Vector2(500, 0))).is_less_equal(150.0)  # 자리 가까이 (모양 유지)
+	assert_int(sp.rng.state).is_equal(before)
+	assert_vector(FormationSpawn.free_point(sp, Vector2(0, 0))).is_equal(Vector2(0, 0))  # 빈 자리는 그대로
+
+
+func test_member_with_every_spot_blocked_is_not_spawned_and_wave_can_end() -> void:
+	# 둘레가 다 막힌 자리의 구성원은 내지 않는다: 예고·살아 있는 수에 안 남고, 다 빠지면 대형은 곧바로 끝 (물결이 멈추지 않게).
+	var sp: EnemySpawner = auto_free(EnemySpawner.new())
+	add_child(sp)
+	var hero: Node2D = auto_free(Node2D.new())
+	add_child(hero)
+	sp.target = hero
+	sp.blocked_check = func(_p: Vector2, _m: float) -> bool: return true
+	assert_that(FormationSpawn.free_point(sp, Vector2(500, 0))).is_null()
+	var d := _data(FormationData.Shape.RING, 3)
+	d.member = load("res://data/enemies/waegun_gunner.tres")
+	d.form_timeout = 99.0
+	var b := FormationSpawn.spawn(sp, d)
+	assert_int(sp._warnings).is_equal(0)
+	assert_int(sp.alive_count()).is_equal(0)
+	b.tick(0.016)
+	assert_bool(b.is_over()).is_true()

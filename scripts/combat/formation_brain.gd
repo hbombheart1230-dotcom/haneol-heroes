@@ -56,6 +56,11 @@ func join(e: Enemy, slot: int) -> void:
 	_joined += 1
 
 
+## 구성원 하나를 내지 않았다 (자리 둘레가 다 막힘): 온 것으로 세어 모이기를 form_timeout까지 기다리지 않는다. 자리는 비어 있다.
+func skip() -> void:
+	_joined += 1
+
+
 ## 혼자 겨누지 않는다 (대형이 같은 순간 시작).
 func _hold(e: Enemy) -> void:
 	if e.attack:

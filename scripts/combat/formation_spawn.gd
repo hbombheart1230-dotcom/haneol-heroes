@@ -25,7 +25,11 @@ static func spawn(sp: EnemySpawner, d: FormationData) -> FormationBrain:
 	sp.formations.append(b)
 	for i in d.count:
 		var slot := i
-		sp.warn_spawn(d.member, b.slot_point(i), false, i * sp.group_spread, func(e: Enemy) -> void: b.join(e, slot))
+		var at: Variant = free_point(sp, b.slot_point(i))  # 바위·가림막 속 자리면 그 자리 가까이 빈 곳 (모양 유지)
+		if at == null:  # 둘레가 다 막혔다: 이 구성원은 내지 않는다 (바위 속에 서지 않게; 대형은 빈자리로 센다)
+			b.skip()
+			continue
+		sp.warn_spawn(d.member, at, false, i * sp.group_spread, func(e: Enemy) -> void: b.join(e, slot))
 	return b
 
 
@@ -35,6 +39,20 @@ static func _live_anchor(sp: EnemySpawner) -> Vector2:
 		if not sp.formations[i].is_over():
 			return sp.formations[i].anchor
 	return Vector2.INF
+
+
+## p가 장애물(바위·가림막) 속이면 그 둘레를 가까운 고리부터 (30px씩, 8방향) 훑어 첫 빈 자리 (걸을 곳 안).
+## 생성기 난수를 쓰지 않는다 (다시 뽑아도 다른 적 등장 자리가 그대로). 다 막히면 null (그 구성원은 내지 않는다).
+static func free_point(sp: EnemySpawner, p: Vector2) -> Variant:
+	var at := sp.bounded(p)
+	if not sp.blocked_check.is_valid() or not bool(sp.blocked_check.call(at, sp.spawn_clearance)):
+		return at
+	for ring in range(1, 9):
+		for k in 8:
+			var q := sp.bounded(p + Vector2.from_angle(TAU * k / 8.0) * 30.0 * ring)
+			if not bool(sp.blocked_check.call(q, sp.spawn_clearance)):
+				return q
+	return null
 
 
 static func tick_all(sp: EnemySpawner, delta: float) -> void:

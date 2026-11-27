@@ -96,8 +96,8 @@ class Edit:
             sys.exit(f"bundles.upload 실패 {r.status_code}: {_err(r)}")
         return int(r.json()["versionCode"])
 
-    def set_draft(self, track: str, code: int, notes: str, lang: str) -> dict:
-        body = {"track": track, "releases": [{"versionCodes": [str(code)], "status": "draft",
+    def set_draft(self, track: str, code: int, notes: str, lang: str, status: str = "draft") -> dict:
+        body = {"track": track, "releases": [{"versionCodes": [str(code)], "status": status,
                                               "releaseNotes": [{"language": lang, "text": notes}]}]}
         r = requests.put(self.url(f"/tracks/{track}"), headers=self.h, json=body, timeout=60)
         if r.status_code != 200:
@@ -105,8 +105,9 @@ class Edit:
             sys.exit(f"tracks.update 실패 {r.status_code}: {_err(r)}")
         return r.json()
 
-    def commit(self) -> dict:
-        r = requests.post(self.url(":commit"), headers=self.h, params={"changesNotSentForReview": "true"}, timeout=120)
+    def commit(self, send_review: bool = False) -> dict:
+        params = {} if send_review else {"changesNotSentForReview": "true"}
+        r = requests.post(self.url(":commit"), headers=self.h, params=params, timeout=120)
         if r.status_code != 200:
             self.delete()
             sys.exit(f"edits.commit 실패 {r.status_code}: {_err(r)} (편집은 지움, 올라간 것 없음)")
@@ -130,6 +131,8 @@ def main() -> None:
     ap.add_argument("--notes", help="출시 노트 파일 (UTF-8)")
     ap.add_argument("--lang", default="ko-KR")
     ap.add_argument("--commit", action="store_true", help="주지 않으면 편집을 지우고 끝 (아무것도 안 올라감)")
+    ap.add_argument("--release", action="store_true",
+                    help="--commit과 함께: 초안이 아니라 완료(completed)로 두고 검토로 보낸다 (자동 검토 전송 앱은 이것만 받는다)")
     a = ap.parse_args()
     kp = key_path(a.key)
     if not kp.is_file():
@@ -146,13 +149,14 @@ def main() -> None:
             sys.exit(f"출시 노트가 500자를 넘습니다 ({len(notes)})")
         code = edit.upload_bundle(Path(a.aab))
         print(f"[play] 올림: versionCode {code}")
-        print(f"[play] 초안으로 둠: {summarize(edit.set_draft(a.track, code, notes, a.lang))}")
+        status = "completed" if a.release else "draft"
+        print(f"[play] {status}로 둠: {summarize(edit.set_draft(a.track, code, notes, a.lang, status))}")
         if not a.commit:
             print("[play] --commit 없음: 편집을 지움 (아무것도 반영 안 됨)")
             return
-        edit.commit()
+        edit.commit(send_review=a.release)
         edit.id = ""
-        print("[play] 커밋함 (검토 전송 안 함, 콘솔에서 직접 검토 전송)")
+        print("[play] 커밋함 (검토로 보냄: 통과하면 테스터에게 나감)" if a.release else "[play] 커밋함 (검토 전송 안 함, 콘솔에서 직접 검토 전송)")
     finally:
         if edit.id and (a.check or not a.commit):
             edit.delete()
