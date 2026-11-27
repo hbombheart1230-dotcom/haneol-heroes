@@ -7,6 +7,13 @@ const SHADER := preload("res://shaders/enemy_rim.gdshader")
 static var _cache: Dictionary = {}
 
 
+## 맞은 순간 몸 색·테두리 색 (HitReactionData.hit_flash_style, 모든 적이 같다 → 재질 하나에 고정값).
+static func apply_flash_style(m: ShaderMaterial) -> void:
+	var rd := Feedback.feel_data().reaction_data()
+	m.set_shader_parameter("flash_color", rd.flash_body())
+	m.set_shader_parameter("flash_rim", rd.flash_rim())
+
+
 ## rim_color 알파가 0이면 null (셰이더 없이 원래대로). 정예 변종이면 변종 색 테두리 (조금 더 크게).
 static func material_for(d: EnemyData, affix: EliteAffixData = null) -> ShaderMaterial:
 	if d == null or d.rim_color.a <= 0.0:
@@ -29,5 +36,6 @@ static func material_for(d: EnemyData, affix: EliteAffixData = null) -> ShaderMa
 		m.set_shader_parameter("ghost_fade", d.ghost_fade)
 		m.set_shader_parameter("halo_alpha", d.rim_halo)
 		m.set_shader_parameter("ghost_rim_mix", d.ghost_rim_mix)
+		apply_flash_style(m)
 		_cache[key] = m
 	return _cache[key]

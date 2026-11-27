@@ -3,6 +3,10 @@ extends RefCounted
 ## 적 스프라이트 만들기·고르기·색 (enemy.gd가 400줄을 넘지 않게 나눔).
 
 
+## modulate 알파에 번쩍임 양을 싣는 밑값 (셰이더 enemy_rim·enemy_live의 vertex가 1.5 이상이면 번쩍임으로 푼다).
+const FLASH_BASE := 2.0
+
+
 static func setup(e: Enemy) -> AnimatedSprite2D:
 	var s := AnimatedSprite2D.new()
 	s.sprite_frames = e.data.sprite_sheet.shared_sprite_frames()
@@ -131,12 +135,6 @@ static func pose(e: Enemy, shake_px: float) -> void:
 	var lift := (e.brain.hop_lift() if e.brain else 0.0) + (r.down_lift() if r else 0.0)
 	e.sprite.position = off + (r.lean_offset() if r else Vector2.ZERO) + Vector2(shake_px + windup_shake(e), -lift)
 	e.sprite.modulate = flash_color(e)
-	if e.sprite.material:
-		var feel := Feedback.feel_data()
-		e.sprite.set_instance_shader_parameter(&"flash", r.flash_amount(e.flash_left(), feel.flash_time, feel.flash_peak_time) if r else 0.0)
-		if r:
-			e.sprite.set_instance_shader_parameter(&"flash_color", r.data.flash_body())
-			e.sprite.set_instance_shader_parameter(&"flash_rim", r.data.flash_rim())
 
 
 ## 피격 번쩍임 > 곧 친다는 번쩍임 > 원래 색. 매복 중이면 흐릿하게.
@@ -146,7 +144,13 @@ static func flash_color(e: Enemy) -> Color:
 	var f := e.flash_left()
 	var c := base
 	if f > 0.0 and e.sprite and e.sprite.material:
-		pass  # 셰이더가 흰색을 섞는다 (pose). 곱하기 밝기는 어두운 그림을 하얗게 못 만든다
+		# 셰이더가 번쩍임 색을 섞는다. 양은 modulate 알파에 (FLASH_BASE + 양) — 적마다 다른 값을 재질·instance uniform 없이 넘긴다.
+		# 곱하기 밝기는 어두운 그림을 하얗게 못 만든다
+		var r := e.reaction
+		var amount := r.flash_amount(f, feel.flash_time, feel.flash_peak_time) if r else 0.0
+		if amount > 0.0:
+			c.a = FLASH_BASE + amount
+			return c
 	elif f > 0.0:
 		var v := 2.6 if f > feel.flash_time - feel.flash_peak_time else 1.8
 		c = Color(v, v, v)

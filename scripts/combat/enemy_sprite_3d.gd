@@ -91,6 +91,7 @@ static func material_for(d: EnemyData, l: Live3DHeroData, affix: EliteAffixData)
 	m.set_shader_parameter("ghost_fade", d.ghost_fade)
 	m.set_shader_parameter("halo_alpha", d.rim_halo)
 	m.set_shader_parameter("ghost_rim_mix", d.ghost_rim_mix)
+	EnemyLook.apply_flash_style(m)
 	return m
 
 
