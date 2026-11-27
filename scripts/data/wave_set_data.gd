@@ -42,4 +42,7 @@ extends Resource
 @export var mid_calls: int = 2
 ## 부를 때 우두머리 머리 위 외침 (비면 없음).
 @export var call_label: String = ""
+## 부를 자리가 없을 때 (동시 상한·처치 연출·강화 고르기·단계 전환 무적) 다시 볼 간격(초)과 횟수.
+@export var call_retry: float = 1.0
+@export var call_tries: int = 6
 
