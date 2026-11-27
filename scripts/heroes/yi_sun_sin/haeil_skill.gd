@@ -10,6 +10,13 @@ extends SkillDef
 ## 많이 모을수록 빠르게 (사용자 2026-11-27 "커진 만큼 빨리 지나가게"): 빠르기 = speed × (크기 / 바로 놓은 크기)^이 값.
 ## 0이면 예전처럼 늘 speed. 가는 거리·판정·피해는 그대로 (수명이 같은 비율로 준다) — 지나가는 시간만 짧아진다.
 @export var speed_size_power: float = 0.0
+## 강화 패(큰 해일)·모습 단계로 커진 만큼도 빠르게 (사용자 정정 2026-11-27 "패를 먹어서 커졌을 때"): 빠르기에 더 곱하는
+## (지금 크기 / 패 없을 때 같은 충전의 크기)^이 값 (1보다 작으면 1). 패 없을 때 크기 = ref_min_scale~ref_max_scale
+## (데이터 min/max_scale × 모습 단계 0 배율, 패·단계가 건드리지 않는 값). 모으기 쪽 배율도 이 패 없는 크기로 잰다 (겹쳐 세지 않게).
+## 0이면 끔. 값이 클수록 커진 만큼 더 빨라진다 (0.6 ≈ 지나가는 시간이 패 없을 때와 비슷). 거리·판정·피해는 그대로.
+@export var grown_speed_power: float = 0.0
+@export var ref_min_scale: float = 0.0
+@export var ref_max_scale: float = 0.0
 @export var lifetime: float = 1.1
 ## 0보다 크면 물결이 쏜 자리에서 이만큼(px) 넘게 가고, 꼬리(뒤 날·잔상)까지 그 너머로 빠져나간 뒤 사라진다
 ## (사용자 53582c6 "끝까지 용꼬리가 빠져나가게, 지금은 중간에 뚝 사라져 버려": 예전엔 수명 1.1초 × 모은 만큼으로
@@ -97,10 +104,20 @@ func wave_lifetime(c: float) -> float:
 
 ## 충전 c에서 물결 빠르기(px/초): 커진 만큼 빠르게 (speed_size_power).
 func speed_at(c: float) -> float:
-	if speed_size_power == 0.0:
-		return speed
-	var s0 := size_at(0.0)
-	return speed * pow(size_at(c) / maxf(s0, 0.01), speed_size_power)
+	var v := speed
+	var has_ref := ref_min_scale > 0.0 and ref_max_scale > 0.0
+	if speed_size_power != 0.0:  # 모은 만큼 (패 없는 크기로 재면 패가 키운 몫과 겹치지 않는다)
+		var lo := ref_size_at(0.0) if has_ref else size_at(0.0)
+		var hi := ref_size_at(c) if has_ref else size_at(c)
+		v *= pow(hi / maxf(lo, 0.01), speed_size_power)
+	if grown_speed_power != 0.0 and has_ref:  # 패·단계로 커진 만큼
+		v *= pow(maxf(size_at(c) / maxf(ref_size_at(c), 0.01), 1.0), grown_speed_power)
+	return v
+
+
+## 패 없을 때(모습 단계 0) 충전 c의 크기.
+func ref_size_at(c: float) -> float:
+	return charge_scaling.between(ref_min_scale, ref_max_scale, c) if charge_scaling else lerpf(ref_min_scale, ref_max_scale, c)
 
 
 func aim_length(c: float) -> float:
