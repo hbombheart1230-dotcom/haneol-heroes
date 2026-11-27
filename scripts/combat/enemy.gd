@@ -156,6 +156,7 @@ func _ready() -> void:
 		move_speed = data.move_speed
 		contact_damage = data.contact_damage
 		body_radius = data.body_radius
+		size_mult *= ai_data().boss_size_mult if data.is_boss else (ai_data().mid_boss_size_mult if data.boss_feel else 1.0)  # 우두머리 크게
 		move_speed *= speed_mult * (affix.speed_mult if affix else 1.0)
 		health.max = maxi(roundi(data.max_hp * hp_mult * (affix.hp_mult if affix else 1.0)), 1)
 		health.current = health.max
