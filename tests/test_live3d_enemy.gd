@@ -105,3 +105,14 @@ func _enemy(path: String, live: bool) -> Enemy:
 	add_child(auto_free(e))
 	ProjectSettings.set_setting(Switch.SETTING, was)
 	return e
+
+
+## 적 셰이더의 varying은 vertex()에서 쓰기 전에 선언 (헤드리스는 셰이더를 컴파일하지 않아 'Unknown identifier'를 못 잡는다 — 실시간 3D 적이 셰이더 없이 그려지던 것).
+func test_enemy_shader_varyings_are_declared_before_use() -> void:
+	for path in ["res://shaders/enemy_live.gdshader", "res://shaders/enemy_rim.gdshader"]:
+		var src := FileAccess.get_file_as_string(path)
+		var re := RegEx.create_from_string(r"varying\s+\w+\s+(\w+)\s*;")
+		for m in re.search_all(src):
+			var name := m.get_string(1)
+			var decl := m.get_start()
+			assert_int(src.find(name)).override_failure_message("%s: %s used before its varying" % [path, name]).is_greater_equal(decl)  # 처음 나오는 곳이 선언 줄 앞이면 실패
