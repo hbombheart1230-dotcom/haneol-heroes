@@ -83,7 +83,7 @@ func _stage_score(id: String, with_formations: bool = false) -> int:
 		for e: EnemyData in list:
 			n += roundi(e.xp * w.xp_mult)
 		for f: FormationData in (wave.formations if with_formations else []):  # 대형 구성원도 처치 점수를 준다 (× FormationData.xp_mult)
-			n += f.count * roundi(f.member.xp * w.xp_mult * f.xp_mult)
+			n += roundi(f.count * f.member.xp * w.xp_mult * f.xp_mult)  # 대형은 소수로 쌓인다 (ScoreFeed)
 	return n
 
 
