@@ -17,6 +17,8 @@ const BOSSES := {
 	"gyeongbok": "res://data/enemies/jurchen_chieftain.tres",
 	"chochung": "res://data/enemies/cc_frog.tres",
 }
+## 우두머리 → 그 무대 (원정 조합도 그 무대 물결로 자란 영웅으로 잰다: 실제 원정 판과 같게).
+const BOSS_STAGE := {"hansan": "hansan_1592", "manchuria": "manchuria_395", "gyeongbok": "gyeongbokgung_1433", "chochung": "chochungdo"}
 ## 영웅, 붙는 거리, 탭 거리 (원거리 세종은 멀리 서서 쏜다).
 const HEROES := {
 	"yi_sun_sin": [90.0, 170.0],
@@ -47,7 +49,7 @@ static func boss_for(boss_path: String, hero: HeroData, tier: int = 0) -> EnemyD
 func _run(boss: String, hero: String, s: int, miss: float, tier: int = 0) -> Dictionary:
 	var c: Array = HEROES[hero]
 	var path := "res://data/heroes/%s.tres" % hero
-	var grown: Array = await GrownHeroes.take(self, hero, s, GrownHeroes.At.BOSS)  # 자기 무대 물결을 거쳐 성장한 영웅
+	var grown: Array = await GrownHeroes.take(self, hero, s, GrownHeroes.At.BOSS, BOSS_STAGE[boss])  # 그 무대 물결을 거쳐 성장한 영웅
 	var sim := BossSim.new(self)
 	sim.use_hero(path, c[0], c[1])
 	sim.hero_override = grown[0]

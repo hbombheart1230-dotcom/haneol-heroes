@@ -278,7 +278,7 @@ func _stage_trio(id: String, group: Array) -> void:
 		var hurt: Array = []
 		for s in seeds:
 			for miss in ([0.0, 0.3] if slow else [0.0]):
-				var r := await _trio(group, hero, c, s, miss)
+				var r := await _trio(group, hero, c, s, miss, id)
 				print(BossSim.line("trio %s %s seed %d %s" % [id, hero, s, "dodge" if miss == 0.0 else "sloppy"], r))
 				if miss > 0.0:
 					hurt.append(r["damage"])
@@ -303,8 +303,8 @@ const HERO_REACH := {"yi_sun_sin": [90.0, 170.0], "gwanggaeto": [110.0, 200.0], 
 	"shin_saimdang": [150.0, 240.0]}
 
 
-func _trio(group: Array, hero: String, c: Array, s: int, miss: float) -> Dictionary:
-	var grown: Array = await GrownHeroes.take(self, hero, s, GrownHeroes.At.MID)
+func _trio(group: Array, hero: String, c: Array, s: int, miss: float, stage_id: String = "") -> Dictionary:
+	var grown: Array = await GrownHeroes.take(self, hero, s, GrownHeroes.At.MID, stage_id)  # 그 무대 3물결까지 성장
 	var h: HeroData = grown[0]
 	var sim := BossSim.new(self)
 	sim.use_hero("res://data/heroes/%s.tres" % hero, c[0], c[1])
