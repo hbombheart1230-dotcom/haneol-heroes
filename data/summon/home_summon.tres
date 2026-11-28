@@ -31,5 +31,18 @@ damage_scale = 8.3
 
 [resource]
 script = ExtResource("1_data")
+charges_start = 1
+charges_boss = 0
+charges_max = 1
+recharge_time = 60.0
+hint_text = "%s 부르기 · 누르면 같이 싸운다"
+hint_more_text = "%s 부르기 다시 찼다"
+; 같이 싸우기 시안 D (사용자 2026-11-27 "같이싸우기 d"): 10초, 우두머리·중간 우두머리가 있으면 그쪽·없으면 곁 지키기, 나올 때 기술 한 번, 내달려 물러감
+ally_time = 10.0
+ally_focus = &"guard_boss"
+ally_exit = &"dash"
+ally_skill_times = PackedFloat32Array(0)
+ally_hit_scale = 0.3
+ally_skill_scale = 0.2
 ; 순신 해일검기 · 광개토 낙뢰 · 세종 성좌진 · 사임당 화폭 펼치기 (모두 모으기 칸, 다 모은 세기)
 entries = Array[ExtResource("2_entry")]([SubResource("e_yi"), SubResource("e_gw"), SubResource("e_sj"), SubResource("e_ss")])

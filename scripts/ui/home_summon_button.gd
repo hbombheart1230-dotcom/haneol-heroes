@@ -1,8 +1,8 @@
 class_name HomeSummonButton
 extends Control
 ## 주인 영웅 부르기 단추 (원정 전장에서만, HomeSummonData): 오른쪽 아래 기술 표시 줄 왼쪽 둥근 초상 단추 (그 전장 주인 영웅 얼굴).
-## 누르면 주인 영웅 컷인 + 대사(HeroLines.Case.SUMMON, 이야기 켬일 때) + 그 영웅의 큰 기술 한 번 (HomeSummonCast).
-## 남은 횟수는 초상 오른쪽 아래 도장. 다 쓰면 어둡게. 처음 보일 때와 우두머리 때 단추 위 한 줄 안내.
+## 누르면 주인 영웅이 나타나 같이 싸운다 (AllyHero: 컷인 + 대사 HeroLines.Case.SUMMON + 부르기 기술 + 연타).
+## 충전은 시간으로 (HomeSummonRules.tick): 테두리 고리가 차오르고, 다 차면 번쩍임·소리·한 줄 안내. 쓸 수 없으면 어둡게.
 ## 숨김: 판 중이 아님, 영웅 고르기, 패 고르기(BATTLE_TEXT), 조작 안내 중.
 
 signal summoned(home: HeroData)
@@ -18,7 +18,7 @@ var _press_index := -1
 var _press_pos := Vector2.ZERO
 var _press_time := 0.0
 var _begun := false
-var _runs: Array[SkillRun] = []
+var ally: AllyHero
 var _flash := 0.0
 var _circle_pts := PackedVector2Array()
 var _circle_uvs := PackedVector2Array()
@@ -106,19 +106,14 @@ func handle_drag(index: int, pos: Vector2) -> bool:
 	return true
 
 
-## 주인 영웅을 부른다 (횟수가 남았으면). 기술이 나갔으면 true.
+## 주인 영웅을 부른다 (찼으면, 이미 와 있지 않으면). 나타났으면 true.
 func summon() -> bool:
-	if not shown() or not rules.can_use():
+	if not shown() or not rules.can_use() or (ally and is_instance_valid(ally) and ally.active()):
 		return false
-	var caster := main.player.get_node_or_null("SkillCaster") as SkillCaster
-	var foe := HomeSummonCast.target_of(caster)  # 겨눌 적의 체력 배율로 (중간 우두머리·졸병이면 그 적 것)
-	var k := rules.damage_scale_for(foe.data if foe else null)
-	var run := HomeSummonCast.cast(caster, rules.home, rules.skill(), data.charge, k)
-	if run == null:
+	ally = AllyHero.spawn(main, rules)
+	if ally == null:
 		return false
 	rules.use()
-	if not run.finished:
-		_runs.append(run)
 	_flash = 0.35
 	_hint_left = 0.0
 	var hl := HeroLines.for_hero(rules.home.id)
@@ -164,11 +159,15 @@ func _to_local(p: Vector2) -> Vector2:
 	return get_global_transform_with_canvas().affine_inverse() * p
 
 
-## 진행 중인 기술 (부른 기술은 판이 멈추면 같이 멈춘다).
+## 시간으로 채우기: 판이 흐르는 동안만 (패 고르기·조작 안내·멈춤 동안은 멈춘다).
 func _physics_process(delta: float) -> void:
-	for r in _runs.duplicate():
-		if r.tick(delta):
-			_runs.erase(r)
+	if not shown() or get_tree().paused:
+		return
+	if rules.tick(delta):  # 다 찼다: 번쩍임·소리·한 줄 안내
+		_flash = 0.35
+		_say_hint(data.hint_more_text)
+		if Feedback.instance:
+			Feedback.instance.play(&"confirm_kill", 0.1)
 
 
 func _process(delta: float) -> void:
@@ -193,6 +192,8 @@ func _draw() -> void:
 	draw_circle(c, (r + HomeSummonData.RIM) * s, UiStyle.LACQUER)
 	_draw_face(c, r * s, ok)
 	draw_arc(c, (r + HomeSummonData.RIM) * s, 0.0, TAU, 48, UiStyle.GOLD if ok else UiStyle.GOLD_DIM, 3.0 if ok else 2.0)
+	if not ok and rules.fill() > 0.0:  # 차오르는 고리 (위에서 시계 방향)
+		draw_arc(c, (r + HomeSummonData.RIM) * s, -PI * 0.5, -PI * 0.5 + TAU * rules.fill(), 48, UiStyle.GOLD, 4.0)
 	var st := c + Vector2(r * 0.72, r * 0.72) * s  # 남은 횟수 도장
 	draw_circle(st, 17.0, UiStyle.GOLD if ok else UiStyle.GOLD_DIM)
 	draw_circle(st, 14.5, Color(0.66, 0.12, 0.1) if ok else Color(0.3, 0.25, 0.22))
