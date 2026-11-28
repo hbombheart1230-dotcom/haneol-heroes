@@ -95,6 +95,28 @@ godot --headless --path . -s -d --remote-debug tcp://127.0.0.1:0 res://addons/gd
 
 종료 코드 0이면 전체 통과. 결과는 `reports/`에 생성된다.
 
+#### 층으로 고르고 나눠 돌리기 (`tools/test/parallel_gdunit.py`)
+
+전체 시험이 길다 (한 줄로 돌리면 약 33분, 컴퓨터가 바쁘면 더). 고친 것에 맞게 층을 고르고 Godot 프로세스 여러 개로 나눠 돌린다.
+
+```
+python tools/test/parallel_gdunit.py --tier <fast|related|sim|full> --shards 4 --godot <Godot 콘솔 exe>
+```
+
+| 층 | 언제 | 무엇 |
+|---|---|---|
+| `fast` | 그림·글·UI·조작 안내 | `tools/test/tiers.json`의 fast (약 2분) |
+| `related` | 보통 고침 | 바뀐 파일(git diff `--base` 이후 + 커밋 전) 이름·`class_name`이 나오는 스위트 + fast |
+| `sim` | 전투 수치·적 행동 | related + 느린 시뮬 묶음 (`HH_SLOW`·`*_sim`) |
+| `full` | 베타·출시 후보 | 전부 |
+
+- 새 스위트를 더하면 `tools/test/tiers.json`의 알맞은 층에 이름을 적는다 (없는 이름은 `tools/test/test_gdunit_lock.py`가 잡는다). 시간표 `tools/test/suite_times.json`은 `--update-times`로 갱신 (full, 실패 없을 때).
+- 규칙: `build/gdunit.lock` 하나를 전체가 쥔다 — 잠겨 있으면 멈춘다 (`--wait-minutes N`이면 기다림). 한 번에 하나만 만들고 자기 pid 잠금만 지우며, 부모 셸이 죽거나 `build/gdunit.stop` 파일이 생기면 모든 조각의 Godot를 나무째 끝낸다.
+- 조각마다 `APPDATA`를 따로 써 `user://` 파일이 겹치지 않는다. 결과는 `--out`(기본 `build/parallel_gdunit`)의 `shard_N/log.txt`, 합친 요약은 화면, 결정적 시뮬 줄은 `sim_lines.txt`.
+- 알려진 순서 의존: `test_difficulty`와 `test_upgrade_readout`가 한 프로세스에서 `test_sejong_saimdang`보다 앞에 함께 돌면 meteor·canvas 시험이 1 HP 어긋난다(혼자 돌리면 통과, 원인 미상 — 0.4.3). `tiers.json`의 `separate`가 둘을 다른 조각에 둔다. 시험끼리 새는 전역 상태는 조각 실행에서 먼저 드러난다.
+- `--dry-run`: 고른 스위트와 나누기만 본다. 도구 시험: `python -m unittest tools/test/test_gdunit_lock.py`.
+
+
 ### 플레이스토어 빌드 (AAB)
 
 1. 한 번만: `%APPDATA%\Godot\export_templates\4.7.2.stable\android_source.zip`을 `android/build/`에 풀고, `android/.build_version`에 `4.7.2.stable`을 적고, `android/build/.gdignore`를 만든다 (`android/`는 용량이 커서 깃에서 제외).
